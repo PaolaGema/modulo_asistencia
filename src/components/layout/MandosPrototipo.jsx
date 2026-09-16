@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { FlaskConical } from 'lucide-react'
-import { PROPUESTAS } from '../../pages/personas/ColaboradorNuevo'
 
 /* LOS MANDOS DEL PROTOTIPO, EN LA BARRA DE LA APLICACIÓN.
    Los dos interruptores con los que se enseña la ficha de alta —qué propuesta se recorre y
@@ -17,27 +16,21 @@ import { PROPUESTAS } from '../../pages/personas/ColaboradorNuevo'
    mismo que antes con más aire del que tenía. El matraz no es adorno: dice «esto es un
    experimento» sin escribirlo, y lo separa de los controles de verdad que lo rodean.
 
-   EL NÚMERO SE QUEDA FUERA, pegado al icono. Es lo único que hace falta saber sin abrir nada
-   —cuál de las tres propuestas se está mirando— y es justo lo que se pregunta quien entra a la
-   reunión cinco minutos tarde.
+   YA NO ELIGE ENTRE PROPUESTAS. Eran dos interruptores —qué propuesta se recorre y cuántos
+   campos se piden— hasta que el equipo eligió el riel con acordeones. Se fue el primero y con él
+   el número que asomaba fuera del icono; queda el segundo, que no era una comparación sino una
+   forma de enseñar la misma ficha con más o menos exigencia.
 
    ESTO ES ANDAMIO Y SE BORRA. No es una función del producto: es la comparación entre varios
    diseños de la misma pantalla, para que un equipo elija uno. El día que lo hagan, se borra este
    archivo entero y su línea en `EncabezadoPropuesta`. Por eso vive aparte y no mezclado con el
    resto de la barra — sacarlo tiene que ser quitar dos cosas, no desenredarlo de otras cinco.
 
-   NO RECIBE NI GUARDA ESTADO. `vista` y `nivel` viven en la dirección desde el primer día
-   —`?vista=pestanas&nivel=Mínimo` se puede enlazar y mandar por chat— así que acá se leen y se
-   escriben igual que los lee la pantalla. Sin contexto, sin props que atraviesen el armazón, y
+   NO RECIBE NI GUARDA ESTADO. El `nivel` vive en la dirección desde el primer día —`?nivel=Mínimo`
+   se puede enlazar y mandar por chat— así que acá se lee y se escribe igual que lo lee la pantalla. Sin contexto, sin props que atraviesen el armazón, y
    sin un segundo sitio donde el valor pueda quedar desfasado. */
 
 const RUTA = '/personas/colaboradores/nuevo'
-
-/* LA LISTA NO SE ESCRIBE ACÁ: sale de la pantalla que las dibuja. Estuvo copiada un rato y la
-   copia duró exactamente hasta que apareció una tercera propuesta — que es lo que siempre pasa
-   con dos listas de lo mismo. Y la flecha apunta en el sentido correcto: lo temporal depende de
-   lo permanente, así que el día que se borre este archivo la pantalla no se entera. */
-const VISTAS = Object.entries(PROPUESTAS).map(([v, o]) => ({ v, ...o }))
 
 const NIVELES = [
   { key: 'Mínimo', label: 'Mínimo legal', pista: 'Sin esto no se puede declarar a nadie' },
@@ -75,22 +68,17 @@ export default function MandosPrototipo() {
      mismos. */
   if (pathname !== RUTA) return null
 
-  const pedida = params.get('vista')
-  const vista = PROPUESTAS[pedida] ? pedida : 'riel'
   const pedido = params.get('nivel')
-  const nivel = NIVELES.some(n => n.key === pedido) ? pedido : 'Operativo'
-  const propuesta = PROPUESTAS[vista]
+  const nivel = NIVELES.some(n => n.key === pedido) ? pedido : 'Completo'
 
-  /* LOS VALORES POR DEFECTO NO SE ESCRIBEN, que es la convención que ya usa la pantalla: la
-     dirección limpia es la del riel en nivel operativo, y así un enlace compartido no arrastra
-     parámetros que no dicen nada. El paso se conserva: cambiar de propuesta no puede sacarte del
-     paso 6 al 1. */
-  const ir = (otraVista, otroNivel) => {
+  /* EL VALOR POR DEFECTO NO SE ESCRIBE, que es la convención que ya usa la pantalla: la dirección
+     limpia es la de la ficha completa, y así un enlace compartido no arrastra parámetros que no
+     dicen nada. El paso se conserva: cambiar de nivel no puede sacarte del paso 6 al 1. */
+  const ir = otroNivel => {
     const q = {}
     const paso = params.get('paso')
     if (paso) q.paso = paso
-    if (otraVista !== 'riel') q.vista = otraVista
-    if (otroNivel !== 'Operativo') q.nivel = otroNivel
+    if (otroNivel !== 'Completo') q.nivel = otroNivel
     setParams(q)
   }
 
@@ -102,37 +90,20 @@ export default function MandosPrototipo() {
         onClick={() => setAbierto(a => !a)}
         aria-expanded={abierto}
         aria-haspopup="dialog"
-        title={`Prototipo · Propuesta ${propuesta.n}: ${propuesta.t} · nivel ${nivel}`}
+        title={`Prototipo · nivel ${nivel}`}
       >
         <FlaskConical size={15} />
-        <b>{propuesta.n}</b>
       </button>
 
       {abierto && (
         <div className="mp-tarjeta" role="dialog" aria-label="Mandos del prototipo">
           <p className="mp-cab">
             Prototipo
-            <span>Esto no es parte del producto: se borra cuando el equipo elija una.</span>
+            <span>Esto no es parte del producto: enseña la misma ficha con más o menos exigencia.</span>
           </p>
 
-          <span className="mp-et">Cómo se recorre la ficha</span>
-          <div className="mp-lista" role="group" aria-label="Cómo se recorre la ficha">
-            {VISTAS.map(o => (
-              <button
-                key={o.v}
-                type="button"
-                className={`mp-op${vista === o.v ? ' on' : ''}`}
-                aria-pressed={vista === o.v}
-                onClick={() => ir(o.v, nivel)}
-              >
-                <b>{o.n}</b>
-                <span>{o.t}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* El nivel es el otro interruptor del estudio y hace falta tanto como el primero:
-              doscientos cuarenta y nueve campos de golpe no se le enseñan a nadie. Mínimo ⊂
+          {/* El nivel es el interruptor que trae el propio estudio, y hace falta: doscientos
+              cuarenta y nueve campos de golpe no se le enseñan a nadie. Mínimo ⊂
               Operativo ⊂ Completo —el corte es del propio estudio—, así que bajar de nivel no
               esconde nada arbitrario: deja lo que sin ello no se puede declarar. */}
           <span className="mp-et">Cuántos campos se piden</span>
@@ -143,7 +114,7 @@ export default function MandosPrototipo() {
                 type="button"
                 className={`mp-op${nivel === n.key ? ' on' : ''}`}
                 aria-pressed={nivel === n.key}
-                onClick={() => ir(vista, n.key)}
+                onClick={() => ir(n.key)}
               >
                 <span>{n.label}</span>
                 {/* La pista sale del `title` y pasa a la vista: acá hay sitio, y de las tres

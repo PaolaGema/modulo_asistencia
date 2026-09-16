@@ -9149,104 +9149,7 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 @media (max-width: 760px) {
 }
 
-/* ── PROPUESTA 2 · la tira de pestañas ──
-   Va dentro de un canal hundido para que se lea como un grupo y no como nueve botones sueltos,
-   igual que los filtros de las tablas. Se arrastra de lado cuando no caben las nueve: partirlas
-   en dos renglones hace que la fila de abajo parezca otra cosa. */
-.pp-tira {
-  display: flex;
-  gap: 3px;
-  padding: 4px;
-  border-radius: 12px;
-  /* `--bg-canal` y no `--bg-secondary`: aquél es para hundirse dentro de una tarjeta blanca y
-     acá abajo no hay ninguna, así que quedaba a un punto del fondo de la página y la banda no
-     se veía. La sombra interior hace el resto: una banda del mismo tono que el fondo pero un
-     poco más oscura se lee como un plano de atrás recién cuando algo indica que está hundida. */
-  background: var(--bg-canal);
-  box-shadow: inset 0 1px 2px rgba(12,45,64,.08);
-  /* LAS NUEVE EN UNA FILA, Y SI NO CABEN SE PARTEN ANTES QUE ESCONDERSE. Con los títulos
-     completos sumaban unos 1150 px y en un portátil de 1366 dos caían a un segundo renglón; con
-     los rótulos cortos bajan a unos 880 y entran de una a partir de 1280. El `wrap` se queda
-     igual, de red: por debajo de eso, dos filas se siguen viendo enteras, y una pestaña que no
-     se ve es una pestaña que no existe —justo la novena, que es a la que hay que llegar para
-     crear la ficha—. Arrastrar la tira sería peor: esconde sin avisar. */
-  flex-wrap: wrap;
-}
-.pp-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  /* LAS NUEVE TIENEN QUE ENTRAR DE UNA. Estirándose a partes iguales y a 12.5 px, la novena
-     —«Vista previa»— caía
-     fuera del borde derecho y había que arrastrar la tira para descubrir que existía: una
-     pestaña que no se ve es una pestaña que no está. Media letra menos y dos píxeles menos de
-     aire por lado hacen que las nueve quepan enteras a partir de 1280 px; por debajo, la tira se
-     arrastra, que ahí sí es la respuesta correcta. */
-  flex: 1 1 auto;
-  justify-content: center;
-  padding: 9px 10px;
-  border: none;
-  border-radius: 9px;
-  background: transparent;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background .12s, color .12s;
-}
-.pp-tab:hover { color: var(--text-heading); background: var(--surface-hover); }
-
-/* EL DISCO DEL NÚMERO ES EL MEDIDOR, igual que en el riel. Una sola forma para el mismo dato en
-   las dos navegaciones: cambiar de una a la otra no obliga a reaprender nada.
-
-   LOS COLORES DEL ARO SON DOS VARIABLES y no valores fijos porque la pastilla tiene cuatro
-   fondos —normal, con el ratón encima, puesta en claro (navy) y puesta en oscuro (verde)— y en
-   la última el relleno verde del aro desaparecería contra su propio fondo. Parametrizados, cada
-   estado dice con qué se dibuja sin repetir la regla entera. */
-.pp-aro {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 19px;
-  height: 19px;
-  flex-shrink: 0;
-}
-.pp-arco {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(
-    var(--relleno, var(--green)) 0 var(--pct, 0%),
-    var(--canal, var(--border-dark)) var(--pct, 0%) 100%
-  );
-  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 2.5px), #000 calc(100% - 2.4px));
-  mask: radial-gradient(farthest-side, #0000 calc(100% - 2.5px), #000 calc(100% - 2.4px));
-}
-.pp-aro b { position: relative; z-index: 1; font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.pp-tab.on .pp-arco { --canal: rgba(255,255,255,.3); }
-/* En oscuro la pastilla puesta ES verde, así que el relleno del aro pasa al navy del fondo: un
-   arco verde sobre verde no se ve. */
-.dark .pp-tab.on .pp-arco { --relleno: var(--navy-dark); --canal: rgba(0,0,0,.28); }
-.pp-tab.on { background: var(--navy); color: #fff; }
-.dark .pp-tira { box-shadow: inset 0 1px 3px rgba(0,0,0,.45); }
-.dark .pp-tab.on { background: var(--green); color: var(--navy-dark); }
-
-.pp-ojo { flex-shrink: 0; }
-.pp-previa { flex: 0 0 auto; }
-
-.pp-punto {
-  width: 6px;
-  height: 6px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--red);
-}
-.pp-tab.on .pp-punto { background: #ff9ea0; }
-
-/* ── PROPUESTA 2 · los acordeones ──
+/* ── LOS ACORDEONES DE LA FICHA ──
    Cabecera azul de la marca, como el formulario que el equipo ya conoce: la sección se lee como
    una banda y no como otra tarjeta más entre tarjetas. Plegada es solo la banda; abierta, la
    banda pierde las esquinas de abajo y se pega a sus campos, que es lo que dice a qué pertenece
@@ -9375,12 +9278,6 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 
 .ac-cuerpo { padding: 18px 20px 20px; }
 .ac-desc { margin: 0 0 16px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
-
-@media (max-width: 900px) {
-  /* Nueve pestañas repartidas a partes iguales no entran: dejan de estirarse y la tira se
-     arrastra, que es lo que ya hace el riel acostado. */
-  .pp-tab { font-size: 12px; padding: 9px 12px; }
-}
 
 /* El rótulo que parte una tarjeta por dentro. Hay secciones del estudio con veinte campos que
    son tres cosas distintas —el cónyuge, los hijos, los herederos— y sin una línea que las

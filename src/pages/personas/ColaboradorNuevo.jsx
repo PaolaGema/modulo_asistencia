@@ -11,7 +11,6 @@ import {
 } from '../../data/fichaColaborador'
 import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
 import RielPasos from '../../components/personas/RielPasos'
-import PestanasPasos from '../../components/personas/PestanasPasos'
 import Acordeon from '../../components/personas/Acordeon'
 import TarjetaReingreso from '../../components/personas/TarjetaReingreso'
 
@@ -36,29 +35,20 @@ import TarjetaReingreso from '../../components/personas/TarjetaReingreso'
 
 const LLAVE_BORRADOR = 'colaboradorBorrador'
 
-/* ── LAS PROPUESTAS, COMO DOS EJES Y NO COMO TRES PANTALLAS ────────────────
-   Lo que se está comparando no son tres diseños sueltos: son dos decisiones independientes que
-   se pueden combinar.
+/* ── LA FICHA SE RECORRE CON RIEL Y ACORDEONES ────────────────────────────
+   Durante un tiempo esta pantalla fue tres pantallas a la vez. No eran tres diseños sueltos
+   sino dos decisiones que se combinaban —riel al costado contra pestañas arriba, campos de
+   corrido contra acordeones— y se enseñaban juntas para que el equipo eligiera una.
 
-     CÓMO SE NAVEGA — un riel al costado, que enseña los nueve pasos con su pista y deja ver de
-     un vistazo dónde están los huecos, contra una tira de pestañas arriba, que le devuelve al
-     formulario el ancho entero.
+   ELIGIERON: riel y acordeones. El riel tiene los nueve pasos siempre a la vista con su pista
+   debajo, así que se sabe en todo momento dónde se está y qué falta; los acordeones dejan leer
+   el paso primero como índice —qué secciones tiene y cuántos campos lleva cada una— y después
+   como formulario, que es lo que evita que un paso de cuarenta campos sea una pared.
 
-     CÓMO SE LEEN LOS CAMPOS — de corrido, con todas las tarjetas del paso abiertas, contra
-     acordeones, que resumen el paso como índice y piden un clic para entrar en cada sección.
-
-   Escrito así, la tercera propuesta no es una pantalla nueva: es una casilla más de la tabla,
-   y sale de combinar dos piezas que ya existen. Como tres ramas copiadas, en cambio, cualquier
-   arreglo habría que hacerlo tres veces y a la semana dirían cosas distintas — que es justo lo
-   que arruina una comparación.
-
-   LA CUARTA CASILLA —pestañas de corrido— no está porque nadie la pidió, no porque no quepa:
-   son dos líneas el día que alguien quiera verla. */
-export const PROPUESTAS = {
-  riel:     { n: '1', t: 'Riel lateral',      nav: 'riel',     campos: 'corrido' },
-  pestanas: { n: '2', t: 'Pestañas arriba',   nav: 'pestanas', campos: 'acordeones' },
-  mixta:    { n: '3', t: 'Riel y acordeones', nav: 'riel',     campos: 'acordeones' },
-}
+   ASÍ QUE SE FUERON LAS OTRAS DOS, y con ellas el interruptor que las cambiaba, el parámetro
+   `?vista=` de la dirección y la tira de pestañas entera. Lo que queda no lleva rama: esto ya
+   no es una comparación, es la pantalla. Están en el historial por si alguien las echa de
+   menos, que es donde tiene que estar un andamio retirado y no en medio del archivo. */
 
 export default function ColaboradorNuevo() {
   const navigate = useNavigate()
@@ -159,10 +149,15 @@ export default function ColaboradorNuevo() {
   const puestos = ctx.puestos
 
   /* EL NIVEL RECORTA LA FICHA, no la cambia: Mínimo legal ⊂ Operativo ⊂ Completo, el corte del
-     propio estudio. Va en la dirección como la vista, por lo mismo: «mirá el mínimo legal» se
-     manda como enlace y no como instrucción. */
+     propio estudio. Va en la dirección, porque «mirá el mínimo legal» se manda como enlace y no
+     como instrucción.
+
+     Y SE ABRE EN COMPLETO. Arrancaba en Operativo, que enseñaba una ficha recortada a quien venía
+     a ver la ficha: los campos que faltaban no estaban marcados como omitidos —sencillamente no
+     estaban— así que no había forma de saber desde dentro que se estaba mirando un extracto. El
+     recorte sigue a un clic para quien lo quiera, pero por defecto se enseña lo que hay. */
   const pedidoNivel = params.get('nivel')
-  const nivel = NIVELES.some(n => n.key === pedidoNivel) ? pedidoNivel : 'Operativo'
+  const nivel = NIVELES.some(n => n.key === pedidoNivel) ? pedidoNivel : 'Completo'
 
   const progreso = useMemo(() => progresoDe(form, ctx, nivel), [form, ctx, nivel])
   const legalPendiente = useMemo(() => faltaLegal(form, ctx), [form, ctx])
@@ -207,20 +202,14 @@ export default function ColaboradorNuevo() {
     return set
   }, [form, ctx])
 
-  /* LA VISTA VIVE EN LA DIRECCIÓN, no en un ajuste escondido: `?vista=pestanas&nivel=Mínimo` se
-     copia y se manda, que es de lo que se trata —las propuestas se comparan abriéndolas una al
-     lado de la otra, no explicando dónde hay que hacer clic para llegar a la segunda—. */
-  /* Saneada contra el catálogo: `?vista=cualquier-cosa` —escrita a mano o de un enlace viejo—
-     abre la primera en vez de una pantalla en blanco. */
-  const pedidaVista = params.get('vista')
-  const vista = PROPUESTAS[pedidaVista] ? pedidaVista : 'riel'
-  const propuesta = PROPUESTAS[vista]
-
-  const irA = (clave, otraVista = vista, otroNivel = nivel) => {
+  /* EL NIVEL SIGUE VIVIENDO EN LA DIRECCIÓN, no en un ajuste escondido: `?nivel=Mínimo` se copia
+     y se manda, que es de lo que se trata. Lo acompañaba un `?vista=` para elegir entre las tres
+     propuestas; elegida una, el parámetro no tenía ya nada que decir y se fue con ellas. Un enlace
+     viejo que todavía lo traiga no rompe nada: sobra, y se ignora. */
+  const irA = (clave, otroNivel = nivel) => {
     const q = {}
     if (clave !== PASOS[0].key) q.paso = clave
-    if (otraVista !== 'riel') q.vista = otraVista
-    if (otroNivel !== 'Operativo') q.nivel = otroNivel
+    if (otroNivel !== 'Completo') q.nivel = otroNivel
     setParams(q)
     /* Cambiar de paso es cambiar de pantalla: quedarse a media altura del formulario anterior
        hace pensar que no pasó nada. */
@@ -469,14 +458,12 @@ export default function ColaboradorNuevo() {
         </p>
       </div>
 
-      {/* ── EL CUERPO, ARMADO DE DOS PIEZAS ──
-          La navegación y la forma de los campos se eligen por separado (ver `PROPUESTAS`), así
-          que acá no hay una rama por propuesta sino una por eje. Las tarjetas se escriben una
-          sola vez y las dos navegaciones las montan igual: es la única manera de que lo que se
-          compara sea el envase y no dos formularios que se fueron pareciendo cada vez menos. */}
+      {/* ── EL CUERPO ──
+          Las tarjetas se escriben una sola vez y el riel las monta alrededor. Hubo un tiempo en
+          que esto tenía una rama por cada eje de comparación —dos navegaciones, dos formas de
+          leer los campos—; elegida la combinación, las ramas sobran. */}
       {(() => {
         const campos = enPrevia ? vistaPrevia : (
-          propuesta.campos === 'acordeones' ? (
             /* ACORDEONES: el paso se lee primero como índice —qué secciones tiene y cuántos
                campos lleva cada una— y después como formulario. Cuesta un clic por sección; a
                cambio, un paso de cuarenta campos deja de ser una pared. */
@@ -508,56 +495,7 @@ export default function ColaboradorNuevo() {
               ))}
               <p className="pl-leyenda"><b>*</b> Campo obligatorio para poder crear la ficha</p>
             </div>
-          ) : (
-            /* DE CORRIDO: todo el paso a la vista, sin un clic de por medio. Se llena de arriba
-               abajo con la carpeta delante y nunca hay una sección escondida que se olvide. */
-            <div className="cn-tarjetas">
-              {avisoSinPuestos}
-              {tarjetas.map(t => (
-                <TarjetaCampos
-                  key={t.titulo}
-                  titulo={t.titulo}
-                  desc={t.desc}
-                  /* LA TARJETA DE REINGRESO NO SE DIBUJA CON LA REJILLA. Es la única de las
-                     cuarenta y cuatro que no son campos sueltos sino una conversación —buscar,
-                     comparar, elegir, traer—, así que le pasa un cuerpo propio y ningún campo.
-                     El marco, el título y la descripción los sigue poniendo `TarjetaCampos`,
-                     que es lo que la mantiene igual a sus hermanas por fuera. */
-                  campos={t.id === 'reingreso' ? [] : t.campos}
-                  children={t.id === 'reingreso'
-                    ? <TarjetaReingreso form={form} set={set} gente={colaboradores} />
-                    : null}
-                  form={form}
-                  set={set}
-                  editando
-                  prefijo="cn"
-                  /* NO SE REGAÑA ANTES DE EMPEZAR. Los tres obligatorios se marcan en la vista
-                     previa y al intentar crear, no en cuanto se abre un paso en blanco. */
-                  marcarFaltas={false}
-                />
-              ))}
-              <p className="pl-leyenda"><b>*</b> Campo obligatorio para poder crear la ficha</p>
-            </div>
-          )
         )
-
-        if (propuesta.nav === 'pestanas') {
-          /* LA TIRA ARRIBA le devuelve al formulario el ancho entero —doce columnas de verdad—
-             a cambio de las pistas de cada paso, que en una pastilla no entran. */
-          return (
-            <div className="cn-cuerpo">
-              <PestanasPasos
-                pasos={PASOS}
-                actual={paso}
-                onIr={irA}
-                pendientes={pendientes}
-                avance={avance}
-              />
-              {campos}
-              {pie}
-            </div>
-          )
-        }
 
         /* EL RIEL AL COSTADO tiene los nueve pasos siempre a la vista con su pista debajo, así
            que se sabe en todo momento dónde se está y qué falta por delante; a cambio, el
