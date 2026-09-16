@@ -25,6 +25,30 @@ export const empresa = {
   direccionLegal: 'Av. San Martín 200, Equipetrol, Santa Cruz',
 }
 
+/* ── LAS EMPRESAS DEL GRUPO ───────────────────────────────────────────────
+   FarmaVida no es una sola razón social: es la que usa esta instalación del sistema, pero el
+   grupo tiene otras, y alguien que entra hoy puede haber trabajado en una de ellas. Eso es lo
+   que la ficha de alta pregunta en su primera tarjeta, y hasta ahora lo preguntaba con una
+   caja de texto libre — donde uno escribe «Farmacorp», otro «FARMACORP SRL» y otro
+   «farmacorp», y después nadie puede cruzar nada.
+
+   LA PROPIA VA PRIMERA Y MARCADA. Es la de esta instalación —la que se ve arriba en la barra—
+   y es el caso más frecuente con diferencia: la mayoría de los reingresos son gente que
+   volvió a la misma empresa, no que cruzó de una hermana.
+
+   GUARDA NOMBRE Y RAZÓN SOCIAL, no solo el nombre: en una ficha de alta lo que se elige tiene
+   consecuencias legales y «FarmaVida» no es lo mismo que «FarmaVida S.R.L.» para el
+   Ministerio. Se enseña el corto y se guarda el que vale.
+
+   TODAVÍA NO SE EDITAN DESDE NINGUNA PANTALLA. Viven acá como semilla, igual que las
+   sucursales antes de tener su propia sección en Organización. El día que haya que darlas de
+   alta a mano, esta lista es lo que esa pantalla va a escribir. */
+export const empresasGrupo = [
+  { id: 'farmavida', nombre: 'FarmaVida', razonSocial: 'FarmaVida S.R.L.', nit: '1023456789', propia: true },
+  { id: 'farmadistribucion', nombre: 'FarmaDistribución', razonSocial: 'FarmaDistribución S.A.', nit: '1044789123' },
+  { id: 'laboratorios-vida', nombre: 'Laboratorios Vida', razonSocial: 'Laboratorios Vida S.R.L.', nit: '1061234578' },
+]
+
 /* Ocho y no tres: con tres nunca aparecen el buscador ni "ver solo las marcadas" —los dos se
    activan pasadas seis sedes— así que la demo escondía justo lo que se diseñó para una empresa
    grande. Ocho es el número más chico que los enciende y sigue entrando en pantalla. */

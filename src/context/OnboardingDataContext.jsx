@@ -1,8 +1,8 @@
 import { createContext, useContext, useCallback, useEffect, useMemo } from 'react'
 import { useLocalStorage, clearAllDemoData } from '../hooks/useLocalStorage'
 import { rutasSeedEtapas } from '../data/rutasSeedEtapas'
-import { colaboradoresData } from '../pages/personas/colaboradoresData'
-import { orgSeed, orgVacio, empresa as empresaSeed, sucursales as sucursalesSeed } from '../data/organigramaData'
+import { colaboradoresData, SEMILLA_VERSION } from '../pages/personas/colaboradoresData'
+import { orgSeed, orgVacio, empresa as empresaSeed, sucursales as sucursalesSeed, empresasGrupo as grupoSeed } from '../data/organigramaData'
 import {
   semillaNodos, nivelesIniciales, nivelesDeSemilla, estructuraEjemplo, LLAVE_NIVELES, sanearNiveles,
   unidadesDeNodos, aplicarUnidades, cargosDeNodos, aplicarCargos,
@@ -140,6 +140,62 @@ export function OnboardingDataProvider({ children }) {
      pantallas los tratan como opcionales y no rellenan nada por su cuenta. */
   const [empresa, setEmpresa] = useLocalStorage('empresa', empresaSeed)
   const [sucursales, setSucursales] = useLocalStorage('sucursales', sucursalesSeed)
+
+  /* LAS HERMANAS DE ESTA EMPRESA. `empresa` es la de esta instalación —su nombre es el que se
+     lee arriba en la barra— y esto es el grupo al que pertenece. Son dos cosas distintas y por
+     eso son dos estados: cambiar la razón social de FarmaVida no puede tocar la lista de sus
+     hermanas, ni al revés. */
+  const [empresasGrupo, setEmpresasGrupo] = useLocalStorage('empresasGrupo', grupoSeed)
+
+  /* EL DIRECTORIO PASA A SER ESTADO COMPARTIDO, por el mismo motivo que la estructura: desde que
+     se puede dar de alta a alguien, la lista tiene que crecer. La pantalla de Colaboradores la
+     tenía en un `useState` propio sembrado del archivo de datos, así que una persona creada en
+     otra ruta no existía al volver —y ni siquiera sobrevivía a salir de la pantalla—.
+
+     `colaboradoresData` sigue siendo la semilla y sigue siendo lo que importan las pantallas que
+     solo necesitan gente de ejemplo. Esto NO es una segunda verdad: es la misma lista, con lo que
+     se le fue agregando encima. Las pantallas que todavía leen el archivo directo ven a los
+     cincuenta y nueve de siempre, y se irán mudando acá una por una. */
+  const [colaboradores, setColaboradores] = useLocalStorage('colaboradores', colaboradoresData)
+
+  /* LA SEMILLA SE MEZCLA Y SE ACTUALIZA, no sólo siembra.
+     `useLocalStorage` usa el valor inicial UNA vez: la primera que alguien abre la aplicación.
+     Desde entonces manda lo guardado, y eso está bien para lo que el usuario creó —nadie quiere
+     que su gente desaparezca al recargar— pero rompe dos cosas que no se ven venir.
+
+     UNA: cuando el archivo de ejemplo crece, quien ya usó la demo no ve lo nuevo. Nunca. Pasó
+     con tres ex-colaboradores que se agregaron para poder reconocer un reingreso: estaban en el
+     código y no en el navegador.
+
+     OTRA, MÁS SUTIL: cuando una fila que YA existe cambia. A María se la sembró sin ficha y la
+     ficha llegó después; como su `id` ya estaba guardado, agregar-lo-que-falta no la tocaba, y
+     el reingreso la encontraba sin datos que traer.
+
+     POR ESO HAY DOS COSAS ACÁ. Se agregan las filas cuyo `id` falta, siempre. Y si la versión
+     de la semilla subió, además se REESCRIBEN las filas sembradas con su versión nueva. Lo que
+     el usuario creó no se toca en ninguno de los dos casos: sus ids son mayores que los de la
+     semilla, así que no aparecen en ella.
+
+     Corre al montar y es idempotente: si no hay nada que hacer devuelve la misma lista y no
+     escribe. La comparación va DENTRO del actualizador porque en desarrollo React monta dos
+     veces a propósito, y mirando la lista de afuera las dos corridas veían lo mismo y agregaban
+     los ejemplos por duplicado. */
+  const [semillaVista, setSemillaVista] = useLocalStorage('semillaColaboradores', 0)
+
+  useEffect(() => {
+    const alDia = semillaVista >= SEMILLA_VERSION
+    setColaboradores(prev => {
+      const sembrados = new Set(colaboradoresData.map(c => c.id))
+      const guardados = new Set(prev.map(c => c.id))
+      const faltan = colaboradoresData.filter(c => !guardados.has(c.id))
+      if (alDia && !faltan.length) return prev
+      /* Lo propio del usuario primero y en su orden; los ejemplos después, frescos. */
+      const propios = prev.filter(c => !sembrados.has(c.id))
+      const ejemplos = alDia ? prev.filter(c => sembrados.has(c.id)) : colaboradoresData
+      return [...ejemplos, ...propios, ...(alDia ? faltan : [])]
+    })
+    if (!alDia) setSemillaVista(SEMILLA_VERSION)
+  }, [setColaboradores, semillaVista, setSemillaVista])
 
   /* LA ESTRUCTURA VIVE ACÁ Y NO EN CADA PANTALLA.
      La leían por su cuenta cinco sitios —el árbol, la ficha, la configuración, el menú y el
@@ -462,6 +518,8 @@ export function OnboardingDataProvider({ children }) {
       nodos, setNodos,
       nivelesEstructura: nivelesSanos, setNivelesEstructura,
       sucursales, setSucursales,
+      colaboradores, setColaboradores,
+    empresasGrupo, setEmpresasGrupo,
       resetDemo, loadSampleData, isDemoFresh,
     }}>
       {children}

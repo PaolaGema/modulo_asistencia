@@ -28,9 +28,59 @@
   /* El cuadro de «depende de» en la previa: el navy de marca, apenas insinuado. */
   --og-jefe-bg: rgba(12,45,64,.055);
   --og-jefe-linea: var(--navy);
+  /* EL ÁMBAR, OSCURECIDO HASTA QUE SE PUEDE LEER. `--yellow` es el de los puntos y las barras:
+     sobre blanco da 2.1:1 y el mínimo para texto es 4.5:1. Mismo tono, más oscuro — el mismo
+     trato que ya recibió el verde con `--green-fuerte`. */
+  --ambar: #B45309;
   --alto-plaza: #C2410C;
   --alto-plaza-bg: rgba(194,65,12,.06);
   --green-bg: rgba(0,224,145,.08);
+  /* LA FILA EN LA QUE ESTÁS PARADO, en el riel de la ficha. Tiene token propio porque ninguno
+     de los verdes de arriba cae donde hace falta: medido contra la tarjeta blanca sobre la que
+     se apoya, `--green-tint` da 1.025 y no se ve, `--green-bg` 1.055 y apenas, y `--green-halo`
+     1.166, que entre ocho filas blancas se lee como un aviso y no como una posición. Éste cae
+     en 1.101 —#DBFBF0— que es el punto donde se nota sin llamar.
+
+     Y ES UN TOKEN Y NO UN `rgba()` ESCRITO EN LA REGLA porque el modo oscuro necesita su propio
+     valor: el mismo 14 % sobre un azul oscuro no da el mismo salto que sobre blanco, y una
+     transparencia escrita a mano se lleva la misma cifra a los dos sitios. */
+  --bg-puesto: rgba(0,224,145,.14);
+  /* LA CABECERA DE UNA SECCIÓN PLEGABLE. Nació con el mismo valor que `--bg-puesto` —el mismo
+     verde de marca, rebajado— y aun así se le dio token propio, porque significan cosas
+     distintas: aquél dice «estás parado acá» y éste dice «acá empieza una sección».
+
+     Y HAY QUE DECIR QUE VALIÓ LA PENA: ya divergieron. La fila puesta se quedó en el 14% y esta
+     cabecera subió al 22%, que sobre la tarjeta blanca da #C7F8E7. Compartiendo token, subir una
+     habría teñido la otra sin que nadie lo pidiera.
+
+     Es la tercera vez en este archivo que dos roles comparten un hex por casualidad. Las dos
+     anteriores —`--bg-secondary` en la banda de las pestañas, `--bg-sidebar` en el riel— se
+     descubrieron cuando algo se movió y se llevó por delante a lo que no debía. Ésta se separó
+     antes de que doliera. */
+  --bg-seccion: rgba(0,224,145,.22);
+  /* Y LA MISMA BANDA, PLEGADA. Estos dos tokens son el resultado de una corrección: durante un
+     tiempo las ocho cabeceras de un paso llevaban el verde de marca, abiertas y cerradas por
+     igual, y eso rompía el idioma de la pantalla. Acá el verde significa dos cosas de estado
+     —«estás parado en este paso» en el riel, «esta sección está completa» en la pastilla— y
+     ninguna de las dos se puede leer si además es el color del mueble.
+
+     Abrí el paso 3 sin cargar un solo dato: todos los contadores en cero, ninguna sección
+     terminada, y la pantalla ya estaba verde entera. Cuando por fin se completara una, el
+     verde de la pastilla no habría tenido dónde destacarse.
+
+     ASÍ QUE EL VERDE SE QUEDA CON UNA SOLA BANDA: la que estás llenando. Las otras siete son
+     estructura y van en gris. De ocho verdes por paso se pasa a uno, y ese uno vuelve a querer
+     decir algo.
+
+     GRIS PROPIO Y NO `--bg-canal`, aunque el hex sea el mismo: aquél es el canal hundido de los
+     interruptores segmentados y éste es una cabecera de sección. Es la cuarta vez en este
+     archivo que dos roles coinciden en un color por casualidad; las tres anteriores se
+     descubrieron cuando alguien movió una y se llevó puesta la otra.
+
+     1.26:1 CONTRA LA TARJETA, que es un punto por encima del verde que reemplaza (1.17). El
+     gris no es un paso atrás en presencia: plegada, la banda se ve MÁS que antes. Lo que baja
+     no es el contraste, es el ruido de color. */
+  --bg-seccion-plegada: #DFE6EE;
   --yellow-bg: rgba(245,158,11,.08);
   --purple-bg: rgba(139,92,246,.08);
   --red-bg: rgba(239,68,68,.08);
@@ -57,6 +107,18 @@
      página. Compartían el hex por casualidad; separarlos es lo que evita que cambiar el fondo de
      la aplicación mueva medio módulo de Onboarding. */
   --bg-secondary: #F1F5F9;
+  /* HUNDIDO SOBRE LA PÁGINA, QUE NO ES LO MISMO QUE HUNDIDO DENTRO DE UNA TARJETA. Es el tercer
+     rol de esta familia y le faltaba token: una banda que agrupa controles apoyada directamente
+     en el fondo de la aplicación —la tira de pestañas de la ficha—, sin tarjeta blanca debajo.
+
+     Se venía dibujando con `--bg-secondary`, que es el de acá arriba y está pensado para el otro
+     caso. Contra el blanco de una tarjeta, #F1F5F9 se hunde; contra `--bg-app`, que es #F2F5FB,
+     queda a UN PUNTO de diferencia y la banda no existía: nueve pestañas flotando sobre la nada.
+     Es exactamente el accidente contra el que avisa el comentario de arriba, ocurrido de verdad.
+
+     En oscuro no pasaba —#0A2434 contra #153750 se ve de sobra— así que allá el valor es el
+     mismo que traía; lo que cambia es que ahora tiene nombre propio y puede moverse solo. */
+  --bg-canal: #DFE6EE;
   /* El anillo del punto de aviso se recorta contra el fondo del riel, así que sigue su color:
      desde que el riel lleva tinte, un anillo blanco dibujaba un halo que no estaba ahí. */
   --bg-sidebar: #EAFBF3;
@@ -143,6 +205,9 @@
   --alto-plaza: #FB923C;
   --alto-plaza-bg: rgba(251,146,60,.10);
   --green-bg: rgba(0,224,145,.1);
+  /* Un punto más que en claro: sobre el azul de la tarjeta el verde tiñe menos, así que la
+     misma transparencia se vería más floja de lo que se ve allá. */
+  --bg-puesto: rgba(0,224,145,.16);
   --yellow-bg: rgba(251,191,36,.12);
   --purple-bg: rgba(167,139,250,.12);
   --red-bg: rgba(248,113,113,.12);
@@ -178,6 +243,7 @@
   --bg-app: #153750;
   /* Hundido DENTRO de una tarjeta: más oscuro que ella, no más claro. */
   --bg-secondary: #0A2434;
+  --bg-canal: #0A2434;
   /* EL ARMAZÓN NO SIGUE A LA ESCALERA. El riel, la columna de módulos y la barra de arriba se
      quedan en los colores que tenían antes de que el fondo subiera a #153750, a propósito: son
      el marco de la aplicación, no una superficie de trabajo más, y su color es el que ya se
@@ -6175,6 +6241,35 @@ select.pl-input:focus {
   gap: 16px;
 }
 
+/* ── EL RÓTULO NO SE SEPARA DE SU CAMPO ───────────────────────────────────
+   Una celda de esta rejilla es una columna: rótulo arriba, caja debajo. La rejilla estira cada
+   celda al alto de la fila más alta, y lo que hay que decidir es DÓNDE se come ese alto de más.
+
+   SE PROBÓ QUE SE LO COMIERA EL RÓTULO, estirándolo con `flex: 1`. La idea era buena de cerca:
+   cuando un rótulo ocupa dos líneas —«Fecha de vencimiento del documento»— su caja baja veinte
+   píxeles y las de al lado no, y estirar los rótulos cortos volvía a alinear la fila. El
+   problema es que el rótulo se come TODO el sobrante, venga de donde venga: en «Documento de
+   identidad» el alto de la fila no lo ponen los rótulos sino el recuadro del carnet escaneado,
+   que ocupa varias filas, y esos setenta píxeles se colaban entre «Tipo de documento» y su
+   desplegable. Se limitó el estirón a dos líneas y quedó el mismo defecto más chico: un renglón
+   en blanco entre cada rótulo y su campo.
+
+   UN RÓTULO A VEINTE PÍXELES DE SU CAJA YA NO ES EL RÓTULO DE ESA CAJA. En un formulario de
+   doscientos campos, lo único que dice qué nombre le corresponde a qué casilla es la cercanía;
+   una fila de cajas perfectamente alineadas con los nombres flotando por encima se lee peor que
+   una fila con una caja veinte píxeles más abajo. Así que el sobrante cae al FINAL de la celda,
+   debajo de la caja, donde no separa nada de nada.
+
+   LO QUE SE PAGA: en una fila donde un rótulo se va a dos líneas, su caja queda un renglón más
+   abajo que las de al lado. Es el desorden chico, y se prefiere al grande. El día que moleste,
+   la manera de tenerlo todo es `grid-template-rows: subgrid` en cada celda —rótulos en una
+   pista y cajas en otra, alineados por fila sin separarse nunca de su nombre—, que es rehacer
+   la rejilla entera y no una línea.
+
+   SÓLO EDITANDO. Leyendo no hay cajas que alinear: son pares de líneas sueltas. */
+.emp-form:not(.emp-leyendo) > div { display: flex; flex-direction: column; }
+.emp-form:not(.emp-leyendo) > div > .pl-label { flex: 0 0 auto; }
+
 /* MÁS AIRE ENTRE RENGLONES AL LEER. Editando, lo que separa una fila de la siguiente son las
    cajas de los campos, que ya tienen borde y alto propio. Leyendo no hay cajas: son pares de
    líneas sueltas, y a 16 px el rótulo de abajo queda tan cerca del dato de arriba como de su
@@ -6185,7 +6280,16 @@ select.pl-input:focus {
 .emp-form .c-tercio { grid-column: span 4; }
 .emp-form .c-ancho { grid-column: span 8; }
 /* La mitad justa, para los pares que se leen juntos —dirección y dirección para liquidaciones—
-   y la fila entera, para lo que necesita todo el ancho. */
+   y la fila entera, para lo que necesita todo el ancho.
+
+   UN SÍ/NO NO ES MEDIA FILA. Los cuarenta y cuatro de la ficha estaban acá por costumbre, y dos
+   botones que dicen «Sí» y «No» miden lo que miden: al lado de cada uno sobraba un tercio de fila
+   en blanco, y la rejilla de tres columnas se partía en dos cada vez que aparecía uno. Ahora van a
+   un tercio como los demás campos.
+
+   LOS QUE SIGUEN ACÁ SON LOS DE RÓTULO LARGO — «¿Utilizar saldo de compensaciones para disminuir
+   atrasos y faltas?» y nueve más—: lo que no cabe no es el control, es la pregunta, y a un tercio
+   se parte en tres líneas. El ancho lo pide el texto, no el tipo de campo. */
 .emp-form .c-medio { grid-column: span 6; }
 .emp-form .c-todo { grid-column: span 12; }
 
@@ -7779,3 +7883,1520 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
   line-height: 1.55;
   margin: 10px 0 0;
 }
+
+
+/* ══════════════════════════════════════════════════
+   LA FICHA DEL COLABORADOR
+   Todo lo propio de dar de alta a una persona: el riel de los ocho pasos, la banda con su cara
+   y su avance, y los dos campos que esta ficha estrenó —la pregunta de sí o no y el archivo—,
+   que viven en `TarjetaCampos` y por lo tanto ya son de todas las fichas.
+   ══════════════════════════════════════════════════ */
+
+/* ── El rótulo de un campo, con lo que lo acompaña ──
+   El rótulo era una palabra suelta; ahora puede llevar asterisco, signo de ayuda e insignia. Los
+   cuatro en línea y alineados por su centro: apilados, cada campo empezaba dos píxeles más abajo
+   que el de al lado y la rejilla se veía torcida sin poder decir por qué. */
+/* ── EL RÓTULO Y SUS ACOMPAÑANTES, EN UNA SOLA CORRIENTE DE TEXTO ─────────
+   ESTO ERA UN `inline-flex` Y ESE ERA EL ERROR. En una caja flex, el texto suelto del rótulo
+   se convierte en UN item anónimo: puede partirse en varias líneas por dentro, pero sigue
+   siendo una sola pieza. Con un rótulo corto no se notaba; con «Fecha de vencimiento del
+   documento» o «Categoría del puesto (Obrero / Administrativo)» la pieza ocupaba el ancho
+   entero de la columna y empujaba al «?» y al chip a una línea propia, debajo y solos. Se leía
+   como si fueran otro campo.
+
+   AHORA ES TEXTO CORRIENTE y los tres acompañantes —el asterisco, el «?» y los chips— son
+   `inline-*`, así que fluyen entre las palabras como lo que son: parte del rótulo. El chip se
+   pega a la última palabra, esté donde esté, y si no cabe baja con ella.
+
+   `gap` NO SIRVE ACÁ —es cosa de flex y de grid— así que la separación la ponen los márgenes
+   de cada acompañante, y `vertical-align: middle` los centra contra la línea de texto en vez
+   de dejarlos colgando de la base. */
+/* UN PUNTO MENOS QUE EL RESTO DE LA APLICACIÓN, y sólo acá. El rótulo de esta ficha no viaja
+   solo: puede llevar asterisco, globo de ayuda y chip pegados detrás, y a 14 px los cuatro no
+   entran en un tercio de fila —«Fecha de vencimiento del documento» se partía en dos y la
+   segunda línea era el chip suelto—. A 13 px entran, y el rótulo sigue leyéndose por encima del
+   dato porque lo que manda ahí es el peso y el color, no el cuerpo. Va en `.emp-form` y no en
+   `.pl-label`, que lo comparten el organigrama y las tarjetas de unidad.
+
+   12.5 Y NO MENOS. Es medio punto por debajo de los 13 con los que empezó y medio por encima de
+   los 12 del organigrama, que es el suelo de esta aplicación: por debajo el rótulo deja de ser
+   un rótulo y pasa a ser letra chica, y un formulario que pide el número de carnet no puede
+   susurrar qué está pidiendo. Si algún rótulo sigue sin entrar a este cuerpo, lo que sobra ya no
+   son píxeles sino palabras. */
+.emp-form .pl-label { font-size: 12.5px; }
+
+.emp-rot-linea {
+  display: block;
+  /* Sin esto, dos líneas de rótulo se pisan: el interlineado por defecto lo fija el `label`,
+     que es de 12.5 px, y los chips de 8.5 px no lo levantan. */
+  line-height: 1.45;
+  /* Y CUANDO IGUAL SE PARTE EN DOS, QUE SE PARTA POR LA MITAD. Sin esto el navegador llena la
+     primera línea hasta el borde y tira al renglón de abajo lo que sobre, que suele ser una
+     palabra suelta con el chip colgando: «Fecha de vencimiento del» arriba y «documento LEGAL»
+     abajo. Repartido, las dos líneas miden parecido y el rótulo se sigue leyendo como una frase.
+     Donde no esté soportado no pasa nada: se parte como se partía. */
+  text-wrap: balance;
+}
+.emp-rot-linea > * { vertical-align: middle; }
+.emp-rot-linea .og-ayuda { margin-left: 5px; }
+.emp-rot-linea .emp-insignia { display: inline-block; margin-left: 6px; }
+
+/* DE DÓNDE VIENE EL DATO, EN UNA PALABRA. «legal» avisa de que eso se copia del documento tal
+   cual —no el nombre de uso, no el apodo— y «se calcula» explica por qué ese campo no tiene
+   caja. Va en gris y en versalitas: acompaña al rótulo, no compite con él. */
+.emp-insignia {
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-soft);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ── La pregunta de sí o no ──
+   Dos botones pegados dentro de un marco, del alto de un campo para que la fila no quede coja
+   al lado de los que sí son cajas. Ninguno marcado es un estado legítimo: quiere decir que
+   todavía no contestaron. */
+.sn-grupo {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--campo-vacio-borde);
+  border-radius: 12px;
+  background: var(--campo-vacio);
+}
+.sn-op {
+  min-width: 62px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.sn-op:hover { color: var(--text-heading); }
+.sn-op.on {
+  background: var(--surface-card);
+  color: var(--text-heading);
+  box-shadow: var(--sh-sm);
+}
+
+/* ── Subir un archivo ──
+   Vacía es una caja punteada que se pulsa entera; con algo dentro deja de ser una zona de
+   arrastre y pasa a ser la ficha del archivo: qué es, cuánto pesa y los dos botones. */
+/* LA FOTO VA A LA IZQUIERDA Y ALTA, como en cualquier documento de identidad: ancla la tarjeta
+   y los seis campos del nombre se acomodan a su derecha. Antes caía al final del flujo y se
+   quedaba sola en una fila propia, con ocho columnas en blanco al lado — la tarjeta medía tres
+   filas igual, pero una entera era aire.
+
+   SE COLOCA A MANO —columna 1, tres filas— y no por orden de flujo, porque en el estudio la
+   foto es el último campo de la tarjeta y reordenarla allá sería mover el estudio para
+   acomodar un dibujo. La rejilla coloca primero lo que tiene sitio asignado y después acomoda
+   el resto alrededor, así que el orden del documento no cambia: para un lector de pantalla la
+   foto sigue estando donde el estudio la puso. */
+.emp-form .c-retrato { grid-column: 1 / span 4; grid-row: var(--riel-inicio, 1) / span var(--riel-filas, 3); }
+
+/* EL CARNET ESCANEADO, POR EL MISMO MOTIVO.
+   Es la fuente de los campos que tiene al lado —tipo, número, extensión, complemento y
+   vencimiento se leen todos de ese papel—, así que va primero y ancla la tarjeta: el documento
+   abierto a un lado, lo que dice al otro. Al final de la última fila, que es donde estaba, pedía
+   los datos antes de enseñar de dónde salen.
+
+   CUÁNTAS FILAS MIDE YA NO SE ESCRIBE ACÁ. Eran dos, fijas, y el problema es que los campos de
+   al lado son cuatro, seis o siete según el documento y el nivel del estudio: con dos filas, el
+   nivel Operativo dejaba «Complemento SEGIP» y «Fecha de vencimiento» solos en una fila, contra
+   el margen izquierdo y con un tercio vacío a la derecha. El número lo calcula ahora la tarjeta
+   con los campos visibles delante —el reparto que deja menos celdas vacías— y lo manda en
+   `--riel-filas`. El valor de reserva es el de antes, por si algún día llega una tarjeta con
+   riel y sin quien le haga la cuenta. */
+.emp-form .c-escaneo { grid-column: 1 / span 4; grid-row: var(--riel-inicio, 1) / span var(--riel-filas, 2); }
+
+/* ── Y EL PAPEL SE ADAPTA A LA FILA, NO LA FILA AL PAPEL ──────────────────
+   El recuadro del escaneo es apaisado y grande: midiendo lo suyo, estiraba las filas que tiene
+   al lado hasta setenta píxeles por encima de lo que necesitan los campos, y ese sobrante hay
+   que ponerlo en algún sitio —debajo de cada caja, desde que el rótulo dejó de comérselo—. Como
+   riel, lo que mide de alto no lo decide él: son las filas de campos que ancla.
+
+   Así que en el riel —y sólo ahí— el recuadro suelta su proporción fija y se estira a lo que le
+   den, con un mínimo para que siga siendo una vista previa y no una ranura. En la tarjeta
+   «Archivos», donde el mismo campo va suelto en la lista, conserva su 16/10 de siempre: allá no
+   ancla nada y la proporción es lo único que mantiene la fila pareja.
+
+   El archivo de adentro no se deforma —sigue en `contain`—: lo que cambia es el marco. */
+.emp-form:not(.emp-leyendo) > .c-escaneo > .sa-doc-caja { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.emp-form:not(.emp-leyendo) > .c-escaneo .sa-doc { flex: 1; min-height: 0; }
+.emp-form:not(.emp-leyendo) > .c-escaneo .sa-hoja { aspect-ratio: auto; flex: 1; min-height: 118px; }
+
+/* A MEDIO ANCHO LA CUENTA ES OTRA, porque los anchos son otros: un `c-tercio` pasa a ocupar
+   media fila y al lado del riel ya no entran dos campos sino uno. Mismo cálculo, otra tabla. */
+@media (max-width: 1240px) {
+  .emp-form .c-retrato,
+  .emp-form .c-escaneo { grid-row: var(--riel-inicio-md, 1) / span var(--riel-filas-md, 2); }
+}
+
+/* Angostas, las dos sueltan su columna y vuelven al flujo: con seis columnas para los campos, dos
+   rótulos como «Apellido de casada» no entran al lado de un recuadro de 72. */
+@media (max-width: 900px) {
+  .emp-form .c-retrato,
+  .emp-form .c-escaneo { grid-column: 1 / -1; grid-row: auto; }
+}
+
+/* ── UN PAPEL ESCANEADO, EN SU RECUADRO ───────────────────────────────────
+   Hermano del retrato y por el mismo motivo: lo que se sube hay que MIRARLO para saber si
+   está bien. Lo que cambia es la forma, y no por gusto — un carnet es apaisado, y una cara
+   entra en un cuadrado. */
+/* LA TARJETA QUE ENVUELVE, que es lo que le faltaba. El recuadro estaba bien, pero el nombre
+   del archivo y los tres botones quedaban sueltos debajo, flotando sobre el fondo de la
+   sección: se leían como si fueran otro campo que quedó ahí de casualidad. La foto nunca tuvo
+   ese problema porque su recuadro, su texto y su botón viven dentro de una caja que los
+   agrupa — y es esa caja la que dice «todo esto es UN campo».
+
+   ES EXACTAMENTE LA MISMA CAJA QUE `.sa-retrato`: mismo relleno, mismo borde punteado, mismo
+   fondo de campo vacío, mismo verde al arrastrar encima. Son el mismo componente enseñando dos
+   contenidos de tamaño distinto, así que el envoltorio no tiene por qué distinguirse.
+
+   Y EL ARRASTRE SE ILUMINA ACÁ ARRIBA, no en el recuadro de adentro: soltar un archivo vale en
+   toda la tarjeta, así que toda la tarjeta tiene que encenderse. Iluminar sólo el recuadro
+   prometía un blanco más chico del que de verdad hay. */
+.sa-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px dashed var(--campo-vacio-borde);
+  background: var(--campo-vacio);
+  transition: background .15s, border-color .15s;
+}
+.sa-doc.encima { background: var(--green-tint); border-color: var(--green); }
+.dark .sa-doc.encima { background: var(--green-bg); }
+
+/* LA PROPORCIÓN LA PONE EL RECUADRO Y NO EL ARCHIVO. Sin `aspect-ratio`, cada campo mediría
+   lo que midiera lo que subieron: una foto vertical del contrato al lado de un escaneo
+   apaisado del carnet dejaba la fila de tres columnas con tres alturas distintas. 16/10 es lo
+   bastante ancho para un carnet y lo bastante bajo para que ocho de éstos quepan en el paso de
+   documentos sin volverlo un rollo. */
+.sa-hoja {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 12px;
+  /* Punteado vacío y sólido con archivo: el borde dice si falta algo sin gastar un rótulo.
+     Es el mismo código que usa el recuadro de la fotografía. */
+  border: 1.5px dashed var(--border-dark);
+  /* BLANCO EN LOS DOS ESTADOS, igual que `.sa-marco`. Antes era el gris de campo vacío, y eso
+     funcionaba cuando el recuadro flotaba solo sobre la sección; metido dentro de una tarjeta
+     de ese mismo gris, desaparecía — dos grises iguales, uno dentro del otro, no dibujan nada.
+
+     Y con archivo el blanco además hace falta: un escaneo tiene el fondo blanco y con `contain`
+     sobra sitio a los lados. Sobre gris, ese margen se lee como parte del documento y parece
+     que lo escanearon torcido. */
+  background: var(--surface-card);
+  color: var(--icon-muted);
+  transition: border-color .15s;
+}
+.sa-hoja.con-archivo { border-style: solid; border-color: var(--border-soft); }
+
+/* `contain` Y NO `cover`, al revés que el retrato: de un documento interesa el documento
+   entero. Recortarlo se lleva el número, la firma o el sello — que es lo único que había que
+   comprobar. */
+.sa-hoja img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* ── LA FOTO DEL COLABORADOR ──────────────────────────────────────────────
+   Es el mismo dibujo que el logo en «Datos de la empresa», y a propósito: en las dos pantallas
+   lo que se sube es algo que hay que MIRAR para saber si está bien. Una caja de adjunto
+   devuelve «foto.jpg · 248 KB», que no dice si la persona salió movida ni si es la correcta.
+
+   NO ES EL RECUADRO GRANDE DEL PAPEL ESCANEADO, y se probó que lo fuera. Llevarla a 172 px de
+   ancho con su pie de acciones la volvía aparatosa sin decir nada más: una cara se reconoce en
+   88 px y un carnet escaneado no. Que dos cosas se suban igual no quiere decir que se vean
+   igual — acá la virtud es lo compacto, allá es el tamaño. */
+.sa-retrato {
+  display: flex;
+  flex-direction: column;
+  /* CENTRADO Y NO A LA IZQUIERDA. Apilada, la banda es una columna angosta con un solo objeto
+     que manda —el recuadro— y alineado al borde quedaba colgando de una esquina, con el aire
+     todo de un lado. Centrado se lee como un bloque: es la misma forma que tiene un avatar en
+     cualquier perfil, y es la forma que el contenido pide cuando hay una sola cosa por renglón.
+
+     El texto va centrado con él por lo mismo: un rótulo pegado a la izquierda debajo de un
+     cuadrado centrado se ve como dos bloques distintos que quedaron pegados por accidente. */
+  align-items: center;
+  text-align: center;
+  gap: 11px;
+  padding: 14px;
+  border-radius: 12px;
+  /* Punteado mientras no hay foto, igual que el recuadro de adentro: el borde dice que falta
+     algo sin gastar un rótulo en decirlo. */
+  border: 1.5px dashed var(--campo-vacio-borde);
+  background: var(--campo-vacio);
+  transition: background .15s, border-color .15s;
+}
+.sa-retrato.encima { background: var(--green-tint); border-color: var(--green); }
+.dark .sa-retrato.encima { background: var(--green-bg); }
+
+/* EL RECUADRO ES CUADRADO AUNQUE LA FOTO NO LO SEA, para que la fila no cambie de alto según
+   lo que suban. Punteado mientras está vacío y sólido cuando hay foto: el borde dice si falta
+   algo sin necesidad de un rótulo. */
+.sa-marco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 88 y no 72: apilada, la banda ya no pelea por el ancho, y de una foto de carnet hay que
+     poder juzgar si la persona salió derecha. A 72 se ve que hay una imagen; a 88 se ve quién. */
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1.5px dashed var(--border-dark);
+  background: var(--surface-card);
+  color: var(--icon-muted);
+}
+.sa-marco.con-foto { border-style: solid; border-color: var(--border-soft); }
+/* `cover` y no `contain`: de un retrato lo que interesa es la cara, y recortar los bordes de
+   una foto vertical es lo que hace cualquier carnet. Con el logo es al revés —allá se recorta
+   la marca de alguien— y por eso allá va `contain`. */
+.sa-marco img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sa-marco button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.sa-marco button:hover { color: var(--green-fuerte); background: var(--green-bg); }
+.dark .sa-marco button:hover { color: var(--green); }
+
+.sa-retrato-txt { width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sa-retrato-nom {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sa-retrato-pis { font-size: 11px; color: var(--text-muted); }
+.sa-retrato-acc { display: flex; gap: 6px; width: 100%; }
+.sa-retrato-acc .sa-accion { flex: 1; }
+/* El lector de PDF del navegador, sin barras y sin quedarse con el puntero: acá es una
+   miniatura, no un visor, y si se traga los eventos, arrastrar otro archivo encima deja de
+   caer en la zona de arrastre. */
+.sa-hoja object {
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
+  background: #fff;
+}
+
+/* Cuando no hay nada que dibujar —un .doc, un navegador sin lector de PDF— vuelve el icono
+   con el nombre, que es exactamente lo que había antes de todo esto. */
+.sa-hoja-sin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.sa-hoja-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: color .13s;
+}
+.sa-hoja-vacia:hover { color: var(--green-fuerte); }
+.dark .sa-hoja-vacia:hover { color: var(--green); }
+.sa-hoja-vacia:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
+.sa-hoja-tit { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--text-heading); }
+.sa-hoja-pis { font-size: 10.5px; color: var(--text-muted); line-height: 1.4; }
+
+/* El pie NO se pinta como una tarjeta: el recuadro de arriba ya es el objeto, y ponerle borde
+   a la fila de abajo haría dos cosas donde hay una. */
+.sa-doc-pie { display: flex; align-items: center; gap: 6px; min-width: 0; }
+/* Un enlace no es un botón, pero acá tiene que verse igual que el de al lado: sin esto se
+   queda con el subrayado y el color de enlace del resto de la aplicación. */
+a.sa-accion {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+a.sa-accion:hover { color: var(--text-heading); text-decoration: none; }
+
+.sa-caja {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1.5px dashed var(--campo-vacio-borde);
+  border-radius: 12px;
+  background: var(--campo-vacio);
+  transition: background .15s, border-color .15s;
+}
+.sa-caja.con-archivo {
+  border-style: solid;
+  border-color: var(--border-soft);
+  background: var(--surface-card);
+}
+.sa-caja.encima { border-color: var(--green); background: var(--green-tint); }
+
+.sa-vacia {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sa-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--surface-hover);
+  color: var(--icon-muted);
+}
+.sa-miniatura {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  object-fit: cover;
+  border: 1px solid var(--border-soft);
+}
+.sa-datos { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.sa-nombre {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+a.sa-enlace { text-decoration: none; }
+a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
+.sa-peso { font-size: 10.5px; color: var(--text-muted); }
+.sa-clip { color: var(--icon-muted); flex-shrink: 0; }
+
+.sa-accion {
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--surface-card);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-heading);
+  cursor: pointer;
+}
+.sa-accion:hover { background: var(--surface-hover); }
+.sa-quitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--red);
+  cursor: pointer;
+}
+.sa-quitar:hover { background: var(--red-bg); }
+.sa-error { margin: 6px 0 0; font-size: 10.5px; color: var(--red); }
+
+/* Leyendo la ficha el archivo pierde la caja: es un dato más de la columna, como el resto. */
+.sa-leido { display: flex; align-items: center; gap: 9px; }
+
+/* ── El riel de los pasos ──
+   Columna propia a la izquierda mientras haya ancho. Por debajo de 1100 px se acuesta y pasa a
+   ser una tira que se arrastra: una columna de nueve renglones encima del formulario empuja los
+   campos a media pantalla y obliga a bajar antes de empezar a escribir. */
+.cn-grid {
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.rp-riel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  position: sticky;
+  top: 8px;
+}
+.rp-paso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 9px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s;
+}
+.rp-paso:hover { background: var(--surface-hover); }
+/* ── EL PASO EN EL QUE ESTÁS ───────────────────────────────────────────────
+   Tres valores hasta dar con éste, y los tres se pueden comparar con un número: el contraste
+   del relleno contra la tarjeta blanca sobre la que se apoya.
+
+     `--green-tint`   #F3FFF9   1.025   invisible; era el original
+     `--green-bg`     #EBFDF6   1.055   el verde del menú; todavía apenas
+     `--bg-puesto`    #DBFBF0   1.101   éste
+     `--green-halo`   #C7F8E7   1.166   de más
+
+   1.025 no alcanzaba: en una columna de nueve filas iguales, un punto de saturación no dice
+   «estás acá», que es lo único que la fila puesta tiene que decir. Y 1.166 se pasaba para el
+   otro lado: una fila verde franco entre ocho blancas se lee como un aviso, no como una
+   posición.
+
+   QUEDÓ APENAS POR ENCIMA DEL VERDE DEL MENÚ DE MÓDULOS, que es `--green-bg` y estuvo puesto acá
+   un rato. Tiene sentido que anden cerca —el riel y el menú son la misma clase de cosa, una
+   columna de sitios a los que ir— pero el menú tiñe su columna ENTERA y acá hay que distinguir
+   una fila de otras ocho iguales, que pide un poco más.
+
+   Y NO SE HEREDA `--bg-sidebar`, que es el token de ese menú, aunque el color ande por ahí.
+   Aquél significa «el fondo de la columna de módulos» y esto no es esa columna: coincidir en
+   el hex no es razón para compartir el token, y el día que alguien tiña el menú de otro color
+   no tiene por qué llevarse este riel por delante. Es exactamente el accidente que ya pasó una
+   vez con `--bg-secondary` y la banda de las pestañas.
+
+   SIN MARCA LATERAL. Estuvo un rato un trazo verde pegado al borde izquierdo —la convención de
+   «acá estás» en cualquier menú vertical— y se sacó: le metía un elemento más a una columna que
+   ya tiene nueve filas, un aro por fila y algún punto rojo. */
+.rp-paso.on { background: var(--bg-puesto); }
+
+/* Y el título del paso puesto en el color de encabezado y con más peso: la fila entera cambia,
+   no sólo su fondo. Es lo que sostiene la señal si alguien mira la pantalla con mucha luz
+   encima y el verde se le va. */
+.rp-paso.on .rp-titulo { color: var(--text-heading); font-weight: 700; }
+
+/* EL NÚMERO ES EL ANCLA DE LA FILA Y TAMBIÉN EL MEDIDOR: siempre en el mismo sitio y del mismo
+   tamaño, así la columna se lee de un vistazo aunque los títulos midan distinto, y el aro que lo
+   rodea dice cuánto de ese paso está lleno. Antes eran dos cosas —un disco con el orden y una
+   barra debajo de la pista— y le costaban un renglón a cada una de las nueve filas. */
+.rp-aro {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.rp-aro b {
+  position: relative;
+  z-index: 1;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.rp-paso.on .rp-aro b { color: var(--green-fuerte); }
+.dark .rp-paso.on .rp-aro b { color: var(--green); }
+
+/* UN ARO RECORTADO CON MÁSCARA, NO UN DISCO CON OTRO DISCO ENCIMA. El truco del disco obliga a
+   que el círculo de adentro tenga el color EXACTO de la fila, y la fila cambia de color al pasar
+   el ratón y al estar puesta: cada estado nuevo pedía otra regla, y en oscuro el fondo del paso
+   puesto es translúcido, así que no hay color sólido que lo iguale. Con la máscara el centro es
+   transparente de verdad y el aro no se despega nunca de lo que tenga debajo.
+
+   Tres píxeles de grosor: menos se pierde contra el texto de 12.5 y más convierte el número en
+   una insignia, que es justo lo que se venía a evitar. */
+.rp-arco {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--green) 0 var(--pct, 0%), var(--border-soft) var(--pct, 0%) 100%);
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 3px), #000 calc(100% - 2.9px));
+  mask: radial-gradient(farthest-side, #0000 calc(100% - 3px), #000 calc(100% - 2.9px));
+}
+/* Sin avance que enseñar —la vista previa— queda el hueco del aro y nada más: un anillo gris
+   entero se leería como «cero de algo», y la previa no tiene campos que contar. */
+.rp-texto { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.rp-titulo {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rp-pista {
+  font-size: 10px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* El título y su aviso, en un renglón: sin esto el punto se iba al final del texto recortado y
+   quedaba fuera de la caja. */
+.rp-fila { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.rp-fila .rp-titulo { min-width: 0; }
+
+/* EL PUNTO ES OTRA COSA QUE LA LÍNEA. La línea dice cuánto hay escrito; el punto dice que ahí
+   falta algo que alguna entidad exige, y eso no se deduce del relleno: un paso puede estar al
+   90% y deber justo el campo que impide declarar a la persona. Es el mismo punto de las
+   pestañas: dos señales distintas para lo mismo serían dos idiomas. */
+.rp-punto {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--red);
+}
+/* La vista previa no es el noveno paso: el filete la separa de los ocho que sí se llenan. */
+.rp-previa { margin-top: 6px; border-top: 1px solid var(--border-soft); padding-top: 12px; }
+
+/* ── LOS MANDOS DEL PROTOTIPO ──────────────────────────────────────────────
+   ANDAMIO Y SE BORRA. No son una función del producto: son la comparación entre varios diseños
+   de la ficha de alta, puesta donde un equipo pueda accionarla mientras la recorre. Cuando
+   elijan, se borra este bloque entero junto con `MandosPrototipo.jsx`.
+
+   PLEGADOS EN UN ICONO, y ése fue el segundo intento. Desplegados ocupaban seis botones y dos
+   rótulos cruzando la barra de la aplicación, todo el tiempo, para algo que se toca tres veces
+   en una reunión. Una barra superior está en todas las vistas y no se puede cerrar: es el sitio
+   más caro de la pantalla y el andamio se lo había quedado entero.
+
+   SE VEN DISTINTOS AL RESTO A PROPÓSITO. Esto no es una preferencia del sistema ni un ajuste
+   que alguien vaya a querer encontrar mañana: es una decisión de diseño a medio tomar. Que no
+   se confunda con el producto es parte de lo que tiene que comunicar. */
+.mp { position: relative; flex-shrink: 0; }
+
+.mp-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: var(--bg-canal);
+  font-family: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color .12s, border-color .12s, background .12s;
+}
+/* El número de la propuesta activa, fuera del panel: es lo único que hace falta saber sin
+   abrir nada, y es lo primero que pregunta quien llega tarde a la reunión. */
+.mp-boton b {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+  font-variant-numeric: tabular-nums;
+}
+.mp-boton:hover { color: var(--text-heading); border-color: var(--border-dark); }
+.mp-boton.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.mp-boton.on b { color: var(--green); }
+.dark .mp-boton.on { background: var(--green); border-color: var(--green); color: var(--navy-dark); }
+.dark .mp-boton.on b { color: var(--navy-dark); }
+
+/* LA TARJETA CUELGA DEL BOTÓN Y SE ALINEA A SU DERECHA, no a su izquierda: el botón vive cerca
+   del borde derecho de la barra y abriéndose hacia allá se saldría de la ventana. */
+.mp-tarjeta {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  width: 268px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface-card);
+  box-shadow: 0 12px 32px -8px rgba(12,45,64,.28);
+}
+.dark .mp-tarjeta { box-shadow: 0 12px 32px -8px rgba(0,0,0,.6); }
+
+.mp-cab {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0 0 13px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+.mp-cab span { font-size: 11px; font-weight: 400; line-height: 1.45; color: var(--text-muted); }
+
+.mp-et {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--icon-muted);
+}
+.mp-lista { display: flex; flex-direction: column; gap: 3px; margin-bottom: 14px; }
+.mp-lista:last-child { margin-bottom: 0; }
+
+/* UNA OPCIÓN POR RENGLÓN y no tres apretadas en una tira. En la barra iban en fila porque no
+   había alto; acá sobra, y en columna cada una puede decir qué es —«Los 249 campos del
+   estudio»— en vez de esconderlo en un `title` que nadie va a rozar. */
+.mp-op {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s;
+}
+.mp-op b {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--icon-muted);
+  font-variant-numeric: tabular-nums;
+}
+.mp-op span { font-size: 12.5px; font-weight: 600; color: var(--text-heading); }
+/* LA PISTA BAJA AL RENGLÓN SIGUIENTE, no al costado. Puesta a la derecha del rótulo le quedaban
+   ciento veinte píxeles, así que «Sin esto no se puede declarar a nadie» se partía en dos líneas
+   alineadas a la derecha y el ojo ya no sabía si leer primero el rótulo o la coletilla. Debajo y
+   al ras de la izquierda, la fila se lee como se escribe: qué es, y después qué implica. */
+.mp-op i {
+  flex-basis: 100%;
+  margin-top: 1px;
+  font-size: 10.5px;
+  font-style: normal;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+.mp-op:hover { background: var(--surface-hover); }
+.mp-op.on { background: var(--bg-seccion); }
+.mp-op.on b { color: var(--green-fuerte); }
+.dark .mp-op.on { background: var(--green-bg); }
+.dark .mp-op.on b { color: var(--green); }
+
+@media (max-width: 420px) {
+  /* Pegada al borde derecho de una ventana de teléfono, la tarjeta se salía por la izquierda:
+     se recorta al ancho disponible en vez de asomar. */
+  .mp-tarjeta { width: min(268px, calc(100vw - 32px)); }
+}
+/* ── LA BARRA DE ARRIBA ───────────────────────────────────────────────────
+   La miga y el andamio del prototipo, en una fila. La miga mide lo que mide —no se estira— y la
+   franja se queda con lo que sobra, que es lo que necesita: adentro lleva dos grupos de botones
+   y una frase de estado.
+
+   ESTE ENVOLTORIO ES TEMPORAL como la franja que contiene. El día que se elija entre Propuesta 1
+   y 2 se van los dos: sin la franja, esta regla deja una fila con un solo hijo, que es lo mismo
+   que no tenerla. */
+.cn-tope {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cn-tope .cn-miga { flex-shrink: 0; }
+
+/* CUÁNTO FALTA DEL MÍNIMO LEGAL, al otro extremo de la fila de la miga. Vivía dentro de la banda
+   oscura del prototipo, y cuando ésa se borre esta frase tiene que seguir en pie: habla de la
+   ficha, no de la comparación entre dos diseños.
+
+   Alineada a la derecha y en el gris apagado de la pantalla: es un dato de fondo que se consulta
+   de reojo, no un aviso. Si fuera rojo o llevara icono diría «hay un problema», y no lo hay —
+   muchos de esos campos llegan semanas después del alta, con los papeles de la Gestora. */
+.cn-cuenta {
+  flex: 1;
+  min-width: 220px;
+  margin: 0;
+  text-align: right;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+/* EL NIVEL, UN PUNTO MÁS OSCURO QUE EL RESTO DE LA FRASE. Es la única parte de esta línea que
+   contesta una pregunta urgente —«¿por qué no está el campo que busco?»— y tiene que encontrarse
+   sin leer las otras veinte palabras. Medio peso más, y nada más: sigue siendo un dato de fondo,
+   no un aviso. Si fuera ámbar o llevara icono diría «hay un problema», y no lo hay — el nivel
+   está escondiendo campos porque alguien se lo pidió. */
+.cn-nivel { font-weight: 600; color: var(--text-heading); }
+
+/* ── LA TARJETA DE REINGRESO ──────────────────────────────────────────────
+   La única de las cuarenta y cuatro que no es una rejilla de campos sino una conversación:
+   se pregunta, se busca, se compara, se elige y se trae. Por eso tiene estilos propios en vez
+   de heredar los de `emp-form` — lo que dibuja no son campos, son resultados.
+
+   TODO SE APILA EN UNA COLUMNA y no se reparte en doce: cada paso de la conversación depende
+   del anterior, y dos cosas lado a lado dicen «elegí cualquiera». */
+.rg { display: flex; flex-direction: column; gap: 14px; }
+
+/* EL CONTROL DEBAJO DEL TEXTO, no al otro extremo de la fila. Repartida con space-between, la
+   pregunta quedaba a la izquierda y su sí/no pegado al borde derecho de la tarjeta, a setecientos
+   píxeles: hay que leer, cruzar la tarjeta entera con la vista y volver. Y rompía el patrón del
+   resto de la ficha, donde todo rótulo tiene su control justo debajo. */
+.rg-pregunta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+/* LAS TRES DE «QUÉ CONSERVAR» SÍ SE REPARTEN, pero dentro de un ancho corto. Son una lista de
+   tres cosas del mismo tipo y apiladas ocuparían seis renglones; en fila y con tope, el texto y
+   su sí/no quedan cerca y los tres controles se alinean en una columna que se recorre de un
+   vistazo — que es lo que uno hace con tres preguntas seguidas. */
+.rg-pregunta-fina {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 440px;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rg-pregunta-fina:last-of-type { border-bottom: none; }
+
+.rg-sino { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--bg-canal); flex-shrink: 0; }
+.rg-op {
+  padding: 6px 17px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.rg-op:hover { color: var(--text-heading); }
+.rg-op.on { background: var(--navy); color: #fff; }
+.dark .rg-op.on { background: var(--green); color: var(--navy-dark); }
+
+/* ── El buscador ── */
+.rg-buscar { display: block; max-width: 420px; }
+.rg-caja {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--surface-card);
+  color: var(--icon-muted);
+}
+.rg-caja:focus-within { border-color: var(--green-fuerte); outline: 2px solid var(--green-fuerte); outline-offset: 1px; }
+.dark .rg-caja:focus-within { border-color: var(--green); outline-color: var(--green); }
+.rg-caja input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-heading);
+}
+.rg-caja input:focus { outline: none; }
+.rg-caja input::placeholder { color: var(--border-dark); }
+
+.rg-pista { margin: 0; font-size: 11.5px; color: var(--text-muted); }
+.rg-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+
+/* ── Un resultado ──
+   EL HALLAZGO NORMAL VA EN VERDE Y EL CHOQUE EN ÁMBAR, y no son dos adornos: encontrar a
+   alguien que se fue es la buena noticia que se vino a buscar; encontrar a alguien que trabaja
+   acá HOY es un aviso de que estás por duplicar a una persona en planilla. El color tiene que
+   decir cuál de las dos cosas pasó antes de que se lea una palabra. */
+.rg-hall {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 13px 15px;
+  border-radius: 10px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-halo);
+}
+.rg-hall-alerta { background: var(--yellow-bg); border-color: rgba(245,158,11,.35); }
+
+.rg-ini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--green-light);
+  font-size: 11px;
+  font-weight: 700;
+}
+.rg-hall-alerta .rg-ini { background: var(--yellow); color: #fff; }
+
+.rg-hall-cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rg-hall-et {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--green-fuerte);
+}
+.dark .rg-hall-et { color: var(--green); }
+.rg-hall-alerta .rg-hall-et { color: var(--yellow); }
+.rg-hall-nom { font-size: 14px; font-weight: 700; letter-spacing: -.015em; color: var(--text-heading); }
+.rg-hall-det { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+.rg-hall-aviso { margin: 5px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--text-heading); }
+
+.rg-acc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 9px; }
+.rg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--surface-card);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-heading);
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.rg-btn:hover { border-color: var(--green-fuerte); }
+.dark .rg-btn:hover { border-color: var(--green); }
+.rg-btn-pri { background: var(--navy); border-color: var(--navy); color: #fff; }
+.rg-btn-pri:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
+.dark .rg-btn-pri { background: var(--green); border-color: var(--green); color: var(--navy-dark); }
+
+/* LA MARCA DE «A CONFIRMAR». Ámbar y no rojo: no hay un error, hay un dato que pide una mirada.
+   El rojo de esta paleta ya significa «falta algo obligatorio» y dos rojos distintos en el
+   mismo formulario se leen como el mismo aviso. */
+.emp-confirmar {
+  background: var(--yellow-bg);
+  color: var(--ambar, #B45309);
+  cursor: help;
+}
+.dark .emp-confirmar { color: var(--yellow); }
+
+/* El contador de lo que queda por mirar, al lado de lo que se copió. */
+.rg-revisar {
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--yellow-bg);
+  color: var(--yellow);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── YA SE TRAJO A ALGUIEN ────────────────────────────────────────────────
+   Una tarjeta de persona y no una línea de confirmación. Después de elegir entre dos homónimas
+   la pregunta que queda es «¿es ésta?», y esa se contesta con una cara, un carnet y unas fechas
+   delante — no con un tilde verde. */
+.rg-traido { border-top: 1px dashed var(--border-dark); padding-top: 15px; }
+
+.rg-persona {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--green-halo);
+  border-radius: 12px;
+  background: var(--green-bg);
+}
+
+/* 60 y no 34 como en la lista de resultados: acá la foto no acompaña a un nombre, es la
+   prueba de que se eligió a la persona correcta. */
+.rg-foto {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--bg-secondary);
+}
+
+.rg-persona-datos { flex: 1; min-width: 0; }
+.rg-persona-nom {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--text-heading);
+  line-height: 1.25;
+}
+.rg-persona-doc {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* LOS DATOS DEL VÍNCULO ANTERIOR, en rótulo y valor. Una lista de definición y no una frase
+   con puntos medios: son cuatro datos que se comparan de un vistazo con lo que uno tiene en la
+   carpeta, y para comparar hacen falta dos columnas. */
+.rg-detalles {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 14px;
+  margin: 11px 0 0;
+}
+.rg-detalles > div { display: contents; }
+.rg-detalles dt {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--icon-muted);
+  align-self: baseline;
+}
+.rg-detalles dd {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-heading);
+}
+
+.rg-quitar { flex-shrink: 0; align-self: flex-start; }
+
+.rg-copiado {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 12px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--green-fuerte);
+}
+.dark .rg-copiado { color: var(--green); }
+
+.rg-sub {
+  margin: 16px 0 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (max-width: 560px) {
+  /* La foto y el botón dejan de compartir fila con los datos: en angosto, cuatro rótulos en
+     dos columnas contra una foto de 60 no entran sin partir palabras. */
+  .rg-persona { flex-wrap: wrap; }
+  .rg-quitar { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 560px) {
+  /* La pregunta y sus botones dejan de compartir renglón: con el rótulo largo, el sí/no
+     quedaba apretado contra el borde derecho. */
+  .rg-pregunta-fina { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+/* ── LA MIGA DE PAN ────────────────────────────────────────────────────────
+   Doce píxeles y en gris a propósito: es el camino, no el nombre de lo que estás mirando. Si
+   pesara más competiría con el <h1> de la tarjeta, que es justo lo que la miga vino a
+   desahogar — y una miga que grita deja de ser una miga y pasa a ser un título partido.
+
+   EL PRIMER TRAMO ES UN BOTÓN DE VERDAD y el último no: uno lleva a algún lado y el otro es
+   donde ya estás. Que se vean distintos es lo que evita el clic que no hace nada. */
+.cn-miga {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+}
+/* El <nav> envuelve sólo lo que navega —el título no navega, es donde ya estás— y con
+   `contents` deja que su botón se acomode en esta fila como si no hubiera envoltorio. */
+.cn-miga nav { display: contents; }
+.cn-miga button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color .12s;
+}
+/* AL PASAR, SE ACLARA Y LA FLECHA SE CORRE HACIA DONDE LLEVA. Antes acá había un subrayado, que
+   con la flecha adentro subrayaba también el icono y el hueco entre los dos —una raya que empieza
+   antes de la palabra se lee como un error de maquetación, no como un enlace—. El desplazamiento
+   dice lo mismo sin dibujar nada de más. */
+.cn-miga button:hover { color: var(--text-heading); }
+.cn-miga button svg { flex-shrink: 0; transition: transform .14s ease; }
+.cn-miga button:hover svg { transform: translateX(-2px); }
+/* El foco de teclado no puede depender del ratón: sin esto, quien tabula no sabe dónde está. */
+.cn-miga button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+  color: var(--text-heading);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cn-miga button svg { transition: none; }
+  .cn-miga button:hover svg { transform: none; }
+}
+.cn-miga-sep { color: var(--border-dark); font-weight: 400; }
+/* Es el <h1> de la página, pero se ve como lo que es en esta fila: el último tramo del camino.
+   Sin el tope de margen se lleva el del agente de usuario y parte la fila en dos. */
+.cn-miga-fin {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+
+
+
+/* ── El cuerpo del paso ── */
+.cn-cuerpo { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.cn-paso-cab h2 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--text-heading);
+  margin: 0;
+}
+.cn-paso-cab p { font-size: 12px; color: var(--text-muted); margin: 3px 0 0; }
+.cn-tarjetas, .cn-previa { display: flex; flex-direction: column; gap: 16px; }
+
+/* En la vista previa cada paso vuelve con su número y su botón de editar: sin eso, veinte
+   tarjetas seguidas son una lista sin costuras donde no se sabe qué pertenece a qué. */
+.cn-bloque { display: flex; flex-direction: column; gap: 12px; }
+.cn-bloque-cab { display: flex; align-items: center; gap: 9px; }
+.cn-bloque-cab h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0;
+}
+.cn-bloque-cab button {
+  margin-left: auto;
+  padding: 4px 11px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--surface-card);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-heading);
+  cursor: pointer;
+}
+.cn-bloque-cab button:hover { background: var(--green-tint); border-color: var(--green); }
+.cn-bloque-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* ── El aviso de lo que falta ── */
+.cn-aviso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  background: var(--red-bg);
+  border: 1px solid var(--red);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--red);
+}
+.cn-aviso svg { flex-shrink: 0; }
+.cn-aviso button {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+}
+/* El mismo aviso cuando no es un error sino una circunstancia: no hay puestos libres todavía. */
+.cn-aviso-suave {
+  background: var(--yellow-bg);
+  border-color: var(--yellow);
+  color: #92400e;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.dark .cn-aviso-suave { color: var(--yellow); }
+
+/* ── El pie de la pantalla ──
+   Los tres botones pegados abajo y siempre en el mismo sitio: se aprietan ocho veces seguidas y
+   moverlos de altura según cuántos campos tenga el paso obliga a buscarlos cada vez. «Volver
+   atrás» y «Guardar y salir» a la izquierda, y lo que avanza separado a la derecha: lo que
+   avanza no se aprieta de paso. */
+.cn-pie {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+.cn-pie .pl-btn-save { margin-left: auto; }
+
+@media (max-width: 1100px) {
+  .cn-grid { grid-template-columns: minmax(0, 1fr); }
+  .rp-riel {
+    position: static;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+  }
+  .rp-paso { width: auto; flex-shrink: 0; }
+  /* Acostado no hay sitio para la pista debajo del título, y un renglón de diez píxeles
+     recortado a la mitad es peor que no estar. */
+  .rp-pista { display: none; }
+  .rp-previa { margin: 0 0 0 6px; border-top: none; border-left: 1px solid var(--border-soft); padding: 0 0 0 12px; }
+}
+
+@media (max-width: 640px) {
+  .cn-pie { flex-wrap: wrap; }
+  .cn-pie .pl-btn-save { margin-left: 0; width: 100%; }
+}
+/* ── LA FRANJA DEL PROTOTIPO ──
+   Una banda oscura que cruza la pantalla, con la etiqueta de qué se está eligiendo y los dos
+   botones pegados. Es la misma idea que la franja del prototipo de al lado, y por el mismo
+   motivo: esto NO es parte del sistema, es el andamio de una decisión de diseño, así que tiene
+   que verse de otra materia que el resto de la pantalla. El día que se elija una propuesta, la
+   banda se borra entera y no queda rastro.
+
+   OSCURA Y ARRIBA DEL TODO. La primera versión era una pastilla gris al costado del título: del
+   color del fondo, del tamaño de una etiqueta y en un sitio donde ninguna otra pantalla pone
+   nada. Un control que hay que ir a buscar no sirve justo en el único momento en que se usa, que
+   es enseñarle las dos a alguien en una reunión. */
+
+@media (max-width: 760px) {
+}
+
+/* ── PROPUESTA 2 · la tira de pestañas ──
+   Va dentro de un canal hundido para que se lea como un grupo y no como nueve botones sueltos,
+   igual que los filtros de las tablas. Se arrastra de lado cuando no caben las nueve: partirlas
+   en dos renglones hace que la fila de abajo parezca otra cosa. */
+.pp-tira {
+  display: flex;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 12px;
+  /* `--bg-canal` y no `--bg-secondary`: aquél es para hundirse dentro de una tarjeta blanca y
+     acá abajo no hay ninguna, así que quedaba a un punto del fondo de la página y la banda no
+     se veía. La sombra interior hace el resto: una banda del mismo tono que el fondo pero un
+     poco más oscura se lee como un plano de atrás recién cuando algo indica que está hundida. */
+  background: var(--bg-canal);
+  box-shadow: inset 0 1px 2px rgba(12,45,64,.08);
+  /* LAS NUEVE EN UNA FILA, Y SI NO CABEN SE PARTEN ANTES QUE ESCONDERSE. Con los títulos
+     completos sumaban unos 1150 px y en un portátil de 1366 dos caían a un segundo renglón; con
+     los rótulos cortos bajan a unos 880 y entran de una a partir de 1280. El `wrap` se queda
+     igual, de red: por debajo de eso, dos filas se siguen viendo enteras, y una pestaña que no
+     se ve es una pestaña que no existe —justo la novena, que es a la que hay que llegar para
+     crear la ficha—. Arrastrar la tira sería peor: esconde sin avisar. */
+  flex-wrap: wrap;
+}
+.pp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* LAS NUEVE TIENEN QUE ENTRAR DE UNA. Estirándose a partes iguales y a 12.5 px, la novena
+     —«Vista previa»— caía
+     fuera del borde derecho y había que arrastrar la tira para descubrir que existía: una
+     pestaña que no se ve es una pestaña que no está. Media letra menos y dos píxeles menos de
+     aire por lado hacen que las nueve quepan enteras a partir de 1280 px; por debajo, la tira se
+     arrastra, que ahí sí es la respuesta correcta. */
+  flex: 1 1 auto;
+  justify-content: center;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.pp-tab:hover { color: var(--text-heading); background: var(--surface-hover); }
+
+/* EL DISCO DEL NÚMERO ES EL MEDIDOR, igual que en el riel. Una sola forma para el mismo dato en
+   las dos navegaciones: cambiar de una a la otra no obliga a reaprender nada.
+
+   LOS COLORES DEL ARO SON DOS VARIABLES y no valores fijos porque la pastilla tiene cuatro
+   fondos —normal, con el ratón encima, puesta en claro (navy) y puesta en oscuro (verde)— y en
+   la última el relleno verde del aro desaparecería contra su propio fondo. Parametrizados, cada
+   estado dice con qué se dibuja sin repetir la regla entera. */
+.pp-aro {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+.pp-arco {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--relleno, var(--green)) 0 var(--pct, 0%),
+    var(--canal, var(--border-dark)) var(--pct, 0%) 100%
+  );
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 2.5px), #000 calc(100% - 2.4px));
+  mask: radial-gradient(farthest-side, #0000 calc(100% - 2.5px), #000 calc(100% - 2.4px));
+}
+.pp-aro b { position: relative; z-index: 1; font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pp-tab.on .pp-arco { --canal: rgba(255,255,255,.3); }
+/* En oscuro la pastilla puesta ES verde, así que el relleno del aro pasa al navy del fondo: un
+   arco verde sobre verde no se ve. */
+.dark .pp-tab.on .pp-arco { --relleno: var(--navy-dark); --canal: rgba(0,0,0,.28); }
+.pp-tab.on { background: var(--navy); color: #fff; }
+.dark .pp-tira { box-shadow: inset 0 1px 3px rgba(0,0,0,.45); }
+.dark .pp-tab.on { background: var(--green); color: var(--navy-dark); }
+
+.pp-ojo { flex-shrink: 0; }
+.pp-previa { flex: 0 0 auto; }
+
+.pp-punto {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--red);
+}
+.pp-tab.on .pp-punto { background: #ff9ea0; }
+
+/* ── PROPUESTA 2 · los acordeones ──
+   Cabecera azul de la marca, como el formulario que el equipo ya conoce: la sección se lee como
+   una banda y no como otra tarjeta más entre tarjetas. Plegada es solo la banda; abierta, la
+   banda pierde las esquinas de abajo y se pega a sus campos, que es lo que dice a qué pertenece
+   lo que se está viendo. */
+.cn-acordeones { display: flex; flex-direction: column; gap: 8px; }
+
+/* SIN `overflow: hidden`, Y ESO NO ES UN DESCUIDO SINO EL ARREGLO.
+   Lo tenía para que la banda de color de la cabecera no se saliera por las esquinas
+   redondeadas, y funcionaba — pero recortaba también todo lo que una sección necesita sacar
+   FUERA de sí misma: el calendario de una fecha, el menú de un desplegable. Elegir el
+   vencimiento del documento era imposible: el calendario se abría y la tarjeta le cortaba las
+   cuatro últimas semanas.
+
+   Es el precio clásico de recortar un contenedor para resolver un problema de dibujo: se lo
+   cobra el primer hijo que quiera asomarse. Y en un formulario, asomarse es lo que hacen la
+   mitad de los controles.
+
+   LAS ESQUINAS SE RESUELVEN DONDE ESTABA EL PROBLEMA: redondeando la cabecera, que es la única
+   que pinta hasta el borde. El cuerpo no tiene fondo propio, así que no tenía nada que
+   recortar. */
+.ac-caja {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+}
+.ac-cab {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  /* EN REPOSO, GRIS. El verde de marca estuvo acá y recorrió toda la escala —`--green` puro
+     (1.74:1 contra la tarjeta), `--green-light` (1.18), el 14% (1.10) y el 22% (1.17)— buscando
+     un tono que se viera sin gritar. El tono nunca fue el problema: eran ocho bandas por paso,
+     y ocho manchas del color que en esta pantalla significa «hecho» dejaban a «hecho» sin
+     manera de decirse. El verde se mudó a `.on`, unas líneas más abajo.
+
+     EL TEXTO VA EN NAVY, y eso vale para el gris igual que valía para el verde: blanco sobre
+     cualquiera de estos fondos claros es ilegible. Acá da 14:1, que sobra. */
+  background: var(--bg-seccion-plegada);
+  color: var(--navy-dark);
+  /* EL FILETE NO ES ADORNO, es lo que hace que haya cabecera. A poco más de 1:1 contra el
+     cuerpo, el relleno solo no alcanza para separar el título de sus campos. */
+  border-bottom: 1px solid var(--border-soft);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: filter .12s, background .12s;
+}
+/* Al pasar por encima se oscurece, con filtro en vez de un token nuevo: no hacía falta
+   inventar un «verde hover» para una diferencia que nadie más va a reusar. Baja más que antes
+   —.94 con el verde fuerte, .96 acá— porque sobre un tono claro el mismo porcentaje se nota
+   menos: lo que cambia no es el color, es cuánto hay para oscurecer. */
+/* 11 y no 12: por dentro del borde de un píxel de la tarjeta. Con 12, el relleno de la banda
+   asoma una hebra de color por fuera de la curva en las cuatro esquinas. */
+.ac-cab { border-radius: 11px 11px 0 0; }
+/* PLEGADA, LA CABECERA ES LA TARJETA ENTERA, así que se redondea por los cuatro lados — y
+   suelta el filete de abajo, que ahí no separa de nada: lo único que tiene debajo es el borde
+   de la propia tarjeta, y los dos juntos se ven como una raya doble. */
+.ac-caja:not(.on) .ac-cab { border-radius: 11px; border-bottom-color: transparent; }
+
+.ac-cab:hover { filter: brightness(.96); }
+
+/* LA ABIERTA, Y SÓLO ELLA, EN VERDE. Es el único verde que queda en las cabeceras de un paso, y
+   por eso puede significar una cosa sola: «ésta es la que estás llenando».
+
+   NO ES REDUNDANTE CON LA FLECHA. La flecha girada dice que la sección está desplegada, pero hay
+   que mirarla; el color se ve sin mirar, que es lo que hace falta cuando se vuelve a la pantalla
+   después de ir a buscar un papel. Y con ocho tarjetas apiladas, saber de un vistazo cuál está
+   abierta ahorra recorrerlas.
+
+   DE PASO ARREGLA LA PASTILLA. Con todo verde, `.ac-cuenta.llena` quedaba verde sobre verde y
+   había que buscarla; sobre el gris se ve de lejos, que es justo lo que una marca de «completa»
+   tiene que hacer. */
+.ac-caja.on .ac-cab { background: var(--bg-seccion); }
+
+/* EN OSCURO SE QUEDA EL AZUL. Este verde es el más saturado de la paleta y una banda entera de
+   él sobre un fondo oscuro deslumbra: en claro compite con el papel, en oscuro se recorta
+   contra la nada y queda gritando. Son ocho bandas por paso. El azul de allá ya está pensado
+   para ese fondo, así que se queda.
+
+   PERO LA DISTINCIÓN SÍ VIAJA. Lo que se arregló en claro no era un color, era que abierta y
+   plegada se vieran igual, y eso pasaba en los dos temas. Acá lo dicen los dos azules que ya
+   existen: la plegada en `--navy`, la abierta un escalón más clara en `--navy-alt`.
+
+   LOS DOS TIENEN QUE ESTAR POR ENCIMA DE LA TARJETA. En oscuro la tarjeta es #173D54, así que
+   una banda pintada de `--surface-card` sería invisible —la probé—. `--navy` en este tema es
+   #1D4B60, un escalón por encima; `--navy-alt` es #2B6379, otro más. La escala va tarjeta →
+   plegada → abierta, y se lee en ese orden. */
+.dark .ac-cab { background: var(--navy); color: #fff; }
+.dark .ac-caja.on .ac-cab { background: var(--navy-alt); }
+/* El hover en oscuro sube en vez de bajar: sobre un fondo oscuro, oscurecer es desaparecer. */
+.dark .ac-cab:hover { filter: brightness(1.14); }
+.ac-flecha { flex-shrink: 0; opacity: .7; transition: transform .18s; }
+.ac-caja.on .ac-flecha { transform: rotate(180deg); }
+.ac-tit { flex: 1; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
+
+/* CERRADA, LA SECCIÓN SIGUE DICIENDO ALGO. «3 de 7» es lo que convierte al plegado en un índice
+   útil: sin eso hay que abrir las cuatro secciones para saber cuál quedó a medias, y plegar
+   habría cambiado scroll por clics sin ganar nada. */
+.ac-cuenta {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 99px;
+  /* Translúcida OSCURA y no blanca: sobre un verde claro, un velo blanco no existe. Sigue el
+     color del texto de la banda, que es lo que la hace funcionar en los dos temas. */
+  background: rgba(5,27,38,.10);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.dark .ac-cuenta { background: rgba(255,255,255,.16); }
+/* COMPLETA, Y EL VERDE VUELVE A SIGNIFICAR LO QUE SIGNIFICA. Con la banda en verde fuerte esta
+   pastilla tuvo que irse a navy —verde sobre verde no marca nada— y el color de marca dejó de
+   estar disponible para decir «terminado». Bajada la banda a un tinte, el verde oscuro vuelve a
+   destacarse encima y la pastilla recupera el idioma del resto de la pantalla: verde es hecho,
+   igual que en los aros del riel y en «Nada impide crearla».
+
+   `--green-fuerte` y no `--green`: el de marca sobre este tinte del mismo tono casi no se
+   despega, y encima no admite texto blanco. El oscuro da 4.55:1 con blanco, que es lo que pide
+   una pastilla de diez píxeles. */
+.ac-cuenta.llena { background: var(--green-fuerte); color: #fff; }
+.dark .ac-cuenta.llena { background: var(--green); color: var(--navy-dark); }
+
+.ac-cuerpo { padding: 18px 20px 20px; }
+.ac-desc { margin: 0 0 16px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+@media (max-width: 900px) {
+  /* Nueve pestañas repartidas a partes iguales no entran: dejan de estirarse y la tira se
+     arrastra, que es lo que ya hace el riel acostado. */
+  .pp-tab { font-size: 12px; padding: 9px 12px; }
+}
+
+/* El rótulo que parte una tarjeta por dentro. Hay secciones del estudio con veinte campos que
+   son tres cosas distintas —el cónyuge, los hijos, los herederos— y sin una línea que las
+   separe se leen como veinte rótulos grises seguidos. No guarda nada: es un encabezado. */
+.emp-rotulo-bloque {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 -4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+/* El primero de la tarjeta no lleva filete: ya lo separa la cabecera de la sección. */
+.emp-form > .emp-rotulo-bloque:first-child { margin-top: 0; padding-top: 0; border-top: none; }

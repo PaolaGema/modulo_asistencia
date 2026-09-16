@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, Plus, MoreHorizontal, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Eye, Pencil, Rocket, Repeat, Shield, X, CheckCircle2, RefreshCw, Palmtree, Stethoscope, Ban, UserMinus, UserPlus, Users, Unlink, Send, Route, Filter, Info, AlertTriangle } from 'lucide-react'
 import { useRutaActiva } from '../../context/RutaActivaContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
@@ -7,12 +8,37 @@ import { getGlobalEtapas } from '../../utils/globalEtapas'
 import { avatarUrl } from '../../utils/calendarEvents'
 import AsignarBuddyModal from '../../components/onboarding/AsignarBuddyModal'
 import ConfirmarAccionModal from '../../components/layout/ConfirmarAccionModal'
-import { departamentos, colaboradoresData, ESTADOS_ONBOARDING, CON_RUTA_ACTIVA } from './colaboradoresData'
+import { departamentos, ESTADOS_ONBOARDING, CON_RUTA_ACTIVA, ESTADOS_VINCULO, TIPOS_AUSENCIA, insigniaDe } from './colaboradoresData'
 import { cargoDe } from '../../data/organigramaData'
+import { useArchivoLocal } from '../../hooks/useArchivoLocal'
 
-/* Foto real del colaborador; si no carga, caen las iniciales sobre su color de siempre. */
-function Avatar({ name, initials, color, size = 34 }) {
+/* Foto real del colaborador; si no carga, caen las iniciales sobre su color de siempre.
+
+   LA FOTO SUBIDA MANDA SOBRE LA DE LA DEMO. Las caras de la gente de ejemplo salen de pravatar
+   a partir del nombre; quien se dio de alta por la ficha trae la suya, guardada al subirla. Sin
+   esta distinción, una persona que acaba de subir su foto aparecía en el directorio con la cara
+   de un desconocido, que es peor que no tener foto.
+
+   Mientras la suya se lee del navegador se enseñan las iniciales y no la de la demo: un cambio
+   de cara a mitad de carga se ve como un error, y acá sabemos que esa cara no es la que va. */
+function Avatar({ name, initials, color, size = 34, fotoClave }) {
   const [sinFoto, setSinFoto] = useState(false)
+  const subida = useArchivoLocal(fotoClave)
+  const src = fotoClave ? subida : avatarUrl(name)
+  if (!src) {
+    return (
+      <div
+        className="as-avatar"
+        style={{
+          background: color, width: size, height: size, flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', fontSize: Math.round(size * 0.32), fontWeight: 700, letterSpacing: '.02em',
+        }}
+      >
+        {initials}
+      </div>
+    )
+  }
   return (
     <div
       className="as-avatar"
@@ -24,7 +50,7 @@ function Avatar({ name, initials, color, size = 34 }) {
     >
       {sinFoto ? initials : (
         <img
-          src={avatarUrl(name)}
+          src={src}
           alt={name}
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           onError={() => setSinFoto(true)}
@@ -215,9 +241,13 @@ function MiniCalendar({ value, onChange }) {
 export default function Colaboradores() {
   const { activarRuta } = useRutaActiva()
   /* El cargo sale del organigrama —ver `cargoDe`— así que esta pantalla necesita tenerlo. */
-  const { plantillas, organigrama } = useOnboardingData()
-  // Copia local: asignar, desasignar y cambiar de buddy tienen que verse en la tabla.
-  const [colaboradores, setColaboradores] = useState(colaboradoresData)
+  /* EL DIRECTORIO YA NO ES UNA COPIA DE ESTA PANTALLA. Era un `useState` sembrado del archivo de
+     datos, y eso alcanzaba mientras la lista solo se podía mirar: asignar una ruta o cambiar un
+     estado se veía acá y se perdía al salir. Desde que se puede dar de alta a alguien en otra
+     ruta, la lista tiene que ser la misma en las dos pantallas —si no, la persona recién creada
+     no aparece— así que vive en el contexto como el resto de los datos de la demo. */
+  const { plantillas, organigrama, colaboradores, setColaboradores } = useOnboardingData()
+  const navigate = useNavigate()
   const [buddyModal, setBuddyModal] = useState(null)
   const [confirmar, setConfirmar] = useState(null)
   const [search, setSearch] = useState('')
@@ -278,7 +308,11 @@ export default function Colaboradores() {
       (cargoDe(c, organigrama) || '').toLowerCase().includes(search.toLowerCase()) ||
       c.email.toLowerCase().includes(search.toLowerCase())
     const matchDepto = filterDepto === 'Todos' || c.depto === filterDepto
-    const matchStatus = filterStatus === 'todos' || c.status === filterStatus
+    /* El filtro mira las dos columnas: «Vacaciones» ya no es un estado del vínculo, pero sigue
+       siendo lo que alguien busca cuando abre el desplegable. */
+    const matchStatus = filterStatus === 'todos'
+      || c.status === filterStatus
+      || c.ausencia?.tipo === filterStatus
     return matchSearch && matchDepto && matchStatus
   })
 
@@ -287,8 +321,11 @@ export default function Colaboradores() {
 
   // Los totales cuentan la misma gente que la tabla: contar la empresa entera debajo de una
   // lista de una sede es el número que hace tomar decisiones equivocadas.
-  const totalActivos = enAmbito.filter(c => c.status === 'activo').length
-  const totalInactivos = enAmbito.filter(c => c.status !== 'activo').length
+  /* CUENTA EMPLEADOS, NO PRESENTES. Quien está de vacaciones sigue en planilla y sigue siendo
+     parte de la empresa: contarlo como inactivo hacía que el directorio dijera «5 inactivos»
+     cuando sólo 3 personas se habían ido. El que se fue es el único que no cuenta. */
+  const totalActivos = enAmbito.filter(c => c.status !== 'desvinculado').length
+  const totalInactivos = enAmbito.filter(c => c.status === 'desvinculado').length
 
   return (
     <div className="content-scroll">
@@ -402,7 +439,11 @@ export default function Colaboradores() {
           )}
         </div>
 
-        <button className="pl-btn-new" style={{ padding: '0 14px', height: 34, fontSize: 11.5, marginLeft: 'auto' }}>
+        <button
+          className="pl-btn-new"
+          style={{ padding: '0 14px', height: 34, fontSize: 11.5, marginLeft: 'auto' }}
+          onClick={() => navigate('/personas/colaboradores/nuevo')}
+        >
           <Plus size={14} color="#00E091" />
           Nuevo colaborador
         </button>
@@ -463,7 +504,7 @@ export default function Colaboradores() {
               <tr key={c.id}>
                 <td>
                   <div className="as-person">
-                    <Avatar name={c.name} initials={c.initials} color={c.color} />
+                    <Avatar name={c.name} initials={c.initials} color={c.color} fotoClave={c.fotoClave} />
                     <div>
                       <div className="as-name">{c.name}</div>
                       <div className="as-area">{c.email}</div>
@@ -510,13 +551,23 @@ export default function Colaboradores() {
                 </td>
                 <td><span className="as-fecha">{c.ingreso}</span></td>
                 <td>
-                  <span style={{
-                    fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-                    background: { activo: '#f0fdf4', vacaciones: '#fefce8', licencia: '#eff6ff', suspendido: '#fef2f2', desvinculado: '#f8fafc' }[c.status],
-                    color: { activo: '#16a34a', vacaciones: '#b45309', licencia: '#2563eb', suspendido: '#dc2626', desvinculado: '#64748b' }[c.status],
-                  }}>
-                    {{ activo: 'Activo', vacaciones: 'Vacaciones', licencia: 'Licencia', suspendido: 'Suspendido', desvinculado: 'Desvinculado' }[c.status]}
-                  </span>
+                  {/* Los colores y los nombres salen del catálogo y no de tres objetos escritos
+                      acá: eran tres listas de cinco claves que había que mantener iguales a mano,
+                      y agregar un estado significaba acordarse de los tres. */}
+                  {(() => {
+                    const ins = insigniaDe(c)
+                    return (
+                      <span
+                        style={{
+                          fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+                          background: ins.bg, color: ins.color,
+                        }}
+                        title={c.ausencia ? `${ins.label} · ${c.ausencia.desde} — ${c.ausencia.hasta}` : ins.desc}
+                      >
+                        {ins.label}
+                      </span>
+                    )
+                  })()}
                 </td>
                 <td style={{ position: 'relative' }}>
                   <button
@@ -833,13 +884,16 @@ export default function Colaboradores() {
 
       {/* MODAL CAMBIAR ESTADO */}
       {estadoModal && (() => {
-        const estados = [
-          { key: 'activo', label: 'Activo', desc: 'Colaborador en funciones normales', icon: CheckCircle2, color: '#16a34a', bg: '#f0fdf4' },
-          { key: 'vacaciones', label: 'Vacaciones', desc: 'Ausencia programada por descanso', icon: Palmtree, color: '#f59e0b', bg: '#fefce8' },
-          { key: 'licencia', label: 'Licencia médica', desc: 'Baja temporal por motivos de salud', icon: Stethoscope, color: '#3b82f6', bg: '#eff6ff' },
-          { key: 'suspendido', label: 'Suspendido', desc: 'Suspensión temporal de actividades', icon: Ban, color: '#ef4444', bg: '#fef2f2' },
-          { key: 'desvinculado', label: 'Desvinculado', desc: 'Ya no forma parte de la organización', icon: UserMinus, color: '#64748b', bg: '#f8fafc' },
-        ]
+        /* SÓLO LOS TRES DEL VÍNCULO. «Vacaciones» y «Licencia» estaban acá y no son estados del
+           contrato sino ausencias con fecha: elegirlas en este modal obligaba a BORRAR que la
+           persona estaba activa, y después a acordarse de devolverla cuando volviera. Ahora se
+           registran como ausencia y terminan solas.
+
+           Los rótulos y colores salen de `ESTADOS_VINCULO`; acá sólo se le pone cara a cada uno,
+           que es lo único de esto que es de esta pantalla. */
+        const ICONOS = { activo: CheckCircle2, suspendido: Ban, desvinculado: UserMinus }
+        const estados = Object.entries(ESTADOS_VINCULO)
+          .map(([key, e]) => ({ key, ...e, icon: ICONOS[key] }))
         return (
           <div className="pl-overlay" onClick={() => setEstadoModal(null)}>
             <div className="pl-modal jb-modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>

@@ -30,6 +30,68 @@ export const ESTADOS_ONBOARDING = {
   'graduado': { label: 'Graduado', color: '#16a34a', dot: '#16a34a', bg: '#f0fdf4', desc: 'Completó todas las etapas' },
 }
 
+/* ── EL ESTADO DE UN COLABORADOR ──────────────────────────────────────────
+   Eran cinco —activo, vacaciones, licencia, suspendido, desvinculado— y no eran cinco valores
+   de lo mismo: eran las respuestas a DOS PREGUNTAS que no tienen nada que ver.
+
+     ¿EXISTE EL VÍNCULO?  Un hecho legal. Decide si la persona va en planilla, si se la declara
+     a la Gestora y a la Caja, y si cuenta como parte de la empresa. Cambia tres o cuatro veces
+     en una vida laboral y cada cambio es un trámite.
+
+     ¿ESTÁ HOY?  Un hecho de calendario. Tiene fecha de inicio y de fin, se aprueba y se repite
+     varias veces al año. NO toca el contrato: quien está de vacaciones sigue siendo empleado,
+     cobra y suma antigüedad.
+
+   METIDAS EN LA MISMA COLUMNA SE PISAN. Para marcar que alguien salió de vacaciones había que
+   borrar que estaba activo, y en cuatro sitios del código —el selector de buddy, el
+   constructor de rutas y los dos contadores del directorio— `status === 'activo'` quiere decir
+   «es empleado vigente». Resultado: el directorio decía 5 inactivos cuando sólo 3 personas se
+   habían ido, y quien estaba de vacaciones no podía ser buddy de nadie.
+
+   AHORA SON DOS CAMPOS. `status` contesta la primera pregunta y nada más; `ausencia` contesta
+   la segunda y lleva sus fechas. Los cuatro sitios que preguntaban por `activo` se arreglaron
+   solos: quien está de vacaciones VUELVE a estar activo, que es lo que siempre fue.
+
+   UN ESTADO SE JUSTIFICA POR LO QUE CAMBIA, y estos tres cambian cosas distintas: quién va en
+   planilla, quién puede ocupar un puesto, quién entra al sistema, quién suma antigüedad y
+   quién sale en la búsqueda de reingreso. Si dos estados no difieren en nada, sobra uno. */
+export const ESTADOS_VINCULO = {
+  activo: { label: 'Activo', desc: 'Contrato vigente y en funciones', color: '#16a34a', bg: '#f0fdf4' },
+  /* NECESITA MOTIVO, y no es burocracia: una suspensión disciplinaria sin goce de haber no paga
+     ni suma antigüedad; una por incapacidad temporal sí, y la cubre la Caja. Sin saber cuál de
+     las dos es, la planilla no se puede calcular sola. */
+  suspendido: { label: 'Suspendido', desc: 'El contrato sigue, pero está interrumpido', color: '#dc2626', bg: '#fef2f2', pideMotivo: true },
+  /* El que faltaba. En producción se marcaba como «suspendido» a quien ya se había ido, y ahí
+     el estado deja de significar nada: un suspendido vuelve, un desvinculado no. */
+  desvinculado: { label: 'Desvinculado', desc: 'El contrato terminó', color: '#64748b', bg: '#f8fafc', pideMotivo: true, pideFecha: true },
+}
+
+/* LO QUE ANTES ERAN ESTADOS Y SON AUSENCIAS. La diferencia que importa: esto TERMINA solo. Una
+   ausencia tiene fecha de fin, así que nadie tiene que acordarse de volver a poner a la persona
+   en activo cuando regresa — que es el error que la forma anterior garantizaba. */
+export const TIPOS_AUSENCIA = {
+  vacaciones: { label: 'Vacaciones', desc: 'Descanso programado', color: '#b45309', bg: '#fefce8' },
+  licencia: { label: 'Licencia médica', desc: 'Baja temporal por salud', color: '#2563eb', bg: '#eff6ff' },
+}
+
+/* Lo que se enseña al lado del nombre: si hay una ausencia en curso manda ella, porque es la
+   respuesta a «¿puedo contar con esta persona esta semana?», que es lo que uno mira en una
+   tabla. El vínculo sigue siendo el de abajo y no cambió. */
+export const insigniaDe = c => (
+  c?.ausencia?.tipo && TIPOS_AUSENCIA[c.ausencia.tipo]
+    ? { ...TIPOS_AUSENCIA[c.ausencia.tipo], clave: c.ausencia.tipo }
+    : { ...(ESTADOS_VINCULO[c?.status] || ESTADOS_VINCULO.activo), clave: c?.status || 'activo' }
+)
+
+/* QUIÉN PUEDE SER ELEGIDO EN UN DESPLEGABLE. Un desvinculado sigue en el directorio —es
+   historia y hace falta para reconocer un reingreso— pero no puede ser el jefe de nadie, ni
+   un garante, ni el contacto de emergencia de alguien que entra hoy. Ofrecerlo es ofrecer a
+   alguien que ya no está.
+
+   Va acá y no escrito a mano en cada pantalla porque la regla es una sola y las pantallas que
+   la necesitan son varias. */
+export const esVigente = c => c?.status !== 'desvinculado'
+
 // Estados en los que ya existe una ruta viva: se puede desasignar y se puede acompañar con un buddy.
 export const CON_RUTA_ACTIVA = ['sin-iniciar', 'en-curso', 'en-riesgo']
 
@@ -48,6 +110,24 @@ const BUDDY_DIEGO = { name: 'Diego Morales', initials: 'DM', color: '#3b82f6' }
 const JEFE_ANA = { name: 'Ana Martínez Ruiz', initials: 'AM', color: '#c026d3' }
 const JEFE_NICOLAS = { name: 'Nicolás Zapata', initials: 'NZ', color: '#84cc16' }
 
+/* LA VERSIÓN DE LA SEMILLA. Se sube A MANO cada vez que cambian los datos de ejemplo, y lo que
+   la hace necesaria es un error que ya ocurrió dos veces.
+
+   Primero la semilla sólo sembraba: quien ya había usado la demo no veía a los tres
+   ex-colaboradores nuevos, porque su navegador ya tenía guardada una lista sin ellos. Eso se
+   arregló agregando las filas que faltaban por `id`.
+
+   Y AHÍ APARECIÓ EL SEGUNDO, que es más sutil: a María se la sembró primero sin ficha y la
+   ficha llegó después. Como su `id` ya estaba guardado, la mezcla no la tocaba — el reingreso
+   la encontraba y no copiaba ni su nombre, porque en ESE navegador María no tenía ficha. Una
+   fila que ya existe también puede haber cambiado.
+
+   ASÍ QUE AL SUBIR LA VERSIÓN, LAS FILAS SEMBRADAS SE REESCRIBEN y lo que el usuario creó se
+   queda intacto: sus ids son mayores que cualquiera de la semilla. El precio es que una
+   edición hecha sobre una persona de ejemplo se pierde en la próxima subida — y es el precio
+   correcto, porque eso es exactamente lo que significa que sea de ejemplo. */
+export const SEMILLA_VERSION = 3
+
 export const colaboradoresData = [
   { id: 1, name: 'Diego Morales', email: 'diego.morales@farmavida.com.bo', depto: 'Tecnología', cargo: 'Desarrollador Backend', rol: 'Colaborador', ingreso: '15 Mar 2025', status: 'activo', registro: 100, onb: 'graduado', foto: 'm/32', initials: 'DM', color: '#3b82f6' },
   { id: 2, name: 'Camila Herrera', email: 'camila.herrera@farmavida.com.bo', depto: 'Ventas', cargo: 'Ejecutiva Comercial', rol: 'Colaborador', ingreso: '02 Ene 2026', status: 'activo', registro: 100, onb: 'sin-iniciar', onbPct: 0, foto: 'w/44', initials: 'CH', color: '#f97316', buddy: BUDDY_MARTIN, jefe: JEFE_NICOLAS },
@@ -64,13 +144,13 @@ export const colaboradoresData = [
   { id: 13, name: 'Carolina Vega', email: 'carolina.vega@farmavida.com.bo', depto: 'Marketing', cargo: 'Analista de Marketing', rol: 'Colaborador', ingreso: '08 Mar 2025', status: 'activo', registro: 100, onb: 'graduado', onbPct: 100, foto: 'w/81', initials: 'CV', color: '#14b8a6', buddy: BUDDY_DIEGO, jefe: JEFE_ANA },
   { id: 14, name: 'Alejandro Ríos', email: 'alejandro.rios@farmavida.com.bo', depto: 'Tecnología', cargo: 'DevOps Engineer', rol: 'Colaborador', ingreso: '22 Nov 2024', status: 'activo', registro: 100, onb: 'n-a', foto: 'm/8', initials: 'AR', color: '#6366f1' },
   { id: 15, name: 'Daniela Flores', email: 'daniela.flores@farmavida.com.bo', depto: 'Recursos Humanos', cargo: 'Analista de Nóminas', rol: 'Colaborador', ingreso: '15 Ene 2025', status: 'activo', registro: 100, onb: 'graduado', foto: 'w/9', initials: 'DF', color: '#e11d48' },
-  { id: 16, name: 'Sebastián Torres', email: 'sebastian.torres@farmavida.com.bo', depto: 'Operaciones', cargo: 'Coordinador Logístico', rol: 'Supervisor', ingreso: '03 Sep 2025', status: 'vacaciones', registro: 100, onb: 'graduado', foto: 'm/54', initials: 'ST', color: '#0891b2' },
+  { id: 16, name: 'Sebastián Torres', email: 'sebastian.torres@farmavida.com.bo', depto: 'Operaciones', cargo: 'Coordinador Logístico', rol: 'Supervisor', ingreso: '03 Sep 2025', status: 'activo', ausencia: { tipo: 'vacaciones', desde: '01 Sep 2026', hasta: '19 Sep 2026' }, registro: 100, onb: 'graduado', foto: 'm/54', initials: 'ST', color: '#0891b2' },
   { id: 17, name: 'Isabella Mendoza', email: 'isabella.mendoza@farmavida.com.bo', depto: 'Finanzas', cargo: 'Analista Financiera', rol: 'Colaborador', ingreso: '18 Abr 2025', status: 'activo', registro: 100, onb: 'en-curso', onbPct: 32, foto: 'w/20', initials: 'IM', color: '#7c3aed' },
   { id: 18, name: 'Mateo Guzmán', email: 'mateo.guzman@farmavida.com.bo', depto: 'Ventas', cargo: 'SDR Junior', rol: 'Colaborador', ingreso: '25 Jun 2026', status: 'activo', registro: 75, onb: 'sin-ruta', foto: 'm/91', initials: 'MG', color: '#ca8a04', jefe: JEFE_NICOLAS },
   { id: 19, name: 'Renata Castillo', email: 'renata.castillo@farmavida.com.bo', depto: 'Diseño', cargo: 'Diseñadora Gráfica', rol: 'Colaborador', ingreso: '12 Feb 2026', status: 'activo', registro: 100, onb: 'en-curso', onbPct: 48, foto: 'w/71', initials: 'RC', color: '#db2777' },
   { id: 20, name: 'Gabriel Pacheco', email: 'gabriel.pacheco@farmavida.com.bo', depto: 'Tecnología', cargo: 'Data Analyst', rol: 'Colaborador', ingreso: '30 May 2025', status: 'activo', registro: 100, onb: 'en-curso', onbPct: 70, foto: 'm/17', initials: 'GP', color: '#059669', buddy: BUDDY_DIEGO },
   { id: 21, name: 'Valeria Rojas', email: 'valeria.rojas@farmavida.com.bo', depto: 'Marketing', cargo: 'Content Creator', rol: 'Colaborador', ingreso: '07 Ago 2025', status: 'activo', registro: 100, onb: 'graduado', foto: 'w/48', initials: 'VR', color: '#c026d3', jefe: JEFE_ANA },
-  { id: 22, name: 'Emilio Vargas', email: 'emilio.vargas@farmavida.com.bo', depto: 'Operaciones', cargo: 'Asistente Operativo', rol: 'Colaborador', ingreso: '20 Jun 2026', status: 'licencia', registro: 50, onb: 'sin-ruta', foto: 'm/83', initials: 'EV', color: '#ea580c' },
+  { id: 22, name: 'Emilio Vargas', email: 'emilio.vargas@farmavida.com.bo', depto: 'Operaciones', cargo: 'Asistente Operativo', rol: 'Colaborador', ingreso: '20 Jun 2026', status: 'activo', ausencia: { tipo: 'licencia', desde: '24 Ago 2026', hasta: '30 Sep 2026' }, registro: 50, onb: 'sin-ruta', foto: 'm/83', initials: 'EV', color: '#ea580c' },
   { id: 23, name: 'Camilo Espinoza', email: 'camilo.espinoza@farmavida.com.bo', depto: 'Finanzas', cargo: 'Tesorero', rol: 'Gerente', ingreso: '11 Oct 2024', status: 'activo', registro: 100, onb: 'n-a', foto: 'm/40', initials: 'CE', color: '#2563eb' },
   { id: 24, name: 'Julieta Sánchez', email: 'julieta.sanchez@farmavida.com.bo', depto: 'Recursos Humanos', cargo: 'Reclutadora', rol: 'Colaborador', ingreso: '28 Jun 2026', status: 'activo', registro: 15, onb: 'sin-ruta', foto: 'w/5', initials: 'JS', color: '#9333ea' },
   { id: 25, name: 'Ana Martínez Ruiz', email: 'ana.martinez@farmavida.com.bo', depto: 'Marketing', cargo: 'Líder de Marketing', rol: 'Líder de área', ingreso: '19 Feb 2024', status: 'activo', registro: 100, onb: 'n-a', foto: 'w/65', initials: 'AM', color: '#c026d3' },
@@ -119,4 +199,63 @@ export const colaboradoresData = [
   { id: 57, name: 'Luis Peñaranda', email: 'luis.penaranda@farmavida.com.bo', depto: 'Sin asignar', cargo: 'Sin puesto asignado', rol: 'Colaborador', ingreso: '05 Abr 2026', status: 'activo', registro: 100, onb: 'n-a', foto: 'm/16', initials: 'LP', color: '#0C2D40' },
   { id: 58, name: 'Alejandra Vaca', email: 'alejandra.vaca@farmavida.com.bo', depto: 'Sin asignar', cargo: 'Sin puesto asignado', rol: 'Colaborador', ingreso: '08 May 2026', status: 'activo', registro: 100, onb: 'n-a', foto: 'w/18', initials: 'AV', color: '#ec4899' },
   { id: 59, name: 'Sergio Molina', email: 'sergio.molina@farmavida.com.bo', depto: 'Sin asignar', cargo: 'Sin puesto asignado', rol: 'Colaborador', ingreso: '11 Jun 2026', status: 'activo', registro: 100, onb: 'n-a', foto: 'm/18', initials: 'SM', color: '#334155' },
+
+  /* UNA SEGUNDA ROJAS, Y ESTÁ ACTIVA. No es relleno: es el caso que separa una búsqueda que
+     sirve de una que engaña. Quien da de alta a «Rojas» tiene que ver a las dos y distinguirlas
+     por el carnet, y sobre todo tiene que enterarse de que una de ellas TRABAJA ACÁ HOY —eso
+     no es un reingreso, es un duplicado de alguien en planilla, que es el peor de los dos
+     errores—. Sin ella, la tarjeta de reingreso se probaba solo con el caso fácil. */
+  { id: 63, name: 'Carla Andrea Rojas Zeballos', email: 'carla.rojas@farmavida.com.bo', depto: 'Ventas', cargo: 'Visitadora Médica', rol: 'Colaborador', ingreso: '12 Feb 2024', documento: '7733410 SC', status: 'activo', registro: 100, onb: 'graduado', foto: 'w/33', initials: 'CR', color: '#10b981' },
+
+  /* ── QUIEN SE FUE SIGUE ESTANDO ─────────────────────────────────────────
+     El directorio tenía cincuenta y nueve personas y las cincuenta y nueve activas. No es que
+     nadie se hubiera ido: es que al irse desaparecía, porque no había ningún estado que
+     representara eso. La insignia de «Desvinculado» estaba dibujada en la tabla y en el modal
+     de cambiar estado desde el principio, esperando a alguien que la llevara.
+
+     Y ESO ROMPÍA EL REINGRESO. La primera tarjeta de la ficha de alta pregunta si la persona
+     ya trabajó acá, para recuperar su registro en vez de crear un duplicado. Sin ex-
+     colaboradores en ninguna parte, contestar «Sí» correctamente no llevaba a ningún lado:
+     no había nada que recuperar.
+
+     LLEVAN `salida`, `motivoSalida` Y `documento`, que los activos no tienen. La fecha de salida
+     es lo que convierte un registro en historia —«trabajó de tal a tal»— y el documento es con lo
+     que se lo va a encontrar: dos personas pueden llamarse igual, pero no tener el mismo
+     documento. Se llamaba `ci`, y era un nombre boliviano en un producto que se vende a varios
+     países: quien llega con pasaporte no tiene carnet, y se identifica igual de bien.
+
+     `onb: n-a` porque su onboarding no está ni en curso ni pendiente: terminó hace años o
+     nunca existió. `cargo` es el último que tuvieron, y NO ocupan ninguna silla del
+     organigrama: el puesto quedó libre el día que se fueron. */
+  { id: 60, name: 'María Fernanda Rojas Vargas', email: 'mf.rojas@farmavida.com.bo', depto: 'Finanzas', cargo: 'Analista de Tesorería', rol: 'Colaborador', ingreso: '04 Mar 2019', salida: '30 Jun 2023', motivoSalida: 'Renuncia voluntaria', documento: '8452119 SC', empresaGrupo: 'FarmaVida', status: 'desvinculado', registro: 100, onb: 'n-a', foto: 'w/26', initials: 'MR', color: '#8b5cf6',
+    /* LA FICHA QUE MARÍA DEJÓ EN 2023. Está entera a propósito: es la que prueba de verdad el
+       reingreso, porque enseña las dos mitades —lo que se copia callado y lo que llega marcado
+       «a confirmar»— en una sola persona. Con la ficha a medias, el caso se probaba con cuatro
+       campos y no se veía nada.
+
+       Los valores de los desplegables son opciones REALES de sus catálogos: «CI», «Casado(a)»,
+       «Santa Cruz». Un valor inventado deja el campo en blanco al dibujarse y el reingreso
+       parecería no haber traído nada. */
+    ficha: {
+      // No cambian nunca
+      '1.1': 'María', '1.2': 'Fernanda', '1.4': 'Rojas', '1.5': 'Vargas',
+      '1.10': 'CI', '1.11': '8452119', '1.12': 'SC',
+      '1.21': '1991-07-14', '1.22': 'Santa Cruz de la Sierra', '1.23': 'Bolivia',
+      '1.24': 'si', '1.25': 'Bolivia',
+      // Los números de por vida: los que hay que ir a buscar a otra oficina si se pierden
+      '3.45': '3021-8845-17', '3.51': 'CNS-4471902', '3.57': 'RC-8845-21',
+      // Lo que pudo cambiar en cuatro años — llega marcado «a confirmar»
+      '1.29': 'Casado(a)', '1.32': 'Licenciada en Auditoría',
+      '1.36': '+591 712 44 890', '1.39': 'mf.rojas.v@gmail.com',
+      '1.42': 'Bolivia', '1.43': 'Santa Cruz', '1.45': 'Santa Cruz de la Sierra',
+      '1.46': 'Equipetrol Norte', '1.47': 'Calle Los Cusis', '1.48': '248',
+      '1.50': 'Frente al parque, portón verde',
+      '2.1': 'Ernesto Rojas Saucedo', '2.2': 'Padre', '2.3': '+591 700 33 118',
+      '3.89': 'Banco Nacional de Bolivia', '3.90': 'Caja de ahorro',
+      '3.91': '1500-4432-19', '3.93': 'BOB · Boliviano',
+    } },
+  { id: 61, name: 'Luis Alberto Mamani Quispe', email: 'la.mamani@farmavida.com.bo', depto: 'Operaciones', cargo: 'Auxiliar de Almacén', rol: 'Colaborador', ingreso: '18 Ene 2021', salida: '29 Feb 2024', motivoSalida: 'Fin de contrato a plazo fijo', documento: '6103884 LP', empresaGrupo: 'FarmaDistribución', status: 'desvinculado', registro: 100, onb: 'n-a', foto: 'm/24', initials: 'LM', color: '#0891b2',
+    ficha: { '1.1': 'Luis', '1.2': 'Alberto', '1.4': 'Mamani', '1.5': 'Quispe', '1.10': 'Cédula de identidad', '1.11': '6103884', '1.12': 'LP' } },
+  { id: 62, name: 'Gabriela Ortiz Peña', email: 'g.ortiz@farmavida.com.bo', depto: 'Ventas', cargo: 'Ejecutiva Comercial', rol: 'Colaborador', ingreso: '07 Ago 2017', salida: '15 Dic 2020', motivoSalida: 'Renuncia voluntaria', documento: '9218455 CB', empresaGrupo: 'Laboratorios Vida', status: 'desvinculado', registro: 100, onb: 'n-a', foto: 'w/52', initials: 'GO', color: '#f97316',
+    ficha: { '1.1': 'Gabriela', '1.4': 'Ortiz', '1.5': 'Peña', '1.10': 'Cédula de identidad', '1.11': '9218455', '1.12': 'CB' } },
 ]

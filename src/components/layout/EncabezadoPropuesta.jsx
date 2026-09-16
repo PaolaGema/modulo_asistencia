@@ -1,4 +1,5 @@
 import { CuentaBloque } from './Sidebar'
+import MandosPrototipo from './MandosPrototipo'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 
 /* LA PROPUESTA CON ENCABEZADO — la otra mitad de la comparación.
@@ -41,6 +42,18 @@ export default function EncabezadoPropuesta() {
       </span>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        {/* ANDAMIO, Y SE BORRA CON UNA LÍNEA. El interruptor del prototipo de la ficha de alta.
+            Sólo se dibuja en esa pantalla —el componente lo decide mirando la ruta— y va acá, en
+            el grupo de la derecha junto a la cuenta.
+
+            NO SUELTO EN EL MEDIO, que es donde estuvo: con `space-between` y tres hijos quedaba
+            flotando en mitad de la barra, sin nada que lo sujetara, y encima su tarjeta se abría
+            en el centro de la pantalla. Acá cuelga del borde derecho como el resto de los mandos
+            de la aplicación, que es donde se buscan los controles.
+
+            El día que el equipo elija una de las propuestas, se quitan esta línea y su import, se
+            borra `MandosPrototipo.jsx` y no queda rastro. */}
+        <MandosPrototipo />
         <CuentaBloque expanded barra />
       </div>
     </header>

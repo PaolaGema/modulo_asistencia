@@ -1,6 +1,9 @@
 import Desplegable from '../layout/Desplegable'
 import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
+import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
+import AyudaCampo from '../personas/AyudaCampo'
+import { conRieles, estilosDeRiel } from './rejillaFicha'
 
 /* LA FICHA DE UN OBJETO DE LA ORGANIZACIÓN, en sus dos estados.
    Nació dentro de "Datos de la empresa" y salió de allí en cuanto la sucursal pidió lo mismo:
@@ -21,7 +24,15 @@ import SelectorFecha from '../layout/SelectorFecha'
      html       'email' | 'tel' | 'date'. Los dos primeros son el tipo del input y el enlace en
                 que se convierte al leerlo; 'date' cambia el campo entero por el calendario propio
      tipo       'lista' + `opciones` para un desplegable, 'persona' + `personas` para elegir
-                gente, o 'texto' para un campo de varias líneas
+                gente, 'texto' para un campo de varias líneas, 'siNo' para una pregunta cerrada
+                —guarda 'si' o 'no'— o 'archivo' + `acepta`/`pista`/`vistaPrevia` para subir uno
+     insignia   una palabra al lado del rótulo: de dónde viene o cómo se comporta el campo
+                —«legal», «se calcula»—. Solo en edición: leyendo la ficha, quien mira ya no
+                tiene nada que decidir y la etiqueta pasa a ser ruido
+     nota       la explicación del campo, escondida detrás de un «?» junto al rótulo. Es para las
+                fichas largas: `ayuda` escribe un renglón gris DEBAJO de cada campo, y ochenta
+                renglones grises seguidos son una pared de texto que nadie lee. Se usa una o la
+                otra; con las dos puestas, la nota va arriba y la ayuda abajo
      vacio      qué decir cuando el campo está vacío, si ese vacío significa algo —«Sin límite»—.
                 Con esto el campo se sigue viendo al leer la ficha y no cae en «Sin completar»
      enlace     el valor es una URL y en lectura se puede pulsar
@@ -34,6 +45,9 @@ import SelectorFecha from '../layout/SelectorFecha'
 
 const vacio = v => !v || !String(v).trim()
 
+/* La aritmética del riel vive en `rejillaFicha`: es rejilla, no React, y aparte se puede
+   comprobar sin abrir el navegador. */
+
 /* EL DATO CUANDO NO SE ESTÁ EDITANDO. Lo que en edición es una caja, aquí es texto suelto:
    misma rejilla y mismo rótulo, sin el marco. Y lo que se puede seguir —el correo, los
    teléfonos, el sitio, las redes— se vuelve enlace, que es media razón de tener un modo de
@@ -42,7 +56,19 @@ const vacio = v => !v || !String(v).trim()
    EL GUION DEL CAMPO VACÍO no es adorno. Un renglón en blanco parece un fallo de la pantalla;
    el guion dice que ahí cabe algo y que nadie lo ha puesto. */
 function ValorLeido({ campo, valor }) {
+  /* UN ARCHIVO NO ES UNA CADENA y se pregunta antes que nada: pasado por `String()` se lee
+     «[object Object]», que es exactamente el aspecto de una pantalla rota. */
+  if (campo.tipo === 'archivo') {
+    return valor?.nombre
+      ? <div className="emp-valor"><ArchivoLeido valor={valor} vistaPrevia={campo.vistaPrevia} /></div>
+      : <p className="emp-valor emp-valor-vacio">{campo.vacio || 'Sin subir'}</p>
+  }
+
   const v = String(valor ?? '').trim()
+
+  /* Lo que se guardó como 'si'/'no' se lee como Sí/No: la clave es para el dato, no para leerla. */
+  if (campo.tipo === 'siNo' && v) return <p className="emp-valor">{v === 'si' ? 'Sí' : 'No'}</p>
+
   /* UN VACÍO QUE SIGNIFICA ALGO SE DICE CON PALABRAS. Hay campos donde no haber contestado ES la
      respuesta: un cargo sin tope está «Sin límite», no «sin completar». El guion sirve cuando el
      vacío es una ausencia; cuando es una decisión, un guion la esconde y encima la manda a la
@@ -119,7 +145,7 @@ function ValorLeido({ campo, valor }) {
   )
 }
 
-function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas }) {
+function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo }) {
   const id = `${prefijo}-${campo.key}`
   /* UN CAMPO VACÍO NO ESTÁ MAL TODAVÍA. Una ficha en blanco pintaba de rojo sus obligatorios
      antes de que nadie hubiera tecleado una letra: regañaba por no haber empezado. Quien edita
@@ -135,8 +161,21 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas }) {
   const fijo = campo.deducido !== undefined
   const falta = editando && marcarFaltas && campo.requerido && !fijo && vacio(form[campo.key])
 
+  /* UN ROTULO NO ES UN CAMPO: parte la tarjeta por dentro.
+     Hay secciones con veinte campos que por dentro son tres cosas distintas —el cónyuge, los
+     hijos, los herederos— y sin una línea que las separe se leen como una lista de veinte
+     rótulos grises seguidos. No guarda nada y no cuenta para el progreso: es un encabezado. */
+  if (campo.tipo === 'rotulo') {
+    return (
+      <div className="c-todo emp-rotulo-bloque">
+        <span>{campo.label}</span>
+        {campo.nota && <AyudaCampo>{campo.nota}</AyudaCampo>}
+      </div>
+    )
+  }
+
   return (
-    <div className={campo.col || 'c-med'}>
+    <div className={campo.col || 'c-med'} style={estilo}>
       {/* `.pl-label` es una columna flex, así que dos hijos son dos renglones: la etiqueta y su
           asterisco van dentro de un mismo hijo para que compartan línea.
 
@@ -146,13 +185,31 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas }) {
           tiene control al que apuntar en ningún estado. */}
       {editando && !fijo ? (
         <label className="pl-label" htmlFor={id}>
-          <span>
+          <span className="emp-rot-linea">
             {campo.label}
             {campo.requerido && <span className="pl-req" aria-hidden="true">*</span>}
+            {campo.nota && <AyudaCampo>{campo.nota}</AyudaCampo>}
+            {campo.insignia && <span className="emp-insignia">{campo.insignia}</span>}
+            {/* VA DESPUÉS DE LA INSIGNIA Y NO EN SU LUGAR: un campo puede ser legal Y venir sin
+                confirmar a la vez, y son dos cosas que no se reemplazan. Desaparece en cuanto
+                alguien escribe encima. */}
+            {campo.porConfirmar && (
+              <span className="emp-insignia emp-confirmar" title="Viene de un registro anterior. Confirmá que sigue vigente.">
+                a confirmar
+              </span>
+            )}
           </span>
         </label>
       ) : (
-        <div className="pl-label emp-rotulo"><span>{campo.label}</span></div>
+        <div className="pl-label emp-rotulo">
+          <span className="emp-rot-linea">
+            {campo.label}
+            {/* LA INSIGNIA SOBREVIVE AL MODO LECTURA SOLO SI ES UN DEDUCIDO. «se calcula» explica
+                por qué ese dato no se puede editar y eso vale también leyendo; «legal» le habla a
+                quien está tecleando y a quien vino a mirar no le pide nada. */}
+            {fijo && campo.insignia && <span className="emp-insignia">{campo.insignia}</span>}
+          </span>
+        </div>
       )}
 
       {fijo ? (
@@ -187,6 +244,44 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas }) {
           valor={form[campo.key] || ''}
           onCambio={v => set(campo.key, v)}
           placeholder={campo.ph || 'Elegir fecha'}
+          ariaLabel={campo.label}
+        />
+      ) : campo.tipo === 'siNo' ? (
+        /* DOS BOTONES Y NO UN INTERRUPTOR. Un interruptor apagado dice «no» y dice «todavía no
+           contestaste» con el mismo dibujo, y en una ficha que se llena a medias esa diferencia
+           importa: «¿registra discapacidad? — no» es una respuesta, y no haber contestado es un
+           hueco que la vista previa tiene que poder señalar. Con dos botones, ninguno marcado es
+           visiblemente ninguno marcado.
+
+           Tampoco es un desplegable: son dos opciones y abrir una lista para elegir entre dos
+           son dos gestos donde alcanza uno. */
+        <div className="sn-grupo" role="group" aria-label={campo.label}>
+          {[{ v: 'si', t: 'Sí' }, { v: 'no', t: 'No' }].map(o => (
+            <button
+              key={o.v}
+              type="button"
+              className={`sn-op${form[campo.key] === o.v ? ' on' : ''}`}
+              aria-pressed={form[campo.key] === o.v}
+              onClick={() => set(campo.key, o.v)}
+            >
+              {o.t}
+            </button>
+          ))}
+        </div>
+      ) : campo.tipo === 'archivo' ? (
+        <SubirArchivo
+          id={id}
+          valor={form[campo.key]}
+          onCambio={v => set(campo.key, v)}
+          acepta={campo.acepta}
+          pista={campo.pista}
+          vistaPrevia={campo.vistaPrevia}
+          retrato={campo.retrato}
+          /* TODO LO QUE NO ES LA FOTO ES UN PAPEL, y un papel también se sube para mirarlo. No
+             hace falta marcar los ocho uno por uno: es el modo por defecto de un archivo en esta
+             ficha, y el retrato es la excepción. Dejar sólo el carnet escaneado con recuadro y
+             los otros siete en una fila gris sería la peor de las tres opciones. */
+          documento={!campo.retrato}
           ariaLabel={campo.label}
         />
       ) : campo.tipo === 'persona' ? (
@@ -263,7 +358,12 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas }) {
 /* `children` va entre la cabecera y los campos: es donde la empresa mete su banda de identidad.
    Nada más de la tarjeta se puede cambiar desde fuera a propósito —el día que dos fichas no se
    parezcan será porque alguien lo decidió aquí, no porque una pantalla se desvió sola—. */
-export default function TarjetaCampos({ titulo, desc, campos, form, set, editando, prefijo, marcarFaltas = true, children }) {
+/* `desnudo` quita el marco y la cabecera y deja solo la rejilla de campos. Es para cuando la
+   tarjeta va DENTRO de otra cosa que ya puso el marco y el título —un acordeón, por ejemplo—:
+   sin esto quedaba un recuadro con sombra dentro de otro recuadro con sombra, y el título
+   escrito dos veces, una en cada uno. Lo que se comparte sigue siendo lo único que importa: qué
+   campos hay y cómo se dibuja cada uno. */
+export default function TarjetaCampos({ titulo, desc, campos, form, set, editando, prefijo, marcarFaltas = true, desnudo = false, children }) {
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
      tanto hueco había que buscar los tres datos que sí existían. El guion tiene sentido en un
@@ -277,9 +377,21 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
   /* `soloEdicion` es para lo que ya se lee en otro sitio de la misma tarjeta: el cargo del
      responsable, que la persona elegida ya trae escrito debajo de su nombre. No es un campo
      secreto, es un campo repetido, y repetido solo cuando no se está editando. */
-  const deLectura = campos.filter(c => !c.soloEdicion)
+  /* Los rótulos de bloque no salen leyendo la ficha: separan campos mientras se escribe, y en
+     lectura la mitad de los campos que separaban no están —los vacíos se esconden—, así que
+     quedarían encabezando la nada. Tampoco cuentan como «sin completar»: no hay nada que
+     completar en un encabezado. */
+  const deLectura = campos.filter(c => !c.soloEdicion && c.tipo !== 'rotulo')
   const vacios = editando ? [] : deLectura.filter(c => !c.vacio && vacio(valorDe(c)))
   const visibles = editando ? campos : deLectura.filter(c => c.vacio || !vacio(valorDe(c)))
+
+  /* Dónde empieza cada riel y cuánto mide sale de los campos que de verdad se están viendo, así
+     que se recalcula solo: al elegir «Pasaporte» desaparecen la extensión y el complemento y el
+     recuadro del escaneo se acomoda al reparto que quedó. Una tarjeta puede tener más de un riel
+     —el documento principal y el secundario tienen cada uno su papel— y por eso el estilo se pide
+     campo a campo en vez de calcularse una vez para el que hubiera. */
+  const enRejilla = conRieles(visibles)
+  const estiloDe = estilosDeRiel(enRejilla)
 
   /* LA TARJETA VACÍA SE QUEDA. Llegó a esconderse entera cuando ninguno de sus campos tenía
      dato —el caso de «Responsable» en una sucursal recién creada— y el remedio fue peor: la
@@ -294,7 +406,7 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
   const faltan = vacios.map(c => c.label).filter(l => l.toLowerCase() !== (titulo || '').toLowerCase())
 
   return (
-    <section style={{
+    <section style={desnudo ? undefined : {
       background: 'var(--surface-card)', border: '1px solid var(--border-soft)',
       borderRadius: 14, padding: '20px 22px', boxShadow: 'var(--shadow-card)',
     }}>
@@ -307,7 +419,7 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
           debajo que cierra la cabecera. Así quedan tres pesos distintos y no dos parecidos —
           SECCIÓN en versalitas, rótulo del campo en gris normal, y el dato grande y oscuro, que
           es lo único que uno vino a leer y ahora es lo único que grita. */}
-      <div className="emp-cab">
+      <div className="emp-cab" hidden={desnudo}>
         <h2 className="emp-cab-tit">{titulo}</h2>
         {/* LA LÍNEA GRIS DEL TÍTULO ES UNA INSTRUCCIÓN, y una instrucción se lee cuando hay algo
             que hacer. «Cómo se llama, con qué se la identifica y si sigue operando» ayuda a quien
@@ -321,8 +433,11 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
 
       {children}
 
+      {/* Una rejilla sin nada adentro no se dibuja: desde que una tarjeta puede traer su propio
+          cuerpo y ningún campo —la de reingreso—, el grid vacío dejaba un hueco al pie. */}
+      {visibles.length > 0 && (
       <div className={`emp-form${editando ? '' : ' emp-leyendo'}`}>
-        {visibles.map(campo => (
+        {enRejilla.map(campo => (
           <CampoFicha
             key={campo.key}
             campo={campo}
@@ -331,9 +446,11 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
             editando={editando}
             prefijo={prefijo}
             marcarFaltas={marcarFaltas}
+            estilo={estiloDe(campo)}
           />
         ))}
       </div>
+      )}
 
       {vacios.length > 0 && (
         <p className="emp-faltan">
