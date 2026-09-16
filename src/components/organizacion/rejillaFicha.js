@@ -32,8 +32,29 @@
 export const RIELES = {
   'c-retrato': { filas: 3, elastico: false },
   'c-escaneo': { filas: 2, elastico: true },
+  /* EL MAPA ANCLA POR EL MOTIVO CONTRARIO A LOS OTROS DOS, y por eso está acá igual. La foto y el
+     carnet escaneado son la FUENTE de lo que tienen al lado: se lee del papel y se teclea. El mapa
+     es lo contrario, el ESPEJO — se teclea la calle y el mapa enseña dónde cayó—. En los dos casos
+     la relación es la misma y es la que justifica el anclaje: al lado de los datos hay una cosa
+     contra la que comprobarlos, y comprobar exige tenerlas a la vez delante. Al final del flujo,
+     que es donde estaba, el mapa enseñaba el resultado media pantalla después de la pregunta.
+
+     ARRANCA EN CUATRO FILAS porque un mapa de dos es una ranura: a esa altura no se distingue una
+     manzana de la siguiente, que es exactamente lo que se viene a mirar. */
+  'c-mapa': { filas: 4, elastico: true },
 }
 const ANCHO_RIEL = 4
+
+/* EL CAMPO QUE HACE COLUMNA CON EL RIEL, debajo de él. El croquis del domicilio es el único
+   hasta ahora: es lo mismo que el mapa —dónde vive esta persona, en imagen— y en el flujo caía
+   entre campos de texto, con su recuadro de subir archivo desentonando al lado de «Referencia del
+   domicilio». Debajo del mapa, los dos forman un bloque y la tarjeta se lee en dos mitades: la
+   dirección escrita a un lado, la dirección dibujada al otro.
+
+   NO ES UN RIEL: no ancla nada y no mide filas. Es un pasajero — se coloca solo donde el riel
+   termina, y por eso lo único que necesita saber es dónde termina el riel. */
+const COMPANERO = 'c-bajo-riel'
+const esCompanero = campo => clasesDe(campo).includes(COMPANERO)
 
 /* Cuánto puede crecer un riel RÍGIDO por encima de su alto: dos filas. Más arriba deja de anclar
    y pasa a ser un recuadro con un metro de nada debajo. El elástico no lleva tope porque no hay
@@ -89,7 +110,11 @@ function reparto(campos, filas, tabla) {
    que uno: cubrirlos a todos allí significaría un recuadro de ocho filas, que es la tarjeta entera
    convertida en zona de subir archivos. */
 export function filasDelRiel(campos, riel, tabla, { cubrir = true } = {}) {
-  const otros = campos.filter(c => c !== riel)
+  const otros = campos.filter(c => c !== riel && !esCompanero(c))
+  /* CON PASAJERO, LA COLUMNA LLEGA UNA FILA MÁS ABAJO. Lo que se busca es que ningún campo quede
+     debajo del riel a la intemperie; si esa fila la ocupa el compañero, no hay intemperie, y
+     estirar el mapa una fila más sólo serviría para dejar al croquis sin sitio. */
+  const alcance = campos.some(esCompanero) ? 1 : 0
   const { filas: natural, elastico } = rielDe(riel)
 
   /* CUBRIR ES COSA DEL ELÁSTICO. Estirar el papel escaneado no cuesta nada: lo que gana de alto
@@ -104,7 +129,7 @@ export function filasDelRiel(campos, riel, tabla, { cubrir = true } = {}) {
   if (cubrir && elastico) {
     const tope = Math.max(natural, reparto(otros, otros.length, tabla).usadas)
     for (let filas = natural; filas <= tope; filas += 1) {
-      if (reparto(otros, filas, tabla).usadas <= filas) return filas
+      if (reparto(otros, filas, tabla).usadas <= filas + alcance) return filas
     }
   }
 
@@ -186,7 +211,15 @@ export function anclajes(campos, tabla, opciones) {
     const riel = rieles[0]
     const filas = filasDelRiel(tramo, riel, tabla, opciones)
     mapa.set(riel, { inicio: fila, filas })
-    fila += Math.max(filas, reparto(tramo.filter(c => c !== riel), filas, tabla).usadas)
+
+    /* El pasajero va justo donde el riel acaba, en su misma columna y una fila de alto. Se guarda
+       en el mismo mapa que los rieles porque lo que necesita es lo mismo: dos números que viajan
+       como variables CSS hasta su elemento. */
+    const companero = tramo.find(esCompanero)
+    if (companero) mapa.set(companero, { inicio: fila + filas, filas: 1 })
+
+    const sueltos = tramo.filter(c => c !== riel && !esCompanero(c))
+    fila += Math.max(filas + (companero ? 1 : 0), reparto(sueltos, filas, tabla).usadas)
   }
   return mapa
 }

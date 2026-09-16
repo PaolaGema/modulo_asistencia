@@ -88,8 +88,8 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'nombre',
-        titulo: 'Nombre legal y fotografía',
-        desc: 'Se guarda descompuesto porque cada entidad lo pide distinto: la OVT en tres partes, la Gestora en cinco y RC-IVA en una sola.',
+        titulo: 'Datos personales',
+        desc: 'El nombre se guarda descompuesto porque cada entidad lo pide distinto: la OVT en tres partes, la Gestora en cinco y RC-IVA en una sola.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -153,6 +153,33 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'Se arma con los campos separados y no se escribe a mano: las planillas fiscales y el Ministerio de Trabajo los exigen individualizados, así que el separado es el dato y este es su lectura.',
             traza: '✏ v1.2 (obs. #4). Alimenta: GP.'
+          },
+          /* EL ESTADO CIVIL VIVE CON EL NOMBRE, y no es una mudanza caprichosa: acá está
+             «Apellido de casada», que es el campo que más depende de él. El estudio ya había
+             peleado con esa relación —se probó condicionar el apellido de casada al sexo y se
+             retiró— y dejó anotada la advertencia que importa: NO atarlo a «Casado(a)», porque
+             una divorciada o una viuda puede conservarlo legalmente y su carnet lo sigue
+             diciendo. Teniendo los dos campos a la vista, esa advertencia se lee sola.
+
+             Venía de «Estado civil y ocupación», una tarjeta sin criterio que juntaba cinco
+             campos por descarte: el estado civil, la profesión, la matrícula, la vivienda y el
+             vehículo. Nada de eso es lo mismo, y lo único que compartían era no tener sitio. */
+          {
+            key: '1.29',
+            label: 'Estado civil',
+            tipo: 'lista',
+            opciones: [
+              'Soltero(a)',
+              'Casado(a)',
+              'Divorciado(a)',
+              'Viudo(a)',
+              'Unión libre'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Proceso interno y respaldo legal de la garantía: si el garante está casado, la garantía es compartida.',
+            traza: 'Alimenta: GP, PL.'
           },
           {
             key: '1.9',
@@ -564,30 +591,22 @@ export const PASOS_PROPUESTA = [
           }
         ]
       },
+      /* ── LA TARJETA CAJÓN, PARTIDA EN DOS ──────────────────────────────────────
+         «Estado civil y ocupación» juntaba cinco campos que no tenían nada que ver: el estado
+         civil, la profesión, la matrícula, la vivienda y el vehículo. Lo único que compartían
+         era no tener sitio propio — y una tarjeta cuyo título es una lista de lo que hay dentro
+         no es una sección, es un cajón.
+
+         El estado civil se fue con el nombre, donde vive «Apellido de casada», que es el campo
+         que más depende de él. Lo que quedaba eran dos cosas distintas y acá van separadas:
+         lo que alguien sabe hacer, y lo que alguien tiene. */
       {
-        id: 'civil',
-        titulo: 'Estado civil y ocupación',
-        desc: 'Datos personales que no dependen del vínculo laboral, y que a diferencia de los del nacimiento sí cambian a lo largo de él.',
+        id: 'profesion',
+        titulo: 'Datos profesionales',
+        desc: 'Lo que la persona sabe hacer, y con qué papel lo acredita. No es el puesto que ocupa hoy: de acá salen el reclutamiento interno, las promociones y la sucesión.',
         propuesta: false,
         incierto: false,
         campos: [
-          {
-            key: '1.29',
-            label: 'Estado civil',
-            tipo: 'lista',
-            opciones: [
-              'Soltero(a)',
-              'Casado(a)',
-              'Divorciado(a)',
-              'Viudo(a)',
-              'Unión libre'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Proceso interno y respaldo legal de la garantía: si el garante está casado, la garantía es compartida.',
-            traza: 'Alimenta: GP, PL.'
-          },
           {
             key: '1.32',
             label: 'Profesión u ocupación',
@@ -604,6 +623,15 @@ export const PASOS_PROPUESTA = [
             nota: 'Cargos que exigen registro vigente (médicos, contadores, ingenieros, abogados).',
             traza: 'Alimenta: GP.'
           },
+        ]
+      },
+      {
+        id: 'patrimonio',
+        titulo: 'Datos patrimoniales',
+        desc: 'Bienes propios que la empresa necesita conocer para calcular un reembolso o una prestación, no para juzgar a nadie.',
+        propuesta: false,
+        incierto: false,
+        campos: [
           {
             key: '1.34',
             label: '¿Vivienda propia?',
@@ -664,7 +692,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'residencia',
         titulo: 'Datos de residencia',
-        desc: 'Dirección completa. En algunos rubros define a qué sucursal se lo asigna.',
+        desc: 'Registre la dirección exacta de su residencia habitual para fines contractuales, asignación de centro de trabajo y trámites de ley.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -709,7 +737,7 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
-            nota: 'Encadenado: filtra provincia y municipio.',
+            nota: 'El rótulo y la lista cambian con el país de residencia: Departamento en Bolivia, Región en Chile, Estado en México. Sólo Bolivia trae catálogo por ahora; en el resto es texto libre, pero con el nombre correcto. De él sale la lista de provincias bolivianas.',
             traza: 'Alimenta: GP, PL.'
           },
           {
@@ -717,7 +745,7 @@ export const PASOS_PROPUESTA = [
             label: 'Provincia',
             col: 'c-tercio',
             nivel: 'Completo',
-            nota: 'Corrige el dolor del Salar: *\'la lista no se puede filtrar por departamento\'*.',
+            nota: 'Corrige el dolor del Salar —*\'la lista no se puede filtrar por departamento\'*—: ahora sólo salen las del departamento elegido. Hacía falta porque hay nombres repetidos entre departamentos: Cercado es provincia de Cochabamba, de Oruro, de Tarija y del Beni.',
             traza: 'Alimenta: GP.'
           },
           {
@@ -761,17 +789,45 @@ export const PASOS_PROPUESTA = [
           {
             key: '1.50',
             label: 'Referencia del domicilio',
-            col: 'c-tercio',
+            ph: 'Frente al parque, portón verde, timbre del fondo…',
+            /* A TODO LO ANCHO, QUE SON LAS OCHO COLUMNAS QUE QUEDAN AL LADO DEL RIEL. Es el único
+               campo de la tarjeta que no es un dato sino una explicación: los demás caben en dos
+               palabras y éste es una frase entera —«frente al parque, portón verde»—. A un tercio
+               se escribía a ciegas, viendo cinco palabras de las quince que uno acaba poniendo.
+
+               Y cierra la fila con el croquis: los cuatro de la izquierda y ocho de campo suman
+               doce justas, así que lo que antes eran dos huecos al final de la tarjeta ahora es
+               sitio para escribir. */
+            col: 'c-ancho',
             nivel: 'Completo',
             traza: 'Alimenta: GP.'
           },
+          /* DEJA DE SER DOS NÚMEROS Y PASA A SER UN ENLACE. El Salar obliga a tipear la
+             latitud a mano, que es pedirle a alguien de Recursos Humanos que transcriba
+             «-17.783319» sin equivocarse en un dígito — y un dígito de más o de menos son
+             once kilómetros. Un enlace se copia del mapa y se pega entero, o no se pega.
+
+             ES EL ACUERDO DE LA SESIÓN 1 (01:13:45), donde se pidió «profundizar GPS» y se
+             resolvió que integrar enlaces de Google Maps rinde más que el croquis dibujado,
+             sobre todo con sucursales distribuidas, porque facilita la logística y la
+             asignación de personal según proximidad. El croquis de abajo quedó como respaldo
+             opcional por esa misma decisión, y su nota ya lo dice.
+
+             EL PENDIENTE 19 PEDÍA EL BUSCADOR CON MAPA DENTRO DE LA FICHA y acá está, pero
+             sobre OpenStreetMap y no sobre Google: Google Maps cobra por carga y pide cuenta de
+             facturación, o sea un gasto mensual recurrente decidido en nombre de quien no lo
+             pidió. Lo que se guarda sigue siendo un enlace de Google Maps —el acuerdo de la
+             sesión 1— aunque el mapa que lo escribe sea otro. El día que exista la clave, se
+             cambia la capa de baldosas y el dato guardado no se entera. */
           {
             key: '1.51',
-            label: 'Ubicación GPS',
-            col: 'c-tercio',
+            label: 'Ubicación en el mapa',
+            tipo: 'mapa',
+            enlace: true,
+            col: 'c-tercio c-mapa',
             nivel: 'Completo',
-            nota: 'Rediseñar: hoy el Salar obliga a tipear la latitud a mano. Debe tener buscador de dirección con mapa (como la propia OVT). *\'profundizar GPS\'* — acuerdo de la sesión 1 (01:13:45): integrar enlaces de Google Maps es más eficiente que el croquis dibujado, sobre todo en empresas con sucursales distribuidas, porque *\'facilita la logística y la asignación estratégica de personal según su proximidad geográfica\'*. Ver pendiente 19.',
-            traza: '✏ v1.2 (obs. #12). Alimenta: GP.'
+            nota: 'Busca la dirección, toca el mapa o arrastra la marca; también sirve pegar un enlace de Google Maps. Lo que se guarda es siempre un enlace, así que leyendo la ficha se abre de un clic. El mapa es OpenStreetMap, que no cobra ni pide clave: el buscador acierta algo menos que el de Google, y por eso pegar el enlace a mano sigue siendo una salida válida.',
+            traza: '✏ v1.2 (obs. #12). Acuerdo sesión 1 (01:13:45). Alimenta: GP.'
           },
           {
             key: '1.53',
@@ -779,9 +835,9 @@ export const PASOS_PROPUESTA = [
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
             pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
+            col: 'c-tercio c-bajo-riel',
             nivel: 'Completo',
-            nota: 'Queda como respaldo opcional. El enlace de mapa (1.51) lo sustituye funcionalmente.',
+            nota: 'Va debajo del mapa y en su columna porque es lo mismo que él: dónde vive esta persona, en imagen. Queda como respaldo opcional —el mapa lo sustituye funcionalmente— para quien todavía lo traiga en papel.',
             traza: '✏ v1.2. El estudio lo marca como a confirmar. Alimenta: GP.'
           }
         ]
@@ -797,11 +853,18 @@ export const PASOS_PROPUESTA = [
     tarjetas: [
       {
         id: 'emergencia',
-        titulo: 'A quién avisar en una emergencia',
+        titulo: 'Datos de contactos de emergencia',
         desc: 'Al menos un contacto es obligatorio. Es el único bloque repetible del mínimo legal.',
         propuesta: false,
         incierto: false,
         campos: [
+          {
+            key: '2.rot1',
+            label: 'Primer contacto',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'Obligatorio: es el mínimo legal.'
+          },
           {
             key: '2.1',
             label: 'Nombre completo',
@@ -811,14 +874,54 @@ export const PASOS_PROPUESTA = [
             requerido: true,
             traza: 'Alimenta: GP, ON.'
           },
+          /* ── LISTA ABIERTA, QUE NO ES LO MISMO QUE CAJA DE TEXTO ─────────────────────
+             Era texto libre, obligatorio y del mínimo legal: la combinación exacta donde se
+             acumulan «mamá», «Madre», «MADRE», «mi mamá» y «x». La ficha ya conocía el problema y
+             lo tenía escrito en otro campo —«sin lista, tres personas escriben el mismo nombre de
+             tres maneras y después nadie cruza nada»—.
+
+             PERO CERRARLA DEL TODO SERÍA PEOR. A quien hay que avisar en una emergencia no tiene
+             por qué ser de la familia: mucha gente pone a su vecina, a un amigo o a la persona con
+             la que vive sin estar casada. Una lista sin esas opciones obliga a mentir, y un dato
+             falso en el campo que se usa el día del accidente es peor que uno mal escrito.
+
+             Por eso la lista cubre los casos de todos los días y termina en «Otro», que abre una
+             caja al lado. Guardar la cadena «Otro» y perder el parentesco real sería el peor de
+             los tres mundos: ni comparable ni cierto. */
           {
             key: '2.2',
             label: 'Parentesco',
+            tipo: 'lista',
+            opciones: [
+              'Madre',
+              'Padre',
+              'Cónyuge',
+              'Conviviente',
+              'Hijo(a)',
+              'Hermano(a)',
+              'Abuelo(a)',
+              'Tío(a)',
+              'Primo(a)',
+              'Amigo(a)',
+              'Vecino(a)',
+              'Otro'
+            ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
+            nota: 'Si ninguna opción encaja, «Otro» abre una caja para escribirlo. Quien atiende una emergencia no siempre es de la familia.',
             traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.2b',
+            label: '¿Qué parentesco?',
+            ph: 'Cuñada, madrastra, casera…',
+            col: 'c-tercio',
+            nivel: 'Mínimo',
+            requerido: true,
+            nota: 'Sólo aparece al elegir «Otro». Así el dato real no se pierde detrás de la palabra «Otro».',
+            traza: '↳ 2.2. Alimenta: GP.'
           },
           {
             key: '2.3',
@@ -860,16 +963,127 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             nivel: 'Completo',
             traza: 'Alimenta: GP.'
-          }
+          },
+          {
+            key: '2.seg',
+            label: '¿Agregar un segundo contacto?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Recomendado. Si el primero no contesta —apagado, de viaje, número cambiado— esta es la única alternativa que la ficha guarda, y este bloque se usa el día en que no hay tiempo de buscar otra.',
+            traza: '↳ 2.1. Alimenta: GP.'
+          },
+
+          /* ── DOS CONTACTOS, PORQUE UNO ES UN SOLO PUNTO DE FALLO ─────────────────────
+             Este bloque se usa UNA vez en la vida de una ficha, y es el peor día. Un solo
+             número que no contesta —apagado, cambiado, la persona de viaje— es el dato
+             fallando justo en lo único para lo que existía.
+
+             EL ESTUDIO YA LO PEDÍA y la frase estaba en la bajada de esta misma tarjeta:
+             «al menos un contacto es obligatorio, es el único bloque repetible del mínimo
+             legal». Repetible nunca se implementó — ni acá, ni en «Beneficios individuales»
+             ni en «Medidas disciplinarias», que dicen lo mismo entre paréntesis.
+
+             DOS BLOQUES FIJOS NO ES REPETIBLE, y no pretende serlo: es lo que cabe en un
+             formulario de clave y valor como éste. El segundo va completo pero sin exigirse,
+             porque obligar a quien de verdad sólo tiene a una persona produce un contacto
+             inventado — y un teléfono falso el día del accidente es peor que un hueco.
+
+             LAS CLAVES LLEVAN «-2» y no un número nuevo: la numeración 2.x es del estudio y
+             está casi llena, así que inventar 2.8 chocaría con el campo que el estudio tenga
+             ahí el día que se porte. Esto es la misma pregunta, hecha por segunda vez. */
+          {
+            key: '2.rot2',
+            label: 'Segundo contacto',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'Recomendado, no obligatorio. Si el primero no contesta, esta es la única alternativa que la ficha guarda.'
+          },
+          {
+            key: '2.1-2',
+            label: 'Nombre completo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: '↳ 2.1. Alimenta: GP.'
+          },
+          {
+            key: '2.2-2',
+            label: 'Parentesco',
+            tipo: 'lista',
+            opciones: [
+              'Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)',
+              'Abuelo(a)', 'Tío(a)', 'Primo(a)', 'Amigo(a)', 'Vecino(a)', 'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: '↳ 2.2. Alimenta: GP.'
+          },
+          {
+            key: '2.2b-2',
+            label: '¿Qué parentesco?',
+            ph: 'Cuñada, madrastra, casera…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: '↳ 2.2-2. Alimenta: GP.'
+          },
+          {
+            key: '2.3-2',
+            label: 'Teléfono principal',
+            html: 'tel',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Es el dato que justifica todo el bloque: sin teléfono, un segundo contacto no sirve de nada.',
+            traza: '↳ 2.3. Alimenta: GP.'
+          },
+          {
+            key: '2.4-2',
+            label: 'Teléfono alternativo',
+            html: 'tel',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Lo tenía el primer contacto y acá se había quedado fuera. Si este bloque existe para poder alcanzar a alguien, un segundo número es exactamente lo que no sobra.',
+            traza: '↳ 2.4. Alimenta: GP.'
+          },
+          {
+            key: '2.5-2',
+            label: 'Correo electrónico',
+            html: 'email',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: '↳ 2.5. Alimenta: GP.'
+          },
+          {
+            key: '2.6-2',
+            label: 'Dirección · Ciudad · País',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: '↳ 2.6. Alimenta: GP.'
+          },
+          {
+            key: '2.7-2',
+            label: '¿Convive con el colaborador?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Dos contactos que viven en la misma casa se quedan sin señal a la vez. Saberlo es lo que dice si de verdad son dos vías.',
+            traza: '↳ 2.7. Alimenta: GP.'
+          },
         ]
       },
       {
         id: 'familia',
-        titulo: 'Familia',
+        titulo: 'Datos familiares',
         desc: 'Cónyuge e hijos. Alimenta asignaciones familiares y el subsidio de lactancia.',
         propuesta: true,
         incierto: false,
         campos: [
+          {
+            key: '2.rotConyuge',
+            label: 'Cónyuge o conviviente',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'La unión libre cuenta igual que el matrimonio para las asignaciones familiares.'
+          },
           {
             key: '2.9',
             label: 'Nombres y apellidos (estructurado)',
@@ -890,7 +1104,7 @@ export const PASOS_PROPUESTA = [
             key: '2.11',
             label: 'Fecha de nacimiento',
             html: 'date',
-            col: 'c-corto',
+            col: 'c-tercio',
             nivel: 'Completo',
             traza: 'Alimenta: CC, GP.'
           },
@@ -935,7 +1149,17 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP, PL.'
           },
           {
+            key: '2.rotHijos',
+            label: 'Hijos',
+            singular: 'Hijo',
+            repite: 'hijos',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'Alimenta asignaciones familiares y el subsidio de lactancia. El bloque se repite por cada hijo.'
+          },
+          {
             key: '2.20',
+            repite: 'hijos',
             label: 'Nombre completo',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -943,6 +1167,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.21',
+            repite: 'hijos',
             label: 'Tipo y número de documento',
             col: 'c-tercio',
             nivel: 'Completo',
@@ -950,15 +1175,17 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.22',
+            repite: 'hijos',
             label: 'Fecha de nacimiento',
             html: 'date',
-            col: 'c-corto',
+            col: 'c-tercio',
             nivel: 'Operativo',
             nota: 'Beneficios por rango de edad, obsequios (Día del Niño, Día de la Familia).',
             traza: 'Alimenta: CC, GP.'
           },
           {
             key: '2.23',
+            repite: 'hijos',
             label: 'Sexo',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -967,6 +1194,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.24',
+            repite: 'hijos',
             label: 'Nacionalidad',
             col: 'c-tercio',
             nivel: 'Completo',
@@ -974,6 +1202,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.25',
+            repite: 'hijos',
             label: 'Institución educativa',
             col: 'c-tercio',
             nivel: 'Completo',
@@ -982,6 +1211,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.26',
+            repite: 'hijos',
             label: 'Nivel educativo',
             col: 'c-tercio',
             nivel: 'Completo',
@@ -990,6 +1220,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.28',
+            repite: 'hijos',
             label: '¿Es beneficiario del seguro?',
             tipo: 'siNo',
             col: 'c-tercio',
@@ -998,12 +1229,29 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.29',
+            repite: 'hijos',
             label: '¿Presenta discapacidad?',
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
             nota: '28:41): se exige el certificado oficial adjunto. Relevante para beneficios y para el cumplimiento del 2 % de contratación de personas con discapacidad (regla R4).',
             traza: '✏ v1.2 (01. Alimenta: GP, PL.'
+          },
+          {
+            key: '2.masHijos',
+            tipo: 'repetir',
+            grupo: 'hijos',
+            label: 'Agregar otro hijo',
+            col: 'c-todo',
+            nivel: 'Operativo',
+            nota: 'Cada hijo es un bloque igual al de arriba. El estudio ya lo pedía repetible y nunca lo fue: con un solo bloque, una familia de tres hijos entraba con uno declarado y dos sin asignación familiar.'
+          },
+          {
+            key: '2.rotPadres',
+            label: 'Padres del colaborador',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'Del colaborador, no de sus hijos. Los pide el Ministerio de Trabajo en la declaración jurada.'
           },
           {
             key: '2.47',
@@ -1060,7 +1308,7 @@ export const PASOS_PROPUESTA = [
             key: '2.34',
             label: 'Fecha de nacimiento',
             html: 'date',
-            col: 'c-corto',
+            col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
             nota: 'Determina si el heredero es mayor de edad.',
@@ -1794,7 +2042,7 @@ export const PASOS_PROPUESTA = [
             key: '3.36',
             label: 'Fecha de finalización',
             html: 'date',
-            col: 'c-corto',
+            col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
             nota: 'Se activa solo si modalidad = plazo fijo.',
@@ -2049,7 +2297,7 @@ export const PASOS_PROPUESTA = [
             key: '3.53',
             label: 'Fecha de expedición',
             html: 'date',
-            col: 'c-corto',
+            col: 'c-tercio',
             nivel: 'Operativo',
             nota: 'Reporte de cumplimiento: se debe afiliar dentro de los 5 días. 18:31): confirmado el riesgo — *\'hay una ley de seguridad que te dice que tenés la obligación como empresa de afiliarlo al trabajador dentro de los 5 días; si no lo haces, todo lo que le pasa al trabajador te lo puede cobrar\'*. La alerta se cuenta desde la fecha de ingreso.',
             traza: '✏ v1.2 (00. Alimenta: PL.'
@@ -2138,7 +2386,7 @@ export const PASOS_PROPUESTA = [
             key: '3.65',
             label: 'Haber básico',
             html: 'text',
-            col: 'c-corto',
+            col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
@@ -2609,10 +2857,13 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '3.115',
-            label: 'Ubicación autorizada (lat / long / radio)',
+            label: 'Ubicación autorizada para marcar',
+            tipo: 'mapa',
+            radio: true,
+            enlace: true,
             col: 'c-medio',
             nivel: 'Operativo',
-            nota: 'Rediseñar: hoy el Salar obliga a tipear latitud y longitud a mano. Mismo dolor que 1.51. Debe ser buscador + mapa + radio en metros.',
+            nota: 'Busca la dirección o toca el mapa, y ajusta los metros: el círculo es el área dentro de la cual se puede marcar asistencia. Era el mismo dolor que la ubicación del domicilio —tipear la latitud a mano— y se arregla con el mismo mapa. El radio viaja en el propio enlace, porque «ubicación autorizada» es un campo del estudio y no tres.',
             traza: 'Alimenta: AS.'
           },
           {

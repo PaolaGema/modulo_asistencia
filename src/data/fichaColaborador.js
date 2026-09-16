@@ -1,4 +1,6 @@
 import { PASOS_PROPUESTA } from './camposPropuesta'
+import { provinciasDe } from './divisionPolitica'
+import { nivelesDe, tieneCatalogo } from './territorios'
 
 /* LA FICHA DEL COLABORADOR.
    Ocho pasos y una vista previa, con los 249 campos del estudio de la propuesta v1.2. Los campos
@@ -62,6 +64,7 @@ export const EN_BLANCO = {
      Y es el mismo trato que 0.1: la pregunta que decide si se despliega un bloque entero se
      contesta sola por el caso de todos los días, nunca por el excepcional. */
   '1.19': 'no',   // ¿Tiene documento secundario?
+  '2.seg': 'no',  // ¿Agregar un segundo contacto de emergencia?
 
   /* BOLIVIA VIENE PUESTO por ser el caso común, y se lo gana: el país emisor decide si se piden
      extensión y complemento SEGIP, así que sin un valor de arranque la tarjeta del documento
@@ -250,6 +253,34 @@ const CONDICIONES = {
   /* La extensión y el complemento del segundo documento repiten la regla del primero encima de
      la suya: hace falta que haya segundo documento, Y que sea un carnet, Y que lo emita Bolivia.
      Un pasaporte argentino no lleva extensión departamental por mucho que sea el documento dos. */
+  /* NO TODOS LOS PAÍSES TIENEN ESCALÓN DE EN MEDIO. Colombia va de departamento a municipio sin
+     nada entre medias, y preguntarle una provincia a alguien de Medellín es pedirle un dato que
+     su país no tiene. Se esconde igual que la extensión de un documento que no es boliviano. */
+  '1.44': form => Boolean(nivelesDe(form['1.42']).menor),
+
+  /* La caja del parentesco que la lista no contempla. Sin esto, «Otro» sería una respuesta que no
+     responde nada — y es un campo del mínimo legal. */
+  '2.2b': form => form['2.2'] === 'Otro',
+  /* ── EL SEGUNDO CONTACTO SE PIDE, NO SE OFRECE PUESTO ────────────────────────────────
+     Estaba siempre a la vista, y eso es cinco campos vacíos que la mayoría no va a llenar
+     colgando de una tarjeta que ya tiene siete. Un formulario largo no se alarga por si acaso:
+     quien necesita el segundo contacto lo pide, y quien no, no lo ve.
+
+     ARRANCA EN «NO» como la pregunta del documento secundario, y por la misma razón: acá los dos
+     botones apagados significan «todavía no contestaron», así que sin valor de arranque el caso
+     raro le cobra el precio al común.
+
+     Y SU RÓTULO NO NECESITA CONDICIÓN. Cae solo, porque ya no queda ningún rótulo en la ficha que
+     sobreviva a sus campos — esa regla vive en `sinRotulosHuerfanos` y vale para todos. */
+  '2.1-2':  form => form['2.seg'] === 'si',
+  '2.2-2':  form => form['2.seg'] === 'si',
+  '2.3-2':  form => form['2.seg'] === 'si',
+  '2.4-2':  form => form['2.seg'] === 'si',
+  '2.5-2':  form => form['2.seg'] === 'si',
+  '2.6-2':  form => form['2.seg'] === 'si',
+  '2.7-2':  form => form['2.seg'] === 'si',
+  '2.2b-2': form => form['2.seg'] === 'si' && form['2.2-2'] === 'Otro',
+
   '1.20c': form => form['1.19'] === 'si' && form['1.20a'] === 'Documento nacional de identidad' && form['1.20g'] === 'Bolivia',
   '1.20d': form => form['1.19'] === 'si' && form['1.20a'] === 'Documento nacional de identidad' && form['1.20g'] === 'Bolivia',
 
@@ -279,7 +310,14 @@ const CONDICIONES = {
    no aparece nunca no se reclama y nadie descubre que falta. Entran cuando exista de dónde
    leerlas. */
 
-const seVe = (campo, form) => !CONDICIONES[campo.key] || CONDICIONES[campo.key](form)
+/* Qué ranura territorial es cada clave del estudio. Acá y no en el campo porque es una relación
+   entre tres campos, y un campo no puede saber qué lugar ocupa en una escalera. */
+const TERRITORIO = { '1.43': 'mayor', '1.44': 'menor', '1.45': 'local' }
+
+const seVe = (campo, form) => {
+  const k = claveBase(campo.key)
+  return !CONDICIONES[k] || CONDICIONES[k](form)
+}
 
 /* ── Las listas que dependen de esta empresa ──────────────────────────────
    El estudio trae catálogos de ejemplo para todo lo que sale de la estructura —sucursales,
@@ -308,6 +346,76 @@ const opcionesDeEstructura = (key, ctx) => {
 /* ── Las tarjetas de un paso ──────────────────────────────────────────────
    Se calculan con el formulario delante porque hay campos que dependen de lo ya contestado: las
    listas salen de la estructura viva y los derivados se rellenan desde su origen. */
+
+/* ── UN BLOQUE QUE SE REPITE TANTAS VECES COMO HAGA FALTA ─────────────────
+   El estudio dice «repetible» en tres sitios —los contactos de emergencia, los beneficios
+   individuales, las medidas disciplinarias— y los hijos lo son por definición. Nada de eso se
+   podía repetir: cada campo era una clave y una clave guarda un valor. Una familia de tres hijos
+   entraba con uno declarado y dos sin asignación familiar.
+
+   LA CUENTA VIVE EN LA FICHA y las copias se numeran en la clave: el primer hijo usa `2.20` tal
+   cual y el segundo `2.20#2`. El primero sin sufijo no es capricho — así una ficha guardada antes
+   de que esto existiera sigue leyéndose entera, y el caso de un solo hijo, que es el común,
+   guarda exactamente lo que guardaba antes.
+
+   LAS CONDICIONES Y LOS DERIVADOS MIRAN LA CLAVE BASE, porque una regla escrita para `2.29` vale
+   para el hijo tres igual que para el uno. Lo que todavía no se puede es condicionar un campo al
+   valor de OTRO campo de su misma copia: eso pediría que la regla supiera en qué instancia está,
+   y hoy ninguna lo necesita. */
+const CUENTA = grupo => '__n_' + grupo
+export const cuantosHay = (form, grupo) => Math.max(1, Number(form[CUENTA(grupo)]) || 1)
+export const claveDeCuenta = CUENTA
+
+/* La clave sin su número de copia: `2.20#3` es, para cualquier regla, `2.20`. */
+export const claveBase = clave => String(clave).split('#')[0]
+
+function expandirRepetibles(campos, form) {
+  const fuera = []
+  for (let i = 0; i < campos.length;) {
+    const c = campos[i]
+    if (!c.repite) { fuera.push(c); i += 1; continue }
+
+    const grupo = c.repite
+    const bloque = []
+    while (i < campos.length && campos[i].repite === grupo) { bloque.push(campos[i]); i += 1 }
+
+    const cuantos = cuantosHay(form, grupo)
+    for (let n = 1; n <= cuantos; n += 1) {
+      for (const campo of bloque) {
+        const copia = { ...campo, grupo, instancia: n, total: cuantos }
+        if (n > 1) copia.key = campo.key + '#' + n
+        /* EL TÍTULO SE NUMERA SÓLO CUANDO HAY MÁS DE UNO. Con un solo hijo, «Hijo 1» pregunta por
+           el segundo sin decirlo; con tres, no numerarlos los vuelve indistinguibles. */
+        if (campo.tipo === 'rotulo' && cuantos > 1) copia.label = (campo.singular || campo.label) + ' ' + n
+        fuera.push(copia)
+      }
+    }
+  }
+  return fuera
+}
+
+/* ── UN ENCABEZADO SIN NADA DEBAJO SE CAE CON LO QUE ENCABEZABA ───────────
+   Un rótulo parte una tarjeta por dentro, y por eso se salta el corte de nivel: si se recortara
+   como un campo cualquiera, un bloque entero se quedaría sin su título. El precio de esa excepción
+   es que puede sobrevivir a todos sus campos — y entonces dibuja un filete y un encabezado en
+   versalitas encima de la nada.
+
+   YA PASÓ DOS VECES. La primera con «Documento secundario», que se enseñaba aunque la respuesta
+   fuera «No»; se arregló condicionando ese rótulo. La segunda con «Segundo contacto», que a nivel
+   Mínimo encabeza campos que ese nivel no incluye — y ahí no hay condición que valga, porque lo
+   que lo vacía no es una respuesta sino el nivel.
+
+   Así que la regla va acá, una vez, en vez de en cada rótulo: sobrevive el que tenga al menos un
+   campo de verdad antes del siguiente rótulo. */
+const sinRotulosHuerfanos = campos => campos.filter((c, i) => {
+  if (c.tipo !== 'rotulo') return true
+  for (let j = i + 1; j < campos.length; j += 1) {
+    if (campos[j].tipo === 'rotulo') return false
+    return true
+  }
+  return false
+})
+
 export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
   const p = PASOS_PROPUESTA.find(x => x.key === paso)
   if (!p) return []
@@ -322,12 +430,49 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
         const ops = opcionesDeEstructura(c.key, ctx)
         if (ops) { campo.tipo = 'lista'; campo.opciones = ops }
 
-        if (DERIVADOS[c.key]) campo.deducido = DERIVADOS[c.key](form) || ''
+        /* ── LA PROVINCIA SE FILTRA POR SU DEPARTAMENTO ───────────────────────────────────
+           Es el dolor que el estudio cita entre comillas —«la lista no se puede filtrar por
+           departamento»— y la regla estaba anunciada en dos notas, la de este campo y la del
+           anterior, sin que ninguna línea la cumpliera: «Provincia» era una caja de texto, así
+           que no había siquiera lista que filtrar.
 
-        /* LO QUE LLEGÓ DE UN REINGRESO Y TODAVÍA NADIE MIRÓ. Un dato de hace cuatro años que
-           aparece ya escrito no lo verifica nadie: se ve lleno y se da por bueno. La marca lo
-           dice sin vaciar el campo, que sería tirar trabajo hecho. */
-        if ((form['__porConfirmar'] || []).includes(c.key)) campo.porConfirmar = true
+           SIN FILTRO NO ES QUE CUESTE ENCONTRARLA, ES QUE NO SE PUEDE. Entre las ciento doce del
+           país hay nombres repetidos: «Cercado» es una provincia de Cochabamba, otra de Oruro,
+           otra de Tarija y otra del Beni. Cuatro entradas idénticas en una lista sin contexto —
+           elegir bien sería adivinar.
+
+           Y MIENTRAS NO HAY DEPARTAMENTO, NO HAY DESPLEGABLE. `provinciasDe` devuelve nada y el
+           campo se queda como texto libre con una pista que dice por dónde empezar: un
+           desplegable que se abre vacío promete opciones que no existen todavía. */
+        /* ── EL BLOQUE TERRITORIAL SE LLAMA COMO SE LLAME EN SU PAÍS ──────────────────────
+           Tres ranuras fijas —mayor, menor, localidad— con el rótulo del país elegido. Las claves
+           no se mueven: 1.43 es la subdivisión mayor viva donde viva la persona, así que un
+           informe que cruce tres países sigue comparando lo comparable.
+
+           Y FUERA DE BOLIVIA, TEXTO LIBRE. No por dejadez: los catálogos de estados mexicanos o
+           comunas chilenas hacen falta de fuente oficial, y una lista inventada de memoria es
+           peor que una caja porque parece autoridad. El rótulo ya es el correcto, que era el
+           problema de verdad — a un chileno se le pedía un «departamento» boliviano. */
+        if (TERRITORIO[c.key]) {
+          const niveles = nivelesDe(form['1.42'])
+          campo.label = niveles[TERRITORIO[c.key]]
+          if (!tieneCatalogo(form['1.42'])) {
+            delete campo.tipo
+            delete campo.opciones
+            campo.ph = `${campo.label} donde reside`
+          }
+        }
+
+        /* LA PROVINCIA SE FILTRA POR SU DEPARTAMENTO, y esto es de Bolivia: es el único país con
+           catálogo cargado. Mientras no hay departamento elegido no hay desplegable, porque uno
+           que se abre vacío promete opciones que todavía no existen. */
+        if (c.key === '1.44' && tieneCatalogo(form['1.42'])) {
+          const provincias = provinciasDe(form['1.43'])
+          if (provincias) { campo.tipo = 'lista'; campo.opciones = provincias }
+          else campo.ph = 'Elige antes el departamento'
+        }
+
+        if (DERIVADOS[c.key]) campo.deducido = DERIVADOS[c.key](form) || ''
 
         /* LA FOTO SE SUBE COMO UNA FOTO Y NO COMO UN ADJUNTO. Es el único de los nueve archivos
            de la ficha que hay que MIRAR para saber si está bien: los otros ocho son papeles y de
@@ -375,7 +520,8 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
       }),
   /* UN ROTULO SUELTO NO ES UNA SECCIÓN. Recortando por nivel puede quedar una tarjeta con solo
      los encabezados de sus bloques y ningún campo debajo: eso se ve como una pantalla rota. */
-  })).filter(t => t.campos.some(c => c.tipo !== 'rotulo'))
+  })).map(t => ({ ...t, campos: sinRotulosHuerfanos(expandirRepetibles(t.campos, form)) }))
+    .filter(t => t.campos.some(c => c.tipo !== 'rotulo'))
 }
 
 /* TODAS LAS TARJETAS DE LA FICHA, en orden. Es lo que lee la vista previa —que no es un paso más

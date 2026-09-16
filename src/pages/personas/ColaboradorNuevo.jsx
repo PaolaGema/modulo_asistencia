@@ -85,11 +85,7 @@ export default function ColaboradorNuevo() {
 
      Se hace acá, en el único sitio por donde pasan todas las escrituras de la ficha, y no en
      cada campo: puesto en el campo habría que acordarse en los 254. */
-  const set = (k, v) => setForm(prev => {
-    const marcados = prev['__porConfirmar']
-    if (!Array.isArray(marcados) || !marcados.includes(k)) return { ...prev, [k]: v }
-    return { ...prev, [k]: v, '__porConfirmar': marcados.filter(x => x !== k) }
-  })
+  const set = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
   /* LO QUE EL ESTUDIO NO PUEDE SABER: esta empresa.
      Los 249 campos vienen con catálogos de ejemplo para todo lo que sale de la estructura

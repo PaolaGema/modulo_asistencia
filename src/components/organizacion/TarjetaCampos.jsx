@@ -1,9 +1,17 @@
+import { lazy, Suspense } from 'react'
 import Desplegable from '../layout/Desplegable'
 import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
 import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
+/* EL MAPA SE DESCARGA CUANDO SE USA, Y NO ANTES. Leaflet con su hoja de estilos son unos
+   cincuenta kilobytes comprimidos que hacen falta en UN campo de doscientos cuarenta y nueve, y
+   sólo con el formulario abierto. Cargándolo con todo lo demás, se lo baja también quien entra a
+   mirar un teléfono en el directorio y nunca abre una ficha. */
+const SelectorUbicacion = lazy(() => import('../personas/SelectorUbicacion'))
 import AyudaCampo from '../personas/AyudaCampo'
+import { Plus } from 'lucide-react'
 import { conRieles, estilosDeRiel } from './rejillaFicha'
+import { claveDeCuenta, cuantosHay } from '../../data/fichaColaborador'
 
 /* LA FICHA DE UN OBJETO DE LA ORGANIZACIÓN, en sus dos estados.
    Nació dentro de "Datos de la empresa" y salió de allí en cuanto la sucursal pidió lo mismo:
@@ -165,6 +173,34 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
      Hay secciones con veinte campos que por dentro son tres cosas distintas —el cónyuge, los
      hijos, los herederos— y sin una línea que las separe se leen como una lista de veinte
      rótulos grises seguidos. No guarda nada y no cuenta para el progreso: es un encabezado. */
+  /* ── EL BOTÓN QUE AÑADE OTRA COPIA DEL BLOQUE ────────────────────────────
+     No guarda un dato: guarda cuántas veces hay que dibujar los campos de encima. Por eso es un
+     campo del estudio y no un control suelto de la pantalla — vive donde viven los campos, se
+     recorta con el nivel como ellos, y el día que «Beneficiarios» o «Garantes» se vuelvan
+     repetibles no hay que tocar esta pantalla. */
+  if (campo.tipo === 'repetir') {
+    const cuantos = cuantosHay(form, campo.grupo)
+    return (
+      <div className="c-todo emp-repetir">
+        <button type="button" className="emp-mas" onClick={() => set(claveDeCuenta(campo.grupo), cuantos + 1)}>
+          <Plus size={13} /> {campo.label}
+        </button>
+        {/* QUITAR SÓLO EL ÚLTIMO, y se dice cuál. Borrar el del medio obligaría a correr los
+            valores de los de abajo una posición, y un corrimiento silencioso sobre datos que
+            alguien ya escribió es la clase de ayuda que hace perder media hora de trabajo. */}
+        {cuantos > 1 && (
+          <button
+            type="button"
+            className="emp-menos"
+            onClick={() => set(claveDeCuenta(campo.grupo), cuantos - 1)}
+          >
+            Quitar el {cuantos}.º
+          </button>
+        )}
+      </div>
+    )
+  }
+
   if (campo.tipo === 'rotulo') {
     return (
       <div className="c-todo emp-rotulo-bloque">
@@ -190,14 +226,6 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
             {campo.requerido && <span className="pl-req" aria-hidden="true">*</span>}
             {campo.nota && <AyudaCampo>{campo.nota}</AyudaCampo>}
             {campo.insignia && <span className="emp-insignia">{campo.insignia}</span>}
-            {/* VA DESPUÉS DE LA INSIGNIA Y NO EN SU LUGAR: un campo puede ser legal Y venir sin
-                confirmar a la vez, y son dos cosas que no se reemplazan. Desaparece en cuanto
-                alguien escribe encima. */}
-            {campo.porConfirmar && (
-              <span className="emp-insignia emp-confirmar" title="Viene de un registro anterior. Confirmá que sigue vigente.">
-                a confirmar
-              </span>
-            )}
           </span>
         </label>
       ) : (
@@ -284,6 +312,24 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
           documento={!campo.retrato}
           ariaLabel={campo.label}
         />
+      ) : campo.tipo === 'mapa' ? (
+        /* EL MAPA SÓLO APARECE ESCRIBIENDO. Leyendo la ficha, lo que hace falta es el enlace
+           —pulsable, que es lo que ya hace `enlace: true`— y no medio megabyte de baldosas
+           pidiéndose a un servidor ajeno cada vez que alguien abre una ficha a mirar un teléfono.
+
+           Y EL HUECO DE ESPERA MIDE LO QUE MEDIRÁ EL MAPA: sin alto reservado, la tarjeta pega un
+           salto de doscientos veinte píxeles cuando el trozo termina de bajar. */
+        <Suspense fallback={<div className="su-cargando" />}>
+          <SelectorUbicacion
+            id={id}
+            valor={form[campo.key] || ''}
+            onCambio={v => set(campo.key, v)}
+            ariaLabel={campo.label}
+            /* El domicilio es un punto; la ubicación autorizada para marcar es un área, porque lo
+               que autoriza no es una puerta sino cuánto se puede alejar alguien de ella. */
+            conRadio={campo.radio}
+          />
+        </Suspense>
       ) : campo.tipo === 'persona' ? (
         <SelectorPersona
           id={id}

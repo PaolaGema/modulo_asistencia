@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Check, RotateCcw, Search } from 'lucide-react'
-import { esVigente } from '../../pages/personas/colaboradoresData'
+import { esVigente, fotoDe } from '../../pages/personas/colaboradoresData'
+import { borrarArchivo, copiarArchivo } from '../../utils/archivosLocales'
 import { avatarUrl } from '../../utils/calendarEvents'
 
 /* ── REINGRESO O ALTA NUEVA ───────────────────────────────────────────────
@@ -77,6 +78,61 @@ const TRAE_A_CONFIRMAR = [
   '3.89', '3.90', '3.91', '3.93',                              // banco y cuenta
 ]
 
+/* 2b · LOS ARCHIVOS, QUE SÓLO VIENEN SI LOS PIDEN. Los otros dos grupos se copian siempre; éste
+   cuelga de «¿Copiar documentos digitales?», que es una pregunta que la tarjeta ya hacía y cuya
+   respuesta no leía nadie: se contestaba que sí y no pasaba nada. Volver a subir el carnet
+   escaneado de alguien que ya lo había subido es la clase de trabajo que este flujo existe para
+   ahorrar.
+
+   NO SE COPIA LA REFERENCIA SINO EL ARCHIVO. Dos fichas apuntando al mismo contenido comparten
+   destino: reemplazar la foto en la nueva borraría la de la vieja. `copiarArchivo` lo duplica
+   bajo una clave propia.
+
+   Y CASI TODOS LLEGAN MARCADOS, por lo mismo que el domicilio o el teléfono: en cuatro años una
+   cara cambia y un carnet se renueva —con otra fecha de vencimiento, que es justo el dato que la
+   ficha vigila—. El certificado de nacimiento es la excepción y no por descuido: dice dónde y
+   cuándo nació alguien, y eso no se renueva nunca. */
+const TRAE_ARCHIVOS = [
+  { k: '1.9',   confirmar: true,  nombre: 'su fotografía' },
+  { k: '1.17',  confirmar: true,  nombre: 'el documento escaneado' },
+  { k: '1.20h', confirmar: true,  nombre: 'el documento secundario' },
+  { k: '1.53',  confirmar: true,  nombre: 'el croquis' },
+  { k: '1.21b', confirmar: false, nombre: 'el certificado de nacimiento' },
+]
+
+/* ── DECIR QUÉ SE ESTÁ OFRECIENDO, QUE ES LO QUE FALTABA ──────────────────
+   Las tres preguntas de abajo pedían decidir a ciegas: «¿le damos los mismos permisos?» sin decir
+   cuáles tenía, «¿su antigüedad?» sin decir cuánta, «¿sus documentos?» sin decir si hay alguno.
+   Quien contesta no conoce a esta persona —por eso está buscándola en un directorio— así que la
+   única respuesta honesta a ciegas es «no», y entonces las tres preguntas sobran.
+
+   Todo lo que hace falta para contestarlas ya estaba en el registro; sólo que no se enseñaba. */
+
+const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+/* Las fechas del directorio son texto para leer —«04 Mar 2019»— y no una fecha de máquina. Se
+   parsean acá y no se cambia el formato del dato: así se escriben en la tabla y así se entienden. */
+const aFecha = texto => {
+  const m = (texto || '').trim().match(/^(\d{1,2})\s+([A-Za-zÁ-ú]{3})\s+(\d{4})$/)
+  if (!m) return null
+  const mes = MESES_CORTOS.indexOf(m[2][0].toUpperCase() + m[2].slice(1).toLowerCase())
+  return mes < 0 ? null : new Date(Number(m[3]), mes, Number(m[1]))
+}
+
+/* CUÁNTO DURÓ, EN AÑOS Y MESES. En meses sueltos —«cincuenta y dos»— no se entiende de un
+   vistazo, y en años redondos se pierde justo lo que decide un bono de antigüedad. */
+function duracion(desde, hasta) {
+  const a = aFecha(desde); const b = aFecha(hasta)
+  if (!a || !b || b < a) return null
+  let meses = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth())
+  if (b.getDate() < a.getDate()) meses -= 1
+  const anios = Math.floor(meses / 12); const resto = meses % 12
+  const partes = []
+  if (anios) partes.push(anios === 1 ? '1 año' : `${anios} años`)
+  if (resto) partes.push(resto === 1 ? '1 mes' : `${resto} meses`)
+  return partes.join(' y ') || 'menos de un mes'
+}
+
 /* 3 · LO QUE NO SE TRAE, y no hace falta escribirlo: es todo lo demás. Puesto, área, sede,
    jefe, tipo de contrato, fechas, haber, horario, accesos. Empieza de cero porque es del
    VÍNCULO NUEVO, y eso es exactamente lo que hace que esto sea un alta y no una reactivación:
@@ -95,7 +151,6 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
 
   /* Cuántos campos llegaron y cuántos quedan por mirar. El segundo baja solo a medida que
      alguien los va tocando, porque tocar un campo es confirmarlo. */
-  const porConfirmar = (form['__porConfirmar'] || []).length
   const copiados = useMemo(() => {
     const ficha = traido?.ficha || {}
     return [...TRAE_SIEMPRE, ...TRAE_A_CONFIRMAR].filter(k => ficha[k]).length
@@ -130,6 +185,66 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
     }).slice(0, 6)
   }, [q, gente, descartados])
 
+  /* ── LOS DOCUMENTOS DIGITALES LLEGAN CUANDO LOS PIDEN, NO AL ELEGIR A LA PERSONA ──
+     «¿Copiar documentos digitales?» se pregunta debajo de la ficha que se acaba de traer —antes
+     no tendría sujeto— así que cuando `traer` corre, esa respuesta todavía no existe. Por eso esto
+     vive en un efecto y no ahí dentro: lo que lo dispara es la respuesta, no la elección.
+
+     ERA UNA PREGUNTA SIN CONSECUENCIA. Se contestaba que sí y no pasaba nada — ni ésta ni las
+     otras dos del grupo se leían en ninguna parte. Volver a subir el carnet escaneado de alguien
+     que ya lo había subido es exactamente el trabajo que este flujo existe para ahorrar.
+
+     Y SE DESHACE. Contestar que no después de haber dicho que sí devuelve los campos a vacío y
+     borra las copias: un archivo que ya nadie enseña pero sigue ocupando sitio es basura que
+     nadie va a ir a buscar. */
+  /* QUÉ PUEDE OFRECER DE VERDAD ESTE REGISTRO. Se calcula del propio registro y no se supone:
+     una pregunta que ofrece algo que no existe es peor que no preguntar, porque quien contesta
+     que sí se queda esperando algo que nunca llega. */
+  const ofrece = useMemo(() => {
+    const ficha = traido?.ficha || {}
+    const archivos = TRAE_ARCHIVOS.filter(a => ficha[a.k]?.clave)
+    const rol = ficha['7.6'] || traido?.rol
+    const acceso = ficha['7.5']
+    return {
+      archivos: archivos.length
+        ? `${archivos.length} ${archivos.length === 1 ? 'archivo' : 'archivos'}: ${archivos.map(a => a.nombre).join(', ')}`
+        : null,
+      permisos: rol
+        ? `${rol}${acceso === 'no' ? ', con el ingreso al sistema deshabilitado' : ''}`
+        : null,
+      antiguedad: duracion(traido?.ingreso, traido?.salida),
+    }
+  }, [traido])
+
+  const copiasArchivo = useRef([])
+  useEffect(() => {
+    let vivo = true
+    const ficha = traido?.ficha || {}
+
+    if (form['0.4'] === 'si' && traido && !copiasArchivo.current.length) {
+      Promise.all(TRAE_ARCHIVOS.map(async ({ k, confirmar }) => {
+        const guardado = ficha[k]
+        if (!guardado?.clave) return null
+        const clave = await copiarArchivo(guardado.clave)
+        if (!clave || !vivo) return null
+        set(k, { ...guardado, clave })
+        copiasArchivo.current.push({ k, clave })
+        return confirmar ? k : null
+      })).then(nuevos => {
+        if (!vivo) return
+        const suman = nuevos.filter(Boolean)
+        if (suman.length) return
+      })
+    }
+
+    if (form['0.4'] === 'no' && copiasArchivo.current.length) {
+      for (const { k, clave } of copiasArchivo.current) { set(k, null); borrarArchivo(clave) }
+      copiasArchivo.current = []
+    }
+
+    return () => { vivo = false }
+  }, [form['0.4'], traido])   // eslint-disable-line react-hooks/exhaustive-deps
+
   const responder = valor => {
     set('0.1', valor)
     if (valor !== 'si') soltar()
@@ -139,9 +254,10 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
     set('__reingresoDe', '')
     set('0.2', '')
     set('0.3', '')
-    /* No se borra lo copiado —quizá era la persona correcta y se soltó por error— pero sí la
-       marca de revisar: sin dueño, un «a confirmar» no dice de qué ficha vino. */
-    set('__porConfirmar', [])
+    /* Los archivos copiados tampoco se borran, por lo mismo; lo que se suelta es la cuenta de
+       cuáles eran nuestros. Si vuelven a elegir a alguien y piden sus documentos, se traen los de
+       la ficha nueva encima — que es lo que se acaba de pedir. */
+    copiasArchivo.current = []
     setDescartados([])
     setQ('')
   }
@@ -160,9 +276,10 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
     for (const k of TRAE_SIEMPRE) if (ficha[k]) set(k, ficha[k])
     for (const k of TRAE_A_CONFIRMAR) if (ficha[k]) { set(k, ficha[k]); marcados.push(k) }
 
-    /* La lista de lo que hay que mirar viaja en la ficha y no en este componente: los campos
-       marcados están en los ocho pasos y este componente vive sólo en el primero. */
-    set('__porConfirmar', marcados)
+    /* SE TRAE TODO IGUAL, PERO YA NADIE LO MARCA. Los dos grupos existían porque uno llegaba
+       limpio y el otro con un chip de «a confirmar» al lado; retirado el chip, lo que los separa
+       es sólo el comentario que explica por qué unos datos envejecen y otros no. Se conservan
+       así, en dos listas, porque el día que se quiera volver a avisar ya están separados. */
   }
 
   return (
@@ -240,7 +357,16 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
            reconocerla. */
         <div className="rg-traido">
           <div className="rg-persona">
-            <img className="rg-foto" src={avatarUrl(traido.name, 96)} alt="" />
+            {/* LA CARA SALE DE SU FICHA, NO DE SU NOMBRE. Acá se deducía del nombre, y el propio
+                `colaboradoresData` ya avisaba de que eso sale mal —«ninguna se deduce del nombre»—:
+                salía mal, y de la peor manera. La misma persona tenía dos caras según la pantalla
+                —una en el directorio, otra acá— y a María Fernanda le tocaba una de hombre.
+
+                El reingreso trata justamente de reconocer a alguien que ya estuvo. Enseñarle una
+                cara que no es la que su ficha tiene guardada sabotea lo único que esta tarjeta
+                viene a hacer. El repuesto por nombre queda sólo para un registro sin foto, que es
+                el único caso en que no hay nada mejor. */}
+            <img className="rg-foto" src={fotoDe(traido) || avatarUrl(traido.name, 96)} alt="" />
 
             <div className="rg-persona-datos">
               <p className="rg-persona-nom">{traido.name}</p>
@@ -272,9 +398,6 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
           <p className="rg-copiado">
             <Check size={13} />
             Se copiaron {copiados} datos suyos a esta ficha.
-            {porConfirmar > 0 && (
-              <span className="rg-revisar">{porConfirmar} hay que confirmar</span>
-            )}
           </p>
 
           {/* LAS TRES PREGUNTAS LLEGAN ACÁ Y NO ANTES. Preguntar si conservar la antigüedad de
@@ -282,16 +405,30 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
               por eso los rótulos pueden decir «sus» y «su» en vez de repetir el nombre. */}
           <p className="rg-sub">¿Qué más traemos de su registro anterior?</p>
 
-          {[['0.4', 'Sus documentos digitales'], ['0.5', 'Los mismos permisos que tenía'], ['0.6', 'Su antigüedad anterior']].map(([clave, texto]) => (
-            <div key={clave} className="rg-pregunta rg-pregunta-fina">
-              <span>{texto}</span>
-              <div className="rg-sino" role="group" aria-label={texto}>
+          {[
+            ['0.4', 'Sus documentos digitales', ofrece.archivos, 'No dejó ninguno subido'],
+            ['0.5', 'Los mismos permisos que tenía', ofrece.permisos, 'No consta qué rol tenía'],
+            ['0.6', 'Su antigüedad anterior', ofrece.antiguedad, 'No constan sus fechas'],
+          ].map(([clave, texto, detalle, sinDatos]) => (
+            <div key={clave} className={`rg-pregunta rg-pregunta-fina${detalle ? '' : ' rg-pregunta-vacia'}`}>
+              {/* EL RÓTULO DICE QUÉ SE DECIDE Y LA LÍNEA DE ABAJO QUÉ SE LLEVA. Sin la segunda,
+                  las tres se contestaban a ciegas: nadie sabe qué permisos tenía alguien a quien
+                  acaba de encontrar buscándolo en un directorio. */}
+              <span>
+                {texto}
+                <small>{detalle || sinDatos}</small>
+              </span>
+              {/* NO SE OFRECE LO QUE NO HAY. Sin nada que traer, la pregunta se queda a la vista
+                  —para que se entienda que existe y por qué no aplica— pero no se puede contestar
+                  que sí a un vacío. */}
+              <div className="rg-sino" role="group" aria-label={texto} aria-disabled={!detalle}>
                 {[['si', 'Sí'], ['no', 'No']].map(([v, t]) => (
                   <button
                     key={v}
                     type="button"
                     className={`rg-op${form[clave] === v ? ' on' : ''}`}
                     aria-pressed={form[clave] === v}
+                    disabled={!detalle && v === 'si'}
                     onClick={() => set(clave, v)}
                   >
                     {t}

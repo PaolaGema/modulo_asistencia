@@ -6276,6 +6276,11 @@ select.pl-input:focus {
    propio dato. El espacio es lo único que dice qué va con qué. */
 .emp-form.emp-leyendo { row-gap: 24px; }
 .emp-form .c-med { grid-column: span 3; }
+/* DOS COLUMNAS DE DOCE, Y NINGÚN CAMPO LAS USA YA. Una fecha cabe en este ancho —de eso no hay
+   duda— pero la rejilla es de tres columnas y un campo de dos deja la fila en diez: quedan dos
+   columnas muertas y el campo siguiente salta de fila con sitio de sobra al lado. Las seis fechas
+   y el haber básico que lo usaban pasaron a un tercio. La clase se queda por si algún día aparece
+   un dato que de verdad quiera ese ancho, pero el ancho lo pide la rejilla, no el dato. */
 .emp-form .c-corto { grid-column: span 2; }
 .emp-form .c-tercio { grid-column: span 4; }
 .emp-form .c-ancho { grid-column: span 8; }
@@ -7983,11 +7988,171 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
   transition: background .12s, color .12s;
 }
 .sn-op:hover { color: var(--text-heading); }
+
+/* EL AZUL DE LA MARCA Y NO UNA PASTILLA BLANCA. Había dos Sí/No en la aplicación con el mismo
+   dibujo y distinto color de elegido: el del reingreso —que se escribe aparte porque esa tarjeta
+   no usa la rejilla— iba en azul, y los cuarenta y cuatro de la ficha en blanco sobre gris. No
+   los separaba ninguna decisión, nacieron en momentos distintos. Gana el azul: sobre el canal
+   gris, una pastilla blanca dice «acá hay algo» y el azul dice «esto es lo contestado», que es
+   lo que hay que poder ver de un vistazo en una ficha de cuarenta campos. */
 .sn-op.on {
-  background: var(--surface-card);
-  color: var(--text-heading);
+  background: var(--navy);
+  color: #fff;
   box-shadow: var(--sh-sm);
 }
+.dark .sn-op.on { background: var(--green); color: var(--navy-dark); }
+
+/* Mientras el trozo del mapa termina de bajar, un hueco de su mismo alto: sin esto la tarjeta
+   pega un salto de doscientos veinte píxeles justo cuando llega. */
+.su-cargando { height: 275px; border-radius: 10px; background: var(--campo-vacio); }
+
+/* ── El punto en el mapa ──
+   Tres piezas en columna: la barra de buscar, el mapa, y un pie que dice qué quedó guardado. El
+   pie no es decoración — un mapa enseña dónde está la marca pero no si el dato llegó al
+   formulario, y son dos cosas que pueden discrepar. */
+.su { display: flex; flex-direction: column; gap: 7px; }
+
+.su-barra { display: flex; gap: 6px; }
+
+.su-buscar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 11px;
+  border: 1px solid var(--campo-vacio-borde);
+  border-radius: 10px;
+  background: var(--campo-vacio);
+  color: var(--icon-muted);
+}
+.su-buscar:focus-within { border-color: var(--navy); background: var(--surface-card); }
+.su-lupa { flex-shrink: 0; }
+.su-buscar input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-heading);
+}
+.su-buscar input:focus { outline: none; }
+/* La cruz que Chrome mete en un `type=search` es de otro juego de iconos y de otro tamaño. */
+.su-buscar input::-webkit-search-cancel-button { display: none; }
+
+.su-accion {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--campo-vacio-borde);
+  border-radius: 10px;
+  background: var(--campo-vacio);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.su-accion:hover { background: var(--surface-hover); color: var(--text-heading); }
+
+/* ALTO FIJO Y NO PROPORCIÓN. Este campo vive en media fila de una rejilla que cambia de ancho con
+   la ventana, y con `aspect-ratio` el mapa crecía hasta empujar los campos de al lado media
+   pantalla hacia abajo. Doscientos veinte píxeles es lo que hace falta para situar una marca
+   respecto de su manzana, que es lo que se viene a hacer. */
+/* EN EL RIEL EL MAPA SUELTA SU ALTO FIJO, igual que el recuadro del escaneo suelta su proporción:
+   lo que mide no lo decide él, lo deciden las filas de campos que ancla. Fuera del riel —si algún
+   día este campo va suelto en otra tarjeta— conserva sus 220, que es lo mínimo para situar una
+   marca respecto de su manzana. */
+.emp-form > .c-mapa { display: flex; flex-direction: column; }
+.emp-form > .c-mapa .su { flex: 1; min-height: 0; }
+.emp-form > .c-mapa .su-mapa { height: auto; flex: 1; min-height: 200px; }
+
+.su-mapa {
+  height: 220px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--campo-vacio);
+  z-index: 0;   /* Leaflet apila sus capas en 400+; sin esto se sube por encima de los menús. */
+}
+.su-mapa .leaflet-container { height: 100%; font: inherit; background: var(--campo-vacio); }
+
+/* EL BORDE AVISA DE QUIÉN ES LA RUEDA. Con el puntero encima, la rueda acerca el mapa en vez de
+   bajar la página, y eso es un cambio de comportamiento que conviene ver venir: el mapa se marca
+   como se marca un campo enfocado, con el azul de la marca. */
+.su-mapa:hover { border-color: var(--navy); }
+.dark .su-mapa:hover { border-color: var(--green); }
+
+/* LA MARCA, DIBUJADA Y NO DESCARGADA. La de Leaflet son dos PNG que el empaquetador reubica y
+   acaban en 404; ésta es una gota de color hecha con bordes redondeados y rotación. */
+.su-marca span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 2px;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 2px;
+  background: var(--navy);
+  box-shadow: 0 2px 6px rgba(12,45,64,.35);
+  transform: rotate(-45deg);
+}
+.dark .su-marca span { background: var(--green); border-color: var(--navy-dark); }
+
+/* EL CERCO AUTORIZADO. Relleno muy bajo para que se siga viendo el mapa debajo —lo que importa
+   es qué manzanas entran, y un disco opaco las taparía justo a ellas— y el borde en el azul de la
+   marca, que es el mismo de la chincheta. */
+.su-cerco { stroke: var(--navy); stroke-width: 2; fill: var(--navy); fill-opacity: .1; }
+.dark .su-cerco { stroke: var(--green); fill: var(--green); }
+
+/* Los metros, pegados al buscador y tan anchos como pide un número de cuatro cifras. */
+.su-radio {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  border: 1px solid var(--campo-vacio-borde);
+  border-radius: 10px;
+  background: var(--campo-vacio);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.su-radio:focus-within { border-color: var(--navy); background: var(--surface-card); }
+.su-radio input {
+  width: 46px;
+  height: 36px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+  font-variant-numeric: tabular-nums;
+}
+.su-radio input:focus { outline: none; }
+
+.su-pie { margin: 0; font-size: 11.5px; line-height: 1.5; }
+.su-vacio { color: var(--text-muted); }
+.su-aviso { display: inline-flex; align-items: center; gap: 5px; color: var(--amber-text, #92400e); }
+.su-enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--navy);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+.su-enlace:hover { text-decoration: underline; }
+.dark .su-enlace { color: var(--green); }
+
+/* La atribución es obligatoria por la licencia de OpenStreetMap, así que no se esconde: se baja
+   de tamaño hasta que deje de competir con el mapa y se queda. */
+.su-mapa .leaflet-control-attribution { font-size: 9px; background: rgba(255,255,255,.82); }
+.su-mapa .leaflet-control-attribution a { color: var(--text-muted); }
 
 /* ── Subir un archivo ──
    Vacía es una caja punteada que se pulsa entera; con algo dentro deja de ser una zona de
@@ -8019,6 +8184,19 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
    riel y sin quien le haga la cuenta. */
 .emp-form .c-escaneo { grid-column: 1 / span 4; grid-row: var(--riel-inicio, 1) / span var(--riel-filas, 2); }
 
+/* Y EL MAPA, QUE ES EL TERCERO. Diez campos de dirección al lado y uno solo que los comprueba:
+   país, departamento, provincia, municipio, zona, calle y número describen un punto que hasta
+   ahora no se veía hasta llegar al final de la tarjeta. */
+.emp-form .c-mapa { grid-column: 1 / span 4; grid-row: var(--riel-inicio, 1) / span var(--riel-filas, 4); }
+
+/* EL PASAJERO DEL RIEL: va debajo, en su misma columna, una fila de alto. El croquis es lo mismo
+   que el mapa —dónde vive esta persona, en imagen— y en el flujo caía entre campos de texto, con
+   su recuadro de subir archivo desentonando al lado de «Referencia del domicilio». Juntos hacen
+   columna y la tarjeta se lee en dos mitades: la dirección escrita a un lado, dibujada al otro.
+   Sus dos números los calcula la tarjeta, igual que los del riel, y llegan por las mismas
+   variables — pero puestas en ÉL, que es otro elemento y no hereda las del riel. */
+.emp-form .c-bajo-riel { grid-column: 1 / span 4; grid-row: var(--riel-inicio, auto) / span var(--riel-filas, 1); }
+
 /* ── Y EL PAPEL SE ADAPTA A LA FILA, NO LA FILA AL PAPEL ──────────────────
    El recuadro del escaneo es apaisado y grande: midiendo lo suyo, estiraba las filas que tiene
    al lado hasta setenta píxeles por encima de lo que necesitan los campos, y ese sobrante hay
@@ -8039,14 +8217,18 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
    media fila y al lado del riel ya no entran dos campos sino uno. Mismo cálculo, otra tabla. */
 @media (max-width: 1240px) {
   .emp-form .c-retrato,
-  .emp-form .c-escaneo { grid-row: var(--riel-inicio-md, 1) / span var(--riel-filas-md, 2); }
+  .emp-form .c-escaneo,
+  .emp-form .c-mapa,
+  .emp-form .c-bajo-riel { grid-row: var(--riel-inicio-md, 1) / span var(--riel-filas-md, 2); }
 }
 
 /* Angostas, las dos sueltan su columna y vuelven al flujo: con seis columnas para los campos, dos
    rótulos como «Apellido de casada» no entran al lado de un recuadro de 72. */
 @media (max-width: 900px) {
   .emp-form .c-retrato,
-  .emp-form .c-escaneo { grid-column: 1 / -1; grid-row: auto; }
+  .emp-form .c-escaneo,
+  .emp-form .c-mapa,
+  .emp-form .c-bajo-riel { grid-column: 1 / -1; grid-row: auto; }
 }
 
 /* ── UN PAPEL ESCANEADO, EN SU RECUADRO ───────────────────────────────────
@@ -8688,6 +8870,22 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
    pregunta quedaba a la izquierda y su sí/no pegado al borde derecho de la tarjeta, a setecientos
    píxeles: hay que leer, cruzar la tarjeta entera con la vista y volver. Y rompía el patrón del
    resto de la ficha, donde todo rótulo tiene su control justo debajo. */
+
+/* LO QUE SE LLEVA CADA RESPUESTA, debajo de la pregunta. En gris y más chico: acompaña al
+   rótulo, no compite con él — pero sin esta línea las tres preguntas se contestaban a ciegas. */
+.rg-pregunta-fina > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rg-pregunta-fina small {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* SIN NADA QUE TRAER, LA PREGUNTA SE QUEDA PERO SE APAGA. Esconderla haría creer que esta ficha
+   no ofrece esa opción nunca; apagada dice que existe y que este registro no la tiene. */
+.rg-pregunta-vacia { opacity: .62; }
+.rg-pregunta-vacia .rg-op[disabled] { cursor: not-allowed; color: var(--text-muted); }
+
 .rg-pregunta {
   display: flex;
   flex-direction: column;
@@ -8704,10 +8902,13 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
    vistazo — que es lo que uno hace con tres preguntas seguidas. */
 .rg-pregunta-fina {
   flex-direction: row;
-  align-items: center;
+  /* ARRIBA Y NO AL CENTRO, desde que el rótulo lleva debajo lo que se va a traer: centrado
+     verticalmente, los dos botones flotaban a media altura de un bloque de dos líneas y dejaban
+     de leerse como la respuesta a la primera. */
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  max-width: 440px;
+  max-width: 520px;
   font-size: 12.5px;
   font-weight: 500;
   padding: 7px 0;
@@ -8829,26 +9030,6 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .rg-btn-pri:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
 .dark .rg-btn-pri { background: var(--green); border-color: var(--green); color: var(--navy-dark); }
 
-/* LA MARCA DE «A CONFIRMAR». Ámbar y no rojo: no hay un error, hay un dato que pide una mirada.
-   El rojo de esta paleta ya significa «falta algo obligatorio» y dos rojos distintos en el
-   mismo formulario se leen como el mismo aviso. */
-.emp-confirmar {
-  background: var(--yellow-bg);
-  color: var(--ambar, #B45309);
-  cursor: help;
-}
-.dark .emp-confirmar { color: var(--yellow); }
-
-/* El contador de lo que queda por mirar, al lado de lo que se copió. */
-.rg-revisar {
-  margin-left: 8px;
-  padding: 2px 9px;
-  border-radius: 99px;
-  background: var(--yellow-bg);
-  color: var(--yellow);
-  font-size: 11px;
-  font-weight: 700;
-}
 
 /* ── YA SE TRAJO A ALGUIEN ────────────────────────────────────────────────
    Una tarjeta de persona y no una línea de confirmación. Después de elegir entre dos homónimas
@@ -9278,6 +9459,45 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 
 .ac-cuerpo { padding: 18px 20px 20px; }
 .ac-desc { margin: 0 0 16px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+/* ── AÑADIR OTRA COPIA DEL BLOQUE ──
+   Va debajo de lo que repite y no arriba: primero se ve qué es un hijo y después se ofrece
+   declarar otro. Y no es un botón de formulario —no guarda nada— así que se dibuja como lo que
+   es: una acción discreta, del peso de un enlace, que no compite con «Crear colaborador». */
+.emp-repetir { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 2px; }
+
+.emp-mas {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px 8px 12px;
+  border: 1px dashed var(--campo-vacio-borde);
+  border-radius: 10px;
+  background: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--navy);
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.emp-mas:hover { background: var(--campo-vacio); border-color: var(--navy); }
+.dark .emp-mas { color: var(--green); }
+.dark .emp-mas:hover { border-color: var(--green); }
+
+/* Quitar pesa menos que añadir: es la salida de un error, no una acción que la ficha invite a
+   hacer. Sin marco y en gris hasta que el puntero encima dice que sigue siendo pulsable. */
+.emp-menos {
+  border: none;
+  background: none;
+  padding: 4px 2px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.emp-menos:hover { color: var(--red, #B3261E); text-decoration: underline; }
 
 /* El rótulo que parte una tarjeta por dentro. Hay secciones del estudio con veinte campos que
    son tres cosas distintas —el cónyuge, los hijos, los herederos— y sin una línea que las

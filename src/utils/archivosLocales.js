@@ -70,3 +70,23 @@ export async function borrarArchivo(clave) {
     })
   } catch { /* nada que borrar */ }
 }
+
+/* ── COPIAR UN ARCHIVO A UNA CLAVE NUEVA ──────────────────────────────────
+   Un reingreso trae los documentos digitales de la ficha anterior, y traerlos NO puede ser
+   copiar la referencia: dos fichas apuntando al mismo archivo comparten destino, y reemplazar la
+   foto en la nueva borraría la de la vieja —`SubirArchivo` borra el anterior al reemplazar, que
+   es lo correcto cuando el archivo es tuyo y una bomba cuando es de dos—.
+
+   Así que se duplica el contenido bajo una clave propia. Cuesta el doble de espacio y compra que
+   cada ficha sea dueña de lo suyo, que es lo que hace que borrar sea una operación segura.
+
+   Si el original ya no está —lo borró alguien, o nunca llegó a IndexedDB porque no había cuota—
+   devuelve nada y quien llama decide: acá, no traer ese archivo y dejar el campo vacío, que es
+   honesto. Peor sería dejar una referencia que apunta a un hueco. */
+export async function copiarArchivo(claveOrigen) {
+  const file = await leerArchivo(claveOrigen)
+  if (!file) return null
+  const clave = nuevaClaveArchivo()
+  const ok = await guardarArchivo(clave, file)
+  return ok ? clave : null
+}
