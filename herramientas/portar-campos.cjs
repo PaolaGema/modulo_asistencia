@@ -355,7 +355,9 @@ const TARJETAS = {
    es como se lo llama en voz alta. «Afiliación» en singular porque en chico el plural solo
    agrega una letra que no cabe. */
 const PASOS_CORTO = {
-  quien: 'Identidad',
+  /* Sigue al título: con el paso llamado «Información Personal», «Identidad» dejó de ser su
+     abreviatura y pasaba a ser otra palabra. */
+  quien: 'Personal',
   entorno: 'Familia',
   puesto: 'Puesto',
   contrato: 'Contrato',
@@ -367,26 +369,31 @@ const PASOS_CORTO = {
 }
 
 const PASOS_TITULO = {
-  /* Era «Quién es». El mismo problema que «¿Ya trabajó acá antes?» pero un nivel más arriba y
-     mucho más caro: los títulos de paso viven en el riel y en las pestañas, o sea que están en
-     pantalla los ocho pasos enteros, no solo mientras se lee una tarjeta.
+  /* Era «Quién es», después «Identidad y contacto», ahora «Información Personal» por pedido
+     expreso. Los títulos de paso viven en el riel y en las pestañas, o sea que están en pantalla
+     los ocho pasos enteros, no solo mientras se lee una tarjeta: por eso se discuten tanto.
 
-     ERA EL ÚNICO QUE NO ERA UN SUSTANTIVO. Sus ocho hermanos son sintagmas nominales —«Puesto»,
-     «Contrato», «Afiliaciones», «Remuneración», «Asistencia», «Familia y salud», «Acceso y
-     documentos», «Vista previa»— y «Quién es» era una interrogativa suelta en medio de la fila.
-     En un riel los rótulos se leen de un vistazo y en paralelo: el que rompe la forma se lee
-     como si nombrara otra clase de cosa.
+     LO QUE SE CONSERVA DE LA VUELTA ANTERIOR. Sigue siendo un sintagma nominal, como sus ocho
+     hermanos —«Puesto», «Contrato», «Afiliaciones», «Remuneración», «Asistencia», «Familia y
+     salud», «Acceso y documentos», «Vista previa»—. «Quién es» era una interrogativa suelta en
+     medio de la fila y ese era el defecto que había que sacar; este título no lo reintroduce.
+     Y sigue cubriendo el paso entero y no sólo el carnet: «Información» abarca «Cómo se lo
+     ubica» y «Dónde vive» igual que lo hacía «y contacto». Con 20 caracteres entra donde entra
+     «Acceso y documentos».
 
-     POR QUÉ «Y CONTACTO» Y NO «IDENTIDAD» A SECAS. El paso no termina en el carnet: incluye
-     «Cómo se lo ubica» y «Dónde vive». Con el título corto, quien busca el domicilio no tiene
-     razón para entrar acá. Los dos hermanos que cubren dos cosas ya usan esta forma —«Familia y
-     salud», «Acceso y documentos»—, así que el ritmo no se rompe, y con 20 caracteres entra
-     donde entra «Acceso y documentos».
+     LO QUE SE RESIGNA, ESCRITO PARA QUE NADIE LO REDESCUBRA. «Identidad y contacto» se eligió
+     en su momento para NO parecerse a «Datos personales», que es como `MAPA_SISTEMA` llama a
+     este bloque en el sistema que la propuesta viene a reemplazar; la idea era que el paso 1 de
+     lo nuevo no se leyera idéntico a lo viejo. «Información Personal» vuelve a acercarse a esa
+     etiqueta. Se acepta a sabiendas.
 
-     POR QUÉ NO «DATOS PERSONALES», QUE ERA LA OBVIA. Es exactamente como `MAPA_SISTEMA` llama a
-     este bloque en el sistema que la propuesta viene a reemplazar. Reusarla hace que el paso 1
-     de lo nuevo se vea idéntico a lo que ya tienen. */
-  quien: 'Identidad y contacto',
+     EL CHOQUE QUE SÍ QUEDA ABIERTO es hacia adentro: dentro de este mismo paso hay una tarjeta
+     titulada «Datos personales». Paso y tarjeta pasan a decir casi lo mismo con dos palabras
+     distintas, y quien las ve juntas no sabe qué las separa. Si se toca, se toca la tarjeta.
+
+     LA MAYÚSCULA DE «PERSONAL» ES DELIBERADA y viene así del pedido. Rompe con los otros ocho,
+     que llevan mayúscula sólo en la inicial. No es un descuido que corregir de paso. */
+  quien: 'Información Personal',
 }
 
 /* ── DÓNDE CAE CADA CAMPO EN LA REJILLA ───────────────────────────────────

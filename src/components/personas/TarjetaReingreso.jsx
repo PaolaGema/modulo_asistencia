@@ -57,7 +57,7 @@ const clave = t => (t || '').trim().split(/\s/)[0].toUpperCase().replace(/[^0-9A
    hay que ir a buscarlos a otra oficina. Traerlos es la mitad del valor de todo esto. */
 const TRAE_SIEMPRE = [
   '1.1', '1.2', '1.3', '1.4', '1.5', '1.6',                    // nombre, en sus cinco partes
-  '1.10', '1.11', '1.12', '1.13', '1.14',                      // documento de identidad
+  '1.10', '1.10b', '1.11', '1.12', '1.13', '1.14',             // documento de identidad
   '1.21', '1.22', '1.23', '1.24', '1.25', '1.26',              // nacimiento y nacionalidad
   '3.45', '3.51', '3.57',                                      // NUA · asegurado en la Caja · RC-IVA
 ]
@@ -284,9 +284,17 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
 
   return (
     <div className="rg">
+      {/* LA PREGUNTA DICE «SU EMPRESA O INSTITUCIÓN» Y NO «AQUÍ». Era «¿Ya trabajó antes aquí
+          este colaborador?», y «aquí» sólo se entiende si uno ya sabe dónde está parado: en una
+          pantalla que se abre desde cinco lugares distintos, el adverbio no señala nada. Nombrar
+          la organización deja el alcance dicho —y «o institución» porque no todas las que usan
+          esto son empresas—. Es larga a propósito: se hace una sola vez, es la primera decisión
+          de la ficha y de ella cuelga todo lo demás, así que se prefiere que no quede duda antes
+          que ahorrar cuatro palabras. La caja apila el rótulo sobre los botones, así que crecer
+          no desarma nada. */}
       <div className="rg-pregunta">
-        <span>¿Ya trabajó antes aquí este colaborador?</span>
-        <div className="rg-sino" role="group" aria-label="¿Ya trabajó antes aquí?">
+        <span>¿Es un colaborador que ya ha trabajado previamente en su empresa o institución?</span>
+        <div className="rg-sino" role="group" aria-label="¿Ya ha trabajado previamente en su empresa o institución?">
           {[['si', 'Sí'], ['no', 'No']].map(([v, t]) => (
             <button
               key={v}

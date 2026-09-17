@@ -65,6 +65,7 @@ export const EN_BLANCO = {
      contesta sola por el caso de todos los días, nunca por el excepcional. */
   '1.19': 'no',   // ¿Tiene documento secundario?
   '2.seg': 'no',  // ¿Agregar un segundo contacto de emergencia?
+  '1.78b': 'no',  // ¿Está suspendida la licencia?
 
   /* BOLIVIA VIENE PUESTO por ser el caso común, y se lo gana: el país emisor decide si se piden
      extensión y complemento SEGIP, así que sin un valor de arranque la tarjeta del documento
@@ -164,8 +165,65 @@ const sumarDias = (iso, dias) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+/* Hoy, en 'AAAA-MM-DD', que es como se guardan las fechas en la ficha. Comparadas como texto
+   ordenan igual que como fechas, así que no hace falta construir dos `Date` para saber cuál
+   viene antes. */
+const hoyISO = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/* ── «ESTA LICENCIA YA VENCIÓ», ESCRITO UNA VEZ ────────────────────────────
+   Lo miran dos reglas que tienen que coincidir o la tarjeta se contradice: el estado calculado
+   (1.78) y si se pregunta por la suspensión (1.78b). Separadas, una podía decir «Vencida»
+   mientras la otra seguía ofreciendo suspender, que es el estado imposible.
+
+   SIN FECHA NO ESTÁ VENCIDA, está sin saber. Devuelve falso a propósito: es lo que mantiene la
+   pregunta a la vista mientras nadie escribió el vencimiento todavía. */
+const licenciaVencida = form => {
+  const vence = form['1.77']
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(vence || '')) return false
+  return vence < hoyISO()
+}
+
 const DERIVADOS = {
   '1.7': form => nombreArmado(form),
+
+  /* ── EL ESTADO DE UNA LICENCIA, QUE ESTABA DECLARADO Y NO SE CALCULABA ──────
+     1.78 llevaba `deducido` y la insignia «se calcula» desde que se portó el estudio, pero
+     nunca tuvo regla acá. El resultado es de los que no se denuncian solos: el campo salía en
+     blanco, no se podía escribir, y como los derivados no cuentan para el progreso tampoco
+     aparecía entre lo que falta. Una raya en la ficha, para siempre.
+
+     TRES ESTADOS SON LA FECHA LEÍDA CONTRA HOY y el cuarto no: «Suspendida» la decide quien
+     emitió el papel y entra por 1.78b, que es una pregunta porque no hay otro sitio de donde
+     sacarla. Manda sobre «Vigente» y sobre «Por vencer»: una licencia suspendida no sirve
+     aunque le queden dos años.
+
+     PERO «VENCIDA» MANDA SOBRE ELLA, y este orden no es estético. La pregunta de la suspensión
+     sólo se hace mientras la licencia no venció —ver `CONDICIONES`—, así que una licencia
+     vencida puede seguir cargando un «sí» viejo de cuando estaba vigente, con su pregunta ya
+     fuera de pantalla. Si «Suspendida» ganara, ese sí fósil taparía para siempre el vencimiento
+     real y nadie tendría dónde desmarcarlo. Leyendo la fecha primero, el dato viejo queda
+     guardado —no se borra— y deja de mandar; el día que se renueve la licencia, la pregunta
+     vuelve a aparecer con su respuesta intacta y quien corresponda la corrige.
+
+     LOS 30 DÍAS DE «POR VENCER» SON EL ÚNICO NÚMERO QUE PUSIMOS NOSOTROS. La nota de 1.77 pide
+     «alerta anticipada obligatoria» y no dice de cuánto. Treinta días es lo que tarda un
+     trámite de renovación sin apuro, y el precedente de la casa es 3.37, que también elige un
+     plazo para que el aviso llegue antes y no encima. Si la operación quiere otro, se cambia
+     este número y nada más.
+
+     SIN FECHA NO HAY ESTADO. Devuelve vacío en vez de arriesgar «Vigente» sobre un campo que
+     nadie llenó todavía: decirle vigente a una licencia de la que no se sabe nada es peor que
+     no decir nada, porque el aviso que esta tarjeta existe para mandar no se mandaría. */
+  '1.78': form => {
+    if (licenciaVencida(form)) return 'Vencida'
+    if (form['1.78b'] === 'si') return 'Suspendida'
+    const vence = form['1.77']
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(vence || '')) return ''
+    return vence <= sumarDias(hoyISO(), 30) ? 'Por vencer' : 'Vigente'
+  },
   /* «Nunca pueden diferir»: la fecha de ingreso a la Caja es la de ingreso legal. */
   '3.28': form => fechaCorta(form['3.25']),
   /* Ingreso + 89 días. El periodo de prueba es de 90 y a los 90 + 1 nacen los beneficios
@@ -232,6 +290,38 @@ const CONDICIONES = {
      y no lleva extensión departamental. Por eso es una opción aparte y no un caso de la primera. */
   '1.12': form => form['1.10'] === 'Documento nacional de identidad' && form['1.14'] === 'Bolivia',
   '1.13': form => form['1.10'] === 'Documento nacional de identidad' && form['1.14'] === 'Bolivia',
+
+  /* LA CAJA DEL DOCUMENTO QUE LA LISTA NO NOMBRA, hermana exacta de 2.2b. El catálogo se redujo
+     a cuatro y su propia nota dice qué se retiró —«RUN», «Certificado de nacimiento»—, así que
+     «Otro» no es el caso raro: es la puerta por la que entran los que se sacaron. Sin caja, el
+     campo que identifica a la persona ante el Estado guardaba la palabra «Otro».
+
+     LA DEL SEGUNDO DOCUMENTO PIDE LAS DOS COSAS, como el resto de su bloque: que haya segundo
+     documento Y que su tipo sea «Otro». Con una sola condición, contestar «No» a 1.19 dejaría
+     colgando una caja de un desplegable que ya no se ve. */
+  '1.10b': form => form['1.10'] === 'Otro',
+  '1.20i': form => form['1.19'] === 'si' && form['1.20a'] === 'Otro',
+
+  /* La tercera de la misma familia: el tipo de licencia dejó de ser texto libre para poder
+     agrupar los avisos de vencimiento, y «Otro» es su válvula. Sin la caja, todo lo que la
+     lista no nombra cae en un único montón llamado «Otro» — que para un aviso que se manda
+     por tipo es peor que el texto libre que vino a reemplazar. */
+  '1.72b': form => form['1.72'] === 'Otro',
+
+  /* ── NO SE PREGUNTA POR SUSPENDER LO QUE YA VENCIÓ ─────────────────────────
+     Suspender es quitarle valor a un papel que lo tenía. Vencido ya no lo tiene, así que la
+     respuesta no cambiaría nada: el estado dice «Vencida» conteste lo que conteste, y una
+     pregunta cuya respuesta no mueve nada es ruido en una tarjeta de nueve campos.
+
+     SE MIRA LA FECHA Y NO EL ESTADO CALCULADO, y ahí estaba la trampa. `form['1.78'] ===
+     'Vigente'` parece lo natural y es un callejón: marcar «Sí» vuelve el estado «Suspendida»,
+     que ya no es «Vigente», y la pregunta desaparecería con su propia respuesta puesta —sin
+     manera de volver atrás—. La fecha no depende de la respuesta, así que no se muerde la cola.
+
+     MIENTRAS NO HAYA FECHA SE PREGUNTA IGUAL: no saber cuándo vence no es lo mismo que estar
+     vencida, y una suspensión que ya ocurrió hay que poder anotarla antes de tener el papel
+     delante. */
+  '1.78b': form => !licenciaVencida(form),
 
   /* EL RÓTULO DEL DOCUMENTO SECUNDARIO SOLO SE ENCIENDE SI HAY SEGUNDO DOCUMENTO. Su nota en el
      estudio ya lo decía —«se despliega solo si 1.19 = Sí»— pero la condición nunca se portó, y un

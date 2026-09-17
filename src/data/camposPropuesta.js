@@ -17,8 +17,8 @@ export const PASOS_PROPUESTA = [
   {
     key: 'quien',
     n: 1,
-    titulo: 'Identidad y contacto',
-    corto: 'Identidad',
+    titulo: 'Información Personal',
+    corto: 'Personal',
     pista: 'Nombre legal, documento, nacimiento y contacto',
     tarjetas: [
       {
@@ -154,33 +154,6 @@ export const PASOS_PROPUESTA = [
             nota: 'Se arma con los campos separados y no se escribe a mano: las planillas fiscales y el Ministerio de Trabajo los exigen individualizados, así que el separado es el dato y este es su lectura.',
             traza: '✏ v1.2 (obs. #4). Alimenta: GP.'
           },
-          /* EL ESTADO CIVIL VIVE CON EL NOMBRE, y no es una mudanza caprichosa: acá está
-             «Apellido de casada», que es el campo que más depende de él. El estudio ya había
-             peleado con esa relación —se probó condicionar el apellido de casada al sexo y se
-             retiró— y dejó anotada la advertencia que importa: NO atarlo a «Casado(a)», porque
-             una divorciada o una viuda puede conservarlo legalmente y su carnet lo sigue
-             diciendo. Teniendo los dos campos a la vista, esa advertencia se lee sola.
-
-             Venía de «Estado civil y ocupación», una tarjeta sin criterio que juntaba cinco
-             campos por descarte: el estado civil, la profesión, la matrícula, la vivienda y el
-             vehículo. Nada de eso es lo mismo, y lo único que compartían era no tener sitio. */
-          {
-            key: '1.29',
-            label: 'Estado civil',
-            tipo: 'lista',
-            opciones: [
-              'Soltero(a)',
-              'Casado(a)',
-              'Divorciado(a)',
-              'Viudo(a)',
-              'Unión libre'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Proceso interno y respaldo legal de la garantía: si el garante está casado, la garantía es compartida.',
-            traza: 'Alimenta: GP, PL.'
-          },
           {
             key: '1.9',
             label: 'Fotografía del colaborador',
@@ -215,8 +188,36 @@ export const PASOS_PROPUESTA = [
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
-            nota: 'El documento de identidad del país que lo emitió: el carnet en Bolivia, el DNI en Argentina o España, la cédula en Chile. El carnet de extranjero va aparte porque lo emite Migración y no lleva extensión. Catálogo reducido de cuatro. El estudio lo escribió como CI y la opción dejó de llamarse así a propósito: CI trae dentro que es boliviano, y un DNI argentino es igual de nacional. El país emisor lo dice ahora, y por eso se pregunta siempre. Se retira \'RUN\' y \'Certificado de nacimiento\'.',
+            nota: 'El documento de identidad del país que lo emitió: el carnet en Bolivia, el DNI en Argentina o España, la cédula en Chile. El carnet de extranjero va aparte porque lo emite Migración y no lleva extensión. Catálogo reducido de cuatro. El estudio lo escribió como CI y la opción dejó de llamarse así a propósito: CI trae dentro que es boliviano, y un DNI argentino es igual de nacional. El país emisor lo dice ahora, y por eso se pregunta siempre. Se retira \'RUN\' y \'Certificado de nacimiento\': las dos caen en «Otro», que abre una caja para escribir cuál.',
             traza: 'Fuente · F20 · campo 2. Alimenta: ERP, GP, PL.'
+          },
+
+          /* «OTRO» NO ERA UNA RESPUESTA, ERA DEJAR DE CONTESTAR. La lista se redujo a cuatro a
+             propósito y la nota del propio campo dice qué se sacó —«RUN» y «Certificado de
+             nacimiento»—, así que existen de entrada dos casos reales que hoy sólo pueden
+             entrar por «Otro». Sin esta caja, la ficha guardaba la palabra «Otro» en el campo
+             que identifica a la persona ante el Estado: el número está, el escaneado está, y
+             de qué documento son no lo sabe nadie.
+
+             ES EL MISMO ARREGLO QUE «¿QUÉ PARENTESCO?» (2.2b) y lleva la misma forma: clave con
+             letra colgando de su padre, condición en `CONDICIONES`, y aparece sólo al elegir
+             «Otro». Hereda nivel y obligatoriedad de 1.10 porque es 1.10 terminando de
+             contestarse; escondido no cuenta para el progreso, que es lo que hace `seVe`.
+
+             LO QUE VA ACÁ SIGUE SIENDO UN DOCUMENTO DE IDENTIDAD. Esta tarjeta es con qué se
+             identifica a la persona ante el Estado, no qué papeles presentó: el carnet de
+             sanidad o los antecedentes penales son requisitos de contratación y su sitio son
+             los documentos del paso Contrato, no éste. Los ejemplos del rótulo lo dicen sin
+             tener que explicarlo. */
+          {
+            key: '1.10b',
+            label: '¿Qué documento?',
+            ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
+            col: 'c-tercio',
+            nivel: 'Mínimo',
+            requerido: true,
+            nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país emisor, que es contra lo que después hay que poder cruzar el escaneado.',
+            traza: '↳ 1.10. Alimenta: ERP, GP, PL.'
           },
           {
             key: '1.11',
@@ -311,6 +312,42 @@ export const PASOS_PROPUESTA = [
             nota: 'Un solo archivo PDF, no dos imágenes. Acuerdo de la sesión 1 (01:05:06): *\'al igual que en los procesos bancarios, se debe escanear el anverso y el reverso del documento en un solo archivo PDF para facilitar su carga\'*. Sigue siendo la fuente del autocompletado por OCR.',
             traza: '✏ v1.2 (obs. #5). Alimenta: GP.'
           },
+
+          /* EL ESTADO CIVIL SE LEE DEL CARNET, ASÍ QUE VIVE CON EL CARNET. La casilla está
+             impresa en el documento que se acaba de escanear tres campos más arriba: quien lo
+             tiene delante lo copia sin cambiar de tarjeta ni de fuente. Por eso lleva insignia
+             «legal», y por eso cierra el bloque del documento principal —en el renglón de 1.14
+             y 1.17— antes de que 1.19 abra el del secundario.
+
+             VENÍA DE LA TARJETA DEL NOMBRE, y no por capricho: ahí vive «Apellido de casada»,
+             el campo que más depende de él. Esa dependencia no se muda con el campo, así que
+             la advertencia que la sostenía se escribe acá, que es donde puede perderse: NO
+             ATAR «APELLIDO DE CASADA» A «CASADO(A)». Una divorciada o una viuda puede
+             conservarlo legalmente y su carnet lo sigue diciendo; el estudio ya probó
+             condicionarlo y lo retiró. Estando los dos campos a la vista la regla se leía
+             sola; en tarjetas distintas hay que dejarla escrita o se reinventa mal.
+
+             Antes de aquello venía de «Estado civil y ocupación», una tarjeta sin criterio que
+             juntaba por descarte el estado civil, la profesión, la matrícula, la vivienda y el
+             vehículo. Aquélla se partió; ésta es la segunda escala del mismo campo. */
+          {
+            key: '1.29',
+            label: 'Estado civil',
+            tipo: 'lista',
+            opciones: [
+              'Soltero(a)',
+              'Casado(a)',
+              'Divorciado(a)',
+              'Viudo(a)',
+              'Unión libre'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Proceso interno y respaldo legal de la garantía: si el garante está casado, la garantía es compartida.',
+            traza: 'Alimenta: GP, PL.'
+          },
+
           {
             key: '1.19',
             label: '¿Tiene documento secundario?',
@@ -362,6 +399,27 @@ export const PASOS_PROPUESTA = [
             requerido: true,
             nota: 'El mismo catálogo del documento principal. Lo normal es que no coincidan: el caso que abre este bloque es justamente el de alguien que tiene dos documentos de tipos distintos.',
             traza: '↳ 1.20. Alimenta: GP.'
+          },
+
+          /* Y LA MISMA CAJA PARA EL SEGUNDO DOCUMENTO, porque es el mismo catálogo de cuatro
+             con el mismo «Otro». Arreglar sólo el principal dejaba el agujero justo donde más
+             se cae: el bloque que existe para el extranjero con dos documentos es el que más
+             probabilidades tiene de traer uno que la lista no nombra.
+
+             LA CLAVE ES 1.20i Y NO UNA LETRA INTERMEDIA. Las ocho de arriba —a…h— salieron en
+             el orden en que se preguntan, pero la letra numera las piezas del campo 1.20, no
+             su renglón. Ésta es la novena pieza y se escribe donde se pregunta. Renombrar las
+             otras para que la alfabética volviera a coincidir con el orden movería claves que
+             ya están guardadas en fichas, y una clave que cambia es un dato que se pierde. */
+          {
+            key: '1.20i',
+            label: '¿Qué documento?',
+            ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            requerido: true,
+            nota: 'Sólo aparece al elegir «Otro», igual que en el documento principal.',
+            traza: '↳ 1.20a. Alimenta: GP.'
           },
           {
             key: '1.20b',
@@ -591,104 +649,20 @@ export const PASOS_PROPUESTA = [
           }
         ]
       },
-      /* ── LA TARJETA CAJÓN, PARTIDA EN DOS ──────────────────────────────────────
-         «Estado civil y ocupación» juntaba cinco campos que no tenían nada que ver: el estado
-         civil, la profesión, la matrícula, la vivienda y el vehículo. Lo único que compartían
-         era no tener sitio propio — y una tarjeta cuyo título es una lista de lo que hay dentro
-         no es una sección, es un cajón.
+      /* ── EL ORDEN DE LO QUE QUEDA DEL PASO, PEDIDO ASÍ ─────────────────────────
+         Después del nacimiento van «Dónde vive», «Cómo se lo ubica», «Qué sabe hacer» y «Qué
+         tiene», en ese orden. Venían al revés —lo profesional y lo patrimonial antes que el
+         domicilio y el teléfono— y eso ponía primero lo que menos se llena.
 
-         El estado civil se fue con el nombre, donde vive «Apellido de casada», que es el campo
-         que más depende de él. Lo que quedaba eran dos cosas distintas y acá van separadas:
-         lo que alguien sabe hacer, y lo que alguien tiene. */
-      {
-        id: 'profesion',
-        titulo: 'Datos profesionales',
-        desc: 'Lo que la persona sabe hacer, y con qué papel lo acredita. No es el puesto que ocupa hoy: de acá salen el reclutamiento interno, las promociones y la sucesión.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '1.32',
-            label: 'Profesión u ocupación',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Reclutamiento interno, promociones, sucesión.',
-            traza: 'Alimenta: DE, GP.'
-          },
-          {
-            key: '1.33',
-            label: 'Matrícula profesional',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Cargos que exigen registro vigente (médicos, contadores, ingenieros, abogados).',
-            traza: 'Alimenta: GP.'
-          },
-        ]
-      },
-      {
-        id: 'patrimonio',
-        titulo: 'Datos patrimoniales',
-        desc: 'Bienes propios que la empresa necesita conocer para calcular un reembolso o una prestación, no para juzgar a nadie.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '1.34',
-            label: '¿Vivienda propia?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Perfil socioeconómico.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '1.35',
-            label: '¿Vehículo propio?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Reembolso de combustible en cargos que lo requieren.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          }
-        ]
-      },
-      {
-        id: 'contacto',
-        titulo: 'Datos de contacto',
-        desc: 'Contacto personal, el que no depende de la empresa.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '1.36',
-            label: 'Celular personal',
-            html: 'tel',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            nota: 'Canal primario. *\'Hasta el técnico va a tener WhatsApp\'*. En operaciones el correo no llega.',
-            traza: 'Alimenta: CC, GP, ON.'
-          },
-          {
-            key: '1.38',
-            label: 'Teléfono fijo',
-            html: 'tel',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '1.39',
-            label: 'Correo personal',
-            html: 'email',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'No obligatorio — gran parte del personal operativo no tiene.',
-            traza: 'Alimenta: CC, GP.'
-          }
-        ]
-      },
+         LO QUE HACE EL ORDEN NUEVO es terminar de identificar a la persona antes de empezar a
+         describirla: nombre, documento, nacimiento, dónde vive y cómo se la llama son los cinco
+         datos con los que se abre una ficha y los que el mínimo legal exige. La profesión y el
+         patrimonio son dos tarjetas de dos campos cada una, ninguno del mínimo, y cierran.
+
+         EL DOMICILIO ANTES QUE EL TELÉFONO porque es el que sigue al lugar de nacimiento —dos
+         preguntas de dónde, seguidas— y porque es la tarjeta larga de las dos: once campos con
+         mapa y croquis contra tres cajas de contacto. La corta después de la larga deja el paso
+         aflojando, no apretando. */
       {
         id: 'residencia',
         titulo: 'Datos de residencia',
@@ -839,6 +813,304 @@ export const PASOS_PROPUESTA = [
             nivel: 'Completo',
             nota: 'Va debajo del mapa y en su columna porque es lo mismo que él: dónde vive esta persona, en imagen. Queda como respaldo opcional —el mapa lo sustituye funcionalmente— para quien todavía lo traiga en papel.',
             traza: '✏ v1.2. El estudio lo marca como a confirmar. Alimenta: GP.'
+          }
+        ]
+      },
+      {
+        id: 'contacto',
+        titulo: 'Datos de contacto',
+        desc: 'Contacto personal, el que no depende de la empresa.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '1.36',
+            label: 'Celular personal',
+            html: 'tel',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Mínimo',
+            requerido: true,
+            nota: 'Canal primario. *\'Hasta el técnico va a tener WhatsApp\'*. En operaciones el correo no llega.',
+            traza: 'Alimenta: CC, GP, ON.'
+          },
+          {
+            key: '1.38',
+            label: 'Teléfono fijo',
+            html: 'tel',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
+          },
+          {
+            key: '1.39',
+            label: 'Correo personal',
+            html: 'email',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'No obligatorio — gran parte del personal operativo no tiene.',
+            traza: 'Alimenta: CC, GP.'
+          }
+        ]
+      },
+      /* ── LA TARJETA CAJÓN, PARTIDA EN DOS ──────────────────────────────────────
+         «Estado civil y ocupación» juntaba cinco campos que no tenían nada que ver: el estado
+         civil, la profesión, la matrícula, la vivienda y el vehículo. Lo único que compartían
+         era no tener sitio propio — y una tarjeta cuyo título es una lista de lo que hay dentro
+         no es una sección, es un cajón.
+
+         El estado civil se fue al documento de identidad, que es de donde se lo copia. Pasó
+         antes por la tarjeta del nombre —el porqué de esa escala, y la advertencia sobre
+         «Apellido de casada» que la justificaba, están escritos donde vive ahora—. Lo que
+         quedaba eran dos cosas distintas y acá van separadas: lo que alguien sabe hacer, y lo
+         que alguien tiene. */
+      {
+        id: 'profesion',
+        titulo: 'Datos profesionales',
+        desc: 'Lo que la persona sabe hacer, y con qué papel lo acredita. No es el puesto que ocupa hoy: de acá salen el reclutamiento interno, las promociones y la sucesión.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '1.32',
+            label: 'Profesión u ocupación',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Reclutamiento interno, promociones, sucesión.',
+            traza: 'Alimenta: DE, GP.'
+          },
+          {
+            key: '1.33',
+            label: 'Matrícula profesional',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Cargos que exigen registro vigente (médicos, contadores, ingenieros, abogados).',
+            traza: 'Alimenta: GP.'
+          },
+        ]
+      },
+      {
+        id: 'patrimonio',
+        titulo: 'Datos patrimoniales',
+        desc: 'Bienes propios que la empresa necesita conocer para calcular un reembolso o una prestación, no para juzgar a nadie.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '1.34',
+            label: '¿Vivienda propia?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Perfil socioeconómico.',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
+          },
+          {
+            key: '1.35',
+            label: '¿Vehículo propio?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Reembolso de combustible en cargos que lo requieren.',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
+          }
+        ]
+      },
+
+      /* ── LAS LICENCIAS VUELVEN CON LO DEMÁS DE LA PERSONA ──────────────────────
+         Estaba en «Acceso y documentos», entre las credenciales del sistema y el rol, y ahí
+         no encajaba: ese paso es qué puede hacer alguien DENTRO de esta aplicación —usuario,
+         permisos, notificaciones—, y una licencia de conducir no es eso. Es un papel de la
+         persona, que vale igual sin la aplicación.
+
+         SUS OCHO CAMPOS SON 1.72 … 1.79, y el 1 los delata: el estudio ya los había numerado
+         dentro del bloque de información personal. Estaban lejos de su familia por dónde
+         cayeron en el mapa de pasos, no por lo que son.
+
+         VA AL FINAL Y NO PEGADA A «DATOS PROFESIONALES», que es su pariente cercano, porque
+         las dos últimas del paso son las de relleno opcional y ésta es la tercera: ocho campos
+         que la mayoría deja vacíos y que sólo importan en los puestos donde importan —quien
+         conduce, quien manipula alimentos, quien opera maquinaria—.
+
+         EL ADJUNTO 1.79 SIGUE ESPEJADO EN «ARCHIVOS» del paso 8, igual que la fotografía y el
+         carnet escaneado, que también viven en el paso 1 y se vuelven a ver allá. Esa tarjeta
+         reúne los adjuntos de toda la ficha y no le cambia nada que éste se mude. */
+      {
+        id: 'licencias',
+        titulo: 'Licencias y certificaciones',
+        desc: 'Las que vencen: licencia de conducir, manipulación de alimentos, certificaciones de seguridad. Necesitan alerta de vencimiento.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          /* ── ERA UNA CAJA DE TEXTO Y ESTA TARJETA EXISTE PARA AVISAR VENCIMIENTOS ──
+             Ése es el argumento entero. El aviso no es por persona sino por tipo —«¿quién
+             tiene la licencia de conducir vencida antes del lunes?»— y esa pregunta se hace
+             agrupando por este campo. En texto libre, tres personas escriben «Licencia de
+             conducir», «Lic. de conducir» y «licencia conducir», y el grupo son tres grupos
+             de uno. Es el mismo razonamiento por el que 0.2 dejó de ser texto libre.
+
+             LAS OPCIONES SON LAS QUE LA PROPIA TARJETA YA NOMBRABA, ni una más: su descripción
+             dice «licencia de conducir, manipulación de alimentos, certificaciones de
+             seguridad» y la nota de este campo decía «licencia de conducir, manipulación de
+             alimentos, operador de maquinaria». Estaban escritas como ejemplos de lo que había
+             que tipear; ahora son la lista. Inventar más sería decidir por una operación que
+             no conocemos.
+
+             «MANIPULACIÓN DE ALIMENTOS» Y «CARNET DE SANIDAD» SON EL MISMO PAPEL y por eso van
+             en una sola opción que dice los dos nombres. Dejarlos como dos opciones distintas
+             reintroduce, dentro de la lista, exactamente el problema que la lista viene a
+             resolver: el mismo carnet contado dos veces según cómo lo llame cada quien.
+
+             Y LLEVA «OTRO» CON SU CAJA, como el tipo de documento (1.10b) y el parentesco
+             (2.2b). El universo de certificaciones es abierto y depende del rubro: una lista
+             cerrada acá obliga a mentir, y un campo que obliga a mentir envenena justo el dato
+             por el que se agrupa. */
+          {
+            key: '1.72',
+            label: 'Tipo de licencia o certificación',
+            tipo: 'lista',
+            opciones: [
+              'Licencia de conducir',
+              'Manipulación de alimentos (carnet de sanidad)',
+              'Operador de maquinaria',
+              'Certificación de seguridad industrial',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'De acá salen los avisos de vencimiento, que se mandan por tipo y no por persona. Si ninguna opción encaja, «Otro» abre una caja para escribirlo.',
+            traza: 'Alimenta: GP, ON.'
+          },
+          {
+            key: '1.72b',
+            label: '¿Qué licencia o certificación?',
+            ph: 'Manejo de sustancias peligrosas, trabajo en altura…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escrito igual dos veces, dos personas caen en el mismo aviso de vencimiento; escrito distinto, no.',
+            traza: '↳ 1.72. Alimenta: GP, ON.'
+          },
+          {
+            key: '1.73',
+            label: 'Número de licencia',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '1.74',
+            label: 'Categoría',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            traza: '⚫ para cargos de conducción. Alimenta: GP.'
+          },
+          {
+            key: '1.75',
+            label: 'País emisor',
+            tipo: 'lista',
+            opciones: [
+              'Bolivia',
+              'Argentina',
+              'Brasil',
+              'Chile',
+              'Colombia',
+              'Ecuador',
+              'Perú',
+              'Paraguay',
+              'Uruguay',
+              'Venezuela',
+              'España',
+              'EE.UU.',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '1.76',
+            label: 'Fecha de emisión de la licencia',
+            html: 'date',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '1.77',
+            label: 'Fecha de vencimiento de la licencia',
+            html: 'date',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Alerta anticipada obligatoria: *\'si la policía retiene el vehículo por licencia vencida, para la operación\'*.',
+            traza: 'Alimenta: GP, ON.'
+          },
+          /* ── TRES DE LOS CUATRO ESTADOS SALEN DE LA FECHA; EL CUARTO NO SALE DE NINGÚN LADO ──
+             «Vigente», «Por vencer» y «Vencida» son la fecha de vencimiento leída contra hoy, y
+             por eso 1.78 es un derivado y no un desplegable: si se pudiera elegir a mano, una
+             licencia con fecha de ayer podría estar marcada «Vigente» y las dos cosas serían
+             ciertas al mismo tiempo en la misma ficha. Un dato que se puede deducir y además
+             escribir es un dato que tarde o temprano se contradice.
+
+             «SUSPENDIDA» ES OTRA COSA: no es el paso del tiempo, es un acto de quien emitió el
+             papel —Tránsito retiene una licencia, un organismo revoca una certificación— y la
+             ficha no tiene de dónde enterarse. No hay fecha, campo ni cálculo del que pueda
+             salir. Así que se pregunta, que es la única respuesta honesta a «¿de dónde sacamos
+             ese dato?»: lo sabe una persona de RR.HH. y lo marca acá.
+
+             Y MANDA SOBRE EL CÁLCULO. Una licencia suspendida con fecha de vencimiento en el
+             futuro sigue sin servir, así que estando marcada el estado dice «Suspendida» y no
+             «Vigente». La fecha no deja de valer —cuando se levante la suspensión, el estado
+             vuelve solo al que le corresponda por el calendario—.
+
+             ARRANCA EN «NO» como 1.19 y 2.seg: los dos botones apagados significan en esta
+             ficha «todavía no contestaron», y el caso raro no le cobra el precio al común. */
+          {
+            key: '1.78b',
+            label: '¿Está suspendida?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Lo único de esta tarjeta que no se puede deducir: una suspensión la decide quien emitió el papel y alguien tiene que enterarse y marcarla. Manda sobre la fecha.',
+            traza: 'Alimenta: GP, ON.'
+          },
+          {
+            key: '1.78',
+            label: 'Estado',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sale de la fecha de vencimiento: vigente, por vencer dentro de 30 días, o vencida. «Suspendida» viene de la pregunta de al lado y pisa a las tres.',
+            traza: 'Alimenta: GP.'
+          },
+          /* ── EL ADJUNTO ANCLA LA COLUMNA, COMO EN LAS DEMÁS TARJETAS CON PAPEL ─────
+             Caía al final del flujo, y ahí el recuadro de subir archivo se lee como un campo
+             más de la última fila en vez de como lo que es. `c-escaneo` lo manda a la columna
+             1 y los otros campos fluyen a su derecha, igual que el carnet escaneado en
+             «Documento de identidad» y el certificado de nacimiento en la tarjeta de
+             nacimiento.
+
+             Y POR LA MISMA RAZÓN QUE AQUÉLLOS: el papel es la FUENTE de lo que se teclea al
+             lado. El número, la categoría, el país y las dos fechas se leen de la licencia
+             escaneada; tenerla abierta a un costado mientras se copian es el trabajo real que
+             esta tarjeta ordena. Al final del flujo, el papel llega cuando ya no sirve.
+
+             NO SE TOCA EL 1.79 DE «ARCHIVOS», que es el mismo campo espejado en el paso 8. Ahí
+             el riel del bloque ya es 1.17, y `conRieles` desancla a todos los rieles que
+             compartan bloque: darle columna a éste le quitaría la suya a aquél y la tarjeta
+             entera perdería su esquina. Allá es un adjunto de una lista, no la fuente de nada. */
+          {
+            key: '1.79',
+            label: 'Documento adjunto',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            nivel: 'Operativo',
+            nota: 'El documento digitalizado es obligatorio para dar la licencia por registrada (01:24:00).',
+            traza: '✏ v1.2.'
           }
         ]
       }
@@ -3307,100 +3579,6 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: '18:43): CAMPO NUEVO. *\'Se acordó implementar permisos restringidos para que solo personal autorizado acceda a estos datos sensibles.\'* Cubre §5.1.6 completa (tipo de sangre, alergias, condiciones crónicas, medicación, discapacidad, exámenes ocupacionales). El acceso por defecto es denegado, se concede explícitamente por rol.',
             traza: '✏ v1.2 (sesión 1, 01. Alimenta: GP.'
-          }
-        ]
-      },
-      {
-        id: 'licencias',
-        titulo: 'Licencias y certificaciones',
-        desc: 'Las que vencen: licencia de conducir, manipulación de alimentos, certificaciones de seguridad. Necesitan alerta de vencimiento.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '1.72',
-            label: 'Tipo de licencia o certificación',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Licencia de conducir, manipulación de alimentos, operador de maquinaria, etc.',
-            traza: 'Alimenta: GP, ON.'
-          },
-          {
-            key: '1.73',
-            label: 'Número de licencia',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '1.74',
-            label: 'Categoría',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            traza: '⚫ para cargos de conducción. Alimenta: GP.'
-          },
-          {
-            key: '1.75',
-            label: 'País emisor',
-            tipo: 'lista',
-            opciones: [
-              'Bolivia',
-              'Argentina',
-              'Brasil',
-              'Chile',
-              'Colombia',
-              'Ecuador',
-              'Perú',
-              'Paraguay',
-              'Uruguay',
-              'Venezuela',
-              'España',
-              'EE.UU.',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '1.76',
-            label: 'Fecha de emisión de la licencia',
-            html: 'date',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '1.77',
-            label: 'Fecha de vencimiento de la licencia',
-            html: 'date',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Alerta anticipada obligatoria: *\'si la policía retiene el vehículo por licencia vencida, para la operación\'*.',
-            traza: 'Alimenta: GP, ON.'
-          },
-          {
-            key: '1.78',
-            label: 'Estado',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Vigente / Por vencer / Vencida / Suspendida.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '1.79',
-            label: 'Documento adjunto',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El documento digitalizado es obligatorio para dar la licencia por registrada (01:24:00).',
-            traza: '✏ v1.2.'
           }
         ]
       },
