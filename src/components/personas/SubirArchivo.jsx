@@ -26,8 +26,13 @@ const pesoLegible = bytes => {
 
 /* Diez megas: un escaneo de carnet a color ronda el mega y una hoja de vida con fotos, tres. Lo
    que pase de ahí es casi siempre un PDF sin comprimir, y conviene que lo arreglen antes de
-   subirlo y no que el navegador se atragante después. */
-const TOPE = 10 * 1024 * 1024
+   subirlo y no que el navegador se atragante después.
+
+   ES EL TECHO, NO LA REGLA DE TODOS. Un campo puede pedir menos —la fotografía pide cinco—, y
+   entonces lo dice en su recuadro y el aviso de error habla de SU tope y no de éste. Prometer
+   un límite en pantalla y aceptar el doble es la clase de mentira que se descubre tarde: el
+   número escrito y el número que valida salen del mismo sitio. */
+const TOPE_MB = 10
 
 export default function SubirArchivo({
   id,
@@ -35,6 +40,7 @@ export default function SubirArchivo({
   onCambio,
   acepta = 'application/pdf,image/*',
   pista = 'PDF o imagen · arrastrar o hacer clic',
+  topeMB = TOPE_MB,
   vistaPrevia = false,
   /* UNA FOTO DE PERSONA NO ES UN ADJUNTO. Con la caja de adjunto, subir la foto de alguien
      devolvía «foto.jpg · 248 KB», que no dice si salió movida, si es la persona correcta ni si
@@ -71,12 +77,26 @@ export default function SubirArchivo({
 }) {
   const entrada = useRef(null)
   const [encima, setEncima] = useState(false)
+  /* ── UN ARCHIVO PUEDE NO TENER COPIA LOCAL Y EXISTIR IGUAL ─────────────────
+     Lo normal es que el binario esté en IndexedDB bajo `clave`. La excepción es la fotografía
+     que llega de un reingreso: el retrato del ex-colaborador vive en el directorio como una
+     dirección, no como un archivo subido, y descargarlo para volver a guardarlo no se puede —el
+     servidor que lo aloja no autoriza leerlo desde otro origen, así que `fetch` lo rechaza
+     aunque un `<img>` lo dibuje sin problema—.
+
+     ASÍ QUE SE ACEPTA LA DIRECCIÓN. La ficha guarda de dónde sale la foto en vez de una copia, y
+     acá da igual: lo que el recuadro necesita es algo que poner en un `src`. El día que las
+     fotos se alojen de verdad, esa dirección pasa a ser la del archivo subido y esto no cambia.
+
+     `clave` MANDA CUANDO ESTÁ: una foto que alguien subió a mano pisa a la heredada, que es lo
+     que pasa en cuanto pulsan «Cambiar». */
   const [error, setError] = useState(null)
-  const url = useArchivoLocal(valor?.clave)
+  const copiaLocal = useArchivoLocal(valor?.clave)
+  const url = copiaLocal || valor?.url || null
 
   async function recibir(file) {
     if (!file) return
-    if (file.size > TOPE) { setError('El archivo pesa más de 10 MB.'); return }
+    if (file.size > topeMB * 1024 * 1024) { setError(`El archivo pesa más de ${topeMB} MB.`); return }
     setError(null)
     const clave = nuevaClaveArchivo()
     const guardado = await guardarArchivo(clave, file)
@@ -93,6 +113,15 @@ export default function SubirArchivo({
   }
 
   const esImagen = (valor?.tipo || '').startsWith('image/')
+
+  /* QUÉ DICE EL RENGLÓN DE ABAJO CUANDO YA HAY ARCHIVO. Con copia local, lo que pesa. Sin copia
+     pero con dirección, de dónde salió —«248 KB» sería mentira y el hueco parecería un error—.
+     Y sin ninguna de las dos, que la copia no se pudo guardar, que es lo que ya decía. */
+  const subtitulo = valor?.clave
+    ? pesoLegible(valor.peso)
+    : valor?.url
+      ? (valor.origen || 'Traída de su registro anterior')
+      : pesoLegible(valor?.peso) + ' · no se pudo guardar la copia local'
   const esPdf = (valor?.tipo || '') === 'application/pdf'
   const abrir = () => entrada.current?.click()
 
@@ -135,10 +164,14 @@ export default function SubirArchivo({
             <span className="sa-retrato-nom">
               {valor?.nombre || 'Sin fotografía'}
             </span>
+            {/* CON FOTO DICE LO QUE PESA; SIN FOTO, LO QUE SE ACEPTA. Acá decía «Se ve en el
+                directorio», que explicaba para qué sirve la foto —una pregunta que nadie se
+                hace con el botón «Subir foto» delante— en el único renglón disponible antes de
+                elegir el archivo. El formato y el peso máximo sí se necesitan ANTES, y
+                escondidos detrás del «?» se leen después de que el navegador rechace el
+                archivo. Sale de `pista`, que este modo recibía y no usaba. */}
             <span className="sa-retrato-pis">
-              {valor?.nombre
-                ? pesoLegible(valor.peso) + (valor.clave ? '' : ' · no se pudo guardar la copia local')
-                : 'Se ve en el directorio'}
+              {valor?.nombre ? subtitulo : pista}
             </span>
           </div>
 
@@ -317,7 +350,10 @@ export default function SubirArchivo({
 /* EL MISMO ARCHIVO, LEYENDO LA FICHA. Sin zona de arrastre ni botones: acá el archivo no se
    cambia, se mira —y si es una imagen, se mira de verdad—. */
 export function ArchivoLeido({ valor, vistaPrevia = false }) {
-  const url = useArchivoLocal(valor?.clave)
+  /* Con el mismo respaldo que arriba: sin copia local vale la dirección. Si no, una fotografía
+     heredada de un reingreso se veía al llenar la ficha y desaparecía al leerla. */
+  const copiaLocal = useArchivoLocal(valor?.clave)
+  const url = copiaLocal || valor?.url || null
   if (!valor?.nombre) return null
   const esImagen = (valor.tipo || '').startsWith('image/')
 
@@ -332,7 +368,7 @@ export function ArchivoLeido({ valor, vistaPrevia = false }) {
         {url
           ? <a className="sa-nombre sa-enlace" href={url} target="_blank" rel="noreferrer">{valor.nombre}</a>
           : <span className="sa-nombre">{valor.nombre}</span>}
-        <span className="sa-peso">{pesoLegible(valor.peso)}</span>
+        <span className="sa-peso">{valor.peso ? pesoLegible(valor.peso) : (valor.origen || '')}</span>
       </div>
     </div>
   )

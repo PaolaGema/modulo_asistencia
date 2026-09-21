@@ -100,7 +100,7 @@ export const PASOS_PROPUESTA = [
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
-            nota: 'Estructura separada obligatoria para declaraciones a Ministerio, Caja y Gestora.',
+            nota: 'Ingrese el primer nombre tal como figura en su documento de identidad.',
             traza: 'Alimenta: CC, ERP, GP, ON, PL.'
           },
           {
@@ -109,6 +109,7 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             nivel: 'Mínimo',
             requerido: true,
+            nota: 'Ingrese el segundo nombre tal como figura en su documento de identidad (si corresponde).',
             traza: 'Alimenta: GP, PL.'
           },
           {
@@ -116,7 +117,7 @@ export const PASOS_PROPUESTA = [
             label: 'Tercer nombre',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Poco frecuente; mantener opcional.',
+            nota: 'Ingrese el tercer nombre tal como figura en su documento de identidad (si corresponde).',
             traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
           },
           {
@@ -141,7 +142,7 @@ export const PASOS_PROPUESTA = [
             label: 'Apellido de casada',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Necesario para coincidencia con documentos legales.',
+            nota: 'Apellido de casada según su documento de identidad (si aplica).',
             traza: 'Alimenta: GP, PL.'
           },
           {
@@ -158,11 +159,31 @@ export const PASOS_PROPUESTA = [
             key: '1.9',
             label: 'Fotografía del colaborador',
             tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
+            /* UN PDF NO ES UNA FOTOGRAFÍA. Aceptaba `application/pdf` como los otros ocho
+               archivos de la ficha, que sí son papeles escaneados; acá el recuadro dibuja la
+               imagen y con un PDF adentro enseña un icono gris donde va la cara. Se cierra a
+               imágenes, que es lo que el campo pide desde su rótulo.
+
+               Y CINCO MEGAS Y NO DIEZ. El tope general está pensado para un escaneo a color;
+               una fotografía de carnet no llega a uno, y lo que pasa de cinco es casi siempre
+               una foto de celular sin recortar que además se va a ver en 88 px. El número está
+               escrito en el recuadro y es el mismo que valida — ver `topeMB` en SubirArchivo.
+
+               TRES TIPOS CONCRETOS Y NO `image/*`, QUE ES LO QUE PARECÍA MÁS GENEROSO. Con el
+               comodín entra el HEIC del iPhone, que es el formato con el que sale de fábrica
+               cualquier foto sacada con un teléfono de Apple. Se sube sin protestar, se guarda
+               bien, y el navegador no sabe dibujarlo: el recuadro queda en blanco. Para un
+               campo cuyo motivo de existir es MIRAR lo que se subió, eso es peor que
+               rechazarlo — se descubre tarde y sin decir por qué.
+
+               Nombrados, el selector de archivos los filtra y el HEIC sale gris con su razón a
+               la vista. `.jpg` y `.jpeg` son el mismo `image/jpeg`, así que los dos entran. */
+            acepta: 'image/jpeg,image/png,image/webp',
+            pista: 'JPG, PNG o WEBP · máximo 5 MB',
+            topeMB: 5,
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Ficha tipo hoja de vida + comunicados de cumpleaños.',
+            nota: 'Suba una fotografía formal y reciente.',
             traza: 'Alimenta: CC, GP, ON.'
           }
         ]
@@ -516,9 +537,15 @@ export const PASOS_PROPUESTA = [
           }
         ]
       },
+      /* Era «Información de Nacimiento y Nacionalidad», pedido así. Dos cosas de paso, las dos
+         de consistencia: «Datos de…» es como se llaman sus cinco hermanas del paso —«Datos
+         personales», «Datos de residencia», «Datos de contacto», «Datos profesionales», «Datos
+         patrimoniales»—, y «Información de» era la única que rompía la forma. Y va en minúscula
+         salvo la inicial, como todas ellas: las mayúsculas del medio venían del estudio, donde
+         los títulos se escribían en capitular. */
       {
         id: 'nacimiento',
-        titulo: 'Información de Nacimiento y Nacionalidad',
+        titulo: 'Datos de nacionalidad y nacimiento',
         desc: 'Información requerida para el cumplimiento de normativas laborales, cómputo de cupos legales y contratos de trabajo.',
         propuesta: false,
         incierto: false,
@@ -1119,7 +1146,7 @@ export const PASOS_PROPUESTA = [
   {
     key: 'entorno',
     n: 2,
-    titulo: 'Familia y salud',
+    titulo: 'Información Familiar',
     corto: 'Familia',
     pista: 'Quiénes dependen, a quién avisar y su salud',
     tarjetas: [
@@ -1342,20 +1369,29 @@ export const PASOS_PROPUESTA = [
           },
         ]
       },
+      /* ── UNA TARJETA POR PARIENTE, QUE ES COMO SE LLENA ──────────────────────
+         «Datos familiares» eran tres cosas distintas bajo un mismo título: el cónyuge, los
+         hijos y los padres del colaborador. Dentro se separaban con rótulos, que es lo que se
+         hace cuando no queda más remedio; acá sí quedaba, porque el paso ya agrupa por tarjetas
+         y cada uno de los tres se llena —o se saltea— por su cuenta: soltero y sin hijos deja
+         dos de las tres vacías y no tiene por qué recorrerlas.
+
+         LOS PADRES NO SON UN APÉNDICE DE LOS HIJOS, y en la tarjeta única lo parecían por venir
+         justo debajo. El rótulo tenía que aclararlo con todas las letras —«del colaborador, no
+         de sus hijos»—, y una aclaración así es la señal de que el corte estaba en el sitio
+         equivocado. Ahora lo dice el título.
+
+         SE VAN DOS RÓTULOS Y SE QUEDA UNO. Los de cónyuge y padres repetían el título de su
+         tarjeta, así que su nota se mudó al `desc` y el rótulo sobra. El de hijos se queda
+         porque no es decorativo: lleva `repite` y es lo que numera los bloques —«Hijo 1»,
+         «Hijo 2»— cuando se agrega más de uno. */
       {
-        id: 'familia',
-        titulo: 'Datos familiares',
-        desc: 'Cónyuge e hijos. Alimenta asignaciones familiares y el subsidio de lactancia.',
+        id: 'conyuge',
+        titulo: 'Datos del cónyuge',
+        desc: 'Cónyuge o conviviente. La unión libre cuenta igual que el matrimonio para las asignaciones familiares.',
         propuesta: true,
         incierto: false,
         campos: [
-          {
-            key: '2.rotConyuge',
-            label: 'Cónyuge o conviviente',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: 'La unión libre cuenta igual que el matrimonio para las asignaciones familiares.'
-          },
           {
             key: '2.9',
             label: 'Nombres y apellidos (estructurado)',
@@ -1364,13 +1400,44 @@ export const PASOS_PROPUESTA = [
             nota: 'Beneficios: seguros, campañas de bienestar.',
             traza: 'Alimenta: CC, GP.'
           },
+          /* ── UN CAMPO NO CONTESTA DOS PREGUNTAS ──────────────────────────────────
+             «Tipo y número de documento» era una sola caja de texto para dos datos que no se
+             parecen en nada: uno sale de un catálogo cerrado de cuatro opciones y el otro es un
+             número que hay que copiar de un papel. Juntos entraban como cada quien quisiera
+             —«CI 8452119», «8452119 CI», «carnet 8452119»— y después no hay forma de buscar por
+             número, de validar el formato ni de saber qué documento era.
+
+             ES EL MISMO CORTE QUE EL DEL COLABORADOR (1.10 y 1.11), con el mismo catálogo y por
+             el mismo motivo: el documento de identidad del país que lo emitió. Las siglas se
+             quedaron fuera de las opciones a propósito —«CI» trae dentro que es boliviano— y
+             acá no hay razón para volver a meterlas.
+
+             SIN LA CAJA DE «¿QUÉ DOCUMENTO?» que sí tiene 1.10. A esta persona no se la declara
+             ante el Ministerio con este dato; el tipo y el número alcanzan para el trámite de
+             beneficios, y cuatro campos condicionales más se mantienen solos. Si «Otro» empieza
+             a aparecer seguido, la caja se agrega después: el corte de acá no estorba. */
           {
             key: '2.10',
-            label: 'Tipo y número de documento',
+            label: 'Tipo de documento',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
             col: 'c-tercio',
             nivel: 'Operativo',
             nota: 'Respalda trámites de beneficios ante la aseguradora.',
             traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.10b',
+            label: 'Número de documento',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El número, tal como figura en el documento. Sin la sigla adelante: el tipo ya está al lado.',
+            traza: '↳ 2.10. Alimenta: GP.'
           },
           {
             key: '2.11',
@@ -1380,11 +1447,41 @@ export const PASOS_PROPUESTA = [
             nivel: 'Completo',
             traza: 'Alimenta: CC, GP.'
           },
+          /* ── LA NACIONALIDAD SALE DE UN CATÁLOGO, NO DE LA CABEZA DE QUIEN ESCRIBE ──
+             Era una caja de texto libre, y un país escrito a mano entra de cinco maneras
+             —«Bolivia», «bolivia», «Boliviana», «BOL», «Bolívia»— que son cinco valores
+             distintos para el mismo dato. Contar cuántos extranjeros hay en la ficha deja de
+             poder hacerse en cuanto la primera se escribe diferente.
+
+             ES LA MISMA LISTA QUE LA DEL COLABORADOR (1.25) y que la del país emisor (1.14).
+             Que las tres digan lo mismo es el punto: cruzar la nacionalidad del cónyuge con la
+             del titular tiene que ser comparar dos valores, no dos redacciones.
+
+             VAN LOS PAÍSES Y NO LOS GENTILICIOS. «Bolivia» y no «Boliviana», que es como ya lo
+             resolvió 1.25: el gentilicio tiene género y obliga a elegir uno por persona, y el
+             país es el mismo para todos. */
           {
             key: '2.12',
             label: 'Nacionalidad',
+            tipo: 'lista',
+            opciones: [
+              'Bolivia',
+              'Argentina',
+              'Brasil',
+              'Chile',
+              'Colombia',
+              'Ecuador',
+              'Perú',
+              'Paraguay',
+              'Uruguay',
+              'Venezuela',
+              'España',
+              'EE.UU.',
+              'Otro'
+            ],
             col: 'c-tercio',
             nivel: 'Completo',
+            nota: 'La misma lista de países que usan 1.25 y 1.14, para que los tres datos se puedan cruzar.',
             traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
           },
           {
@@ -1404,11 +1501,11 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.15',
-            label: 'Teléfono',
+            label: 'Número de celular',
             html: 'tel',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Contacto alternativo.',
+            nota: 'Contacto alternativo del colaborador. El celular y no el fijo: es donde se contesta.',
             traza: 'Alimenta: GP.'
           },
           {
@@ -1420,14 +1517,22 @@ export const PASOS_PROPUESTA = [
             nota: 'Se conserva: es lo que facilita los trámites de afiliación.',
             traza: 'Alimenta: GP, PL.'
           },
+        ]
+      },
+      {
+        id: 'hijos',
+        titulo: 'Datos de los hijos',
+        desc: 'Alimenta asignaciones familiares y el subsidio de lactancia. El bloque se repite por cada hijo.',
+        propuesta: true,
+        incierto: false,
+        campos: [
           {
             key: '2.rotHijos',
             label: 'Hijos',
             singular: 'Hijo',
             repite: 'hijos',
             tipo: 'rotulo',
-            col: 'c-todo',
-            nota: 'Alimenta asignaciones familiares y el subsidio de lactancia. El bloque se repite por cada hijo.'
+            col: 'c-todo'
           },
           {
             key: '2.20',
@@ -1440,10 +1545,27 @@ export const PASOS_PROPUESTA = [
           {
             key: '2.21',
             repite: 'hijos',
-            label: 'Tipo y número de documento',
+            label: 'Tipo de documento',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
             col: 'c-tercio',
             nivel: 'Completo',
+            nota: 'Un menor sin carnet propio suele identificarse con el certificado de nacimiento: va por «Otro».',
             traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.21b',
+            repite: 'hijos',
+            label: 'Número de documento',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'El número, tal como figura en el documento.',
+            traza: '↳ 2.21. Alimenta: GP.'
           },
           {
             key: '2.22',
@@ -1468,8 +1590,25 @@ export const PASOS_PROPUESTA = [
             key: '2.24',
             repite: 'hijos',
             label: 'Nacionalidad',
+            tipo: 'lista',
+            opciones: [
+              'Bolivia',
+              'Argentina',
+              'Brasil',
+              'Chile',
+              'Colombia',
+              'Ecuador',
+              'Perú',
+              'Paraguay',
+              'Uruguay',
+              'Venezuela',
+              'España',
+              'EE.UU.',
+              'Otro'
+            ],
             col: 'c-tercio',
             nivel: 'Completo',
+            nota: 'La misma lista de países que usan 1.25 y 1.14, para que los tres datos se puedan cruzar.',
             traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
           },
           {
@@ -1518,13 +1657,15 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'Cada hijo es un bloque igual al de arriba. El estudio ya lo pedía repetible y nunca lo fue: con un solo bloque, una familia de tres hijos entraba con uno declarado y dos sin asignación familiar.'
           },
-          {
-            key: '2.rotPadres',
-            label: 'Padres del colaborador',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: 'Del colaborador, no de sus hijos. Los pide el Ministerio de Trabajo en la declaración jurada.'
-          },
+        ]
+      },
+      {
+        id: 'padres',
+        titulo: 'Datos de los padres',
+        desc: 'Del colaborador, no de sus hijos. Los pide el Ministerio de Trabajo en la declaración jurada.',
+        propuesta: true,
+        incierto: false,
+        campos: [
           {
             key: '2.47',
             label: 'Nombre del padre',
@@ -1545,13 +1686,23 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'herederos',
-        titulo: 'Beneficiarios y declaración de herederos',
+        titulo: 'Datos de beneficiarios y herederos',
         desc: 'Es una obligación legal y hoy no tiene dónde vivir. Cuando hace falta, ya es tarde para pedirla.',
         propuesta: true,
         incierto: false,
         campos: [
           {
+            key: '2.rotBeneficiarios',
+            label: 'Beneficiarios',
+            singular: 'Beneficiario',
+            repite: 'herederos',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'El bloque se repite por cada beneficiario. Los porcentajes de todos tienen que sumar 100 %.'
+          },
+          {
             key: '2.31',
+            repite: 'herederos',
             label: 'Nombre completo',
             col: 'c-tercio',
             insignia: 'legal',
@@ -1559,17 +1710,69 @@ export const PASOS_PROPUESTA = [
             nota: 'Dato necesario para el contrato laboral.',
             traza: 'Alimenta: GP.'
           },
+          /* ── LA MISMA LISTA QUE EL PARENTESCO DEL CONTACTO DE EMERGENCIA (2.2) ───
+             Doce opciones y una salida. No es una lista nueva: es la de 2.2 sin tocar una coma,
+             y eso es el argumento entero. Los dos campos preguntan lo mismo —qué es esta persona
+             del colaborador— y si cada uno lleva su catálogo, en tres meses uno dice «Hijo(a)» y
+             el otro «Hijo/a», y cruzar «¿el heredero es el mismo que el contacto de emergencia?»
+             pasa a ser comparar dos redacciones.
+
+             Y VA LARGA A PROPÓSITO. Un beneficiario no es necesariamente de la familia: se puede
+             dejar la indemnización a quien uno quiera, y por eso entran «Amigo(a)» y «Vecino(a)»
+             junto a los parientes. Una lista de cinco parentescos obligaría a que la mitad de
+             los casos reales salieran por «Otro», que es la manera de tener texto libre con un
+             desplegable de por medio.
+
+             «OTRO» ABRE CAJA, como allá. Sin ella, la ficha guarda la palabra «Otro» en el campo
+             que dice quién cobra la indemnización, y el día que haga falta —que es el peor día
+             para averiguarlo— no lo sabe nadie. */
           {
             key: '2.32',
+            repite: 'herederos',
             label: 'Parentesco / Relación',
+            tipo: 'lista',
+            opciones: [
+              'Madre',
+              'Padre',
+              'Cónyuge',
+              'Conviviente',
+              'Hijo(a)',
+              'Hermano(a)',
+              'Abuelo(a)',
+              'Tío(a)',
+              'Primo(a)',
+              'Amigo(a)',
+              'Vecino(a)',
+              'Otro'
+            ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
+            nota: 'Si ninguna opción encaja, «Otro» abre una caja para escribirlo. No hace falta ser de la familia para heredar.',
             traza: 'Alimenta: GP.'
           },
           {
+            key: '2.32b',
+            repite: 'herederos',
+            label: '¿Qué relación?',
+            ph: 'Cuñada, ahijado, socia…',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Así el dato real no se pierde detrás de la palabra «Otro».',
+            traza: '↳ 2.32. Alimenta: GP.'
+          },
+          {
             key: '2.33',
-            label: 'Tipo y número de documento',
+            repite: 'herederos',
+            label: 'Tipo de documento',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
@@ -1577,7 +1780,18 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP.'
           },
           {
+            key: '2.33b',
+            repite: 'herederos',
+            label: 'Número de documento',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Necesario para el contrato. Identifica al heredero sin ambigüedad el día que haya que pagarle.',
+            traza: '↳ 2.33. Alimenta: GP.'
+          },
+          {
             key: '2.34',
+            repite: 'herederos',
             label: 'Fecha de nacimiento',
             html: 'date',
             col: 'c-tercio',
@@ -1588,6 +1802,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.35',
+            repite: 'herederos',
             label: 'Porcentaje de participación (%)',
             html: 'text',
             col: 'c-tercio',
@@ -1595,19 +1810,67 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'Validación: la suma debe dar 100 %. 00:33): define *\'cuánto de la indemnización le van a dejar a esa persona\'*.',
             traza: '✏ v1.2 (00. Alimenta: GP, PL.'
+          },
+
+          /* ── TRES, Y EL TOPE ES UN NÚMERO EN UNA LÍNEA ─────────────────────────
+             La tarjeta tenía un solo juego de campos y su propia nota prometía repartir entre
+             varios: con un beneficiario, «la suma debe dar 100 %» se cumple sola o no se cumple
+             nunca, y no hay tercera. Es el mismo agujero que tenían los hijos —el estudio los
+             pedía repetibles y nunca lo fueron— y acá lo que no entraba era a quién se le deja
+             la indemnización.
+
+             EL TOPE SALE DE `max` Y NO DEL CÓDIGO DE LA PANTALLA, para que cambiarlo sea cambiar
+             este 3. No hay ley que diga tres: es la decisión de la casa, y las decisiones de la
+             casa se escriben donde se ven. */
+          {
+            key: '2.masBeneficiarios',
+            tipo: 'repetir',
+            grupo: 'herederos',
+            max: 3,
+            label: 'Agregar otro beneficiario',
+            col: 'c-todo',
+            nivel: 'Operativo',
+            nota: 'Hasta tres. Cada uno es un bloque igual al de arriba, con su porcentaje.'
+          },
+
+          /* FUERA DEL BLOQUE A PROPÓSITO: es la cuenta de los tres juntos, así que se dibuja una
+             vez y detrás del botón. Sin `repite`, la repetición no la alcanza. */
+          {
+            key: '2.35t',
+            label: 'Total repartido',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'La suma de los porcentajes de arriba. Tiene que dar 100 %: es lo que decide cuánto cobra cada uno.',
+            traza: '↳ 2.35.'
           }
         ]
       },
       {
         id: 'garantes',
-        titulo: 'Garantes',
+        titulo: 'Datos de garantes',
         desc: 'Se activa según el cargo: los que manejan dinero o valores.',
         propuesta: true,
         incierto: false,
         campos: [
+          /* ── EL NOMBRE, PARTIDO EN DOS ──────────────────────────────────────────
+             «Nombre completo» era una caja y adentro entraban dos cosas en el orden que a cada
+             quien le saliera: «Juan Pérez Rojas», «Pérez Rojas, Juan», «PEREZ ROJAS JUAN». Para
+             un dato que va a un contrato que después se notaria, el orden no es un detalle de
+             formato: es lo que el notario lee.
+
+             Y NO SE PARTE EN CINCO como el del colaborador —primer nombre, segundo, tercero,
+             apellidos— porque a un garante no se lo declara ante el Ministerio ni ante la
+             Gestora: no hay una estructura oficial con la que tenga que coincidir. Dos campos
+             separan lo que hay que separar y no piden más de lo que se sabe.
+
+             ORDEN DE LECTURA Y NO DE DOCUMENTO: primero los nombres, después los apellidos, que
+             es como se presenta una persona. La otra forma —apellidos primero— es la del índice
+             y la del formulario de trámite, y esta ficha no es ninguna de las dos. */
           {
             key: '2.39',
-            label: 'Nombre completo',
+            label: 'Nombre(s)',
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
@@ -1615,8 +1878,24 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP.'
           },
           {
+            key: '2.39b',
+            label: 'Apellidos',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Los dos, si los tiene, en el orden en que figuran en su documento.',
+            traza: '↳ 2.39. Alimenta: GP.'
+          },
+          {
             key: '2.40',
-            label: 'Tipo y número de documento',
+            label: 'Tipo de documento',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
@@ -1624,12 +1903,28 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP.'
           },
           {
+            key: '2.40b',
+            label: 'Número de documento',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Evita registros duplicados o incorrectos. Va al contrato de garantía que luego se notaria.',
+            traza: '↳ 2.40. Alimenta: GP.'
+          },
+          /* EL PLURAL PROMETÍA UNA CAJA QUE NO ERA. «Teléfono(s)» con un solo campo invita a
+             escribir dos separados por una barra, y entonces ninguno de los dos sirve para
+             llamar desde el sistema ni para validarse. Uno, el que se contesta.
+
+             Y CELULAR Y NO TELÉFONO, igual que el del cónyuge (2.15): a un garante hay que poder
+             ubicarlo el día que se ejecuta la garantía, y ese día un fijo de oficina no alcanza. */
+          {
             key: '2.41',
-            label: 'Teléfono(s)',
+            label: 'Número de celular',
             html: 'tel',
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
+            nota: 'Es donde se lo ubica el día que haya que ejecutar la garantía.',
             traza: 'Alimenta: GP.'
           },
           {
@@ -1641,16 +1936,57 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.43',
-            label: 'Fecha y lugar de nacimiento',
+            label: 'Fecha de nacimiento',
             html: 'date',
             col: 'c-tercio',
             nivel: 'Operativo',
             nota: 'Validación de identidad para el contrato.',
             traza: 'Alimenta: GP.'
           },
+
+          /* ── EL LUGAR NO TENÍA DÓNDE ESCRIBIRSE ─────────────────────────────────
+             El rótulo decía «Fecha y lugar de nacimiento» y el campo era `html: 'date'`: un
+             selector de calendario. El lugar se pedía y no se podía contestar — no hay forma de
+             teclear «Santa Cruz» en un calendario—, así que el dato no es que entrara mal,
+             es que no entraba.
+
+             Es el mismo corte que el de 1.21 y 1.22 en el paso 1, donde la fecha y el lugar del
+             colaborador viven separados desde siempre. Acá venían pegados desde el estudio, que
+             los listaba en una fila de su tabla, y al portarlos esa fila se volvió un campo. */
+          {
+            key: '2.43b',
+            label: 'Lugar de nacimiento',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Ciudad y país, como figuran en su documento.',
+            traza: '↳ 2.43. Alimenta: GP.'
+          },
+          /* ── EL ÚNICO CAMPO DE LA FICHA CON UNA REGLA COLGANDO Y SIN CATÁLOGO ───
+             Su propia nota dice qué pasa con el valor: «si está casado, la garantía es
+             compartida → exige registrar cónyuge». Eso es una regla, y una regla necesita
+             comparar contra algo. Con texto libre no podía dispararse nunca: «Casado»,
+             «casado(a)», «CASADO» y «Casada» son cuatro valores distintos y la condición
+             acierta con uno como mucho.
+
+             MISMAS CINCO OPCIONES QUE EL DEL COLABORADOR, que ya era lista desde el estudio.
+             Que las dos digan lo mismo es lo que permite escribir la regla una vez.
+
+             LA REGLA TODAVÍA NO EXISTE: esto le pone el catálogo, no el disparo. Lo que falta es
+             la condición en `CONDICIONES` que abra los campos del cónyuge del garante, y antes
+             de escribirla hay que contestar una pregunta que es legal y no de diseño: si «Unión
+             libre» comparte la garantía igual que «Casado(a)». La nota se deja como estaba
+             —habla sólo de casado— para no inventar la respuesta. */
           {
             key: '2.44',
             label: 'Estado civil',
+            tipo: 'lista',
+            opciones: [
+              'Soltero(a)',
+              'Casado(a)',
+              'Divorciado(a)',
+              'Viudo(a)',
+              'Unión libre'
+            ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
@@ -1666,13 +2002,31 @@ export const PASOS_PROPUESTA = [
             nota: 'No existe hoy. Inmueble, vehículo, salario fijo, certificado, asociación. *Campo abierto, no lista cerrada*. 03:54): confirmado como texto abierto con sugerencias, y el sistema debe generar reporte de garantías presentadas: *\'te puede pasar que te digan: ¿qué garantías presentó el chofer?\'*.',
             traza: '✏ v1.2 (00. Alimenta: GP.'
           },
+          /* EL PAPEL DE LA GARANTÍA ANCLA LA TARJETA, como el carnet ancla la del documento y la
+             foto la del nombre. Estaba declarado como un campo más y caía al final del flujo, en
+             el hueco que quedara: un recuadro de subir archivo entre «Tipo de garantía» y el
+             borde, leído como el último de la lista en vez de como lo que es.
+
+             Y ES LO QUE ES PORQUE ES LA FUENTE. Los diez campos de al lado —nombre, documento,
+             estado civil, tipo de garantía— salen de ese papel: quien llena la tarjeta lo tiene
+             abierto y va copiando. Anclado a la izquierda, el papel y lo que dice el papel se
+             miran a la vez, que es la única forma de comprobar que coinciden.
+
+             `c-escaneo` Y NO `c-retrato`: el recuadro del papel es elástico —suelta su proporción
+             y llena el alto del riel— y la tarjeta tiene diez campos que cubrir. Con el retrato,
+             que mide 88 px y no se estira, sobraría media columna de aire debajo.
+
+             Y SÓLO ACÁ: el otro `2.46` de este archivo, el de la tarjeta «Archivos» del último
+             paso, se queda sin riel a propósito. Allá es un adjunto de una lista y no la fuente
+             de nada, y `conRieles` desancla a todos los rieles que compartan bloque: darle
+             columna le quitaría la suya al que sí la necesita. */
           {
             key: '2.46',
             label: 'Documento de garantía',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
             pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
+            col: 'c-tercio c-escaneo',
             insignia: 'v1.2',
             nivel: 'Operativo'
           }
@@ -1680,7 +2034,7 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'medica',
-        titulo: 'Información médica',
+        titulo: 'Datos médicos',
         desc: 'Lo que hace falta saber si algo pasa en el puesto de trabajo.',
         propuesta: false,
         incierto: false,
@@ -1704,72 +2058,181 @@ export const PASOS_PROPUESTA = [
             nota: 'Emergencia médica; requerido en licitaciones de empresas de servicios.',
             traza: 'Alimenta: GP.'
           },
-          {
-            key: '1.55',
-            label: 'Factor RH',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP.'
-          },
+
           {
             key: '1.56',
-            label: '¿Tiene alergias conocidas? + detalle',
+            detalle: '1.56b',
+            label: '¿Tiene alergias conocidas?',
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Viene del formulario actual de Trabajito.',
+            nota: 'Sobre todo a medicamentos: es lo que no se le puede administrar en una urgencia. Viene del formulario actual de Trabajito.',
             traza: 'Alimenta: GP.'
           },
+
+          /* MISMA FORMA QUE EL DETALLE DE LA MEDICACIÓN (1.58b), y a propósito: son la misma
+             pregunta hecha dos veces —qué no se le puede dar a esta persona— y contestarlas de
+             dos maneras distintas obligaría a aprender el formulario dos veces.
+
+             EL EJEMPLO DEL MARCADOR EMPIEZA POR UN MEDICAMENTO. «Alergia» hace pensar primero
+             en el polen, y la que importa acá es la otra: una alergia a la penicilina escrita
+             en la ficha es lo que evita que se la pongan. El marcador es donde se dice eso sin
+             gastar un renglón en decirlo. */
+          {
+            key: '1.56b',
+            label: '¿Cuál o cuáles?',
+            tipo: 'texto',
+            col: 'c-ancho',
+            nivel: 'Operativo',
+            ph: 'Penicilina, mariscos, látex, picadura de abeja…',
+            ayuda: 'Si tiene alergias, detalle su alergia.',
+            traza: '↳ 1.56. Alimenta: GP.'
+          },
+          /* ── LAS TRES PRIMERAS SON LAS DE UNA URGENCIA, Y EN ESE ORDEN ───────────
+             Con qué sangre se le puede transfundir, a qué es alérgico y qué está tomando ya.
+             Las tres contestan la misma pregunta desde tres lados —qué se le puede y qué no se
+             le puede dar— y el estudio las tenía repartidas entre otras, en el orden en que
+             caían en su tabla. La condición crónica y la recomendación médica van después:
+             importan para el puesto, no para el minuto siguiente.
+
+             Y ALERGIAS ANTES QUE MEDICACIÓN porque si sólo se alcanza a leer una, pesa más.
+
+             Y SE LE CAE EL «+ DETALLE» DEL RÓTULO, que era una promesa escrita en el nombre del
+             campo y no cumplida en ninguna parte: detrás sólo había un Sí/No. Ahora el detalle
+             existe, así que el rótulo no tiene que anunciarlo — lo anuncia apareciendo. */
+          {
+            key: '1.58',
+            detalle: '1.58b',
+            label: '¿Toma medicación regular?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Lo que ya toma decide qué no se le puede administrar en una urgencia.',
+            traza: 'Alimenta: GP.'
+          },
+
+          /* ── EL DETALLE, Y POR QUÉ ESTRENA `ayuda` ───────────────────────────────
+             La instrucción va en un renglón gris DEBAJO del campo y no escondida detrás del
+             «?». Las dos formas están declaradas en `TarjetaCampos` y hasta hoy la ficha usaba
+             sólo la nota, con un motivo escrito: ochenta renglones grises seguidos son una
+             pared que nadie lee.
+
+             ACÁ NO HAY OCHENTA, HAY UNO Y A VECES NINGUNO. El campo aparece sólo al contestar
+             que sí, es el único de la tarjeta con ayuda, y lo que tiene que decir hay que
+             leerlo ANTES de escribir, no después de preguntarse qué se esperaba. Una nota
+             detrás del «?» se lee cuando ya es tarde.
+
+             ANCHO Y DE VARIAS LÍNEAS porque la respuesta real es una lista —tres medicamentos
+             con su dosis— y en una caja de un tercio de fila eso entra de costado. */
+          {
+            key: '1.58b',
+            label: '¿Cuál o cuáles?',
+            tipo: 'texto',
+            col: 'c-ancho',
+            nivel: 'Completo',
+            ph: 'Nombre del medicamento, dosis y cada cuánto lo toma',
+            ayuda: 'Si toma algún medicamento, detalle cuál/es.',
+            traza: '↳ 1.58. Alimenta: GP.'
+          },
+          /* SE RETIRA «FACTOR RH» (1.55), QUE YA VENÍA CONTESTADO EN EL CAMPO DE ARRIBA.
+             El tipo de sangre es una lista cerrada de ocho —O+, O−, A+, A−, B+, B−, AB+, AB−—
+             y ese signo ES el factor RH. Quien elegía «A−» tenía debajo una caja pidiéndole el
+             RH otra vez.
+
+             Y NO ERA SÓLO REDUNDANTE, ERA CONTRADECIBLE: la caja era texto libre, así que se
+             podía elegir «A−» y escribir «positivo». En un campo cuya nota dice «emergencia
+             médica» eso no es un duplicado incómodo, es una ficha que puede afirmar dos cosas
+             incompatibles sobre la sangre de alguien.
+
+             El campo venía así del estudio, donde tipo y factor eran dos filas de una tabla.
+             Al portarlo, el tipo se resolvió como lista combinada —que es como se escribe un
+             grupo sanguíneo en cualquier carnet— y la fila del factor se quedó sin trabajo. */
           {
             key: '1.57',
-            label: '¿Tiene condición crónica? + detalle',
+            detalle: '1.57b',
+            label: '¿Tiene condición crónica?',
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
             nota: 'Incluye el caso \'¿Es hipertenso?\' que el Salar tenía suelto en *Curiosidades*.',
             traza: 'Alimenta: GP.'
           },
+
+          /* EL TERCERO CON LA MISMA FORMA. La nota del campo de arriba dice que esto absorbió el
+             «¿Es hipertenso?» que el Salar tenía suelto: una pregunta por enfermedad, que es la
+             manera de tener un formulario que crece para siempre y aun así nunca acierta. Una
+             pregunta general con su detalle abierto cubre la hipertensión, la diabetes y las
+             que nadie pensó, y se escribe una vez.
+
+             SIN EJEMPLOS EN EL MARCADOR, al revés que los otros dos. Ahí los ejemplos ayudan a
+             acertar con el formato —un medicamento con su dosis, una alergia concreta—; acá una
+             lista de enfermedades en gris invita a elegir de entre ellas, y lo que hace falta es
+             lo que esta persona tenga. El marcador dice cómo escribirlo, no qué. */
           {
-            key: '1.58',
-            label: '¿Toma medicación regular? + detalle',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: GP.'
+            key: '1.57b',
+            label: '¿Cuál o cuáles?',
+            tipo: 'texto',
+            col: 'c-ancho',
+            nivel: 'Operativo',
+            ph: 'La condición, y desde cuándo la tiene',
+            ayuda: 'Si tiene una condición crónica, detalle cuál.',
+            traza: '↳ 1.57. Alimenta: GP.'
           },
           {
             key: '1.59',
-            label: '¿Tiene recomendación médica? + detalle',
+            detalle: '1.59b',
+            label: '¿Tiene recomendación médica?',
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Completo',
+            nota: 'Lo que un médico indicó sobre su trabajo: no levantar peso, no turnos de noche, pausas. No es un diagnóstico.',
             traza: 'Alimenta: GP.'
           },
+
+          /* EL CUARTO Y ÚLTIMO «+ DETALLE» DE LA TARJETA. Con éste, los cuatro rótulos que
+             prometían un detalle desde que se portó el estudio por fin lo tienen: hasta hoy la
+             ficha preguntaba si hay algo y no dejaba decir qué, que es preguntar por preguntar.
+
+             ÉSTE ES EL QUE MÁS FALTA HACÍA DE LOS CUATRO. Los otros tres describen a la
+             persona; éste describe una INSTRUCCIÓN —«no levantar más de diez kilos», «sin
+             turnos de noche»— y un sí a secas no sirve para nada: quien asigna el puesto
+             necesita saber cuál es la restricción, no que exista una.
+
+             Y ES DONDE TERMINAN LAS «RESTRICCIONES MÉDICAS» QUE RETIRAMOS. Aquel campo era una
+             caja libre suelta al final de la tarjeta, sin pregunta que la gobernara y sin decir
+             quién lo había indicado. Acá lo mismo vive colgando de su pregunta, y con el examen
+             preocupacional a un acordeón de distancia como respaldo firmado. */
           {
-            key: '1.69',
-            label: 'Restricciones médicas',
-            col: 'c-tercio',
+            key: '1.59b',
+            label: '¿Cuál o cuáles?',
+            tipo: 'texto',
+            col: 'c-ancho',
             nivel: 'Completo',
-            traza: 'Alimenta: GP.'
+            ph: 'Qué recomendó, quién la emitió y hasta cuándo rige',
+            ayuda: 'Si un médico le dio alguna recomendación o restricción, detállela.',
+            traza: '↳ 1.59. Alimenta: GP.'
           },
-          {
-            key: '1.70',
-            label: 'Observaciones médicas',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: GP.'
-          }
-        ]
-      },
-      {
-        id: 'discapacidad',
-        titulo: 'Discapacidad y protecciones',
-        desc: 'Va aparte de la información médica porque no es un dato de salud: tiene efectos legales. Cuenta para la cuota del 2 %, es columna obligatoria de la planilla del Ministerio, y el tutor de una persona con discapacidad tiene protecciones propias.',
-        propuesta: false,
-        incierto: false,
-        campos: [
+
+          /* ── LA DISCAPACIDAD SE PREGUNTA CON LO DEMÁS Y SE DETALLA SI HAY ────────
+             Venía en tarjeta aparte, y el argumento estaba escrito allá: no es un dato de salud
+             sino legal —cuenta para la cuota del 2 % y es columna obligatoria de la planilla del
+             Ministerio—. El argumento sigue siendo cierto y aun así pierde, porque quien llena
+             la ficha no reparte las preguntas por a qué sistema alimentan: contesta seguido lo
+             que le preguntan del cuerpo de la persona, y esto es una de esas preguntas. Que
+             además tenga efectos legales lo dice su insignia, que viaja con el campo.
+
+             Y EL DETALLE SÓLO SI LA RESPUESTA ES SÍ. «Tipo y grado» estaba siempre a la vista, y
+             para el 97 % de las fichas era una caja vacía que no se puede llenar sin mentir. Es
+             el mismo trato que reciben «¿Qué documento?» y «¿Qué parentesco?»: la pregunta
+             general se contesta primero y la que la completa aparece cuando hace falta.
+
+             SE QUEDA EN «OPERATIVO» Y SIN ASTERISCO, que es como estaba. La pregunta de arriba
+             sí es del mínimo legal; el detalle no lo era y convertirlo en obligatorio es una
+             decisión de proceso, no de maquetación. Escondido no cuenta para el progreso, que
+             es lo que hace `seVe`. */
           {
             key: '1.60',
+            detalle: '1.61',
             label: '¿Tiene discapacidad?',
             tipo: 'siNo',
             col: 'c-tercio',
@@ -1779,54 +2242,189 @@ export const PASOS_PROPUESTA = [
             nota: '2 % obligatorio de la planilla; se fiscaliza contra la OVT.',
             traza: 'Alimenta: GP, PL.'
           },
+          /* ── TIPO Y GRADO SON DOS PREGUNTAS Y LAS DOS TIENEN CATÁLOGO ───────────
+             Era una caja de texto con dos cosas dentro, y ninguna de las dos se contesta
+             libremente: la Ley 223 define en su artículo 5 los seis tipos y los cuatro grados,
+             y son los que van impresos en el carnet que emite el Estado. Escritos a mano
+             entraban como «física», «Motriz», «fisica-motora» o «40 % motora», y este dato se
+             fiscaliza contra la OVT — no es un campo donde la redacción de cada quien dé igual.
+
+             SEIS TIPOS, NO SIETE, Y NO HAY «SENSORIAL». Visual y auditiva son categorías
+             propias en la ley; «sensorial» aparece sólo como adjetivo dentro de las
+             definiciones generales, nunca como tipo catalogado. Se comprobó en el texto del
+             artículo, no de memoria: una lista inventada acá sería peor que la caja de texto,
+             porque parece autoridad — que es justo el argumento que este archivo ya usa para
+             NO inventar catálogos de provincias fuera de Bolivia.
+
+             Y SIN PORCENTAJE. El artículo 5 califica los grados por criterios funcionales
+             —cuánta asistencia de otra persona hace falta— y no menciona ninguna cifra. Si el
+             carnet de acá trae un porcentaje impreso y la planilla lo pide, va en un campo
+             propio; deducirlo del grado sería inventarse la equivalencia.
+
+             LOS LITERALES ESTÁN POR CONFIRMAR CONTRA UN CARNET, y así lo dice la nota. Se
+             leyeron de un compilador privado del texto legal, no de la Gaceta Oficial, y para
+             un catálogo cerrado que después hay que cruzar con un papel oficial eso no alcanza
+             del todo. La estructura —seis y cuatro— sí es firme. */
           {
             key: '1.61',
-            label: 'Tipo y grado de discapacidad',
+            label: 'Tipo de discapacidad',
+            tipo: 'lista',
+            opciones: [
+              'Física o motora',
+              'Visual',
+              'Auditiva',
+              'Intelectual',
+              'Mental o psíquica',
+              'Múltiple'
+            ],
             col: 'c-tercio',
             nivel: 'Operativo',
+            nota: 'Los seis tipos del artículo 5 de la Ley 223. Va el que figura en el carnet de discapacidad; confirmar los literales contra un carnet antes de cerrar el catálogo.',
             traza: 'Alimenta: GP, PL.'
           },
+          {
+            key: '1.61b',
+            label: 'Grado de discapacidad',
+            tipo: 'lista',
+            opciones: [
+              'Leve',
+              'Moderada',
+              'Grave',
+              'Muy grave'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Los cuatro grados del artículo 5 de la Ley 223. La ley los califica por cuánta asistencia hace falta, no por porcentaje.',
+            traza: '↳ 1.61. Alimenta: GP, PL.'
+          },
+
+          /* SE RETIRAN «RESTRICCIONES MÉDICAS» (1.69) Y «OBSERVACIONES MÉDICAS» (1.70).
+             Eran dos cajas de texto libre al final de la tarjeta y las dos repetían lo que los
+             cuatro campos de arriba ya preguntan con estructura: una alergia va en 1.56, una
+             condición crónica en 1.57, una medicación en 1.58 y una recomendación del médico en
+             1.59, cada una con su Sí/No y su detalle. Lo que quedaba para estas dos era todo lo
+             demás, que es otra forma de decir cualquier cosa.
+
+             Y UNA CAJA LIBRE EN LA TARJETA MÉDICA NO ES UN CAMPO CUALQUIERA: es donde termina
+             escrito el diagnóstico de alguien, en una ficha que ve todo RR.HH. Los cuatro de
+             arriba preguntan lo que la empresa necesita saber para un puesto de trabajo; un
+             renglón abierto invita a guardar historial clínico, que no es lo mismo y no le toca
+             a este sistema.
+
+             LAS RESTRICCIONES DE VERDAD YA TIENEN SITIO, y con respaldo: el examen
+             preocupacional de la tarjeta de al lado es el documento donde un médico las declara
+             y las firma. Dicho ahí valen; dichas acá eran el recuerdo de alguien. */
+        ]
+      },
+      {
+        id: 'discapacidad',
+        titulo: 'Tutela y protecciones',
+        desc: 'Ser tutor de una persona con discapacidad da protecciones propias y cuenta dentro del 2 % legal, aunque la discapacidad no sea suya.',
+        propuesta: false,
+        incierto: false,
+        campos: [
           {
             key: '1.62',
             label: '¿Es tutor de persona con discapacidad?',
             tipo: 'siNo',
+            detalle: '1.62b',
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
-            nota: 'Cuenta dentro del 2 % legal.',
+            nota: 'Cuenta dentro del 2 % legal, igual que si la discapacidad fuera suya.',
             traza: 'Alimenta: GP, PL.'
+          },
+
+          /* ── DE QUIÉN, Y LA LISTA SALE DE LOS HIJOS QUE YA SE DECLARARON ────────
+             Un «sí» a secas no sirve para lo que este campo existe: el 2 % se fiscaliza contra
+             la OVT y lo que se presenta es el certificado de discapacidad de una persona
+             concreta. Sin nombre, la ficha afirma un derecho y no dice de dónde sale.
+
+             Y LA FICHA YA SABE A QUIÉN OFRECER: los hijos están escritos tres tarjetas más
+             arriba. Volver a teclear el nombre del propio hijo, en la misma pantalla donde se
+             acaba de escribir, es la clase de trabajo que un formulario tiene que ahorrar —y de
+             paso evita que el nombre entre dos veces con dos grafías.
+
+             SE OFRECEN TODOS Y NO SÓLO LOS QUE TIENEN LA DISCAPACIDAD MARCADA (2.29). Filtrar
+             parecía lo riguroso y en pantalla era una lista vacía: quien no había contestado ese
+             campo veía «Otra persona» sola y ninguna pista de qué le faltaba.
+
+             PERO LA TUTELA NO ES SÓLO DE HIJOS, y por eso la lista lleva salida. Se puede ser
+             tutor de un hermano, de un padre mayor o de alguien sin parentesco: cerrar la lista
+             a los hijos convertiría el campo en una trampa para el caso que no encaja. «Otra
+             persona» abre una caja, como «Otro» en el tipo de documento y en el parentesco.
+
+             SIN HIJOS DECLARADOS LA LISTA NO DESAPARECE: queda con «Otra persona» sola, que
+             sigue siendo una respuesta y no un desplegable vacío. Las opciones las arma
+             `tarjetasDe`, que es donde hay formulario a mano. */
+          {
+            key: '1.62b',
+            label: '¿De quién?',
+            tipo: 'lista',
+            opciones: ['Otra persona'],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Se ofrece toda la gente que ya está escrita en el paso: contactos de emergencia, cónyuge, hijos y padres. Si es alguien que no está —un hermano, un sobrino, alguien sin parentesco— se elige «Otra persona» y se escribe quién.',
+            traza: '↳ 1.62. Alimenta: GP, PL.'
+          },
+          {
+            key: '1.62c',
+            label: '¿Quién?',
+            ph: 'Nombre y parentesco',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otra persona».',
+            traza: '↳ 1.62b. Alimenta: GP, PL.'
           }
         ]
       },
       {
         id: 'segprivado',
-        titulo: 'Seguro médico privado',
+        titulo: 'Datos de seguro médico privado',
         desc: 'Adicional al de la Caja. No reemplaza la afiliación obligatoria.',
         propuesta: false,
         incierto: false,
         campos: [
+          /* UN SÍ/NO SE PREGUNTA, NO SE ENUNCIA. El rótulo era «Seguro médico privado» con dos
+             botones debajo, que es un título con una respuesta colgando: hay que deducir qué
+             se está contestando. Las otras nueve preguntas cerradas de la ficha llevan signos
+             de interrogación y ésta se quedó fuera al portarse — en el estudio era una fila de
+             una tabla, y una fila de tabla no necesita preguntar nada. */
           {
             key: '1.63',
-            label: 'Seguro médico privado',
+            label: '¿Tiene seguro médico privado?',
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Completo',
-            nota: 'No genera aporte de ley; es beneficio.',
+            nota: 'Adicional al de la Caja: no genera aporte de ley, es un beneficio. Dicho que sí, se piden el proveedor y el número.',
             traza: 'Alimenta: GP, PL.'
           },
+
+          /* ── EL PROVEEDOR Y EL NÚMERO, SÓLO SI HAY SEGURO QUE DESCRIBIR ─────────
+             Estaban siempre a la vista, y para quien no tiene seguro privado —que en esta
+             empresa es la mayoría— eran dos cajas que no se pueden llenar sin inventar. Mismo
+             trato que «Tipo y grado de discapacidad» y por la misma razón: la pregunta general
+             se contesta primero y lo que la completa aparece cuando hace falta.
+
+             SON DOS Y NO UNO PORQUE SE ESCONDEN JUNTOS: un proveedor sin número o un número sin
+             proveedor no sirven para reclamar nada. */
           {
             key: '1.64',
             label: 'Proveedor del seguro privado',
             col: 'c-tercio',
             nivel: 'Completo',
-            traza: 'Alimenta: GP, PL.'
+            nota: 'La aseguradora con la que está contratado.',
+            traza: '↳ 1.63. Alimenta: GP, PL.'
           },
           {
             key: '1.65',
             label: 'Número de asegurado (privado)',
             col: 'c-tercio',
             nivel: 'Completo',
-            traza: 'Alimenta: GP, PL.'
+            nota: 'El que le da la aseguradora, no el de la Caja.',
+            traza: '↳ 1.63. Alimenta: GP, PL.'
           }
         ]
       },
@@ -2424,13 +3022,14 @@ export const PASOS_PROPUESTA = [
     tarjetas: [
       {
         id: 'gestora',
-        titulo: 'Gestora Pública — antes AFP',
+        titulo: 'Datos de Gestora Pública',
         desc: 'El NUA/CUA llega días o semanas después del alta: el estado inicial es literalmente «En proceso». Sin NUA no se puede declarar a la Gestora, pero la persona sí puede cobrar.',
         propuesta: false,
         incierto: false,
         campos: [
           {
             key: '3.43',
+            detalle: '3.44',
             label: '¿Aporta a la Gestora?',
             tipo: 'siNo',
             col: 'c-tercio',
@@ -2439,15 +3038,30 @@ export const PASOS_PROPUESTA = [
             nota: '⚙ Se deriva de la modalidad de contrato (ver §6.1). Se elimina el campo duplicado \'¿Aplica AFP?\' + \'¿Aporta a la AFP?\'.',
             traza: 'Alimenta: PL.'
           },
+          /* ── MEDIA FILA PARA UN DESPLEGABLE DE DOS OPCIONES ─────────────────────
+             Ocupaba `c-medio` —seis columnas de doce— mientras sus cuatro vecinos ocupaban un
+             tercio, así que la fila quedaba coja y el campo parecía importar más que los demás.
+             El ancho no lo pedía el control, que es un desplegable con «Gestora Pública» y «En
+             proceso» dentro: lo pedía el RÓTULO, que a un tercio se partía en tres líneas.
+
+             Y EL RÓTULO ERA LARGO POR INERCIA. «Administradora / Estado de la afiliación»
+             nombra dos cosas porque el campo fue las dos: identificaba cuál AFP cuando había
+             varias. Su propia nota dice que eso se acabó —«ya no identifica cuál administradora
+             (sólo existe una), sino en qué etapa está la afiliación»— y aun así la primera
+             mitad del rótulo seguía ahí, cobrando media fila por un dato que ya no da.
+
+             Con el rótulo diciendo lo que el campo hace, cabe en un tercio como los demás y la
+             fila vuelve a ser de tres. Cuál es la administradora no se pierde: es la única que
+             existe, y está escrita en la primera opción de la lista. */
           {
             key: '3.44',
-            label: 'Administradora / Estado de la afiliación',
+            label: 'Estado de la afiliación',
             tipo: 'lista',
             opciones: [
               'Gestora Pública',
               'En proceso'
             ],
-            col: 'c-medio',
+            col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
             nota: 'SE MANTIENE EL CAMPO — *\'no sacar\'*—, pero cambia su significado: ya no identifica cuál administradora (solo existe una), sino en qué etapa está la afiliación: *\'¿estás en proceso o estás prácticamente ya con el número de NUA?\'* (00:17:19). Catálogo: Gestora Pública · En proceso. *\'Previsión y Futuro ya no existen\'*.',
@@ -2493,25 +3107,49 @@ export const PASOS_PROPUESTA = [
             nota: 'Normado por ley.',
             traza: 'Alimenta: PL.'
           },
+          /* ── NI ERA UNA PREGUNTA NI TENÍA DÓNDE PONER LA FECHA ──────────────────
+             «¿Está jubilado? + fecha» era UNA CAJA DE TEXTO. No un Sí/No con un campo al lado:
+             un renglón libre donde había que escribir las dos cosas a la vez, y donde entraban
+             «sí», «Sí, 2021», «jubilado desde marzo» o «no aplica». Un dato que alimenta la
+             planilla no puede depender de cómo redacte cada quien.
+
+             LA FECHA NO ES UN TEXTO, ES UNA FECHA, y por eso va con el calendario de la casa
+             como las otras veintitantas de la ficha. Escrita a mano entra en cuatro formatos y
+             no se puede ordenar ni comparar con la de ingreso.
+
+             Y SÓLO SI ESTÁ JUBILADO. Para casi todas las altas el campo sobra; preguntar la
+             fecha de una jubilación que no existe es un hueco que no se puede llenar. */
           {
             key: '3.48',
-            label: '¿Está jubilado? + fecha',
+            label: '¿Está jubilado?',
+            tipo: 'siNo',
+            detalle: '3.48b',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Necesario para la declaración correcta.',
+            nota: 'Un jubilado que sigue trabajando cotiza distinto: la declaración a la Gestora cambia según esto.',
             traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.48b',
+            label: 'Fecha de jubilación',
+            html: 'date',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'La de la resolución, no la del último día trabajado.',
+            traza: '↳ 3.48. Alimenta: PL.'
           }
         ]
       },
       {
         id: 'caja',
-        titulo: 'Caja de Salud',
+        titulo: 'Datos de Caja de Salud',
         desc: 'Trámite aparte, y el más urgente de todos: el plazo legal es de 5 días desde el ingreso. Si se pasa, todo lo que le pase al trabajador se le puede cobrar a la empresa.',
         propuesta: false,
         incierto: false,
         campos: [
           {
             key: '3.49',
+            detalle: '3.50',
             label: '¿Aplica caja de salud?',
             tipo: 'siNo',
             col: 'c-tercio',
@@ -2578,7 +3216,7 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'ovt',
-        titulo: 'Ministerio de Trabajo — OVT',
+        titulo: 'Datos del Ministerio de Trabajo',
         desc: 'La sucursal OVT no se deduce: el Ministerio le asigna un código a cada empresa y hay que ir a buscarlo. Es la cuarta «sucursal» distinta que maneja el sistema.',
         propuesta: false,
         incierto: false,
@@ -2626,16 +3264,19 @@ export const PASOS_PROPUESTA = [
             nota: 'Único y portable entre empresas. Lo proporciona contabilidad; es como el NIT del colaborador.',
             traza: 'Alimenta: ERP, PL.'
           },
-          {
-            key: '3.58',
-            label: 'Saldo RC-IVA inicial + período',
-            html: 'text',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Caso real: colaborador que llegó con Bs 30.395 de saldo acumulado.',
-            traza: 'Alimenta: PL.'
-          }
+          /* SE RETIRA «SALDO RC-IVA INICIAL + PERÍODO» (3.58).
+             Era una caja de texto para dos datos —un importe en bolivianos y el período al que
+             corresponde— y ninguno de los dos es texto: uno es dinero y el otro una fecha. Lo
+             que entraba era «30.395», «Bs 30395 marzo 2024» o «30,395.00», que no se suma ni se
+             compara con nada.
+
+             Y NO ES UN DATO DE LA FICHA SINO UN MOVIMIENTO DE LA PLANILLA: un saldo acumulado
+             cambia cada mes, y la ficha guarda lo que identifica a la persona, no su cuenta
+             corriente. Escrito acá quedaba congelado en el día del alta y envejeciendo desde el
+             primer cierre, con la agravante de que sigue pareciendo un dato vigente.
+
+             El NIT del colaborador (3.57), que es lo que sí lo identifica y no cambia, se queda
+             justo arriba. */
         ]
       }
     ]
@@ -3593,11 +4234,31 @@ export const PASOS_PROPUESTA = [
             key: '1.9',
             label: 'Fotografía del colaborador',
             tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
+            /* UN PDF NO ES UNA FOTOGRAFÍA. Aceptaba `application/pdf` como los otros ocho
+               archivos de la ficha, que sí son papeles escaneados; acá el recuadro dibuja la
+               imagen y con un PDF adentro enseña un icono gris donde va la cara. Se cierra a
+               imágenes, que es lo que el campo pide desde su rótulo.
+
+               Y CINCO MEGAS Y NO DIEZ. El tope general está pensado para un escaneo a color;
+               una fotografía de carnet no llega a uno, y lo que pasa de cinco es casi siempre
+               una foto de celular sin recortar que además se va a ver en 88 px. El número está
+               escrito en el recuadro y es el mismo que valida — ver `topeMB` en SubirArchivo.
+
+               TRES TIPOS CONCRETOS Y NO `image/*`, QUE ES LO QUE PARECÍA MÁS GENEROSO. Con el
+               comodín entra el HEIC del iPhone, que es el formato con el que sale de fábrica
+               cualquier foto sacada con un teléfono de Apple. Se sube sin protestar, se guarda
+               bien, y el navegador no sabe dibujarlo: el recuadro queda en blanco. Para un
+               campo cuyo motivo de existir es MIRAR lo que se subió, eso es peor que
+               rechazarlo — se descubre tarde y sin decir por qué.
+
+               Nombrados, el selector de archivos los filtra y el HEIC sale gris con su razón a
+               la vista. `.jpg` y `.jpeg` son el mismo `image/jpeg`, así que los dos entran. */
+            acepta: 'image/jpeg,image/png,image/webp',
+            pista: 'JPG, PNG o WEBP · máximo 5 MB',
+            topeMB: 5,
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Ficha tipo hoja de vida + comunicados de cumpleaños.',
+            nota: 'Suba una fotografía formal y reciente.',
             traza: 'Alimenta: CC, GP, ON.'
           },
           {

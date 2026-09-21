@@ -9,9 +9,9 @@ import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
    mirar un teléfono en el directorio y nunca abre una ficha. */
 const SelectorUbicacion = lazy(() => import('../personas/SelectorUbicacion'))
 import AyudaCampo from '../personas/AyudaCampo'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { conRieles, estilosDeRiel } from './rejillaFicha'
-import { claveDeCuenta, cuantosHay } from '../../data/fichaColaborador'
+import { claveDeCuenta, cuantosHay, quitarCopia } from '../../data/fichaColaborador'
 
 /* LA FICHA DE UN OBJETO DE LA ORGANIZACIÓN, en sus dos estados.
    Nació dentro de "Datos de la empresa" y salió de allí en cuanto la sucursal pidió lo mismo:
@@ -153,7 +153,7 @@ function ValorLeido({ campo, valor }) {
   )
 }
 
-function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo }) {
+function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo, quitar }) {
   const id = `${prefijo}-${campo.key}`
   /* UN CAMPO VACÍO NO ESTÁ MAL TODAVÍA. Una ficha en blanco pintaba de rojo sus obligatorios
      antes de que nadie hubiera tecleado una letra: regañaba por no haber empezado. Quien edita
@@ -180,32 +180,68 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
      repetibles no hay que tocar esta pantalla. */
   if (campo.tipo === 'repetir') {
     const cuantos = cuantosHay(form, campo.grupo)
+    /* Sin `max` no hay tope: los hijos no lo tienen porque nadie puede decirle a alguien cuántos
+       declara. Los beneficiarios sí, y su número vive en el descriptor del campo. */
+    const tope = campo.max || Infinity
     return (
       <div className="c-todo emp-repetir">
-        <button type="button" className="emp-mas" onClick={() => set(claveDeCuenta(campo.grupo), cuantos + 1)}>
-          <Plus size={13} /> {campo.label}
-        </button>
-        {/* QUITAR SÓLO EL ÚLTIMO, y se dice cuál. Borrar el del medio obligaría a correr los
-            valores de los de abajo una posición, y un corrimiento silencioso sobre datos que
-            alguien ya escribió es la clase de ayuda que hace perder media hora de trabajo. */}
-        {cuantos > 1 && (
-          <button
-            type="button"
-            className="emp-menos"
-            onClick={() => set(claveDeCuenta(campo.grupo), cuantos - 1)}
-          >
-            Quitar el {cuantos}.º
+        {/* EL FILETE, EN DOS MITADES Y NO DE FONDO. La otra manera de montar un botón sobre una
+            línea es pintarla detrás y taparle el centro con el color de la tarjeta, y eso obliga
+            a que ese color coincida: en claro, en oscuro, y en cualquier fondo sobre el que
+            alguien apoye la sección mañana. Dos tramos que crecen por igual dejan el hueco
+            solos y no tienen nada que adivinar.
+
+            Y SE LLEVAN EL BOTÓN AL CENTRO sin que nadie lo centre: crecen los dos lo mismo, así
+            que lo que quede en medio —el botón solo, o el botón y «Quitar el 2.º»— queda
+            centrado por aritmética. */}
+        <span className="emp-filete" aria-hidden="true" />
+        {/* LLEGADO AL TOPE, LA COSTURA DICE CUÁL ES en vez de enseñar un botón apagado. Un botón
+            deshabilitado en el sitio donde antes había uno vivo se lee como una avería: hay que
+            pulsarlo para descubrir que no, y cuando no pasa nada tampoco explica por qué. La
+            frase ocupa el mismo hueco y contesta la pregunta antes de que se haga. */}
+        {cuantos < tope ? (
+          <button type="button" className="emp-mas" onClick={() => set(claveDeCuenta(campo.grupo), cuantos + 1)}>
+            <Plus size={13} /> {campo.label}
           </button>
+        ) : (
+          <span className="emp-tope">Máximo {tope}</span>
         )}
+        {/* QUITAR YA NO VIVE ACÁ. Estuvo al lado de «Agregar», y eran dos acciones opuestas
+            peleando por el mismo sitio: la costura decía «agregar o quitar» cuando lo único que
+            tiene que decir es dónde sigue la lista. Ahora cada bloque lleva su propia papelera,
+            pegada a su rótulo — ver la rama de `rotulo`, más abajo. */}
+        <span className="emp-filete" aria-hidden="true" />
       </div>
     )
   }
 
   if (campo.tipo === 'rotulo') {
+    /* ── LA PAPELERA DEL BLOQUE ──────────────────────────────────────────────
+       SÓLO CUANDO HAY MÁS DE UNO: con un solo hijo no hay nada que quitar —el bloque es el
+       mínimo, no una copia— y una papelera apagada ahí sólo invita a preguntarse por qué.
+
+       SÓLO EDITANDO, porque leyendo la ficha los rótulos ni siquiera salen.
+
+       SIN PALABRA. «Quitar este hijo» al lado del rótulo compite con él por el mismo renglón y
+       lo empuja; el icono cabe en el sitio que la cabecera ya tenía vacío. Lo que se pierde
+       —que una papelera sola hay que reconocerla— se recupera en el `aria-label`, que dice a
+       cuál de los tres se refiere: el rótulo ya está numerado. */
+    const puedeQuitar = editando && quitar && campo.grupo && campo.total > 1
+
     return (
       <div className="c-todo emp-rotulo-bloque">
         <span>{campo.label}</span>
         {campo.nota && <AyudaCampo>{campo.nota}</AyudaCampo>}
+        {puedeQuitar && (
+          <button
+            type="button"
+            className="emp-quitar"
+            aria-label={`Quitar ${campo.label.toLowerCase()}`}
+            onClick={() => quitar(campo.grupo, campo.instancia)}
+          >
+            <Trash2 size={15} aria-hidden="true" />
+          </button>
+        )}
       </div>
     )
   }
@@ -246,7 +282,23 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
            teclear tiene que distinguirse de lo que solo se lee ANTES de intentarlo, no después.
            Leyendo la ficha vuelve a ser texto suelto como todo lo demás, que es lo que es. */
         editando
-          ? <div className="emp-campo-fijo">{campo.deducido || '—'}</div>
+          ? (
+            /* UN CALCULADO QUE ADEMÁS JUZGA. Con `tono` la caja se tiñe y estrena un punto del
+               color del estado; con `llena`, una barra al pie que enseña el mismo número medido
+               en vez de leído. Las dos son opcionales: sin ellas esto es la caja gris de
+               siempre, que es lo que sigue siendo para los otros cuatro deducidos.
+
+               LA BARRA ES DECORACIÓN Y VA COMO TAL —`aria-hidden`, y el ancho en una variable—
+               porque el dato ya está escrito al lado con todas sus letras. Un lector de pantalla
+               que además anunciara la barra diría el mismo porcentaje dos veces. */
+            <div
+              className={`emp-campo-fijo${campo.tono ? ' emp-tono-' + campo.tono : ''}${campo.llena !== undefined ? ' emp-medido' : ''}`}
+              style={campo.llena !== undefined ? { '--llena': campo.llena + '%' } : undefined}
+            >
+              {campo.tono && <span className="emp-punto" aria-hidden="true" />}
+              {campo.deducido || '—'}
+            </div>
+          )
           : <p className={`emp-valor${campo.deducido ? '' : ' emp-valor-vacio'}`}>{campo.deducido || '—'}</p>
       ) : !editando ? (
         <ValorLeido campo={campo} valor={form[campo.key]} />
@@ -303,6 +355,7 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
           onCambio={v => set(campo.key, v)}
           acepta={campo.acepta}
           pista={campo.pista}
+          topeMB={campo.topeMB}
           vistaPrevia={campo.vistaPrevia}
           retrato={campo.retrato}
           /* TODO LO QUE NO ES LA FOTO ES UN PAPEL, y un papel también se sube para mirarlo. No
@@ -348,6 +401,11 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
           placeholder={campo.ph}
           onCambio={v => set(campo.key, v)}
           ariaLabel={campo.label}
+          /* La línea que explica una lista corta. Hoy la pone un solo campo —«¿De quién?» en la
+             tutela, cuando todavía no hay ningún nombre escrito en el paso— y por eso viaja en
+             el descriptor y no en la pantalla: el día que otra lista dependa de lo que se haya
+             cargado antes, ya sabe cómo decirlo. */
+          nota={campo.notaLista}
           /* UN VALOR GUARDADO QUE NO ESTÁ EN LA LISTA SE CONSERVA. Alguno de estos campos fue
              texto libre antes de ser lista, así que puede haber valores escritos a mano que no
              encajen en ninguna opción; sin esto el desplegable los mostraría vacíos y los
@@ -409,7 +467,7 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo 
    sin esto quedaba un recuadro con sombra dentro de otro recuadro con sombra, y el título
    escrito dos veces, una en cada uno. Lo que se comparte sigue siendo lo único que importa: qué
    campos hay y cómo se dibuja cada uno. */
-export default function TarjetaCampos({ titulo, desc, campos, form, set, editando, prefijo, marcarFaltas = true, desnudo = false, children }) {
+export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar, editando, prefijo, marcarFaltas = true, desnudo = false, children }) {
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
      tanto hueco había que buscar los tres datos que sí existían. El guion tiene sentido en un
@@ -420,6 +478,16 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
      competir con lo que sí está escrito. Con el formulario abierto vuelven todos, claro: ahí lo
      vacío no es ausencia, es el sitio donde hay que escribir. */
   const valorDe = campo => (campo.deducido !== undefined ? campo.deducido : form[campo.key])
+
+  /* QUITAR UNA COPIA CAMBIA MUCHAS CLAVES A LA VEZ —las de abajo suben un lugar— y `set` sabe
+     cambiar una. Por eso el llamador puede pasar `aplicar`, que mezcla un parche entero de una
+     sola vez: hacerlo con `set` en bucle serían quince renders para una sola acción.
+
+     ES OPCIONAL A PROPÓSITO. Esta tarjeta la usan cuatro pantallas y sólo la ficha tiene grupos
+     repetibles; sin `aplicar`, la papelera no se dibuja y todo lo demás sigue igual. */
+  const quitar = aplicar
+    ? (grupo, n) => aplicar(quitarCopia(form, campos, grupo, n))
+    : null
   /* `soloEdicion` es para lo que ya se lee en otro sitio de la misma tarjeta: el cargo del
      responsable, que la persona elegida ya trae escrito debajo de su nombre. No es un campo
      secreto, es un campo repetido, y repetido solo cuando no se está editando. */
@@ -493,6 +561,7 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, editand
             prefijo={prefijo}
             marcarFaltas={marcarFaltas}
             estilo={estiloDe(campo)}
+            quitar={quitar}
           />
         ))}
       </div>

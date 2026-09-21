@@ -6267,7 +6267,22 @@ select.pl-input:focus {
    la rejilla entera y no una línea.
 
    SÓLO EDITANDO. Leyendo no hay cajas que alinear: son pares de líneas sueltas. */
-.emp-form:not(.emp-leyendo) > div { display: flex; flex-direction: column; }
+/* SÓLO LAS CELDAS DE CAMPO, y de ahí las dos exclusiones. Esta regla existe para poner el
+   rótulo encima de su caja, que es lo que es una celda de campo. Pero la rejilla tiene dos
+   hijos directos que NO son campos —el rótulo que parte la tarjeta por dentro y la fila que
+   ofrece repetir el bloque—, y a los dos les caía encima un `flex-direction: column` que
+   ninguno pidió y que ninguno de los dos podía contradecir: `.emp-repetir` pesa (0,1,0) contra
+   los (0,2,1) de acá, así que perdía siempre.
+
+   LO QUE COSTABA: en la fila de repetir, los dos botones salían uno encima del otro en vez de
+   lado a lado, y el filete —un `<span>` vacío— se encogía a cero de ancho con el
+   `align-items: center`, que es la forma elegante de no dibujarse. En el rótulo, el texto y su
+   «?» de ayuda iban en dos renglones en lugar de uno.
+
+   SE EXCLUYEN EN VEZ DE SUBIRLES EL PESO a cada uno con un selector más largo: la regla dice
+   ahora a qué se aplica, que es lo que siempre quiso decir. El día que entre un tercer hijo que
+   no sea un campo, el sitio donde anotarlo está a la vista. */
+.emp-form:not(.emp-leyendo) > div:not(.emp-repetir):not(.emp-rotulo-bloque) { display: flex; flex-direction: column; }
 .emp-form:not(.emp-leyendo) > div > .pl-label { flex: 0 0 auto; }
 
 /* MÁS AIRE ENTRE RENGLONES AL LEER. Editando, lo que separa una fila de la siguiente son las
@@ -6298,10 +6313,84 @@ select.pl-input:focus {
 .emp-form .c-medio { grid-column: span 6; }
 .emp-form .c-todo { grid-column: span 12; }
 
+/* ── EMPEZAR FILA ──
+   La pone `tarjetasDe` sobre una pregunta cuyo campo de detalle está desplegado, para que los
+   dos se queden con la fila entera: un tercio la pregunta, dos tercios el detalle, doce en
+   total, y nadie más se sienta al lado. Sin ella el detalle salta a la fila siguiente y comparte
+   renglón con la pregunta que venga, que habla de otra cosa.
+
+   VA CON EL ANCHO PUESTO Y NO SÓLO CON `grid-column-start`. El ancho de arriba se escribe con
+   el atajo —`grid-column: span 4`—, que fija el arranque en «span 4» y el final en auto; una
+   regla que después tocara sólo el arranque se llevaría el ancho por delante y dejaría la
+   pregunta en una columna. Por eso se reescriben las dos mitades juntas, y por eso hay una por
+   cada anchura que tiene `c-tercio` en su vida. */
+.emp-form .c-tercio.c-fila { grid-column: 1 / span 4; }
+
+/* ── LO QUE APARECE, SE VE APARECER ──
+   La pone `tarjetasDe` sobre todo campo que tenga condición, que son los que entran y salen del
+   formulario según lo que se conteste. Sin esto, donde no había nada hay de pronto una caja con
+   su rótulo: el ojo lo registra como un parpadeo —algo cambió, no se sabe qué— y hay que volver
+   a leer la tarjeta para encontrarlo.
+
+   CIENTO SESENTA MILISEGUNDOS: lo justo para ver el gesto sin esperarlo. Por encima de los
+   doscientos, contestar cuatro preguntas seguidas empieza a sentirse lento, y esta ficha tiene
+   veintitantos campos que hacen esto.
+
+   `backwards` Y NO `both`, Y LA DIFERENCIA NO ES COSMÉTICA. Los dos ponen el primer fotograma
+   antes de arrancar, que es lo que evita el tirón: sin eso el campo se dibuja opaco y en su
+   sitio durante un cuadro y después salta al principio de la animación. Lo que `both` añade es
+   RELLENO HACIA ADELANTE — la animación se queda «en efecto» para siempre, aunque haya
+   terminado— y eso le deja al elemento un contexto de apilamiento propio de por vida.
+
+   LO QUE COSTABA: el menú de un desplegable es `position: fixed` con `z-index: 50`, y un
+   z-index sólo compite dentro de su contexto. Atrapado en la celda de su campo, el menú pasaba
+   a pintarse en el orden del documento — o sea, DEBAJO de los campos que vienen después—. En la
+   tarjeta de la Caja de Salud, «Fecha de expedición» se dibujaba encima de la lista abierta. En
+   `position` y `z-index` no se veía nada raro: el contexto no lo creaba ninguno de los dos,
+   sino una animación ya terminada que el navegador seguía considerando activa.
+
+   Con `backwards` la animación deja de tener efecto al acabar, el contexto se libera y el menú
+   vuelve a estar donde debe. Medido: con `both`, tapado en los dos puntos de arriba del menú;
+   con `backwards`, limpio en los cuatro.
+
+   SÓLO OPACIDAD, Y ESTO NO SE TOCA. La primera versión además bajaba cuatro píxeles con un
+   `transform`, y rompió TODOS los desplegables de los campos condicionales: sus menús se abrían
+   en cualquier parte de la pantalla.
+
+   POR QUÉ. El menú es `position: fixed` con coordenadas medidas contra la ventana —vive así
+   para que ningún antepasado con `overflow` lo recorte, ver `.pl-dd-fija`—, y un antepasado con
+   `transform` distinto de `none` deja de ser transparente para un hijo fijo: pasa a ser SU
+   marco de referencia. Las coordenadas seguían siendo de ventana y el dibujo pasó a ser
+   relativo a la celda del campo, así que el menú aterrizaba al pie de la pantalla.
+
+   Y LA TRAMPA ES QUE PARECÍA INOFENSIVO: el fotograma final decía `transform: none`, que no
+   mueve nada. Pero con `both` la animación conserva ese valor ya computado, y `none` dentro de
+   un `@keyframes` computa a `matrix(1, 0, 0, 1, 0, 0)` — la identidad, que visualmente es nada
+   y para el posicionamiento lo es todo.
+
+   La opacidad no tiene ese efecto: crea contexto de apilamiento, no marco de referencia. Si
+   alguna vez se quiere devolver el movimiento, no puede ser con `transform` mientras el menú
+   siga siendo fijo y siga colgando del campo. */
+@keyframes emp-aparece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.emp-form .c-aparece { animation: emp-aparece .16s ease-out backwards; }
+
+/* Quien pidió que el sistema no mueva cosas, lo pidió para todo. El campo sigue apareciendo: lo
+   que se va es el movimiento, no el campo. */
+@media (prefers-reduced-motion: reduce) {
+  .emp-form .c-aparece { animation: none; }
+}
+
 @media (max-width: 1240px) {
   .emp-form .c-med,
   .emp-form .c-corto,
   .emp-form .c-tercio { grid-column: span 6; }
+  /* Media fila la pregunta y dos tercios el detalle son catorce de doce, así que acá la pareja
+     ya no cabe junta. Se mantiene igual: la pregunta arranca en la columna 1 y el detalle cae
+     justo debajo, que es la versión estrecha de estar al lado. */
+  .emp-form .c-tercio.c-fila { grid-column: 1 / span 6; }
   .emp-form .c-medio { grid-column: span 12; }
   /* La dirección es el campo más largo: cuando la fila se parte, se queda con toda. */
   .emp-form .c-ancho-md { grid-column: span 12; }
@@ -6314,6 +6403,8 @@ select.pl-input:focus {
   .emp-form .c-medio,
   .emp-form .c-ancho-md,
   .emp-form .c-ancho { grid-column: span 12; }
+  /* A esta anchura todo ocupa la fila entera, así que empezar fila es lo que ya hacían todos. */
+  .emp-form .c-tercio.c-fila { grid-column: 1 / span 12; }
 }
 
 /* ---------- El mismo formulario, leído ----------
@@ -6390,8 +6481,11 @@ select.pl-input:focus {
    —una caja plana, sin borde y sin cursor— más la nota que explica de dónde sale. Apagar además
    el valor era decirlo dos veces, y la segunda a costa de lo único que la caja contiene. */
 .emp-campo-fijo {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
+  gap: 9px;
   min-height: 44px;
   margin-top: 4px;
   padding: 11px 15px;
@@ -6400,6 +6494,54 @@ select.pl-input:focus {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-heading);
+}
+
+/* ── UN CALCULADO QUE ADEMÁS DICE SI ESTÁ BIEN ──
+   Los cuatro deducidos que había informan y se quedan grises. El total repartido juzga —la suma
+   tiene que dar cien— y por eso estrena tono. Tres estados y ni uno más: repartido, falta,
+   sobra.
+
+   EL COLOR LO LLEVA EL TEXTO Y LO HEREDAN EL PUNTO Y LA BARRA, que van en `currentColor`. Así
+   el estado se declara una vez: cambiar el ámbar de «falta» es cambiar una línea y no tres, y
+   no hay manera de que el punto quede de un color y la frase de otro.
+
+   Y EL FONDO ES UN TINTE, NO UN RELLENO. Estos tres van del 6 al 12 % sobre la tarjeta: se ve
+   que la caja cambió de estado sin que la fila grite. Un verde saturado acá competiría con las
+   pastillas de sección completa, que es donde el verde ya significa algo. */
+.emp-tono-ok    { background: var(--green-bg);  color: var(--green-fuerte); }
+.emp-tono-falta { background: var(--yellow-bg); color: var(--ambar); }
+.emp-tono-sobra { background: var(--red-bg);    color: var(--alto-plaza); }
+
+/* Sobre el azul oscuro, los tres oscurecidos de arriba se van al fondo: el ámbar #B45309 sobre
+   #173D54 no llega ni a 3:1. En oscuro mandan los vivos, que es lo que ya hacen el verde de las
+   pastillas y el rojo de las alertas. */
+.dark .emp-tono-ok    { color: var(--green); }
+.dark .emp-tono-falta { color: var(--yellow); }
+.dark .emp-tono-sobra { color: var(--red); }
+
+/* EL PUNTO, para que el estado no dependa sólo del color. Quien no distingue el ámbar del verde
+   lee «falta 30 %» igual —la frase lo dice— y el punto le da además el sitio donde mirar. */
+.emp-punto {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* LA BARRA AL PIE DE LA CAJA: el mismo número, medido. Tres píxeles pegados al borde inferior,
+   que es todo lo que hace falta para ver de un vistazo si esto va por la mitad o casi lleno sin
+   leer la cifra. Va por dentro del `overflow: hidden` de la caja, así que sigue sus esquinas
+   redondeadas sin tener que repetir el radio. */
+.emp-medido::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: var(--llena, 0%);
+  background: currentColor;
+  transition: width .18s ease-out;
 }
 
 /* SUBRAYADO DE SIEMPRE Y NO SOLO AL PASAR POR ENCIMA: en una lista de datos donde casi todo es
@@ -7872,6 +8014,27 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
   margin-bottom: 4px;
 }
 .pl-dd-buscar .pl-search-ico { left: 16px; }
+
+/* ── LA LÍNEA QUE EXPLICA UNA LISTA CORTA ──
+   Va dentro del menú, arriba del todo, y se separa de las opciones con el mismo filete que usa
+   el buscador: es el mismo papel —algo que está en la lista sin ser de la lista— y compartir el
+   dibujo evita inventar una tercera forma de decir «esto no se elige».
+
+   NI PASTILLA NI ICONO NI COLOR DE AVISO. No ha pasado nada malo: la lista está corta porque
+   todavía no se cargó a nadie arriba, que es un estado normal de una ficha a medio llenar. En
+   ámbar diría «hay un problema» y el problema no existe.
+
+   SE LEE, NO SE PULSA, y el dibujo lo dice: sin fondo, sin borde y sin el cursor de mano que
+   llevan las opciones. Tampoco es una de ellas en el marcado —no lleva `role="option"`— así que
+   las flechas pasan de largo y un lector de pantalla no la ofrece como algo que hacer. */
+.pl-dd-nota {
+  margin: 2px 4px 6px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
 .pl-dd-nada {
   margin: 8px 6px;
   font-size: 11.5px;
@@ -8818,44 +8981,6 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
      se recorta al ancho disponible en vez de asomar. */
   .mp-tarjeta { width: min(268px, calc(100vw - 32px)); }
 }
-/* ── LA BARRA DE ARRIBA ───────────────────────────────────────────────────
-   La miga y el andamio del prototipo, en una fila. La miga mide lo que mide —no se estira— y la
-   franja se queda con lo que sobra, que es lo que necesita: adentro lleva dos grupos de botones
-   y una frase de estado.
-
-   ESTE ENVOLTORIO ES TEMPORAL como la franja que contiene. El día que se elija entre Propuesta 1
-   y 2 se van los dos: sin la franja, esta regla deja una fila con un solo hijo, que es lo mismo
-   que no tenerla. */
-.cn-tope {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.cn-tope .cn-miga { flex-shrink: 0; }
-
-/* CUÁNTO FALTA DEL MÍNIMO LEGAL, al otro extremo de la fila de la miga. Vivía dentro de la banda
-   oscura del prototipo, y cuando ésa se borre esta frase tiene que seguir en pie: habla de la
-   ficha, no de la comparación entre dos diseños.
-
-   Alineada a la derecha y en el gris apagado de la pantalla: es un dato de fondo que se consulta
-   de reojo, no un aviso. Si fuera rojo o llevara icono diría «hay un problema», y no lo hay —
-   muchos de esos campos llegan semanas después del alta, con los papeles de la Gestora. */
-.cn-cuenta {
-  flex: 1;
-  min-width: 220px;
-  margin: 0;
-  text-align: right;
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
-/* EL NIVEL, UN PUNTO MÁS OSCURO QUE EL RESTO DE LA FRASE. Es la única parte de esta línea que
-   contesta una pregunta urgente —«¿por qué no está el campo que busco?»— y tiene que encontrarse
-   sin leer las otras veinte palabras. Medio peso más, y nada más: sigue siendo un dato de fondo,
-   no un aviso. Si fuera ámbar o llevara icono diría «hay un problema», y no lo hay — el nivel
-   está escondiendo campos porque alguien se lo pidió. */
-.cn-nivel { font-weight: 600; color: var(--text-heading); }
 
 /* ── LA TARJETA DE REINGRESO ──────────────────────────────────────────────
    La única de las cuarenta y cuatro que no es una rejilla de campos sino una conversación:
@@ -9462,18 +9587,49 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 
 /* ── AÑADIR OTRA COPIA DEL BLOQUE ──
    Va debajo de lo que repite y no arriba: primero se ve qué es un hijo y después se ofrece
-   declarar otro. Y no es un botón de formulario —no guarda nada— así que se dibuja como lo que
-   es: una acción discreta, del peso de un enlace, que no compite con «Crear colaborador». */
-.emp-repetir { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 2px; }
+   declarar otro. Y no es un botón de formulario —no guarda nada— así que no compite con «Crear
+   colaborador»: sin relleno, en el gris del mueble, del peso de lo que es.
+
+   MONTADO SOBRE EL FILETE, que es lo que cambió. Antes era una pastilla de borde punteado
+   pegada a la izquierda, y ahí abajo, al final de una columna de campos alineados a la
+   izquierda, quedaba como un campo más al que le faltaba la etiqueta. Al centro y sobre una
+   línea ya no se lee como parte del bloque de arriba: se lee como la costura entre el bloque
+   que termina y el que puede venir, que es exactamente lo que hace.
+
+   Y EL FILETE NO ES DECORACIÓN: es el mismo que ya separa los bloques repetidos —el
+   `border-top` de `.emp-rotulo-bloque`—, así que la pantalla no aprende una forma nueva. La
+   diferencia es que éste lleva la puerta puesta en el medio.
+
+   44 PX DE ALTO Y NO 35. El botón medía lo que le pedía su relleno, que daba 35: por debajo de
+   los 44 que necesita un blanco al que hay que acertar con el dedo. Era el único control de la
+   ficha que no llegaba, y estaba escondido al final de la sección más larga del paso. */
+.emp-repetir {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Cada mitad de la línea. `flex: 1 1 0` con la misma base las hace crecer igual, que es lo que
+   centra lo de en medio; `min-width: 0` deja que se encojan hasta desaparecer en una pantalla
+   angosta antes que empujar el botón fuera de la tarjeta. */
+.emp-filete {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 1px;
+  background: var(--border-soft);
+}
 
 .emp-mas {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 15px 8px 12px;
-  border: 1px dashed var(--campo-vacio-borde);
-  border-radius: 10px;
-  background: none;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--surface-card);
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 600;
@@ -9482,22 +9638,49 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   transition: background .12s, border-color .12s;
 }
 .emp-mas:hover { background: var(--campo-vacio); border-color: var(--navy); }
+
+/* LA FRASE QUE OCUPA EL SITIO DEL BOTÓN cuando el grupo llegó a su tope. Sin píldora ni borde:
+   no es pulsable y no tiene que parecerlo — si llevara el marco del botón, el primer gesto
+   sería intentar pulsarla. */
+.emp-tope {
+  flex-shrink: 0;
+  padding: 0 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--campo-vacio-texto);
+}
 .dark .emp-mas { color: var(--green); }
 .dark .emp-mas:hover { border-color: var(--green); }
 
-/* Quitar pesa menos que añadir: es la salida de un error, no una acción que la ficha invite a
-   hacer. Sin marco y en gris hasta que el puntero encima dice que sigue siendo pulsable. */
-.emp-menos {
+/* ── LA PAPELERA DE UN BLOQUE REPETIDO ──
+   Quitar pesa menos que añadir: es la salida de un error, no una acción que la ficha invite a
+   hacer. Sin marco y en el gris del campo vacío hasta que el puntero encima la enciende, y sólo
+   entonces en rojo — antes de eso no hay nada que avisar.
+
+   AL FINAL DE SU CABECERA, que es el sitio que la cabecera ya tenía libre: el rótulo mide diez
+   píxeles y ocupa una palabra. `margin-left: auto` la empuja al extremo sin que nadie tenga que
+   saber cuánto mide el rótulo.
+
+   44 PX QUE NO SE VEN. El blanco táctil es de 44 y el renglón del rótulo, de trece: los márgenes
+   negativos dejan que el botón siga midiendo 44 para el dedo mientras aporta veintiocho al alto
+   de la fila. Sin ellos, cada bloque repetido crecía treinta píxeles por la cabecera. */
+.emp-quitar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin: -8px -9px -8px auto;
   border: none;
+  border-radius: 10px;
   background: none;
-  padding: 4px 2px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
+  color: var(--campo-vacio-texto);
   cursor: pointer;
+  transition: background .12s, color .12s;
 }
-.emp-menos:hover { color: var(--red, #B3261E); text-decoration: underline; }
+.emp-quitar:hover { background: var(--campo-vacio); color: var(--red, #B3261E); }
+.emp-quitar:focus-visible { background: var(--campo-vacio); color: var(--red, #B3261E); }
 
 /* El rótulo que parte una tarjeta por dentro. Hay secciones del estudio con veinte campos que
    son tres cosas distintas —el cónyuge, los hijos, los herederos— y sin una línea que las

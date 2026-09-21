@@ -36,6 +36,15 @@ export default function Desplegable({
   placeholder = 'Elige una opción',
   onCambio,
   ariaLabel,
+  /* UNA LÍNEA QUE EXPLICA LA LISTA, dentro de la lista.
+     No es una opción: no se puede elegir, no la recorren las flechas y no la ve un lector de
+     pantalla como algo que hacer. Es para cuando la lista está corta por un motivo que se
+     entiende mirando OTRA parte de la pantalla —«aún no hay nadie registrado»— y quien la abre
+     merece saberlo ahí y no después de cerrarla y buscar.
+
+     VA ARRIBA Y NO ABAJO: lo que explica por qué hay tan poco tiene que leerse antes de mirar
+     lo poco que hay. */
+  nota,
 }) {
   const [abierto, setAbierto] = useState(false)
   const [busca, setBusca] = useState('')
@@ -194,6 +203,8 @@ export default function Desplegable({
               />
             </div>
           )}
+
+          {nota && !escrito && <p className="pl-dd-nota">{nota}</p>}
 
           {visibles.map((o, i) => {
             const puesta = o.valor === valor

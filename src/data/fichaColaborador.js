@@ -67,6 +67,28 @@ export const EN_BLANCO = {
   '2.seg': 'no',  // ¿Agregar un segundo contacto de emergencia?
   '1.78b': 'no',  // ¿Está suspendida la licencia?
 
+  /* ── Y LA DE DISCAPACIDAD, QUE ES LA MÁS DELICADA DE LAS CUATRO ──────────
+     Tiene la misma forma que las de arriba —una pregunta cerrada que decide si se despliegan
+     otros campos, con un caso que es el de casi todas las fichas— así que recibe el mismo
+     trato: puesta en «No», el tipo y el grado arrancan escondidos y quien sí los necesita
+     contesta «Sí» y los abre.
+
+     PERO NO ES UN INTERRUPTOR DE PANTALLA COMO LAS OTRAS TRES. «¿Tiene documento secundario?»
+     no se declara ante nadie; ésta cuenta para la cuota del 2 % y es columna de la planilla
+     que el Ministerio fiscaliza contra la OVT. Arrancarla en «No» significa que una ficha que
+     nadie tocó afirma algo, en vez de dejar el hueco a la vista.
+
+     SE ACEPTA IGUAL, y el precedente es 0.1 —también del mínimo, también obligatoria, también
+     con su «No» puesto—: el valor está a la vista, en su propio par de botones, y cambiarlo es
+     un clic. Lo que no se puede es que además quede escondido. Si algún día el tipo y el grado
+     se llevan la pregunta con ellos detrás de un plegado, esta línea se va. */
+  '1.60': 'no',   // ¿Tiene discapacidad?
+
+  /* Y la del seguro privado, que es la misma forma sin ninguna de las asperezas de la anterior:
+     no se declara ante nadie, no cuenta para ninguna cuota, y el caso común es que no lo haya.
+     De las cinco preguntas con respuesta de arranque, ésta es la más fácil de justificar. */
+  '1.63': 'no',   // ¿Tiene seguro médico privado?
+
   /* BOLIVIA VIENE PUESTO por ser el caso común, y se lo gana: el país emisor decide si se piden
      extensión y complemento SEGIP, así que sin un valor de arranque la tarjeta del documento
      abre incompleta para el 95 % de las altas y hay que contestar un desplegable para que
@@ -224,6 +246,23 @@ const DERIVADOS = {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(vence || '')) return ''
     return vence <= sumarDias(hoyISO(), 30) ? 'Por vencer' : 'Vigente'
   },
+  /* ── CUÁNTO SE LLEVA REPARTIDO, QUE ERA UNA PROMESA SIN CUENTA ─────────────
+     La nota de 2.35 dice «validación: la suma debe dar 100 %» desde que se portó el estudio, y
+     no había ni suma ni dónde enseñarla: con un solo beneficiario la regla no tenía contra qué
+     correr, y con tres habría que ir sumando de cabeza mientras se escribe.
+
+     DICE LO QUE FALTA Y NO SÓLO SI ESTÁ MAL. «70 % · falta 30 %» es accionable; «la suma no da
+     100» obliga a restar. Y cuando sobra lo dice igual, que es el error más fácil de cometer
+     escribiendo 50, 50 y 50.
+
+     NO REPARTE SOLO. Poner 33/33/34 de arranque sería exactamente lo que esta ficha evita en
+     otros seis sitios: un valor puesto es un valor que nadie mira, y acá lo que nadie miraría
+     es cuánto se lleva cada heredero. Se cuenta y se enseña; repartir lo hace quien firma.
+
+     VACÍO MIENTRAS NADIE ESCRIBIÓ NADA, para no abrir la tarjeta con un «0 % · falta 100 %»
+     regañando a quien todavía no llegó al campo. */
+  '2.35t': form => repartoDe(form).texto,
+
   /* «Nunca pueden diferir»: la fecha de ingreso a la Caja es la de ingreso legal. */
   '3.28': form => fechaCorta(form['3.25']),
   /* Ingreso + 89 días. El periodo de prueba es de 90 y a los 90 + 1 nacen los beneficios
@@ -348,9 +387,88 @@ const CONDICIONES = {
      su país no tiene. Se esconde igual que la extensión de un documento que no es boliviano. */
   '1.44': form => Boolean(nivelesDe(form['1.42']).menor),
 
+  /* EL TIPO Y GRADO SÓLO SI HAY DISCAPACIDAD QUE DETALLAR. Sin esto la caja estaba siempre
+     abierta, y en el 97 % de las fichas era un hueco que no se puede llenar sin inventar. La
+     pregunta de al lado (1.60) es la del mínimo legal y sigue estando siempre. */
+  '1.61': form => form['1.60'] === 'si',
+  '1.61b': form => form['1.60'] === 'si',
+
+  /* LOS DETALLES DE LA TARJETA MÉDICA. Los rótulos decían «+ detalle» desde que se portó el
+     estudio y detrás no había más que un Sí/No: la ficha preguntaba si hay algo y no dejaba
+     decir qué. Van apareciendo al contestar que sí, uno por pregunta. */
+  '1.56b': form => form['1.56'] === 'si',
+  '1.57b': form => form['1.57'] === 'si',
+  '1.58b': form => form['1.58'] === 'si',
+  '1.59b': form => form['1.59'] === 'si',
+
+  /* ── LA GESTORA, ENTERA, DETRÁS DE SU PREGUNTA ────────────────────────────────────
+     Dicho que no aporta, los cuatro datos de la Gestora no tienen nada que describir:
+     «Administradora / Estado de la afiliación» pierde sentido —sólo existe una administradora y
+     lo que el campo dice hoy es en qué etapa va el trámite, y no hay trámite—, y el NUA/CUA, la
+     sucursal y el tipo de asegurado dejan de ser exigibles.
+
+     LO QUE PASA AGUAS ABAJO, que es por lo que esto importa más de lo que parece. Un «no» acá no
+     es un hueco, es un dato que cinco sitios necesitan leer:
+
+       · PLANILLA MENSUAL — no se calcula el 12,71 % de descuento ni el 7,21 % de costo
+         patronal. La columna de aporte va en CERO, no vacía: el formato del Ministerio la exige.
+       · DECLARACIÓN DEL SIP — la persona no aparece. Es una exclusión de la fila completa.
+       · DECLARACIÓN DEL ANS — tampoco aparece. Y ese archivo sólo lleva a quienes superan el
+         umbral: en una planilla real, de 94 personas en el SIP sólo 5 estaban en el ANS. Si no
+         califica nadie, el archivo no se genera.
+       · COLUMNA «¿APORTA A LA AFP?» DEL MINISTERIO — va en 0. Pero la persona SIGUE apareciendo
+         en la planilla del Ministerio si su contrato la obliga a estar ahí: no aportar a
+         pensiones no la saca de la declaración laboral.
+
+     POR ESO LA PREGUNTA NO SE ESCONDE NUNCA, aunque se escondan sus cuatro campos. Un cero y un
+     vacío se declaran distinto, y quien genere la planilla tiene que poder distinguir «contestó
+     que no» de «nadie lo contestó». Esconder la pregunta convertiría lo primero en lo segundo.
+
+     Y «¿ESTÁ JUBILADO?» (3.48) SE QUEDA FUERA DE LA LLAVE a propósito: es un estado de la
+     persona, no un dato de su afiliación, y justamente un jubilado que sigue trabajando es de
+     los que pueden contestar que no aportan. Esconderlo detrás del «sí» dejaría sin preguntar
+     el caso que más lo necesita. */
+  '3.44': form => form['3.43'] === 'si',
+  '3.45': form => form['3.43'] === 'si',
+  '3.46': form => form['3.43'] === 'si',
+  '3.47': form => form['3.43'] === 'si',
+
+  /* La fecha de jubilación, sólo si hay jubilación. */
+  '3.48b': form => form['3.48'] === 'si',
+
+  /* ── LA CAJA DE SALUD, ENTERA, DETRÁS DE SU PREGUNTA ──────────────────────────────
+     Los cuatro datos de la Caja —cuál, número de asegurado, sucursal y fecha de expedición—
+     sólo existen si la persona se afilia. Dicho que no, eran cuatro campos a la vista que no se
+     pueden llenar sin inventar, y dos de ellos desplegables que ofrecen elegir algo que no
+     corresponde.
+
+     LA PREGUNTA SE QUEDA SIEMPRE, que es la diferencia entre esconder y no preguntar: «no
+     aplica» es una respuesta que la ficha necesita tener escrita —el plazo de cinco días desde
+     el ingreso se fiscaliza— y no un vacío. */
+  '3.50': form => form['3.49'] === 'si',
+  '3.51': form => form['3.49'] === 'si',
+  '3.52': form => form['3.49'] === 'si',
+  '3.53': form => form['3.49'] === 'si',
+
+  /* DE QUIÉN ES TUTOR, Y EL NOMBRE CUANDO NO ES NINGUNO DE LOS OFRECIDOS. */
+  '1.62b': form => form['1.62'] === 'si',
+  '1.62c': form => form['1.62'] === 'si' && form['1.62b'] === 'Otra persona',
+
+  /* EL SEGURO PRIVADO Y SUS DOS DATOS. Sin esto, quien no tiene seguro privado —la mayoría—
+     miraba dos cajas que no se pueden llenar sin inventar. */
+  '1.64': form => form['1.63'] === 'si',
+  '1.65': form => form['1.63'] === 'si',
+
   /* La caja del parentesco que la lista no contempla. Sin esto, «Otro» sería una respuesta que no
      responde nada — y es un campo del mínimo legal. */
   '2.2b': form => form['2.2'] === 'Otro',
+  /* Y la del heredero, que pregunta lo mismo con la misma lista. Acá «Otro» sin caja sería peor
+     todavía: lo que queda sin nombre es la relación de quien cobra la indemnización.
+
+     MIRA SU PROPIA COPIA Y NO LA PRIMERA: el bloque se repite hasta tres veces y cada
+     beneficiario contesta su relación. Es la única condición de la ficha que lo necesita
+     —ver `enSuCopia`— y por eso es la única con dos argumentos. */
+  '2.32b': (form, suyo) => suyo('2.32') === 'Otro',
   /* ── EL SEGUNDO CONTACTO SE PIDE, NO SE OFRECE PUESTO ────────────────────────────────
      Estaba siempre a la vista, y eso es cinco campos vacíos que la mayoría no va a llenar
      colgando de una tarjeta que ya tiene siete. Un formulario largo no se alarga por si acaso:
@@ -404,9 +522,25 @@ const CONDICIONES = {
    entre tres campos, y un campo no puede saber qué lugar ocupa en una escalera. */
 const TERRITORIO = { '1.43': 'mayor', '1.44': 'menor', '1.45': 'local' }
 
+/* ── LEER UN CAMPO DE LA MISMA COPIA ──────────────────────────────────────
+   Una condición recibe la ficha entera y una clave base le devuelve SIEMPRE la primera copia:
+   `form['2.32']` es la relación del beneficiario uno, esté quien esté preguntando. Mientras
+   ninguna regla vivió dentro de un bloque repetido eso daba igual, y así estaba escrito acá
+   arriba —«lo que todavía no se puede es condicionar un campo al valor de OTRO campo de su
+   misma copia»—.
+
+   YA HACE FALTA. «¿Qué relación?» (2.32b) aparece cuando la relación de al lado dice «Otro», y
+   con tres beneficiarios la de al lado es la suya, no la del primero. Sin esto, marcar «Otro»
+   en el beneficiario dos abría la caja en los tres, o en ninguno.
+
+   ES UN SEGUNDO ARGUMENTO Y NO UN CAMBIO DE FORMA: las quince condiciones que ya existen siguen
+   recibiendo la ficha en el primero y no se enteran. La que necesita su copia pide `suyo`. */
+const enSuCopia = (form, instancia) => base =>
+  form[!instancia || instancia === 1 ? base : base + '#' + instancia]
+
 const seVe = (campo, form) => {
   const k = claveBase(campo.key)
-  return !CONDICIONES[k] || CONDICIONES[k](form)
+  return !CONDICIONES[k] || CONDICIONES[k](form, enSuCopia(form, campo.instancia))
 }
 
 /* ── Las listas que dependen de esta empresa ──────────────────────────────
@@ -456,8 +590,162 @@ const CUENTA = grupo => '__n_' + grupo
 export const cuantosHay = (form, grupo) => Math.max(1, Number(form[CUENTA(grupo)]) || 1)
 export const claveDeCuenta = CUENTA
 
+/* ── TODA LA GENTE QUE LA FICHA YA CONOCE ─────────────────────────────────
+   Los contactos de emergencia, el cónyuge, los hijos y los padres: todos los nombres de persona
+   que se escribieron en el paso, con la relación al lado. Alimenta el desplegable de «¿De
+   quién?» en la tarjeta de tutela, donde volver a teclear un nombre que está cuatro tarjetas
+   más arriba es trabajo que el formulario tiene que ahorrar — y de paso evita que la misma
+   persona entre dos veces con dos grafías.
+
+   EMPEZÓ SIENDO SÓLO LOS HIJOS Y SE QUEDÓ CORTO, por una razón de oficio y no de código: la
+   tutela aparece justamente cuando NO hay padres que ejerzan. Un hijo con discapacidad suele
+   estar bajo patria potestad, que no es tutela; lo habitual es ser tutor de un hermano al morir
+   los padres, o de un padre mayor. Ofreciendo sólo hijos, el atajo servía para el caso menos
+   frecuente y obligaba a teclear el más común.
+
+   Y ANTES DE ESO SE FILTRABA POR «¿PRESENTA DISCAPACIDAD?» (2.29). Parecía lo riguroso —se es
+   tutor DE una persona con discapacidad— y en pantalla era una lista que no traía a nadie:
+   quien no había contestado ese campo veía «Otra persona» sola y ninguna pista de qué le
+   faltaba. Un requisito que esconde la opción no enseña el requisito, sólo rompe la lista.
+
+   LA RELACIÓN VIAJA EN LA ETIQUETA Y NO EN EL VALOR. Lo que se guarda es el nombre limpio;
+   «Ana Rojas · hija» es lo que se lee. Si mañana el dato se cruza con otro sistema, se cruza un
+   nombre y no una frase.
+
+   CON NOMBRE PUESTO Y SIN REPETIDOS: una ficha recién abierta trae un bloque de hijo vacío —es
+   el mínimo, no una declaración— y ofrecer a alguien sin nombre es ofrecer a nadie. El segundo
+   contacto de emergencia sólo entra si está activado, porque su nombre puede seguir guardado de
+   cuando lo estuvo. */
+export function personasDeLaFicha(form) {
+  const limpio = k => String(form[k] || '').trim()
+  const fuera = []
+  const mete = (nombre, relacion) => {
+    if (!nombre) return
+    if (fuera.some(p => p.valor === nombre)) return
+    fuera.push({ valor: nombre, etiqueta: relacion ? `${nombre} · ${relacion}` : nombre })
+  }
+
+  /* CADA CONTACTO DE EMERGENCIA VIENE CON SU PARENTESCO DECLARADO (2.2), así que la relación no
+     se inventa: se copia de lo que contestaron. Y si allá eligieron «Otro», lo que vale es la
+     caja que se abrió al elegirlo. */
+  const parentesco = (kLista, kOtro) =>
+    (limpio(kLista) === 'Otro' ? limpio(kOtro) : limpio(kLista)) || 'contacto de emergencia'
+
+  mete(limpio('2.1'), parentesco('2.2', '2.2b'))
+  if (form['2.seg'] === 'si') mete(limpio('2.1-2'), parentesco('2.2-2', '2.2b-2'))
+
+  mete(limpio('2.9'), 'cónyuge')
+
+  for (let n = 1; n <= cuantosHay(form, 'hijos'); n += 1) {
+    mete(limpio(n === 1 ? '2.20' : '2.20#' + n), 'hijo(a)')
+  }
+
+  mete(limpio('2.47'), 'padre')
+  mete(limpio('2.48'), 'madre')
+
+  return fuera
+}
+
 /* La clave sin su número de copia: `2.20#3` es, para cualquier regla, `2.20`. */
 export const claveBase = clave => String(clave).split('#')[0]
+
+/* ── CUÁNTO SE LLEVA REPARTIDO ────────────────────────────────────────────
+   La nota de 2.35 dice «validación: la suma debe dar 100 %» desde que se portó el estudio, y no
+   había ni suma ni dónde enseñarla: con un solo beneficiario la regla no tenía contra qué
+   correr, y con tres habría que ir sumando de cabeza mientras se escribe.
+
+   DICE LO QUE FALTA Y NO SÓLO SI ESTÁ MAL. «70 % · falta 30 %» es accionable; «la suma no da
+   100» obliga a restar. Y cuando sobra lo dice igual, que es el error más fácil de cometer
+   escribiendo 50, 50 y 50.
+
+   NO REPARTE SOLO. Poner 33/33/34 de arranque sería exactamente lo que esta ficha evita en otros
+   seis sitios: un valor puesto es un valor que nadie mira, y acá lo que nadie miraría es cuánto
+   se lleva cada heredero. Se cuenta y se enseña; repartir lo hace quien firma.
+
+   DEVUELVE LAS TRES COSAS JUNTAS —qué dice, de qué color y cuánto llena la barra— porque son
+   una sola lectura del mismo número y calcularlas por separado es la manera de que un día
+   discrepen: la frase diciendo «repartido» y la barra a media asta.
+
+   VACÍO MIENTRAS NADIE ESCRIBIÓ NADA, para no abrir la tarjeta con un «0 % · falta 100 %»
+   regañando a quien todavía no llegó al campo. */
+export function repartoDe(form) {
+  const cuantos = cuantosHay(form, 'herederos')
+  let suma = 0
+  let escritos = 0
+  for (let n = 1; n <= cuantos; n += 1) {
+    const crudo = form[n === 1 ? '2.35' : '2.35#' + n]
+    if (crudo === undefined || String(crudo).trim() === '') continue
+    const num = Number(String(crudo).replace('%', '').replace(',', '.').trim())
+    if (!Number.isFinite(num)) continue
+    suma += num
+    escritos += 1
+  }
+  if (!escritos) return { texto: '' }
+
+  const dos = x => Math.round(x * 100) / 100
+  /* CON COMA, QUE ES COMO SE ESCRIBE UN DECIMAL ACÁ. El campo acepta «33,33» —y lo entiende, ver
+     el `replace` de arriba— así que devolverlo como «33.33» sería corregirle la ortografía a
+     quien lo escribió bien. Los enteros salen sin coma: «100», no «100,0». */
+  const cifra = x => String(dos(x)).replace('.', ',')
+  const total = dos(suma)
+  /* La barra se corta en 100 aunque el número se pase: una barra que rebosa su carril no dibuja
+     «te sobra 20», dibuja un fallo de maquetación. El exceso lo dice la frase, que para eso
+     está, y el color lo confirma. */
+  const llena = Math.max(0, Math.min(100, total))
+
+  if (total === 100) return { texto: '100 % · repartido', tono: 'ok', llena }
+  return total < 100
+    ? { texto: cifra(total) + ' % · falta ' + cifra(100 - total) + ' %', tono: 'falta', llena }
+    : { texto: cifra(total) + ' % · sobra ' + cifra(total - 100) + ' %', tono: 'sobra', llena }
+}
+
+/* ── QUITAR UNA COPIA QUE NO ES LA ÚLTIMA ─────────────────────────────────
+   Durante un tiempo sólo se podía quitar la última, y el motivo estaba escrito: las copias se
+   numeran por POSICIÓN —`2.20`, `2.20#2`, `2.20#3`— así que sacar la del medio obliga a correr
+   una posición todo lo que hay debajo, y un corrimiento callado sobre datos que alguien ya
+   escribió es la clase de ayuda que hace perder media hora.
+
+   LO QUE CAMBIÓ NO ES EL RIESGO SINO QUIÉN LO PIDE. Con el botón al final de la sección, quitar
+   era una operación sobre «el 2.º» —un número que hay que ir a contar— y el corrimiento pasaba
+   por detrás. Con la papelera en la cabecera de cada bloque, quien la pulsa está señalando ESE
+   hijo, con su nombre a la vista: el corrimiento deja de ser un efecto secundario y pasa a ser
+   exactamente lo que pidió, que los de abajo suban un lugar.
+
+   DEVUELVE UN PARCHE Y NO UNA FICHA ENTERA, que es lo que lo hace seguro de aplicar: el llamador
+   lo mezcla sobre el borrador guardado, y así no pisa las claves que la ficha completa tiene por
+   mezcla con los valores de arranque y el borrador todavía no.
+
+   Y LA ÚLTIMA COPIA SE VACÍA, no se borra la clave. Es lo que importa de verdad acá: si quedaran
+   los valores viejos colgando de `2.20#3`, volver a pulsar «Agregar otro hijo» resucitaría al
+   hijo que se acaba de quitar, con sus datos puestos.
+
+   OJO SI ALGÚN GRUPO LLEGA A TENER UN CAMPO DE ARCHIVO: vaciar la clave deja el binario huérfano
+   en IndexedDB. Hoy ninguno de los repetibles tiene uno —los nueve archivos de la ficha viven en
+   campos sueltos— y el día que pase, acá va el `borrarArchivo` correspondiente. */
+export function quitarCopia(form, campos, grupo, n) {
+  const cuantos = cuantosHay(form, grupo)
+  if (cuantos <= 1 || n < 1 || n > cuantos) return {}
+
+  /* Las claves base salen de TODAS las copias y no sólo de la primera, porque un campo
+     condicional puede estar escondido justo en ésa: «¿Qué relación?» sólo se dibuja en el
+     beneficiario que contestó «Otro». Mirando únicamente la copia uno, ese campo no entraba en
+     la lista y su valor se quedaba sin correr, colgado de la posición vieja.
+
+     El rótulo y el botón de agregar viajan con el grupo pero no guardan nada: no hay qué correr
+     en ellos. */
+  const bases = [...new Set(campos
+    .filter(c => c.grupo === grupo && c.instancia && c.tipo !== 'rotulo' && c.tipo !== 'repetir')
+    .map(c => claveBase(c.key)))]
+
+  const clave = (base, i) => (i === 1 ? base : base + '#' + i)
+  const parche = { [CUENTA(grupo)]: cuantos - 1 }
+
+  for (const base of bases) {
+    for (let i = n; i < cuantos; i += 1) parche[clave(base, i)] = form[clave(base, i + 1)] ?? ''
+    parche[clave(base, cuantos)] = ''
+  }
+  return parche
+}
 
 function expandirRepetibles(campos, form) {
   const fuera = []
@@ -513,7 +801,12 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
   return p.tarjetas.map(t => ({
     ...t,
     campos: t.campos
-      .filter(c => (c.tipo === 'rotulo' || entraEnNivel(c, nivel)) && seVe(c, form))
+      /* LA CONDICIÓN DE UN CAMPO REPETIBLE NO SE MIRA TODAVÍA. Acá cada descriptor es uno
+         solo —las copias las hace `expandirRepetibles` al final— así que preguntarle a un campo
+         del bloque si se ve sólo puede contestarse con los valores de la PRIMERA copia, y la
+         respuesta valdría para las tres. Marcar «Otro» en el beneficiario dos abría la caja en
+         los tres o en ninguno. Se deja pasar y se filtra abajo, ya con la copia sabida. */
+      .filter(c => (c.tipo === 'rotulo' || entraEnNivel(c, nivel)) && (c.repite || seVe(c, form)))
       .map(c => {
         const campo = { ...c }
 
@@ -562,7 +855,106 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
           else campo.ph = 'Elige antes el departamento'
         }
 
+        /* ── UNA PREGUNTA CON SU DETALLE ABIERTO EMPIEZA FILA ────────────────────────────
+           La tarjeta médica son seis preguntas de un tercio y, colgando de cada una, un detalle
+           que ocupa dos tercios. Cerradas, las seis caen de tres en tres y la rejilla se ve
+           ordenada. Abierta una, su detalle ya no cabe en lo que queda de la fila y salta a la
+           siguiente — donde a su derecha se sienta la pregunta que venga, que no tiene nada que
+           ver con él. Con dos o tres abiertas, cada detalle queda al lado de la pregunta
+           equivocada, y eso es lo que se ve como desorden: no el orden de los campos, sino que
+           la rejilla los emparejó mal.
+
+           ASÍ QUE LA PREGUNTA EMPUJA A LA COLUMNA 1 cuando su detalle está a la vista. Un tercio
+           más dos tercios son doce: la pareja se queda con la fila entera y nadie se les sienta
+           al lado. Cerrada, la pregunta no lleva la clase y vuelve a fluir de tres en tres.
+
+           Y SE LA QUEDA ABIERTA O CERRADA, que es el segundo arreglo y el que de verdad se nota
+           al usarlo. Puesta sólo con el detalle desplegado, contestar «No» se la quitaba y las
+           cinco preguntas de abajo volvían a empaquetarse de tres en tres: un clic en una
+           casilla y media tarjeta cambiaba de sitio. Lo que se movió no tenía nada que ver con
+           lo que se acababa de contestar, y eso obliga a volver a buscar dónde estaba uno.
+
+           CON LA FILA RESERVADA, EL DETALLE APARECE Y DESAPARECE EN EL HUECO QUE YA ESTABA a su
+           derecha, y ninguna otra pregunta se entera. Se paga en alto —seis renglones en vez de
+           dos con todo cerrado— y se cobra en que la tarjeta deja de bailar. En un formulario
+           que se contesta de arriba abajo eso vale más que el alto, y el hueco de la derecha no
+           es espacio muerto: es la columna donde van las respuestas.
+
+           EL CAMPO `detalle` LO DICE EL DESCRIPTOR y no se adivina del nombre de la clave. Que
+           «1.56b» cuelgue de «1.56» es una convención de nombres, no un dato, y una regla de
+           maquetación que dependa de cómo se llamó un campo se rompe el día que alguien lo
+           llame distinto. */
+        if (c.detalle) campo.col = (campo.col || 'c-med') + ' c-fila'
+
+        /* ── LO QUE APARECE, SE VE APARECER ──────────────────────────────────────────────
+           Un campo condicional entra y sale del formulario de golpe: donde no había nada hay
+           de pronto una caja con su rótulo, y el ojo lo registra como un parpadeo —algo cambió
+           y no se sabe qué—. Ciento sesenta milisegundos de entrada convierten el parpadeo en
+           un gesto: se ve de dónde salió y se entiende que lo abrió la respuesta de al lado.
+
+           VA POR CONDICIÓN Y NO POR CAMPO. Se la llevan los veintitantos que aparecen y
+           desaparecen —los cuatro detalles médicos, el tipo y grado, el proveedor del seguro,
+           la extensión del carnet, «¿qué documento?», «¿qué parentesco?»— porque todos tienen
+           el mismo problema y merecen el mismo trato. Marcarlos uno por uno sería una lista
+           que se olvida de actualizar en cuanto alguien escriba la condición veinticuatro.
+
+           NO HAY ANIMACIÓN DE SALIDA, y no es un descuido: cuando la respuesta pasa a «No» el
+           campo deja de existir en el acto y no queda nada a lo que animar. Se podría retener
+           el nodo para despedirlo, y no vale la pena — irse rápido es lo correcto para algo
+           que se acaba de declarar que sobra. */
+        if (CONDICIONES[claveBase(c.key)]) campo.col = (campo.col || 'c-med') + ' c-aparece'
+
+        /* ── «¿DE QUIÉN?» SE LLENA CON LO QUE YA HAY ESCRITO EN LA FICHA ─────────────────
+           Es el primer desplegable que no sale ni de un catálogo fijo ni de la organización,
+           sino del propio formulario: los hijos que se declararon con discapacidad. Por eso se
+           arma acá, donde hay `form` a mano, y no en el descriptor, que se escribe una vez y no
+           sabe nada de lo que alguien esté tecleando.
+
+           Y ES DESPLEGABLE SIEMPRE, TENGA CANDIDATOS O NO. Primero se hizo al revés —lista con
+           hijos, caja de texto sin ellos— por la regla que sigue la provincia: un desplegable
+           vacío promete opciones que no existen. No es el mismo caso y la diferencia importa.
+           Aquel se abre sin NADA; éste nunca está vacío, porque «Otra persona» siempre está y
+           es una respuesta de verdad, no un relleno.
+
+           LO QUE SÍ SERÍA MALO ES QUE EL CONTROL CAMBIARA DE FORMA. Quien marca la discapacidad
+           de un hijo dos tarjetas más arriba vería este campo convertirse de caja en
+           desplegable sin haberlo tocado, y al revés al desmarcarla — con lo que hubiera escrito
+           dentro quedándose sin sitio. Un campo que muta según algo que pasó en otra pantalla es
+           más desconcertante que una lista de una sola opción. */
+        if (c.key === '1.62b') {
+          const gente = personasDeLaFicha(form)
+          campo.tipo = 'lista'
+          campo.opciones = [...gente, 'Otra persona']
+          /* SIN NADIE ESCRITO TODAVÍA, EL DISPARADOR LO DICE en vez de invitar a elegir de una
+             lista que sólo tiene la salida. «Elige una opción» delante de un desplegable con un
+             solo renglón hace abrirlo para descubrir que no había nada — y deja sin contestar
+             la pregunta de por qué: no es que falle, es que arriba no hay ningún nombre puesto.
+
+             LA OPCIÓN «OTRA PERSONA» SIGUE AHÍ, así que esto no bloquea nada: quien sea tutor de
+             alguien que no está en la ficha lo elige y escribe el nombre, sin haber tenido que
+             registrar a nadie antes. */
+          if (!gente.length) {
+            campo.ph = 'Aún no hay nadie registrado'
+            /* Y LA MISMA NOTICIA DENTRO DE LA LISTA, que es donde se va a buscar. El disparador
+               la da sin abrir nada, y aun así hay que decirla dentro: quien abre el desplegable
+               ya no está leyendo el disparador, está mirando lo que hay. Las dos no son la misma
+               frase repetida — ésta además dice qué hacer, que es lo que falta cuando descubres
+               que la lista no trae a quien buscabas. */
+            campo.notaLista = 'Aún no hay nadie registrado en el paso. Elige «Otra persona» y escribe el nombre.'
+          }
+        }
+
         if (DERIVADOS[c.key]) campo.deducido = DERIVADOS[c.key](form) || ''
+
+        /* EL TOTAL REPARTIDO NO ES UN DATO CUALQUIERA: es el único calculado de la ficha que
+           además dice si está BIEN. Los otros cuatro informan —la fecha de la Caja, el fin del
+           periodo de prueba—; éste juzga. Por eso viaja con tono y con barra, que es lo que
+           `emp-campo-fijo` sabe dibujar cuando se los dan, y sigue siendo un campo deducido
+           corriente para todo lo demás. */
+        if (c.key === '2.35t') {
+          const r = repartoDe(form)
+          if (r.tono) { campo.tono = r.tono; campo.llena = r.llena }
+        }
 
         /* LA FOTO SE SUBE COMO UNA FOTO Y NO COMO UN ADJUNTO. Es el único de los nueve archivos
            de la ficha que hay que MIRAR para saber si está bien: los otros ocho son papeles y de
@@ -610,7 +1002,10 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
       }),
   /* UN ROTULO SUELTO NO ES UNA SECCIÓN. Recortando por nivel puede quedar una tarjeta con solo
      los encabezados de sus bloques y ningún campo debajo: eso se ve como una pantalla rota. */
-  })).map(t => ({ ...t, campos: sinRotulosHuerfanos(expandirRepetibles(t.campos, form)) }))
+  /* Y ACÁ LA SEGUNDA PASADA, la que sí puede: después de expandir, cada copia lleva su
+     `instancia` y `seVe` le pasa a la condición un lector de SU copia. Sólo se vuelve a
+     preguntar por lo repetible; lo demás ya contestó arriba y no cambió. */
+  })).map(t => ({ ...t, campos: sinRotulosHuerfanos(expandirRepetibles(t.campos, form).filter(c => !c.repite || seVe(c, form))) }))
     .filter(t => t.campos.some(c => c.tipo !== 'rotulo'))
 }
 

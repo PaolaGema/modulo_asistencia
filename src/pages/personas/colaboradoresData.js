@@ -239,7 +239,16 @@ export const colaboradoresData = [
     ficha: {
       // No cambian nunca
       '1.1': 'María', '1.2': 'Fernanda', '1.4': 'Rojas', '1.5': 'Vargas',
-      '1.10': 'CI', '1.11': '8452119', '1.12': 'SC',
+      /* EL TIPO DE DOCUMENTO SE ESCRIBE COMO LO DICE HOY SU CATÁLOGO. Acá decía «CI», que era
+         la opción de entonces, y el catálogo pasó a llamarla «Documento nacional de identidad»
+         —la sigla traía dentro que era boliviana y el producto se vende a varios países—. Un
+         valor que ya no está en la lista no se dibuja: el desplegable volvía vacío y el
+         reingreso, que había copiado el dato, parecía no haberlo traído.
+
+         Y VA CON PAÍS EMISOR. La extensión y el complemento SEGIP sólo se enseñan si el
+         documento es nacional Y lo emitió Bolivia; sin 1.14 puesto, el «SC» que sí se copiaba
+         no tenía dónde aparecer. */
+      '1.10': 'Documento nacional de identidad', '1.11': '8452119', '1.12': 'SC', '1.14': 'Bolivia',
       '1.21': '1991-07-14', '1.22': 'Santa Cruz de la Sierra', '1.23': 'Bolivia',
       '1.24': 'si', '1.25': 'Bolivia',
       // Los números de por vida: los que hay que ir a buscar a otra oficina si se pierden
@@ -253,9 +262,20 @@ export const colaboradoresData = [
       '2.1': 'Ernesto Rojas Saucedo', '2.2': 'Padre', '2.3': '+591 700 33 118',
       '3.89': 'Banco Nacional de Bolivia', '3.90': 'Caja de ahorro',
       '3.91': '1500-4432-19', '3.93': 'BOB · Boliviano',
+
+      /* LO QUE PODÍA HACER EN EL SISTEMA, que es lo que la tarjeta de reingreso pregunta y no
+         tenía con qué contestar. «¿Los mismos permisos que tenía?» enseñaba «Colaborador» —el
+         `rol` del directorio— y ahí se acababa: un nombre de paquete no dice qué hay dentro, y
+         quien aprueba el reingreso puede no ser quien configuró ese rol.
+
+         EL INGRESO EN «NO» PORQUE SE FUE EN 2023. Un ex-colaborador con el acceso todavía
+         habilitado es un hallazgo de auditoría, no un detalle de la ficha: el dato tiene que
+         llegar al reingreso diciendo justamente eso. */
+      '7.5': 'no', '7.6': 'Colaborador',
+      '7.11': 'Autogestión de vacaciones, boletas y datos personales',
     } },
   { id: 61, name: 'Luis Alberto Mamani Quispe', email: 'la.mamani@farmavida.com.bo', depto: 'Operaciones', cargo: 'Auxiliar de Almacén', rol: 'Colaborador', ingreso: '18 Ene 2021', salida: '29 Feb 2024', motivoSalida: 'Fin de contrato a plazo fijo', documento: '6103884 LP', empresaGrupo: 'FarmaDistribución', status: 'desvinculado', registro: 100, onb: 'n-a', foto: 'm/24', initials: 'LM', color: '#0891b2',
-    ficha: { '1.1': 'Luis', '1.2': 'Alberto', '1.4': 'Mamani', '1.5': 'Quispe', '1.10': 'Cédula de identidad', '1.11': '6103884', '1.12': 'LP' } },
+    ficha: { '1.1': 'Luis', '1.2': 'Alberto', '1.4': 'Mamani', '1.5': 'Quispe', '1.10': 'Documento nacional de identidad', '1.11': '6103884', '1.12': 'LP', '1.14': 'Bolivia' } },
   { id: 62, name: 'Gabriela Ortiz Peña', email: 'g.ortiz@farmavida.com.bo', depto: 'Ventas', cargo: 'Ejecutiva Comercial', rol: 'Colaborador', ingreso: '07 Ago 2017', salida: '15 Dic 2020', motivoSalida: 'Renuncia voluntaria', documento: '9218455 CB', empresaGrupo: 'Laboratorios Vida', status: 'desvinculado', registro: 100, onb: 'n-a', foto: 'w/52', initials: 'GO', color: '#f97316',
-    ficha: { '1.1': 'Gabriela', '1.4': 'Ortiz', '1.5': 'Peña', '1.10': 'Cédula de identidad', '1.11': '9218455', '1.12': 'CB' } },
+    ficha: { '1.1': 'Gabriela', '1.4': 'Ortiz', '1.5': 'Peña', '1.10': 'Documento nacional de identidad', '1.11': '9218455', '1.12': 'CB', '1.14': 'Bolivia' } },
 ]

@@ -100,6 +100,45 @@ const TRAE_ARCHIVOS = [
   { k: '1.21b', confirmar: false, nombre: 'el certificado de nacimiento' },
 ]
 
+/* ── LA FOTO DEL DIRECTORIO TAMBIÉN ES UN DOCUMENTO SUYO ──────────────────
+   La tarjeta decía «No dejó ninguno subido» tres centímetros debajo de la cara de la persona,
+   que estaba ahí mismo, en el recuadro del registro recién traído. Las dos cosas eran ciertas
+   por separado y juntas se leen como un error: la frase miraba sólo `ficha['1.9']` y el retrato
+   sale de `foto`, que es el campo del DIRECTORIO.
+
+   NO ES UNA RAREZA DE LOS DATOS DE PRUEBA, es dónde vive hoy el retrato: el propio archivo del
+   directorio lo dice —«cuando SoulyHR aloje las fotos de verdad, esto pasa a ser la ruta del
+   archivo subido»—. Mientras tanto, quien reingresa tiene su foto en un sitio y su ficha en
+   otro, y para quien mira la pantalla es la misma foto.
+
+   SE GUARDA LA DIRECCIÓN Y NO UNA COPIA, y esto se probó al revés primero. Descargar el retrato
+   para volver a guardarlo bajo clave propia sería lo coherente con los otros cuatro archivos, y
+   no se puede: el servidor que aloja las fotos no autoriza leerlas desde otro origen, así que
+   `fetch` devuelve un error de red aunque un `<img>` dibuje esa misma imagen sin protestar. Es
+   CORS y no hay vuelta desde el navegador.
+
+   ASÍ QUE LA FICHA GUARDA DE DÓNDE SALE. `SubirArchivo` acepta `url` cuando no hay copia local,
+   y el recuadro la dibuja igual. Se pierde una cosa y conviene tenerla escrita: esta foto no es
+   independiente del registro viejo —si allá cambia la dirección, acá deja de verse—, mientras
+   que los otros cuatro archivos sí se duplican de verdad. El día que las fotos se alojen en
+   SoulyHR esto pasa a ser una copia como las demás y el resto del código no se entera. */
+const retratoDelDirectorio = persona => {
+  const url = fotoDe(persona)
+  return url
+    ? { url, nombre: 'Fotografía de su registro anterior', tipo: 'image/jpeg', origen: 'Traída de su registro anterior' }
+    : null
+}
+
+/* QUÉ ARCHIVOS TIENE ESTE REGISTRO PARA DAR. Una sola cuenta, porque son dos cosas que no
+   pueden discrepar: la frase que los ofrece y el efecto que los copia. Si la ficha ya trae una
+   fotografía subida manda ésa; el retrato del directorio es el respaldo, no un sexto archivo. */
+const archivosDe = persona => {
+  const ficha = persona?.ficha || {}
+  const guardados = TRAE_ARCHIVOS.filter(a => ficha[a.k]?.clave)
+  if (ficha['1.9']?.clave || !persona?.foto) return guardados
+  return [{ k: '1.9', confirmar: true, nombre: 'su fotografía', delDirectorio: true }, ...guardados]
+}
+
 /* ── DECIR QUÉ SE ESTÁ OFRECIENDO, QUE ES LO QUE FALTABA ──────────────────
    Las tres preguntas de abajo pedían decidir a ciegas: «¿le damos los mismos permisos?» sin decir
    cuáles tenía, «¿su antigüedad?» sin decir cuánta, «¿sus documentos?» sin decir si hay alguno.
@@ -202,16 +241,30 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
      que sí se queda esperando algo que nunca llega. */
   const ofrece = useMemo(() => {
     const ficha = traido?.ficha || {}
-    const archivos = TRAE_ARCHIVOS.filter(a => ficha[a.k]?.clave)
-    const rol = ficha['7.6'] || traido?.rol
-    const acceso = ficha['7.5']
+    const archivos = archivosDe(traido)
+
+    /* ── «LOS MISMOS PERMISOS QUE TENÍA» NO SE CONTESTA CON UN NOMBRE DE ROL ──
+       Decía «Colaborador» y nada más, y eso es la etiqueta del paquete, no lo que hay dentro:
+       quien contesta sigue sin saber a qué le está diciendo que sí. Un rol es un nombre que
+       cada empresa usa a su manera, y quien aprueba este reingreso puede no ser quien lo
+       configuró.
+
+       ASÍ QUE SE ENSEÑA LO QUE EL REGISTRO SEPA: el rol, los alcances habilitados (7.11), a qué
+       otras empresas del grupo llegaba (7.8) y si el ingreso quedó deshabilitado al salir (7.5).
+       Lo que no esté no se inventa ni deja un hueco: se cae de la frase, que es la misma regla
+       que ya siguen las otras dos preguntas. */
+    const permisos = [
+      ficha['7.6'] || traido?.rol,
+      ficha['7.11'],
+      ficha['7.8'] && 'acceso a ' + ficha['7.8'],
+      ficha['7.5'] === 'no' && 'con el ingreso al sistema deshabilitado',
+    ].filter(Boolean)
+
     return {
       archivos: archivos.length
         ? `${archivos.length} ${archivos.length === 1 ? 'archivo' : 'archivos'}: ${archivos.map(a => a.nombre).join(', ')}`
         : null,
-      permisos: rol
-        ? `${rol}${acceso === 'no' ? ', con el ingreso al sistema deshabilitado' : ''}`
-        : null,
+      permisos: permisos.length ? permisos.join(' · ') : null,
       antiguedad: duracion(traido?.ingreso, traido?.salida),
     }
   }, [traido])
@@ -222,7 +275,17 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
     const ficha = traido?.ficha || {}
 
     if (form['0.4'] === 'si' && traido && !copiasArchivo.current.length) {
-      Promise.all(TRAE_ARCHIVOS.map(async ({ k, confirmar }) => {
+      Promise.all(archivosDe(traido).map(async ({ k, confirmar, delDirectorio }) => {
+        /* EL RETRATO NO SE COPIA, SE APUNTA. No hay binario que duplicar: lo que la ficha se
+           lleva es la dirección de la foto del directorio, así que entra sin clave y sin pasar
+           por IndexedDB. Los otros cuatro sí existen ahí y se duplican de verdad. */
+        if (delDirectorio) {
+          const retrato = retratoDelDirectorio(traido)
+          if (!retrato || !vivo) return null
+          set(k, retrato)
+          copiasArchivo.current.push({ k, clave: null })
+          return confirmar ? k : null
+        }
         const guardado = ficha[k]
         if (!guardado?.clave) return null
         const clave = await copiarArchivo(guardado.clave)
@@ -238,7 +301,8 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
     }
 
     if (form['0.4'] === 'no' && copiasArchivo.current.length) {
-      for (const { k, clave } of copiasArchivo.current) { set(k, null); borrarArchivo(clave) }
+      /* Sin clave no hay nada que borrar: el retrato heredado es una dirección, no una copia. */
+      for (const { k, clave } of copiasArchivo.current) { set(k, null); if (clave) borrarArchivo(clave) }
       copiasArchivo.current = []
     }
 

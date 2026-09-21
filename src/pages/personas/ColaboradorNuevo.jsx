@@ -6,7 +6,7 @@ import { useLocalStorage } from '../../hooks/useLocalStorage'
 import { ocupanteDe, TIPOS_CARGO } from '../../data/organigramaData'
 import { esVigente } from './colaboradoresData'
 import {
-  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, documentoDe, faltaLegal, faltaParaCrear,
+  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, documentoDe, faltaParaCrear,
   fechaCorta, inicialesDe, nombreDe, progresoDe, progresoPorPaso, tarjetasDe, tarjetasTodas,
 } from '../../data/fichaColaborador'
 import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
@@ -87,6 +87,12 @@ export default function ColaboradorNuevo() {
      cada campo: puesto en el campo habría que acordarse en los 254. */
   const set = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
+  /* VARIAS CLAVES DE UNA VEZ, para lo que no es escribir en un campo. Hoy lo usa una sola cosa
+     —quitar un hijo del medio, que hace subir un lugar a todos los de abajo— y con `set` en
+     bucle serían quince renders encadenados para un clic. Va sobre `prev` y no sobre `form`:
+     el borrador es lo que se guarda, y la mezcla con los valores de arranque se rehace sola. */
+  const aplicar = parche => setForm(prev => ({ ...prev, ...parche }))
+
   /* LO QUE EL ESTUDIO NO PUEDE SABER: esta empresa.
      Los 249 campos vienen con catálogos de ejemplo para todo lo que sale de la estructura
      —sucursales, unidades, cargos, jefes—. Acá se reemplazan por los de verdad, los que el
@@ -156,21 +162,6 @@ export default function ColaboradorNuevo() {
   const nivel = NIVELES.some(n => n.key === pedidoNivel) ? pedidoNivel : 'Completo'
 
   const progreso = useMemo(() => progresoDe(form, ctx, nivel), [form, ctx, nivel])
-  const legalPendiente = useMemo(() => faltaLegal(form, ctx), [form, ctx])
-
-  /* CUÁNTOS CAMPOS ESTÁ ESCONDIENDO EL NIVEL, que hasta ahora no lo decía nadie.
-     El nivel saca campos de la pantalla en silencio: bajás a «Mínimo legal» y la tarjeta del
-     nombre pasa de nueve campos a cuatro sin una palabra. Quien no sabe que el interruptor
-     existe —o se olvidó de que lo tocó— no ve un filtro, ve campos que desaparecieron, y lo
-     primero que piensa es que algo se rompió. Pasó en la primera demo.
-
-     SE CUENTA CONTRA «COMPLETO» porque Mínimo ⊂ Operativo ⊂ Completo: lo escondido es siempre
-     lo que hay de más en el nivel de arriba del todo. En Completo da cero y la frase no sale. */
-  const ocultosPorNivel = useMemo(
-    () => progresoDe(form, ctx, 'Completo').total - progreso.total,
-    [form, ctx, progreso.total],
-  )
-  const nivelLabel = (NIVELES.find(n => n.key === nivel) || {}).label || nivel
   /* La cinta se cuenta sobre el nivel que se está mirando, no sobre el mínimo: es el mapa de lo
      que hay en pantalla. Bajar a «Mínimo legal» rellena los segmentos de golpe, y está bien que
      así sea —son menos campos los que se piden— porque es exactamente lo que el nivel promete. */
@@ -377,81 +368,56 @@ export default function ColaboradorNuevo() {
 
   return (
     <div className="content-scroll">
-      {/* ── LA BARRA DE ARRIBA ──
-          DOS COSAS EN UNA FILA: a la izquierda de dónde venís, a la derecha cuánto falta del
-          mínimo legal. La miga ocupa doscientos píxeles y dejaba el resto en blanco; la cuenta
-          lo ocupa sin pedir una fila propia.
+      {/* ── LA CABECERA ──
+          UNA LÍNEA Y NADA MÁS. Acá hubo, por orden: un «← Colaboradores» con un <h1> debajo y
+          un párrafo de veinticinco palabras; después una tarjeta de identidad con foto, nombre,
+          paso y dos cuentas de campos; después un chip que prometía el autoguardado. Se fueron
+          los tres, y cada uno por el mismo motivo: con la ficha recién abierta no decían nada
+          que no estuviera ya en pantalla. El paso lo enseña el riel encendido y otra vez la
+          cabecera del paso; las cuentas las enseña cada acordeón en su cabecera; la foto era un
+          guión dentro de un círculo; y el chip anunciaba una promesa que nadie había puesto en
+          duda.
 
-          Acá estuvieron también los dos interruptores del prototipo, en una banda oscura. Se
-          mudaron a la barra de la aplicación, que tenía 56 px de alto con el medio vacío: ahí
-          no le cuestan un píxel al formulario, que es a lo que se entra a esta pantalla. */}
-      <div className="cn-tope">
-        {/* ── LA CABECERA ──
-            UNA LÍNEA Y NADA MÁS. Acá hubo, por orden: un «← Colaboradores» con un <h1> debajo y
-            un párrafo de veinticinco palabras; después una tarjeta de identidad con foto, nombre,
-            paso y dos cuentas de campos; después un chip que prometía el autoguardado. Se fueron
-            los tres, y cada uno por el mismo motivo: con la ficha recién abierta no decían nada
-            que no estuviera ya en pantalla. El paso lo enseña el riel encendido y otra vez la
-            cabecera del paso; las cuentas las enseña la franja; la foto era un guión dentro de un
-            círculo; y el chip anunciaba una promesa que nadie había puesto en duda.
+          Y AHORA QUEDA SOLA EN LA FILA. Al lado vivía la franja del mínimo legal —«Faltan 26
+          campos del mínimo legal · 7 de 221 cargados · Nivel Completo»—, retirada a pedido. Con
+          ella se fue el envoltorio `cn-tope`, que existía para poner las dos cosas en una fila y
+          con un solo hijo era lo mismo que no tenerlo. Si algún día vuelve una cuenta acá arriba,
+          vuelve también ese envoltorio; mientras tanto la miga cuelga directa del scroll.
 
-            LO QUE QUEDA ES LO ÚNICO QUE NO ESTABA EN NINGÚN OTRO LADO: de dónde venís y cómo
-            volver. El resto de la pantalla es el formulario, que es a lo que se vino.
+          LO QUE QUEDA ES LO ÚNICO QUE NO ESTABA EN NINGÚN OTRO LADO: de dónde venís y cómo
+          volver. El resto de la pantalla es el formulario, que es a lo que se vino.
 
-            EL <h1> ES EL ÚLTIMO TRAMO DE LA MIGA, que es lo que un último tramo siempre es: el
-            título de la página. Tenerlo además en un encabezado suelto era tenerlo dos veces, y
-            ése fue el argumento para elegir esta miga en primer lugar.
+          EL <h1> ES EL ÚLTIMO TRAMO DE LA MIGA, que es lo que un último tramo siempre es: el
+          título de la página. Tenerlo además en un encabezado suelto era tenerlo dos veces, y
+          ése fue el argumento para elegir esta miga en primer lugar.
 
-            EL <nav> ENVUELVE SÓLO LO QUE NAVEGA. El título no navega —es donde ya estás— así que
-            queda fuera del landmark, y el `display: contents` del nav deja que su botón se acomode
-            en la fila como si no hubiera envoltorio. Un <h1> dentro de una navegación se lee raro
-            en un lector de pantalla y acá no hace falta.
+          EL <nav> ENVUELVE SÓLO LO QUE NAVEGA. El título no navega —es donde ya estás— así que
+          queda fuera del landmark, y el `display: contents` del nav deja que su botón se acomode
+          en la fila como si no hubiera envoltorio. Un <h1> dentro de una navegación se lee raro
+          en un lector de pantalla y acá no hace falta.
 
-            OJO AL EXTENDERLA: hay cuatro pantallas de detalle más —sucursal, nodo, asignación— que
-            siguen con `det-back`. Mientras sean las únicas, ésta es la rara. Si la miga convence,
-            va a las cinco; si no, ésta vuelve al botón. Lo que no conviene es dejarlo mitad y
-            mitad por inercia. */}
-        <div className="cn-miga">
-          <nav aria-label="Dónde estás">
-            {/* LA FLECHA VA DENTRO DEL PRIMER TRAMO, no suelta a la izquierda de la miga. En esta
-                pantalla «volver» y «Colaboradores» son literalmente el mismo destino, así que dos
-                botones pegados harían lo mismo y habría que adivinar cuál es cuál.
+          OJO AL EXTENDERLA: hay cuatro pantallas de detalle más —sucursal, nodo, asignación— que
+          siguen con `det-back`. Mientras sean las únicas, ésta es la rara. Si la miga convence,
+          va a las cinco; si no, ésta vuelve al botón. Lo que no conviene es dejarlo mitad y
+          mitad por inercia. */}
+      <div className="cn-miga">
+        <nav aria-label="Dónde estás">
+          {/* LA FLECHA VA DENTRO DEL PRIMER TRAMO, no suelta a la izquierda de la miga. En esta
+              pantalla «volver» y «Colaboradores» son literalmente el mismo destino, así que dos
+              botones pegados harían lo mismo y habría que adivinar cuál es cuál.
 
-                Y LA MIGA SOLA NO SE VEÍA COMO UNA SALIDA: en gris apagado y a 12 px, «Colaboradores»
-                se lee como un rótulo que dice dónde estás parado, no como algo que se pulsa. La
-                flecha es lo que convierte la palabra en una puerta — y de paso agranda el blanco
-                donde hay que acertar con el ratón, que en un tramo de miga es siempre demasiado
-                chico. */}
-            <button type="button" onClick={volverALista}>
-              <ArrowLeft size={13} aria-hidden="true" />
-              Colaboradores
-            </button>
-          </nav>
-          <span className="cn-miga-sep" aria-hidden="true">›</span>
-          <h1 className="cn-miga-fin">Nuevo colaborador</h1>
-        </div>
-
-        {/* CUÁNTO FALTA DEL MÍNIMO LEGAL, siempre a la vista y contado sobre el mínimo aunque
-            se esté mirando otro nivel: es lo que decide si a esta persona se la puede declarar
-            ante el Ministerio, la Caja y la Gestora. No bloquea nada —muchos de esos datos
-            llegan semanas después del alta— pero no se deja de decir.
-
-            ESTA FRASE NO ES ANDAMIO, aunque compartió banda con él. Los dos interruptores del
-            prototipo se mudaron a la barra de la aplicación y se van a borrar cuando el equipo
-            elija; esto se queda, porque habla de la ficha y no de la comparación. Por eso dejó
-            la banda oscura y se puso al lado de la miga, en el tono del resto de la pantalla. */}
-        <p className="cn-cuenta">
-          {legalPendiente.length
-            ? `Faltan ${legalPendiente.length} campos del mínimo legal · ${progreso.puestos} de ${progreso.total} cargados`
-            : `Mínimo legal completo · ${progreso.puestos} de ${progreso.total} campos cargados`}
-          {/* «EN ESTE NIVEL» NO DECÍA CUÁL. La frase terminaba así y era exacta y perfectamente
-              inútil: nombraba un filtro sin nombrarlo y sin decir qué se estaba llevando. Ahora
-              dice las dos cosas, y la segunda sólo cuando hay algo que confesar. */}
-          <span className="cn-nivel">
-            {' · Nivel '}{nivelLabel}
-            {ocultosPorNivel > 0 && `, ${ocultosPorNivel} campos ocultos`}
-          </span>
-        </p>
+              Y LA MIGA SOLA NO SE VEÍA COMO UNA SALIDA: en gris apagado y a 12 px, «Colaboradores»
+              se lee como un rótulo que dice dónde estás parado, no como algo que se pulsa. La
+              flecha es lo que convierte la palabra en una puerta — y de paso agranda el blanco
+              donde hay que acertar con el ratón, que en un tramo de miga es siempre demasiado
+              chico. */}
+          <button type="button" onClick={volverALista}>
+            <ArrowLeft size={13} aria-hidden="true" />
+            Colaboradores
+          </button>
+        </nav>
+        <span className="cn-miga-sep" aria-hidden="true">›</span>
+        <h1 className="cn-miga-fin">Nuevo colaborador</h1>
       </div>
 
       {/* ── EL CUERPO ──
@@ -482,6 +448,7 @@ export default function ColaboradorNuevo() {
                       : null}
                     form={form}
                     set={set}
+                    aplicar={aplicar}
                     editando
                     prefijo="cn"
                     marcarFaltas={false}
