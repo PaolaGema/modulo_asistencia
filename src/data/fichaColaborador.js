@@ -268,6 +268,41 @@ const DERIVADOS = {
   /* Ingreso + 89 días. El periodo de prueba es de 90 y a los 90 + 1 nacen los beneficios
      sociales, así que la alerta tiene que llegar antes. */
   '3.37': form => fechaCorta(sumarDias(form['3.25'], 89)),
+
+  /* ── PERFIL PROFESIONAL ───────────────────────────────────────────────────
+     Los dos primeros viven dentro de un bloque que se repite, así que leen con `suyo`: la
+     fecha de SU experiencia y el vencimiento de SU certificación, no los de la primera. */
+
+  /* De la fecha de ingreso a la de salida, en años y meses. Sin las dos no hay cuenta: un
+     empleo anterior sin fecha de salida no es «hasta hoy», es un dato que falta. */
+  'pf.17': (form, suyo) => {
+    const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(suyo('pf.15') || '')
+    const b = /^(\d{4})-(\d{2})-(\d{2})$/.exec(suyo('pf.16') || '')
+    if (!a || !b) return ''
+    let meses = (+b[1] - +a[1]) * 12 + (+b[2] - +a[2]) - (+b[3] < +a[3] ? 1 : 0)
+    if (meses < 0) return 'La salida es anterior al ingreso'
+    const anios = Math.floor(meses / 12)
+    meses %= 12
+    const partes = [
+      anios && `${anios} año${anios === 1 ? '' : 's'}`,
+      meses && `${meses} mes${meses === 1 ? '' : 'es'}`,
+    ].filter(Boolean)
+    return partes.length ? partes.join(' y ') : 'Menos de un mes'
+  },
+  /* La misma lectura que el estado de una licencia (1.78), con el mismo aviso de 30 días. Una
+     certificación sin vencimiento es lo normal —un título no caduca— y se dice, en vez de
+     dejar la raya que parece un olvido. */
+  'pf.26': (form, suyo) => {
+    const vence = suyo('pf.25')
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(vence || '')) return suyo('pf.21') ? 'Sin vencimiento' : ''
+    if (vence < hoyISO()) return 'Vencida'
+    return vence <= sumarDias(hoyISO(), 30) ? 'Por vencer' : 'Vigente'
+  },
+  /* Historial y auditoría. Quién registra viene de la sesión, no del formulario: `ctx.usuario`
+     lo pone la pantalla, que es la única que sabe quién está sentado delante. */
+  'au.1': (form, suyo, ctx = {}) => ctx.usuario || '',
+  'au.2': () => hoyISO().split('-').reverse().join('/'),
+  'au.3': form => (form['0.1'] === 'si' ? 'Reingreso' : 'Alta nueva'),
 }
 
 /* ── Qué campos aparecen y cuándo ─────────────────────────────────────────
@@ -548,8 +583,75 @@ const seVe = (campo, form) => {
    unidades, cargos, jefes—. Acá se reemplazan por los de verdad: los que el usuario cargó en
    Organización. Es la única parte del estudio que NO se puede portar tal cual, porque no habla
    de la ley sino de esta empresa en particular. */
-const opcionesDeEstructura = (key, ctx) => {
-  const { puestos = [], unidades = [], sucursales = [], personas = [], empresa = null, grupo = [] } = ctx
+const opcionesDeEstructura = (key, ctx, form = {}) => {
+  const {
+    puestos = [], unidades = [], sucursales = [], personas = [], empresa = null, grupo = [],
+    negocios = [], regiones = [], centros = [],
+  } = ctx
+
+  /* ── UN SELECTOR SE ENCADENA AL DE ARRIBA ─────────────────────────────────
+     Era la promesa escrita en la nota del campo que se acaba de retirar —«al elegir, solo deben
+     habilitarse los cargos que le pertenecen»— y ninguna línea la cumplía: los nueve
+     desplegables ofrecían el árbol entero cada uno, así que se podía elegir una unidad de La Paz
+     y un centro de trabajo de Santa Cruz sin que nada chistara.
+
+     SE FILTRA POR LA RESPUESTA MÁS ESPECÍFICA QUE YA HAYA, no por todas: quien contestó región y
+     sucursal quiere los centros de esa sucursal, y la región ya no aporta nada. Las claves llegan
+     de la más general a la más concreta y se toma la última contestada.
+
+     SI NADIE CONTESTÓ ARRIBA, NO SE FILTRA. Rellenar de abajo hacia arriba es legítimo —el papel
+     que se tiene delante dice el cargo y no el área— y un desplegable vacío hasta contestar otra
+     cosa obliga a adivinar cuál. */
+  const bajoDe = (lista, ...claves) => {
+    const padre = claves.map(k => form[k]).filter(Boolean).pop()
+    if (!padre) return lista
+    return lista.filter(o => o.ancestros?.includes(padre))
+  }
+
+  /* ── Y LAS DOS CADENAS SE CRUZAN EN EL LUGAR ──────────────────────────────
+     Región → sucursal → centro es una escalera y unidad de negocio → unidad → cargo es otra: una
+     unidad no cuelga de una sucursal. Pero sus sillas sí están en alguna, así que el lugar que ya
+     se contestó recorta las unidades y los cargos a los que tienen gente ahí.
+
+     EN LOS DOS SENTIDOS. Quien eligió «Santa Cruz» quiere también las sillas de sus centros —el
+     lugar elegido está en los `lugares` de la silla—; quien eligió el centro «Planta Norte» quiere
+     también las sillas declaradas en su sucursal a secas —la sede de la silla está encima del
+     centro elegido—. Una opción sin `lugares` vale para toda la empresa y pasa siempre. */
+  const lugarElegido = () => {
+    const clave = ['3.7', '3.8', '3.10'].filter(k => form[k]).pop()
+    if (!clave) return null
+    const fuente = { '3.7': regiones, '3.8': sucursales, '3.10': centros }[clave]
+    return fuente.find(o => o.valor === form[clave]) || { valor: form[clave] }
+  }
+  const enLugar = lista => {
+    const elegido = lugarElegido()
+    if (!elegido) return lista
+    const lugar = elegido.valor
+    const encima = elegido.ancestros || []
+    return lista.filter(o => !o.lugares || o.lugares.includes(lugar)
+      || o.sedes?.some(s => encima.includes(s)))
+  }
+
+  /* ── EL NEGOCIO, SÓLO CUANDO HAY CONEXIÓN ─────────────────────────────────
+     La unidad de negocio no es un peldaño de nadie: la DECLARAN los lugares y las unidades. Así
+     que el lugar elegido la recorta a las que tocan ese lugar —Santa Cruz es de Farmacias—, y si
+     el lugar no toca ninguna, no se recorta nada: ofrecer una lista vacía sería decir que ahí no
+     cabe nadie, cuando lo que pasa es que nadie lo declaró.
+
+     Y HACIA ABAJO, lo mismo: elegido el negocio, quedan las unidades y los cargos que le
+     pertenecen —por declaración, por sus sillas o porque cuelgan de él— y los transversales, que
+     no son de ninguno y por eso caben en todos. Antes se pedía colgar del negocio y nada colgaba:
+     elegir «Farmacias» dejaba la lista de unidades vacía. */
+  const deNegocio = lista => {
+    const n = form['3.3']
+    if (!n) return lista
+    return lista.filter(o => !o.negocios || o.negocios.includes(n) || o.ancestros?.includes(n))
+  }
+  const negociosDelLugar = () => {
+    const ns = lugarElegido()?.negocios
+    return ns?.length ? negocios.filter(o => ns.includes(o.valor)) : negocios
+  }
+
   switch (key) {
     /* DE QUÉ EMPRESA DEL GRUPO VIENE. Era una caja de texto libre porque el estudio no trae
        catálogo para esto —no puede: depende de cada empresa, no de la ley— y sin lista, tres
@@ -557,14 +659,91 @@ const opcionesDeEstructura = (key, ctx) => {
        `empresasGrupo`, igual que las sucursales salen de Organización. */
     case '0.2': return grupo.length ? grupo.map(e => e.nombre) : null
     case '3.2': return empresa?.nombre ? [empresa.nombre] : null
-    case '3.5': return unidades.length ? unidades : null
-    case '3.8': return sucursales.length ? sucursales : null
-    case '3.11': return puestos.length ? puestos : null
+    /* LOS OTROS PELDAÑOS DEL ÁRBOL, por la misma razón que las unidades: la unidad de
+       negocio, la región y el centro de trabajo son niveles del organigrama de ESTA empresa, y
+       el estudio solo puede traer ejemplos. Sin ninguno cargado se devuelve null y el campo se
+       queda con el catálogo de ejemplo, que es lo que ya hacían los otros cuatro. */
+    case '3.3': return negocios.length ? negociosDelLugar() : null
+    case '3.5': return unidades.length ? enLugar(deNegocio(unidades)) : null
+    case '3.7': return regiones.length ? regiones : null
+    case '3.8': return sucursales.length ? bajoDe(sucursales, '3.7') : null
+    case '3.10': return centros.length ? bajoDe(centros, '3.7', '3.8') : null
+    /* Con la unidad elegida manda la unidad, que es más concreta; sin ella, el negocio. */
+    case '3.11': return puestos.length
+      ? enLugar(form['3.5'] ? bajoDe(puestos, '3.5') : deNegocio(puestos)) : null
     // Supervisor, aprobadores y quien autorizó la contratación salen del directorio.
     case '3.13': case '3.15': case '3.16': case '3.16b': case '3.39':
       return personas.length ? personas : null
     default: return null
   }
+}
+
+/* ── DECIR POR QUÉ UNA LISTA VIENE CORTA ─────────────────────────────────
+   El filtro encadenado tiene un costo: elegida una sucursal, la lista de centros puede quedar
+   vacía —esa sucursal no tiene ninguno— y el campo se ve igual que uno roto. Quien armó la
+   estructura lo entiende; quien da de alta a alguien no tiene por qué saber que la lista depende
+   de lo de arriba.
+
+   ASÍ QUE LA LISTA LO DICE, en dos sitios según el caso:
+     · VACÍA: el propio campo lo dice sin abrirlo —«No hay centros de trabajo en Sucursal
+       Sopocachi»— y al abrirlo, qué hacer. Si el campo es opcional, que puede quedar vacío; si es
+       obligatorio, dónde se arregla, porque ahí sí está trabado.
+     · RECORTADA: al abrirla, una línea arriba avisa que no es la lista entera. Es la que evita
+       buscar un cargo que existe y concluir que no.
+
+   SE COMPARA CONTRA LA LISTA SIN FILTRAR y no se deduce de qué campos están llenos: una sucursal
+   elegida que no recorta nada —la Casa Matriz, que no es de ningún negocio— no tiene nada que
+   explicar, y un aviso que aparece siempre se deja de leer. */
+const QUE_SE_LISTA = {
+  '3.3': 'unidades de negocio',
+  '3.5': 'unidades organizacionales',
+  '3.8': 'sucursales',
+  '3.10': 'centros de trabajo',
+  '3.11': 'cargos',
+}
+/* Qué campos de arriba pueden recortar a cada uno, separados por eje: el del lugar se lee «en» y
+   el de la organización «de». De cada eje cuenta el más concreto contestado, que es el que filtró. */
+const RECORTAN = {
+  '3.3': { lugar: ['3.7', '3.8', '3.10'], org: [] },
+  '3.5': { lugar: ['3.7', '3.8', '3.10'], org: ['3.3'] },
+  '3.8': { lugar: ['3.7'], org: [] },
+  '3.10': { lugar: ['3.7', '3.8'], org: [] },
+  '3.11': { lugar: ['3.7', '3.8', '3.10'], org: ['3.3', '3.5'] },
+}
+
+function avisoDeRecorte(key, ops, ctx, form) {
+  const que = QUE_SE_LISTA[key]
+  if (!que) return null
+  const entera = opcionesDeEstructura(key, ctx, {}) || []
+  if (ops.length >= entera.length) return null
+
+  const ultimo = claves => claves.map(k => form[k]).filter(Boolean).pop()
+  const lugar = ultimo(RECORTAN[key].lugar)
+  const org = ultimo(RECORTAN[key].org)
+  const cuales = [org && `de ${org}`, lugar && `en ${lugar}`].filter(Boolean).join(' ')
+
+  /* UNA SUCURSAL SIN CENTROS NO ESTÁ INCOMPLETA: es lo normal. El centro es para la sucursal que
+     tiene varios sitios dentro —una oficina y un almacén—; en la mayoría la sucursal misma es
+     donde se trabaja. «No hay centros en Sopocachi» sonaba a que faltaba cargar algo, así que acá
+     se dice lo que de verdad pasa. Sólo con la sucursal elegida: con una región a secas, «trabaja
+     en la sucursal misma» no tendría sucursal a la que referirse. */
+  if (!ops.length && key === '3.10' && form['3.8'] && lugar === form['3.8']) {
+    return {
+      ph: `${lugar} no tiene centros de trabajo`,
+      notaLista: 'La persona trabaja en la sucursal misma: puede dejar este campo vacío.',
+    }
+  }
+
+  if (!ops.length) {
+    const campo = PASOS_PROPUESTA.flatMap(p => p.tarjetas).flatMap(t => t.campos).find(x => x.key === key)
+    return {
+      ph: `No hay ${que} ${cuales}`,
+      notaLista: campo?.requerido
+        ? `Es obligatorio: cambie lo elegido arriba, o complete la estructura en Organización › Estructura.`
+        : `No hay ${que} ${cuales}. Puede dejar este campo vacío.`,
+    }
+  }
+  return { notaLista: `Solo se muestran ${que} ${cuales}.` }
 }
 
 /* ── Las tarjetas de un paso ──────────────────────────────────────────────
@@ -762,6 +941,10 @@ function expandirRepetibles(campos, form) {
       for (const campo of bloque) {
         const copia = { ...campo, grupo, instancia: n, total: cuantos }
         if (n > 1) copia.key = campo.key + '#' + n
+        /* UN CALCULADO DENTRO DE UN BLOQUE SE CALCULA CON SU COPIA. `tarjetasDe` lo rellena antes
+           de repetir, con los valores de la primera, y sin esto la experiencia dos enseñaba el
+           tiempo trabajado de la uno. */
+        if (DERIVADOS[campo.key]) copia.deducido = DERIVADOS[campo.key](form, enSuCopia(form, n)) || ''
         /* EL TÍTULO SE NUMERA SÓLO CUANDO HAY MÁS DE UNO. Con un solo hijo, «Hijo 1» pregunta por
            el segundo sin decirlo; con tres, no numerarlos los vuelve indistinguibles. */
         if (campo.tipo === 'rotulo' && cuantos > 1) copia.label = (campo.singular || campo.label) + ' ' + n
@@ -810,8 +993,12 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
       .map(c => {
         const campo = { ...c }
 
-        const ops = opcionesDeEstructura(c.key, ctx)
-        if (ops) { campo.tipo = 'lista'; campo.opciones = ops }
+        const ops = opcionesDeEstructura(c.key, ctx, form)
+        if (ops) {
+          campo.tipo = 'lista'
+          campo.opciones = ops
+          Object.assign(campo, avisoDeRecorte(c.key, ops, ctx, form))
+        }
 
         /* ── LA PROVINCIA SE FILTRA POR SU DEPARTAMENTO ───────────────────────────────────
            Es el dolor que el estudio cita entre comillas —«la lista no se puede filtrar por
@@ -944,7 +1131,7 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
           }
         }
 
-        if (DERIVADOS[c.key]) campo.deducido = DERIVADOS[c.key](form) || ''
+        if (DERIVADOS[c.key]) campo.deducido = DERIVADOS[c.key](form, k => form[k], ctx) || ''
 
         /* EL TOTAL REPARTIDO NO ES UN DATO CUALQUIERA: es el único calculado de la ficha que
            además dice si está BIEN. Los otros cuatro informan —la fecha de la Caja, el fin del

@@ -147,7 +147,7 @@ export default function Desplegable({
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       if (!abierto) return abrir()
-      if (activo >= 0 && visibles[activo]) elegir(visibles[activo].valor)
+      if (activo >= 0 && visibles[activo] && !visibles[activo].agotada) elegir(visibles[activo].valor)
       return
     }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -208,13 +208,22 @@ export default function Desplegable({
 
           {visibles.map((o, i) => {
             const puesta = o.valor === valor
+            /* UNA OPCIÓN QUE SE VE PERO NO SE ELIGE, y el motivo al lado.
+               Un cargo cuyas sillas están todas ocupadas no puede desaparecer de la lista: quien
+               lo busca lo buscaría igual, no lo encontraría y no sabría si no existe, si se
+               escribe distinto o si el organigrama está mal. Enseñarlo apagado con «sin puestos
+               libres» contesta la pregunta en el sitio donde se hace. */
+            const agotada = !!o.agotada
             return (
               <button
                 key={o.valor}
                 type="button"
                 role="option"
                 aria-selected={puesta}
-                className={`pl-dropdown-item${puesta ? ' selected' : ''}`}
+                aria-disabled={agotada || undefined}
+                disabled={agotada}
+                title={agotada ? o.motivo : undefined}
+                className={`pl-dropdown-item${puesta ? ' selected' : ''}${agotada ? ' agotada' : ''}`}
                 /* El resaltado del teclado se pinta a mano: `:hover` no sabe nada de las
                    flechas, y sin esto no se ve por dónde va uno al bajar con el teclado.
 
@@ -232,7 +241,7 @@ export default function Desplegable({
                   ...(i === activo && !puesta ? { background: 'var(--surface-hover)' } : null),
                 }}
                 onMouseEnter={() => setActivo(i)}
-                onClick={() => elegir(o.valor)}
+                onClick={() => { if (!agotada) elegir(o.valor) }}
               >
                 {/* EL CODO VA DENTRO DE LA OPCIÓN, no de fondo: la sangría ya le reservó el hueco
                     a la izquierda del texto, así que el codo lo ocupa y no hace falta medir nada.
@@ -242,6 +251,7 @@ export default function Desplegable({
                 <span>
                   {o.etiqueta}
                   {escrito && o.pista && <span className="pl-dd-pista">en {o.pista}</span>}
+                  {agotada && o.motivo && <span className="pl-dd-pista">{o.motivo}</span>}
                 </span>
                 {puesta && <Check size={14} />}
               </button>

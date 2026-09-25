@@ -1623,6 +1623,15 @@ select.pl-input:focus {
 }
 .pl-dropdown-item.selected svg { color: var(--green); }
 
+/* UNA OPCIÓN QUE SE VE Y NO SE ELIGE: un cargo con todas sus sillas ocupadas. Se apaga pero no
+   se esconde —quien lo busca tiene que encontrarlo para saber por qué no puede— y por eso
+   conserva el tamaño y la sangría del resto: lo único que cambia es que no invita a hacer clic. */
+.pl-dropdown-item.agotada {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+.pl-dropdown-item.agotada:hover { background: transparent; color: var(--text-muted); }
+
 .pl-modal-footer {
   display: flex;
   gap: 10px;

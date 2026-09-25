@@ -2463,13 +2463,13 @@ export const PASOS_PROPUESTA = [
   {
     key: 'puesto',
     n: 3,
-    titulo: 'Puesto',
-    corto: 'Puesto',
+    titulo: 'Información Laboral',
+    corto: 'Laboral',
     pista: 'Dónde encaja en la estructura de la empresa',
     tarjetas: [
       {
         id: 'posicion',
-        titulo: 'Dónde encaja en la estructura',
+        titulo: 'Información organizacional',
         desc: 'De acá cuelga todo lo demás: sin estructura cargada, estos selectores vienen vacíos y el alta no se puede completar.',
         propuesta: false,
         incierto: false,
@@ -2496,12 +2496,56 @@ export const PASOS_PROPUESTA = [
             requerido: true
           },
           {
+            key: '3.7',
+            label: 'Región',
+            tipo: 'lista',
+            opciones: [
+              'Occidente',
+              'Oriente'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Peldaño del eje físico del organigrama. Identifica el departamento de trabajo.',
+            traza: 'Alimenta: AS, GP.'
+          },
+          {
+            key: '3.8',
+            label: 'Sucursal',
+            tipo: 'lista',
+            opciones: [
+              'TRABAJITO BOLIVIA',
+              'TRABAJITO SANTA CRUZ',
+              'TRABAJITO EL ALTO'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Peldaño del eje físico del organigrama, no del organizacional. ≠ sucursal regulatoria. Ver §5.3.3.',
+            traza: 'Alimenta: AS, ERP, GP.'
+          },
+          {
+            key: '3.10',
+            label: 'Centro de trabajo',
+            tipo: 'lista',
+            opciones: [
+              'Oficina Central',
+              'Planta Santa Cruz',
+              'Almacén El Alto'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El sitio concreto donde se trabaja y se marca asistencia. Absorbe a «Oficina» (3.9): oficina, planta, almacén o taller son clases de centro, no un peldaño aparte.',
+            traza: 'Alimenta: AS, GP.'
+          },
+          {
             key: '3.3',
             label: 'Unidad de negocio',
             tipo: 'lista',
             opciones: [
-              'Trabajito Bolivia',
-              'Trabajito Perú'
+              'Retail',
+              'Corporativo',
+              'Servicios'
             ],
             col: 'c-tercio',
             insignia: 'legal',
@@ -2509,20 +2553,6 @@ export const PASOS_PROPUESTA = [
             requerido: true,
             nota: 'Renombrar y consolidar: en el Salar \'unidad de negocio\' y \'jefatura\' son lo mismo.',
             traza: 'Alimenta: ERP, GP.'
-          },
-          {
-            key: '3.4',
-            label: 'Gerencia',
-            tipo: 'lista',
-            opciones: [
-              'Gerencia General',
-              'Gerencia de Operaciones',
-              'Gerencia Comercial'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Selectores encadenados — al elegir gerencia solo deben habilitarse los cargos que le pertenecen.',
-            traza: 'Alimenta: DE, GP.'
           },
           {
             key: '3.5',
@@ -2541,63 +2571,6 @@ export const PASOS_PROPUESTA = [
             requerido: true,
             nota: 'Renombrado desde *\'Área / Departamento\'*. Es el nombre del nivel en el organigrama y admite Área, Subárea, Departamento o Equipo según cómo cada empresa haya modelado su estructura.',
             traza: '✏ v1.2 (obs. #24). Alimenta: CC, DE, GP.'
-          },
-          {
-            key: '3.6',
-            label: 'División',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: '*\'No lo veo necesario\'* — mantener opcional o retirar por empresa.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '3.7',
-            label: 'Regional',
-            tipo: 'lista',
-            opciones: [
-              'Occidente',
-              'Oriente'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Identifica el departamento de trabajo.',
-            traza: 'Alimenta: AS, GP.'
-          },
-          {
-            key: '3.8',
-            label: 'Sucursal (organizacional)',
-            tipo: 'lista',
-            opciones: [
-              'TRABAJITO BOLIVIA',
-              'TRABAJITO SANTA CRUZ',
-              'TRABAJITO EL ALTO'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: '≠ sucursal regulatoria. Ver §5.3.3.',
-            traza: 'Alimenta: AS, ERP, GP.'
-          },
-          {
-            key: '3.9',
-            label: 'Oficina',
-            tipo: 'lista',
-            opciones: [
-              'Oficina central',
-              'Sucursal norte'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Detalle del centro de trabajo.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '3.10',
-            label: 'Ubicación física / Centro de trabajo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: AS, GP.'
           },
           {
             key: '3.11',
@@ -2630,6 +2603,21 @@ export const PASOS_PROPUESTA = [
             requerido: true,
             nota: 'Regla legal dura. Obrero de producción: aguinaldo y prima desde el primer mes. Administrativo: 3 meses y 1 día. Es atributo del puesto, no del contrato.',
             traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.42b',
+            label: 'Modalidad de trabajo',
+            tipo: 'lista',
+            opciones: [
+              'Presencial',
+              'Híbrido',
+              'Remoto'
+            ],
+            col: 'c-medio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Traído desde Condiciones de contratación (antes 3.20). Presencial · Híbrido · Remoto. Condiciona la marcación virtual (§5.3.5.B).',
+            traza: '✏ v1.2 (obs. #28). Alimenta: AS, GP.'
           }
         ]
       },
@@ -2773,16 +2761,270 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'Único lugar donde vive. Ya no se refleja en Contacto (1.41).',
             traza: '✏ v1.2 (obs. #9). Alimenta: GP.'
-          },
+          }
+        ]
+      }
+    ]
+  },
+  {
+    key: 'perfil',
+    n: 4,
+    titulo: 'Perfil profesional',
+    corto: 'Perfil',
+    pista: 'Su formación, su trayectoria y su desarrollo',
+    tarjetas: [
+      {
+        id: 'perfilProfesional',
+        titulo: 'Datos de perfil profesional',
+        desc: 'El perfil profesional y curricular del colaborador: qué estudió, dónde trabajó, qué acredita, qué idiomas y herramientas maneja y quién da fe de ello.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'pf.rotFormacion', label: 'Formación académica', singular: 'Formación', repite: 'formacion', tipo: 'rotulo', col: 'c-todo' },
           {
-            key: '3.24',
-            label: 'Estado del colaborador',
+            key: 'pf.1',
+            repite: 'formacion',
+            label: 'Nivel académico',
+            tipo: 'lista',
+            opciones: ['Bachiller', 'Técnico medio', 'Técnico superior', 'Licenciatura', 'Diplomado', 'Especialidad', 'Maestría', 'Doctorado'],
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'pf.2', repite: 'formacion', label: 'Título obtenido', col: 'c-tercio', nivel: 'Operativo', ph: 'Licenciado en Contaduría Pública' },
+          { key: 'pf.3', repite: 'formacion', label: 'Carrera / Especialidad', col: 'c-tercio', nivel: 'Operativo', ph: 'Contaduría Pública' },
+          { key: 'pf.4', repite: 'formacion', label: 'Institución educativa', col: 'c-tercio', nivel: 'Operativo' },
+          {
+            key: 'pf.5',
+            repite: 'formacion',
+            label: 'País',
+            tipo: 'lista',
+            opciones: [
+              'Bolivia',
+              'Argentina',
+              'Brasil',
+              'Chile',
+              'Colombia',
+              'Ecuador',
+              'Perú',
+              'Paraguay',
+              'Uruguay',
+              'Venezuela',
+              'España',
+              'EE.UU.',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'La misma lista de países que usan 1.25 y 1.14, para poder cruzar dónde estudió con dónde nació o reside.'
+          },
+          { key: 'pf.6', repite: 'formacion', label: 'Ciudad', col: 'c-tercio', nivel: 'Completo' },
+          {
+            key: 'pf.7',
+            repite: 'formacion',
+            label: 'Modalidad de estudio',
+            tipo: 'lista',
+            opciones: ['Presencial', 'Semipresencial', 'Virtual'],
+            col: 'c-tercio',
+            nivel: 'Completo'
+          },
+          { key: 'pf.8', repite: 'formacion', label: 'Fecha de inicio', html: 'date', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.9', repite: 'formacion', label: 'Fecha de finalización', html: 'date', col: 'c-tercio', nivel: 'Completo' },
+          {
+            key: 'pf.10',
+            repite: 'formacion',
+            label: 'Estado',
+            tipo: 'lista',
+            opciones: ['En curso', 'Finalizado', 'Abandonado'],
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          /* EL TÍTULO ANCLA SU BLOQUE, como el carnet y la licencia anclan los suyos: el nivel, el
+             título, la institución y las fechas se copian del papel, y el papel va a la izquierda
+             para tenerlo delante mientras se teclea. Cada formación es un bloque propio —la copia
+             empieza con su rótulo—, así que cada una ancla el suyo y no se pisan. */
+          {
+            key: 'pf.11',
+            repite: 'formacion',
+            label: 'Documento de respaldo',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            nivel: 'Completo',
+            nota: 'El título, el certificado de egreso o la constancia de estudios.'
+          },
+          { key: 'pf.masFormacion', tipo: 'repetir', grupo: 'formacion', max: 5, label: 'Agregar otra formación', col: 'c-todo', nivel: 'Operativo' },
+
+          { key: 'pf.rotExperiencia', label: 'Experiencia laboral', singular: 'Experiencia', repite: 'experiencia', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'pf.12', repite: 'experiencia', label: 'Empresa', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'pf.13', repite: 'experiencia', label: 'Cargo', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'pf.14', repite: 'experiencia', label: 'Área', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.15', repite: 'experiencia', label: 'Fecha de ingreso', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'pf.16', repite: 'experiencia', label: 'Fecha de salida', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          {
+            key: 'pf.17',
+            repite: 'experiencia',
+            label: 'Tiempo trabajado',
             deducido: '',
             insignia: 'se calcula',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Activo / Inactivo / En periodo de prueba / Retirado. Automático, no capturado. 59:29): el paso activo ↔ retirado es automático y conserva el histórico, lo que habilita el reingreso sin duplicar la persona.',
-            traza: '✏ v1.2 (00.'
+            nota: 'De la fecha de ingreso a la de salida, en años y meses.'
+          },
+          { key: 'pf.18', repite: 'experiencia', label: 'Funciones desempeñadas', tipo: 'texto', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.19', repite: 'experiencia', label: 'Motivo de salida', col: 'c-tercio', nivel: 'Completo' },
+          {
+            key: 'pf.20',
+            repite: 'experiencia',
+            label: '¿Referencia laboral disponible?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Si en esa empresa hay alguien a quien se le pueda pedir referencias suyas.'
+          },
+          { key: 'pf.masExperiencia', tipo: 'repetir', grupo: 'experiencia', max: 5, label: 'Agregar otra experiencia', col: 'c-todo', nivel: 'Operativo' },
+
+          { key: 'pf.rotCertificaciones', label: 'Certificaciones', singular: 'Certificación', repite: 'certificaciones', tipo: 'rotulo', col: 'c-todo', nota: 'Cursos y certificados que acreditan un conocimiento. Las licencias de la persona —conducir, manipulación de alimentos— van en «Licencias y certificaciones» del paso 1.' },
+          { key: 'pf.21', repite: 'certificaciones', label: 'Nombre de la certificación', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.22', repite: 'certificaciones', label: 'Institución emisora', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.23', repite: 'certificaciones', label: 'Número de certificado', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.24', repite: 'certificaciones', label: 'Fecha de emisión', html: 'date', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.25', repite: 'certificaciones', label: 'Fecha de vencimiento', html: 'date', col: 'c-tercio', nivel: 'Completo', nota: 'Déjela vacía si la certificación no vence.' },
+          {
+            key: 'pf.26',
+            repite: 'certificaciones',
+            label: 'Estado',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Sale de la fecha de vencimiento: vigente, por vencer (30 días antes) o vencida.'
+          },
+          {
+            key: 'pf.27',
+            repite: 'certificaciones',
+            label: 'Documento adjunto',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            nivel: 'Completo'
+          },
+          { key: 'pf.masCertificaciones', tipo: 'repetir', grupo: 'certificaciones', max: 5, label: 'Agregar otra certificación', col: 'c-todo', nivel: 'Completo' },
+
+          { key: 'pf.rotIdiomas', label: 'Idiomas', singular: 'Idioma', repite: 'idiomas', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: 'pf.28',
+            repite: 'idiomas',
+            label: 'Idioma',
+            tipo: 'lista',
+            opciones: ['Español', 'Quechua', 'Aymara', 'Guaraní', 'Inglés', 'Portugués', 'Francés', 'Alemán', 'Chino'],
+            col: 'c-tercio',
+            nivel: 'Completo'
+          },
+          {
+            key: 'pf.29',
+            repite: 'idiomas',
+            label: 'Nivel',
+            tipo: 'lista',
+            opciones: ['Básico', 'Intermedio', 'Avanzado', 'Nativo'],
+            col: 'c-tercio',
+            nivel: 'Completo'
+          },
+          { key: 'pf.30', repite: 'idiomas', label: 'Certificación del idioma', col: 'c-tercio', nivel: 'Completo', ph: 'TOEFL, Cambridge B2, DELF…' },
+          { key: 'pf.masIdiomas', tipo: 'repetir', grupo: 'idiomas', max: 5, label: 'Agregar otro idioma', col: 'c-todo', nivel: 'Completo' },
+
+          { key: 'pf.rotCompetencias', label: 'Competencias', singular: 'Competencia', repite: 'competencias', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: 'pf.31',
+            repite: 'competencias',
+            label: 'Competencia',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            ph: 'Trabajo en equipo',
+            nota: 'Una conducta con la que hace su trabajo: liderazgo, orientación a resultados, trabajo en equipo. Son las que después se miden en la evaluación de desempeño.'
+          },
+          { key: 'pf.masCompetencias', tipo: 'repetir', grupo: 'competencias', max: 10, label: 'Agregar otra competencia', col: 'c-todo', nivel: 'Completo' },
+
+          { key: 'pf.rotHerramientas', label: 'Herramientas y software', singular: 'Herramienta', repite: 'herramientas', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'pf.32', repite: 'herramientas', label: 'Herramienta', col: 'c-tercio', nivel: 'Completo', ph: 'Excel, SAP, AutoCAD, montacargas…' },
+          {
+            key: 'pf.33',
+            repite: 'herramientas',
+            label: 'Nivel de dominio',
+            tipo: 'lista',
+            opciones: ['Básico', 'Intermedio', 'Avanzado', 'Experto'],
+            col: 'c-tercio',
+            nivel: 'Completo'
+          },
+          { key: 'pf.34', repite: 'herramientas', label: 'Certificación', col: 'c-tercio', nivel: 'Completo', ph: 'Si la tiene, cuál' },
+          { key: 'pf.masHerramientas', tipo: 'repetir', grupo: 'herramientas', max: 10, label: 'Agregar otra herramienta', col: 'c-todo', nivel: 'Completo' },
+
+          { key: 'pf.rotReferencias', label: 'Referencias', singular: 'Referencia', repite: 'referencias', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'pf.35', repite: 'referencias', label: 'Nombre completo', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.36', repite: 'referencias', label: 'Empresa y cargo', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.37', repite: 'referencias', label: 'Teléfono', html: 'tel', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.masReferencias', tipo: 'repetir', grupo: 'referencias', max: 3, label: 'Agregar otra referencia', col: 'c-todo', nivel: 'Completo' }
+        ]
+      },
+      /* NO HAY TARJETA DE PERFIL DE CARGO, y la hubo. Pedía el cargo —que ya se elige en
+         Información Laboral—, el manual de funciones, las sinergias y la comunicación del puesto.
+         Los cuatro son del CARGO y no de la persona: son iguales para todos los que lo ocupan, y
+         pedirlos en cada ficha era cargar lo mismo diez veces y dejar que las diez copias
+         discrepen. Si se quieren, van en la definición del cargo, una vez. */
+      {
+        id: 'desarrollo',
+        titulo: 'Datos de desarrollo y capacitación del talento',
+        desc: 'Cómo entró, qué ha aprendido desde entonces, cómo le ha ido y hacia dónde puede crecer.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          {
+            key: 'pf.42',
+            label: 'Ruta de onboarding',
+            tipo: 'lista',
+            opciones: ['Sin ruta asignada', 'Ruta general', 'Ruta de área', 'Ruta de cargo'],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'La ruta de inducción que va a seguir al entrar.'
+          },
+          {
+            key: 'pf.43',
+            label: 'Estado del onboarding',
+            tipo: 'lista',
+            opciones: ['No iniciado', 'En curso', 'Completado'],
+            col: 'c-tercio',
+            nivel: 'Completo'
+          },
+
+          { key: 'pf.rotCapacitaciones', label: 'Capacitaciones', singular: 'Capacitación', repite: 'capacitaciones', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'pf.44', repite: 'capacitaciones', label: 'Nombre de la capacitación', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.45', repite: 'capacitaciones', label: 'Fecha', html: 'date', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.46', repite: 'capacitaciones', label: 'Horas', col: 'c-tercio', nivel: 'Completo', ph: '16' },
+          { key: 'pf.masCapacitaciones', tipo: 'repetir', grupo: 'capacitaciones', max: 10, label: 'Agregar otra capacitación', col: 'c-todo', nivel: 'Completo' },
+
+          { key: 'pf.rotEvaluaciones', label: 'Evaluaciones', singular: 'Evaluación', repite: 'evaluaciones', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: 'pf.47',
+            repite: 'evaluaciones',
+            label: 'Tipo de evaluación',
+            tipo: 'lista',
+            opciones: ['Fin de periodo de prueba', 'Desempeño anual', 'Desempeño semestral', 'Evaluación 360°'],
+            col: 'c-tercio',
+            nivel: 'Completo'
+          },
+          { key: 'pf.48', repite: 'evaluaciones', label: 'Fecha', html: 'date', col: 'c-tercio', nivel: 'Completo' },
+          { key: 'pf.49', repite: 'evaluaciones', label: 'Resultado', col: 'c-tercio', nivel: 'Completo', ph: 'Sobresaliente · 92 / 100' },
+          { key: 'pf.masEvaluaciones', tipo: 'repetir', grupo: 'evaluaciones', max: 10, label: 'Agregar otra evaluación', col: 'c-todo', nivel: 'Completo' },
+
+          {
+            key: 'pf.50',
+            label: 'Plan de carrera',
+            tipo: 'texto',
+            col: 'c-todo',
+            nivel: 'Completo',
+            ph: 'Cargo al que apunta, en qué plazo y qué le falta para llegar…',
+            nota: 'Hacia dónde puede crecer dentro de la empresa y qué necesita para lograrlo.'
           }
         ]
       }
@@ -2790,21 +3032,21 @@ export const PASOS_PROPUESTA = [
   },
   {
     key: 'contrato',
-    n: 4,
+    n: 5,
     titulo: 'Contrato',
     corto: 'Contrato',
     pista: 'Qué firmó, por cuánto tiempo y en qué condiciones',
     tarjetas: [
       {
-        id: 'fechas',
-        titulo: 'Las fechas del vínculo',
-        desc: 'Son tres y no una. La legal es la que ven las tres entidades y nunca puede diferir; las otras dos son internas y existen porque a veces se le reconoce antigüedad o vacaciones desde otra fecha.',
+        id: 'doc',
+        titulo: 'El contrato',
+        desc: 'Las fechas de ingreso son tres y no una: la legal es la que ven las tres entidades y nunca puede diferir; las otras dos son internas y existen porque a veces se le reconoce antigüedad o vacaciones desde otra fecha. Después, modalidad, tipo y plazo: de la modalidad depende que se dispare la regla de los dos contratos a plazo fijo.',
         propuesta: false,
         incierto: false,
         campos: [
           {
             key: '3.25',
-            label: 'Fecha de ingreso (legal / fiscal)',
+            label: 'Ingreso legal / fiscal',
             html: 'date',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -2812,7 +3054,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '3.26',
-            label: 'Fecha de ingreso para vacaciones',
+            label: 'Ingreso para vacaciones',
             html: 'date',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -2820,7 +3062,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '3.27',
-            label: 'Fecha de ingreso para bono de antigüedad',
+            label: 'Ingreso para antigüedad',
             html: 'date',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -2828,22 +3070,13 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '3.28',
-            label: 'Fecha de ingreso a Caja de Salud',
+            label: 'Ingreso a Caja de Salud',
             deducido: '',
             insignia: 'se calcula',
             col: 'c-tercio',
             nivel: 'Operativo',
             nota: '*\'Nunca pueden diferir\'*. El Salar las pide por separado *\'muy amplio, para que el recurso humano se confunda\'*.'
-          }
-        ]
-      },
-      {
-        id: 'doc',
-        titulo: 'El contrato',
-        desc: 'Modalidad, tipo y plazo. De la modalidad depende que se dispare la regla de los dos contratos a plazo fijo.',
-        propuesta: false,
-        incierto: false,
-        campos: [
+          },
           {
             key: '3.32',
             label: 'Modalidad de contrato',
@@ -2941,8 +3174,8 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'condiciones',
-        titulo: 'Condiciones del vínculo',
-        desc: 'Quién autorizó la contratación, con qué motivo y bajo qué modalidad de trabajo.',
+        titulo: 'Condiciones de contratación',
+        desc: 'Quién autorizó la contratación, con qué motivo y si está sindicalizado.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -2966,21 +3199,6 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'Selector cerrado para reportes + campo abierto para lo imprevisto.',
             traza: 'Alimenta: GP.'
-          },
-          {
-            key: '3.42b',
-            label: 'Modalidad de trabajo',
-            tipo: 'lista',
-            opciones: [
-              'Presencial',
-              'Híbrido',
-              'Remoto'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Movido desde 3.20. Presencial · Híbrido · Remoto. Condiciona la marcación virtual (§5.3.5.B).',
-            traza: '✏ v1.2 (obs. #28). Alimenta: AS, GP.'
           },
           {
             key: '3.42c',
@@ -3015,9 +3233,9 @@ export const PASOS_PROPUESTA = [
   },
   {
     key: 'afiliaciones',
-    n: 5,
-    titulo: 'Afiliaciones',
-    corto: 'Afiliación',
+    n: 6,
+    titulo: 'Compensación y nómina (Afiliaciones)',
+    corto: 'Nómina',
     pista: 'Gestora, Caja de Salud, Ministerio e impuestos',
     tarjetas: [
       {
@@ -3282,318 +3500,6 @@ export const PASOS_PROPUESTA = [
     ]
   },
   {
-    key: 'remuneracion',
-    n: 6,
-    titulo: 'Remuneración',
-    corto: 'Sueldo',
-    pista: 'Cuánto gana, qué le corresponde y dónde se le deposita',
-    tarjetas: [
-      {
-        id: 'sueldo',
-        titulo: 'Cuánto gana',
-        desc: 'El haber básico no puede ser inferior al salario mínimo nacional.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '3.65',
-            label: 'Haber básico',
-            html: 'text',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            nota: 'Versionado con vigencia (P5).',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.66',
-            label: 'Moneda',
-            tipo: 'lista',
-            opciones: [
-              'BOB · Boliviano',
-              'USD · Dólar'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.67',
-            label: 'Tipo de remuneración',
-            tipo: 'lista',
-            opciones: [
-              'Mensual',
-              'Jornal por hora',
-              'Jornal por día'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Mensual · Jornal · Por hora · Comisión · Honorarios.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.68',
-            label: 'Frecuencia de pago',
-            tipo: 'lista',
-            opciones: [
-              'Mensual',
-              'Quincenal'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Mensual · Quincenal · Semanal.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.69',
-            label: 'Modo de quincena + valor',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Porcentaje o monto fijo.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.72',
-            label: 'Escala / nivel salarial',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: '29:12): CONFIRMADO y subido a Operativo. *\'Fabiola Gutiérrez confirmó que es utilizado frecuentemente para establecer los límites de negociación salarial\'* y para gestionar planes de carrera y ascensos. Pendiente: recibir el ejemplo de escala real (*\'consultar el ejemplo\'*).',
-            traza: '✏ v1.2 (obs. #41 · 00. Alimenta: ERP, PL.'
-          }
-        ]
-      },
-      {
-        id: 'aplica',
-        titulo: 'Qué beneficios le corresponden',
-        desc: 'Son interruptores, no montos: definen qué calcula la corrida para esta persona. Acá se decide si entra al bono de antigüedad, al aguinaldo, a la prima y al retroactivo.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '3.73',
-            label: '¿Sujeto a bono de antigüedad?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'El monto no se digita: SMN × 3 × %escala(años).',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.74',
-            label: '¿Aplica aguinaldo de Navidad?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: '⚙ Derivable de la modalidad.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.75',
-            label: '¿Aplica 2º aguinaldo?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Default = No. Depende de decreto según crecimiento del PIB. Se cambia por lote el año que se decrete.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.76',
-            label: '¿Aplica prima?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Ligada a utilidades, no al tiempo trabajado.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.77',
-            label: '¿Aguinaldo/prima desde el primer mes?',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-medio',
-            nivel: 'Operativo',
-            nota: 'Obrero de producción: 1 mes · Administrativo: 3 meses y 1 día.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.78',
-            label: '¿Aplica retroactivo? + retroactivo de antigüedad',
-            tipo: 'siNo',
-            col: 'c-medio',
-            nivel: 'Operativo',
-            nota: 'El bono de antigüedad se arrastra obligatoriamente porque depende del SMN.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.80b',
-            label: '¿Aplica vacaciones según el tipo de cargo?',
-            col: 'c-medio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: 'CAMPO NUEVO. *\'Aplica vacaciones según el tipo de cargo — añadir\'*. Permite que la elegibilidad y la escala de vacaciones se deriven del tipo de cargo, no se marquen a mano. Depende de la escala legal pendiente (§11, pendiente 6a).',
-            traza: '✏ v1.2 (obs. #42). Alimenta: AS, PL.'
-          },
-          {
-            key: '3.81',
-            label: '¿Aplica aportes patronales?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Moverlo al bloque de Gestora (criterio de la especialista).',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.82',
-            label: '¿Enviar boleta por correo?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Con control de momento de publicación: hoy en el Salar la boleta se dispara al aprobar, adelantándose al comunicado de RR.HH.',
-            traza: 'Alimenta: CC, PL.'
-          },
-          {
-            key: '3.83',
-            label: '¿Incluir en subsidio de frontera?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Raro, pero lo pide la declaración de la OVT.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: PL.'
-          }
-        ]
-      },
-      {
-        id: 'banco',
-        titulo: 'Dónde se le deposita',
-        desc: 'La cuenta a veces se abre después del ingreso. Sin ella no entra al archivo de dispersión, aunque la planilla sí se le calcule.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '3.88',
-            label: 'Forma / método de pago',
-            tipo: 'lista',
-            opciones: [
-              'Transferencia bancaria',
-              'Cheque',
-              'Efectivo'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Banco · Cheque · Efectivo · Giro · Billetera digital.',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.89',
-            label: 'Banco',
-            tipo: 'lista',
-            opciones: [
-              'BISA',
-              'Banco Nacional de Bolivia',
-              'Banco Mercantil Santa Cruz',
-              'Banco Unión',
-              'Banco Ganadero',
-              'Banco Económico',
-              'Banco Fassil',
-              'BancoSol',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Alimenta el archivo de dispersión bancaria.',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.90',
-            label: 'Tipo de cuenta',
-            tipo: 'lista',
-            opciones: [
-              'Caja de ahorro',
-              'Cuenta corriente'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Caja de ahorro · Cuenta corriente.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.91',
-            label: 'Número de cuenta',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.93',
-            label: 'Moneda de la cuenta',
-            tipo: 'lista',
-            opciones: [
-              'BOB · Boliviano',
-              'USD · Dólar'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.94',
-            label: 'Sucursal de la cuenta bancaria',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Para pagar por sucursal.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.95',
-            label: '¿Es cuenta principal?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Completo',
-            nota: 'Soporta más de una cuenta (pago partido).',
-            traza: 'Alimenta: PL.'
-          }
-        ]
-      },
-      {
-        id: 'beneficios',
-        titulo: 'Beneficios adicionales',
-        desc: 'Lo que da la empresa por encima de la ley: seguro privado, movilidad, alimentación.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '3.96a',
-            label: 'Paquete de beneficios asignado',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: '33:37): CONFIRMADO como el campo prioritario del bloque. Catálogo por empresa. Se deriva del cargo o de la modalidad, no se marca a mano.',
-            traza: '✏ v1.2 (00. Alimenta: ON, PL.'
-          },
-          {
-            key: '3.96b',
-            label: 'Beneficios individuales (repetible)',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: '✏️ v1.2 (00:33:37): confirmado y reducido a tres datos — tipo de beneficio (monetario o periódico) · valor · vigencia. Se retiran periodicidad libre y documento de respaldo del alta'
-          }
-        ]
-      }
-    ]
-  },
-  {
     key: 'asistencia',
     n: 7,
     titulo: 'Asistencia',
@@ -3687,7 +3593,7 @@ export const PASOS_PROPUESTA = [
             label: 'Modalidad de trabajo',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Ahora se jala de Relación Laboral (obs. #28). Presencial / Híbrido / Remoto. Condiciona si se habilita marcación virtual (3.112–3.113).',
+            nota: 'Se jala de Información organizacional (3.42b, obs. #28). Presencial / Híbrido / Remoto. Condiciona si se habilita marcación virtual (3.112–3.113).',
             traza: '✏ v1.2. Alimenta: AS.'
           },
           {
@@ -4069,11 +3975,438 @@ export const PASOS_PROPUESTA = [
     ]
   },
   {
-    key: 'sistema',
+    key: 'remuneracion',
     n: 8,
-    titulo: 'Acceso y documentos',
-    corto: 'Acceso',
-    pista: 'Sus credenciales, su rol y sus papeles',
+    titulo: 'Remuneración',
+    corto: 'Sueldo',
+    pista: 'Cuánto gana, qué le corresponde y dónde se le deposita',
+    tarjetas: [
+      {
+        id: 'sueldo',
+        titulo: 'Cuánto gana',
+        desc: 'El haber básico no puede ser inferior al salario mínimo nacional.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '3.65',
+            label: 'Haber básico',
+            html: 'text',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Mínimo',
+            requerido: true,
+            nota: 'Versionado con vigencia (P5).',
+            traza: 'Alimenta: ERP, PL.'
+          },
+          {
+            key: '3.66',
+            label: 'Moneda',
+            tipo: 'lista',
+            opciones: [
+              'BOB · Boliviano',
+              'USD · Dólar'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Mínimo',
+            requerido: true,
+            traza: 'Alimenta: ERP, PL.'
+          },
+          {
+            key: '3.67',
+            label: 'Tipo de remuneración',
+            tipo: 'lista',
+            opciones: [
+              'Mensual',
+              'Jornal por hora',
+              'Jornal por día'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Mensual · Jornal · Por hora · Comisión · Honorarios.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.68',
+            label: 'Frecuencia de pago',
+            tipo: 'lista',
+            opciones: [
+              'Mensual',
+              'Quincenal'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Mensual · Quincenal · Semanal.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.69',
+            label: 'Modo de quincena + valor',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Porcentaje o monto fijo.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.72',
+            label: 'Escala / nivel salarial',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: '29:12): CONFIRMADO y subido a Operativo. *\'Fabiola Gutiérrez confirmó que es utilizado frecuentemente para establecer los límites de negociación salarial\'* y para gestionar planes de carrera y ascensos. Pendiente: recibir el ejemplo de escala real (*\'consultar el ejemplo\'*).',
+            traza: '✏ v1.2 (obs. #41 · 00. Alimenta: ERP, PL.'
+          }
+        ]
+      },
+      {
+        id: 'aplica',
+        titulo: 'Qué beneficios le corresponden',
+        desc: 'Son interruptores, no montos: definen qué calcula la corrida para esta persona. Acá se decide si entra al bono de antigüedad, al aguinaldo, a la prima y al retroactivo.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '3.73',
+            label: '¿Sujeto a bono de antigüedad?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'El monto no se digita: SMN × 3 × %escala(años).',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.74',
+            label: '¿Aplica aguinaldo de Navidad?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: '⚙ Derivable de la modalidad.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.75',
+            label: '¿Aplica 2º aguinaldo?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Default = No. Depende de decreto según crecimiento del PIB. Se cambia por lote el año que se decrete.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.76',
+            label: '¿Aplica prima?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Ligada a utilidades, no al tiempo trabajado.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.77',
+            label: '¿Aguinaldo/prima desde el primer mes?',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-medio',
+            nivel: 'Operativo',
+            nota: 'Obrero de producción: 1 mes · Administrativo: 3 meses y 1 día.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.78',
+            label: '¿Aplica retroactivo? + retroactivo de antigüedad',
+            tipo: 'siNo',
+            col: 'c-medio',
+            nivel: 'Operativo',
+            nota: 'El bono de antigüedad se arrastra obligatoriamente porque depende del SMN.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.80b',
+            label: '¿Aplica vacaciones según el tipo de cargo?',
+            col: 'c-medio',
+            insignia: 'v1.2',
+            nivel: 'Operativo',
+            nota: 'CAMPO NUEVO. *\'Aplica vacaciones según el tipo de cargo — añadir\'*. Permite que la elegibilidad y la escala de vacaciones se deriven del tipo de cargo, no se marquen a mano. Depende de la escala legal pendiente (§11, pendiente 6a).',
+            traza: '✏ v1.2 (obs. #42). Alimenta: AS, PL.'
+          },
+          {
+            key: '3.81',
+            label: '¿Aplica aportes patronales?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Moverlo al bloque de Gestora (criterio de la especialista).',
+            traza: 'Alimenta: ERP, PL.'
+          },
+          {
+            key: '3.82',
+            label: '¿Enviar boleta por correo?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Con control de momento de publicación: hoy en el Salar la boleta se dispara al aprobar, adelantándose al comunicado de RR.HH.',
+            traza: 'Alimenta: CC, PL.'
+          },
+          {
+            key: '3.83',
+            label: '¿Incluir en subsidio de frontera?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Raro, pero lo pide la declaración de la OVT.',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: PL.'
+          }
+        ]
+      },
+      {
+        id: 'banco',
+        titulo: 'Dónde se le deposita',
+        desc: 'La cuenta a veces se abre después del ingreso. Sin ella no entra al archivo de dispersión, aunque la planilla sí se le calcule.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '3.88',
+            label: 'Forma / método de pago',
+            tipo: 'lista',
+            opciones: [
+              'Transferencia bancaria',
+              'Cheque',
+              'Efectivo'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Banco · Cheque · Efectivo · Giro · Billetera digital.',
+            traza: 'Alimenta: ERP, PL.'
+          },
+          {
+            key: '3.89',
+            label: 'Banco',
+            tipo: 'lista',
+            opciones: [
+              'BISA',
+              'Banco Nacional de Bolivia',
+              'Banco Mercantil Santa Cruz',
+              'Banco Unión',
+              'Banco Ganadero',
+              'Banco Económico',
+              'Banco Fassil',
+              'BancoSol',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Alimenta el archivo de dispersión bancaria.',
+            traza: 'Alimenta: ERP, PL.'
+          },
+          {
+            key: '3.90',
+            label: 'Tipo de cuenta',
+            tipo: 'lista',
+            opciones: [
+              'Caja de ahorro',
+              'Cuenta corriente'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Caja de ahorro · Cuenta corriente.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.91',
+            label: 'Número de cuenta',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            traza: 'Alimenta: ERP, PL.'
+          },
+          {
+            key: '3.93',
+            label: 'Moneda de la cuenta',
+            tipo: 'lista',
+            opciones: [
+              'BOB · Boliviano',
+              'USD · Dólar'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.94',
+            label: 'Sucursal de la cuenta bancaria',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Para pagar por sucursal.',
+            traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.95',
+            label: '¿Es cuenta principal?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            insignia: 'v1.2',
+            nivel: 'Completo',
+            nota: 'Soporta más de una cuenta (pago partido).',
+            traza: 'Alimenta: PL.'
+          }
+        ]
+      },
+      {
+        id: 'beneficios',
+        titulo: 'Beneficios adicionales',
+        desc: 'Lo que da la empresa por encima de la ley: seguro privado, movilidad, alimentación.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          {
+            key: '3.96a',
+            label: 'Paquete de beneficios asignado',
+            col: 'c-tercio',
+            insignia: 'v1.2',
+            nivel: 'Operativo',
+            nota: '33:37): CONFIRMADO como el campo prioritario del bloque. Catálogo por empresa. Se deriva del cargo o de la modalidad, no se marca a mano.',
+            traza: '✏ v1.2 (00. Alimenta: ON, PL.'
+          },
+          {
+            key: '3.96b',
+            label: 'Beneficios individuales (repetible)',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: '✏️ v1.2 (00:33:37): confirmado y reducido a tres datos — tipo de beneficio (monetario o periódico) · valor · vigencia. Se retiran periodicidad libre y documento de respaldo del alta'
+          }
+        ]
+      }
+    ]
+  },
+  /* ── LO QUE LA EMPRESA LE ENTREGA ─────────────────────────────────────────
+     No viene del estudio: es un paso agregado a mano, como el del perfil profesional. La ficha
+     sabía cuánto gana la persona y qué puede hacer en el sistema, pero no qué tiene en la mano
+     de la empresa — y eso es lo primero que se pregunta el día que se va: qué tiene que devolver.
+
+     VA ANTES DE ACCESOS Y DEL EXPEDIENTE porque el expediente cierra la ficha reuniendo los
+     adjuntos, y lo que va después del resumen se lee como un olvido.
+
+     EL CORREO Y EL CELULAR CORPORATIVOS NO ESTÁN ACÁ aunque también se los da la empresa. Ya viven
+     en «Contacto corporativo» (3.22 y 3.23), y la nota de ese campo dice que es el único lugar
+     donde vive: repetirlos era volver a tener dos respuestas para la misma pregunta. */
+  {
+    key: 'recursos',
+    n: 9,
+    titulo: 'Información de Recursos y Activos',
+    corto: 'Activos',
+    pista: 'Lo que la empresa le entrega para trabajar',
+    tarjetas: [
+      {
+        id: 'activos',
+        titulo: 'Activos entregados',
+        desc: 'Lo que la empresa le presta para trabajar y que tiene que devolver al salir: equipos, vehículo, herramientas, uniforme, llaves.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.rotActivos', label: 'Activo asignado', singular: 'Activo', repite: 'activos', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: 'ra.1',
+            repite: 'activos',
+            label: 'Tipo de activo',
+            tipo: 'lista',
+            opciones: [
+              'Computadora portátil',
+              'Computadora de escritorio',
+              'Monitor',
+              'Celular',
+              'Tablet',
+              'Vehículo',
+              'Herramienta o equipo',
+              'Uniforme o EPP',
+              'Llave o tarjeta de acceso',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'ra.2', repite: 'activos', label: 'Marca y modelo', col: 'c-tercio', nivel: 'Operativo', ph: 'Lenovo ThinkPad E14' },
+          {
+            key: 'ra.3',
+            repite: 'activos',
+            label: 'Código de inventario',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El de la etiqueta del activo, el mismo que figura en el inventario de la empresa. Es lo que permite saber quién lo tiene.'
+          },
+          { key: 'ra.4', repite: 'activos', label: 'Número de serie', col: 'c-tercio', nivel: 'Completo', nota: 'El del fabricante. En un vehículo, la placa.' },
+          { key: 'ra.5', repite: 'activos', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          {
+            key: 'ra.6',
+            repite: 'activos',
+            label: 'Estado al entregarlo',
+            tipo: 'lista',
+            opciones: ['Nuevo', 'Bueno', 'Regular'],
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Contra esto se compara cuando lo devuelva.'
+          },
+          {
+            key: 'ra.7',
+            repite: 'activos',
+            label: 'Valor referencial',
+            html: 'text',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Lo que costaría reponerlo, en la moneda del haber básico.'
+          },
+          /* EL ACTA ANCLA SU BLOQUE, como el título en la formación: el tipo, el código, la serie
+             y la fecha se copian de ella, y es además lo único que prueba qué recibió la persona y
+             en qué estado. Cada activo empieza con su rótulo, así que cada uno ancla el suyo. */
+          {
+            key: 'ra.8',
+            repite: 'activos',
+            label: 'Acta de entrega',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            nivel: 'Operativo',
+            nota: 'El acta firmada por quien lo recibe. Sin ella no hay cómo reclamar el activo al salir.'
+          },
+          { key: 'ra.masActivos', tipo: 'repetir', grupo: 'activos', max: 15, label: 'Agregar otro activo', col: 'c-todo', nivel: 'Operativo' }
+        ]
+      },
+      {
+        id: 'recursos',
+        titulo: 'Otros recursos asignados',
+        desc: 'Lo que no es un objeto que se lleve, pero igual se le asigna: dónde trabaja y con qué cuenta.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.9', label: 'Puesto de trabajo', col: 'c-tercio', nivel: 'Completo', ph: 'Piso 2, escritorio 14', nota: 'Dónde se sienta: oficina, piso, escritorio.' },
+          { key: 'ra.10', label: 'Estacionamiento', col: 'c-tercio', nivel: 'Completo', ph: 'Espacio 7', nota: 'Déjelo vacío si no tiene uno asignado.' },
+          {
+            key: 'ra.11',
+            label: 'Licencias de software',
+            tipo: 'texto',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            ph: 'Office 365, AutoCAD…',
+            nota: 'Las licencias pagadas a su nombre. Se liberan cuando se va.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    key: 'sistema',
+    n: 10,
+    titulo: 'Configuración del Colaborador',
+    corto: 'Configuración',
+    pista: 'Su acceso, su rol y el historial de su ficha',
     tarjetas: [
       {
         id: 'credenciales',
@@ -4223,6 +4556,63 @@ export const PASOS_PROPUESTA = [
           }
         ]
       },
+      /* ── QUIÉN TOCÓ LA FICHA ──────────────────────────────────────────────────
+         No se llena: se lee. Todo lo de esta tarjeta sale de quién está usando el sistema y de
+         cuándo, y un dato de auditoría que se puede escribir a mano deja de ser auditoría.
+
+         AL CREAR SÓLO HAY UNA LÍNEA DE HISTORIA, la del alta, y es lo que se enseña. Los cambios
+         posteriores —qué dato, de qué valor a cuál, quién y cuándo— se registran desde que la
+         ficha existe, y no tiene sentido pintarlos vacíos en un formulario que todavía no la creó. */
+      {
+        id: 'auditoria',
+        titulo: 'Historial y auditoría',
+        desc: 'Quién registra la ficha y cuándo. Desde que se crea, cada cambio queda anotado: qué dato, quién lo cambió y cuándo.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          {
+            key: 'au.1',
+            label: 'Registrado por',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'La persona con la sesión abierta al crear la ficha.'
+          },
+          {
+            key: 'au.2',
+            label: 'Fecha de registro',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El día en que se crea la ficha en el sistema, que no tiene por qué ser su fecha de ingreso.'
+          },
+          {
+            key: 'au.3',
+            label: 'Tipo de alta',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sale de la primera pregunta de la ficha: si ya tenía registro en el grupo, es un reingreso.'
+          }
+        ]
+      }
+    ]
+  },
+  /* ── LOS PAPELES TIENEN SU PROPIO PASO ─────────────────────────────────────
+     Compartían uno con las credenciales —«Acceso y documentos»— y no tienen nada que ver: lo
+     primero lo configura quien administra el sistema, lo segundo es el expediente de la persona.
+     Juntos, quien buscaba el carnet escaneado tenía que pasar por contraseñas y roles, y quien
+     configuraba el usuario se topaba con una pila de adjuntos que no eran asunto suyo. */
+  {
+    key: 'expediente',
+    n: 11,
+    titulo: 'Documentación y Expediente Digital',
+    corto: 'Expediente',
+    pista: 'Sus papeles, reunidos en un solo lugar',
+    tarjetas: [
       {
         id: 'archivos',
         titulo: 'Archivos',

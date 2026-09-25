@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, LogOut, UserPlus, Users } from 'lucide-react'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
+import { useUser } from '../../context/UserContext'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
 import { ocupanteDe, TIPOS_CARGO } from '../../data/organigramaData'
+import { descendientes, filasEje, lineaDe } from '../../data/estructuraData'
 import { esVigente } from './colaboradoresData'
 import {
   EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, documentoDe, faltaParaCrear,
@@ -53,8 +55,10 @@ const LLAVE_BORRADOR = 'colaboradorBorrador'
 export default function ColaboradorNuevo() {
   const navigate = useNavigate()
   const {
-    organigrama, setOrganigrama, sucursales, colaboradores, setColaboradores, empresa, empresasGrupo,
+    organigrama, setOrganigrama, nodos, sucursales, colaboradores, setColaboradores, empresa,
+    empresasGrupo,
   } = useOnboardingData()
+  const { currentUser } = useUser()
   const [guardado, setForm] = useLocalStorage(LLAVE_BORRADOR, EN_BLANCO)
 
   /* LOS VALORES DE ARRANQUE TAMBIÉN VALEN PARA UN BORRADOR YA EMPEZADO. `useLocalStorage` usa el
@@ -99,27 +103,120 @@ export default function ColaboradorNuevo() {
      usuario cargó en Organización. Es la única parte del estudio que no se porta tal cual,
      porque no habla de la ley sino de esta empresa en particular.
 
-     LOS PUESTOS OFRECIDOS SON LOS LIBRES. Los demás ya son de alguien, y ofrecerlos sería
-     ofrecer sentar a dos personas en la misma silla. Cada opción viaja con lo que el puesto
-     arrastra —área, sede, jefe— para poder enseñarlo sin recorrer el organigrama por campo. */
+     LO QUE SE OFRECE SON CARGOS, Y EL QUE NO TIENE SILLA LIBRE SE OFRECE APAGADO. Ofrecer una
+     silla ocupada sería ofrecer sentar a dos personas en el mismo sitio. Cada opción viaja con
+     lo que el puesto arrastra —área, sede, jefe— para poder enseñarlo sin recorrer el
+     organigrama por campo. */
   const ctx = useMemo(() => {
     const cargos = organigrama?.cargos || []
     const unidadesOrg = organigrama?.unidades || []
     const nombreDeId = id => colaboradores.find(c => c.id === id)?.name || null
 
-    const puestos = cargos.filter(c => ocupanteDe(c) == null).map(c => {
+    /* ── LOS PELDAÑOS DEL ÁRBOL, CON FORMA DE ÁRBOL ─────────────────────────
+       Una unidad organizacional vive dentro de otra y un centro de trabajo dentro de una
+       sucursal. Enseñarlos como una lista plana los convierte en hermanos: «Recursos Humanos»,
+       «Selección» y «Nómina» se leen como tres opciones del mismo rango cuando dos cuelgan de
+       la primera, y quien elige no tiene cómo saberlo.
+
+       ES LA MISMA FUNCIÓN QUE ARMA LA TABLA DE ORGANIZACIÓN, `filasEje`, y por eso este
+       desplegable no puede discrepar de lo que se ve allá: si alguien mueve una unidad, la
+       ficha se entera el mismo día. `Desplegable` ya sabía sangrar por `nivel` y ubicar por
+       `pista` cuando se busca —lo usa la ficha de un nodo—; acá solo hay que dárselos.
+
+       Y CADA OPCIÓN VIAJA CON SUS ANTEPASADOS, que es lo que permite encadenar un selector con
+       el de arriba sin que la ficha tenga que recorrer el árbol otra vez. Van por NOMBRE y no
+       por id porque es el nombre lo que guarda el campo de arriba: comparar ids obligaría a
+       traducir en los dos sentidos por una ganancia que nadie vería. */
+    const porId = new Map((nodos || []).map(n => [n.id, n]))
+    const ancestrosDe = id => {
+      const salida = []
+      let p = porId.get(id)?.padreId
+      for (let v = 0; p && v < 20; v += 1) { salida.push(porId.get(p)?.nombre); p = porId.get(p)?.padreId }
+      return salida.filter(Boolean)
+    }
+
+    const ramaDe = tipos => {
+      const pila = []
+      return filasEje(nodos || [], tipos).map(f => {
+        pila[f.nivel] = f.nodo.nombre
+        return {
+          /* El valor sigue siendo el NOMBRE y no el id: es lo que la ficha guardó siempre y lo
+             que se lee en la vista previa. El id viaja aparte, para encadenar. */
+          valor: f.nodo.nombre,
+          etiqueta: f.nodo.nombre,
+          nivel: f.nivel,
+          pista: pila.slice(0, f.nivel).join(' › '),
+          ancestros: ancestrosDe(f.nodo.id),
+          nodoId: f.nodo.id,
+        }
+      })
+    }
+
+    /* El NOMBRE del negocio y no su id, por lo mismo que los demás: es lo que guarda la ficha. */
+    const negocioDe = id => {
+      const l = id ? lineaDe(id, nodos || []) : null
+      return l ? porId.get(l)?.nombre || null : null
+    }
+
+    /* ── UNA OPCIÓN POR CARGO, NO POR SILLA ─────────────────────────────────
+       El organigrama guarda una silla por plaza abierta, así que un cargo con seis vacantes
+       llegaba hasta acá como seis opciones idénticas: «Ejecutivo de Ventas · Comercial» repetido
+       seis veces, sin una letra que distinguiera una de otra. Quien contrata no elige la silla
+       número tres —no sabe que existen tres ni le importa—: elige el cargo, y cuál de las libres
+       se ocupa es cuenta del sistema.
+
+       SE AGRUPA POR CARGO Y SE ASIGNA LA PRIMERA LIBRE. Lo que se guarda sigue siendo el id de
+       una silla, que es lo que el resto de la ficha ya lee para sacar el área, la sede y el
+       jefe: el cambio es de presentación, no de dato.
+
+       Y EL CARGO SIN NINGUNA SILLA LIBRE NO DESAPARECE, se apaga con el motivo al lado. Quitarlo
+       de la lista deja a quien lo busca sin saber si no existe, si se escribe distinto o si
+       están todas ocupadas —y esa última es justo la respuesta que necesita para ir a abrir una
+       plaza en Organización—. */
+    /* Y UNA POR SEDE, desde que la ficha pregunta primero dónde se trabaja. «Ejecutivo Comercial»
+       con sillas en La Paz y en Santa Cruz son dos respuestas distintas para quien ya eligió
+       sucursal: juntas, la silla que se asignaba era la primera libre de cualquier sede, y alguien
+       dado de alta en Santa Cruz podía terminar sentado en La Paz. */
+    const sedeDe = c => (c.sucursalIds || [])[0] || ''
+    const porCargo = new Map()
+    for (const c of cargos) {
+      const clave = `${c.nombre}|${c.unidadId || ''}|${sedeDe(c)}`
+      const grupo = porCargo.get(clave)
+      if (grupo) grupo.push(c)
+      else porCargo.set(clave, [c])
+    }
+    /* Cuántas sedes tiene cada cargo: sólo al que está en más de una le hace falta decir cuál en
+       la etiqueta. Al resto le sobra. */
+    const sedesPorCargo = new Map()
+    for (const [c] of porCargo.values()) {
+      const k = `${c.nombre}|${c.unidadId || ''}`
+      sedesPorCargo.set(k, (sedesPorCargo.get(k) || 0) + 1)
+    }
+    const nombreDeSede = id => porId.get(id)?.nombre || sucursales.find(s => s.id === id)?.nombre
+
+    const puestos = [...porCargo.values()].map(sillas => {
+      const libres = sillas.filter(s => ocupanteDe(s) == null)
+      /* La silla que se va a ocupar es la primera libre. Si no hay ninguna, se toma la primera a
+         secas: la opción no se puede elegir, pero igual tiene que saber decir su área y su jefe. */
+      const c = libres[0] || sillas[0]
       const unidad = unidadesOrg.find(u => u.id === c.unidadId)
       const jefeCargo = cargos.find(x => x.id === c.reportaA)
       const jefeId = jefeCargo ? ocupanteDe(jefeCargo) : null
-      const sedes = (c.sucursalIds || [])
-        .map(id => sucursales.find(s => s.id === id)?.nombre)
-        .filter(Boolean)
+      const sedes = (c.sucursalIds || []).map(nombreDeSede).filter(Boolean)
+      const variasSedes = sedesPorCargo.get(`${c.nombre}|${c.unidadId || ''}`) > 1
 
       return {
         valor: c.id,
-        /* El área va en la etiqueta porque hay puestos que se llaman igual en dos áreas
+        /* El área va en la etiqueta porque hay cargos que se llaman igual en dos áreas
            —«Analista», «Asistente»— y elegir uno a ciegas es elegir mal la mitad de las veces. */
-        etiqueta: unidad ? `${c.nombre} · ${unidad.nombre}` : c.nombre,
+        etiqueta: [c.nombre, unidad?.nombre, variasSedes ? (sedes[0] || 'Toda la empresa') : null]
+          .filter(Boolean).join(' · '),
+        agotada: libres.length === 0,
+        motivo: libres.length === 0
+          ? `sin puestos libres · ${sillas.length} ocupado${sillas.length === 1 ? '' : 's'}`
+          : undefined,
+        libres: libres.length,
+        plazas: sillas.length,
         area: unidad?.nombre || '',
         /* Un puesto sin sede declarada no es un puesto sin sede: es uno que vale para toda la
            empresa. Son dos cosas distintas y el campo tiene que decir cuál. */
@@ -128,7 +225,53 @@ export default function ColaboradorNuevo() {
           ? nombreDeId(jefeId)
           : jefeCargo ? `${jefeCargo.nombre} · puesto vacante` : 'Nadie: es la punta del organigrama',
         clase: TIPOS_CARGO.find(t => t.key === (c.tipo || 'colaborador'))?.label || '',
+        /* SU UNIDAD Y TODAS LAS DE ENCIMA. Elegir «Comercial» tiene que ofrecer también los
+           cargos de «Ventas» y «Preventa», que están dentro: quien contrata piensa en el área
+           grande y el cargo vive tres escalones abajo. Por eso es la rama entera y no el padre. */
+        ancestros: c.unidadId ? [unidad?.nombre, ...ancestrosDe(c.unidadId)].filter(Boolean) : [],
+        /* DÓNDE SE TRABAJA, CON TODO LO DE ENCIMA: la sede de la silla, su sucursal y su región.
+           Es lo que deja filtrar el cargo por lo que ya se contestó arriba, sea el peldaño que
+           sea. Una silla sin sede vale para toda la empresa y pasa cualquier filtro. */
+        sedes,
+        lugares: sedes.length ? [...sedes, ...ancestrosDe(sedeDe(c))] : null,
+        /* DE QUÉ NEGOCIO ES LA SILLA, con la misma regla que Organización: la de su unidad y, si
+           la unidad no declara ninguna, la del sitio donde se trabaja. Sin línea es transversal. */
+        negocios: (() => {
+          const n = negocioDe(c.id) || (c.unidadId ? negocioDe(c.unidadId) : null)
+          return n ? [n] : null
+        })(),
       }
+    })
+
+    /* ── LA UNIDAD SE FILTRA POR SUS SILLAS, NO POR SU SEDE ──────────────────
+       Una unidad no cuelga de ningún lugar: «Ventas» tiene su jefatura en la casa matriz y
+       vendedores en cinco ciudades. Filtrarla por su ancla la escondería en todas menos una. Lo que
+       se pregunta es si tiene alguna silla en la sucursal elegida —ella o alguna de sus hijas—, y
+       eso ya lo dicen los cargos. La que tiene una silla sin sede, o ninguna silla todavía, se
+       ofrece siempre: no hay nada que diga que no está ahí. */
+    const unico = xs => [...new Set(xs.filter(Boolean))]
+    /* Lo mismo con el negocio: el suyo, si lo declara, y el de cada una de sus sillas. «Ventas»
+       vive en la casa matriz, que es de todos, pero vende en farmacias: es de Farmacias por sus
+       vendedores. La que no toca ningún negocio es transversal y se ofrece siempre. */
+    const negociosDe = (propio, suyos) => {
+      const ns = unico([propio, ...suyos.flatMap(p => p.negocios || [])])
+      return ns.length ? ns : null
+    }
+    const unidades = ramaDe(['unidad']).map(u => {
+      const suyos = puestos.filter(p => p.ancestros.includes(u.valor))
+      const negocios = negociosDe(negocioDe(u.nodoId), suyos)
+      if (!suyos.length || suyos.some(p => !p.lugares)) return { ...u, negocios }
+      return { ...u, negocios, sedes: unico(suyos.flatMap(p => p.sedes)), lugares: unico(suyos.flatMap(p => p.lugares)) }
+    })
+
+    /* ── QUÉ NEGOCIOS TOCAN CADA LUGAR ──────────────────────────────────────
+       El que el lugar declara, el de los lugares que tiene dentro —una región no declara nada y
+       sus sucursales sí— y el de las sillas que hay ahí. Es lo que deja recortar la unidad de
+       negocio por la región o la sucursal elegida. Si el lugar no toca ninguno, no se recorta. */
+    const lugaresCon = tipo => ramaDe([tipo]).map(l => {
+      const dentro = descendientes(l.nodoId, nodos || []).map(id => negocioDe(id))
+      const sillas = puestos.filter(p => p.lugares?.includes(l.valor))
+      return { ...l, negocios: negociosDe(negocioDe(l.nodoId), [...sillas, { negocios: dentro }]) }
     })
 
     return {
@@ -138,15 +281,20 @@ export default function ColaboradorNuevo() {
          nombres: el campo enseña el corto, pero quien las consuma después necesita la razón
          social y el NIT. */
       grupo: empresasGrupo,
-      unidades: unidadesOrg.map(u => u.nombre),
-      sucursales: sucursales.map(s => s.nombre),
+      unidades,
+      negocios: ramaDe(['negocio']),
+      regiones: lugaresCon('region'),
+      sucursales: lugaresCon('sucursal'),
+      centros: lugaresCon('centro'),
       /* SÓLO LOS VIGENTES. Esta lista alimenta todo campo que pide elegir a una persona —el
          jefe que aprueba, el garante, a quién avisar en una emergencia— y un desvinculado no
          puede ser ninguna de esas cosas. Sigue en el directorio porque es historia y porque
          hace falta para reconocer un reingreso, no para volver a asignarle nada. */
       personas: colaboradores.filter(esVigente).map(c => c.name).sort((a, b) => a.localeCompare(b)),
+      // Quién registra la ficha, para «Historial y auditoría».
+      usuario: currentUser?.name || '',
     }
-  }, [organigrama, sucursales, colaboradores, empresa, empresasGrupo])
+  }, [organigrama, nodos, sucursales, colaboradores, empresa, empresasGrupo, currentUser])
 
   const puestos = ctx.puestos
 
@@ -285,8 +433,13 @@ export default function ColaboradorNuevo() {
 
   /* SIN PUESTOS NO HAY NADA QUE ELEGIR, y conviene decirlo antes de que alguien abra el
      desplegable a ver qué hay. La ficha se puede terminar igual: el puesto se asigna después
-     desde el organigrama. */
-  const avisoSinPuestos = paso === 'puesto' && puestos.length === 0 && (
+     desde el organigrama.
+
+     NO ES «NINGÚN CARGO» SINO «NINGUNO CON SILLA LIBRE». Desde que la lista enseña también los
+     cargos agotados, contar cuántos hay ya no contesta la pregunta: puede haber treinta y estar
+     los treinta ocupados, que para quien viene a dar de alta es exactamente lo mismo que no
+     haber ninguno. */
+  const avisoSinPuestos = paso === 'puesto' && !puestos.some(p => !p.agotada) && (
     <div className="cn-aviso cn-aviso-suave">
       <Users size={15} />
       <span>
