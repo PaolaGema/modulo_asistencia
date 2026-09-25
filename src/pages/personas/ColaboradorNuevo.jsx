@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, LogOut, UserPlus, Users } from 'lucide-react'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
@@ -8,13 +8,14 @@ import { ocupanteDe, TIPOS_CARGO } from '../../data/organigramaData'
 import { descendientes, filasEje, lineaDe } from '../../data/estructuraData'
 import { esVigente } from './colaboradoresData'
 import {
-  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, documentoDe, faltaParaCrear,
+  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, documentoDe, faltaParaCrear, faltasParaCrear,
   fechaCorta, inicialesDe, nombreDe, progresoDe, progresoPorPaso, tarjetasDe, tarjetasTodas,
 } from '../../data/fichaColaborador'
 import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
 import RielPasos from '../../components/personas/RielPasos'
 import Acordeon from '../../components/personas/Acordeon'
 import TarjetaReingreso from '../../components/personas/TarjetaReingreso'
+import ExpedientePrevia from '../../components/personas/ExpedientePrevia'
 
 /* DAR DE ALTA A UNA PERSONA, EN SU PROPIA PANTALLA.
    «Nuevo colaborador» era un botón que no hacía nada, y lo que tiene que hacer no cabe en un
@@ -59,6 +60,8 @@ export default function ColaboradorNuevo() {
     empresasGrupo,
   } = useOnboardingData()
   const { currentUser } = useUser()
+  // La raíz de la pantalla, para encontrar desde ella el contenedor que se desplaza.
+  const raiz = useRef(null)
   const [guardado, setForm] = useLocalStorage(LLAVE_BORRADOR, EN_BLANCO)
 
   /* LOS VALORES DE ARRANQUE TAMBIÉN VALEN PARA UN BORRADOR YA EMPEZADO. `useLocalStorage` usa el
@@ -347,7 +350,14 @@ export default function ColaboradorNuevo() {
     if (otroNivel !== 'Completo') q.nivel = otroNivel
     setParams(q)
     /* Cambiar de paso es cambiar de pantalla: quedarse a media altura del formulario anterior
-       hace pensar que no pasó nada. */
+       hace pensar que no pasó nada.
+
+       Y LO QUE SE DESPLAZA NO ES LA VENTANA sino el <main> del layout, que tiene su propio
+       scroll. Con `window.scrollTo` la ventana ya estaba arriba y no pasaba nada: se llegaba a la
+       vista previa a la altura del paso anterior, que en un formulario largo es el final. Se sube
+       el contenedor que de verdad se desplaza, y la ventana también por si algún día lo es. */
+    const lienzo = raiz.current?.closest('main')
+    if (lienzo) lienzo.scrollTo({ top: 0 })
     window.scrollTo({ top: 0 })
   }
 
@@ -358,7 +368,10 @@ export default function ColaboradorNuevo() {
      contratado que el organigrama no conoce, y es justo el estado que obliga a acordarse
      mañana de ir a ubicarlo. */
   function crear() {
-    if (falta) { irA(falta.paso); return }
+    /* SI FALTA ALGO, SE DICE ANTES DE MOVER A NADIE. Llevaba directo al paso del primer faltante
+       sin una palabra, y se leía como que el botón había fallado o había sacado de la vista
+       previa sin motivo. Ahora un aviso lista todo lo que falta y cada fila lleva a su campo. */
+    if (falta) { setAvisoAlta(true); return }
 
     const id = Math.max(0, ...colaboradores.map(c => c.id || 0)) + 1
     /* Las claves son los ids del estudio: 3.11 es «Cargo actual», 3.22 el correo corporativo,
@@ -428,6 +441,97 @@ export default function ColaboradorNuevo() {
     return { ...prev, [paso]: [...s] }
   })
 
+  /* ── LLEVAR HASTA EL CAMPO QUE FALTA, NO SÓLO HASTA SU PASO ──────────────────
+     Cambiar de paso dejaba a la persona arriba de un paso de cinco secciones plegadas, buscando
+     dónde estaba «Fecha de ingreso». Se abre la sección que lo contiene, se baja hasta él, se le
+     pone el cursor y se lo resalta un momento para que el ojo lo encuentre. */
+  const [avisoAlta, setAvisoAlta] = useState(false)
+  const [enfocar, setEnfocar] = useState(null)
+  const irAlCampo = f => {
+    setAvisoAlta(false)
+    const suyas = tarjetasDe(f.paso, form, ctx, nivel)
+    const tarjeta = suyas.find(t => t.campos.some(c => c.key === f.key))
+    if (tarjeta) {
+      setAbiertosPorPaso(prev => {
+        const antes = prev[f.paso] ?? (suyas[0] ? [suyas[0].titulo] : [])
+        return { ...prev, [f.paso]: [...new Set([...antes, tarjeta.titulo])] }
+      })
+    }
+    irA(f.paso)
+    setEnfocar(f.key)
+  }
+  useEffect(() => {
+    if (!enfocar || paso === PASO_PREVIA) return
+    // Un cuadro después del cambio de paso, cuando la sección ya se abrió y el campo existe.
+    const t = setTimeout(() => {
+      const el = document.getElementById(`cn-${enfocar}`)
+      setEnfocar(null)
+      if (!el) return
+      const quieto = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      el.scrollIntoView({ behavior: quieto ? 'auto' : 'smooth', block: 'center' })
+      el.focus({ preventScroll: true })
+      const caja = el.closest('.pl-label')?.parentElement || el.parentElement
+      caja?.classList.add('cn-resaltado')
+      setTimeout(() => caja?.classList.remove('cn-resaltado'), 2400)
+    }, 60)
+    return () => clearTimeout(t)
+  }, [enfocar, paso])
+
+  /* El aviso se cierra con Escape, como cualquier diálogo. */
+  useEffect(() => {
+    if (!avisoAlta) return
+    const alTeclear = e => { if (e.key === 'Escape') setAvisoAlta(false) }
+    window.addEventListener('keydown', alTeclear)
+    return () => window.removeEventListener('keydown', alTeclear)
+  }, [avisoAlta])
+
+  const faltas = faltasParaCrear(form)
+  const avisoDeAlta = avisoAlta && faltas.length > 0 && (
+    <div className="pl-overlay" onClick={() => setAvisoAlta(false)}>
+      <div
+        className="pl-modal pl-modal-sm cn-alta"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cn-alta-tit"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="cn-alta-cab">
+          <span className="cn-alta-ico" aria-hidden="true"><AlertTriangle size={22} /></span>
+          <h2 id="cn-alta-tit">Todavía no se puede dar de alta</h2>
+          <p>
+            {faltas.length === 1 ? 'Falta un dato obligatorio.' : `Faltan ${faltas.length} datos obligatorios.`}
+            {' '}Sin ellos no hay a quién dar de alta ni desde cuándo contar su antigüedad.
+          </p>
+        </div>
+        <ul className="cn-alta-lista">
+          {faltas.map(f => {
+            const p = PASOS.find(x => x.key === f.paso)
+            return (
+              <li key={f.key}>
+                <span className="cn-alta-num" aria-hidden="true">{p?.n}</span>
+                <span className="cn-alta-txt">
+                  <b>{f.nombre[0].toUpperCase() + f.nombre.slice(1)}</b>
+                  <small>{p?.titulo}</small>
+                </span>
+                <button type="button" onClick={() => irAlCampo(f)}>
+                  Completar <ArrowRight size={13} aria-hidden="true" />
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+        <div className="pl-modal-footer">
+          <button type="button" className="pl-btn-cancel" onClick={() => setAvisoAlta(false)}>
+            Seguir revisando
+          </button>
+          <button type="button" className="pl-btn-save" autoFocus onClick={() => irAlCampo(faltas[0])}>
+            Ir al primero
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   const escribibles = t => t.campos.filter(c => c.deducido === undefined)
   const llenosDe = t => escribibles(t).filter(c => String(form[c.key] ?? '').trim()).length
 
@@ -452,62 +556,51 @@ export default function ColaboradorNuevo() {
     </div>
   )
 
-  /* LA VISTA PREVIA NO ES OTRA PANTALLA: son las mismas tarjetas de los ocho pasos con el
-     formulario cerrado. `TarjetaCampos` ya sabe leerse a sí misma —es lo que hace la ficha de
-     una sucursal cuando no se está editando— así que acá no hay una segunda versión de nada que
-     pueda quedar desfasada de la primera. Y es la misma en las tres propuestas: lo que se está
-     comparando es cómo se RECORRE la ficha, no cómo se lee al final. */
+  /* LA VISTA PREVIA NO ES OTRA PANTALLA: son las mismas tarjetas de los pasos con el
+     formulario cerrado, y `TarjetaCampos` ya sabe leerse a sí misma. Lo que cambia es el
+     envoltorio: una tapa de expediente y separadores de colores —ver `ExpedientePrevia`—,
+     porque lo que se revisa antes de crear es el legajo de una persona. */
   const vistaPrevia = (
-    <div className="cn-previa">
-      {falta && (
-        <div className="cn-aviso">
-          <AlertTriangle size={15} />
-          <span>{falta.que}</span>
-          <button type="button" onClick={() => irA(falta.paso)}>Ir a corregirlo</button>
-        </div>
-      )}
-
-      {tarjetasTodas(form, ctx, nivel).map(({ paso: p, tarjetas: ts }) => (
-        <section key={p.key} className="cn-bloque">
-          <header className="cn-bloque-cab">
-            <span className="cn-bloque-num">{p.n}</span>
-            <h3>{p.titulo}</h3>
-            <button type="button" onClick={() => irA(p.key)}>Editar</button>
-          </header>
-          {ts.map(t => (
-            <TarjetaCampos
-              key={t.titulo}
-              titulo={t.titulo}
-              campos={t.campos}
-              form={form}
-              set={set}
-              editando={false}
-              prefijo="cn"
-            />
-          ))}
-        </section>
-      ))}
-    </div>
+    <ExpedientePrevia
+      form={form}
+      set={set}
+      ctx={ctx}
+      nivel={nivel}
+      avance={avance}
+      progreso={progreso}
+      falta={falta}
+      irA={irA}
+      completar={irAlCampo}
+    />
   )
 
   const pie = (
     <div className="cn-pie">
-      <button
-        className="pl-btn-cancel"
-        onClick={() => (indice === 0 ? volverALista() : irA(PASOS[indice - 1].key))}
-      >
-        <ArrowLeft size={14} /> Volver atrás
-      </button>
+      {/* EN EL PRIMER PASO NO HAY «VOLVER ATRÁS», porque no hay paso anterior. Llevaba a la lista
+          de colaboradores, que es salir de la ficha y no volver a un paso: el botón prometía una
+          cosa y hacía otra. Para salir están la miga de arriba y «Guardar borrador y salir». */}
+      {indice > 0 && (
+        <button className="pl-btn-cancel" onClick={() => irA(PASOS[indice - 1].key)}>
+          <ArrowLeft size={14} /> Volver atrás
+        </button>
+      )}
 
       {/* EL DE EN MEDIO NO GUARDA: ya está guardado. Lo que ofrece es soltar la ficha a medias
-          sin miedo, que es el gesto real de quien se quedó sin el papel que le faltaba. */}
+          sin miedo, que es el gesto real de quien se quedó sin el papel que le faltaba.
+
+          SE LLAMA «BORRADOR» PARA NO CONFUNDIRSE CON EL ALTA. Decía «Guardar y salir» y se leía
+          como si guardar fuera crear a la persona; lo que queda es un borrador, y la palabra
+          lo dice. «Y salir» porque además saca de la pantalla: un botón dice todo lo que hace. */}
       <button className="pl-btn-cancel" onClick={volverALista}>
-        <LogOut size={14} /> Guardar y salir
+        <LogOut size={14} /> Guardar borrador y salir
       </button>
 
+      {/* «DAR DE ALTA» Y NO «CREAR COLABORADOR». A una persona no se la crea: se la da de alta,
+          que es como lo dice RR.HH. —alta en la Gestora, en la Caja, en planilla—. Sin el nombre
+          en el botón porque la tapa lo enseña en grande justo encima. */}
       {enPrevia ? (
         <button className="pl-btn-save" onClick={crear} title={falta?.que || undefined}>
-          <UserPlus size={14} /> Crear colaborador
+          <UserPlus size={14} /> Dar de alta
         </button>
       ) : (
         <button className="pl-btn-save" onClick={() => irA(PASOS[indice + 1].key)}>
@@ -520,7 +613,8 @@ export default function ColaboradorNuevo() {
   )
 
   return (
-    <div className="content-scroll">
+    <div className="content-scroll" ref={raiz}>
+      {avisoDeAlta}
       {/* ── LA CABECERA ──
           UNA LÍNEA Y NADA MÁS. Acá hubo, por orden: un «← Colaboradores» con un <h1> debajo y
           un párrafo de veinticinco palabras; después una tarjeta de identidad con foto, nombre,
@@ -609,7 +703,7 @@ export default function ColaboradorNuevo() {
                   />
                 </Acordeon>
               ))}
-              <p className="pl-leyenda"><b>*</b> Campo obligatorio para poder crear la ficha</p>
+              <p className="pl-leyenda"><b>*</b> Campo obligatorio para poder dar de alta</p>
             </div>
         )
 

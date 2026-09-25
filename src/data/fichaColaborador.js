@@ -948,6 +948,15 @@ function expandirRepetibles(campos, form) {
         /* EL TÍTULO SE NUMERA SÓLO CUANDO HAY MÁS DE UNO. Con un solo hijo, «Hijo 1» pregunta por
            el segundo sin decirlo; con tres, no numerarlos los vuelve indistinguibles. */
         if (campo.tipo === 'rotulo' && cuantos > 1) copia.label = (campo.singular || campo.label) + ' ' + n
+        /* UN CAMPO SUELTO FUERA DE SU BLOQUE SE NOMBRA SOLO. En «Archivos» el acta de cada activo
+           llega sin el rótulo que la encabezaba en su paso, y tres «Acta de entrega» seguidas no
+           dicen cuál es cuál. `nombraCon` es el campo de su copia que la identifica —el tipo de
+           activo—; sin contestar todavía, el número. */
+        if (campo.nombraCon) {
+          const cual = enSuCopia(form, n)(campo.nombraCon)
+          if (cual) copia.label = `${campo.label} · ${cual}`
+          else if (cuantos > 1) copia.label = `${campo.label} ${n}`
+        }
         fuera.push(copia)
       }
     }
@@ -1295,4 +1304,10 @@ const BLOQUEOS = [
 
 export function faltaParaCrear(form) {
   return BLOQUEOS.find(b => !(form[b.key] || '').trim()) || null
+}
+
+/* Todos los que faltan, no sólo el primero: el aviso de «Dar de alta» los lista juntos para que
+   nadie corrija uno, vuelva a intentar y descubra el siguiente. */
+export function faltasParaCrear(form) {
+  return BLOQUEOS.filter(b => !(form[b.key] || '').trim())
 }

@@ -4715,6 +4715,21 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             insignia: 'v1.2',
             nivel: 'Operativo'
+          },
+          /* EL ACTA DE CADA ACTIVO, espejada del paso 9 con su misma clave: subirla acá o allá es
+             subir la misma. Va una por activo declarado, y cada una dice de cuál es. Sin
+             `c-escaneo`: el riel de este bloque ya es 1.17, y dos rieles en un bloque se desanclan. */
+          {
+            key: 'ra.8',
+            repite: 'activos',
+            label: 'Acta de entrega',
+            nombraCon: 'ra.1',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El acta firmada del activo entregado, la misma que se sube en Recursos y Activos.'
           }
         ]
       }

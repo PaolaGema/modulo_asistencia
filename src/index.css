@@ -178,6 +178,16 @@
      En claro son el mismo color, así que el tema claro no cambia ni un píxel. */
   --navy-txt: var(--navy);
   --focus: var(--navy);
+  /* LOS SEPARADORES DEL EXPEDIENTE (vista previa). Cuatro familias de pasos, un color cada una,
+     y ninguno verde: en la ficha el verde dice «completo». Los cuatro dan 4.5:1 o más contra
+     blanco, porque llevan el número del paso escrito encima. */
+  --xp-persona: #C8385A;
+  --xp-trayectoria: #2466C2;
+  --xp-contrato: #A85A0A;
+  --xp-empresa: #6D4BC4;
+  --xp-tinta-sep: #fff;
+  --xp-tapa: linear-gradient(135deg, #0C2D40 0%, #164a66 100%);
+  --xp-tapa-borde: transparent;
 }
 
 /* ── DARK THEME OVERRIDES ───────────────────────── */
@@ -291,6 +301,15 @@
   --sh-md: 0 4px 16px rgba(0,0,0,.25);
   --navy-txt: var(--text-heading);
   --focus: var(--green);
+  /* En oscuro los separadores se aclaran y el número pasa a tinta oscura: el mismo color de
+     día, sobre este azul, se hundía. */
+  --xp-persona: #F2849D;
+  --xp-trayectoria: #72AEF7;
+  --xp-contrato: #F2AE4E;
+  --xp-empresa: #AE96F4;
+  --xp-tinta-sep: #0A2434;
+  --xp-tapa: linear-gradient(135deg, #0A2434 0%, #123A52 100%);
+  --xp-tapa-borde: rgba(255,255,255,.09);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -6455,6 +6474,77 @@ select.pl-input:focus {
    tamaño de un pie de página, no compitiendo con los datos. El filete punteado lo separa sin
    pesar: es el mismo gris del borde de la tarjeta, discontinuo porque no cierra una sección sino
    que cuelga de ella. */
+/* ── LA TARJETA COMO HOJA DE PAPEL (vista previa del expediente) ─────────────
+   Nombre del dato en versalitas, una línea de puntos y el valor a la derecha, en dos columnas.
+   Lo que falta es un renglón con la línea lisa y sin valor: la línea en blanco de un formulario. */
+.emp-papel {
+  padding: 20px 24px 22px;
+  border-radius: 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+}
+.emp-papel-tit {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.005em;
+  color: var(--text-heading);
+}
+.emp-papel-filas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 36px;
+}
+.emp-papel-rotulo {
+  grid-column: 1 / -1;
+  margin: 12px 0 2px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+/* `position: relative` ANCLA EL «SIN COMPLETAR» OCULTO. Es `absolute` —así se esconde un texto que
+   sólo lee el lector de pantalla— y sin un ancestro posicionado se ubicaba respecto del <body>: a
+   trece mil píxeles de alto, estiraba la página entera por fuera del <main> y aparecía una segunda
+   barra de desplazamiento, la de la ventana, junto a la del contenido. */
+.emp-papel-fila {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 0;
+}
+.emp-papel-rot {
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 60%;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+.emp-papel-linea {
+  flex: 1 1 12px;
+  min-width: 12px;
+  border-bottom: 1.5px dotted var(--icon-muted);
+  transform: translateY(-4px);
+}
+.emp-papel-fila.vacia .emp-papel-linea { border-bottom-color: var(--border-soft); }
+.emp-papel-val .emp-valor.emp-papel-guion { color: var(--icon-muted); font-weight: 500; }
+.emp-papel-val { flex-shrink: 1; min-width: 0; max-width: 62%; text-align: right; }
+/* El valor que ya pinta `ValorLeido` —texto, fecha, enlace, persona, archivo— entra en el renglón
+   sin su margen ni su tamaño de siempre. */
+.emp-papel-val .emp-valor { display: inline-block; margin: 0; font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text-heading); overflow-wrap: anywhere; }
+.emp-papel-val .emp-valor-parrafo { text-align: left; white-space: pre-line; }
+.emp-papel-val .emp-persona { justify-content: flex-end; }
+
+@media (max-width: 760px) {
+  .emp-papel { padding: 16px 16px 18px; }
+  .emp-papel-filas { grid-template-columns: 1fr; }
+}
+
 .emp-faltan {
   display: flex;
   flex-wrap: wrap;
@@ -9341,43 +9431,441 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   margin: 0;
 }
 .cn-paso-cab p { font-size: 12px; color: var(--text-muted); margin: 3px 0 0; }
-.cn-tarjetas, .cn-previa { display: flex; flex-direction: column; gap: 16px; }
+.cn-tarjetas { display: flex; flex-direction: column; gap: 16px; }
 
-/* En la vista previa cada paso vuelve con su número y su botón de editar: sin eso, veinte
-   tarjetas seguidas son una lista sin costuras donde no se sabe qué pertenece a qué. */
-.cn-bloque { display: flex; flex-direction: column; gap: 12px; }
-.cn-bloque-cab { display: flex; align-items: center; gap: 9px; }
-.cn-bloque-cab h3 {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-heading);
-  margin: 0;
+/* ── LA VISTA PREVIA COMO EXPEDIENTE ────────────────────────────────────────
+   Una tapa, un índice de separadores y las secciones. El porqué está en ExpedientePrevia.jsx;
+   acá sólo el cómo. Cada sección y cada columna del índice declaran su familia en
+   `data-familia`, y de ahí sale `--xp-c`, el único color que usan. */
+.xp { display: flex; flex-direction: column; gap: 18px; }
+.xp [data-familia="persona"] { --xp-c: var(--xp-persona); }
+.xp [data-familia="trayectoria"] { --xp-c: var(--xp-trayectoria); }
+.xp [data-familia="contrato"] { --xp-c: var(--xp-contrato); }
+.xp [data-familia="empresa"] { --xp-c: var(--xp-empresa); }
+
+/* ── La tapa ──
+   LA PESTAÑA ES LA DE UNA CARPETA DE VERDAD: sale por encima del borde, del mismo azul, y lleva
+   el número del legajo. Es lo único que dice «esto es un expediente» sin escribirlo. */
+.xp-tapa {
+  position: relative;
+  margin-top: 24px;
+  padding: 26px 28px 24px;
+  border-radius: 0 20px 20px 20px;
+  background: var(--xp-tapa);
+  border: 1px solid var(--xp-tapa-borde);
+  color: #fff;
+  box-shadow: 0 18px 40px -22px rgba(12,45,64,.55);
 }
-.cn-bloque-cab button {
-  margin-left: auto;
-  padding: 4px 11px;
+.xp-pestana {
+  position: absolute;
+  left: -1px;
+  bottom: 100%;
+  padding: 6px 18px 5px 16px;
+  border-radius: 12px 14px 0 0;
+  background: #0C2D40;
+  border: 1px solid var(--xp-tapa-borde);
+  border-bottom: none;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--green-light);
+  white-space: nowrap;
+}
+.dark .xp-pestana { background: #0A2434; }
+.xp-tapa-cuerpo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 26px;
+  align-items: center;
+}
+
+/* La foto, montada: marco blanco y una sombra corta, como una foto carnet pegada en la tapa. */
+.xp-retrato {
+  width: 118px;
+  height: 142px;
+  padding: 5px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 10px 24px -10px rgba(0,0,0,.55);
+  flex-shrink: 0;
+}
+.xp-retrato img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; }
+.xp-iniciales {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  border-radius: 10px;
+  background: #E3EAEF;
+  color: #0C2D40;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.xp-quien { min-width: 0; }
+/* EL TIPO DE ALTA ES UNA ETIQUETA, NO UNA CEJA. Iba en versalitas de 11 px al 62 % de blanco y se
+   perdía sobre el azul; como pastilla con su propio fondo se lee de un vistazo y dice lo que es:
+   una clasificación del expediente. El reingreso lleva el ámbar porque cambia lo que se revisa. */
+.xp-ceja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,.78);
+}
+.xp-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: #fff;
+}
+.xp-tipo::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-light);
+}
+.xp-tipo-reingreso::before { background: #F5B94A; }
+/* EL NOMBRE EN LA MISMA LETRA QUE EL RESTO. Estuvo en Playfair cursiva para que la tapa pareciera
+   una tapa, y en pantalla se leía como una invitación de boda: en un software de RR.HH. el
+   nombre tiene que verse firme y legible, no decorado. Lo que lo distingue es el tamaño. */
+.xp-nombre {
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 28px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.015em;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+/* Lo que falta va en gris, sin cursiva: la cursiva en gris claro sobre oscuro es lo primero
+   que deja de leerse. */
+.xp-nombre-vacio { font-weight: 600; color: rgba(255,255,255,.55); }
+.xp-cargo { margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--green-light); }
+.xp-cargo span { color: rgba(255,255,255,.75); font-weight: 500; }
+.xp-cargo-vacio { color: rgba(255,255,255,.6); font-weight: 500; }
+
+.xp-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px 20px;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.xp-dato { min-width: 0; }
+.xp-dato dt {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.62);
+}
+.xp-dato dd {
+  margin: 3px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  /* Baja de renglón en vez de cortarse: un correo con «…» al final es un correo que no se lee. */
+  overflow-wrap: anywhere;
+}
+.xp-dato dd.xp-dato-vacio { color: rgba(255,255,255,.5); font-weight: 500; }
+
+/* El avance: anillo verde —acá el verde sí dice «completo»— y el sello de si se puede crear. */
+.xp-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 170px;
+}
+.xp-avance { position: relative; width: 96px; height: 96px; }
+.xp-anillo { width: 100%; height: 100%; transform: rotate(-90deg); }
+.xp-anillo circle { fill: none; stroke-width: 7; }
+.xp-anillo-fondo { stroke: rgba(255,255,255,.12); }
+.xp-anillo-lleno { stroke: var(--green); stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+.xp-avance-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.xp-avance-pct small { font-size: 12px; font-weight: 700; margin-left: 1px; opacity: .7; }
+.xp-avance-txt { margin: 0; font-size: 11.5px; color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+.xp-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 210px;
+  margin: 4px 0 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+}
+.xp-sello svg { flex-shrink: 0; }
+.xp-sello-listo { background: rgba(0,224,145,.16); color: var(--green-light); }
+.xp-sello-falta {
+  border: 1px solid rgba(255,150,150,.45);
+  background: rgba(239,68,68,.18);
+  color: #FFD2D2;
+  cursor: pointer;
+}
+.xp-sello-falta:hover { background: rgba(239,68,68,.28); }
+.xp-sello-falta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ── El índice: el lomo de la carpeta ──
+   Una sola barra partida en once tramos y agrupada por familia. Cada familia crece según cuántos
+   pasos tiene (`flex-grow` lo pone el componente), así que los once tramos miden lo mismo. El
+   nombre del paso va debajo de su tramo, solo en su renglón, y debajo el número y el porcentaje.
+
+   EN UNA SOLA FILA SÓLO DONDE CABE. Con el riel de pasos al lado, en una laptop cada tramo mide
+   unos 67 px y «Configuración» no entra: partido con guion se leía «Confi-guración». Por debajo
+   de 1700 px las familias van de a dos por fila, y en el celular una debajo de otra. */
+.xp-lomo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 14px;
+  padding: 16px 18px 14px;
+  border-radius: 16px;
+  background: var(--surface-card);
   border: 1px solid var(--border-soft);
+}
+.xp-lomo-fam { display: flex; flex-direction: column; gap: 10px; flex-basis: 40%; min-width: 0; }
+@media (min-width: 1700px) {
+  .xp-lomo { flex-wrap: nowrap; }
+  .xp-lomo-fam { flex-basis: 0; }
+}
+.xp-lomo-nom {
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--xp-c);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--xp-c);
+}
+.xp-lomo-tramos { display: flex; gap: 4px; }
+.xp-tramo {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 4px 4px 6px;
+  margin: -4px -4px -6px;
+  border: none;
   border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  color: var(--text-heading);
+  text-align: left;
+  cursor: pointer;
+}
+.xp-tramo:hover { background: var(--surface-hover); }
+.xp-tramo:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.xp-tramo-barra {
+  display: block;
+  height: 14px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--xp-c) 14%, var(--surface-card));
+  overflow: hidden;
+}
+.xp-tramo-barra span { display: block; height: 100%; background: var(--xp-c); transition: width .5s ease; }
+.xp-tramo-nom {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xp-tramo-pct {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: -3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.xp-tramo-pct b { font-weight: 700; color: var(--xp-c); }
+.xp-tramo-lleno .xp-tramo-pct { color: var(--xp-c); }
+
+/* ── Cada sección ──
+   LA CABECERA VA EN EL VERDE DEL MENÚ. El fondo es el de la fila en la que uno está parado en el
+   riel de pasos (`--bg-puesto`) y el número va en el cuadro verde de marca con la cifra en azul
+   marino, como el ícono encendido del menú lateral. Se probaron el color de cada familia —un
+   muestrario de once— y el azul de la tapa repetido once veces, que era ruido: la tapa manda
+   arriba y las secciones hablan el idioma de la navegación. */
+.xp-seccion { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 16px; }
+.xp-seccion-cab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 10px;
+  border-radius: 14px;
+  background: var(--bg-puesto);
+  border: 1px solid color-mix(in srgb, var(--green) 28%, transparent);
+}
+.xp-seccion-tab {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--green);
+  color: #0C2D40;
+  font-size: 15px;
+  font-weight: 800;
+}
+.xp-seccion-tit { min-width: 0; }
+.xp-seccion-tit h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-heading); }
+.xp-seccion-tit p { margin: 1px 0 0; font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.xp-editar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 6px 13px;
+  border: 1px solid color-mix(in srgb, var(--green) 40%, transparent);
+  border-radius: 9px;
   background: var(--surface-card);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-heading);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.xp-editar:hover { border-color: var(--green); background: var(--green-tint); }
+.xp-editar:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.xp-seccion-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: 16px;
+  padding-left: 14px;
+  border-left: 2px solid var(--border-soft);
+}
+
+/* ── Angosto ── */
+@media (max-width: 560px) {
+  .xp-lomo-fam { flex-basis: 100%; }
+}
+@media (max-width: 760px) {
+  .xp-tapa { padding: 22px 18px 20px; }
+  .xp-tapa-cuerpo { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 18px; }
+  .xp-quien { width: 100%; }
+  .xp-datos { text-align: left; }
+  .xp-seccion-cuerpo { margin-left: 0; padding-left: 0; border-left: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-anillo-lleno, .xp-tramo-barra span { transition: none; }
+}
+
+/* ── EL AVISO DE «DAR DE ALTA» CUANDO FALTA ALGO ─────────────────────────────
+   Ámbar y no rojo: no es un error de quien llena, es un dato que todavía no está. Lista todo lo
+   que falta a la vez, cada fila con su paso y un botón que lleva hasta el campo. */
+.cn-alta { width: 440px; }
+.cn-alta-cab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 26px 26px 6px;
+  text-align: center;
+}
+.cn-alta-ico {
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--yellow-bg);
+  color: var(--ambar);
+}
+.dark .cn-alta-ico { color: var(--yellow); }
+.cn-alta-cab h2 { margin: 0; font-size: 17px; font-weight: 700; color: var(--text-heading); text-wrap: balance; }
+.cn-alta-cab p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-muted); max-width: 34ch; }
+.cn-alta-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 22px 20px;
+  list-style: none;
+}
+.cn-alta-lista li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 10px;
+  border-radius: 12px;
+  background: var(--bg-puesto);
+  border: 1px solid color-mix(in srgb, var(--green) 28%, transparent);
+}
+.cn-alta-num {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--green);
+  color: #0C2D40;
+  font-size: 13px;
+  font-weight: 800;
+}
+.cn-alta-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.cn-alta-txt b { font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
+.cn-alta-txt small { font-size: 11.5px; color: var(--text-muted); }
+.cn-alta-lista button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border: 1px solid color-mix(in srgb, var(--green) 40%, transparent);
+  border-radius: 9px;
+  background: var(--surface-card);
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-heading);
   cursor: pointer;
 }
-.cn-bloque-cab button:hover { background: var(--green-tint); border-color: var(--green); }
-.cn-bloque-num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  background: var(--navy);
-  color: #fff;
-  font-size: 10.5px;
-  font-weight: 700;
+.cn-alta-lista button:hover { border-color: var(--green); background: var(--green-tint); }
+.cn-alta-lista button:focus-visible, .cn-alta .pl-modal-footer button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* El campo al que se llegó desde el aviso: un halo verde que se apaga solo. */
+.cn-resaltado {
+  border-radius: 12px;
+  animation: cnResaltar 2.4s ease-out;
+}
+@keyframes cnResaltar {
+  0%, 35% { box-shadow: 0 0 0 4px var(--green-halo); background: var(--green-tint); }
+  100% { box-shadow: 0 0 0 4px transparent; background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cn-resaltado { animation: none; box-shadow: 0 0 0 3px var(--green-halo); }
 }
 
 /* ── El aviso de lo que falta ── */
@@ -9422,11 +9910,30 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
    moverlos de altura según cuántos campos tenga el paso obliga a buscarlos cada vez. «Volver
    atrás» y «Guardar y salir» a la izquierda, y lo que avanza separado a la derecha: lo que
    avanza no se aprieta de paso. */
+/* EL PIE SE QUEDA PEGADO ABAJO. Hay pasos de más de treinta campos y el «Siguiente» vivía al
+   final de todos: para avanzar había que bajar hasta encontrarlo. Pegado al borde inferior del
+   área que se desplaza está siempre a mano, y al llegar al final del paso se asienta en su sitio.
+   El fondo translúcido con desenfoque deja ver que debajo sigue habiendo formulario. */
+/* Y BAJA HASTA EL BORDE. El <main> que se desplaza tiene 1.25rem de relleno abajo y la barra se
+   pegaba encima de él: quedaba una franja por donde se veía pasar el formulario. El `bottom`
+   negativo la lleva hasta el borde, el relleno de más la rellena, y el margen negativo devuelve al
+   final del paso el sitio que ese relleno ocuparía. */
 .cn-pie {
+  position: sticky;
+  bottom: -1.25rem;
+  z-index: 5;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-top: 4px;
+  margin-inline: -12px;
+  margin-bottom: -1.25rem;
+  padding: 12px 12px calc(12px + 1.25rem);
+  border-radius: 14px 14px 0 0;
+  border-top: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--bg-app) 88%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 -12px 24px -20px rgba(12,45,64,.45);
 }
 .cn-pie .pl-btn-save { margin-left: auto; }
 

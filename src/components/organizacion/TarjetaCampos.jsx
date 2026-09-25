@@ -467,7 +467,10 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
    sin esto quedaba un recuadro con sombra dentro de otro recuadro con sombra, y el título
    escrito dos veces, una en cada uno. Lo que se comparte sigue siendo lo único que importa: qué
    campos hay y cómo se dibuja cada uno. */
-export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar, editando, prefijo, marcarFaltas = true, desnudo = false, children }) {
+/* `papel` es la lectura como hoja de expediente —ver `HojaDePapel` más abajo—. Sólo la pide la
+   vista previa de la ficha del colaborador; las demás pantallas siguen leyendo en rejilla. */
+export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar, editando, prefijo, marcarFaltas = true, desnudo = false, papel = false, children }) {
+  if (papel && !editando) return <HojaDePapel titulo={titulo} campos={campos} form={form} />
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
      tanto hueco había que buscar los tres datos que sí existían. El guion tiene sentido en un
@@ -495,8 +498,11 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
      lectura la mitad de los campos que separaban no están —los vacíos se esconden—, así que
      quedarían encabezando la nada. Tampoco cuentan como «sin completar»: no hay nada que
      completar en un encabezado. */
-  const deLectura = campos.filter(c => !c.soloEdicion && c.tipo !== 'rotulo')
-  const vacios = editando ? [] : deLectura.filter(c => !c.vacio && vacio(valorDe(c)))
+  /* Tampoco el botón de «Agregar otro hijo»: no es un dato, y en la línea de «Sin completar» se
+     leía como uno que faltaba. Ni un calculado vacío, que nadie puede completar desde acá: se
+     llena solo en cuanto se escribe aquello de lo que sale. */
+  const deLectura = campos.filter(c => !c.soloEdicion && c.tipo !== 'rotulo' && c.tipo !== 'repetir')
+  const vacios = editando ? [] : deLectura.filter(c => !c.vacio && c.deducido === undefined && vacio(valorDe(c)))
   const visibles = editando ? campos : deLectura.filter(c => c.vacio || !vacio(valorDe(c)))
 
   /* Dónde empieza cada riel y cuánto mide sale de los campos que de verdad se están viendo, así
@@ -573,6 +579,55 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
           {faltan.join(' · ')}
         </p>
       )}
+    </section>
+  )
+}
+
+/* ── LA TARJETA LEÍDA COMO HOJA DE PAPEL ─────────────────────────────────────
+   Para la vista previa del expediente: cada dato es un renglón con su nombre, una línea de puntos
+   y el valor, como un formulario impreso. Se eligió entre seis propuestas.
+
+   LO QUE FALTA NO SE ESCONDE NI SE AMONTONA AL PIE: se queda en su renglón, en el orden del
+   formulario, con un guion en el lugar del valor. En la lectura de siempre los vacíos se
+   juntaban en una línea de «Sin completar», que separaba el hueco del sitio donde va; en papel se
+   ve dónde falta, que es lo que un legajo enseña de un vistazo.
+
+   Los rótulos de un bloque que se repite —«Hijo 2», «Formación 1»— vuelven como subtítulo: acá
+   los renglones vacíos se ven, así que ya no encabezan la nada. */
+function HojaDePapel({ titulo, campos, form }) {
+  const filas = campos.filter(c => !c.soloEdicion && c.tipo !== 'repetir')
+  return (
+    <section className="emp-papel">
+      <h2 className="emp-papel-tit">{titulo}</h2>
+      <div className="emp-papel-filas">
+        {filas.map(c => {
+          if (c.tipo === 'rotulo') return <p key={c.key} className="emp-papel-rotulo">{c.label}</p>
+          const fijo = c.deducido !== undefined
+          const valor = fijo ? c.deducido : form[c.key]
+          /* Un vacío que significa algo —«Sin límite»— es una respuesta y se escribe. */
+          const hay = !vacio(valor) || !!c.vacio
+          return (
+            <div key={c.key} className={`emp-papel-fila${hay ? '' : ' vacia'}`}>
+              <span className="emp-papel-rot">{c.label}</span>
+              <span className="emp-papel-linea" aria-hidden="true" />
+              {hay && (
+                <span className="emp-papel-val">
+                  {fijo ? <p className="emp-valor">{valor}</p> : <ValorLeido campo={c} valor={valor} />}
+                </span>
+              )}
+              {/* EL VACÍO SE ESCRIBE CON UN GUION. Un renglón en blanco no se distinguía de uno que
+                  todavía no había cargado, ni de un valor que no se ve; el guion dice «acá no hay
+                  nada» sin dudas. Para el lector de pantalla, «Sin completar» en vez de «raya». */}
+              {!hay && (
+                <span className="emp-papel-val">
+                  <span className="sr-only">Sin completar</span>
+                  <span className="emp-valor emp-papel-guion" aria-hidden="true">—</span>
+                </span>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </section>
   )
 }
