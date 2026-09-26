@@ -1,0 +1,143 @@
+/* ── DOCUMENTACIÓN · EL VOCABULARIO VISUAL COMPARTIDO ──────────────────────
+   Prefijo `dc-`. Lo que es de una sola pantalla va en su propio archivo junto a ella
+   (`src/pages/documentacion/*.css`); acá sólo lo que usan varias.
+
+   LOS TONOS DE ESTADO SON TOKENS, con su versión oscura. Cada uno es un par —tinta y fondo— con
+   contraste AA sobre la tarjeta en los dos temas; ninguno se usa suelto sin su texto (RNF-21). */
+:root {
+  --dc-verde: #0F7A4F;      --dc-verde-bg: #E6F7EF;
+  --dc-ambar: #9A5B06;      --dc-ambar-bg: #FFF4DE;
+  --dc-rojo: #B42318;       --dc-rojo-bg: #FDECEA;
+  --dc-azul: #1D5FBF;       --dc-azul-bg: #E8F0FC;
+  --dc-violeta: #6A3FC0;    --dc-violeta-bg: #F1ECFC;
+  --dc-gris: #4B5B6B;       --dc-gris-bg: #EDF1F5;
+}
+.dark {
+  --dc-verde: #5EE0A6;      --dc-verde-bg: rgba(94,224,166,.13);
+  --dc-ambar: #F7C66A;      --dc-ambar-bg: rgba(247,198,106,.13);
+  --dc-rojo: #FF9B91;       --dc-rojo-bg: rgba(255,155,145,.13);
+  --dc-azul: #8DB8FF;       --dc-azul-bg: rgba(141,184,255,.13);
+  --dc-violeta: #C3A8FF;    --dc-violeta-bg: rgba(195,168,255,.13);
+  --dc-gris: #B7C4D1;       --dc-gris-bg: rgba(183,196,209,.11);
+}
+
+/* ── La etiqueta de estado ── */
+.dc-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600; line-height: 1.3;
+  white-space: nowrap;
+}
+.dc-chip-sm { font-size: 10.5px; padding: 2px 8px 2px 6px; gap: 4px; }
+.dc-t-verde { color: var(--dc-verde); background: var(--dc-verde-bg); }
+.dc-t-ambar { color: var(--dc-ambar); background: var(--dc-ambar-bg); }
+.dc-t-rojo { color: var(--dc-rojo); background: var(--dc-rojo-bg); }
+.dc-t-azul { color: var(--dc-azul); background: var(--dc-azul-bg); }
+.dc-t-violeta { color: var(--dc-violeta); background: var(--dc-violeta-bg); }
+.dc-t-gris { color: var(--dc-gris); background: var(--dc-gris-bg); }
+.dc-bg-verde { background: var(--dc-verde); }
+.dc-bg-ambar { background: var(--dc-ambar); }
+.dc-bg-rojo { background: var(--dc-rojo); }
+
+.dc-sens {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 6px; border-radius: 5px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--dc-violeta); border: 1px solid color-mix(in srgb, var(--dc-violeta) 35%, transparent);
+}
+
+/* ── La persona en una fila ── */
+.dc-persona { display: flex; align-items: center; gap: 10px; min-width: 0; text-align: left; }
+.dc-persona .og-av { font-weight: 700; }
+.dc-persona-link { border: none; background: none; padding: 0; font: inherit; cursor: pointer; color: inherit; }
+.dc-persona-link:hover .dc-persona-nom { text-decoration: underline; text-underline-offset: 2px; }
+.dc-persona-txt { display: flex; flex-direction: column; min-width: 0; }
+.dc-persona-nom { font-size: 13px; font-weight: 600; color: var(--text-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dc-persona-sub { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── El avance ── */
+.dc-avance { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-heading); }
+.dc-avance b { font-variant-numeric: tabular-nums; min-width: 34px; font-weight: 700; }
+.dc-avance-barra { height: 6px; border-radius: 999px; background: var(--bg-canal); overflow: hidden; display: inline-block; }
+.dc-avance-lleno { display: block; height: 100%; border-radius: inherit; transition: width .4s ease; }
+.dc-muted { color: var(--text-muted); }
+.dc-sinreq { font-size: 11.5px; font-style: normal; }
+
+/* ── Los filtros ── */
+.dc-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.dc-filtro { width: 190px; }
+.dc-filtro .pl-dropdown-trigger, .dc-filtro button[aria-haspopup] { height: 36px; font-size: 12px; }
+.dc-limpiar {
+  border: none; background: none; padding: 6px 4px; cursor: pointer;
+  font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.dc-limpiar:hover { color: var(--text-heading); }
+
+/* ── Cabecera, tarjetas y vacíos ── */
+.dc-cabecera { align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.dc-cabecera-acc { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.dc-tarjeta {
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+}
+.dc-tarjeta-cab {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border-soft);
+}
+.dc-tarjeta-cab h2, .dc-tarjeta-cab h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-heading); }
+.dc-tarjeta-cuerpo { padding: 16px 18px; }
+
+.dc-vacio { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 20px; gap: 6px; }
+.dc-vacio-ico { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--green-tint); color: var(--green-fuerte); margin-bottom: 6px; }
+.dc-vacio-tit { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-heading); }
+.dc-vacio-txt { margin: 0; font-size: 12.5px; color: var(--text-muted); max-width: 420px; line-height: 1.55; }
+.dc-vacio-acc { margin-top: 10px; display: flex; gap: 8px; }
+
+.dc-modal-ico { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,.12); display: grid; place-items: center; color: #fff; }
+
+/* ── Botones chicos del módulo ──
+   Los de la casa son `pl-btn-new` (acción principal) y `pl-btn-cancel` / `pl-btn-save` en los
+   modales. `dc-btn` es el secundario de las tablas y tarjetas: borde, sin relleno. */
+.dc-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 12px;
+  border: 1px solid var(--border-soft); border-radius: 8px;
+  background: var(--surface-card); color: var(--text-heading);
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background .12s, border-color .12s;
+}
+.dc-btn:hover { background: var(--surface-hover); border-color: var(--border-dark); }
+.dc-btn:disabled { opacity: .5; cursor: not-allowed; }
+.dc-btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+.dc-btn-peligro { color: var(--dc-rojo); }
+.dc-btn-texto { border-color: transparent; background: transparent; }
+.dc-btn-texto:hover { background: var(--surface-hover); border-color: transparent; }
+.dc-btn:focus-visible, .dc-limpiar:focus-visible, .dc-persona-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Los KPI del módulo usan las `kpi-card` de la casa; esto sólo las hace clicables cuando
+   llevan a algún lado (la bandeja filtrada, por ejemplo). */
+.dc-kpi-link { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+.dc-kpi-link:hover { transform: translateY(-1px); box-shadow: var(--sh-md); }
+.dc-kpi-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Las pestañas de una pantalla (bandeja, biblioteca): subrayado, no pastillas. */
+.dc-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border-soft); overflow-x: auto; }
+.dc-tab {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 14px; border: none; background: none; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap;
+}
+.dc-tab:hover { color: var(--text-heading); }
+.dc-tab.on { color: var(--text-heading); border-bottom-color: var(--green-fuerte); }
+.dc-tab-n { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--bg-canal); color: var(--text-heading); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 760px) {
+  .dc-filtro { width: 100%; }
+  .dc-filtros { flex-direction: column; align-items: stretch; }
+}

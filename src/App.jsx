@@ -40,6 +40,21 @@ import RecursosPersonas from './pages/archivos/RecursosPersonas'
 import RecursosComunicacion from './pages/archivos/RecursosComunicacion'
 import RecursosEvaluacion from './pages/archivos/RecursosEvaluacion'
 import RolesPermisos from './pages/configuracion/RolesPermisos'
+import { DocumentacionProvider } from './context/DocumentacionContext'
+import DocExpedientes from './pages/documentacion/Expedientes'
+import DocExpediente from './pages/documentacion/Expediente'
+import DocCargaLote from './pages/documentacion/CargaLote'
+import DocBandeja from './pages/documentacion/Bandeja'
+import DocPanel from './pages/documentacion/Panel'
+import DocReportes from './pages/documentacion/Reportes'
+import DocEmitir from './pages/documentacion/Emitir'
+import DocBiblioteca from './pages/documentacion/Biblioteca'
+import DocEditorPlantilla from './pages/documentacion/EditorPlantilla'
+import DocContrato from './pages/documentacion/Contrato'
+import DocPuestaEnMarcha from './pages/documentacion/PuestaEnMarcha'
+import DocTiposSubtipos from './pages/documentacion/TiposSubtipos'
+import DocRequisitos from './pages/documentacion/Requisitos'
+import DocParametros from './pages/documentacion/Parametros'
 
 export default function App() {
   return (
@@ -49,6 +64,7 @@ export default function App() {
       <ConfigProvider>
       <RutaActivaProvider>
       <UnsavedChangesProvider>
+      <DocumentacionProvider>
       <BrowserRouter>
         <Routes>
           {/* Lo personal vive junto y aparte de lo administrativo: Inicio y Onboarding
@@ -144,6 +160,26 @@ export default function App() {
             <Route path="colaboradores/nuevo" element={<ColaboradorNuevo />} />
             <Route path="organigrama" element={<Navigate to="/organizacion/organigrama" replace />} />
           </Route>
+          {/* DOCUMENTACIÓN (PRD v1.0), EN /documentos: /documentacion ya lo ocupa documentacion.html,
+              la documentación de la maqueta, y el servidor de desarrollo la sirve primero. Las rutas siguen el menú por tarea de 11.2; el expediente
+              lleva el id de la persona y no uno propio, porque un expediente ES una persona. */}
+          <Route path="/documentos" element={<Layout />}>
+            <Route index element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="expedientes" element={<DocExpedientes />} />
+            <Route path="expedientes/:id" element={<DocExpediente />} />
+            <Route path="bandeja" element={<DocBandeja />} />
+            <Route path="emitir" element={<DocEmitir />} />
+            <Route path="contratos/:id" element={<DocContrato />} />
+            <Route path="panel" element={<DocPanel />} />
+            <Route path="reportes" element={<DocReportes />} />
+            <Route path="lote" element={<DocCargaLote />} />
+            <Route path="configuracion" element={<DocPuestaEnMarcha />} />
+            <Route path="configuracion/tipos" element={<DocTiposSubtipos />} />
+            <Route path="configuracion/requisitos" element={<DocRequisitos />} />
+            <Route path="configuracion/modelos" element={<DocBiblioteca />} />
+            <Route path="configuracion/modelos/:id" element={<DocEditorPlantilla />} />
+            <Route path="configuracion/parametros" element={<DocParametros />} />
+          </Route>
           <Route path="/archivos" element={<Layout />}>
             <Route index element={<MisArchivos />} />
             <Route path="onboarding" element={<Conocimiento />} />
@@ -165,6 +201,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/onboarding" replace />} />
         </Routes>
       </BrowserRouter>
+      </DocumentacionProvider>
       </UnsavedChangesProvider>
       </RutaActivaProvider>
       </ConfigProvider>

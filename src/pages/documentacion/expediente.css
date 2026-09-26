@@ -1,0 +1,241 @@
+/* ── DOCUMENTACIÓN · EXPEDIENTES, CARGA Y LOTE ─────────────────────────────
+   Prefijo `xa-`. Lo compartido del módulo vive en `components/documentacion/documentacion.css`;
+   acá sólo lo de estas cuatro pantallas. Todo con tokens, para que el tema oscuro funcione solo. */
+
+/* ── Barra de búsqueda ── */
+.xa-barra { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.xa-busca { min-width: 240px; }
+.xa-busca .pl-search { height: 36px; }
+.xa-segmento { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg-canal); }
+.xa-segmento button {
+  border: none; background: transparent; padding: 6px 12px; border-radius: 8px;
+  font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+}
+.xa-segmento button:hover { color: var(--text-heading); }
+.xa-segmento button.on { background: var(--surface-card); color: var(--text-heading); box-shadow: var(--sh-sm); }
+.xa-segmento button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.xa-filtro-estado { width: 220px; }
+
+/* ── La lista de expedientes ── */
+.xa-tabla-wrap { overflow-x: auto; }
+.xa-tabla { min-width: 860px; }
+.xa-fila-link { cursor: pointer; }
+.xa-fila-link:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.xa-celda-txt { font-size: 13px; color: var(--text-heading); }
+.xa-nowrap { white-space: nowrap; }
+.xa-pend { display: flex; flex-wrap: wrap; gap: 6px; }
+.xa-pend-item { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; color: var(--text-heading); }
+.xa-pend-item b { font-variant-numeric: tabular-nums; }
+.xa-al-dia { font-size: 12px; }
+
+/* ── La ficha del expediente (RF-19) ── */
+.xa-volver {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
+  border: none; background: none; padding: 2px 0; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-muted);
+  margin-bottom: -8px;
+}
+.xa-volver:hover { color: var(--text-heading); }
+.xa-ficha {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; align-items: center;
+  padding: 22px 24px;
+}
+.xa-ficha-foto { border-radius: 16px !important; font-size: 26px !important; }
+.xa-ficha-nombre { margin: 0; font-size: 22px; font-weight: 700; color: var(--text-heading); letter-spacing: -.01em; line-height: 1.2; }
+.xa-ficha-cargo { margin: 3px 0 0; font-size: 13.5px; color: var(--text-muted); }
+.xa-ficha-datos { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 14px 0 0; }
+.xa-ficha-datos div { min-width: 0; }
+.xa-ficha-datos dt { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.xa-ficha-datos dd { margin: 2px 0 0; font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.xa-ficha-avance { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 250px; }
+.xa-ficha-etq { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.xa-ficha-n { font-size: 11.5px; }
+.xa-ficha-acc { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+.xa-cerrado {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px; border-radius: 12px;
+  background: var(--dc-gris-bg); color: var(--text-heading);
+  font-size: 13px; line-height: 1.55;
+}
+.xa-cerrado svg { flex-shrink: 0; margin-top: 2px; color: var(--dc-gris); }
+
+.xa-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1100;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 10px;
+  background: var(--navy-dark, #051B26); color: #fff; font-size: 13px; font-weight: 600;
+  box-shadow: var(--sh-flotante); animation: plSlideUp .2s;
+}
+.xa-toast svg { color: var(--green); }
+
+/* ── Los grupos por tipo y sus filas ──
+   Rejilla de cuatro columnas —documento, estado, vencimiento, acciones— con anchos fijos para
+   las tres de la derecha: así el estado y la fecha quedan en columna de un tipo al siguiente y
+   se leen de arriba abajo, que es como se busca «qué vence». */
+.xa-grupo { overflow: hidden; }
+.xa-grupo-n { font-size: 12px; }
+.xa-filas { list-style: none; margin: 0; padding: 0; }
+.xa-fila {
+  display: grid; grid-template-columns: minmax(0, 1fr) 128px 118px 330px; gap: 14px; align-items: center;
+  padding: 12px 18px; border-bottom: 1px solid var(--border-soft);
+}
+.xa-fila:last-child { border-bottom: none; }
+.xa-fila:hover { background: var(--surface-hover); }
+.xa-fila.xa-fila-link { cursor: pointer; }
+.xa-e-faltante { background: color-mix(in srgb, var(--dc-gris-bg) 55%, transparent); }
+.xa-e-vencido, .xa-e-rechazado { box-shadow: inset 3px 0 0 var(--dc-rojo); }
+.xa-e-faltante { box-shadow: inset 3px 0 0 var(--border-dark); }
+.xa-e-en_revision { box-shadow: inset 3px 0 0 var(--dc-azul); }
+.xa-fila-doc { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.xa-fila-nom { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
+.xa-fila-arch { font-size: 12px; color: var(--text-muted); overflow-wrap: anywhere; }
+.xa-fila-venc { display: flex; flex-direction: column; font-size: 12.5px; color: var(--text-heading); }
+.xa-fila-venc small { font-size: 11px; color: var(--text-muted); }
+.xa-fila-acc { display: flex; justify-content: flex-end; align-items: center; gap: 4px; flex-wrap: wrap; }
+.xa-opcional { font-size: 10.5px; font-weight: 600; color: var(--text-muted); padding: 1px 6px; border-radius: 5px; background: var(--bg-canal); }
+.xa-rojo { color: var(--dc-rojo) !important; }
+.xa-ambar { color: var(--dc-ambar) !important; }
+.xa-verde { color: var(--dc-verde); }
+.xa-btn-ok { color: var(--dc-verde); }
+.xa-btn-cargar { height: 30px; padding: 0 12px; font-size: 12px; }
+.xa-papelera .dc-tarjeta-cab h2 { display: inline-flex; align-items: center; gap: 6px; }
+.xa-papelera .xa-fila { grid-template-columns: minmax(0, 1fr) auto; opacity: .85; }
+
+/* ── Historial: la línea de tiempo (RF-20) ── */
+.xa-linea { list-style: none; margin: 0; padding: 16px 18px 16px 22px; }
+.xa-evento { position: relative; display: flex; gap: 14px; padding: 0 0 16px 0; }
+.xa-evento::before { content: ''; position: absolute; left: 5px; top: 14px; bottom: 0; width: 2px; background: var(--border-soft); }
+.xa-evento:last-child::before { display: none; }
+.xa-evento-punto { flex-shrink: 0; width: 12px; height: 12px; margin-top: 3px; border-radius: 50%; background: var(--surface-card); border: 2px solid var(--icon-muted); position: relative; z-index: 1; }
+.xa-ev-alta .xa-evento-punto, .xa-ev-aprobacion .xa-evento-punto, .xa-ev-emision .xa-evento-punto { border-color: var(--dc-verde); }
+.xa-ev-rechazo .xa-evento-punto, .xa-ev-baja .xa-evento-punto, .xa-ev-anulacion .xa-evento-punto { border-color: var(--dc-rojo); }
+.xa-ev-lectura .xa-evento-punto, .xa-ev-exoneracion .xa-evento-punto { border-color: var(--dc-violeta); }
+.xa-evento-tit { margin: 0; font-size: 13px; color: var(--text-heading); line-height: 1.45; }
+.xa-evento-meta { margin: 2px 0 0; font-size: 11.5px; color: var(--text-muted); }
+
+/* ── Ver un documento ── */
+.xa-vista { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
+.xa-vista-hoja {
+  min-height: 420px; border-radius: 12px; background: var(--bg-canal);
+  display: flex; align-items: center; justify-content: center; padding: 18px; overflow: hidden;
+}
+.xa-previa-pdf { width: 100%; height: 480px; border: none; border-radius: 6px; background: #fff; }
+.xa-previa-img { max-width: 100%; max-height: 480px; border-radius: 6px; box-shadow: var(--sh-md); }
+.xa-hoja {
+  position: relative; width: min(100%, 330px); aspect-ratio: 1 / 1.3; padding: 30px 26px;
+  background: #fff; color: #0C2D40; border-radius: 4px; box-shadow: 0 10px 30px -12px rgba(12,45,64,.35);
+  display: flex; flex-direction: column; gap: 6px; overflow: hidden;
+}
+.xa-hoja-sello {
+  position: absolute; top: 18px; right: -34px; transform: rotate(35deg);
+  padding: 3px 40px; background: #FFF4DE; color: #9A5B06; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+}
+.xa-hoja-tit { margin: 0 0 8px; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #64748b; }
+.xa-hoja-nom { margin: 0; font-size: 17px; font-weight: 700; }
+.xa-hoja-doc { margin: 0 0 12px; font-size: 12px; color: #64748b; font-variant-numeric: tabular-nums; }
+.xa-hoja-lineas { display: flex; flex-direction: column; gap: 9px; margin: 6px 0 14px; }
+.xa-hoja-lineas span { height: 7px; border-radius: 4px; background: #E3EAEF; }
+.xa-hoja-pie { margin: auto 0 0; font-size: 11px; color: #475569; }
+.xa-hoja-nota { margin: 8px 0 0; font-size: 10.5px; color: #94a3b8; line-height: 1.45; }
+.xa-vista-lado { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.xa-vista-estado { display: flex; gap: 6px; flex-wrap: wrap; }
+.xa-vista-datos { margin: 0; display: flex; flex-direction: column; gap: 9px; }
+.xa-vista-datos dt { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); }
+.xa-vista-datos dd { margin: 1px 0 0; font-size: 12.5px; color: var(--text-heading); overflow-wrap: anywhere; }
+.xa-vista-sub { margin: 4px 0 0; font-size: 12px; font-weight: 700; color: var(--text-heading); }
+.xa-versiones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.xa-versiones button {
+  width: 100%; text-align: left; border: 1px solid var(--border-soft); background: var(--surface-card);
+  border-radius: 8px; padding: 7px 10px; cursor: pointer; font: inherit; font-size: 12px; color: var(--text-heading);
+  display: flex; flex-direction: column; gap: 1px;
+}
+.xa-versiones .xa-ver-2 { font-size: 11px; color: var(--text-muted); }
+.xa-versiones button.on { border-color: var(--green-fuerte); box-shadow: 0 0 0 1px var(--green-fuerte); }
+.xa-mono { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 11.5px; }
+
+/* ── Modales de motivo y papelera ── */
+.xa-modal-txt { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-heading); }
+.xa-textarea { resize: vertical; min-height: 80px; font-size: 13.5px; }
+.xa-btn-peligro { background: var(--dc-rojo) !important; color: #fff !important; }
+.xa-btn-peligro:disabled { opacity: .5; cursor: not-allowed; }
+.xa-pie-rechazar { color: var(--dc-rojo); }
+.xa-confirma { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 8px 0; }
+.xa-confirma svg { color: var(--dc-rojo); }
+.xa-confirma p { margin: 0; font-size: 13.5px; color: var(--text-heading); }
+
+/* ── El modal de carga ── */
+.xa-soltar {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+  padding: 22px 16px; border: 2px dashed var(--border-dark); border-radius: 12px;
+  background: var(--input-bg); color: var(--text-muted); cursor: pointer; transition: border-color .12s, background .12s;
+}
+.xa-soltar:hover, .xa-soltar:focus-visible, .xa-soltar.on { border-color: var(--green-fuerte); background: var(--green-tint); outline: none; }
+.xa-soltar p { margin: 4px 0 0; font-size: 13px; color: var(--text-heading); }
+.xa-soltar span { font-size: 11.5px; }
+.xa-item { border: 1px solid var(--border-soft); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; }
+.xa-item.con-error { border-color: color-mix(in srgb, var(--dc-rojo) 55%, transparent); }
+.xa-item-cab { display: flex; align-items: center; gap: 8px; color: var(--text-heading); }
+.xa-item-nom { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xa-item-peso { font-size: 11.5px; }
+.xa-item-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+.xa-campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.xa-campo .pl-label { font-size: 12.5px; flex-direction: row; gap: 0; }
+.xa-campo-ancho { grid-column: 1 / -1; }
+.xa-campo-nulo { height: 44px; display: flex; align-items: center; padding: 0 14px; border-radius: 12px; background: var(--bg-canal); color: var(--text-muted); }
+.xa-ayuda { font-size: 11px; color: var(--text-muted); line-height: 1.45; }
+.xa-aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 9px; background: var(--dc-ambar-bg); color: var(--dc-ambar); font-size: 12px; font-weight: 600; }
+.xa-aviso span:first-of-type { flex: 1; min-width: 200px; }
+.xa-aviso-acc { display: inline-flex; gap: 6px; }
+.xa-aviso-ok { display: inline-flex; align-items: center; gap: 4px; color: var(--dc-verde); }
+.xa-probs { margin: 0; padding: 0 0 0 18px; font-size: 12px; color: var(--dc-rojo); display: flex; flex-direction: column; gap: 3px; }
+.xa-pie-nota { margin-right: auto; font-size: 12px; color: var(--text-muted); }
+
+/* ── Carga por lote ── */
+.xa-pasos { list-style: none; margin: -6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--text-muted); }
+.xa-pasos b { color: var(--text-heading); }
+.xa-resultado { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
+.xa-resultado p { margin: 0; font-size: 13px; color: var(--text-heading); }
+.xa-resultado div { flex: 1; }
+.xa-csv { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 12.5px; resize: vertical; min-height: 140px; }
+.xa-lote-resumen { display: flex; gap: 6px; flex-wrap: wrap; }
+.xa-tabla-scroll { overflow-x: auto; }
+.xa-lote { min-width: 880px; }
+.xa-lote td { font-size: 12.5px; vertical-align: top; }
+.xa-lote-mala td { background: color-mix(in srgb, var(--dc-rojo-bg) 60%, transparent); }
+.xa-lote-arch { max-width: 180px; overflow-wrap: anywhere; color: var(--text-muted); }
+.xa-lote-err { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; color: var(--dc-rojo); font-size: 12px; font-weight: 600; }
+.xa-lote-err li { display: flex; gap: 5px; align-items: flex-start; }
+.xa-lote-err svg { flex-shrink: 0; margin-top: 2px; }
+.xa-lote-err-hist { margin-top: 6px; font-weight: 500; }
+.xa-lote-ok { display: inline-flex; flex-direction: column; gap: 3px; color: var(--dc-verde); font-weight: 600; font-size: 12px; }
+.xa-lote-ok > svg { display: none; }
+.xa-lote-ok small { display: inline-flex; gap: 4px; align-items: flex-start; color: var(--dc-ambar); font-weight: 500; font-size: 11.5px; }
+.xa-lote-pie { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px; border-top: 1px solid var(--border-soft); font-size: 12.5px; }
+.xa-lote-hist { grid-template-columns: minmax(0, 1fr) auto; }
+.pl-btn-new:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Angosto ──
+   La ficha se apila y cada fila del expediente pasa de rejilla a tarjeta: documento arriba,
+   estado y vencimiento en una línea, acciones debajo. */
+@media (max-width: 1100px) {
+  .xa-ficha { grid-template-columns: auto minmax(0, 1fr); }
+  .xa-ficha-avance { grid-column: 1 / -1; align-items: flex-start; min-width: 0; }
+  .xa-ficha-acc { justify-content: flex-start; }
+  .xa-fila { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .xa-fila-acc { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media (max-width: 760px) {
+  .xa-ficha { grid-template-columns: 1fr; padding: 18px; }
+  .xa-ficha-foto { width: 56px !important; height: 56px !important; }
+  .xa-fila { grid-template-columns: 1fr auto; padding: 12px 14px; gap: 8px 10px; }
+  .xa-fila-doc { grid-column: 1 / -1; }
+  .xa-vista { grid-template-columns: 1fr; }
+  .xa-vista-hoja { min-height: 300px; }
+  .xa-item-campos { grid-template-columns: 1fr; }
+  .xa-filtro-estado, .xa-busca { width: 100%; min-width: 0; flex: 1 1 100%; }
+  .xa-segmento { width: 100%; }
+  .xa-segmento button { flex: 1; }
+  .xa-resultado { flex-wrap: wrap; }
+}
+.xa-campo .pl-label > span { margin-left: 4px; }

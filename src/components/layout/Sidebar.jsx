@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { House, CircleUserRound, UserRound, MessageCircleMore, ClipboardCheck, Settings, LogOut, Rocket, Folder, Menu, ChevronsRight, Database, RotateCcw, AlertTriangle, X, Building2, Bell, Sun, Moon, Users, ChevronDown, BookOpen } from 'lucide-react'
+import { House, CircleUserRound, UserRound, MessageCircleMore, ClipboardCheck, Settings, LogOut, Rocket, Folder, Menu, ChevronsRight, Database, RotateCcw, AlertTriangle, X, Building2, Bell, Sun, Moon, Users, ChevronDown, BookOpen, FolderCheck } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
@@ -28,6 +28,11 @@ const allNavItems = [
      puede vivir dentro del cajón de ajustes de uno. */
   { icon: Building2, label: 'Organización', path: '/organizacion', roles: ['admin', 'manager'] },
   { icon: UserRound, label: 'Gestión de personas', path: '/personas/colaboradores', roles: ['admin', 'manager'] },
+  /* DOCUMENTACIÓN VA JUSTO DESPUÉS DE LA GENTE, porque su unidad es siempre una persona: el
+     expediente cuelga del colaborador (PRD 3.2) y lee de su ficha. Módulo propio y no una
+     pestaña de la ficha porque tiene su propio trabajo diario —la bandeja, emitir, el panel—
+     que no empieza eligiendo a nadie. */
+  { icon: FolderCheck, label: 'Documentación', path: '/documentos', roles: ['admin', 'manager'] },
   { icon: Rocket, label: 'Onboarding', path: '/onboarding', roles: ['admin', 'manager', 'auxiliar'] },
   /* COMUNICACIÓN Y EVALUACIÓN SON MÓDULOS DE ADMINISTRACIÓN, no del colaborador: aquí se
      redactan los anuncios y se arman las campañas de evaluación, no se leen. Lo que al

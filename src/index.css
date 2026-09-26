@@ -1828,7 +1828,12 @@ select.pl-input:focus {
    ASIGNACIONES — Tabla
    ══════════════════════════════════════════════════ */
 
+/* `position: relative` ANCLA LOS TEXTOS OCULTOS DE LA TABLA. Un encabezado «Acciones» en `sr-only`
+   es absoluto; sin un ancestro posicionado se ubicaba respecto del <body> y, dentro de una tabla
+   con desplazamiento lateral, estiraba la página entera a lo ancho. Pasó cuatro veces en el
+   módulo de Documentación antes de arreglarlo acá, que es donde vale para todas. */
 .as-table-wrap {
+  position: relative;
   background: var(--surface-card);
   border-radius: var(--r-lg);
   overflow: hidden;

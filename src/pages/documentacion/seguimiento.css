@@ -1,0 +1,174 @@
+/* ── DOCUMENTACIÓN · BANDEJA, PANEL Y REPORTES ──────────────────────────────
+   Prefijo `xb-`. Los tonos de estado salen de `documentacion.css` (`--dc-*`), que ya tienen su
+   versión oscura: acá no se escribe un solo color suelto que el modo oscuro tenga que corregir. */
+
+/* ── La bandeja ── */
+.xb-bandeja { overflow: hidden; }
+.xb-bandeja .dc-tabs { padding: 0 12px; }
+.xb-barra-sel {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 18px; border-bottom: 1px solid var(--border-soft); background: var(--bg-secondary);
+}
+.dark .xb-barra-sel { background: rgba(255,255,255,.02); }
+.xb-check { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--text-heading); cursor: pointer; }
+.xb-check input, .xb-col-check input { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; }
+.dark .xb-check input, .dark .xb-col-check input { accent-color: var(--green); }
+
+/* `position: relative` ancla los textos ocultos de los encabezados (`sr-only` es absoluto): sin él
+   se ubicaban respecto del <body> y estiraban la página a lo ancho de la tabla. */
+.xb-tabla-wrap { position: relative; border: none; border-radius: 0; overflow-x: auto; }
+.dc-tarjeta .xb-tabla-wrap { box-shadow: none; }
+.xb-tabla { width: 100%; }
+.xb-tabla td { vertical-align: middle; }
+.xb-col-check { width: 40px; }
+.xb-fila-sel td { background: var(--green-tint); }
+.xb-fila-link { cursor: pointer; }
+.xb-fila-link:hover td { background: var(--surface-hover); }
+
+.xb-doc { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.xb-doc-nom { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.xb-doc-sub { font-size: 11.5px; color: var(--text-muted); }
+.xb-motivo { font-size: 11.5px; color: var(--dc-rojo); max-width: 340px; }
+.xb-estado { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.xb-cuando { white-space: nowrap; }
+.xb-cuando b, .xb-cuando span { display: block; }
+.xb-cuando b { font-size: 12.5px; font-weight: 600; color: var(--text-heading); }
+.xb-cuando span { font-size: 11.5px; color: var(--text-muted); }
+.xb-acc { text-align: right; white-space: nowrap; }
+.xb-num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; color: var(--text-heading); }
+.xb-detalle { font-size: 12px; color: var(--text-muted); min-width: 240px; }
+
+.xb-p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-heading); }
+.xb-nota { margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
+.xb-nota-pie { max-width: 720px; }
+
+/* El aviso de lo que acaba de pasar: abajo a la derecha, se va solo. `role="status"` para que el
+   lector de pantalla lo anuncie sin robar el foco. */
+.xb-aviso {
+  position: fixed; right: 24px; bottom: 24px; z-index: 1100;
+  display: flex; align-items: center; gap: 10px; max-width: min(460px, calc(100vw - 32px));
+  padding: 12px 14px; border-radius: 12px;
+  background: var(--navy); color: #fff; box-shadow: var(--sh-flotante);
+  font-size: 12.5px; line-height: 1.45; animation: plSlideUp .2s;
+}
+.xb-aviso svg { flex-shrink: 0; color: var(--green); }
+.xb-aviso button { margin-left: auto; border: none; background: rgba(255,255,255,.12); color: #fff; border-radius: 6px; width: 24px; height: 24px; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+
+/* ── Revisar ── */
+.xb-revisar { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; }
+.xb-previa {
+  min-height: 340px; border-radius: 10px; overflow: hidden;
+  background: var(--bg-canal); border: 1px solid var(--border-soft);
+  display: flex; align-items: stretch; justify-content: center;
+}
+.xb-previa img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.xb-previa iframe { width: 100%; min-height: 400px; border: none; background: #fff; }
+.xb-previa-sim { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; color: var(--text-muted); }
+.xb-previa-sim b { font-size: 12px; color: var(--text-heading); word-break: break-all; }
+.xb-previa-sim span { font-size: 11.5px; max-width: 240px; }
+.xb-ficha { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.xb-dl { margin: 0; display: flex; flex-direction: column; gap: 9px; }
+.xb-dl > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; }
+.xb-dl dt { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+.xb-dl dd { margin: 0; font-size: 12.5px; color: var(--text-heading); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.xb-archivo { flex-direction: column; align-items: flex-start !important; word-break: break-all; }
+.xb-archivo span { font-size: 11px; color: var(--text-muted); }
+.xb-motivo-campo textarea { resize: vertical; min-height: 72px; font: inherit; font-size: 13px; }
+.xb-pie-izq { margin-right: auto; }
+.xb-btn-rechazar { display: inline-flex; align-items: center; gap: 6px; color: var(--dc-rojo) !important; }
+.xb-btn-rechazo { background: var(--dc-rojo) !important; }
+.xb-btn-rechazo:disabled { opacity: .45; cursor: not-allowed; }
+.pl-modal-footer .pl-btn-save { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ── El panel ── */
+.xb-kpi { font: inherit; width: 100%; }
+.xb-panel-cab { flex-wrap: wrap; }
+.xb-segmento { display: inline-flex; padding: 3px; gap: 2px; border-radius: 9px; background: var(--bg-canal); }
+.xb-segmento button { border: none; background: transparent; padding: 6px 14px; border-radius: 7px; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.xb-segmento button.on { background: var(--surface-card); color: var(--text-heading); box-shadow: var(--sh-sm); }
+
+.xb-semaforo { list-style: none; margin: 0; padding: 0; }
+.xb-semaforo > li { border-bottom: 1px solid var(--border-soft); }
+.xb-semaforo > li:last-child { border-bottom: none; }
+.xb-semaforo > li.abierto { background: var(--bg-secondary); }
+.dark .xb-semaforo > li.abierto { background: rgba(255,255,255,.02); }
+.xb-grupo {
+  width: 100%; display: grid; align-items: center; gap: 14px;
+  grid-template-columns: 16px minmax(160px, 1.3fr) 90px auto 128px minmax(0, 1.4fr);
+  padding: 13px 18px; border: none; background: none; font: inherit; text-align: left; cursor: pointer; color: var(--text-muted);
+}
+.xb-grupo:hover { background: var(--surface-hover); }
+.xb-grupo:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.xb-grupo-nom { display: flex; flex-direction: column; min-width: 0; }
+.xb-grupo-nom b { font-size: 13px; color: var(--text-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xb-grupo-nom span { font-size: 11.5px; }
+.xb-grupo-n { font-size: 12px; white-space: nowrap; }
+.xb-nivel { justify-self: start; }
+.xb-grupo-cuentas { display: flex; gap: 6px; flex-wrap: wrap; }
+.xb-descenso { padding: 4px 18px 16px 48px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.xb-peores { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 2px; }
+.xb-peores li {
+  display: grid; grid-template-columns: minmax(180px, 260px) 130px minmax(0, 1fr); gap: 14px; align-items: center;
+  padding: 8px 10px; border-radius: 8px; background: var(--surface-card);
+}
+.xb-falta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--text-muted); }
+.xb-falta b { color: var(--text-heading); font-weight: 600; }
+
+/* ── Reportes ── */
+.xb-reporte { display: flex; flex-direction: column; gap: 14px; }
+.xb-exportar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.xb-cuenta { font-size: 12.5px; color: var(--text-muted); }
+.xb-cuenta b { color: var(--text-heading); }
+.xb-omitidos { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--dc-violeta); }
+.xb-btn-exportar { margin-left: auto; height: 34px; padding: 0 14px; font-size: 12px; }
+.xb-btn-exportar:disabled { opacity: .5; cursor: not-allowed; }
+.xb-rango { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.xb-rango-campo { width: 190px; }
+.xb-rango-ancho { width: 240px; }
+.xb-mas { align-self: center; }
+
+.xb-leyenda { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.xb-leyenda-txt { font-weight: 500; margin-left: 4px; color: var(--text-muted); font-size: 11px; letter-spacing: 0; }
+.xb-celda {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 6px; border-radius: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: .03em; white-space: nowrap;
+}
+.xb-celda-no { color: var(--text-muted); background: transparent; font-weight: 500; }
+.xb-matriz-wrap { position: relative; overflow: auto; max-height: 70vh; }
+.xb-matriz { border-collapse: separate; border-spacing: 0; }
+.xb-matriz th, .xb-matriz td { padding: 8px 10px; text-align: center; white-space: nowrap; }
+.xb-matriz thead th { position: sticky; top: 0; z-index: 2; background: var(--table-head-bg); vertical-align: bottom; }
+/* El nombre del subtipo en hasta tres renglones y no cortado con «…»: «Certificado d…» se repetía en tres
+   columnas y no había forma de saber cuál era cuál sin pasar el mouse. */
+.xb-matriz thead th { white-space: normal; min-width: 104px; line-height: 1.3; }
+.xb-col-tit { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 128px; margin: 0 auto; }
+.xb-matriz .xb-fijo { position: sticky; left: 0; z-index: 1; background: var(--surface-card); text-align: left; min-width: 220px; box-shadow: 1px 0 0 var(--border-soft); font-weight: 400; }
+.xb-matriz thead .xb-fijo { z-index: 3; background: var(--table-head-bg); }
+
+.xb-proyeccion .dc-tarjeta-cab { flex-wrap: wrap; }
+.xb-meses { list-style: none; margin: 0; padding: 12px 18px 16px; display: flex; flex-direction: column; gap: 8px; }
+.xb-meses li { display: grid; grid-template-columns: 130px minmax(0, 1fr) 32px; gap: 12px; align-items: center; font-size: 12.5px; }
+.xb-mes { color: var(--text-heading); text-transform: capitalize; }
+.xb-mes-barra { height: 10px; border-radius: 4px; background: var(--bg-canal); overflow: hidden; }
+.xb-mes-barra span { display: block; height: 100%; background: var(--dc-ambar); border-radius: 4px; }
+.xb-meses b { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-heading); }
+
+@media (max-width: 1100px) {
+  .xb-grupo { grid-template-columns: 16px minmax(0, 1fr) auto; row-gap: 8px; }
+  .xb-grupo-n, .xb-grupo-cuentas { grid-column: 2 / -1; }
+  .xb-grupo-barra { grid-column: 2; }
+  .xb-nivel { grid-column: 3; grid-row: 1; }
+  .xb-peores li { grid-template-columns: minmax(0, 1fr) auto; }
+  .xb-falta { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .xb-revisar { grid-template-columns: 1fr; }
+  .xb-previa { min-height: 200px; }
+  .xb-descenso { padding-left: 18px; }
+  .xb-rango-campo, .xb-rango-ancho { width: 100%; }
+  .xb-rango { flex-direction: column; align-items: stretch; }
+  .xb-btn-exportar { margin-left: 0; width: 100%; justify-content: center; }
+  .xb-grupo-barra .dc-avance-barra { width: 90px !important; }
+  .xb-aviso { right: 16px; left: 16px; bottom: 16px; }
+}

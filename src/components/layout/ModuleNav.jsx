@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, FolderTree, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow } from 'lucide-react'
+import { ChevronRight, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, FolderTree, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, Inbox, FilePlus2, PieChart, FileBarChart, FileStack, ListChecks, Library, SlidersHorizontal, Upload, Flag } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
@@ -200,6 +200,29 @@ const personasNav = [
   ]},
 ]
 
+/* ── DOCUMENTACIÓN: POR TAREA, NO POR TIPO DE DOCUMENTO (PRD 11.2) ──
+   El Salar ordena el menú por familia —digitales, certificados, memorándums, contratos— y obliga
+   a saber de antemano en cuál vive el finiquito. Acá se ordena por lo que la persona vino a
+   hacer: buscar a alguien, atender pendientes, emitir, mirar el cumplimiento. La configuración
+   va aparte y abajo, porque se entra a decidir y se sale. */
+const documentacionNav = [
+  { section: 'Trabajo diario', items: [
+    { label: 'Expedientes', path: '/documentos/expedientes', icon: FolderOpen },
+    { label: 'Bandeja', path: '/documentos/bandeja', icon: Inbox },
+    { label: 'Emitir', path: '/documentos/emitir', icon: FilePlus2 },
+    { label: 'Panel de cumplimiento', path: '/documentos/panel', icon: PieChart },
+    { label: 'Reportes', path: '/documentos/reportes', icon: FileBarChart },
+    { label: 'Carga por lote', path: '/documentos/lote', icon: Upload },
+  ]},
+  { section: 'Configuración', items: [
+    { label: 'Puesta en marcha', path: '/documentos/configuracion', icon: Flag, end: true },
+    { label: 'Tipos y subtipos', path: '/documentos/configuracion/tipos', icon: FileStack },
+    { label: 'Requisitos por perfil', path: '/documentos/configuracion/requisitos', icon: ListChecks },
+    { label: 'Biblioteca de modelos', path: '/documentos/configuracion/modelos', icon: Library },
+    { label: 'Parámetros y avisos', path: '/documentos/configuracion/parametros', icon: SlidersHorizontal },
+  ]},
+]
+
 const archivosNav = [
   { section: 'Carpetas', items: [
     { label: 'Todas las carpetas', path: '/archivos', icon: Folder, end: true },
@@ -239,6 +262,7 @@ const moduleConfig = {
   onboarding: { title: 'Módulo de Onboarding' },
   organizacion: { title: 'Organización' },
   personas: { title: 'Gestión de Personas' },
+  documentacion: { title: 'Documentación' },
   comunicacion: { title: 'Comunicación' },
   archivos: { title: 'Mis archivos' },
   configuracion: { title: 'Configuración' },
@@ -312,10 +336,13 @@ export default function ModuleNav() {
   const isComunicacion = location.pathname.startsWith('/comunicacion')
   const isInicio = location.pathname.startsWith('/inicio')
   const isMiEspacio = location.pathname.startsWith('/mi-espacio')
-  const moduleKey = isConfiguracion ? 'configuracion' : isArchivos ? 'archivos' : isComunicacion ? 'comunicacion' : isOrganizacion ? 'organizacion' : isPersonas ? 'personas' : isMiEspacio ? 'miEspacio' : isInicio ? 'inicio' : 'onboarding'
+  const isDocumentacion = location.pathname.startsWith('/documentos')
+  const moduleKey = isDocumentacion ? 'documentacion' : isConfiguracion ? 'configuracion' : isArchivos ? 'archivos' : isComunicacion ? 'comunicacion' : isOrganizacion ? 'organizacion' : isPersonas ? 'personas' : isMiEspacio ? 'miEspacio' : isInicio ? 'inicio' : 'onboarding'
   const config = moduleConfig[moduleKey]
 
-  const sections = isConfiguracion
+  const sections = isDocumentacion
+    ? documentacionNav
+    : isConfiguracion
     ? configuracionNav
     : isArchivos
     ? archivosNav
