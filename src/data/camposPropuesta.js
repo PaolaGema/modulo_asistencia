@@ -369,17 +369,22 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP, PL.'
           },
 
-          {
-            key: '1.19',
-            label: '¿Tiene documento secundario?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Caso real: extranjero con carnet y pasaporte, ambos requeridos.',
-            traza: 'Alimenta: GP.'
-          },
+          /* ── SE AGREGA, NO SE PREGUNTA ────────────────────────────────────────────────
+             Era «¿Tiene documento secundario?» con un Sí/No que abría el bloque, y era la única
+             lista de la ficha que se armaba así: los hijos, los beneficiarios, la formación y los
+             activos se agregan con un botón. Una pregunta que sólo sirve para enseñar campos es
+             un botón disfrazado, y además tope uno: el extranjero con carnet, pasaporte y carnet
+             de extranjero no entraba.
+
+             AHORA ES UN GRUPO QUE ARRANCA EN CERO —`docsec`, ver MINIMO_COPIAS— y el botón de
+             abajo agrega el primero. Las claves no cambian: el primer documento sigue en
+             1.20a…1.20i y el segundo va en `1.20a#2`, así que una ficha guardada con «Sí» se lee
+             entera. 1.19 ya no se pregunta; sólo se mira para contar como uno a quien lo
+             contestó antes. */
           {
             key: '1.20',
+            repite: 'docsec',
+            singular: 'Documento secundario',
             label: 'Documento secundario',
             tipo: 'rotulo',
             col: 'c-todo',
@@ -406,6 +411,7 @@ export const PASOS_PROPUESTA = [
              `c-escaneo`, los dos volverían al flujo y la tarjeta entera perdería su columna. */
           {
             key: '1.20a',
+            repite: 'docsec',
             label: 'Tipo de documento',
             tipo: 'lista',
             opciones: [
@@ -434,6 +440,7 @@ export const PASOS_PROPUESTA = [
              ya están guardadas en fichas, y una clave que cambia es un dato que se pierde. */
           {
             key: '1.20i',
+            repite: 'docsec',
             label: '¿Qué documento?',
             ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
             col: 'c-tercio',
@@ -444,6 +451,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20b',
+            repite: 'docsec',
             label: 'Número de documento',
             col: 'c-tercio',
             insignia: 'legal',
@@ -454,6 +462,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20c',
+            repite: 'docsec',
             label: 'Extensión',
             tipo: 'lista',
             opciones: [
@@ -476,6 +485,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20d',
+            repite: 'docsec',
             label: 'Complemento SEGIP',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -484,6 +494,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20e',
+            repite: 'docsec',
             label: 'Fecha de emisión del documento',
             html: 'date',
             col: 'c-tercio',
@@ -492,6 +503,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20f',
+            repite: 'docsec',
             label: 'Fecha de vencimiento del documento',
             html: 'date',
             col: 'c-tercio',
@@ -502,6 +514,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20g',
+            repite: 'docsec',
             label: 'País emisor',
             tipo: 'lista',
             opciones: [
@@ -526,6 +539,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20h',
+            repite: 'docsec',
             label: 'Documento secundario escaneado (anverso + reverso)',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -534,6 +548,20 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'Un solo archivo PDF con las dos caras, igual que el principal. Y ancla su bloque como el de arriba ancla el suyo: el papel a la izquierda, lo que dice el papel al lado.',
             traza: '↳ 1.20. Alimenta: GP.'
+          },
+          /* El país viene con Bolivia puesto, como en el primero: de él dependen la extensión y
+             el complemento, y sin valor de arranque brotarían después, arriba de donde se mira. */
+          {
+            key: '1.masDocs',
+            tipo: 'repetir',
+            grupo: 'docsec',
+            max: 3,
+            label: 'Agregar otro documento',
+            labelPrimero: 'Agregar documento secundario',
+            arranque: { '1.20g': 'Bolivia' },
+            col: 'c-todo',
+            nivel: 'Operativo',
+            nota: 'Caso real: extranjero con carnet y pasaporte, ambos requeridos. Cada documento es un bloque igual al principal.'
           }
         ]
       },
@@ -790,16 +818,13 @@ export const PASOS_PROPUESTA = [
           {
             key: '1.50',
             label: 'Referencia del domicilio',
-            ph: 'Frente al parque, portón verde, timbre del fondo…',
-            /* A TODO LO ANCHO, QUE SON LAS OCHO COLUMNAS QUE QUEDAN AL LADO DEL RIEL. Es el único
-               campo de la tarjeta que no es un dato sino una explicación: los demás caben en dos
-               palabras y éste es una frase entera —«frente al parque, portón verde»—. A un tercio
-               se escribía a ciegas, viendo cinco palabras de las quince que uno acaba poniendo.
-
-               Y cierra la fila con el croquis: los cuatro de la izquierda y ocho de campo suman
-               doce justas, así que lo que antes eran dos huecos al final de la tarjeta ahora es
-               sitio para escribir. */
-            col: 'c-ancho',
+            ph: 'Frente al parque, portón verde…',
+            /* AL LADO DE «EDIFICIO», A UN TERCIO. Estuvo a todo lo ancho —es una frase y no un
+               dato de dos palabras— y dejaba un hueco del tamaño de un campo junto a «Edificio /
+               Condominio / Piso»: la tarjeta se leía con un diente. Se pidió cerrarlo, y la caja
+               de texto se desplaza al escribir, así que la frase entra igual aunque no se vea
+               entera de una vez. */
+            col: 'c-tercio',
             nivel: 'Completo',
             traza: 'Alimenta: GP.'
           },
@@ -4487,14 +4512,9 @@ export const PASOS_PROPUESTA = [
             insignia: 'legal',
             nivel: 'Operativo'
           },
-          {
-            key: '7.7',
-            label: 'Estado del usuario',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo'
-          },
+          /* SE RETIRA 7.7, «Estado del usuario». Llevaba la insignia «se calcula» y nunca tuvo
+             regla en DERIVADOS: salía siempre en blanco y no se podía escribir, una promesa sin
+             nada detrás. Si el usuario puede entrar ya lo dice «¿Ingreso al sistema habilitado?». */
           {
             key: '7.8',
             label: 'Acceso a otras empresas del grupo',
@@ -4503,15 +4523,11 @@ export const PASOS_PROPUESTA = [
             nota: 'El colaborador puede estar en dos empresas distintas.',
             traza: 'Alimenta: GP.'
           },
-          {
-            key: '7.9',
-            label: 'Separación de roles (generar ≠ aprobar ≠ eliminar)',
-            col: 'c-medio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Hallazgo de control interno: en el Salar *\'la misma persona genera, aprueba y elimina planillas\'*.',
-            traza: 'Alimenta: PL.'
-          },
+          /* SE RETIRA 7.9, «Separación de roles (generar ≠ aprobar ≠ eliminar)». Era una caja de
+             texto libre con una regla de control interno por rótulo —que una misma persona no
+             genere, apruebe y elimine planillas, hallazgo del Salar—: nadie sabía qué escribir, y
+             lo escrito no lo podía leer el sistema para impedir nada. La regla es de permisos, no
+             un dato de la ficha. */
           {
             key: '7.11',
             label: 'Alcances habilitados',
@@ -4664,6 +4680,8 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20h',
+            repite: 'docsec',
+            nombraCon: '1.20a',
             label: 'Documento secundario escaneado (anverso + reverso)',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',

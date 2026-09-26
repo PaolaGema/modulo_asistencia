@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useLayoutEffect, useRef } from 'react'
 import Desplegable from '../layout/Desplegable'
 import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
@@ -199,9 +199,22 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
             deshabilitado en el sitio donde antes había uno vivo se lee como una avería: hay que
             pulsarlo para descubrir que no, y cuando no pasa nada tampoco explica por qué. La
             frase ocupa el mismo hueco y contesta la pregunta antes de que se haga. */}
+        {/* `arranque` pone en la copia nueva lo que el primero trae de EN_BLANCO, y `labelPrimero`
+            nombra el botón cuando el grupo está en cero: «otro» no se dice del primero. */}
         {cuantos < tope ? (
-          <button type="button" className="emp-mas" onClick={() => set(claveDeCuenta(campo.grupo), cuantos + 1)}>
-            <Plus size={13} /> {campo.label}
+          <button
+            type="button"
+            className="emp-mas"
+            onClick={() => {
+              const n = cuantos + 1
+              for (const [base, v] of Object.entries(campo.arranque || {})) {
+                const k = n === 1 ? base : base + '#' + n
+                if (!String(form[k] ?? '').trim()) set(k, v)
+              }
+              set(claveDeCuenta(campo.grupo), n)
+            }}
+          >
+            <Plus size={13} /> {cuantos === 0 && campo.labelPrimero ? campo.labelPrimero : campo.label}
           </button>
         ) : (
           <span className="emp-tope">Máximo {tope}</span>
@@ -226,7 +239,8 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
        lo empuja; el icono cabe en el sitio que la cabecera ya tenía vacío. Lo que se pierde
        —que una papelera sola hay que reconocerla— se recupera en el `aria-label`, que dice a
        cuál de los tres se refiere: el rótulo ya está numerado. */
-    const puedeQuitar = editando && quitar && campo.grupo && campo.total > 1
+    /* Un grupo que puede quedar en cero —el documento secundario— deja quitar también el único. */
+    const puedeQuitar = editando && quitar && campo.grupo && campo.total > (campo.minimo ?? 1)
 
     return (
       <div className="c-todo emp-rotulo-bloque">
@@ -469,7 +483,54 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
    campos hay y cómo se dibuja cada uno. */
 /* `papel` es la lectura como hoja de expediente —ver `HojaDePapel` más abajo—. Sólo la pide la
    vista previa de la ficha del colaborador; las demás pantallas siguen leyendo en rejilla. */
+/* ── LAS CAJAS DE UNA FILA, A LA MISMA ALTURA ─────────────────────────────
+   Cuando un rótulo se va a dos renglones —«Contraseña / Generar contraseña»— su caja bajaba un
+   renglón y la fila quedaba escalonada. En index.css está escrito por qué no se arregla con CSS:
+   estirar el rótulo con `flex: 1` se come TODO el sobrante de la fila, incluido el que pone el
+   recuadro del escaneo, y separa el nombre de su caja.
+
+   ACÁ SE MIDEN LOS RÓTULOS Y NADA MÁS. Por fila, todos toman el alto del rótulo más alto de esa
+   fila —no el de la celda—, así que un riel de cuatro filas no aporta nada. Y el texto va pegado
+   abajo (`justify-content: flex-end` en la hoja de estilos): el renglón de más queda ENCIMA del
+   rótulo corto, que sigue tocando su caja. Es lo que la nota de index.css pedía a `subgrid`, sin
+   rehacer la rejilla.
+
+   Se vuelve a medir cuando la rejilla cambia de tamaño: abrir un acordeón, angostar la ventana
+   —otro ancho, otros cortes de línea— o que aparezca un campo condicional. */
+function useRotulosAlineados(activo) {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const rejilla = ref.current
+    if (!activo || !rejilla) return
+    let cuadro = 0
+    const medir = () => {
+      const rotulos = [...rejilla.querySelectorAll(':scope > div > .pl-label')]
+      for (const r of rotulos) r.style.minHeight = ''
+      const porFila = new Map()
+      for (const r of rotulos) {
+        const top = Math.round(r.parentElement.getBoundingClientRect().top)
+        const alto = r.getBoundingClientRect().height
+        if (!alto) continue
+        const fila = porFila.get(top) || { alto: 0, rotulos: [] }
+        fila.alto = Math.max(fila.alto, alto)
+        fila.rotulos.push(r)
+        porFila.set(top, fila)
+      }
+      for (const { alto, rotulos: rs } of porFila.values()) {
+        if (rs.length > 1) for (const r of rs) r.style.minHeight = `${alto}px`
+      }
+    }
+    const pedir = () => { cancelAnimationFrame(cuadro); cuadro = requestAnimationFrame(medir) }
+    medir()
+    const ro = new ResizeObserver(pedir)
+    ro.observe(rejilla)
+    return () => { ro.disconnect(); cancelAnimationFrame(cuadro) }
+  })
+  return ref
+}
+
 export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar, editando, prefijo, marcarFaltas = true, desnudo = false, papel = false, children }) {
+  const rejillaRef = useRotulosAlineados(editando)
   if (papel && !editando) return <HojaDePapel titulo={titulo} campos={campos} form={form} />
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
@@ -556,7 +617,7 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
       {/* Una rejilla sin nada adentro no se dibuja: desde que una tarjeta puede traer su propio
           cuerpo y ningún campo —la de reingreso—, el grid vacío dejaba un hueco al pie. */}
       {visibles.length > 0 && (
-      <div className={`emp-form${editando ? '' : ' emp-leyendo'}`}>
+      <div ref={rejillaRef} className={`emp-form${editando ? '' : ' emp-leyendo'}`}>
         {enRejilla.map(campo => (
           <CampoFicha
             key={campo.key}

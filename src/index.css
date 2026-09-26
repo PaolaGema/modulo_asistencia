@@ -6311,7 +6311,11 @@ select.pl-input:focus {
    ahora a qué se aplica, que es lo que siempre quiso decir. El día que entre un tercer hijo que
    no sea un campo, el sitio donde anotarlo está a la vista. */
 .emp-form:not(.emp-leyendo) > div:not(.emp-repetir):not(.emp-rotulo-bloque) { display: flex; flex-direction: column; }
-.emp-form:not(.emp-leyendo) > div > .pl-label { flex: 0 0 auto; }
+.emp-form:not(.emp-leyendo) > div > .pl-label { flex: 0 0 auto; justify-content: flex-end; }
+/* EL DESORDEN CHICO YA NO SE PAGA. `useRotulosAlineados` (TarjetaCampos.jsx) da a los rótulos de
+   una fila el alto del más alto, midiendo sólo rótulos; el `flex-end` de arriba deja el texto
+   corto pegado a su caja y el renglón sobrante encima. Las cajas quedan en línea y ningún nombre
+   se aleja de la suya. */
 
 /* MÁS AIRE ENTRE RENGLONES AL LEER. Editando, lo que separa una fila de la siguiente son las
    cajas de los campos, que ya tienen borde y alto propio. Leyendo no hay cajas: son pares de
@@ -8227,9 +8231,15 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
 /* ── La pregunta de sí o no ──
    Dos botones pegados dentro de un marco, del alto de un campo para que la fila no quede coja
    al lado de los que sí son cajas. Ninguno marcado es un estado legítimo: quiere decir que
-   todavía no contestaron. */
+   todavía no contestaron.
+
+   DEL ANCHO DE SUS DOS BOTONES, NO DE LA COLUMNA. La celda es una columna flex y estira a sus
+   hijos: el `inline-flex` se volvía bloque y el marco cruzaba el tercio entero, con «Sí» y «No»
+   perdidos a la izquierda de una barra vacía. `align-self` lo devuelve a su medida, la misma de
+   la pregunta del reingreso. */
 .sn-grupo {
   display: inline-flex;
+  align-self: flex-start;
   padding: 3px;
   gap: 3px;
   border: 1px solid var(--campo-vacio-borde);

@@ -55,15 +55,10 @@ const entraEnNivel = (campo, nivel) =>
 export const EN_BLANCO = {
   '0.1': 'no',   // ¿Ya tiene registro en el grupo?
 
-  /* NO HAY SEGUNDO DOCUMENTO MIENTRAS NADIE DIGA QUE SÍ. Sin arranque, la pregunta abría con los
-     dos botones apagados —que en esta ficha significa «todavía no contestaron», no «no»— y el
-     caso raro se cobraba el precio del caso común: todo el mundo tenía que contestar que no para
-     una segunda cédula que casi nadie tiene. Puesto en «No», el bloque de ocho campos arranca
-     cerrado y quien sí lo necesita lo abre de un clic, que es la dirección correcta del esfuerzo.
-
-     Y es el mismo trato que 0.1: la pregunta que decide si se despliega un bloque entero se
-     contesta sola por el caso de todos los días, nunca por el excepcional. */
-  '1.19': 'no',   // ¿Tiene documento secundario?
+  /* LA PREGUNTA QUE DECIDE SI SE DESPLIEGA UN BLOQUE ENTERO se contesta sola por el caso de
+     todos los días, nunca por el excepcional: sin arranque abriría con los dos botones apagados
+     —que en esta ficha significa «todavía no contestaron», no «no»—. El documento secundario
+     tuvo la suya (1.19) hasta volverse un grupo que arranca en cero, con su botón de agregar. */
   '2.seg': 'no',  // ¿Agregar un segundo contacto de emergencia?
   '1.78b': 'no',  // ¿Está suspendida la licencia?
 
@@ -370,11 +365,10 @@ const CONDICIONES = {
      «Otro» no es el caso raro: es la puerta por la que entran los que se sacaron. Sin caja, el
      campo que identifica a la persona ante el Estado guardaba la palabra «Otro».
 
-     LA DEL SEGUNDO DOCUMENTO PIDE LAS DOS COSAS, como el resto de su bloque: que haya segundo
-     documento Y que su tipo sea «Otro». Con una sola condición, contestar «No» a 1.19 dejaría
-     colgando una caja de un desplegable que ya no se ve. */
+     LA DEL DOCUMENTO SECUNDARIO MIRA SU PROPIA COPIA: con dos documentos secundarios, «Otro»
+     en el segundo abre la caja del segundo y no la del primero. */
   '1.10b': form => form['1.10'] === 'Otro',
-  '1.20i': form => form['1.19'] === 'si' && form['1.20a'] === 'Otro',
+  '1.20i': (form, suyo) => suyo('1.20a') === 'Otro',
 
   /* La tercera de la misma familia: el tipo de licencia dejó de ser texto libre para poder
      agrupar los avisos de vencimiento, y «Otro» es su válvula. Sin la caja, todo lo que la
@@ -397,22 +391,9 @@ const CONDICIONES = {
      delante. */
   '1.78b': form => !licenciaVencida(form),
 
-  /* EL RÓTULO DEL DOCUMENTO SECUNDARIO SOLO SE ENCIENDE SI HAY SEGUNDO DOCUMENTO. Su nota en el
-     estudio ya lo decía —«se despliega solo si 1.19 = Sí»— pero la condición nunca se portó, y un
-     rótulo sin condición se enseña siempre: la tarjeta cerraba con un encabezado en versalitas y
-     nada debajo, justo cuando la respuesta era «No». */
-  '1.20': form => form['1.19'] === 'si',
-
-  /* Y CON EL RÓTULO, TODO SU BLOQUE. Los ocho campos del segundo documento cuelgan de la misma
-     respuesta: contestar «No» no los deja vacíos, los saca de la ficha —y con ella de la cuenta
-     del progreso, porque `seVe` filtra antes de contar—. Si no fuera así, decir que no hay
-     segundo documento dejaría ocho campos sin llenar que nadie puede llenar nunca. */
-  '1.20a': form => form['1.19'] === 'si',
-  '1.20b': form => form['1.19'] === 'si',
-  '1.20e': form => form['1.19'] === 'si',
-  '1.20f': form => form['1.19'] === 'si',
-  '1.20g': form => form['1.19'] === 'si',
-  '1.20h': form => form['1.19'] === 'si',
+  /* EL DOCUMENTO SECUNDARIO YA NO CUELGA DE UNA RESPUESTA: es un grupo que arranca en cero, y
+     sin copias no hay bloque que esconder —ni campos que cuenten para el progreso—. Ver
+     MINIMO_COPIAS. */
 
   /* La extensión y el complemento del segundo documento repiten la regla del primero encima de
      la suya: hace falta que haya segundo documento, Y que sea un carnet, Y que lo emita Bolivia.
@@ -524,8 +505,8 @@ const CONDICIONES = {
   '2.7-2':  form => form['2.seg'] === 'si',
   '2.2b-2': form => form['2.seg'] === 'si' && form['2.2-2'] === 'Otro',
 
-  '1.20c': form => form['1.19'] === 'si' && form['1.20a'] === 'Documento nacional de identidad' && form['1.20g'] === 'Bolivia',
-  '1.20d': form => form['1.19'] === 'si' && form['1.20a'] === 'Documento nacional de identidad' && form['1.20g'] === 'Bolivia',
+  '1.20c': (form, suyo) => suyo('1.20a') === 'Documento nacional de identidad' && suyo('1.20g') === 'Bolivia',
+  '1.20d': (form, suyo) => suyo('1.20a') === 'Documento nacional de identidad' && suyo('1.20g') === 'Bolivia',
 
   /* SE PROBÓ CONDICIONAR «APELLIDO DE CASADA» a que el sexo fuera femenino, y se sacó a pedido:
      el campo vuelve a mostrarse siempre. Queda anotado porque el problema que lo motivó sigue
@@ -766,7 +747,25 @@ function avisoDeRecorte(key, ops, ctx, form) {
    valor de OTRO campo de su misma copia: eso pediría que la regla supiera en qué instancia está,
    y hoy ninguna lo necesita. */
 const CUENTA = grupo => '__n_' + grupo
-export const cuantosHay = (form, grupo) => Math.max(1, Number(form[CUENTA(grupo)]) || 1)
+
+/* ── LOS GRUPOS QUE PUEDEN QUEDAR EN CERO ─────────────────────────────────
+   Un hijo vacío en pantalla es el mínimo que invita a declarar; un documento secundario vacío
+   es un bloque de ocho campos para algo que casi nadie tiene. El grupo que no figura acá arranca
+   en uno, como siempre. `LEGADO` cuenta lo que se contestó antes de que el grupo existiera: el
+   documento secundario se abría con «¿Tiene documento secundario?» (1.19), y quien dijo que sí
+   tiene su documento en las claves del primero. También cuenta si ya hay algo escrito en ellas:
+   el reingreso trae el escaneo (1.20h) sin la cuenta, y sin esto llegaría a un bloque invisible. */
+const MINIMO_COPIAS = { docsec: 0 }
+const LEGADO = {
+  docsec: form => (form['1.19'] === 'si' || ['1.20a', '1.20b', '1.20h'].some(k => form[k]) ? 1 : 0),
+}
+export const minimoDe = grupo => MINIMO_COPIAS[grupo] ?? 1
+export const cuantosHay = (form, grupo) => {
+  const min = minimoDe(grupo)
+  const guardado = form[CUENTA(grupo)]
+  if (guardado === undefined || guardado === '') return Math.max(min, LEGADO[grupo]?.(form) ?? min)
+  return Math.max(min, Number(guardado) || 0)
+}
 export const claveDeCuenta = CUENTA
 
 /* ── TODA LA GENTE QUE LA FICHA YA CONOCE ─────────────────────────────────
@@ -903,7 +902,7 @@ export function repartoDe(form) {
    campos sueltos— y el día que pase, acá va el `borrarArchivo` correspondiente. */
 export function quitarCopia(form, campos, grupo, n) {
   const cuantos = cuantosHay(form, grupo)
-  if (cuantos <= 1 || n < 1 || n > cuantos) return {}
+  if (cuantos <= minimoDe(grupo) || n < 1 || n > cuantos) return {}
 
   /* Las claves base salen de TODAS las copias y no sólo de la primera, porque un campo
      condicional puede estar escondido justo en ésa: «¿Qué relación?» sólo se dibuja en el
@@ -939,7 +938,7 @@ function expandirRepetibles(campos, form) {
     const cuantos = cuantosHay(form, grupo)
     for (let n = 1; n <= cuantos; n += 1) {
       for (const campo of bloque) {
-        const copia = { ...campo, grupo, instancia: n, total: cuantos }
+        const copia = { ...campo, grupo, instancia: n, total: cuantos, minimo: minimoDe(grupo) }
         if (n > 1) copia.key = campo.key + '#' + n
         /* UN CALCULADO DENTRO DE UN BLOQUE SE CALCULA CON SU COPIA. `tarjetasDe` lo rellena antes
            de repetir, con los valores de la primera, y sin esto la experiencia dos enseñaba el
