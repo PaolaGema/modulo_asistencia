@@ -47,6 +47,9 @@ import { claveDeCuenta, cuantosHay, quitarCopia } from '../../data/fichaColabora
      leer       para lo que no es texto: recibe el valor y devuelve lo que se pinta
      deducido   el dato NO se escribe: viene ya calculado de otro sitio y solo se enseña. Ni en
                 edición hay caja donde teclearlo, y el formulario no guarda copia de él
+     numero     solo admite dígitos, aunque no tenga `max`. Con `max`, además recorta al tope
+     excede     el valor guardado supera el tope que hoy le toca: borde y ayuda en rojo, sin
+                corregirlo solo —cambiar un dato sin que nadie lo vea sería peor—
      soloEdicion  el campo no sale leyendo la ficha. Es para lo que ya se lee en otro sitio de la
                 misma tarjeta —el cargo del responsable, que la persona elegida trae debajo de su
                 nombre— y que editando sí hace falta ver aparte */
@@ -453,10 +456,11 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
              guarda. Se queda con los dígitos —el signo menos se cae solo— y se recorta al máximo;
              vaciarlo sigue permitido, porque en estos campos vacío es una respuesta («sin límite»)
              y no un cero. */
-          onChange={e => set(campo.key, campo.max != null
-            ? (v => (v === '' ? '' : String(Math.min(Number(v), campo.max))))(e.target.value.replace(/\D/g, '').replace(/^0+/, ''))
+          inputMode={campo.max != null || campo.numero ? 'numeric' : undefined}
+          onChange={e => set(campo.key, campo.max != null || campo.numero
+            ? (v => (v === '' || campo.max == null ? v : String(Math.min(Number(v), campo.max))))(e.target.value.replace(/\D/g, '').replace(/^0+/, ''))
             : e.target.value)}
-          style={falta ? { borderColor: 'var(--red)' } : undefined}
+          style={falta || campo.excede ? { borderColor: 'var(--red)' } : undefined}
         />
       )}
 
@@ -465,7 +469,7 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
             {campo.faltaMsg || 'No puede quedar vacío.'}
           </p>
         : campo.ayuda && (
-            <p style={{ fontSize: 10.5, color: 'var(--text-muted)', margin: '5px 0 0', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 10.5, color: campo.excede ? 'var(--red)' : 'var(--text-muted)', margin: '5px 0 0', lineHeight: 1.5 }}>
               {campo.ayuda}
             </p>
           ))}

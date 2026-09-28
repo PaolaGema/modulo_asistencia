@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="description" content="Índice de la documentación de producto de Souly HR, módulo por módulo. Uso interno.">
+<title>Documentación de producto — Souly HR</title>
+<style>
+/* LA PORTADA DE LA DOCUMENTACIÓN. Los mismos colores, tipografías y temas que cada documento de
+   módulo, para que pasar del índice a uno de ellos no se sienta como cambiar de sitio.
+
+   UNA FICHA POR MÓDULO, CON SU ÍCONO DEL MENÚ. Es el ícono con el que la persona ya reconoce el
+   módulo en la app, así que lo encuentra acá sin leer. Los documentos que se pueden abrir llevan
+   el ícono relleno y una sombra; los que faltan, solo el contorno: se ven, pero no compiten. */
+:root{
+  --marca:#0C2D40; --marca-2:#00E091;
+  --papel:#EDF1F3; --hoja:#FFFFFF; --hoja-2:#F7F9FA;
+  --tinta:#0F1A20; --tinta-2:#465862; --tinta-3:#64737C;
+  --regla:#E4EAED; --regla-2:#CDD6DB;
+  --enlace:#23408E;
+  --ico-lleno:#0C2D40; --ico-lleno-t:#00E091; --ico-vacio:#6B7780;
+  --r:16px; --r-s:10px;
+  --sombra:0 2px 5px rgba(12,45,64,.05), 0 10px 28px rgba(12,45,64,.07);
+  --display:Bahnschrift,"DIN Alternate","Avenir Next Condensed","Arial Narrow","Helvetica Neue",sans-serif;
+  --texto:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,Inter,system-ui,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code",Consolas,"SF Mono",Menlo,ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-tema="claro"]){
+    --papel:#0B1014; --hoja:#151B21; --hoja-2:#12181D;
+    --tinta:#EAEEF1; --tinta-2:#A6B1B9; --tinta-3:#8A969E;
+    --regla:#262E35; --regla-2:#38424A;
+    --enlace:#7FA0EC;
+    --ico-lleno:#00E091; --ico-lleno-t:#0C2D40; --ico-vacio:#8A969E;
+    --sombra:0 2px 6px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.38);
+  }
+}
+:root[data-tema="oscuro"]{
+  --papel:#0B1014; --hoja:#151B21; --hoja-2:#12181D;
+  --tinta:#EAEEF1; --tinta-2:#A6B1B9; --tinta-3:#8A969E;
+  --regla:#262E35; --regla-2:#38424A;
+  --enlace:#7FA0EC;
+  --ico-lleno:#00E091; --ico-lleno-t:#0C2D40; --ico-vacio:#8A969E;
+  --sombra:0 2px 6px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.38);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--texto);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.masthead{background:#0C2D40;color:#EEF1F4;padding:56px 24px 48px;border-bottom:3px solid var(--marca-2)}
+.mh-in{max-width:1080px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--marca-2);margin:0 0 16px}
+h1{font-family:var(--display);font-size:clamp(36px,7vw,64px);font-weight:700;font-stretch:87.5%;line-height:.98;text-transform:uppercase;margin:0 0 14px}
+.mh-sub{font-size:clamp(15.5px,2vw,18px);color:#B6C0C8;max-width:58ch;margin:0}
+
+.cuerpo{max-width:1080px;margin:0 auto;padding:32px 24px 64px}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 0 16px;padding:0;list-style:none;font-size:13.5px;color:var(--tinta-2)}
+.leyenda li{display:flex;align-items:center;gap:7px}
+.leyenda i{width:12px;height:12px;border-radius:4px}
+.l-lleno{background:var(--ico-lleno)}
+.l-vacio{border:1.5px solid var(--regla-2)}
+
+.mods{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media(max-width:960px){.mods{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.mods{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.mod{height:100%;display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px 14px 22px;
+  border-radius:var(--r);text-align:center;text-decoration:none;color:var(--tinta);
+  background:var(--hoja-2);border:1px solid var(--regla)}
+a.mod{background:var(--hoja);box-shadow:var(--sombra);transition:transform .15s,box-shadow .15s,border-color .15s}
+a.mod:hover{transform:translateY(-2px);border-color:var(--regla-2)}
+a.mod:focus-visible{outline:2px solid var(--enlace);outline-offset:3px}
+.ico{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--regla-2);color:var(--ico-vacio)}
+a.mod .ico{background:var(--ico-lleno);border-color:var(--ico-lleno);color:var(--ico-lleno-t)}
+.ico svg{width:28px;height:28px}
+.nom{font-size:15px;font-weight:600;line-height:1.25;color:var(--tinta-2)}
+a.mod .nom{color:var(--tinta)}
+.est{font-size:12px;color:var(--tinta-3)}
+a.mod .est{font-weight:600;color:var(--enlace)}
+@media(max-width:560px){.mod{padding:20px 10px 18px}.ico{width:52px;height:52px;border-radius:15px}.ico svg{width:24px;height:24px}}
+
+.nota{margin:28px 0 0;max-width:72ch;color:var(--tinta-2);font-size:14.5px}
+</style>
+<script>(function(){try{var t=localStorage.getItem('org-doc-tema');if(t==='oscuro'||t==='claro')document.documentElement.setAttribute('data-tema',t);}catch(e){}})();</script>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mh-in">
+    <p class="eyebrow">Souly HR · Documentación de producto</p>
+    <h1>Documentación por módulo</h1>
+    <p class="mh-sub">Cada módulo tiene su propio documento: qué es, qué reglas cumple, qué tiene que hacer el producto y cómo se opera. Todos siguen los mismos capítulos, para que el que sepa leer uno sepa leer los demás.</p>
+  </div>
+</header>
+
+<main class="cuerpo">
+  <ul class="leyenda" aria-label="Qué significa cada ficha">
+    <li><i class="l-lleno" aria-hidden="true"></i>Se puede abrir</li>
+    <li><i class="l-vacio" aria-hidden="true"></i>En preparación</li>
+  </ul>
+
+  <!-- En el orden del menú de la app, con los mismos íconos (src/components/layout/modulos.js). -->
+  <ul class="mods">
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg></span><span class="nom">Inicio</span><span class="est">En preparación</span></div></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.2 18.4a7 7 0 0 1 11.6 0"/></svg></span><span class="nom">Mi espacio personal</span><span class="est">En preparación</span></div></li>
+    <li><a class="mod" href="reglas-de-negocio.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M8 7h4M8 11h4M8 15h4M3 21h18"/></svg></span><span class="nom">Organización</span><span class="est">v3.4 · Entregado</span></a></li>
+    <li><a class="mod" href="gestion-de-personas.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="nom">Gestión de personas</span><span class="est">v1.8 · Borrador</span></a></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="m9 13 2 2 4-4"/></svg></span><span class="nom">Documentación</span><span class="est">En preparación</span></div></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z"/><path d="M9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5"/></svg></span><span class="nom">Onboarding</span><span class="est">En preparación</span></div></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg></span><span class="nom">Comunicación</span><span class="est">En preparación</span></div></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></span><span class="nom">Evaluación</span><span class="est">En preparación</span></div></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span class="nom">Mis archivos</span><span class="est">En preparación</span></div></li>
+    <li><div class="mod"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span><span class="nom">Configuración</span><span class="est">En preparación</span></div></li>
+  </ul>
+
+  <p class="nota">Estos documentos son de uso interno. Lo que recibe desarrollo es el prototipo; los documentos existen para que el prototipo se construya sobre decisiones acordadas y para poder rastrear después por qué cada pantalla es como es.</p>
+</main>
+
+</body>
+</html>

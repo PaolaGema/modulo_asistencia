@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, FolderTree, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, Inbox, FilePlus2, PieChart, FileBarChart, FileStack, ListChecks, Library, SlidersHorizontal, Upload, Flag } from 'lucide-react'
+import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, FolderTree, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, Inbox, FilePlus2, PieChart, FileBarChart, FileStack, ListChecks, Library, SlidersHorizontal, Upload, Flag } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
@@ -197,6 +197,7 @@ const comunicacionNav = [
 const personasNav = [
   { section: 'Administración', items: [
     { label: 'Colaboradores', path: '/personas/colaboradores', icon: UserRound, end: true },
+    { label: 'Clientes externos', path: '/personas/clientes-externos', icon: Handshake },
   ]},
 ]
 
@@ -268,16 +269,21 @@ const moduleConfig = {
   configuracion: { title: 'Configuración' },
 }
 
-export default function ModuleNav() {
-  const [expanded, setExpanded] = useState(true)
+/* `enPanel` y `ruta` son para el menú de teléfono (`MenuPanel`): ahí cada módulo despliega su
+   menú debajo de su nombre, sin la cabecera ni el ancho de la columna, y puede mostrar el de un
+   módulo en el que todavía no se está —por eso la ruta se puede pasar en vez de leerla—. */
+export default function ModuleNav({ enPanel = false, ruta } = {}) {
+  const [expandedEstado, setExpanded] = useState(true)
+  const expanded = enPanel || expandedEstado
   const { currentUser } = useUser()
   const { theme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const { guardNavigate } = useUnsavedChanges()
+  const donde = ruta ?? location.pathname
 
-  const isPersonas = location.pathname.startsWith('/personas')
-  const isOrganizacion = location.pathname.startsWith('/organizacion')
+  const isPersonas = donde.startsWith('/personas')
+  const isOrganizacion = donde.startsWith('/organizacion')
 
   /* QUÉ EJES ESTÁN DESPLEGADOS.
      Estaba atado a la ruta —abierto si estabas dentro, cerrado si no— y eso dejaba la flecha
@@ -331,12 +337,12 @@ export default function ModuleNav() {
     ? EJES[tipoDe(tipoEnFicha, nivelesNav)?.eje] || null
     : null
 
-  const isConfiguracion = location.pathname.startsWith('/configuracion')
-  const isArchivos = location.pathname.startsWith('/archivos')
-  const isComunicacion = location.pathname.startsWith('/comunicacion')
-  const isInicio = location.pathname.startsWith('/inicio')
-  const isMiEspacio = location.pathname.startsWith('/mi-espacio')
-  const isDocumentacion = location.pathname.startsWith('/documentos')
+  const isConfiguracion = donde.startsWith('/configuracion')
+  const isArchivos = donde.startsWith('/archivos')
+  const isComunicacion = donde.startsWith('/comunicacion')
+  const isInicio = donde.startsWith('/inicio')
+  const isMiEspacio = donde.startsWith('/mi-espacio')
+  const isDocumentacion = donde.startsWith('/documentos')
   const moduleKey = isDocumentacion ? 'documentacion' : isConfiguracion ? 'configuracion' : isArchivos ? 'archivos' : isComunicacion ? 'comunicacion' : isOrganizacion ? 'organizacion' : isPersonas ? 'personas' : isMiEspacio ? 'miEspacio' : isInicio ? 'inicio' : 'onboarding'
   const config = moduleConfig[moduleKey]
 
@@ -359,13 +365,8 @@ export default function ModuleNav() {
             : (onboardingNavByRole[currentUser.role] || onboardingAdminNav)
 
 
-  return (
-    <div
-      className={`overflow-y-auto bg-[var(--bg-nav)] border-r border-gray-200 dark:border-white/[0.06] flex flex-col shrink-0
-        transition-all duration-300 ease-in-out
-        ${expanded ? 'w-60' : 'w-16 items-center'}`}
-      style={{ height: '100%' }}
-    >
+  const cabecera = (
+    <>
       {/* LA MISMA BANDA DE 56 PX QUE EL RIEL, y con su misma línea: las dos columnas empiezan por
           lo mismo —el riel con el logo, esta con el nombre del módulo— así que arrancan a la misma
           altura y la línea cruza las dos de lado a lado.
@@ -398,11 +399,13 @@ export default function ModuleNav() {
           {expanded ? <ChevronsLeft size={16} /> : <ChevronsRight size={16} />}
         </button>
       </header>
+    </>
+  )
 
-
-      {/* El menú ya no arranca pegado a la línea del encabezado: mientras la descripción del
-          módulo vivía aquí, ella hacía de aire; al irse, el rótulo de sección quedó lamiendo el
-          borde. Este respiro es el mismo que el riel se da bajo el logo. */}
+  /* El menú ya no arranca pegado a la línea del encabezado: mientras la descripción del
+     módulo vivía aquí, ella hacía de aire; al irse, el rótulo de sección quedó lamiendo el
+     borde. Este respiro es el mismo que el riel se da bajo el logo. */
+  const menu = (
       <nav className="flex flex-col" style={expanded ? { paddingTop: '1rem', paddingLeft: '1.25rem', paddingRight: '1rem' } : { paddingTop: '1rem', width: '100%', alignItems: 'center' }}>
         {sections.map((group, gi) => (
           <div key={group.section} style={{ marginBottom: gi < sections.length - 1 ? '1rem' : 0, paddingTop: gi > 0 ? '0.75rem' : 0, borderTop: gi > 0 && expanded ? '1px solid var(--border-soft)' : 'none', width: expanded ? undefined : '100%', display: expanded ? undefined : 'flex', flexDirection: expanded ? undefined : 'column', alignItems: expanded ? undefined : 'center' }}>
@@ -529,6 +532,19 @@ export default function ModuleNav() {
           </div>
         ))}
       </nav>
+  )
+
+  if (enPanel) return <div className="mn-en-panel">{menu}</div>
+
+  return (
+    <div
+      className={`overflow-y-auto bg-[var(--bg-nav)] border-r border-gray-200 dark:border-white/[0.06] flex flex-col shrink-0
+        transition-all duration-300 ease-in-out
+        ${expanded ? 'w-60' : 'w-16 items-center'}`}
+      style={{ height: '100%' }}
+    >
+      {cabecera}
+      {menu}
     </div>
   )
 }

@@ -84,6 +84,15 @@ export const EN_BLANCO = {
      De las cinco preguntas con respuesta de arranque, ésta es la más fácil de justificar. */
   '1.63': 'no',   // ¿Tiene seguro médico privado?
 
+  /* El anticipo de quincena es opcional y poco usado: el caso común es que no lo haya. Arranca
+     en No, y con eso el tipo y el valor no aparecen ni se piden. */
+  '3.69a': 'no',  // ¿Recibe anticipo de quincena?
+
+  /* EL RETROACTIVO ARRANCA EN SÍ, y es el único Sí de arranque de la ficha: «legalmente siempre
+     se tiene que aplicar». No pagarlo bloquea las declaraciones ante el Ministerio y la Gestora
+     y genera multa, así que el error caro es olvidarse de marcarlo, no marcarlo de más. */
+  '3.78': 'si',   // ¿Aplica retroactivo? (y retroactivo de antigüedad)
+
   /* BOLIVIA VIENE PUESTO por ser el caso común, y se lo gana: el país emisor decide si se piden
      extensión y complemento SEGIP, así que sin un valor de arranque la tarjeta del documento
      abre incompleta para el 95 % de las altas y hay que contestar un desplegable para que
@@ -449,6 +458,20 @@ const CONDICIONES = {
   '3.46': form => form['3.43'] === 'si',
   '3.47': form => form['3.43'] === 'si',
 
+  /* ── EL ANTICIPO DE QUINCENA ─────────────────────────────────────────────
+     Tipo y valor solo existen si hay anticipo. Son DOS campos y no uno: el número solo tiene
+     sentido leído junto a su tipo, y en una sola casilla cambiar de «porcentaje» a «monto fijo»
+     sin tocar el número adelantaba Bs 50 en vez del 50 %. */
+  /* ── A QUIÉN LLAMAR POR UNA REFERENCIA ───────────────────────────────────
+     Solo si esa experiencia tiene una referencia disponible, y se mira la respuesta de SU copia:
+     la segunda experiencia puede tener referencia aunque la primera no. */
+  'pf.20a': (_, suya) => suya('pf.20') === 'si',
+  'pf.20b': (_, suya) => suya('pf.20') === 'si',
+  'pf.20c': (_, suya) => suya('pf.20') === 'si',
+
+  '3.69b': form => form['3.69a'] === 'si',
+  '3.69c': form => form['3.69a'] === 'si',
+
   /* La fecha de jubilación, sólo si hay jubilación. */
   '3.48b': form => form['3.48'] === 'si',
 
@@ -655,6 +678,9 @@ const opcionesDeEstructura = (key, ctx, form = {}) => {
     // Supervisor, aprobadores y quien autorizó la contratación salen del directorio.
     case '3.13': case '3.15': case '3.16': case '3.16b': case '3.39':
       return personas.length ? personas : null
+    /* EN QUÉ UNIDAD LO SUPERVISA: todas las unidades de la empresa, sin recortar por la sede ni
+       el negocio de la persona. La supervisión funcional existe justamente para cruzar áreas. */
+    case '3.15u': return unidades.length ? unidades : null
     default: return null
   }
 }
@@ -1079,6 +1105,54 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
            «1.56b» cuelgue de «1.56» es una convención de nombres, no un dato, y una regla de
            maquetación que dependa de cómo se llamó un campo se rompe el día que alguien lo
            llame distinto. */
+        /* ── EL VALOR DEL ANTICIPO TIENE UN TOPE, Y DEPENDE DEL TIPO ─────────────────────
+           No tiene sentido adelantar más de lo que la persona va a cobrar ese mes, y es mejor
+           taparlo en el propio campo que dejar que lo descubra la corrida. El tope cambia con el
+           tipo: 100 si es un porcentaje, el haber básico si es un monto fijo. El rótulo dice la
+           unidad, para que nadie lea «50» sin saber si son bolivianos o por ciento. */
+        if (c.key === '3.69c') {
+          campo.numero = true
+          // Los centavos van después de la coma: se toma la parte entera del haber.
+          const haber = Number(String(form['3.65'] || '').split(',')[0].replace(/\D/g, '')) || 0
+          if (form['3.69b'] === 'Porcentaje del haber básico') {
+            campo.label = 'Valor (%)'
+            campo.max = 100
+            campo.ph = 'De 1 a 100'
+            campo.ayuda = 'Porcentaje del haber básico que se adelanta, hasta el 100 %.'
+          } else if (form['3.69b'] === 'Monto fijo') {
+            campo.label = 'Valor (Bs)'
+            if (haber) {
+              campo.max = haber
+              campo.ph = `Hasta ${haber.toLocaleString('es-BO')}`
+              campo.ayuda = `Monto en bolivianos, hasta el haber básico (Bs ${haber.toLocaleString('es-BO')}).`
+            } else {
+              campo.ayuda = 'Escriba antes el haber básico: el adelanto no puede superarlo.'
+            }
+          } else {
+            campo.ph = 'Elija antes el tipo'
+            campo.ayuda = 'Elija antes el tipo de anticipo: de él depende si el valor es un porcentaje o un monto.'
+          }
+          /* UN VALOR QUE YA ESTABA PUEDE QUEDAR POR ENCIMA DEL TOPE si después se cambia el tipo o
+             se baja el haber. No se corrige solo —sería cambiar un dato sin que nadie lo vea—: se
+             dice, en el mismo lugar donde se lo va a corregir. */
+          const valor = Number(form['3.69c'])
+          if (campo.max != null && valor > campo.max) {
+            campo.ayuda = `Supera el tope: ${campo.label === 'Valor (%)' ? 'no puede pasar del 100 %' : `no puede pasar del haber básico (Bs ${campo.max.toLocaleString('es-BO')})`}. Corríjalo: la planilla no puede adelantar más que eso.`
+            campo.excede = true
+          }
+        }
+
+        /* ── UN OBRERO CON UMBRAL DE ADMINISTRATIVO SE AVISA ──────────────────────────────
+           «¿Aguinaldo y prima desde el primer mes?» es, en los hechos, la marca del obrero: el
+           obrero de producción cobra aguinaldo con 1 mes trabajado; el administrativo necesita 3
+           meses y 1 día. Si la categoría del puesto dice Obrero y acá se contesta No, se guardaría
+           un obrero con umbral de administrativo y nadie lo notaría hasta la planilla. No se
+           corrige solo —puede haber una razón—: se avisa, al lado de la respuesta. */
+        if (c.key === '3.77' && form['3.77'] === 'no' && form['3.12'] === 'Obrero') {
+          campo.ayuda = 'Atención: en Información laboral, la categoría del puesto es Obrero. Un obrero de producción tiene derecho al aguinaldo desde el primer mes.'
+          campo.excede = true
+        }
+
         if (c.detalle) campo.col = (campo.col || 'c-med') + ' c-fila'
 
         /* ── LO QUE APARECE, SE VE APARECER ──────────────────────────────────────────────

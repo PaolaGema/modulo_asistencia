@@ -9938,6 +9938,7 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   bottom: -1.25rem;
   z-index: 5;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-inline: -12px;
@@ -9952,7 +9953,7 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 }
 .cn-pie .pl-btn-save { margin-left: auto; }
 
-@media (max-width: 1100px) {
+@media (max-width: 1000px) {
   .cn-grid { grid-template-columns: minmax(0, 1fr); }
   .rp-riel {
     position: static;
@@ -10231,3 +10232,119 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 }
 /* El primero de la tarjeta no lleva filete: ya lo separa la cabecera de la sección. */
 .emp-form > .emp-rotulo-bloque:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+/* ── EL MENÚ EN UN TELÉFONO ──
+   En escritorio los envoltorios del riel y del menú del módulo no existen para el diseño
+   (`display: contents`) y ni el botón de la barra ni el panel se dibujan. Por debajo de 760 px
+   las dos columnas se guardan y el botón abre en su lugar un solo panel (`MenuPanel`), con un
+   velo detrás que lo cierra. */
+.app-riel, .app-modulos { display: contents; }
+.app-menu-btn, .app-velo, .app-panel { display: none; }
+
+@media (max-width: 760px) {
+  .app-riel, .app-modulos { display: none; }
+  .app-velo {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    background: rgba(12,45,64,.45);
+  }
+
+  .app-panel {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: min(320px, calc(100vw - 56px));
+    background: var(--bg-nav);
+    box-shadow: 8px 0 24px -12px rgba(12,45,64,.4);
+    animation: app-panel-entra .18s ease-out;
+  }
+  .app-panel-cab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 56px;
+    flex-shrink: 0;
+    padding: 0 8px 0 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-panel-empresa { font-size: 15px; font-weight: 700; color: var(--text-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-panel-cerrar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; flex-shrink: 0;
+    border: none; border-radius: 10px; background: none; color: var(--text-heading); cursor: pointer;
+  }
+  .app-panel-cerrar:hover { background: var(--surface-hover); }
+  .app-panel-lista { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .app-panel-mod { border-radius: 12px; }
+  .app-panel-mod.abierto { background: var(--bg-sidebar); padding-bottom: 8px; }
+  .app-panel-fila {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; min-height: 46px; padding: 0 12px;
+    border: none; border-radius: 12px; background: none;
+    color: var(--text-heading); font-family: inherit; font-size: 14px; font-weight: 500; text-align: left;
+    cursor: pointer;
+  }
+  .app-panel-fila > span { flex: 1; }
+  .app-panel-mod.aqui > .app-panel-fila,
+  .app-panel-mod.abierto > .app-panel-fila { font-weight: 700; }
+  .app-panel-chev { transition: transform .15s; opacity: .6; }
+  .app-panel-mod.abierto .app-panel-chev { transform: rotate(180deg); }
+  /* El menú del módulo, colgado de su nombre: sin la cabecera de la columna y con sangría para
+     que se lea como hijo. */
+  .mn-en-panel > nav { padding: 0 6px 0 28px !important; }
+
+  .app-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-heading);
+    cursor: pointer;
+  }
+  .app-menu-btn:hover { background: var(--surface-hover); }
+
+  /* En la barra de un teléfono no caben nombre y cargo: queda el avatar, que abre el mismo menú. */
+  .app-encabezado { padding: 0 12px !important; gap: 10px !important; }
+  .app-encabezado .cuenta-texto { display: none; }
+}
+@keyframes app-panel-entra { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .app-panel { animation: none; } }
+
+/* ── CLIENTES EXTERNOS ──
+   Los evaluadores de afuera: una lista corta y un formulario de cinco datos. Lo propio de la
+   pantalla es poco, y el resto reutiliza las piezas del directorio. */
+.ce-avatar {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--navy); color: #fff; font-size: 11px; font-weight: 700;
+}
+.ce-badge {
+  display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 600; background: var(--surface-hover); color: var(--text-muted);
+}
+.ce-badge.on { background: var(--green-bg); color: var(--green-fuerte); }
+.ce-accion {
+  width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface-card);
+  color: var(--text-heading); cursor: pointer;
+}
+.ce-accion:hover { background: var(--surface-hover); }
+/* Tres columnas: el nombre y los dos apellidos van juntos en una fila, como se leen. */
+.ce-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 12px; }
+@media (max-width: 640px) { .ce-form { grid-template-columns: 1fr; } }
+.ce-campo { min-width: 0; gap: 6px; }
+.ce-pie-campo { display: flex; justify-content: space-between; gap: 8px; min-height: 16px; font-size: 11.5px; font-weight: 500; }
+.ce-falta { color: var(--red); }
+.ce-cuenta { margin-left: auto; color: var(--text-muted); font-variant-numeric: tabular-nums; }

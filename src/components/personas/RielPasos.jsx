@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Eye } from 'lucide-react'
 
 /* EL RIEL DE LOS OCHO PASOS.
@@ -39,8 +40,35 @@ import { Eye } from 'lucide-react'
    Y NO HAY MARCA DE «COMPLETO». Un aro lleno es un aro lleno; un sello de terminado sobre un
    paso donde ningún campo es obligatorio sería una promesa que nadie puede cobrar. */
 export default function RielPasos({ pasos, actual, onIr, avance, pendientes }) {
+  /* ACOSTADO, EL PASO PUESTO VA AL MEDIO. En pantallas angostas el riel es una tira con scroll y
+     el paso elegido podía quedar pegado a un borde, o fuera de la vista: no se sabía dónde se
+     estaba ni que había más pasos a los lados. Centrado, siempre asoman vecinos por los dos
+     lados, y eso ya dice que la tira sigue.
+
+     Se mueve la tira y no la página: `scrollIntoView` desplazaría también el formulario. De pie
+     (escritorio) la tira no tiene scroll horizontal y esto no hace nada. */
+  const riel = useRef(null)
+  // Al entrar a la ficha el salto es seco: animarlo desde el paso 1 es un viaje que nadie pidió.
+  const yaCentro = useRef(false)
+  useEffect(() => {
+    const centrar = suave => {
+      const r = riel.current
+      const b = r?.querySelector('.rp-paso.on')
+      if (!r || !b || r.scrollWidth <= r.clientWidth) return
+      const caja = r.getBoundingClientRect()
+      const paso = b.getBoundingClientRect()
+      const quieto = !suave || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      r.scrollBy({ left: (paso.left + paso.width / 2) - (caja.left + caja.width / 2), behavior: quieto ? 'auto' : 'smooth' })
+    }
+    centrar(yaCentro.current)
+    /* La primera vez se vuelve a centrar cuando llega la tipografía: con la de reserva los pasos
+       miden otra cosa, y el centro calculado antes queda corrido. */
+    if (!yaCentro.current) document.fonts?.ready.then(() => centrar(false))
+    yaCentro.current = true
+  }, [actual])
+
   return (
-    <nav className="rp-riel" aria-label="Pasos de la ficha">
+    <nav className="rp-riel" aria-label="Pasos de la ficha" ref={riel}>
       {pasos.map(p => {
         const puesto = p.key === actual
         /* La vista previa no tiene aro: no es un paso que se llene, así que no hay nada que

@@ -23,6 +23,7 @@ import ZonaHR from './pages/colaborador/ZonaHR'
 import Perfil from './pages/colaborador/Perfil'
 import Colaboradores from './pages/personas/Colaboradores'
 import ColaboradorNuevo from './pages/personas/ColaboradorNuevo'
+import ClientesExternos from './pages/personas/ClientesExternos'
 import Organigrama from './pages/personas/Organigrama'
 import DatosEmpresa from './pages/organizacion/DatosEmpresa'
 import Sucursales from './pages/organizacion/Sucursales'
@@ -158,6 +159,7 @@ export default function App() {
                 paso. Va ANTES que cualquier `:id` que llegue después, para que "nuevo" no se lea
                 como el identificador de un colaborador que no existe. */}
             <Route path="colaboradores/nuevo" element={<ColaboradorNuevo />} />
+            <Route path="clientes-externos" element={<ClientesExternos />} />
             <Route path="organigrama" element={<Navigate to="/organizacion/organigrama" replace />} />
           </Route>
           {/* DOCUMENTACIÓN (PRD v1.0), EN /documentos: /documentacion ya lo ocupa documentacion.html,

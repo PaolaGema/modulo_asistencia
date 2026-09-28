@@ -1,3 +1,4 @@
+import { Menu, X } from 'lucide-react'
 import { CuentaBloque } from './Sidebar'
 import MandosPrototipo from './MandosPrototipo'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
@@ -11,11 +12,12 @@ import { useOnboardingData } from '../../context/OnboardingDataContext'
 
    A la izquierda va el nombre de la empresa. Una barra superior con todo pegado a la derecha se
    ve coja, y además es donde uno espera leer de quién es el sistema que está mirando. */
-export default function EncabezadoPropuesta() {
+export default function EncabezadoPropuesta({ menuAbierto, onMenu }) {
   const { empresa } = useOnboardingData()
 
   return (
     <header
+      className="app-encabezado"
       style={{
         height: 56,
         flexShrink: 0,
@@ -33,6 +35,17 @@ export default function EncabezadoPropuesta() {
         borderBottom: '1px solid var(--border)',
       }}
     >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+      {/* Solo se ve por debajo de 760 px, cuando los menús de la izquierda se guardan. */}
+      <button
+        type="button"
+        className="app-menu-btn"
+        onClick={onMenu}
+        aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
+        aria-expanded={!!menuAbierto}
+      >
+        {menuAbierto ? <X size={20} /> : <Menu size={20} />}
+      </button>
       <span style={{
         fontSize: 14, fontWeight: 700, letterSpacing: '-.01em',
         color: 'var(--text-heading)', minWidth: 0,
@@ -40,6 +53,7 @@ export default function EncabezadoPropuesta() {
       }}>
         {empresa?.nombre || 'Sin nombre'}
       </span>
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         {/* ANDAMIO, Y SE BORRA CON UNA LÍNEA. El interruptor del prototipo de la ficha de alta.

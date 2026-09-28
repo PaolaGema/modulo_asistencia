@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import ModuleNav from './ModuleNav'
+import MenuPanel from './MenuPanel'
 import MiOnboarding from '../../pages/colaborador/MiOnboarding'
 import { useUser } from '../../context/UserContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
@@ -26,6 +27,13 @@ export default function Layout() {
   const { exitConfirmOpen, confirmDiscard, confirmSave, cancelExit } = useUnsavedChanges()
 
   const isMobile = currentUser.mobile === true
+
+  /* El menú de teléfono se cierra solo al llegar a otra pantalla: ya cumplió. Por eso se guarda
+     la ruta en la que se abrió y no un sí/no: al cambiar la ruta deja de coincidir y queda cerrado
+     sin un efecto que lo apague. */
+  const [menuEn, setMenuEn] = useState(null)
+  const menuMovil = menuEn === location.pathname
+  const setMenuMovil = abrir => setMenuEn(abrir ? location.pathname : null)
   const esLider = currentUser.role === 'manager'
   const esBuddy = currentUser.role === 'buddy'
 
@@ -509,7 +517,18 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+      {/* EN UN TELÉFONO LOS DOS MENÚS SE GUARDAN. El riel (64 px) y el menú del módulo (240 px)
+          sumaban 304 px de columna fija: en 390 le dejaban al contenido una tira de 54 px. Por
+          debajo de 760 px los dos se esconden y el botón de la barra abre en su lugar un solo
+          panel, `MenuPanel`. En escritorio los envoltorios son `display: contents`, como si no
+          estuvieran, y el panel no se dibuja. */}
+      <div className="app-riel"><Sidebar /></div>
+      {menuMovil && (
+        <>
+          <div className="app-velo" onClick={() => setMenuMovil(false)} aria-hidden="true" />
+          <MenuPanel onCerrar={() => setMenuMovil(false)} />
+        </>
+      )}
       {/* SIN CABECERA. Los 56 px de la barra superior decían tres cosas: el título de la
           pantalla —que ya está dos filas más abajo, y por duplicado hacían que hubiera dos
           <h1> en cada página—, un aviso y quién eres. Las dos últimas se mudaron al riel,
@@ -519,9 +538,9 @@ export default function Layout() {
         {/* ARRIBA DEL MENÚ Y NO SOLO DEL CONTENIDO: la barra cruza de lado a lado a partir del
             riel, que es como se dibujaba antes. Metida dentro de la columna del contenido
             arrancaría a 300 px del borde y parecería la cabecera de la página, no de la app. */}
-        <EncabezadoPropuesta />
+        <EncabezadoPropuesta menuAbierto={menuMovil} onMenu={() => setMenuMovil(!menuMovil)} />
         <div className="flex flex-1 overflow-hidden">
-          <ModuleNav />
+          <div className="app-modulos"><ModuleNav /></div>
           <main className="flex-1 overflow-y-auto" style={{ padding: '1.25rem 1rem', background: 'var(--bg-app)' }}>
             <Outlet />
           </main>

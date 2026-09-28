@@ -325,6 +325,12 @@ const TARJETAS = {
      nombra la bifurcación, que es la única decisión que se toma en esta tarjeta —recuperar el
      registro que existe o crear uno nuevo— y deja las dos salidas a la vista antes de
      contestar. */
+  /* Fijados por el equipo el 28 sep 2026: el título y la descripción de la sección, a partir del
+     insumo de Planillas Bolivia. */
+  aplica: {
+    titulo: 'Configuración de Beneficios y Obligaciones',
+    desc: 'Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este empleado.',
+  },
   reingreso: { titulo: 'Reingreso o alta nueva' },
 
   /* Era «Nombre» a secas, y prometía un dato cuando tiene tres: las cinco partes del nombre
@@ -421,6 +427,131 @@ const PASOS_TITULO = {
 
    Acá se corrigen esos casos, con el motivo escrito. Cada entrada es una discrepancia con el
    estudio y tiene que poder defenderse sola. */
+/* ── CAMPOS RETIRADOS ────────────────────────────────────────────────────
+   Campos del estudio que la ficha NO pide, a pedido del equipo. No se borran del estudio: se
+   dejan fuera al portar, con su motivo, para que volver a generar la ficha no los traiga de
+   vuelta y para que el día que se quieran de nuevo baste con sacar la línea. */
+const CAMPOS_RETIRADOS = {
+  /* La moneda del haber básico. Por el momento todo se entiende en bolivianos: preguntarla en
+     cada alta era pedir un dato que siempre tiene la misma respuesta. Retirado el 28 sep 2026.
+     La moneda de la CUENTA bancaria (3.93) se queda: esa sí puede ser otra. */
+  '3.66': 'Moneda del haber básico: todo se entiende en bolivianos por el momento',
+  /* «Modo de quincena + valor» era un selector y un número en una sola casilla, y el número solo
+     tenía sentido leído junto al selector: cambiar de porcentaje a monto fijo sin tocar el valor
+     adelantaba Bs 50 en vez del 50 %. Lo reemplazan tres campos —CAMPOS_NUEVOS—. */
+  '3.69': 'Modo de quincena + valor: reemplazado por 3.69a, 3.69b y 3.69c',
+  /* Retirado a pedido del equipo el 28 sep 2026. El estudio lo había subido a Operativo porque
+     Fabiola Gutiérrez confirmó que se usa para los límites de negociación salarial y los planes
+     de carrera; queda anotado por si se lo quiere de vuelta. */
+  '3.72': 'Escala / nivel salarial: retirado a pedido del equipo',
+  /* El segundo aguinaldo depende de un decreto según el crecimiento del PIB, y el año que se
+     decreta se aplica a todos por lote: no es un dato de cada persona. Retirado el 28 sep 2026. */
+  '3.75': '¿Aplica 2º aguinaldo?: retirado a pedido del equipo',
+  /* La prima va ligada a las utilidades de la empresa, no al tiempo trabajado ni a cada persona.
+     Retirado a pedido del equipo el 28 sep 2026. */
+  '3.76': '¿Aplica prima?: retirado a pedido del equipo',
+  /* Había entrado en la v1.2 del estudio (obs. #42) para que las vacaciones se derivaran del tipo
+     de cargo. Retirado a pedido del equipo el 28 sep 2026; la escala de vacaciones sigue
+     pendiente (ABIERTA‑05 del documento). */
+  '3.80b': '¿Aplica vacaciones según el tipo de cargo?: retirado a pedido del equipo',
+  /* Retirado a pedido del equipo el 28 sep 2026. Su nota del estudio queda como antecedente: en
+     el Salar la boleta se disparaba al aprobar la planilla, antes del comunicado de RR.HH., así
+     que el momento de publicación de la boleta sigue siendo un tema para Planillas. */
+  '3.82': '¿Enviar boleta por correo?: retirado a pedido del equipo',
+}
+
+/* ── CAMPOS NUEVOS ───────────────────────────────────────────────────────
+   Campos que el estudio no tiene y la ficha sí, definidos por el equipo. Cada lista se inserta
+   justo después del campo cuya clave la nombra. */
+const CAMPOS_NUEVOS = {
+  /* Con referencia laboral disponible, a quién llamar: nombre, cargo y teléfono (28 sep 2026). */
+  'pf.20': [
+    { key: 'pf.20a', repite: 'experiencia', label: 'Nombre de la referencia', col: 'c-tercio', nivel: 'Completo', ph: 'Quién da la referencia' },
+    { key: 'pf.20b', repite: 'experiencia', label: 'Cargo de la referencia', col: 'c-tercio', nivel: 'Completo', ph: 'Su cargo en esa empresa' },
+    { key: 'pf.20c', repite: 'experiencia', label: 'Teléfono de la referencia', html: 'tel', col: 'c-tercio', nivel: 'Completo', ph: '+591' },
+  ],
+  // El encabezado del bloque de supervisión funcional: lleva el número de cada copia y su papelera.
+  '3.14': [
+    { key: '3.rotSupFun', label: 'Supervisión funcional', singular: 'Supervisor funcional', repite: 'supfun', tipo: 'rotulo', col: 'c-todo' },
+  ],
+  '3.15': [
+    { key: '3.15u', repite: 'supfun', label: '¿En qué unidad lo supervisa?', col: 'c-medio', nivel: 'Operativo',
+      nota: 'La unidad donde este supervisor le dirige el trabajo. Es lo que distingue a un supervisor funcional de otro.',
+      traza: 'Alimenta: DE, GP. Mismo par que la dependencia funcional de Organización: unidad y a quién responde ahí.' },
+    { key: '3.masSupFun', tipo: 'repetir', grupo: 'supfun', max: 5, label: 'Agregar otro supervisor funcional', col: 'c-todo', nivel: 'Operativo' },
+  ],
+  '3.68': [
+    {
+      key: '3.69a', label: '¿Recibe anticipo de quincena?', tipo: 'siNo', col: 'c-tercio', nivel: 'Operativo', detalle: true,
+      nota: 'Si a esta persona se le adelanta parte del sueldo a mitad de mes. Es independiente de la frecuencia de pago. El adelanto se descuenta del líquido pagable en la planilla del mes: no hay una segunda planilla ni una segunda boleta.',
+      traza: 'Alimenta: PL. Origen: manual, independiente de la frecuencia de pago.',
+    },
+    {
+      key: '3.69b', label: 'Tipo de anticipo', tipo: 'lista', opciones: ['Porcentaje del haber básico', 'Monto fijo'], col: 'c-tercio', nivel: 'Operativo',
+      nota: 'Cómo se calcula el adelanto: como un porcentaje del haber básico, o como un monto fijo en bolivianos.',
+      traza: 'Alimenta: PL. ⚫ si recibe anticipo de quincena.',
+    },
+    {
+      key: '3.69c', label: 'Valor', col: 'c-tercio', nivel: 'Operativo',
+      nota: 'El número que acompaña al tipo de anticipo: un porcentaje si es «Porcentaje del haber básico», un monto en bolivianos si es «Monto fijo». El adelanto no puede superar el haber básico.',
+      traza: 'Alimenta: PL. ⚫ si recibe anticipo de quincena. adelanto = haber × valor ÷ 100 (porcentaje) · valor (monto fijo).',
+    },
+  ],
+}
+
+/* ── CAMPOS AJUSTADOS ────────────────────────────────────────────────────
+   Campos que se quedan, pero con catálogo, ayuda o traza definidos por el equipo en vez de los
+   del estudio. Se aplican al final, encima de lo que el estudio diga. */
+const CAMPOS_AJUSTADOS = {
+  /* El supervisor funcional pasa a ser repetible (28 sep 2026): puede haber varios, cada uno con la
+     unidad donde supervisa. Lo había pedido el propio estudio —obs. #26, «anotar más de una
+     persona»—. Sus dos compañeros de bloque van en CAMPOS_NUEVOS. */
+  '3.15': {
+    repite: 'supfun', col: 'c-medio',
+    nota: 'Quien le dirige parte del trabajo sin ser su jefe directo. Puede haber varios: agregue uno por cada unidad o equipo con el que coordina. Alimenta la evaluación de desempeño funcional.',
+    traza: '✏ v1.2 (obs. #26: «anotar más de una persona»). Caso real: una analista contable evaluada por su jefa estructural y por las dos gestoras con las que coordina. Alimenta: DE, GP.',
+  },
+  /* La sección «Configuración de Beneficios y Obligaciones», definida el 28 sep 2026 a partir del
+     insumo de Planillas Bolivia: ayudas nuevas, y «¿Aguinaldo y prima desde el primer mes?» deja de
+     ser calculado y pasa a Sí/No, con aviso si contradice la categoría del puesto. */
+  '3.73': {
+    nota: 'Obligatorio por ley. El monto no se digita: sale del salario mínimo × 3 × el porcentaje de la escala según los años de servicio (5, 11, 18, 26, 34, 42 y 50 %). Se apaga, por ejemplo, para personal de servicios externos. En No, la columna del Ministerio va en cero: no desaparece.',
+    traza: 'Alimenta: PL. Entra desde: fecha de ingreso para bono de antigüedad y salario mínimo de los parámetros de la empresa.',
+  },
+  '3.74': {
+    nota: 'Un sueldo al año, que se paga hasta el 20 de diciembre; por duodécimas si no trabajó la gestión completa. La base es el promedio de septiembre, octubre y noviembre. Va en una planilla aparte de la mensual.',
+    traza: 'Alimenta: PL. Origen: derivable de la modalidad de contrato.',
+  },
+  '3.77': {
+    label: '¿Aguinaldo y prima desde el primer mes?', tipo: 'siNo', deducido: undefined, insignia: undefined, col: 'c-tercio',
+    nota: 'El obrero de producción tiene derecho al aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. Sale de la categoría del puesto, en Información laboral.',
+    traza: 'Alimenta: PL. Sale de: Categoría del puesto (3.12), Obrero / Administrativo.',
+  },
+  '3.78': {
+    label: '¿Aplica retroactivo? (y retroactivo de antigüedad)', col: 'c-tercio',
+    nota: 'Por ley siempre se aplica: cuando el decreto anual rige antes de publicarse, se paga la diferencia del nuevo salario mínimo o del incremento al haber. El bono de antigüedad se arrastra solo. No aplicarlo bloquea las declaraciones ante el Ministerio y la Gestora, y genera multa.',
+    traza: 'Alimenta: PL. Valor por defecto: Sí.',
+  },
+  '3.81': {
+    nota: 'Si la empresa paga sus propios aportes por esta persona: 7,21 % a la Gestora y 10 % a la Caja de Salud, sobre el total ganado. No se le descuenta al trabajador: es costo de la empresa.',
+    traza: 'Alimenta: PL, ERP. La especialista recomienda moverlo al bloque de la Gestora.',
+  },
+  '3.83': {
+    nota: 'Pago adicional para quien trabaja en zona de frontera. Es una columna oficial de la planilla del Ministerio. Falta definir la norma, el porcentaje y quién califica.',
+  },
+  /* Definidos el 28 sep 2026: los dos son informativos y no gobiernan ningún cálculo. */
+  '3.67': {
+    opciones: ['Mensual', 'Jornal', 'Por hora', 'Comisión', 'Honorarios'],
+    nota: 'Cómo se le paga a la persona. Es un dato informativo: no cambia ningún cálculo de la planilla.',
+    traza: 'Alimenta: informativo, sin gobernar ningún cálculo.',
+  },
+  '3.68': {
+    opciones: ['Mensual', 'Quincenal', 'Semanal'],
+    nota: 'Cada cuánto se le paga. Es un dato informativo: no cambia ningún cálculo de la planilla.',
+    traza: 'Alimenta: informativo, sin gobernar ningún cálculo.',
+  },
+}
+
 const NIVELES_CAMPO = {
   /* «Tercer nombre» estaba en Completo y sus cuatro hermanos en Mínimo. El resultado: en el
      nivel con el que la ficha abre, alguien llamado «Juan Carlos Andrés Rojas Vargas» no tenía
@@ -566,7 +697,7 @@ const PISTAS = {
   puesto: 'Dónde encaja en la estructura de la empresa',
   contrato: 'Qué firmó, por cuánto tiempo y en qué condiciones',
   afiliaciones: 'Gestora, Caja de Salud, Ministerio e impuestos',
-  remuneracion: 'Cuánto gana, qué le corresponde y dónde se le deposita',
+  remuneracion: 'Haber básico, beneficios de ley y datos de pago',
   asistencia: 'Jornada, horario, marcaje, vacaciones y permisos',
   sistema: 'Sus credenciales, su rol y sus papeles',
   previa: 'Todo junto, antes de crearlo',
@@ -588,7 +719,10 @@ const pasos = MAPA_BLOQUES.map((b, i) => {
         desc: nuestro.desc || acc.des,
         propuesta: !!acc.propuesta,
         incierto: !!acc.incierto,
-        campos: camposDe(acc),
+        campos: camposDe(acc)
+          .filter(c => !CAMPOS_RETIRADOS[c.key])
+          .map(c => (CAMPOS_AJUSTADOS[c.key] ? { ...c, ...CAMPOS_AJUSTADOS[c.key] } : c))
+          .flatMap(c => [c, ...(CAMPOS_NUEVOS[c.key] || [])]),
       }
     }).filter(t => t.campos.length),
   }
@@ -625,5 +759,5 @@ const unicos = new Set(pasos.flatMap(p => p.tarjetas.flatMap(t => t.campos.map(c
 console.log(`pasos: ${pasos.length}`)
 console.log(`tarjetas: ${pasos.reduce((s, p) => s + p.tarjetas.length, 0)}`)
 console.log(`campos dibujados: ${total} · distintos: ${unicos.size} · en el esquema: ${ESQUEMA.length}`)
-const faltan = ESQUEMA.filter(c => !unicos.has(c.id))
+const faltan = ESQUEMA.filter(c => !unicos.has(c.id) && !CAMPOS_RETIRADOS[c.id])
 console.log(`sin ubicar: ${faltan.length}`, faltan.slice(0, 12).map(c => `${c.id} ${c.label}`))

@@ -2720,17 +2720,44 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: DE, GP.'
           },
           {
+            key: '3.rotSupFun',
+            label: 'Supervisión funcional',
+            singular: 'Supervisor funcional',
+            repite: 'supfun',
+            tipo: 'rotulo',
+            col: 'c-todo'
+          },
+          {
             key: '3.15',
+            repite: 'supfun',
             label: 'Supervisor funcional',
             tipo: 'lista',
             opciones: [
               'Emilia Pessoa Rotger',
               'Natalia Ziade Mareño'
             ],
-            col: 'c-tercio',
+            col: 'c-medio',
             nivel: 'Operativo',
-            nota: '*\'anotar más de una persona\'*. Son las personas con las que coordina en el día a día sin depender de ellas. Alimenta la evaluación de desempeño funcional — caso real: una analista contable evaluada por su jefa estructural y por las dos gestoras con las que coordina (00:42:57). Ver §4.2.',
-            traza: '✏ v1.2 (obs. #26). Alimenta: DE, GP.'
+            nota: 'Quien le dirige parte del trabajo sin ser su jefe directo. Puede haber varios: agregue uno por cada unidad o equipo con el que coordina. Alimenta la evaluación de desempeño funcional.',
+            traza: '✏ v1.2 (obs. #26: «anotar más de una persona»). Caso real: una analista contable evaluada por su jefa estructural y por las dos gestoras con las que coordina. Alimenta: DE, GP.'
+          },
+          {
+            key: '3.15u',
+            repite: 'supfun',
+            label: '¿En qué unidad lo supervisa?',
+            col: 'c-medio',
+            nivel: 'Operativo',
+            nota: 'La unidad donde este supervisor le dirige el trabajo. Es lo que distingue a un supervisor funcional de otro.',
+            traza: 'Alimenta: DE, GP. Mismo par que la dependencia funcional de Organización: unidad y a quién responde ahí.'
+          },
+          {
+            key: '3.masSupFun',
+            tipo: 'repetir',
+            grupo: 'supfun',
+            max: 5,
+            label: 'Agregar otro supervisor funcional',
+            col: 'c-todo',
+            nivel: 'Operativo'
           },
           {
             key: '3.16',
@@ -2907,6 +2934,9 @@ export const PASOS_PROPUESTA = [
             nivel: 'Completo',
             nota: 'Si en esa empresa hay alguien a quien se le pueda pedir referencias suyas.'
           },
+          { key: 'pf.20a', repite: 'experiencia', label: 'Nombre de la referencia', col: 'c-tercio', nivel: 'Completo', ph: 'Quién da la referencia' },
+          { key: 'pf.20b', repite: 'experiencia', label: 'Cargo de la referencia', col: 'c-tercio', nivel: 'Completo', ph: 'Su cargo en esa empresa' },
+          { key: 'pf.20c', repite: 'experiencia', label: 'Teléfono de la referencia', html: 'tel', col: 'c-tercio', nivel: 'Completo', ph: '+591' },
           { key: 'pf.masExperiencia', tipo: 'repetir', grupo: 'experiencia', max: 5, label: 'Agregar otra experiencia', col: 'c-todo', nivel: 'Operativo' },
 
           { key: 'pf.rotCertificaciones', label: 'Certificaciones', singular: 'Certificación', repite: 'certificaciones', tipo: 'rotulo', col: 'c-todo', nota: 'Cursos y certificados que acreditan un conocimiento. Las licencias de la persona —conducir, manipulación de alimentos— van en «Licencias y certificaciones» del paso 1.' },
@@ -2958,18 +2988,6 @@ export const PASOS_PROPUESTA = [
           },
           { key: 'pf.30', repite: 'idiomas', label: 'Certificación del idioma', col: 'c-tercio', nivel: 'Completo', ph: 'TOEFL, Cambridge B2, DELF…' },
           { key: 'pf.masIdiomas', tipo: 'repetir', grupo: 'idiomas', max: 5, label: 'Agregar otro idioma', col: 'c-todo', nivel: 'Completo' },
-
-          { key: 'pf.rotCompetencias', label: 'Competencias', singular: 'Competencia', repite: 'competencias', tipo: 'rotulo', col: 'c-todo' },
-          {
-            key: 'pf.31',
-            repite: 'competencias',
-            label: 'Competencia',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            ph: 'Trabajo en equipo',
-            nota: 'Una conducta con la que hace su trabajo: liderazgo, orientación a resultados, trabajo en equipo. Son las que después se miden en la evaluación de desempeño.'
-          },
-          { key: 'pf.masCompetencias', tipo: 'repetir', grupo: 'competencias', max: 10, label: 'Agregar otra competencia', col: 'c-todo', nivel: 'Completo' },
 
           { key: 'pf.rotHerramientas', label: 'Herramientas y software', singular: 'Herramienta', repite: 'herramientas', tipo: 'rotulo', col: 'c-todo' },
           { key: 'pf.32', repite: 'herramientas', label: 'Herramienta', col: 'c-tercio', nivel: 'Completo', ph: 'Excel, SAP, AutoCAD, montacargas…' },
@@ -3064,7 +3082,7 @@ export const PASOS_PROPUESTA = [
     tarjetas: [
       {
         id: 'doc',
-        titulo: 'El contrato',
+        titulo: 'Datos del contrato',
         desc: 'Las fechas de ingreso son tres y no una: la legal es la que ven las tres entidades y nunca puede diferir; las otras dos son internas y existen porque a veces se le reconoce antigüedad o vacaciones desde otra fecha. Después, modalidad, tipo y plazo: de la modalidad depende que se dispare la regla de los dos contratos a plazo fijo.',
         propuesta: false,
         incierto: false,
@@ -3533,7 +3551,7 @@ export const PASOS_PROPUESTA = [
     tarjetas: [
       {
         id: 'jornada',
-        titulo: 'Su jornada',
+        titulo: 'Jornada laboral',
         desc: 'Cuatro de estos campos son del mínimo legal, y no por completitud: sin ellos la persona no entra a la corrida.',
         propuesta: false,
         incierto: false,
@@ -3669,7 +3687,7 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'marcacion',
-        titulo: 'Cómo marca',
+        titulo: 'Método de marcación',
         desc: 'Biométrico, app, web o manual. La manual siempre deja rastro de quién la hizo y por qué.',
         propuesta: false,
         incierto: false,
@@ -4004,11 +4022,11 @@ export const PASOS_PROPUESTA = [
     n: 8,
     titulo: 'Remuneración',
     corto: 'Sueldo',
-    pista: 'Cuánto gana, qué le corresponde y dónde se le deposita',
+    pista: 'Haber básico, beneficios de ley y datos de pago',
     tarjetas: [
       {
         id: 'sueldo',
-        titulo: 'Cuánto gana',
+        titulo: 'Datos de haber básico',
         desc: 'El haber básico no puede ser inferior al salario mínimo nacional.',
         propuesta: false,
         incierto: false,
@@ -4025,33 +4043,21 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: ERP, PL.'
           },
           {
-            key: '3.66',
-            label: 'Moneda',
-            tipo: 'lista',
-            opciones: [
-              'BOB · Boliviano',
-              'USD · Dólar'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
             key: '3.67',
             label: 'Tipo de remuneración',
             tipo: 'lista',
             opciones: [
               'Mensual',
-              'Jornal por hora',
-              'Jornal por día'
+              'Jornal',
+              'Por hora',
+              'Comisión',
+              'Honorarios'
             ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
-            nota: 'Mensual · Jornal · Por hora · Comisión · Honorarios.',
-            traza: 'Alimenta: PL.'
+            nota: 'Cómo se le paga a la persona. Es un dato informativo: no cambia ningún cálculo de la planilla.',
+            traza: 'Alimenta: informativo, sin gobernar ningún cálculo.'
           },
           {
             key: '3.68',
@@ -4059,35 +4065,51 @@ export const PASOS_PROPUESTA = [
             tipo: 'lista',
             opciones: [
               'Mensual',
-              'Quincenal'
+              'Quincenal',
+              'Semanal'
             ],
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Mensual · Quincenal · Semanal.',
-            traza: 'Alimenta: PL.'
+            nota: 'Cada cuánto se le paga. Es un dato informativo: no cambia ningún cálculo de la planilla.',
+            traza: 'Alimenta: informativo, sin gobernar ningún cálculo.'
           },
           {
-            key: '3.69',
-            label: 'Modo de quincena + valor',
+            key: '3.69a',
+            label: '¿Recibe anticipo de quincena?',
+            tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Porcentaje o monto fijo.',
-            traza: 'Alimenta: PL.'
+            detalle: true,
+            nota: 'Si a esta persona se le adelanta parte del sueldo a mitad de mes. Es independiente de la frecuencia de pago. El adelanto se descuenta del líquido pagable en la planilla del mes: no hay una segunda planilla ni una segunda boleta.',
+            traza: 'Alimenta: PL. Origen: manual, independiente de la frecuencia de pago.'
           },
           {
-            key: '3.72',
-            label: 'Escala / nivel salarial',
+            key: '3.69b',
+            label: 'Tipo de anticipo',
+            tipo: 'lista',
+            opciones: [
+              'Porcentaje del haber básico',
+              'Monto fijo'
+            ],
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: '29:12): CONFIRMADO y subido a Operativo. *\'Fabiola Gutiérrez confirmó que es utilizado frecuentemente para establecer los límites de negociación salarial\'* y para gestionar planes de carrera y ascensos. Pendiente: recibir el ejemplo de escala real (*\'consultar el ejemplo\'*).',
-            traza: '✏ v1.2 (obs. #41 · 00. Alimenta: ERP, PL.'
+            nota: 'Cómo se calcula el adelanto: como un porcentaje del haber básico, o como un monto fijo en bolivianos.',
+            traza: 'Alimenta: PL. ⚫ si recibe anticipo de quincena.'
+          },
+          {
+            key: '3.69c',
+            label: 'Valor',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El número que acompaña al tipo de anticipo: un porcentaje si es «Porcentaje del haber básico», un monto en bolivianos si es «Monto fijo». El adelanto no puede superar el haber básico.',
+            traza: 'Alimenta: PL. ⚫ si recibe anticipo de quincena. adelanto = haber × valor ÷ 100 (porcentaje) · valor (monto fijo).'
           }
         ]
       },
       {
         id: 'aplica',
-        titulo: 'Qué beneficios le corresponden',
-        desc: 'Son interruptores, no montos: definen qué calcula la corrida para esta persona. Acá se decide si entra al bono de antigüedad, al aguinaldo, a la prima y al retroactivo.',
+        titulo: 'Configuración de Beneficios y Obligaciones',
+        desc: 'Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este empleado.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4098,8 +4120,8 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
-            nota: 'El monto no se digita: SMN × 3 × %escala(años).',
-            traza: 'Alimenta: PL.'
+            nota: 'Obligatorio por ley. El monto no se digita: sale del salario mínimo × 3 × el porcentaje de la escala según los años de servicio (5, 11, 18, 26, 34, 42 y 50 %). Se apaga, por ejemplo, para personal de servicios externos. En No, la columna del Ministerio va en cero: no desaparece.',
+            traza: 'Alimenta: PL. Entra desde: fecha de ingreso para bono de antigüedad y salario mínimo de los parámetros de la empresa.'
           },
           {
             key: '3.74',
@@ -4108,55 +4130,26 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
-            nota: '⚙ Derivable de la modalidad.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.75',
-            label: '¿Aplica 2º aguinaldo?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Default = No. Depende de decreto según crecimiento del PIB. Se cambia por lote el año que se decrete.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.76',
-            label: '¿Aplica prima?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Ligada a utilidades, no al tiempo trabajado.',
-            traza: 'Alimenta: PL.'
+            nota: 'Un sueldo al año, que se paga hasta el 20 de diciembre; por duodécimas si no trabajó la gestión completa. La base es el promedio de septiembre, octubre y noviembre. Va en una planilla aparte de la mensual.',
+            traza: 'Alimenta: PL. Origen: derivable de la modalidad de contrato.'
           },
           {
             key: '3.77',
-            label: '¿Aguinaldo/prima desde el primer mes?',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-medio',
+            label: '¿Aguinaldo y prima desde el primer mes?',
+            tipo: 'siNo',
+            col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Obrero de producción: 1 mes · Administrativo: 3 meses y 1 día.',
-            traza: 'Alimenta: PL.'
+            nota: 'El obrero de producción tiene derecho al aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. Sale de la categoría del puesto, en Información laboral.',
+            traza: 'Alimenta: PL. Sale de: Categoría del puesto (3.12), Obrero / Administrativo.'
           },
           {
             key: '3.78',
-            label: '¿Aplica retroactivo? + retroactivo de antigüedad',
+            label: '¿Aplica retroactivo? (y retroactivo de antigüedad)',
             tipo: 'siNo',
-            col: 'c-medio',
+            col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'El bono de antigüedad se arrastra obligatoriamente porque depende del SMN.',
-            traza: 'Alimenta: PL.'
-          },
-          {
-            key: '3.80b',
-            label: '¿Aplica vacaciones según el tipo de cargo?',
-            col: 'c-medio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: 'CAMPO NUEVO. *\'Aplica vacaciones según el tipo de cargo — añadir\'*. Permite que la elegibilidad y la escala de vacaciones se deriven del tipo de cargo, no se marquen a mano. Depende de la escala legal pendiente (§11, pendiente 6a).',
-            traza: '✏ v1.2 (obs. #42). Alimenta: AS, PL.'
+            nota: 'Por ley siempre se aplica: cuando el decreto anual rige antes de publicarse, se paga la diferencia del nuevo salario mínimo o del incremento al haber. El bono de antigüedad se arrastra solo. No aplicarlo bloquea las declaraciones ante el Ministerio y la Gestora, y genera multa.',
+            traza: 'Alimenta: PL. Valor por defecto: Sí.'
           },
           {
             key: '3.81',
@@ -4164,17 +4157,8 @@ export const PASOS_PROPUESTA = [
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'Moverlo al bloque de Gestora (criterio de la especialista).',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.82',
-            label: '¿Enviar boleta por correo?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Con control de momento de publicación: hoy en el Salar la boleta se dispara al aprobar, adelantándose al comunicado de RR.HH.',
-            traza: 'Alimenta: CC, PL.'
+            nota: 'Si la empresa paga sus propios aportes por esta persona: 7,21 % a la Gestora y 10 % a la Caja de Salud, sobre el total ganado. No se le descuenta al trabajador: es costo de la empresa.',
+            traza: 'Alimenta: PL, ERP. La especialista recomienda moverlo al bloque de la Gestora.'
           },
           {
             key: '3.83',
@@ -4182,14 +4166,14 @@ export const PASOS_PROPUESTA = [
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Completo',
-            nota: 'Raro, pero lo pide la declaración de la OVT.',
+            nota: 'Pago adicional para quien trabaja en zona de frontera. Es una columna oficial de la planilla del Ministerio. Falta definir la norma, el porcentaje y quién califica.',
             traza: 'El estudio lo marca como a confirmar. Alimenta: PL.'
           }
         ]
       },
       {
         id: 'banco',
-        titulo: 'Dónde se le deposita',
+        titulo: 'Datos de pago',
         desc: 'La cuenta a veces se abre después del ingreso. Sin ella no entra al archivo de dispersión, aunque la planilla sí se le calcule.',
         propuesta: false,
         incierto: false,
@@ -4286,7 +4270,7 @@ export const PASOS_PROPUESTA = [
       },
       {
         id: 'beneficios',
-        titulo: 'Beneficios adicionales',
+        titulo: 'Datos de beneficios adicionales',
         desc: 'Lo que da la empresa por encima de la ley: seguro privado, movilidad, alimentación.',
         propuesta: true,
         incierto: false,

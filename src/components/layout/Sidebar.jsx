@@ -1,55 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { House, CircleUserRound, UserRound, MessageCircleMore, ClipboardCheck, Settings, LogOut, Rocket, Folder, Menu, ChevronsRight, Database, RotateCcw, AlertTriangle, X, Building2, Bell, Sun, Moon, Users, ChevronDown, BookOpen, FolderCheck } from 'lucide-react'
+import { UserRound, Settings, LogOut, Menu, ChevronsRight, Database, RotateCcw, AlertTriangle, X, Bell, Sun, Moon, Users, ChevronDown, BookOpen } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
 import logoOscuro from '../../assets/imagenes/logo_souly_oscuro.png'
 import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
-
-// El buddy ve exactamente lo mismo que un colaborador: acompañar no otorga permisos.
-const TODOS = ['admin', 'manager', 'auxiliar', 'colaborador', 'buddy']
-
-/* El riel separa lo administrativo de lo personal. "Mi espacio personal" es lo único que ve
-   todo el mundo: adentro está el día, el calendario y el onboarding propios.
-
-   Inicio y Onboarding quedaron solo para quien administra. Antes los veía también el
-   colaborador, pero al entrar rebotaba a su pantalla personal: eran dos puertas del riel que
-   llevaban al mismo lugar y ninguna a lo que anunciaban. */
-const allNavItems = [
-  { icon: House, label: 'Inicio', path: '/inicio', roles: ['admin', 'manager', 'auxiliar'] },
-  { icon: CircleUserRound, label: 'Mi espacio personal', path: '/mi-espacio', roles: TODOS },
-  /* LA ESTRUCTURA VA ANTES QUE LA GENTE, y el orden no es estético: primero se define el área y
-     se abre la plaza, y recién después se contrata contra ella. Salió de "Gestión de personas"
-     —donde era la mitad de un módulo que decía llamarse de otra cosa— porque no es dato de
-     personas sino dato maestro de la empresa: Onboarding ya elige la ruta por área y cargo, y
-     Evaluación va a sacar de aquí quién evalúa a quién. Un dato del que dependen tres módulos no
-     puede vivir dentro del cajón de ajustes de uno. */
-  { icon: Building2, label: 'Organización', path: '/organizacion', roles: ['admin', 'manager'] },
-  { icon: UserRound, label: 'Gestión de personas', path: '/personas/colaboradores', roles: ['admin', 'manager'] },
-  /* DOCUMENTACIÓN VA JUSTO DESPUÉS DE LA GENTE, porque su unidad es siempre una persona: el
-     expediente cuelga del colaborador (PRD 3.2) y lee de su ficha. Módulo propio y no una
-     pestaña de la ficha porque tiene su propio trabajo diario —la bandeja, emitir, el panel—
-     que no empieza eligiendo a nadie. */
-  { icon: FolderCheck, label: 'Documentación', path: '/documentos', roles: ['admin', 'manager'] },
-  { icon: Rocket, label: 'Onboarding', path: '/onboarding', roles: ['admin', 'manager', 'auxiliar'] },
-  /* COMUNICACIÓN Y EVALUACIÓN SON MÓDULOS DE ADMINISTRACIÓN, no del colaborador: aquí se
-     redactan los anuncios y se arman las campañas de evaluación, no se leen. Lo que al
-     colaborador le toca de esos dos módulos —sus chats, sus evaluaciones por responder— entra
-     por Mi espacio personal, igual que su onboarding.
-
-     Así el colaborador y el buddy ven UNA sola entrada en el riel. Antes veían tres, y las dos
-     de abajo no llevaban a ninguna parte. */
-  { icon: MessageCircleMore, label: 'Comunicación', path: '/comunicacion', roles: ['admin', 'manager'] },
-  { icon: ClipboardCheck, label: 'Evaluación', path: null, roles: ['admin', 'manager'] },
-  { icon: Folder, label: 'Mis archivos', path: '/archivos', roles: ['admin'] },
-  /* CONFIGURACIÓN VA LA ÚLTIMA porque no es un módulo de trabajo: se entra a decidir cómo se
-     comporta el sistema y se sale. Solo Recursos Humanos: quién puede hacer qué no lo decide
-     quien lo padece. */
-  { icon: Settings, label: 'Configuración', path: '/configuracion', roles: ['admin'] },
-]
-
+import { allNavItems } from './modulos'
 
 /* Un punto arriba de los 14px de ModuleNav, no igual: colapsado el ícono es lo único
    clicable del rail, así que bajarlo hasta el tamaño de adentro lo dejaba flaco. Los dos
@@ -239,7 +197,7 @@ export function CuentaBloque({ expanded, barra }) {
             {currentUser.initials}
           </span>
           {(expanded || barra) && (
-            <span className="min-w-0 text-left">
+            <span className="cuenta-texto min-w-0 text-left">
               <span className="block text-xs font-semibold truncate">{currentUser.name}</span>
               <span className="block text-[11px] text-[#5A7285] dark:text-[#8FA8B7] truncate">{currentUser.roleLabel}</span>
             </span>
@@ -352,9 +310,9 @@ export default function Sidebar() {
   const isAdmin = currentUser.role === 'admin'
   function go(path) { guardNavigate(() => navigate(path)) }
 
-  /* Se sirve como archivo y no como ruta de React: es un documento, no una pantalla, y así lo
+  /* Se sirve como archivo y no como ruta de React: es la documentación, no una pantalla, y así la
      puede abrir cualquiera —incluido quien no levanta la app— y mandarse por su dirección. */
-  function abrirReglas() { window.open('/reglas-de-negocio.html', '_blank', 'noopener') }
+  function abrirDocumentacion() { window.open('/documentacion.html', '_blank', 'noopener') }
 
   const [showDemoMenu, setShowDemoMenu] = useState(false)
   const [showVerComo, setShowVerComo] = useState(false)
@@ -506,18 +464,18 @@ export default function Sidebar() {
                   {showDemoMenu && <MenuDatosDemo onCargar={() => { setShowDemoMenu(false); setShowLoadConfirm(true) }} onResetear={() => { setShowDemoMenu(false); setShowResetConfirm(true) }} />}
                 </div>
               )}
-              {/* LAS REGLAS DE NEGOCIO. Tercer botón de la misma fila porque es de la misma
+              {/* LA DOCUMENTACIÓN DE PRODUCTO. Tercer botón de la misma fila porque es de la misma
                   familia: las tres cosas sirven para ENSEÑAR el prototipo —los datos con los que
                   se enseña, la forma en que se enseña y el porqué de lo que se está viendo—.
 
-                  ABRE UN DOCUMENTO, no una pantalla de la app. Las reglas son un documento del
-                  equipo y viven en su propio archivo, `public/reglas-de-negocio.html`; en pestaña
+                  ABRE LA DOCUMENTACIÓN, no una pantalla de la app: un índice con un documento por
+                  módulo —`public/documentacion.html`, y de ahí cada uno en su archivo—; en pestaña
                   aparte porque se consulta MIENTRAS se trabaja —se mira una regla y se vuelve a
                   lo que estabas haciendo, que sigue ahí igual que lo dejaste—. */}
               <button
-                onClick={() => abrirReglas()}
-                title="Reglas de negocio"
-                aria-label="Reglas de negocio"
+                onClick={() => abrirDocumentacion()}
+                title="Documentación de producto"
+                aria-label="Documentación de producto"
                 style={{
                   width: 24, height: 24, borderRadius: 7, border: 'none', cursor: 'pointer',
                   background: 'transparent', color: 'var(--text-muted)',
@@ -579,9 +537,9 @@ export default function Sidebar() {
             )}
             <NavItem
               icon={BookOpen}
-              label="Reglas de negocio"
+              label="Documentación de producto"
               expanded={false}
-              onClick={() => abrirReglas()}
+              onClick={() => abrirDocumentacion()}
             />
           </div>
         )}
