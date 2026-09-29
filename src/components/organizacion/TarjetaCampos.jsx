@@ -2,6 +2,10 @@ import { lazy, Suspense, useLayoutEffect, useRef } from 'react'
 import Desplegable from '../layout/Desplegable'
 import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
+import CampoTelefono from './CampoTelefono'
+import ListaTutela from './ListaTutela'
+import ListaAprobadores from './ListaAprobadores'
+import TablaFuncional from './TablaFuncional'
 import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
 /* EL MAPA SE DESCARGA CUANDO SE USA, Y NO ANTES. Leaflet con su hoja de estilos son unos
    cincuenta kilobytes comprimidos que hacen falta en UN campo de doscientos cuarenta y nueve, y
@@ -31,6 +35,9 @@ import { claveDeCuenta, cuantosHay, quitarCopia } from '../../data/fichaColabora
      faltaMsg   qué decir cuando falta; hay un texto por defecto
      html       'email' | 'tel' | 'date'. Los dos primeros son el tipo del input y el enlace en
                 que se convierte al leerlo; 'date' cambia el campo entero por el calendario propio
+     buscador   en una lista, el buscador siempre, aunque tenga pocas opciones
+     telefono   con `html: 'tel'`, la caja lleva a la izquierda el selector de código de país
+                —ver `CampoTelefono`—; `paisPorDefecto` es la sigla con la que arranca
      tipo       'lista' + `opciones` para un desplegable, 'persona' + `personas` para elegir
                 gente, 'texto' para un campo de varias líneas, 'siNo' para una pregunta cerrada
                 —guarda 'si' o 'no'— o 'archivo' + `acepta`/`pista`/`vistaPrevia` para subir uno
@@ -67,6 +74,29 @@ const vacio = v => !v || !String(v).trim()
    EL GUION DEL CAMPO VACÍO no es adorno. Un renglón en blanco parece un fallo de la pantalla;
    el guion dice que ahí cabe algo y que nadie lo ha puesto. */
 function ValorLeido({ campo, valor }) {
+  /* LA TUTELA SE LEE CON LOS NOMBRES: los marcados a mano y los hijos con discapacidad declarada,
+     que no se guardan en el campo. Ver `bajoTutela`. */
+  // La dependencia funcional se lee como en el organigrama: unidad, respondiendo a quién.
+  if (campo.tipo === 'apoyoFuncional') {
+    const l = campo.leido || []
+    return l.length ? <p className="emp-valor">{l.join(' · ')}</p> : <p className="emp-valor emp-valor-vacio">—</p>
+  }
+  /* Los aprobadores se leen en orden, con una flecha, y cada suplente entre paréntesis. */
+  if (campo.tipo === 'aprobadores') {
+    const n = Math.max(1, Number(campo.cuantos) || 1)
+    const nombres = Array.from({ length: n }, (_, i) => campo.valores?.[i]
+      ? campo.valores[i] + (campo.suplentes?.[i] ? ` (suplente: ${campo.suplentes[i]})` : '')
+      : '').filter(Boolean)
+    return nombres.length
+      ? <p className="emp-valor">{nombres.join(' → ')}</p>
+      : <p className="emp-valor emp-valor-vacio">—</p>
+  }
+  if (campo.tipo === 'tutela') {
+    const nombres = campo.bajoTutela || []
+    return nombres.length
+      ? <p className="emp-valor">{nombres.join(', ')}</p>
+      : <p className="emp-valor emp-valor-vacio">—</p>
+  }
   /* UN ARCHIVO NO ES UNA CADENA y se pregunta antes que nada: pasado por `String()` se lee
      «[object Object]», que es exactamente el aspecto de una pantalla rota. */
   if (campo.tipo === 'archivo') {
@@ -319,6 +349,20 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
           : <p className={`emp-valor${campo.deducido ? '' : ' emp-valor-vacio'}`}>{campo.deducido || '—'}</p>
       ) : !editando ? (
         <ValorLeido campo={campo} valor={form[campo.key]} />
+      ) : campo.telefono ? (
+        <CampoTelefono id={id} campo={campo} form={form} set={set} falta={falta} />
+      ) : campo.tipo === 'tutela' ? (
+        <ListaTutela campo={campo} form={form} set={set} />
+      ) : campo.tipo === 'aprobadores' ? (
+        <ListaAprobadores campo={campo} form={form} set={set} />
+      ) : campo.tipo === 'apoyoFuncional' ? (
+        <TablaFuncional
+          apoyos={campo.apoyos || []}
+          org={campo.org}
+          unidadPropia={campo.unidadPropia}
+          cargoId={campo.cargoId}
+          onCambio={lista => set(campo.key, lista)}
+        />
       ) : campo.tipo === 'texto' ? (
         /* UNA DESCRIPCIÓN NO ES UN DATO CORTO. En una línea de alto, quien escribe dos frases
            deja de ver la primera, y el campo comunica «pon tres palabras» cuando lo que se pide
@@ -423,6 +467,7 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
              el descriptor y no en la pantalla: el día que otra lista dependa de lo que se haya
              cargado antes, ya sabe cómo decirlo. */
           nota={campo.notaLista}
+          conBuscador={!!campo.buscador}
           /* UN VALOR GUARDADO QUE NO ESTÁ EN LA LISTA SE CONSERVA. Alguno de estos campos fue
              texto libre antes de ser lista, así que puede haber valores escritos a mano que no
              encajen en ninguna opción; sin esto el desplegable los mostraría vacíos y los

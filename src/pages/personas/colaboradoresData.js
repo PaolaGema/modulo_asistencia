@@ -250,7 +250,7 @@ export const colaboradoresData = [
          no tenía dónde aparecer. */
       '1.10': 'Documento nacional de identidad', '1.11': '8452119', '1.12': 'SC', '1.14': 'Bolivia',
       '1.21': '1991-07-14', '1.22': 'Santa Cruz de la Sierra', '1.23': 'Bolivia',
-      '1.24': 'si', '1.25': 'Bolivia',
+      '1.24': 'si',
       // Los números de por vida: los que hay que ir a buscar a otra oficina si se pierden
       '3.45': '3021-8845-17', '3.51': 'CNS-4471902', '3.57': 'RC-8845-21',
       // Lo que pudo cambiar en cuatro años — llega marcado «a confirmar»

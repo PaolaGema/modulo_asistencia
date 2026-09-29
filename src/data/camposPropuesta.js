@@ -63,26 +63,6 @@ export const PASOS_PROPUESTA = [
             nivel: 'Mínimo',
             requerido: true,
             traza: 'Alimenta: GP, ON.'
-          },
-          {
-            key: '0.5',
-            label: '¿Asignar los mismos permisos anteriores?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Mínimo',
-            requerido: true,
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '0.6',
-            label: '¿Conservar antigüedad anterior?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Mínimo',
-            requerido: true,
-            nota: 'Decide si el bono de antigüedad se recalcula desde cero o continúa. en duda — *\'quizá no\'*. Ver pendiente 18.',
-            traza: '✏ v1.2 (obs. #1). Alimenta: PL.'
           }
         ]
       },
@@ -196,6 +176,30 @@ export const PASOS_PROPUESTA = [
         incierto: false,
         campos: [
           {
+            key: '1.14',
+            label: 'País emisor',
+            tipo: 'lista',
+            opciones: [
+              'Bolivia',
+              'Argentina',
+              'Brasil',
+              'Chile',
+              'Colombia',
+              'Ecuador',
+              'Perú',
+              'Paraguay',
+              'Uruguay',
+              'Venezuela',
+              'España',
+              'EE.UU.',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Va debajo de la extensión y el complemento aunque los dispare: viene con Bolivia puesto, casi nadie lo toca, y arriba partía en dos la pareja tipo/número.',
+            traza: 'Alimenta: GP.'
+          },
+          {
             key: '1.10',
             label: 'Tipo de documento',
             tipo: 'lista',
@@ -228,7 +232,7 @@ export const PASOS_PROPUESTA = [
              LO QUE VA ACÁ SIGUE SIENDO UN DOCUMENTO DE IDENTIDAD. Esta tarjeta es con qué se
              identifica a la persona ante el Estado, no qué papeles presentó: el carnet de
              sanidad o los antecedentes penales son requisitos de contratación y su sitio son
-             los documentos del paso Contrato, no éste. Los ejemplos del rótulo lo dicen sin
+             los documentos del paso Relación laboral, no éste. Los ejemplos del rótulo lo dicen sin
              tener que explicarlo. */
           {
             key: '1.10b',
@@ -299,30 +303,6 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP, ON.'
           },
           {
-            key: '1.14',
-            label: 'País emisor',
-            tipo: 'lista',
-            opciones: [
-              'Bolivia',
-              'Argentina',
-              'Brasil',
-              'Chile',
-              'Colombia',
-              'Ecuador',
-              'Perú',
-              'Paraguay',
-              'Uruguay',
-              'Venezuela',
-              'España',
-              'EE.UU.',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Va debajo de la extensión y el complemento aunque los dispare: viene con Bolivia puesto, casi nadie lo toca, y arriba partía en dos la pareja tipo/número.',
-            traza: 'Alimenta: GP.'
-          },
-          {
             key: '1.17',
             label: 'Documento escaneado (anverso + reverso)',
             tipo: 'archivo',
@@ -389,6 +369,31 @@ export const PASOS_PROPUESTA = [
             tipo: 'rotulo',
             col: 'c-todo',
             nota: 'El estudio lo pedía enumerado —tipo, número, extensión, complemento, vencimiento, imágenes— porque todavía era una promesa. Ahora son los campos de abajo, los mismos que el documento principal: un segundo documento no se describe distinto que el primero.'
+          },
+          {
+            key: '1.20g',
+            repite: 'docsec',
+            label: 'País emisor',
+            tipo: 'lista',
+            opciones: [
+              'Bolivia',
+              'Argentina',
+              'Brasil',
+              'Chile',
+              'Colombia',
+              'Ecuador',
+              'Perú',
+              'Paraguay',
+              'Uruguay',
+              'Venezuela',
+              'España',
+              'EE.UU.',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Viene con Bolivia puesto igual que el del documento principal. De él dependen la extensión y el complemento SEGIP, que están más arriba en el bloque: sin un valor de arranque, elegir el tipo no hacía aparecer nada y los dos campos brotaban después, por encima de donde se estaba mirando.',
+            traza: '↳ 1.20. Alimenta: GP.'
           },
 
           /* ── EL SEGUNDO DOCUMENTO, CAMPO POR CAMPO ────────────────────────────────────────
@@ -513,31 +518,6 @@ export const PASOS_PROPUESTA = [
             traza: '↳ 1.20. Alimenta: GP, ON.'
           },
           {
-            key: '1.20g',
-            repite: 'docsec',
-            label: 'País emisor',
-            tipo: 'lista',
-            opciones: [
-              'Bolivia',
-              'Argentina',
-              'Brasil',
-              'Chile',
-              'Colombia',
-              'Ecuador',
-              'Perú',
-              'Paraguay',
-              'Uruguay',
-              'Venezuela',
-              'España',
-              'EE.UU.',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Viene con Bolivia puesto igual que el del documento principal. De él dependen la extensión y el complemento SEGIP, que están más arriba en el bloque: sin un valor de arranque, elegir el tipo no hacía aparecer nada y los dos campos brotaban después, por encima de donde se estaba mirando.',
-            traza: '↳ 1.20. Alimenta: GP.'
-          },
-          {
             key: '1.20h',
             repite: 'docsec',
             label: 'Documento secundario escaneado (anverso + reverso)',
@@ -650,32 +630,411 @@ export const PASOS_PROPUESTA = [
             label: 'Nacionalidad',
             tipo: 'lista',
             opciones: [
-              'Bolivia',
+              'Afgana',
+              'Albanesa',
+              'Alemana',
+              'Andorrana',
+              'Angoleña',
+              'Antiguana',
+              'Argelina',
               'Argentina',
-              'Brasil',
-              'Chile',
-              'Colombia',
-              'Ecuador',
-              'Perú',
-              'Paraguay',
-              'Uruguay',
-              'Venezuela',
-              'España',
-              'EE.UU.',
-              'Otro'
+              'Armenia',
+              'Australiana',
+              'Austriaca',
+              'Azerbaiyana',
+              'Bahameña',
+              'Bangladesí',
+              'Barbadense',
+              'Bareiní',
+              'Belga',
+              'Beliceña',
+              'Beninesa',
+              'Bielorrusa',
+              'Birmana',
+              'Bisauguineana',
+              'Boliviana',
+              'Bosnia',
+              'Botsuana',
+              'Brasileña',
+              'Británica',
+              'Bruneana',
+              'Búlgara',
+              'Burkinesa',
+              'Burundesa',
+              'Butanesa',
+              'Caboverdiana',
+              'Camboyana',
+              'Camerunesa',
+              'Canadiense',
+              'Catarí',
+              'Centroafricana',
+              'Chadiana',
+              'Checa',
+              'Chilena',
+              'China',
+              'Chipriota',
+              'Colombiana',
+              'Comorense',
+              'Congoleña',
+              'Costarricense',
+              'Croata',
+              'Cubana',
+              'Danesa',
+              'Dominicana',
+              'Dominiquesa',
+              'Ecuatoguineana',
+              'Ecuatoriana',
+              'Egipcia',
+              'Emiratí',
+              'Eritrea',
+              'Eslovaca',
+              'Eslovena',
+              'Española',
+              'Esrilanquesa',
+              'Estadounidense',
+              'Estonia',
+              'Esuatiní',
+              'Etíope',
+              'Filipina',
+              'Finlandesa',
+              'Fiyiana',
+              'Francesa',
+              'Gabonesa',
+              'Gambiana',
+              'Georgiana',
+              'Ghanesa',
+              'Granadina',
+              'Griega',
+              'Guatemalteca',
+              'Guineana',
+              'Guyanesa',
+              'Haitiana',
+              'Hondureña',
+              'Húngara',
+              'India',
+              'Indonesia',
+              'Iraní',
+              'Iraquí',
+              'Irlandesa',
+              'Islandesa',
+              'Israelí',
+              'Italiana',
+              'Jamaicana',
+              'Japonesa',
+              'Jordana',
+              'Kazaja',
+              'Keniana',
+              'Kirguisa',
+              'Kiribatiana',
+              'Kuwaití',
+              'Laosiana',
+              'Lesotense',
+              'Letona',
+              'Libanesa',
+              'Liberiana',
+              'Libia',
+              'Liechtensteiniana',
+              'Lituana',
+              'Luxemburguesa',
+              'Macedonia',
+              'Malasia',
+              'Malauí',
+              'Maldiva',
+              'Malgache',
+              'Maliense',
+              'Maltesa',
+              'Marfileña',
+              'Marroquí',
+              'Marshalesa',
+              'Mauriciana',
+              'Mauritana',
+              'Mexicana',
+              'Micronesia',
+              'Moldava',
+              'Monegasca',
+              'Mongola',
+              'Montenegrina',
+              'Mozambiqueña',
+              'Namibia',
+              'Nauruana',
+              'Neerlandesa',
+              'Neozelandesa',
+              'Nepalí',
+              'Nicaragüense',
+              'Nigeriana',
+              'Nigerina',
+              'Norcoreana',
+              'Noruega',
+              'Omaní',
+              'Pakistaní',
+              'Palauana',
+              'Palestina',
+              'Panameña',
+              'Papú',
+              'Paraguaya',
+              'Peruana',
+              'Polaca',
+              'Portuguesa',
+              'Ruandesa',
+              'Rumana',
+              'Rusa',
+              'Salomonense',
+              'Salvadoreña',
+              'Samoana',
+              'Sancristobaleña',
+              'Sanmarinense',
+              'Santalucense',
+              'Santotomense',
+              'Sanvicentina',
+              'Saudí',
+              'Senegalesa',
+              'Serbia',
+              'Seychellense',
+              'Sierraleonesa',
+              'Singapurense',
+              'Siria',
+              'Somalí',
+              'Sudafricana',
+              'Sudanesa',
+              'Sueca',
+              'Suiza',
+              'Surcoreana',
+              'Surinamesa',
+              'Sursudanesa',
+              'Tailandesa',
+              'Tanzana',
+              'Tayika',
+              'Timorense',
+              'Togolesa',
+              'Tongana',
+              'Trinitense',
+              'Tunecina',
+              'Turca',
+              'Turkmena',
+              'Tuvaluana',
+              'Ucraniana',
+              'Ugandesa',
+              'Uruguaya',
+              'Uzbeka',
+              'Vanuatuense',
+              'Vaticana',
+              'Venezolana',
+              'Vietnamita',
+              'Yemení',
+              'Yibutiana',
+              'Zambiana',
+              'Zimbabuense'
             ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
-            nota: 'Se rellena sola si la respuesta de al lado es Sí, y entonces no se puede escribir: ya está contestada. Dicho que No, se pregunta y Bolivia deja de estar entre las opciones. El estudio lo pedía escondiendo el campo; se prefirió deducirlo para que el dato siga a la vista de quien lee la ficha. Corrige la redundancia del Salar.',
+            nota: 'Solo se pregunta si la respuesta de al lado es No: si es de nacionalidad boliviana, ya está dicho. Elija la nacionalidad, no el país.',
             traza: 'Alimenta: GP, PL.'
           },
           {
             key: '1.26',
             label: 'Segunda nacionalidad',
+            tipo: 'lista',
+            opciones: [
+              'Afgana',
+              'Albanesa',
+              'Alemana',
+              'Andorrana',
+              'Angoleña',
+              'Antiguana',
+              'Argelina',
+              'Argentina',
+              'Armenia',
+              'Australiana',
+              'Austriaca',
+              'Azerbaiyana',
+              'Bahameña',
+              'Bangladesí',
+              'Barbadense',
+              'Bareiní',
+              'Belga',
+              'Beliceña',
+              'Beninesa',
+              'Bielorrusa',
+              'Birmana',
+              'Bisauguineana',
+              'Boliviana',
+              'Bosnia',
+              'Botsuana',
+              'Brasileña',
+              'Británica',
+              'Bruneana',
+              'Búlgara',
+              'Burkinesa',
+              'Burundesa',
+              'Butanesa',
+              'Caboverdiana',
+              'Camboyana',
+              'Camerunesa',
+              'Canadiense',
+              'Catarí',
+              'Centroafricana',
+              'Chadiana',
+              'Checa',
+              'Chilena',
+              'China',
+              'Chipriota',
+              'Colombiana',
+              'Comorense',
+              'Congoleña',
+              'Costarricense',
+              'Croata',
+              'Cubana',
+              'Danesa',
+              'Dominicana',
+              'Dominiquesa',
+              'Ecuatoguineana',
+              'Ecuatoriana',
+              'Egipcia',
+              'Emiratí',
+              'Eritrea',
+              'Eslovaca',
+              'Eslovena',
+              'Española',
+              'Esrilanquesa',
+              'Estadounidense',
+              'Estonia',
+              'Esuatiní',
+              'Etíope',
+              'Filipina',
+              'Finlandesa',
+              'Fiyiana',
+              'Francesa',
+              'Gabonesa',
+              'Gambiana',
+              'Georgiana',
+              'Ghanesa',
+              'Granadina',
+              'Griega',
+              'Guatemalteca',
+              'Guineana',
+              'Guyanesa',
+              'Haitiana',
+              'Hondureña',
+              'Húngara',
+              'India',
+              'Indonesia',
+              'Iraní',
+              'Iraquí',
+              'Irlandesa',
+              'Islandesa',
+              'Israelí',
+              'Italiana',
+              'Jamaicana',
+              'Japonesa',
+              'Jordana',
+              'Kazaja',
+              'Keniana',
+              'Kirguisa',
+              'Kiribatiana',
+              'Kuwaití',
+              'Laosiana',
+              'Lesotense',
+              'Letona',
+              'Libanesa',
+              'Liberiana',
+              'Libia',
+              'Liechtensteiniana',
+              'Lituana',
+              'Luxemburguesa',
+              'Macedonia',
+              'Malasia',
+              'Malauí',
+              'Maldiva',
+              'Malgache',
+              'Maliense',
+              'Maltesa',
+              'Marfileña',
+              'Marroquí',
+              'Marshalesa',
+              'Mauriciana',
+              'Mauritana',
+              'Mexicana',
+              'Micronesia',
+              'Moldava',
+              'Monegasca',
+              'Mongola',
+              'Montenegrina',
+              'Mozambiqueña',
+              'Namibia',
+              'Nauruana',
+              'Neerlandesa',
+              'Neozelandesa',
+              'Nepalí',
+              'Nicaragüense',
+              'Nigeriana',
+              'Nigerina',
+              'Norcoreana',
+              'Noruega',
+              'Omaní',
+              'Pakistaní',
+              'Palauana',
+              'Palestina',
+              'Panameña',
+              'Papú',
+              'Paraguaya',
+              'Peruana',
+              'Polaca',
+              'Portuguesa',
+              'Ruandesa',
+              'Rumana',
+              'Rusa',
+              'Salomonense',
+              'Salvadoreña',
+              'Samoana',
+              'Sancristobaleña',
+              'Sanmarinense',
+              'Santalucense',
+              'Santotomense',
+              'Sanvicentina',
+              'Saudí',
+              'Senegalesa',
+              'Serbia',
+              'Seychellense',
+              'Sierraleonesa',
+              'Singapurense',
+              'Siria',
+              'Somalí',
+              'Sudafricana',
+              'Sudanesa',
+              'Sueca',
+              'Suiza',
+              'Surcoreana',
+              'Surinamesa',
+              'Sursudanesa',
+              'Tailandesa',
+              'Tanzana',
+              'Tayika',
+              'Timorense',
+              'Togolesa',
+              'Tongana',
+              'Trinitense',
+              'Tunecina',
+              'Turca',
+              'Turkmena',
+              'Tuvaluana',
+              'Ucraniana',
+              'Ugandesa',
+              'Uruguaya',
+              'Uzbeka',
+              'Vanuatuense',
+              'Vaticana',
+              'Venezolana',
+              'Vietnamita',
+              'Yemení',
+              'Yibutiana',
+              'Zambiana',
+              'Zimbabuense'
+            ],
             col: 'c-tercio',
             nivel: 'Completo',
+            nota: 'Solo si tiene otra nacionalidad además de la principal. No se ofrece la que ya figura como nacionalidad.',
             traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
           },
 
@@ -877,8 +1236,9 @@ export const PASOS_PROPUESTA = [
         campos: [
           {
             key: '1.36',
-            label: 'Celular personal',
+            label: 'Número de celular',
             html: 'tel',
+            telefono: true,
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Mínimo',
@@ -905,42 +1265,12 @@ export const PASOS_PROPUESTA = [
           }
         ]
       },
-      /* ── LA TARJETA CAJÓN, PARTIDA EN DOS ──────────────────────────────────────
+      /* ── LA TARJETA CAJÓN, PARTIDA EN DOS, Y LUEGO MUDADA ──────────────────────────
          «Estado civil y ocupación» juntaba cinco campos que no tenían nada que ver: el estado
-         civil, la profesión, la matrícula, la vivienda y el vehículo. Lo único que compartían
-         era no tener sitio propio — y una tarjeta cuyo título es una lista de lo que hay dentro
-         no es una sección, es un cajón.
-
-         El estado civil se fue al documento de identidad, que es de donde se lo copia. Pasó
-         antes por la tarjeta del nombre —el porqué de esa escala, y la advertencia sobre
-         «Apellido de casada» que la justificaba, están escritos donde vive ahora—. Lo que
-         quedaba eran dos cosas distintas y acá van separadas: lo que alguien sabe hacer, y lo
-         que alguien tiene. */
-      {
-        id: 'profesion',
-        titulo: 'Datos profesionales',
-        desc: 'Lo que la persona sabe hacer, y con qué papel lo acredita. No es el puesto que ocupa hoy: de acá salen el reclutamiento interno, las promociones y la sucesión.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '1.32',
-            label: 'Profesión u ocupación',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Reclutamiento interno, promociones, sucesión.',
-            traza: 'Alimenta: DE, GP.'
-          },
-          {
-            key: '1.33',
-            label: 'Matrícula profesional',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Cargos que exigen registro vigente (médicos, contadores, ingenieros, abogados).',
-            traza: 'Alimenta: GP.'
-          },
-        ]
-      },
+         civil, la profesión, la matrícula, la vivienda y el vehículo. El estado civil se fue al
+         documento de identidad, que es de donde se lo copia; la profesión y la matrícula, al
+         paso «Perfil profesional» (29 sep 2026), donde ya están la formación y la experiencia
+         que las respaldan. Acá queda lo que alguien tiene. */
       {
         id: 'patrimonio',
         titulo: 'Datos patrimoniales',
@@ -1013,19 +1343,28 @@ export const PASOS_PROPUESTA = [
              reintroduce, dentro de la lista, exactamente el problema que la lista viene a
              resolver: el mismo carnet contado dos veces según cómo lo llame cada quien.
 
+             EL EQUIPO SUMÓ DOS (29 sep 2026) que en Bolivia se piden al contratar y vencen: el
+             certificado de No Violencia y el de antecedentes penales. Y lo que es licencia lo dice
+             delante —«Licencia de operador de maquinaria»—, para que la lista se lea en dos
+             grupos: primero las licencias, después los certificados.
+
              Y LLEVA «OTRO» CON SU CAJA, como el tipo de documento (1.10b) y el parentesco
              (2.2b). El universo de certificaciones es abierto y depende del rubro: una lista
              cerrada acá obliga a mentir, y un campo que obliga a mentir envenena justo el dato
              por el que se agrupa. */
+          { key: '1.rotLicencias', label: 'Licencia o certificación', repite: 'licencias', tipo: 'rotulo', col: 'c-todo' },
           {
             key: '1.72',
+            repite: 'licencias',
             label: 'Tipo de licencia o certificación',
             tipo: 'lista',
             opciones: [
               'Licencia de conducir',
+              'Licencia de operador de maquinaria',
               'Manipulación de alimentos (carnet de sanidad)',
-              'Operador de maquinaria',
               'Certificación de seguridad industrial',
+              'Certificado de No Violencia',
+              'Certificado de antecedentes penales',
               'Otro'
             ],
             col: 'c-tercio',
@@ -1035,6 +1374,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.72b',
+            repite: 'licencias',
             label: '¿Qué licencia o certificación?',
             ph: 'Manejo de sustancias peligrosas, trabajo en altura…',
             col: 'c-tercio',
@@ -1043,22 +1383,8 @@ export const PASOS_PROPUESTA = [
             traza: '↳ 1.72. Alimenta: GP, ON.'
           },
           {
-            key: '1.73',
-            label: 'Número de licencia',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '1.74',
-            label: 'Categoría',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            traza: '⚫ para cargos de conducción. Alimenta: GP.'
-          },
-          {
             key: '1.75',
+            repite: 'licencias',
             label: 'País emisor',
             tipo: 'lista',
             opciones: [
@@ -1081,7 +1407,35 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: GP.'
           },
           {
+            key: '1.73',
+            repite: 'licencias',
+            label: 'Número de licencia',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '1.74',
+            repite: 'licencias',
+            label: 'Categoría',
+            tipo: 'lista',
+            opciones: [
+              'P · Particular',
+              'A · Profesional',
+              'B · Profesional',
+              'C · Profesional',
+              'M · Motocicleta',
+              'T · Maquinaria y equipo pesado'
+            ],
+            nota: 'Solo para la licencia de conducir. Son las categorías de Bolivia; si la licencia es de otro país, se escribe tal como figura en ella.',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            traza: '⚫ para cargos de conducción. Alimenta: GP.'
+          },
+          {
             key: '1.76',
+            repite: 'licencias',
             label: 'Fecha de emisión de la licencia',
             html: 'date',
             col: 'c-tercio',
@@ -1090,6 +1444,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.77',
+            repite: 'licencias',
             label: 'Fecha de vencimiento de la licencia',
             html: 'date',
             col: 'c-tercio',
@@ -1120,6 +1475,7 @@ export const PASOS_PROPUESTA = [
              ficha «todavía no contestaron», y el caso raro no le cobra el precio al común. */
           {
             key: '1.78b',
+            repite: 'licencias',
             label: '¿Está suspendida?',
             tipo: 'siNo',
             col: 'c-tercio',
@@ -1129,6 +1485,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.78',
+            repite: 'licencias',
             label: 'Estado',
             deducido: '',
             insignia: 'se calcula',
@@ -1155,6 +1512,7 @@ export const PASOS_PROPUESTA = [
              entera perdería su esquina. Allá es un adjunto de una lista, no la fuente de nada. */
           {
             key: '1.79',
+            repite: 'licencias',
             label: 'Documento adjunto',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -1163,900 +1521,15 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'El documento digitalizado es obligatorio para dar la licencia por registrada (01:24:00).',
             traza: '✏ v1.2.'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    key: 'entorno',
-    n: 2,
-    titulo: 'Información Familiar',
-    corto: 'Familia',
-    pista: 'Quiénes dependen, a quién avisar y su salud',
-    tarjetas: [
-      {
-        id: 'emergencia',
-        titulo: 'Datos de contactos de emergencia',
-        desc: 'Al menos un contacto es obligatorio. Es el único bloque repetible del mínimo legal.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '2.rot1',
-            label: 'Primer contacto',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: 'Obligatorio: es el mínimo legal.'
           },
-          {
-            key: '2.1',
-            label: 'Nombre completo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            traza: 'Alimenta: GP, ON.'
-          },
-          /* ── LISTA ABIERTA, QUE NO ES LO MISMO QUE CAJA DE TEXTO ─────────────────────
-             Era texto libre, obligatorio y del mínimo legal: la combinación exacta donde se
-             acumulan «mamá», «Madre», «MADRE», «mi mamá» y «x». La ficha ya conocía el problema y
-             lo tenía escrito en otro campo —«sin lista, tres personas escriben el mismo nombre de
-             tres maneras y después nadie cruza nada»—.
-
-             PERO CERRARLA DEL TODO SERÍA PEOR. A quien hay que avisar en una emergencia no tiene
-             por qué ser de la familia: mucha gente pone a su vecina, a un amigo o a la persona con
-             la que vive sin estar casada. Una lista sin esas opciones obliga a mentir, y un dato
-             falso en el campo que se usa el día del accidente es peor que uno mal escrito.
-
-             Por eso la lista cubre los casos de todos los días y termina en «Otro», que abre una
-             caja al lado. Guardar la cadena «Otro» y perder el parentesco real sería el peor de
-             los tres mundos: ni comparable ni cierto. */
-          {
-            key: '2.2',
-            label: 'Parentesco',
-            tipo: 'lista',
-            opciones: [
-              'Madre',
-              'Padre',
-              'Cónyuge',
-              'Conviviente',
-              'Hijo(a)',
-              'Hermano(a)',
-              'Abuelo(a)',
-              'Tío(a)',
-              'Primo(a)',
-              'Amigo(a)',
-              'Vecino(a)',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            nota: 'Si ninguna opción encaja, «Otro» abre una caja para escribirlo. Quien atiende una emergencia no siempre es de la familia.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.2b',
-            label: '¿Qué parentesco?',
-            ph: 'Cuñada, madrastra, casera…',
-            col: 'c-tercio',
-            nivel: 'Mínimo',
-            requerido: true,
-            nota: 'Sólo aparece al elegir «Otro». Así el dato real no se pierde detrás de la palabra «Otro».',
-            traza: '↳ 2.2. Alimenta: GP.'
-          },
-          {
-            key: '2.3',
-            label: 'Teléfono principal',
-            html: 'tel',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Mínimo',
-            requerido: true,
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.4',
-            label: 'Teléfono alternativo',
-            html: 'tel',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.5',
-            label: 'Correo electrónico',
-            html: 'email',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '2.6',
-            label: 'Dirección · Ciudad · País',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.7',
-            label: '¿Convive con el colaborador?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.seg',
-            label: '¿Agregar un segundo contacto?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Recomendado. Si el primero no contesta —apagado, de viaje, número cambiado— esta es la única alternativa que la ficha guarda, y este bloque se usa el día en que no hay tiempo de buscar otra.',
-            traza: '↳ 2.1. Alimenta: GP.'
-          },
-
-          /* ── DOS CONTACTOS, PORQUE UNO ES UN SOLO PUNTO DE FALLO ─────────────────────
-             Este bloque se usa UNA vez en la vida de una ficha, y es el peor día. Un solo
-             número que no contesta —apagado, cambiado, la persona de viaje— es el dato
-             fallando justo en lo único para lo que existía.
-
-             EL ESTUDIO YA LO PEDÍA y la frase estaba en la bajada de esta misma tarjeta:
-             «al menos un contacto es obligatorio, es el único bloque repetible del mínimo
-             legal». Repetible nunca se implementó — ni acá, ni en «Beneficios individuales»
-             ni en «Medidas disciplinarias», que dicen lo mismo entre paréntesis.
-
-             DOS BLOQUES FIJOS NO ES REPETIBLE, y no pretende serlo: es lo que cabe en un
-             formulario de clave y valor como éste. El segundo va completo pero sin exigirse,
-             porque obligar a quien de verdad sólo tiene a una persona produce un contacto
-             inventado — y un teléfono falso el día del accidente es peor que un hueco.
-
-             LAS CLAVES LLEVAN «-2» y no un número nuevo: la numeración 2.x es del estudio y
-             está casi llena, así que inventar 2.8 chocaría con el campo que el estudio tenga
-             ahí el día que se porte. Esto es la misma pregunta, hecha por segunda vez. */
-          {
-            key: '2.rot2',
-            label: 'Segundo contacto',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: 'Recomendado, no obligatorio. Si el primero no contesta, esta es la única alternativa que la ficha guarda.'
-          },
-          {
-            key: '2.1-2',
-            label: 'Nombre completo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: '↳ 2.1. Alimenta: GP.'
-          },
-          {
-            key: '2.2-2',
-            label: 'Parentesco',
-            tipo: 'lista',
-            opciones: [
-              'Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)',
-              'Abuelo(a)', 'Tío(a)', 'Primo(a)', 'Amigo(a)', 'Vecino(a)', 'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: '↳ 2.2. Alimenta: GP.'
-          },
-          {
-            key: '2.2b-2',
-            label: '¿Qué parentesco?',
-            ph: 'Cuñada, madrastra, casera…',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: '↳ 2.2-2. Alimenta: GP.'
-          },
-          {
-            key: '2.3-2',
-            label: 'Teléfono principal',
-            html: 'tel',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Es el dato que justifica todo el bloque: sin teléfono, un segundo contacto no sirve de nada.',
-            traza: '↳ 2.3. Alimenta: GP.'
-          },
-          {
-            key: '2.4-2',
-            label: 'Teléfono alternativo',
-            html: 'tel',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Lo tenía el primer contacto y acá se había quedado fuera. Si este bloque existe para poder alcanzar a alguien, un segundo número es exactamente lo que no sobra.',
-            traza: '↳ 2.4. Alimenta: GP.'
-          },
-          {
-            key: '2.5-2',
-            label: 'Correo electrónico',
-            html: 'email',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: '↳ 2.5. Alimenta: GP.'
-          },
-          {
-            key: '2.6-2',
-            label: 'Dirección · Ciudad · País',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: '↳ 2.6. Alimenta: GP.'
-          },
-          {
-            key: '2.7-2',
-            label: '¿Convive con el colaborador?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Dos contactos que viven en la misma casa se quedan sin señal a la vez. Saberlo es lo que dice si de verdad son dos vías.',
-            traza: '↳ 2.7. Alimenta: GP.'
-          },
+          /* UNA PERSONA PUEDE TENER VARIAS (29 sep 2026): licencia de conducir y, además, los certificados
+             de antecedentes y de No Violencia. Cada una con su tipo, sus fechas y su estado. */
+          { key: '1.masLicencias', tipo: 'repetir', grupo: 'licencias', max: 10, label: 'Agregar otra licencia o certificación', col: 'c-todo', nivel: 'Operativo' }
         ]
       },
-      /* ── UNA TARJETA POR PARIENTE, QUE ES COMO SE LLENA ──────────────────────
-         «Datos familiares» eran tres cosas distintas bajo un mismo título: el cónyuge, los
-         hijos y los padres del colaborador. Dentro se separaban con rótulos, que es lo que se
-         hace cuando no queda más remedio; acá sí quedaba, porque el paso ya agrupa por tarjetas
-         y cada uno de los tres se llena —o se saltea— por su cuenta: soltero y sin hijos deja
-         dos de las tres vacías y no tiene por qué recorrerlas.
-
-         LOS PADRES NO SON UN APÉNDICE DE LOS HIJOS, y en la tarjeta única lo parecían por venir
-         justo debajo. El rótulo tenía que aclararlo con todas las letras —«del colaborador, no
-         de sus hijos»—, y una aclaración así es la señal de que el corte estaba en el sitio
-         equivocado. Ahora lo dice el título.
-
-         SE VAN DOS RÓTULOS Y SE QUEDA UNO. Los de cónyuge y padres repetían el título de su
-         tarjeta, así que su nota se mudó al `desc` y el rótulo sobra. El de hijos se queda
-         porque no es decorativo: lleva `repite` y es lo que numera los bloques —«Hijo 1»,
-         «Hijo 2»— cuando se agrega más de uno. */
-      {
-        id: 'conyuge',
-        titulo: 'Datos del cónyuge',
-        desc: 'Cónyuge o conviviente. La unión libre cuenta igual que el matrimonio para las asignaciones familiares.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '2.9',
-            label: 'Nombres y apellidos (estructurado)',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Beneficios: seguros, campañas de bienestar.',
-            traza: 'Alimenta: CC, GP.'
-          },
-          /* ── UN CAMPO NO CONTESTA DOS PREGUNTAS ──────────────────────────────────
-             «Tipo y número de documento» era una sola caja de texto para dos datos que no se
-             parecen en nada: uno sale de un catálogo cerrado de cuatro opciones y el otro es un
-             número que hay que copiar de un papel. Juntos entraban como cada quien quisiera
-             —«CI 8452119», «8452119 CI», «carnet 8452119»— y después no hay forma de buscar por
-             número, de validar el formato ni de saber qué documento era.
-
-             ES EL MISMO CORTE QUE EL DEL COLABORADOR (1.10 y 1.11), con el mismo catálogo y por
-             el mismo motivo: el documento de identidad del país que lo emitió. Las siglas se
-             quedaron fuera de las opciones a propósito —«CI» trae dentro que es boliviano— y
-             acá no hay razón para volver a meterlas.
-
-             SIN LA CAJA DE «¿QUÉ DOCUMENTO?» que sí tiene 1.10. A esta persona no se la declara
-             ante el Ministerio con este dato; el tipo y el número alcanzan para el trámite de
-             beneficios, y cuatro campos condicionales más se mantienen solos. Si «Otro» empieza
-             a aparecer seguido, la caja se agrega después: el corte de acá no estorba. */
-          {
-            key: '2.10',
-            label: 'Tipo de documento',
-            tipo: 'lista',
-            opciones: [
-              'Documento nacional de identidad',
-              'Pasaporte',
-              'Carnet de extranjero',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Respalda trámites de beneficios ante la aseguradora.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.10b',
-            label: 'Número de documento',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El número, tal como figura en el documento. Sin la sigla adelante: el tipo ya está al lado.',
-            traza: '↳ 2.10. Alimenta: GP.'
-          },
-          {
-            key: '2.11',
-            label: 'Fecha de nacimiento',
-            html: 'date',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: CC, GP.'
-          },
-          /* ── LA NACIONALIDAD SALE DE UN CATÁLOGO, NO DE LA CABEZA DE QUIEN ESCRIBE ──
-             Era una caja de texto libre, y un país escrito a mano entra de cinco maneras
-             —«Bolivia», «bolivia», «Boliviana», «BOL», «Bolívia»— que son cinco valores
-             distintos para el mismo dato. Contar cuántos extranjeros hay en la ficha deja de
-             poder hacerse en cuanto la primera se escribe diferente.
-
-             ES LA MISMA LISTA QUE LA DEL COLABORADOR (1.25) y que la del país emisor (1.14).
-             Que las tres digan lo mismo es el punto: cruzar la nacionalidad del cónyuge con la
-             del titular tiene que ser comparar dos valores, no dos redacciones.
-
-             VAN LOS PAÍSES Y NO LOS GENTILICIOS. «Bolivia» y no «Boliviana», que es como ya lo
-             resolvió 1.25: el gentilicio tiene género y obliga a elegir uno por persona, y el
-             país es el mismo para todos. */
-          {
-            key: '2.12',
-            label: 'Nacionalidad',
-            tipo: 'lista',
-            opciones: [
-              'Bolivia',
-              'Argentina',
-              'Brasil',
-              'Chile',
-              'Colombia',
-              'Ecuador',
-              'Perú',
-              'Paraguay',
-              'Uruguay',
-              'Venezuela',
-              'España',
-              'EE.UU.',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'La misma lista de países que usan 1.25 y 1.14, para que los tres datos se puedan cruzar.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '2.13',
-            label: 'Profesión u ocupación',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.14',
-            label: 'Lugar / empresa de trabajo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Previene conflicto de interés si trabaja en la misma empresa.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.15',
-            label: 'Número de celular',
-            html: 'tel',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Contacto alternativo del colaborador. El celular y no el fijo: es donde se contesta.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.17',
-            label: '¿Es beneficiario del seguro?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Se conserva: es lo que facilita los trámites de afiliación.',
-            traza: 'Alimenta: GP, PL.'
-          },
-        ]
-      },
-      {
-        id: 'hijos',
-        titulo: 'Datos de los hijos',
-        desc: 'Alimenta asignaciones familiares y el subsidio de lactancia. El bloque se repite por cada hijo.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '2.rotHijos',
-            label: 'Hijos',
-            singular: 'Hijo',
-            repite: 'hijos',
-            tipo: 'rotulo',
-            col: 'c-todo'
-          },
-          {
-            key: '2.20',
-            repite: 'hijos',
-            label: 'Nombre completo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: CC, GP.'
-          },
-          {
-            key: '2.21',
-            repite: 'hijos',
-            label: 'Tipo de documento',
-            tipo: 'lista',
-            opciones: [
-              'Documento nacional de identidad',
-              'Pasaporte',
-              'Carnet de extranjero',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Un menor sin carnet propio suele identificarse con el certificado de nacimiento: va por «Otro».',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.21b',
-            repite: 'hijos',
-            label: 'Número de documento',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'El número, tal como figura en el documento.',
-            traza: '↳ 2.21. Alimenta: GP.'
-          },
-          {
-            key: '2.22',
-            repite: 'hijos',
-            label: 'Fecha de nacimiento',
-            html: 'date',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Beneficios por rango de edad, obsequios (Día del Niño, Día de la Familia).',
-            traza: 'Alimenta: CC, GP.'
-          },
-          {
-            key: '2.23',
-            repite: 'hijos',
-            label: 'Sexo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Planificación de campañas y obsequios.',
-            traza: 'Alimenta: CC, GP.'
-          },
-          {
-            key: '2.24',
-            repite: 'hijos',
-            label: 'Nacionalidad',
-            tipo: 'lista',
-            opciones: [
-              'Bolivia',
-              'Argentina',
-              'Brasil',
-              'Chile',
-              'Colombia',
-              'Ecuador',
-              'Perú',
-              'Paraguay',
-              'Uruguay',
-              'Venezuela',
-              'España',
-              'EE.UU.',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'La misma lista de países que usan 1.25 y 1.14, para que los tres datos se puedan cruzar.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '2.25',
-            repite: 'hijos',
-            label: 'Institución educativa',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Programas de apoyo educativo.',
-            traza: 'Alimenta: CC, GP.'
-          },
-          {
-            key: '2.26',
-            repite: 'hijos',
-            label: 'Nivel educativo',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Se conserva. *\'Puede servir para campañas de beneficios corporativos\'* (01:28:41).',
-            traza: '✏ v1.2. Alimenta: CC, GP.'
-          },
-          {
-            key: '2.28',
-            repite: 'hijos',
-            label: '¿Es beneficiario del seguro?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP, PL.'
-          },
-          {
-            key: '2.29',
-            repite: 'hijos',
-            label: '¿Presenta discapacidad?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: '28:41): se exige el certificado oficial adjunto. Relevante para beneficios y para el cumplimiento del 2 % de contratación de personas con discapacidad (regla R4).',
-            traza: '✏ v1.2 (01. Alimenta: GP, PL.'
-          },
-          {
-            key: '2.masHijos',
-            tipo: 'repetir',
-            grupo: 'hijos',
-            label: 'Agregar otro hijo',
-            col: 'c-todo',
-            nivel: 'Operativo',
-            nota: 'Cada hijo es un bloque igual al de arriba. El estudio ya lo pedía repetible y nunca lo fue: con un solo bloque, una familia de tres hijos entraba con uno declarado y dos sin asignación familiar.'
-          },
-        ]
-      },
-      {
-        id: 'padres',
-        titulo: 'Datos de los padres',
-        desc: 'Del colaborador, no de sus hijos. Los pide el Ministerio de Trabajo en la declaración jurada.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '2.47',
-            label: 'Nombre del padre',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: '➡ Movido desde 1.30. Detecta vínculos familiares entre colaboradores.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '2.48',
-            label: 'Nombre de la madre',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: '➡ Movido desde 1.31.',
-            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
-          }
-        ]
-      },
-      {
-        id: 'herederos',
-        titulo: 'Datos de beneficiarios y herederos',
-        desc: 'Es una obligación legal y hoy no tiene dónde vivir. Cuando hace falta, ya es tarde para pedirla.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '2.rotBeneficiarios',
-            label: 'Beneficiarios',
-            singular: 'Beneficiario',
-            repite: 'herederos',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: 'El bloque se repite por cada beneficiario. Los porcentajes de todos tienen que sumar 100 %.'
-          },
-          {
-            key: '2.31',
-            repite: 'herederos',
-            label: 'Nombre completo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Dato necesario para el contrato laboral.',
-            traza: 'Alimenta: GP.'
-          },
-          /* ── LA MISMA LISTA QUE EL PARENTESCO DEL CONTACTO DE EMERGENCIA (2.2) ───
-             Doce opciones y una salida. No es una lista nueva: es la de 2.2 sin tocar una coma,
-             y eso es el argumento entero. Los dos campos preguntan lo mismo —qué es esta persona
-             del colaborador— y si cada uno lleva su catálogo, en tres meses uno dice «Hijo(a)» y
-             el otro «Hijo/a», y cruzar «¿el heredero es el mismo que el contacto de emergencia?»
-             pasa a ser comparar dos redacciones.
-
-             Y VA LARGA A PROPÓSITO. Un beneficiario no es necesariamente de la familia: se puede
-             dejar la indemnización a quien uno quiera, y por eso entran «Amigo(a)» y «Vecino(a)»
-             junto a los parientes. Una lista de cinco parentescos obligaría a que la mitad de
-             los casos reales salieran por «Otro», que es la manera de tener texto libre con un
-             desplegable de por medio.
-
-             «OTRO» ABRE CAJA, como allá. Sin ella, la ficha guarda la palabra «Otro» en el campo
-             que dice quién cobra la indemnización, y el día que haga falta —que es el peor día
-             para averiguarlo— no lo sabe nadie. */
-          {
-            key: '2.32',
-            repite: 'herederos',
-            label: 'Parentesco / Relación',
-            tipo: 'lista',
-            opciones: [
-              'Madre',
-              'Padre',
-              'Cónyuge',
-              'Conviviente',
-              'Hijo(a)',
-              'Hermano(a)',
-              'Abuelo(a)',
-              'Tío(a)',
-              'Primo(a)',
-              'Amigo(a)',
-              'Vecino(a)',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Si ninguna opción encaja, «Otro» abre una caja para escribirlo. No hace falta ser de la familia para heredar.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.32b',
-            repite: 'herederos',
-            label: '¿Qué relación?',
-            ph: 'Cuñada, ahijado, socia…',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Sólo aparece al elegir «Otro». Así el dato real no se pierde detrás de la palabra «Otro».',
-            traza: '↳ 2.32. Alimenta: GP.'
-          },
-          {
-            key: '2.33',
-            repite: 'herederos',
-            label: 'Tipo de documento',
-            tipo: 'lista',
-            opciones: [
-              'Documento nacional de identidad',
-              'Pasaporte',
-              'Carnet de extranjero',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Necesario para el contrato.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.33b',
-            repite: 'herederos',
-            label: 'Número de documento',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Necesario para el contrato. Identifica al heredero sin ambigüedad el día que haya que pagarle.',
-            traza: '↳ 2.33. Alimenta: GP.'
-          },
-          {
-            key: '2.34',
-            repite: 'herederos',
-            label: 'Fecha de nacimiento',
-            html: 'date',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Determina si el heredero es mayor de edad.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.35',
-            repite: 'herederos',
-            label: 'Porcentaje de participación (%)',
-            html: 'text',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Validación: la suma debe dar 100 %. 00:33): define *\'cuánto de la indemnización le van a dejar a esa persona\'*.',
-            traza: '✏ v1.2 (00. Alimenta: GP, PL.'
-          },
-
-          /* ── TRES, Y EL TOPE ES UN NÚMERO EN UNA LÍNEA ─────────────────────────
-             La tarjeta tenía un solo juego de campos y su propia nota prometía repartir entre
-             varios: con un beneficiario, «la suma debe dar 100 %» se cumple sola o no se cumple
-             nunca, y no hay tercera. Es el mismo agujero que tenían los hijos —el estudio los
-             pedía repetibles y nunca lo fueron— y acá lo que no entraba era a quién se le deja
-             la indemnización.
-
-             EL TOPE SALE DE `max` Y NO DEL CÓDIGO DE LA PANTALLA, para que cambiarlo sea cambiar
-             este 3. No hay ley que diga tres: es la decisión de la casa, y las decisiones de la
-             casa se escriben donde se ven. */
-          {
-            key: '2.masBeneficiarios',
-            tipo: 'repetir',
-            grupo: 'herederos',
-            max: 3,
-            label: 'Agregar otro beneficiario',
-            col: 'c-todo',
-            nivel: 'Operativo',
-            nota: 'Hasta tres. Cada uno es un bloque igual al de arriba, con su porcentaje.'
-          },
-
-          /* FUERA DEL BLOQUE A PROPÓSITO: es la cuenta de los tres juntos, así que se dibuja una
-             vez y detrás del botón. Sin `repite`, la repetición no la alcanza. */
-          {
-            key: '2.35t',
-            label: 'Total repartido',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'La suma de los porcentajes de arriba. Tiene que dar 100 %: es lo que decide cuánto cobra cada uno.',
-            traza: '↳ 2.35.'
-          }
-        ]
-      },
-      {
-        id: 'garantes',
-        titulo: 'Datos de garantes',
-        desc: 'Se activa según el cargo: los que manejan dinero o valores.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          /* ── EL NOMBRE, PARTIDO EN DOS ──────────────────────────────────────────
-             «Nombre completo» era una caja y adentro entraban dos cosas en el orden que a cada
-             quien le saliera: «Juan Pérez Rojas», «Pérez Rojas, Juan», «PEREZ ROJAS JUAN». Para
-             un dato que va a un contrato que después se notaria, el orden no es un detalle de
-             formato: es lo que el notario lee.
-
-             Y NO SE PARTE EN CINCO como el del colaborador —primer nombre, segundo, tercero,
-             apellidos— porque a un garante no se lo declara ante el Ministerio ni ante la
-             Gestora: no hay una estructura oficial con la que tenga que coincidir. Dos campos
-             separan lo que hay que separar y no piden más de lo que se sabe.
-
-             ORDEN DE LECTURA Y NO DE DOCUMENTO: primero los nombres, después los apellidos, que
-             es como se presenta una persona. La otra forma —apellidos primero— es la del índice
-             y la del formulario de trámite, y esta ficha no es ninguna de las dos. */
-          {
-            key: '2.39',
-            label: 'Nombre(s)',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Alimenta el contrato de garantía que luego se notaria.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.39b',
-            label: 'Apellidos',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Los dos, si los tiene, en el orden en que figuran en su documento.',
-            traza: '↳ 2.39. Alimenta: GP.'
-          },
-          {
-            key: '2.40',
-            label: 'Tipo de documento',
-            tipo: 'lista',
-            opciones: [
-              'Documento nacional de identidad',
-              'Pasaporte',
-              'Carnet de extranjero',
-              'Otro'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Evita registros duplicados o incorrectos.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.40b',
-            label: 'Número de documento',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Evita registros duplicados o incorrectos. Va al contrato de garantía que luego se notaria.',
-            traza: '↳ 2.40. Alimenta: GP.'
-          },
-          /* EL PLURAL PROMETÍA UNA CAJA QUE NO ERA. «Teléfono(s)» con un solo campo invita a
-             escribir dos separados por una barra, y entonces ninguno de los dos sirve para
-             llamar desde el sistema ni para validarse. Uno, el que se contesta.
-
-             Y CELULAR Y NO TELÉFONO, igual que el del cónyuge (2.15): a un garante hay que poder
-             ubicarlo el día que se ejecuta la garantía, y ese día un fijo de oficina no alcanza. */
-          {
-            key: '2.41',
-            label: 'Número de celular',
-            html: 'tel',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Es donde se lo ubica el día que haya que ejecutar la garantía.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.42',
-            label: 'Dirección',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.43',
-            label: 'Fecha de nacimiento',
-            html: 'date',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Validación de identidad para el contrato.',
-            traza: 'Alimenta: GP.'
-          },
-
-          /* ── EL LUGAR NO TENÍA DÓNDE ESCRIBIRSE ─────────────────────────────────
-             El rótulo decía «Fecha y lugar de nacimiento» y el campo era `html: 'date'`: un
-             selector de calendario. El lugar se pedía y no se podía contestar — no hay forma de
-             teclear «Santa Cruz» en un calendario—, así que el dato no es que entrara mal,
-             es que no entraba.
-
-             Es el mismo corte que el de 1.21 y 1.22 en el paso 1, donde la fecha y el lugar del
-             colaborador viven separados desde siempre. Acá venían pegados desde el estudio, que
-             los listaba en una fila de su tabla, y al portarlos esa fila se volvió un campo. */
-          {
-            key: '2.43b',
-            label: 'Lugar de nacimiento',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Ciudad y país, como figuran en su documento.',
-            traza: '↳ 2.43. Alimenta: GP.'
-          },
-          /* ── EL ÚNICO CAMPO DE LA FICHA CON UNA REGLA COLGANDO Y SIN CATÁLOGO ───
-             Su propia nota dice qué pasa con el valor: «si está casado, la garantía es
-             compartida → exige registrar cónyuge». Eso es una regla, y una regla necesita
-             comparar contra algo. Con texto libre no podía dispararse nunca: «Casado»,
-             «casado(a)», «CASADO» y «Casada» son cuatro valores distintos y la condición
-             acierta con uno como mucho.
-
-             MISMAS CINCO OPCIONES QUE EL DEL COLABORADOR, que ya era lista desde el estudio.
-             Que las dos digan lo mismo es lo que permite escribir la regla una vez.
-
-             LA REGLA TODAVÍA NO EXISTE: esto le pone el catálogo, no el disparo. Lo que falta es
-             la condición en `CONDICIONES` que abra los campos del cónyuge del garante, y antes
-             de escribirla hay que contestar una pregunta que es legal y no de diseño: si «Unión
-             libre» comparte la garantía igual que «Casado(a)». La nota se deja como estaba
-             —habla sólo de casado— para no inventar la respuesta. */
-          {
-            key: '2.44',
-            label: 'Estado civil',
-            tipo: 'lista',
-            opciones: [
-              'Soltero(a)',
-              'Casado(a)',
-              'Divorciado(a)',
-              'Viudo(a)',
-              'Unión libre'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Si está casado, la garantía es compartida → exige registrar cónyuge.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '2.45',
-            label: 'Tipo de garantía',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: 'No existe hoy. Inmueble, vehículo, salario fijo, certificado, asociación. *Campo abierto, no lista cerrada*. 03:54): confirmado como texto abierto con sugerencias, y el sistema debe generar reporte de garantías presentadas: *\'te puede pasar que te digan: ¿qué garantías presentó el chofer?\'*.',
-            traza: '✏ v1.2 (00. Alimenta: GP.'
-          },
-          /* EL PAPEL DE LA GARANTÍA ANCLA LA TARJETA, como el carnet ancla la del documento y la
-             foto la del nombre. Estaba declarado como un campo más y caía al final del flujo, en
-             el hueco que quedara: un recuadro de subir archivo entre «Tipo de garantía» y el
-             borde, leído como el último de la lista en vez de como lo que es.
-
-             Y ES LO QUE ES PORQUE ES LA FUENTE. Los diez campos de al lado —nombre, documento,
-             estado civil, tipo de garantía— salen de ese papel: quien llena la tarjeta lo tiene
-             abierto y va copiando. Anclado a la izquierda, el papel y lo que dice el papel se
-             miran a la vez, que es la única forma de comprobar que coinciden.
-
-             `c-escaneo` Y NO `c-retrato`: el recuadro del papel es elástico —suelta su proporción
-             y llena el alto del riel— y la tarjeta tiene diez campos que cubrir. Con el retrato,
-             que mide 88 px y no se estira, sobraría media columna de aire debajo.
-
-             Y SÓLO ACÁ: el otro `2.46` de este archivo, el de la tarjeta «Archivos» del último
-             paso, se queda sin riel a propósito. Allá es un adjunto de una lista y no la fuente
-             de nada, y `conRieles` desancla a todos los rieles que compartan bloque: darle
-             columna le quitaría la suya al que sí la necesita. */
-          {
-            key: '2.46',
-            label: 'Documento de garantía',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio c-escaneo',
-            insignia: 'v1.2',
-            nivel: 'Operativo'
-          }
-        ]
-      },
+      /* LOS DATOS MÉDICOS SON DE LA PERSONA (29 sep 2026): vivían en «Información Familiar»,
+         pero ninguno habla de la familia —tipo de sangre, alergias, medicación, discapacidad—.
+         Pasan al final de «Información Personal», a pedido del equipo. */
       {
         id: 'medica',
         titulo: 'Datos médicos',
@@ -2105,7 +1578,7 @@ export const PASOS_PROPUESTA = [
              gastar un renglón en decirlo. */
           {
             key: '1.56b',
-            label: '¿Cuál o cuáles?',
+            label: 'Descripción de la alergia',
             tipo: 'texto',
             col: 'c-ancho',
             nivel: 'Operativo',
@@ -2151,7 +1624,7 @@ export const PASOS_PROPUESTA = [
              con su dosis— y en una caja de un tercio de fila eso entra de costado. */
           {
             key: '1.58b',
-            label: '¿Cuál o cuáles?',
+            label: 'Descripción de la medicación',
             tipo: 'texto',
             col: 'c-ancho',
             nivel: 'Completo',
@@ -2195,7 +1668,7 @@ export const PASOS_PROPUESTA = [
              lo que esta persona tenga. El marcador dice cómo escribirlo, no qué. */
           {
             key: '1.57b',
-            label: '¿Cuál o cuáles?',
+            label: 'Descripción de la condición',
             tipo: 'texto',
             col: 'c-ancho',
             nivel: 'Operativo',
@@ -2229,7 +1702,7 @@ export const PASOS_PROPUESTA = [
              preocupacional a un acordeón de distancia como respaldo firmado. */
           {
             key: '1.59b',
-            label: '¿Cuál o cuáles?',
+            label: 'Descripción de la recomendación',
             tipo: 'texto',
             col: 'c-ancho',
             nivel: 'Completo',
@@ -2339,79 +1812,9 @@ export const PASOS_PROPUESTA = [
              LAS RESTRICCIONES DE VERDAD YA TIENEN SITIO, y con respaldo: el examen
              preocupacional de la tarjeta de al lado es el documento donde un médico las declara
              y las firma. Dicho ahí valen; dichas acá eran el recuerdo de alguien. */
-        ]
-      },
-      {
-        id: 'discapacidad',
-        titulo: 'Tutela y protecciones',
-        desc: 'Ser tutor de una persona con discapacidad da protecciones propias y cuenta dentro del 2 % legal, aunque la discapacidad no sea suya.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '1.62',
-            label: '¿Es tutor de persona con discapacidad?',
-            tipo: 'siNo',
-            detalle: '1.62b',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Cuenta dentro del 2 % legal, igual que si la discapacidad fuera suya.',
-            traza: 'Alimenta: GP, PL.'
-          },
-
-          /* ── DE QUIÉN, Y LA LISTA SALE DE LOS HIJOS QUE YA SE DECLARARON ────────
-             Un «sí» a secas no sirve para lo que este campo existe: el 2 % se fiscaliza contra
-             la OVT y lo que se presenta es el certificado de discapacidad de una persona
-             concreta. Sin nombre, la ficha afirma un derecho y no dice de dónde sale.
-
-             Y LA FICHA YA SABE A QUIÉN OFRECER: los hijos están escritos tres tarjetas más
-             arriba. Volver a teclear el nombre del propio hijo, en la misma pantalla donde se
-             acaba de escribir, es la clase de trabajo que un formulario tiene que ahorrar —y de
-             paso evita que el nombre entre dos veces con dos grafías.
-
-             SE OFRECEN TODOS Y NO SÓLO LOS QUE TIENEN LA DISCAPACIDAD MARCADA (2.29). Filtrar
-             parecía lo riguroso y en pantalla era una lista vacía: quien no había contestado ese
-             campo veía «Otra persona» sola y ninguna pista de qué le faltaba.
-
-             PERO LA TUTELA NO ES SÓLO DE HIJOS, y por eso la lista lleva salida. Se puede ser
-             tutor de un hermano, de un padre mayor o de alguien sin parentesco: cerrar la lista
-             a los hijos convertiría el campo en una trampa para el caso que no encaja. «Otra
-             persona» abre una caja, como «Otro» en el tipo de documento y en el parentesco.
-
-             SIN HIJOS DECLARADOS LA LISTA NO DESAPARECE: queda con «Otra persona» sola, que
-             sigue siendo una respuesta y no un desplegable vacío. Las opciones las arma
-             `tarjetasDe`, que es donde hay formulario a mano. */
-          {
-            key: '1.62b',
-            label: '¿De quién?',
-            tipo: 'lista',
-            opciones: ['Otra persona'],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Se ofrece toda la gente que ya está escrita en el paso: contactos de emergencia, cónyuge, hijos y padres. Si es alguien que no está —un hermano, un sobrino, alguien sin parentesco— se elige «Otra persona» y se escribe quién.',
-            traza: '↳ 1.62. Alimenta: GP, PL.'
-          },
-          {
-            key: '1.62c',
-            label: '¿Quién?',
-            ph: 'Nombre y parentesco',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Sólo aparece al elegir «Otra persona».',
-            traza: '↳ 1.62b. Alimenta: GP, PL.'
-          }
-        ]
-      },
-      {
-        id: 'segprivado',
-        titulo: 'Datos de seguro médico privado',
-        desc: 'Adicional al de la Caja. No reemplaza la afiliación obligatoria.',
-        propuesta: false,
-        incierto: false,
-        campos: [
+          /* EL SEGURO MÉDICO PRIVADO VIVE CON LOS DATOS MÉDICOS (29 sep 2026). Tenía su propia
+             tarjeta en «Información Familiar», lejos del resto de la salud de la persona. */
+          { key: '1.rotSeguro', label: 'Seguro médico privado', tipo: 'rotulo', col: 'c-todo', nota: 'Adicional al de la Caja. No reemplaza la afiliación obligatoria.' },
           /* UN SÍ/NO SE PREGUNTA, NO SE ENUNCIA. El rótulo era «Seguro médico privado» con dos
              botones debajo, que es un título con una respuesta colgando: hay que deducir qué
              se está contestando. Las otras nueve preguntas cerradas de la ficha llevan signos
@@ -2450,6 +1853,1344 @@ export const PASOS_PROPUESTA = [
             nivel: 'Completo',
             nota: 'El que le da la aseguradora, no el de la Caja.',
             traza: '↳ 1.63. Alimenta: GP, PL.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    key: 'entorno',
+    n: 2,
+    titulo: 'Información Familiar',
+    corto: 'Familia',
+    pista: 'Quiénes dependen, a quién avisar y su salud',
+    tarjetas: [
+      {
+        id: 'emergencia',
+        titulo: 'Datos de contactos de emergencia',
+        desc: 'Al menos un contacto es obligatorio. Es el único bloque repetible del mínimo legal.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '2.rot1',
+            repite: 'emergencia',
+            label: 'Contacto de emergencia',
+            singular: 'Contacto',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'Obligatorio: es el mínimo legal.'
+          },
+          {
+            key: '2.1',
+            repite: 'emergencia',
+            label: 'Nombre completo',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Mínimo',
+            requerido: true,
+            traza: 'Alimenta: GP, ON.'
+          },
+          /* ── LISTA ABIERTA, QUE NO ES LO MISMO QUE CAJA DE TEXTO ─────────────────────
+             Era texto libre, obligatorio y del mínimo legal: la combinación exacta donde se
+             acumulan «mamá», «Madre», «MADRE», «mi mamá» y «x». La ficha ya conocía el problema y
+             lo tenía escrito en otro campo —«sin lista, tres personas escriben el mismo nombre de
+             tres maneras y después nadie cruza nada»—.
+
+             PERO CERRARLA DEL TODO SERÍA PEOR. A quien hay que avisar en una emergencia no tiene
+             por qué ser de la familia: mucha gente pone a su vecina, a un amigo o a la persona con
+             la que vive sin estar casada. Una lista sin esas opciones obliga a mentir, y un dato
+             falso en el campo que se usa el día del accidente es peor que uno mal escrito.
+
+             Por eso la lista cubría los casos de todos los días y terminaba en «Otro», que abría
+             una caja al lado.
+
+             EL EQUIPO LA CERRÓ (29 sep 2026): quedan los familiares directos, de «Madre» a
+             «Abuelo(a)», y salen tío, primo, amigo, vecino y «Otro». La caja de «Otro» (2.2b)
+             sigue declarada pero ya no aparece. */
+          {
+            key: '2.2',
+            repite: 'emergencia',
+            label: 'Parentesco',
+            tipo: 'lista',
+            opciones: [
+              'Madre',
+              'Padre',
+              'Cónyuge',
+              'Conviviente',
+              'Hijo(a)',
+              'Hermano(a)',
+              'Abuelo(a)'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Mínimo',
+            requerido: true,
+            nota: 'El familiar a quien avisar en una emergencia.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.2b',
+            repite: 'emergencia',
+            label: '¿Qué parentesco?',
+            ph: 'Cuñada, madrastra, casera…',
+            col: 'c-tercio',
+            nivel: 'Mínimo',
+            requerido: true,
+            nota: 'Sólo aparece al elegir «Otro». Así el dato real no se pierde detrás de la palabra «Otro».',
+            traza: '↳ 2.2. Alimenta: GP.'
+          },
+          {
+            key: '2.3',
+            repite: 'emergencia',
+            label: 'Número de celular',
+            html: 'tel',
+            telefono: true,
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Mínimo',
+            requerido: true,
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.4',
+            repite: 'emergencia',
+            label: 'Teléfono alternativo',
+            html: 'tel',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.5',
+            repite: 'emergencia',
+            label: 'Correo electrónico',
+            html: 'email',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
+          },
+          {
+            key: '2.6',
+            repite: 'emergencia',
+            label: 'Dirección de domicilio',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.7',
+            repite: 'emergencia',
+            label: '¿Convive con el colaborador?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'Alimenta: GP.'
+          },
+          /* ── LOS CONTACTOS QUE HAGAN FALTA, NO UNO O DOS (29 sep 2026) ───────────────────
+             Este bloque se usa una vez en la vida de una ficha, y es el peor día: un solo número
+             que no contesta es el dato fallando justo en lo único para lo que existía. Hasta ahora
+             había un segundo contacto fijo detrás de «¿Agregar un segundo contacto?», con claves
+             «-2», porque la ficha todavía no sabía repetir bloques. Ya sabe: es un grupo como los
+             hijos o la experiencia laboral, y se agrega con un botón. El primero es obligatorio
+             —mínimo legal—; los demás se suman sólo si existen, y se quitan con su papelera.
+             Las fichas con segundo contacto guardado se pasan solas: ver `alDia`. */
+          { key: '2.masContactos', tipo: 'repetir', grupo: 'emergencia', max: 5, label: 'Agregar otro contacto de emergencia', col: 'c-todo', nivel: 'Mínimo' },
+        ]
+      },
+      /* ── UNA TARJETA POR PARIENTE, QUE ES COMO SE LLENA ──────────────────────
+         «Datos familiares» eran tres cosas distintas bajo un mismo título: el cónyuge, los
+         hijos y los padres del colaborador. Dentro se separaban con rótulos, que es lo que se
+         hace cuando no queda más remedio; acá sí quedaba, porque el paso ya agrupa por tarjetas
+         y cada uno de los tres se llena —o se saltea— por su cuenta: soltero y sin hijos deja
+         dos de las tres vacías y no tiene por qué recorrerlas.
+
+         LOS PADRES NO SON UN APÉNDICE DE LOS HIJOS, y en la tarjeta única lo parecían por venir
+         justo debajo. El rótulo tenía que aclararlo con todas las letras —«del colaborador, no
+         de sus hijos»—, y una aclaración así es la señal de que el corte estaba en el sitio
+         equivocado. Ahora lo dice el título.
+
+         SE VAN DOS RÓTULOS Y SE QUEDA UNO. Los de cónyuge y padres repetían el título de su
+         tarjeta, así que su nota se mudó al `desc` y el rótulo sobra. El de hijos se queda
+         porque no es decorativo: lleva `repite` y es lo que numera los bloques —«Hijo 1»,
+         «Hijo 2»— cuando se agrega más de uno. */
+      {
+        id: 'conyuge',
+        titulo: 'Datos del cónyuge',
+        desc: 'Cónyuge o conviviente. La unión libre cuenta igual que el matrimonio para las asignaciones familiares.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          {
+            key: '2.9',
+            label: 'Nombre completo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Beneficios: seguros, campañas de bienestar.',
+            traza: 'Alimenta: CC, GP.'
+          },
+          /* ── UN CAMPO NO CONTESTA DOS PREGUNTAS ──────────────────────────────────
+             «Tipo y número de documento» era una sola caja de texto para dos datos que no se
+             parecen en nada: uno sale de un catálogo cerrado de cuatro opciones y el otro es un
+             número que hay que copiar de un papel. Juntos entraban como cada quien quisiera
+             —«CI 8452119», «8452119 CI», «carnet 8452119»— y después no hay forma de buscar por
+             número, de validar el formato ni de saber qué documento era.
+
+             ES EL MISMO CORTE QUE EL DEL COLABORADOR (1.10 y 1.11), con el mismo catálogo y por
+             el mismo motivo: el documento de identidad del país que lo emitió. Las siglas se
+             quedaron fuera de las opciones a propósito —«CI» trae dentro que es boliviano— y
+             acá no hay razón para volver a meterlas.
+
+             SIN LA CAJA DE «¿QUÉ DOCUMENTO?» que sí tiene 1.10. A esta persona no se la declara
+             ante el Ministerio con este dato; el tipo y el número alcanzan para el trámite de
+             beneficios, y cuatro campos condicionales más se mantienen solos. Si «Otro» empieza
+             a aparecer seguido, la caja se agrega después: el corte de acá no estorba. */
+          {
+            key: '2.10',
+            label: 'Tipo de documento de identidad',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Respalda trámites de beneficios ante la aseguradora.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.10o',
+            label: '¿Qué documento?',
+            ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.',
+            traza: '↳ 2.10. Alimenta: GP.'
+          },
+          {
+            key: '2.10b',
+            label: 'Número de documento de identidad',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El número, tal como figura en el documento. Sin la sigla adelante: el tipo ya está al lado.',
+            traza: '↳ 2.10. Alimenta: GP.'
+          },
+          {
+            key: '2.11',
+            label: 'Fecha de nacimiento',
+            html: 'date',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'Alimenta: CC, GP.'
+          },
+          /* ── LA NACIONALIDAD SALE DE UN CATÁLOGO, NO DE LA CABEZA DE QUIEN ESCRIBE ──
+             Era una caja de texto libre, y un país escrito a mano entra de cinco maneras
+             —«Bolivia», «bolivia», «Boliviana», «BOL», «Bolívia»— que son cinco valores
+             distintos para el mismo dato. Contar cuántos extranjeros hay en la ficha deja de
+             poder hacerse en cuanto la primera se escribe diferente.
+
+             ES LA MISMA LISTA QUE LA DEL COLABORADOR (1.25) y que la del país emisor (1.14).
+             Que las tres digan lo mismo es el punto: cruzar la nacionalidad del cónyuge con la
+             del titular tiene que ser comparar dos valores, no dos redacciones.
+
+             VAN LOS PAÍSES Y NO LOS GENTILICIOS. «Bolivia» y no «Boliviana», que es como ya lo
+             resolvió 1.25: el gentilicio tiene género y obliga a elegir uno por persona, y el
+             país es el mismo para todos. */
+          {
+            key: '2.12',
+            label: 'Nacionalidad',
+            tipo: 'lista',
+            opciones: [
+              'Afgana',
+              'Albanesa',
+              'Alemana',
+              'Andorrana',
+              'Angoleña',
+              'Antiguana',
+              'Argelina',
+              'Argentina',
+              'Armenia',
+              'Australiana',
+              'Austriaca',
+              'Azerbaiyana',
+              'Bahameña',
+              'Bangladesí',
+              'Barbadense',
+              'Bareiní',
+              'Belga',
+              'Beliceña',
+              'Beninesa',
+              'Bielorrusa',
+              'Birmana',
+              'Bisauguineana',
+              'Boliviana',
+              'Bosnia',
+              'Botsuana',
+              'Brasileña',
+              'Británica',
+              'Bruneana',
+              'Búlgara',
+              'Burkinesa',
+              'Burundesa',
+              'Butanesa',
+              'Caboverdiana',
+              'Camboyana',
+              'Camerunesa',
+              'Canadiense',
+              'Catarí',
+              'Centroafricana',
+              'Chadiana',
+              'Checa',
+              'Chilena',
+              'China',
+              'Chipriota',
+              'Colombiana',
+              'Comorense',
+              'Congoleña',
+              'Costarricense',
+              'Croata',
+              'Cubana',
+              'Danesa',
+              'Dominicana',
+              'Dominiquesa',
+              'Ecuatoguineana',
+              'Ecuatoriana',
+              'Egipcia',
+              'Emiratí',
+              'Eritrea',
+              'Eslovaca',
+              'Eslovena',
+              'Española',
+              'Esrilanquesa',
+              'Estadounidense',
+              'Estonia',
+              'Esuatiní',
+              'Etíope',
+              'Filipina',
+              'Finlandesa',
+              'Fiyiana',
+              'Francesa',
+              'Gabonesa',
+              'Gambiana',
+              'Georgiana',
+              'Ghanesa',
+              'Granadina',
+              'Griega',
+              'Guatemalteca',
+              'Guineana',
+              'Guyanesa',
+              'Haitiana',
+              'Hondureña',
+              'Húngara',
+              'India',
+              'Indonesia',
+              'Iraní',
+              'Iraquí',
+              'Irlandesa',
+              'Islandesa',
+              'Israelí',
+              'Italiana',
+              'Jamaicana',
+              'Japonesa',
+              'Jordana',
+              'Kazaja',
+              'Keniana',
+              'Kirguisa',
+              'Kiribatiana',
+              'Kuwaití',
+              'Laosiana',
+              'Lesotense',
+              'Letona',
+              'Libanesa',
+              'Liberiana',
+              'Libia',
+              'Liechtensteiniana',
+              'Lituana',
+              'Luxemburguesa',
+              'Macedonia',
+              'Malasia',
+              'Malauí',
+              'Maldiva',
+              'Malgache',
+              'Maliense',
+              'Maltesa',
+              'Marfileña',
+              'Marroquí',
+              'Marshalesa',
+              'Mauriciana',
+              'Mauritana',
+              'Mexicana',
+              'Micronesia',
+              'Moldava',
+              'Monegasca',
+              'Mongola',
+              'Montenegrina',
+              'Mozambiqueña',
+              'Namibia',
+              'Nauruana',
+              'Neerlandesa',
+              'Neozelandesa',
+              'Nepalí',
+              'Nicaragüense',
+              'Nigeriana',
+              'Nigerina',
+              'Norcoreana',
+              'Noruega',
+              'Omaní',
+              'Pakistaní',
+              'Palauana',
+              'Palestina',
+              'Panameña',
+              'Papú',
+              'Paraguaya',
+              'Peruana',
+              'Polaca',
+              'Portuguesa',
+              'Ruandesa',
+              'Rumana',
+              'Rusa',
+              'Salomonense',
+              'Salvadoreña',
+              'Samoana',
+              'Sancristobaleña',
+              'Sanmarinense',
+              'Santalucense',
+              'Santotomense',
+              'Sanvicentina',
+              'Saudí',
+              'Senegalesa',
+              'Serbia',
+              'Seychellense',
+              'Sierraleonesa',
+              'Singapurense',
+              'Siria',
+              'Somalí',
+              'Sudafricana',
+              'Sudanesa',
+              'Sueca',
+              'Suiza',
+              'Surcoreana',
+              'Surinamesa',
+              'Sursudanesa',
+              'Tailandesa',
+              'Tanzana',
+              'Tayika',
+              'Timorense',
+              'Togolesa',
+              'Tongana',
+              'Trinitense',
+              'Tunecina',
+              'Turca',
+              'Turkmena',
+              'Tuvaluana',
+              'Ucraniana',
+              'Ugandesa',
+              'Uruguaya',
+              'Uzbeka',
+              'Vanuatuense',
+              'Vaticana',
+              'Venezolana',
+              'Vietnamita',
+              'Yemení',
+              'Yibutiana',
+              'Zambiana',
+              'Zimbabuense'
+            ],
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'La misma lista de nacionalidades que la del colaborador: se elige la nacionalidad, no el país.',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
+          },
+          {
+            key: '2.13',
+            label: 'Profesión u ocupación',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.14',
+            label: 'Lugar / empresa de trabajo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Previene conflicto de interés si trabaja en la misma empresa.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.15',
+            label: 'Número de celular',
+            html: 'tel',
+            telefono: true,
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Contacto alternativo del colaborador. El celular y no el fijo: es donde se contesta.',
+            traza: 'Alimenta: GP.'
+          },
+        ]
+      },
+      {
+        id: 'hijos',
+        titulo: 'Datos de los hijos',
+        desc: 'Alimenta asignaciones familiares y el subsidio de lactancia. El bloque se repite por cada hijo.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          {
+            key: '2.rotHijos',
+            label: 'Hijos',
+            singular: 'Hijo',
+            repite: 'hijos',
+            tipo: 'rotulo',
+            col: 'c-todo'
+          },
+          {
+            key: '2.20',
+            repite: 'hijos',
+            label: 'Nombre completo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: CC, GP.'
+          },
+          {
+            key: '2.21',
+            repite: 'hijos',
+            label: 'Tipo de documento de identidad',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Un menor sin carnet propio suele identificarse con el certificado de nacimiento: va por «Otro».',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.21o',
+            repite: 'hijos',
+            label: '¿Qué documento?',
+            ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.',
+            traza: '↳ 2.21. Alimenta: GP.'
+          },
+          {
+            key: '2.21b',
+            repite: 'hijos',
+            label: 'Número de documento de identidad',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'El número, tal como figura en el documento.',
+            traza: '↳ 2.21. Alimenta: GP.'
+          },
+          {
+            key: '2.22',
+            repite: 'hijos',
+            label: 'Fecha de nacimiento',
+            html: 'date',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Beneficios por rango de edad, obsequios (Día del Niño, Día de la Familia).',
+            traza: 'Alimenta: CC, GP.'
+          },
+          {
+            key: '2.23',
+            repite: 'hijos',
+            label: 'Sexo',
+            tipo: 'lista',
+            opciones: [
+              'F · Femenino',
+              'M · Masculino'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Planificación de campañas y obsequios.',
+            traza: 'Alimenta: CC, GP.'
+          },
+          {
+            key: '2.24',
+            repite: 'hijos',
+            label: 'Nacionalidad',
+            tipo: 'lista',
+            opciones: [
+              'Afgana',
+              'Albanesa',
+              'Alemana',
+              'Andorrana',
+              'Angoleña',
+              'Antiguana',
+              'Argelina',
+              'Argentina',
+              'Armenia',
+              'Australiana',
+              'Austriaca',
+              'Azerbaiyana',
+              'Bahameña',
+              'Bangladesí',
+              'Barbadense',
+              'Bareiní',
+              'Belga',
+              'Beliceña',
+              'Beninesa',
+              'Bielorrusa',
+              'Birmana',
+              'Bisauguineana',
+              'Boliviana',
+              'Bosnia',
+              'Botsuana',
+              'Brasileña',
+              'Británica',
+              'Bruneana',
+              'Búlgara',
+              'Burkinesa',
+              'Burundesa',
+              'Butanesa',
+              'Caboverdiana',
+              'Camboyana',
+              'Camerunesa',
+              'Canadiense',
+              'Catarí',
+              'Centroafricana',
+              'Chadiana',
+              'Checa',
+              'Chilena',
+              'China',
+              'Chipriota',
+              'Colombiana',
+              'Comorense',
+              'Congoleña',
+              'Costarricense',
+              'Croata',
+              'Cubana',
+              'Danesa',
+              'Dominicana',
+              'Dominiquesa',
+              'Ecuatoguineana',
+              'Ecuatoriana',
+              'Egipcia',
+              'Emiratí',
+              'Eritrea',
+              'Eslovaca',
+              'Eslovena',
+              'Española',
+              'Esrilanquesa',
+              'Estadounidense',
+              'Estonia',
+              'Esuatiní',
+              'Etíope',
+              'Filipina',
+              'Finlandesa',
+              'Fiyiana',
+              'Francesa',
+              'Gabonesa',
+              'Gambiana',
+              'Georgiana',
+              'Ghanesa',
+              'Granadina',
+              'Griega',
+              'Guatemalteca',
+              'Guineana',
+              'Guyanesa',
+              'Haitiana',
+              'Hondureña',
+              'Húngara',
+              'India',
+              'Indonesia',
+              'Iraní',
+              'Iraquí',
+              'Irlandesa',
+              'Islandesa',
+              'Israelí',
+              'Italiana',
+              'Jamaicana',
+              'Japonesa',
+              'Jordana',
+              'Kazaja',
+              'Keniana',
+              'Kirguisa',
+              'Kiribatiana',
+              'Kuwaití',
+              'Laosiana',
+              'Lesotense',
+              'Letona',
+              'Libanesa',
+              'Liberiana',
+              'Libia',
+              'Liechtensteiniana',
+              'Lituana',
+              'Luxemburguesa',
+              'Macedonia',
+              'Malasia',
+              'Malauí',
+              'Maldiva',
+              'Malgache',
+              'Maliense',
+              'Maltesa',
+              'Marfileña',
+              'Marroquí',
+              'Marshalesa',
+              'Mauriciana',
+              'Mauritana',
+              'Mexicana',
+              'Micronesia',
+              'Moldava',
+              'Monegasca',
+              'Mongola',
+              'Montenegrina',
+              'Mozambiqueña',
+              'Namibia',
+              'Nauruana',
+              'Neerlandesa',
+              'Neozelandesa',
+              'Nepalí',
+              'Nicaragüense',
+              'Nigeriana',
+              'Nigerina',
+              'Norcoreana',
+              'Noruega',
+              'Omaní',
+              'Pakistaní',
+              'Palauana',
+              'Palestina',
+              'Panameña',
+              'Papú',
+              'Paraguaya',
+              'Peruana',
+              'Polaca',
+              'Portuguesa',
+              'Ruandesa',
+              'Rumana',
+              'Rusa',
+              'Salomonense',
+              'Salvadoreña',
+              'Samoana',
+              'Sancristobaleña',
+              'Sanmarinense',
+              'Santalucense',
+              'Santotomense',
+              'Sanvicentina',
+              'Saudí',
+              'Senegalesa',
+              'Serbia',
+              'Seychellense',
+              'Sierraleonesa',
+              'Singapurense',
+              'Siria',
+              'Somalí',
+              'Sudafricana',
+              'Sudanesa',
+              'Sueca',
+              'Suiza',
+              'Surcoreana',
+              'Surinamesa',
+              'Sursudanesa',
+              'Tailandesa',
+              'Tanzana',
+              'Tayika',
+              'Timorense',
+              'Togolesa',
+              'Tongana',
+              'Trinitense',
+              'Tunecina',
+              'Turca',
+              'Turkmena',
+              'Tuvaluana',
+              'Ucraniana',
+              'Ugandesa',
+              'Uruguaya',
+              'Uzbeka',
+              'Vanuatuense',
+              'Vaticana',
+              'Venezolana',
+              'Vietnamita',
+              'Yemení',
+              'Yibutiana',
+              'Zambiana',
+              'Zimbabuense'
+            ],
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'La misma lista de nacionalidades que la del colaborador: se elige la nacionalidad, no el país.',
+            traza: 'El estudio lo marca como a confirmar. Alimenta: GP.'
+          },
+          {
+            key: '2.25',
+            repite: 'hijos',
+            label: 'Institución educativa',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Programas de apoyo educativo.',
+            traza: 'Alimenta: CC, GP.'
+          },
+          {
+            key: '2.26',
+            repite: 'hijos',
+            label: 'Nivel educativo',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Se conserva. *\'Puede servir para campañas de beneficios corporativos\'* (01:28:41).',
+            traza: '✏ v1.2. Alimenta: CC, GP.'
+          },
+          {
+            key: '2.29',
+            repite: 'hijos',
+            label: '¿Presenta discapacidad?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: '28:41): se exige el certificado oficial adjunto. Relevante para beneficios y para el cumplimiento del 2 % de contratación de personas con discapacidad (regla R4).',
+            traza: '✏ v1.2 (01. Alimenta: GP, PL.'
+          },
+          /* EL TIPO Y EL GRADO, COMO LOS DEL COLABORADOR (29 sep 2026). Mismo catálogo —los seis
+             tipos y los cuatro grados del artículo 5 de la Ley 223, ver 1.61—, porque es el mismo
+             carnet. Sólo aparecen en el hijo que presenta discapacidad: cada copia mira la suya. */
+          {
+            key: '2.29a',
+            repite: 'hijos',
+            label: 'Tipo de discapacidad',
+            tipo: 'lista',
+            opciones: [
+              'Física o motora',
+              'Visual',
+              'Auditiva',
+              'Intelectual',
+              'Mental o psíquica',
+              'Múltiple'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El que figura en su carnet de discapacidad. Los seis tipos de la Ley 223.',
+            traza: '↳ 2.29. Alimenta: GP, PL.'
+          },
+          {
+            key: '2.29b',
+            repite: 'hijos',
+            label: 'Grado de discapacidad',
+            tipo: 'lista',
+            opciones: [
+              'Leve',
+              'Moderada',
+              'Grave',
+              'Muy grave'
+            ],
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El que figura en su carnet de discapacidad. Los cuatro grados de la Ley 223.',
+            traza: '↳ 2.29. Alimenta: GP, PL.'
+          },
+          {
+            key: '2.masHijos',
+            tipo: 'repetir',
+            grupo: 'hijos',
+            label: 'Agregar otro hijo',
+            arranque: { '2.29': 'no' },
+            col: 'c-todo',
+            nivel: 'Operativo',
+            nota: 'Cada hijo es un bloque igual al de arriba. El estudio ya lo pedía repetible y nunca lo fue: con un solo bloque, una familia de tres hijos entraba con uno declarado y dos sin asignación familiar.'
+          },
+        ]
+      },
+      {
+        id: 'herederos',
+        titulo: 'Datos de beneficiarios y herederos',
+        desc: 'Es una obligación legal y hoy no tiene dónde vivir. Cuando hace falta, ya es tarde para pedirla.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          {
+            key: '2.rotBeneficiarios',
+            label: 'Beneficiarios',
+            singular: 'Beneficiario',
+            repite: 'herederos',
+            tipo: 'rotulo',
+            col: 'c-todo',
+            nota: 'El bloque se repite por cada beneficiario. Los porcentajes de todos tienen que sumar 100 %.'
+          },
+          {
+            key: '2.31',
+            repite: 'herederos',
+            label: 'Nombre completo',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Dato necesario para el contrato laboral.',
+            traza: 'Alimenta: GP.'
+          },
+          /* ── LA MISMA LISTA QUE EL PARENTESCO DEL CONTACTO DE EMERGENCIA (2.2) ───
+             Doce opciones y una salida. No es una lista nueva: es la de 2.2 sin tocar una coma,
+             y eso es el argumento entero. Los dos campos preguntan lo mismo —qué es esta persona
+             del colaborador— y si cada uno lleva su catálogo, en tres meses uno dice «Hijo(a)» y
+             el otro «Hijo/a», y cruzar «¿el heredero es el mismo que el contacto de emergencia?»
+             pasa a ser comparar dos redacciones.
+
+             Y VA LARGA A PROPÓSITO. Un beneficiario no es necesariamente de la familia: se puede
+             dejar la indemnización a quien uno quiera, y por eso entran «Amigo(a)» y «Vecino(a)»
+             junto a los parientes. Una lista de cinco parentescos obligaría a que la mitad de
+             los casos reales salieran por «Otro», que es la manera de tener texto libre con un
+             desplegable de por medio.
+
+             «OTRO» ABRE CAJA, como allá. Sin ella, la ficha guarda la palabra «Otro» en el campo
+             que dice quién cobra la indemnización, y el día que haga falta —que es el peor día
+             para averiguarlo— no lo sabe nadie.
+
+             EL EQUIPO LA CERRÓ (29 sep 2026), igual que la del contacto de emergencia: quedan los
+             familiares directos, de «Madre» a «Abuelo(a)». Salen tío, primo, amigo, vecino y
+             «Otro», y con él la caja (2.32b), que sigue declarada pero ya no aparece. Las dos listas
+             siguen siendo la misma. */
+          {
+            key: '2.32',
+            repite: 'herederos',
+            label: 'Parentesco / Relación',
+            tipo: 'lista',
+            opciones: [
+              'Madre',
+              'Padre',
+              'Cónyuge',
+              'Conviviente',
+              'Hijo(a)',
+              'Hermano(a)',
+              'Abuelo(a)'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'El familiar que se declara como beneficiario o heredero.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.32b',
+            repite: 'herederos',
+            label: '¿Qué relación?',
+            ph: 'Cuñada, ahijado, socia…',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Así el dato real no se pierde detrás de la palabra «Otro».',
+            traza: '↳ 2.32. Alimenta: GP.'
+          },
+          {
+            key: '2.33',
+            repite: 'herederos',
+            label: 'Tipo de documento de identidad',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Necesario para el contrato.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.33o',
+            repite: 'herederos',
+            label: '¿Qué documento?',
+            ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.',
+            traza: '↳ 2.33. Alimenta: GP.'
+          },
+          {
+            key: '2.33b',
+            repite: 'herederos',
+            label: 'Número de documento de identidad',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Necesario para el contrato. Identifica al heredero sin ambigüedad el día que haya que pagarle.',
+            traza: '↳ 2.33. Alimenta: GP.'
+          },
+          {
+            key: '2.34',
+            repite: 'herederos',
+            label: 'Fecha de nacimiento',
+            html: 'date',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Determina si el heredero es mayor de edad.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.35',
+            repite: 'herederos',
+            label: 'Porcentaje de participación (%)',
+            html: 'text',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Validación: la suma debe dar 100 %. 00:33): define *\'cuánto de la indemnización le van a dejar a esa persona\'*.',
+            traza: '✏ v1.2 (00. Alimenta: GP, PL.'
+          },
+
+          /* ── TRES, Y EL TOPE ES UN NÚMERO EN UNA LÍNEA ─────────────────────────
+             La tarjeta tenía un solo juego de campos y su propia nota prometía repartir entre
+             varios: con un beneficiario, «la suma debe dar 100 %» se cumple sola o no se cumple
+             nunca, y no hay tercera. Es el mismo agujero que tenían los hijos —el estudio los
+             pedía repetibles y nunca lo fueron— y acá lo que no entraba era a quién se le deja
+             la indemnización.
+
+             EL TOPE SALE DE `max` Y NO DEL CÓDIGO DE LA PANTALLA, para que cambiarlo sea cambiar
+             este 3. No hay ley que diga tres: es la decisión de la casa, y las decisiones de la
+             casa se escriben donde se ven. */
+          {
+            key: '2.masBeneficiarios',
+            tipo: 'repetir',
+            grupo: 'herederos',
+            max: 3,
+            label: 'Agregar otro beneficiario',
+            col: 'c-todo',
+            nivel: 'Operativo',
+            nota: 'Hasta tres. Cada uno es un bloque igual al de arriba, con su porcentaje.'
+          },
+
+          /* FUERA DEL BLOQUE A PROPÓSITO: es la cuenta de los tres juntos, así que se dibuja una
+             vez y detrás del botón. Sin `repite`, la repetición no la alcanza. */
+          {
+            key: '2.35t',
+            label: 'Total repartido',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'La suma de los porcentajes de arriba. Tiene que dar 100 %: es lo que decide cuánto cobra cada uno.',
+            traza: '↳ 2.35.'
+          }
+        ]
+      },
+      {
+        id: 'garantes',
+        titulo: 'Datos de garantes y garantías',
+        desc: 'Se activa según el cargo: los que manejan dinero o valores.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: '2.rotGarante', label: 'Garante', tipo: 'rotulo', col: 'c-todo', nota: 'La persona que respalda al colaborador.' },
+          /* ── EL NOMBRE, PARTIDO EN DOS ──────────────────────────────────────────
+             «Nombre completo» era una caja y adentro entraban dos cosas en el orden que a cada
+             quien le saliera: «Juan Pérez Rojas», «Pérez Rojas, Juan», «PEREZ ROJAS JUAN». Para
+             un dato que va a un contrato que después se notaria, el orden no es un detalle de
+             formato: es lo que el notario lee.
+
+             Y NO SE PARTE EN CINCO como el del colaborador —primer nombre, segundo, tercero,
+             apellidos— porque a un garante no se lo declara ante el Ministerio ni ante la
+             Gestora: no hay una estructura oficial con la que tenga que coincidir. Dos campos
+             separan lo que hay que separar y no piden más de lo que se sabe.
+
+             ORDEN DE LECTURA Y NO DE DOCUMENTO: primero los nombres, después los apellidos, que
+             es como se presenta una persona. La otra forma —apellidos primero— es la del índice
+             y la del formulario de trámite, y esta ficha no es ninguna de las dos. */
+          {
+            key: '2.39',
+            label: 'Nombre(s)',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Alimenta el contrato de garantía que luego se notaria.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.39b',
+            label: 'Apellidos',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Los dos, si los tiene, en el orden en que figuran en su documento.',
+            traza: '↳ 2.39. Alimenta: GP.'
+          },
+          {
+            key: '2.40',
+            label: 'Tipo de documento de identidad',
+            tipo: 'lista',
+            opciones: [
+              'Documento nacional de identidad',
+              'Pasaporte',
+              'Carnet de extranjero',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Evita registros duplicados o incorrectos.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.40o',
+            label: '¿Qué documento?',
+            ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.',
+            traza: '↳ 2.40. Alimenta: GP.'
+          },
+          {
+            key: '2.40b',
+            label: 'Número de documento de identidad',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Evita registros duplicados o incorrectos. Va al contrato de garantía que luego se notaria.',
+            traza: '↳ 2.40. Alimenta: GP.'
+          },
+          /* EL DOCUMENTO DEL GARANTE, ESCANEADO (29 sep 2026). Se pedía el tipo y el número y no el
+             papel, que es contra lo que se comprueban los dos —y lo que pide el notario—. Ancla el
+             bloque del garante como el carnet ancla el del colaborador. */
+          {
+            key: '2.40e',
+            label: 'Documento de identidad del garante (anverso + reverso)',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Un solo archivo con las dos caras, como el del colaborador.',
+            traza: '↳ 2.40. Alimenta: GP.'
+          },
+          /* EL PLURAL PROMETÍA UNA CAJA QUE NO ERA. «Teléfono(s)» con un solo campo invita a
+             escribir dos separados por una barra, y entonces ninguno de los dos sirve para
+             llamar desde el sistema ni para validarse. Uno, el que se contesta.
+
+             Y CELULAR Y NO TELÉFONO, igual que el del cónyuge (2.15): a un garante hay que poder
+             ubicarlo el día que se ejecuta la garantía, y ese día un fijo de oficina no alcanza. */
+          {
+            key: '2.41',
+            label: 'Número de celular',
+            html: 'tel',
+            telefono: true,
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Es donde se lo ubica el día que haya que ejecutar la garantía.',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.42',
+            label: 'Dirección',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            traza: 'Alimenta: GP.'
+          },
+          {
+            key: '2.43',
+            label: 'Fecha de nacimiento',
+            html: 'date',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Validación de identidad para el contrato.',
+            traza: 'Alimenta: GP.'
+          },
+
+          /* ── EL LUGAR NO TENÍA DÓNDE ESCRIBIRSE ─────────────────────────────────
+             El rótulo decía «Fecha y lugar de nacimiento» y el campo era `html: 'date'`: un
+             selector de calendario. El lugar se pedía y no se podía contestar — no hay forma de
+             teclear «Santa Cruz» en un calendario—, así que el dato no es que entrara mal,
+             es que no entraba.
+
+             Es el mismo corte que el de 1.21 y 1.22 en el paso 1, donde la fecha y el lugar del
+             colaborador viven separados desde siempre. Acá venían pegados desde el estudio, que
+             los listaba en una fila de su tabla, y al portarlos esa fila se volvió un campo. */
+          {
+            key: '2.43b',
+            label: 'Lugar de nacimiento',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Ciudad y país, como figuran en su documento.',
+            traza: '↳ 2.43. Alimenta: GP.'
+          },
+          /* ── EL ÚNICO CAMPO DE LA FICHA CON UNA REGLA COLGANDO Y SIN CATÁLOGO ───
+             Su propia nota dice qué pasa con el valor: «si está casado, la garantía es
+             compartida → exige registrar cónyuge». Eso es una regla, y una regla necesita
+             comparar contra algo. Con texto libre no podía dispararse nunca: «Casado»,
+             «casado(a)», «CASADO» y «Casada» son cuatro valores distintos y la condición
+             acierta con uno como mucho.
+
+             MISMAS CINCO OPCIONES QUE EL DEL COLABORADOR, que ya era lista desde el estudio.
+             Que las dos digan lo mismo es lo que permite escribir la regla una vez.
+
+             LA REGLA YA EXISTE (29 sep 2026): con «Casado(a)» se abren el nombre y el documento del
+             cónyuge (2.44a y 2.44b). Queda abierta una pregunta que es legal y no de diseño: si
+             «Unión libre» comparte la garantía igual que «Casado(a)». Hasta que se conteste, sólo
+             dispara con casado, que es lo que dice la nota. */
+          {
+            key: '2.44',
+            label: 'Estado civil',
+            tipo: 'lista',
+            opciones: [
+              'Soltero(a)',
+              'Casado(a)',
+              'Divorciado(a)',
+              'Viudo(a)',
+              'Unión libre'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Si está casado, la garantía es compartida → exige registrar cónyuge.',
+            traza: 'Alimenta: GP.'
+          },
+          /* EL CÓNYUGE DEL GARANTE, SI ESTÁ CASADO (29 sep 2026). Es la regla que la nota de 2.44
+             anunciaba —«la garantía es compartida → exige registrar cónyuge»— y que no tenía dónde
+             dispararse. El equipo pidió sólo dos datos: quién es y su documento. Sólo con «Casado(a)»:
+             si la unión libre también comparte la garantía es una pregunta legal abierta. */
+          {
+            key: '2.44a',
+            label: 'Nombre completo del cónyuge',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Con el garante casado, la garantía es compartida: su cónyuge también responde.',
+            traza: '↳ 2.44. Alimenta: GP.'
+          },
+          {
+            key: '2.44b',
+            label: 'Número de documento de identidad del cónyuge',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            traza: '↳ 2.44. Alimenta: GP.'
+          },
+          /* ── LA GARANTÍA ES OTRA COSA QUE EL GARANTE (29 sep 2026) ─────────────────────
+             Hasta acá la tarjeta registraba a la persona y, de lo que deja en respaldo, sólo una
+             palabra escrita a mano y un archivo. Eso no alcanza para lo que la propia nota pedía:
+             un reporte de «¿qué garantías presentó el chofer?». Ahora es su propio bloque: qué
+             tipo es, qué es exactamente, con qué número se la identifica y cuánto vale.
+
+             LISTA CON «OTRO», que es la forma de cumplir las dos cosas que el estudio dejó
+             escritas —«texto abierto» y «con sugerencias»—: las sugerencias son la lista, y lo
+             abierto es la caja que se abre con «Otro». */
+          { key: '2.rotGarantia', label: 'Garantía', tipo: 'rotulo', col: 'c-todo', nota: 'Lo que el garante deja en respaldo: un inmueble, un vehículo, su salario…' },
+          {
+            key: '2.45',
+            label: 'Tipo de garantía',
+            tipo: 'lista',
+            opciones: [
+              'Inmueble',
+              'Vehículo',
+              'Salario fijo',
+              'Certificado de depósito',
+              'Aval de asociación',
+              'Otro'
+            ],
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Las que el estudio nombraba: inmueble, vehículo, salario fijo, certificado y asociación. Si es otra, «Otro» abre una caja para escribirla.',
+            traza: '✏ v1.2. Alimenta: GP.'
+          },
+          {
+            key: '2.45o',
+            label: '¿Qué garantía?',
+            ph: 'Joyas, maquinaria, pagaré…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro».',
+            traza: '↳ 2.45. Alimenta: GP.'
+          },
+          {
+            key: '2.45d',
+            label: 'Descripción de la garantía',
+            ph: 'Casa en calle Sucre 245, Santa Cruz',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Qué es exactamente, como para reconocerla en el documento.',
+            traza: '↳ 2.45. Alimenta: GP.'
+          },
+          {
+            key: '2.45n',
+            label: 'Número de registro',
+            ph: 'Folio real, placa, n.º de certificado…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El número con el que se la identifica: folio real de un inmueble, placa de un vehículo, número del certificado.',
+            traza: '↳ 2.45. Alimenta: GP.'
+          },
+          {
+            key: '2.45v',
+            label: 'Valor de la garantía (Bs)',
+            numero: true,
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El valor declarado o de avalúo, en bolivianos.',
+            traza: '↳ 2.45. Alimenta: GP.'
+          },
+          /* EL PAPEL DE LA GARANTÍA ANCLA LA TARJETA, como el carnet ancla la del documento y la
+             foto la del nombre. Estaba declarado como un campo más y caía al final del flujo, en
+             el hueco que quedara: un recuadro de subir archivo entre «Tipo de garantía» y el
+             borde, leído como el último de la lista en vez de como lo que es.
+
+             Y ES LO QUE ES PORQUE ES LA FUENTE. Los diez campos de al lado —nombre, documento,
+             estado civil, tipo de garantía— salen de ese papel: quien llena la tarjeta lo tiene
+             abierto y va copiando. Anclado a la izquierda, el papel y lo que dice el papel se
+             miran a la vez, que es la única forma de comprobar que coinciden.
+
+             `c-escaneo` Y NO `c-retrato`: el recuadro del papel es elástico —suelta su proporción
+             y llena el alto del riel— y la tarjeta tiene diez campos que cubrir. Con el retrato,
+             que mide 88 px y no se estira, sobraría media columna de aire debajo.
+
+             Y SÓLO ACÁ: el otro `2.46` de este archivo, el de la tarjeta «Archivos» del último
+             paso, se queda sin riel a propósito. Allá es un adjunto de una lista y no la fuente
+             de nada, y `conRieles` desancla a todos los rieles que compartan bloque: darle
+             columna le quitaría la suya al que sí la necesita. */
+          {
+            key: '2.46',
+            label: 'Documento de garantía',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            insignia: 'v1.2',
+            nivel: 'Operativo'
+          }
+        ]
+      },
+      {
+        id: 'discapacidad',
+        titulo: 'Datos de tutela y protecciones',
+        desc: 'Ser tutor de una persona con discapacidad da protecciones propias y cuenta dentro del 2 % legal, aunque la discapacidad no sea suya.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '1.62',
+            label: '¿Es tutor de persona con discapacidad?',
+            tipo: 'siNo',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Cuenta dentro del 2 % legal, igual que si la discapacidad fuera suya.',
+            traza: 'Alimenta: GP, PL.'
+          },
+
+          /* ── DE QUIÉN, CON LA GENTE QUE LA FICHA YA TIENE (29 sep 2026) ──────────────
+             Un «sí» a secas no sirve: el 2 % se fiscaliza contra la OVT y lo que se presenta es el
+             certificado de discapacidad de una persona concreta. Era un desplegable de un solo
+             nombre; ahora es la lista de la gente ya escrita en el paso, agrupada por de dónde
+             viene —hijos, cónyuge, contactos de emergencia—, con casillas para marcar a una o a
+             varias y la discapacidad declarada a la vista. Si es alguien que no está, «Otra
+             persona» abre sus datos. Los grupos los arma `gruposDeTutela`; los dibuja
+             `ListaTutela`. */
+          {
+            key: '1.62b',
+            label: 'Marque a las personas con discapacidad',
+            tipo: 'tutela',
+            col: 'c-todo',
+            insignia: 'legal',
+            nivel: 'Operativo',
+            nota: 'Las personas con discapacidad de quienes es tutor. Se ofrecen los hijos, el cónyuge y los contactos de emergencia que ya están en la ficha; los hijos con discapacidad declarada aparecen marcados. Si es alguien que no está, regístrelo con «Otra persona».',
+            traza: '↳ 1.62. Alimenta: GP, PL.'
           }
         ]
       },
@@ -2601,6 +3342,7 @@ export const PASOS_PROPUESTA = [
             key: '3.11',
             label: 'Cargo',
             tipo: 'lista',
+            buscador: true,
             opciones: [
               'Project Manager',
               'Líder de Atención',
@@ -2616,18 +3358,40 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '3.12',
-            label: 'Categoría del puesto (Obrero / Administrativo)',
+            label: 'Tipo de trabajador',
             tipo: 'lista',
             opciones: [
               'Administrativo',
               'Obrero'
             ],
-            col: 'c-medio',
+            col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
             nota: 'Regla legal dura. Obrero de producción: aguinaldo y prima desde el primer mes. Administrativo: 3 meses y 1 día. Es atributo del puesto, no del contrato.',
             traza: 'Alimenta: PL.'
+          },
+          /* LO QUE EL ORGANIGRAMA YA DICE DEL CARGO (29 sep 2026): su nivel de mando y su tipo. Se
+             leen del cargo elegido, no se preguntan —ver DERIVADOS en fichaColaborador.js—. */
+          {
+            key: '3.11n',
+            label: 'Nivel de mando',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sale del cargo elegido, como está definido en Organización › Organigrama. Si no es el correcto, se cambia en el cargo.',
+            traza: '↳ 3.11. Alimenta: GP, DE.'
+          },
+          {
+            key: '3.11t',
+            label: 'Tipo de cargo',
+            deducido: '',
+            insignia: 'se calcula',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Regular, Staff o Externo: sale del cargo elegido, como está definido en Organización › Organigrama.',
+            traza: '↳ 3.11. Alimenta: GP.'
           },
           {
             key: '3.42b',
@@ -2638,7 +3402,7 @@ export const PASOS_PROPUESTA = [
               'Híbrido',
               'Remoto'
             ],
-            col: 'c-medio',
+            col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
             nota: 'Traído desde Condiciones de contratación (antes 3.20). Presencial · Híbrido · Remoto. Condiciona la marcación virtual (§5.3.5.B).',
@@ -2647,52 +3411,17 @@ export const PASOS_PROPUESTA = [
         ]
       },
       {
-        id: 'costo',
-        titulo: 'Imputación contable',
-        desc: 'Dónde impacta el gasto del sueldo. El centro de costo debe admitir reparto porcentual entre varios.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '3.17',
-            label: 'Centro de costo',
-            tipo: 'lista',
-            opciones: [
-              'CC-100 Administración',
-              'CC-200 Operaciones',
-              'CC-300 Comercial'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Debe soportar distribución porcentual entre varios centros (ej. 50/50). Validación: suma = 100 %.',
-            traza: 'Alimenta: ERP, PL.'
-          },
-          {
-            key: '3.18',
-            label: 'Proyecto asignado',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Si aplica.',
-            traza: 'Alimenta: ERP.'
-          },
-          {
-            key: '3.19',
-            label: 'Cliente asignado',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Si aplica (servicios in-house).',
-            traza: 'Alimenta: ERP.'
-          }
-        ]
-      },
-      {
         id: 'jefaturas',
-        titulo: 'Jefaturas y aprobaciones',
-        desc: 'Son campos distintos a propósito: quien manda no siempre es quien firma. El jefe directo de un cajero puede ser el supervisor de sucursal, y quien le aprueba las vacaciones, la gerencia de operaciones.',
+        titulo: 'Dependencia organizacional y funcional',
+        desc: 'A quién responde en la estructura y quién le firma los permisos; y, aparte, quién le dirige parte del trabajo desde otra área. Quien manda no siempre es quien firma.',
         propuesta: false,
         incierto: false,
         campos: [
+          /* ── DOS DEPENDENCIAS, DOS BLOQUES (29 sep 2026) ─────────────────────────────
+             Era «Jefaturas y aprobaciones», con todo junto. Ahora arriba va la dependencia
+             organizacional —la línea de mando: su jefe y quién le firma los permisos— y abajo
+             la funcional —quien le dirige parte del trabajo desde otra área—, que se repite. */
+          { key: '3.rotDepOrg', label: 'Dependencia organizacional', tipo: 'rotulo', col: 'c-todo', nota: 'A quién responde en la estructura y quién le aprueba los permisos.' },
           {
             key: '3.13',
             label: 'Supervisor inmediato',
@@ -2704,87 +3433,51 @@ export const PASOS_PROPUESTA = [
               'Alejandro Tapia Fernández',
               'Natalia Ziade Mareño'
             ],
-            col: 'c-tercio',
+            col: 'c-medio',
             insignia: 'legal',
             nivel: 'Mínimo',
             requerido: true,
             traza: 'Alimenta: DE, GP, ON.'
           },
-          {
-            key: '3.14',
-            label: 'Cargo del supervisor',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            traza: 'Alimenta: DE, GP.'
-          },
-          {
-            key: '3.rotSupFun',
-            label: 'Supervisión funcional',
-            singular: 'Supervisor funcional',
-            repite: 'supfun',
-            tipo: 'rotulo',
-            col: 'c-todo'
-          },
-          {
-            key: '3.15',
-            repite: 'supfun',
-            label: 'Supervisor funcional',
-            tipo: 'lista',
-            opciones: [
-              'Emilia Pessoa Rotger',
-              'Natalia Ziade Mareño'
-            ],
-            col: 'c-medio',
-            nivel: 'Operativo',
-            nota: 'Quien le dirige parte del trabajo sin ser su jefe directo. Puede haber varios: agregue uno por cada unidad o equipo con el que coordina. Alimenta la evaluación de desempeño funcional.',
-            traza: '✏ v1.2 (obs. #26: «anotar más de una persona»). Caso real: una analista contable evaluada por su jefa estructural y por las dos gestoras con las que coordina. Alimenta: DE, GP.'
-          },
-          {
-            key: '3.15u',
-            repite: 'supfun',
-            label: '¿En qué unidad lo supervisa?',
-            col: 'c-medio',
-            nivel: 'Operativo',
-            nota: 'La unidad donde este supervisor le dirige el trabajo. Es lo que distingue a un supervisor funcional de otro.',
-            traza: 'Alimenta: DE, GP. Mismo par que la dependencia funcional de Organización: unidad y a quién responde ahí.'
-          },
-          {
-            key: '3.masSupFun',
-            tipo: 'repetir',
-            grupo: 'supfun',
-            max: 5,
-            label: 'Agregar otro supervisor funcional',
-            col: 'c-todo',
-            nivel: 'Operativo'
-          },
+          /* «CARGO DEL SUPERVISOR» (3.14) YA NO ES UN CAMPO APARTE (29 sep 2026): el selector del
+             supervisor enseña su foto, su nombre y su cargo, y el campo de al lado repetía lo mismo. */
+          /* ── UNA CADENA DE APROBACIÓN Y NO UN SOLO APROBADOR (29 sep 2026) ─────────────
+             Un permiso suele pasar por más de una firma: primero el jefe directo, después RR.HH.
+             Era un solo campo; ahora es una fila EN ORDEN —el orden es el de las firmas— que se
+             alarga con un botón, hasta tres: «1.º», «2.º», «3.º», cada uno con su cruz. La dibuja
+             `ListaAprobadores`. El primero sigue siendo 3.16 y los siguientes 3.16#2 y 3.16#3,
+             así que lo que estaba elegido queda como primer aprobador. */
           {
             key: '3.16',
-            label: '¿Quién aprueba sus permisos?',
-            tipo: 'lista',
+            label: 'Aprobadores de permisos',
+            tipo: 'aprobadores',
             opciones: [
               'Emilia Pessoa Rotger',
               'Natalia Ziade Mareño'
             ],
-            col: 'c-tercio',
+            col: 'c-todo',
             insignia: 'legal',
             nivel: 'Operativo',
             nota: 'Renombrado. Antes *\'Aprobador suplente / delegación\'*. *\'Tenemos que tener uno que diga quién le aprueba los permisos, más no suplentes\'* (00:09:02). Por defecto se autocompleta con el supervisor inmediato (3.13), pero puede ser otra persona.',
             traza: '✏ v1.2 (obs. #27). Alimenta: AS, GP.'
           },
+          /* EL SUPLENTE (3.16b) YA NO ES UN CAMPO SUELTO: es el del 1.º aprobador —el jefe— cuando no
+             está, y se elige pegado a él, dentro de la fila de aprobadores. Ver `ListaAprobadores`. */
+          /* ── LA DEPENDENCIA FUNCIONAL, IGUAL QUE EN EL ORGANIGRAMA (29 sep 2026) ─────────────
+             Era «supervisor funcional» (una persona) y «¿en qué unidad lo supervisa?» (texto), un
+             par distinto del que el organigrama ya guarda para cada puesto. Ahora es el mismo editor
+             —`ApoyoFuncional`— y la misma frase: «Apoya funcionalmente a [unidad] respondiendo a
+             [cargo de esa unidad]», con «Otra unidad» para sumar más. Se guarda en 3.15f como la
+             lista del organigrama: [{ unidadId, reportaA }]. */
+          { key: '3.rotSupFun', label: 'Dependencia funcional', tipo: 'rotulo', col: 'c-todo', nota: 'Dónde más trabaja, sin pertenecer ahí.' },
           {
-            key: '3.16b',
-            label: 'Aprobador suplente / delegación temporal',
-            tipo: 'lista',
-            opciones: [
-              'Ruth Mariscal Rivero'
-            ],
-            col: 'c-medio',
-            insignia: 'v1.2',
-            nivel: 'Completo',
-            nota: 'A EVALUAR. *\'Quizás no es tan necesario\'*. Resuelve el caso sin solución del Salar —superior fuera del sistema ⇒ nadie puede aprobar— pero puede no justificar un campo propio. Ver pendiente 20.',
-            traza: '✏ v1.2 (obs. #25). El estudio lo marca como a confirmar. Alimenta: AS, GP.'
+            key: '3.15f',
+            label: 'Apoya funcionalmente a',
+            tipo: 'apoyoFuncional',
+            col: 'c-todo',
+            nivel: 'Operativo',
+            nota: 'La persona pertenece a su unidad y puede trabajar en otras. En cada una se elige a qué cargo responde ahí; si a ninguno, cuelga de la unidad. Es el mismo dato que el organigrama guarda para cada puesto.',
+            traza: 'Alimenta: DE, GP. Mismo formato que la dependencia funcional de Organización.'
           }
         ]
       },
@@ -2832,6 +3525,26 @@ export const PASOS_PROPUESTA = [
         propuesta: true,
         incierto: false,
         campos: [
+          /* LA PROFESIÓN ABRE EL PERFIL (29 sep 2026). Vivía en el paso 1, en una tarjeta propia, y
+             quedaba lejos de lo que la respalda: el título, la carrera, la experiencia. Conservan
+             su clave del estudio —1.32 y 1.33— aunque cambien de paso. */
+          { key: 'pf.rotProfesion', label: 'Profesión', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: '1.32',
+            label: 'Profesión u ocupación',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Reclutamiento interno, promociones, sucesión.',
+            traza: 'Alimenta: DE, GP.'
+          },
+          {
+            key: '1.33',
+            label: 'Matrícula profesional',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Cargos que exigen registro vigente (médicos, contadores, ingenieros, abogados).',
+            traza: 'Alimenta: GP.'
+          },
           { key: 'pf.rotFormacion', label: 'Formación académica', singular: 'Formación', repite: 'formacion', tipo: 'rotulo', col: 'c-todo' },
           {
             key: 'pf.1',
@@ -3076,49 +3789,24 @@ export const PASOS_PROPUESTA = [
   {
     key: 'contrato',
     n: 5,
-    titulo: 'Contrato',
-    corto: 'Contrato',
+    titulo: 'Relación laboral',
+    corto: 'Relación',
     pista: 'Qué firmó, por cuánto tiempo y en qué condiciones',
     tarjetas: [
       {
         id: 'doc',
         titulo: 'Datos del contrato',
-        desc: 'Las fechas de ingreso son tres y no una: la legal es la que ven las tres entidades y nunca puede diferir; las otras dos son internas y existen porque a veces se le reconoce antigüedad o vacaciones desde otra fecha. Después, modalidad, tipo y plazo: de la modalidad depende que se dispare la regla de los dos contratos a plazo fijo.',
+        desc: 'La fecha de ingreso es la que ven las tres entidades y nunca puede diferir. Después, modalidad, tipo y plazo: de la modalidad depende que se dispare la regla de los dos contratos a plazo fijo.',
         propuesta: false,
         incierto: false,
         campos: [
           {
             key: '3.25',
-            label: 'Ingreso legal / fiscal',
+            label: 'Fecha de ingreso legal',
             html: 'date',
             col: 'c-tercio',
             nivel: 'Operativo',
             nota: 'Las tres entidades deben ver la misma fecha. Nunca puede diferir.'
-          },
-          {
-            key: '3.26',
-            label: 'Ingreso para vacaciones',
-            html: 'date',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Solo interno. Caso: persona que trabaja desde 2020 pero entra a planilla fiscal en 2022.'
-          },
-          {
-            key: '3.27',
-            label: 'Ingreso para antigüedad',
-            html: 'date',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Solo interno.'
-          },
-          {
-            key: '3.28',
-            label: 'Ingreso a Caja de Salud',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: '*\'Nunca pueden diferir\'*. El Salar las pide por separado *\'muy amplio, para que el recurso humano se confunda\'*.'
           },
           {
             key: '3.32',
@@ -3152,28 +3840,6 @@ export const PASOS_PROPUESTA = [
             requerido: true,
             nota: 'Escrito / Verbal. Ambos válidos ante la ley; el verbal es *\'más peligroso\'*. Las opciones son la lista oficial de la OVT.',
             traza: 'Fuente · F20 · campo 25. Alimenta: GP, PL.'
-          },
-          {
-            key: '3.34',
-            label: 'Clasificación laboral',
-            tipo: 'lista',
-            opciones: [
-              '1 · Dirección en la administración pública y empresas',
-              '2 · Profesionales científicos e intelectuales',
-              '3 · Técnicos y profesionales de apoyo',
-              '4 · Empleados de oficina',
-              '5 · Trabajadores de los servicios y vendedores del comercio',
-              '6 · Agricultura, pecuaria, agropecuaria y pesca',
-              '7 · Industria extractiva, construcción y manufactura',
-              '8 · Operadores de instalaciones y maquinarias',
-              '9 · Trabajadores no calificados',
-              '10 · Fuerzas armadas'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Debería configurarse una sola vez a nivel empresa (*\'es de la empresa, del rubro\'*). Determina el recargo nocturno. Las opciones son la lista oficial de la OVT.',
-            traza: 'Fuente · F20 · campo 22. Alimenta: PL.'
           },
           {
             key: '3.35',
@@ -3253,24 +3919,6 @@ export const PASOS_PROPUESTA = [
             traza: '✏ v1.2 (obs. #29). Alimenta: GP.'
           }
         ]
-      },
-      {
-        id: 'salida',
-        titulo: 'Salida',
-        desc: 'Solo aplica al editar, no al dar de alta. El motivo de retiro existe en el formulario de finiquito pero no está habilitado en la ficha: es un defecto a corregir, porque los motivos 4 a 9 apagan el desahucio.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '3.41',
-            label: 'Motivo de retiro',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: 'Un solo catálogo, propagado. Hoy existe en el finiquito pero no en la ficha. 23:01): los motivos de retiro codificados del Ministerio de Trabajo ya fueron cargados por la especialista al catálogo maestro. Aparece al editar la ficha, no en el alta.',
-            traza: '✏ v1.2 (01. Alimenta: DE, GP, PL.'
-          }
-        ]
       }
     ]
   },
@@ -3313,10 +3961,13 @@ export const PASOS_PROPUESTA = [
 
              Con el rótulo diciendo lo que el campo hace, cabe en un tercio como los demás y la
              fila vuelve a ser de tres. Cuál es la administradora no se pierde: es la única que
-             existe, y está escrita en la primera opción de la lista. */
+             existe, y está escrita en la primera opción de la lista.
+
+             El 29 sep 2026 el equipo pidió que se llame «Administradora» a secas: es la palabra
+             que usan en planillas, y sigue siendo corta, así que el tercio no cambia. */
           {
             key: '3.44',
-            label: 'Estado de la afiliación',
+            label: 'Administradora',
             tipo: 'lista',
             opciones: [
               'Gestora Pública',
@@ -3456,7 +4107,13 @@ export const PASOS_PROPUESTA = [
             opciones: [
               'La Paz',
               'Santa Cruz',
-              'Cochabamba'
+              'Cochabamba',
+              'Oruro',
+              'Potosí',
+              'Tarija',
+              'Chuquisaca',
+              'Beni',
+              'Pando'
             ],
             col: 'c-tercio',
             insignia: 'legal',
@@ -4121,7 +4778,7 @@ export const PASOS_PROPUESTA = [
             insignia: 'legal',
             nivel: 'Operativo',
             nota: 'Obligatorio por ley. El monto no se digita: sale del salario mínimo × 3 × el porcentaje de la escala según los años de servicio (5, 11, 18, 26, 34, 42 y 50 %). Se apaga, por ejemplo, para personal de servicios externos. En No, la columna del Ministerio va en cero: no desaparece.',
-            traza: 'Alimenta: PL. Entra desde: fecha de ingreso para bono de antigüedad y salario mínimo de los parámetros de la empresa.'
+            traza: 'Alimenta: PL. Entra desde: fecha de ingreso para el bono de antigüedad y salario mínimo de los parámetros de la empresa.'
           },
           {
             key: '3.74',
@@ -4139,12 +4796,12 @@ export const PASOS_PROPUESTA = [
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'El obrero de producción tiene derecho al aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. Sale de la categoría del puesto, en Información laboral.',
-            traza: 'Alimenta: PL. Sale de: Categoría del puesto (3.12), Obrero / Administrativo.'
+            nota: 'El obrero de producción tiene derecho al aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. Sale del tipo de trabajador, en Información laboral.',
+            traza: 'Alimenta: PL. Sale de: Tipo de trabajador (3.12), Obrero / Administrativo.'
           },
           {
             key: '3.78',
-            label: '¿Aplica retroactivo? (y retroactivo de antigüedad)',
+            label: '¿Aplica retroactivo? (retroactivo de antigüedad)',
             tipo: 'siNo',
             col: 'c-tercio',
             nivel: 'Operativo',
@@ -4193,19 +4850,30 @@ export const PASOS_PROPUESTA = [
             nota: 'Banco · Cheque · Efectivo · Giro · Billetera digital.',
             traza: 'Alimenta: ERP, PL.'
           },
+          /* ── LOS BANCOS QUE PUEDEN RECIBIR UN SUELDO ─────────────────────────────
+             Los bancos múltiples y PYME que supervisa la ASFI, más la sucursal del Banco de la Nación
+             Argentina (29 sep 2026). Fassil ya no está: la ASFI lo intervino en 2023 y su cartera pasó
+             a otros bancos. «Otro» se queda para las cooperativas y las entidades de vivienda, que
+             también pagan planillas y no caben en una lista de bancos. */
           {
             key: '3.89',
             label: 'Banco',
             tipo: 'lista',
             opciones: [
-              'BISA',
               'Banco Nacional de Bolivia',
               'Banco Mercantil Santa Cruz',
+              'Banco BISA',
+              'Banco de Crédito de Bolivia',
               'Banco Unión',
-              'Banco Ganadero',
               'Banco Económico',
-              'Banco Fassil',
-              'BancoSol',
+              'Banco Ganadero',
+              'Banco Solidario (BancoSol)',
+              'Banco FIE',
+              'Banco Prodem',
+              'Banco Fortaleza',
+              'Banco PYME Ecofuturo',
+              'Banco PYME de la Comunidad',
+              'Banco de la Nación Argentina',
               'Otro'
             ],
             col: 'c-tercio',
@@ -4220,13 +4888,23 @@ export const PASOS_PROPUESTA = [
             tipo: 'lista',
             opciones: [
               'Caja de ahorro',
-              'Cuenta corriente'
+              'Cuenta corriente',
+              'Otro'
             ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo',
-            nota: 'Caja de ahorro · Cuenta corriente.',
+            nota: 'Caja de ahorro · Cuenta corriente · Otro.',
             traza: 'Alimenta: PL.'
+          },
+          {
+            key: '3.90o',
+            label: '¿Qué tipo de cuenta?',
+            ph: 'Cuenta sueldo, cuenta en dólares, cuenta digital…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que el banco llama a la cuenta.',
+            traza: '↳ 3.90. Alimenta: PL.'
           },
           {
             key: '3.91',
@@ -4249,14 +4927,6 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: PL.'
           },
           {
-            key: '3.94',
-            label: 'Sucursal de la cuenta bancaria',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Para pagar por sucursal.',
-            traza: 'Alimenta: PL.'
-          },
-          {
             key: '3.95',
             label: '¿Es cuenta principal?',
             tipo: 'siNo',
@@ -4265,31 +4935,6 @@ export const PASOS_PROPUESTA = [
             nivel: 'Completo',
             nota: 'Soporta más de una cuenta (pago partido).',
             traza: 'Alimenta: PL.'
-          }
-        ]
-      },
-      {
-        id: 'beneficios',
-        titulo: 'Datos de beneficios adicionales',
-        desc: 'Lo que da la empresa por encima de la ley: seguro privado, movilidad, alimentación.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: '3.96a',
-            label: 'Paquete de beneficios asignado',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: '33:37): CONFIRMADO como el campo prioritario del bloque. Catálogo por empresa. Se deriva del cargo o de la modalidad, no se marca a mano.',
-            traza: '✏ v1.2 (00. Alimenta: ON, PL.'
-          },
-          {
-            key: '3.96b',
-            label: 'Beneficios individuales (repetible)',
-            tipo: 'rotulo',
-            col: 'c-todo',
-            nota: '✏️ v1.2 (00:33:37): confirmado y reducido a tres datos — tipo de beneficio (monetario o periódico) · valor · vigencia. Se retiran periodicidad libre y documento de respaldo del alta'
           }
         ]
       }
@@ -4309,7 +4954,7 @@ export const PASOS_PROPUESTA = [
   {
     key: 'recursos',
     n: 9,
-    titulo: 'Información de Recursos y Activos',
+    titulo: 'Recursos y activos',
     corto: 'Activos',
     pista: 'Lo que la empresa le entrega para trabajar',
     tarjetas: [
@@ -4413,7 +5058,7 @@ export const PASOS_PROPUESTA = [
   {
     key: 'sistema',
     n: 10,
-    titulo: 'Configuración del Colaborador',
+    titulo: 'Configuración del Colaborador / Autogestión',
     corto: 'Configuración',
     pista: 'Su acceso, su rol y el historial de su ficha',
     tarjetas: [
@@ -4707,6 +5352,16 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo',
             nota: 'El documento digitalizado es obligatorio para dar la licencia por registrada (01:24:00).',
             traza: '✏ v1.2.'
+          },
+          {
+            key: '2.40e',
+            label: 'Documento de identidad del garante',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo'
           },
           {
             key: '2.46',

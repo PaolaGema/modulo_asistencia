@@ -75,7 +75,7 @@ const TRAE_A_CONFIRMAR = [
   '1.36', '1.38', '1.39',                                      // celular, teléfono fijo, correo personal
   '1.42', '1.43', '1.45', '1.46', '1.47', '1.48', '1.50',      // domicilio
   '2.1', '2.2', '2.3', '2.4', '2.5', '2.6',                    // a quién avisar en una emergencia
-  '3.89', '3.90', '3.91', '3.93',                              // banco y cuenta
+  '3.89', '3.90', '3.90o', '3.91', '3.93',                     // banco y cuenta
 ]
 
 /* 2b · LOS ARCHIVOS, QUE SÓLO VIENEN SI LOS PIDEN. Los otros dos grupos se copian siempre; éste
@@ -140,37 +140,12 @@ const archivosDe = persona => {
 }
 
 /* ── DECIR QUÉ SE ESTÁ OFRECIENDO, QUE ES LO QUE FALTABA ──────────────────
-   Las tres preguntas de abajo pedían decidir a ciegas: «¿le damos los mismos permisos?» sin decir
-   cuáles tenía, «¿su antigüedad?» sin decir cuánta, «¿sus documentos?» sin decir si hay alguno.
-   Quien contesta no conoce a esta persona —por eso está buscándola en un directorio— así que la
-   única respuesta honesta a ciegas es «no», y entonces las tres preguntas sobran.
+   La pregunta de abajo pedía decidir a ciegas: «¿sus documentos?» sin decir si hay alguno. Quien
+   contesta no conoce a esta persona —por eso está buscándola en un directorio—, así que la
+   respuesta tiene que venir con lo que se ofrece a la vista.
 
-   Todo lo que hace falta para contestarlas ya estaba en el registro; sólo que no se enseñaba. */
-
-const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-
-/* Las fechas del directorio son texto para leer —«04 Mar 2019»— y no una fecha de máquina. Se
-   parsean acá y no se cambia el formato del dato: así se escriben en la tabla y así se entienden. */
-const aFecha = texto => {
-  const m = (texto || '').trim().match(/^(\d{1,2})\s+([A-Za-zÁ-ú]{3})\s+(\d{4})$/)
-  if (!m) return null
-  const mes = MESES_CORTOS.indexOf(m[2][0].toUpperCase() + m[2].slice(1).toLowerCase())
-  return mes < 0 ? null : new Date(Number(m[3]), mes, Number(m[1]))
-}
-
-/* CUÁNTO DURÓ, EN AÑOS Y MESES. En meses sueltos —«cincuenta y dos»— no se entiende de un
-   vistazo, y en años redondos se pierde justo lo que decide un bono de antigüedad. */
-function duracion(desde, hasta) {
-  const a = aFecha(desde); const b = aFecha(hasta)
-  if (!a || !b || b < a) return null
-  let meses = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth())
-  if (b.getDate() < a.getDate()) meses -= 1
-  const anios = Math.floor(meses / 12); const resto = meses % 12
-  const partes = []
-  if (anios) partes.push(anios === 1 ? '1 año' : `${anios} años`)
-  if (resto) partes.push(resto === 1 ? '1 mes' : `${resto} meses`)
-  return partes.join(' y ') || 'menos de un mes'
-}
+   ERAN TRES PREGUNTAS y quedó una. «Los mismos permisos que tenía» y «su antigüedad anterior» se
+   quitaron a pedido del equipo el 29 sep 2026: solo guardaban la respuesta, sin copiar nada. */
 
 /* 3 · LO QUE NO SE TRAE, y no hace falta escribirlo: es todo lo demás. Puesto, área, sede,
    jefe, tipo de contrato, fechas, haber, horario, accesos. Empieza de cero porque es del
@@ -240,32 +215,11 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
      una pregunta que ofrece algo que no existe es peor que no preguntar, porque quien contesta
      que sí se queda esperando algo que nunca llega. */
   const ofrece = useMemo(() => {
-    const ficha = traido?.ficha || {}
     const archivos = archivosDe(traido)
-
-    /* ── «LOS MISMOS PERMISOS QUE TENÍA» NO SE CONTESTA CON UN NOMBRE DE ROL ──
-       Decía «Colaborador» y nada más, y eso es la etiqueta del paquete, no lo que hay dentro:
-       quien contesta sigue sin saber a qué le está diciendo que sí. Un rol es un nombre que
-       cada empresa usa a su manera, y quien aprueba este reingreso puede no ser quien lo
-       configuró.
-
-       ASÍ QUE SE ENSEÑA LO QUE EL REGISTRO SEPA: el rol, los alcances habilitados (7.11), a qué
-       otras empresas del grupo llegaba (7.8) y si el ingreso quedó deshabilitado al salir (7.5).
-       Lo que no esté no se inventa ni deja un hueco: se cae de la frase, que es la misma regla
-       que ya siguen las otras dos preguntas. */
-    const permisos = [
-      ficha['7.6'] || traido?.rol,
-      ficha['7.11'],
-      ficha['7.8'] && 'acceso a ' + ficha['7.8'],
-      ficha['7.5'] === 'no' && 'con el ingreso al sistema deshabilitado',
-    ].filter(Boolean)
-
     return {
       archivos: archivos.length
         ? `${archivos.length} ${archivos.length === 1 ? 'archivo' : 'archivos'}: ${archivos.map(a => a.nombre).join(', ')}`
         : null,
-      permisos: permisos.length ? permisos.join(' · ') : null,
-      antiguedad: duracion(traido?.ingreso, traido?.salida),
     }
   }, [traido])
 
@@ -472,15 +426,13 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
             Se copiaron {copiados} datos suyos a esta ficha.
           </p>
 
-          {/* LAS TRES PREGUNTAS LLEGAN ACÁ Y NO ANTES. Preguntar si conservar la antigüedad de
-              alguien a quien todavía no elegiste es preguntar por nadie. Ahora tienen sujeto, y
-              por eso los rótulos pueden decir «sus» y «su» en vez de repetir el nombre. */}
+          {/* LA PREGUNTA LLEGA ACÁ Y NO ANTES. Preguntar por los documentos de alguien a quien
+              todavía no elegiste es preguntar por nadie. Ahora tiene sujeto, y por eso el rótulo
+              puede decir «sus» en vez de repetir el nombre. */}
           <p className="rg-sub">¿Qué más traemos de su registro anterior?</p>
 
           {[
             ['0.4', 'Sus documentos digitales', ofrece.archivos, 'No dejó ninguno subido'],
-            ['0.5', 'Los mismos permisos que tenía', ofrece.permisos, 'No consta qué rol tenía'],
-            ['0.6', 'Su antigüedad anterior', ofrece.antiguedad, 'No constan sus fechas'],
           ].map(([clave, texto, detalle, sinDatos]) => (
             <div key={clave} className={`rg-pregunta rg-pregunta-fina${detalle ? '' : ' rg-pregunta-vacia'}`}>
               {/* EL RÓTULO DICE QUÉ SE DECIDE Y LA LÍNEA DE ABAJO QUÉ SE LLEVA. Sin la segunda,

@@ -149,7 +149,7 @@ export default function ExpedientePrevia({ form, set, ctx, nivel, avance, progre
           es un botón que baja hasta su sección. */}
       <nav className="xp-lomo" aria-label="Secciones del expediente">
         {FAMILIAS.map(f => (
-          <div key={f.key} className="xp-lomo-fam" data-familia={f.key} style={{ flexGrow: f.pasos.length }}>
+          <div key={f.key} className="xp-lomo-fam" data-familia={f.key} style={{ flexGrow: f.pasos.filter(c => pasos.some(x => x.paso.key === c)).length }}>
             <p className="xp-lomo-nom">{f.nombre}</p>
             <div className="xp-lomo-tramos">
               {f.pasos.map(clave => {

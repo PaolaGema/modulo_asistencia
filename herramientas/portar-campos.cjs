@@ -332,6 +332,13 @@ const TARJETAS = {
     desc: 'Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este empleado.',
   },
   reingreso: { titulo: 'Reingreso o alta nueva' },
+  // La persona que respalda y lo que deja en respaldo (29 sep 2026).
+  garantes: { titulo: 'Datos de garantes y garantías' },
+  jefaturas: {
+    titulo: 'Dependencia organizacional y funcional',
+    desc: 'A quién responde en la estructura y quién le firma los permisos; y, aparte, quién le dirige parte del trabajo desde otra área. Quien manda no siempre es quien firma.',
+  },
+  discapacidad: { titulo: 'Datos de tutela y protecciones' },
 
   /* Era «Nombre» a secas, y prometía un dato cuando tiene tres: las cinco partes del nombre
      legal, el nombre completo que se calcula solo, y la fotografía.
@@ -366,7 +373,7 @@ const PASOS_CORTO = {
   quien: 'Personal',
   entorno: 'Familia',
   puesto: 'Puesto',
-  contrato: 'Contrato',
+  contrato: 'Relación',
   afiliaciones: 'Afiliación',
   remuneracion: 'Sueldo',
   asistencia: 'Asistencia',
@@ -400,6 +407,12 @@ const PASOS_TITULO = {
      LA MAYÚSCULA DE «PERSONAL» ES DELIBERADA y viene así del pedido. Rompe con los otros ocho,
      que llevan mayúscula sólo en la inicial. No es un descuido que corregir de paso. */
   quien: 'Información Personal',
+  // «Contrato» pasa a «Relación laboral» a pedido del equipo (29 sep 2026): el paso es más que el papel firmado.
+  contrato: 'Relación laboral',
+  // Suma «Autogestión» (29 sep 2026): el acceso que se configura acá es el del portal del colaborador.
+  sistema: 'Configuración del Colaborador / Autogestión',
+  // Sin «Información de» delante (29 sep 2026): el nombre corto dice lo mismo.
+  recursos: 'Recursos y activos',
 }
 
 /* ── DÓNDE CAE CADA CAMPO EN LA REJILLA ───────────────────────────────────
@@ -432,6 +445,27 @@ const PASOS_TITULO = {
    dejan fuera al portar, con su motivo, para que volver a generar la ficha no los traiga de
    vuelta y para que el día que se quieran de nuevo baste con sacar la línea. */
 const CAMPOS_RETIRADOS = {
+  '3.41': 'Motivo de retiro y su tarjeta «Salida»: retirados a pedido del equipo (29 sep 2026)',
+  '3.94': 'Sucursal de la cuenta bancaria: retirada a pedido del equipo (29 sep 2026)',
+  '3.96a': 'Paquete de beneficios asignado y su tarjeta «Datos de beneficios adicionales»: retirados a pedido del equipo (29 sep 2026)',
+  '3.96b': 'Beneficios individuales: se van con su tarjeta (29 sep 2026)',
+  '3.34': 'Clasificación laboral: retirada a pedido del equipo (29 sep 2026)',
+  /* Las otras fechas de ingreso, retiradas a pedido del equipo el 29 sep 2026: queda una sola. */
+  '3.26': 'Fecha de ingreso para vacaciones: retirada',
+  '3.27': 'Fecha de ingreso para antigüedad: retirada',
+  '3.28': 'Fecha de ingreso a la Caja de Salud: era la misma fecha de ingreso',
+  '3.14': 'Cargo del supervisor: se ve dentro del selector del supervisor, con su foto (29 sep 2026)',
+  /* «Imputación contable» entera, retirada a pedido del equipo el 29 sep 2026. */
+  '3.17': 'Centro de costo: la tarjeta de imputación contable se retiró',
+  '3.18': 'Proyecto asignado: la tarjeta de imputación contable se retiró',
+  '3.19': 'Cliente asignado: la tarjeta de imputación contable se retiró',
+  '1.62c': '¿Quién? (tutela): la otra persona se escribe dentro de la lista, en su fila (29 sep 2026)',
+  /* «¿Es beneficiario del seguro?» del cónyuge y de cada hijo, retirados a pedido del equipo el 29 sep 2026. */
+  '2.17': '¿Es beneficiario del seguro? (cónyuge): retirado a pedido del equipo',
+  '2.28': '¿Es beneficiario del seguro? (hijos): retirado a pedido del equipo',
+  /* «Datos de los padres» entera, retirada a pedido del equipo el 29 sep 2026: no se usaba. */
+  '2.47': 'Nombre del padre: la tarjeta de los padres se retiró',
+  '2.48': 'Nombre de la madre: la tarjeta de los padres se retiró',
   /* La moneda del haber básico. Por el momento todo se entiende en bolivianos: preguntarla en
      cada alta era pedir un dato que siempre tiene la misma respuesta. Retirado el 28 sep 2026.
      La moneda de la CUENTA bancaria (3.93) se queda: esa sí puede ser otra. */
@@ -458,12 +492,53 @@ const CAMPOS_RETIRADOS = {
      el Salar la boleta se disparaba al aprobar la planilla, antes del comunicado de RR.HH., así
      que el momento de publicación de la boleta sigue siendo un tema para Planillas. */
   '3.82': '¿Enviar boleta por correo?: retirado a pedido del equipo',
+  /* Dos preguntas del reingreso, retiradas a pedido del equipo el 29 sep 2026. Solo guardaban la
+     respuesta: contestar que sí no copiaba ningún permiso ni ninguna antigüedad. */
+  '0.5': '¿Asignar los mismos permisos anteriores?: retirado a pedido del equipo',
+  '0.6': '¿Conservar antigüedad anterior?: retirado a pedido del equipo',
 }
 
 /* ── CAMPOS NUEVOS ───────────────────────────────────────────────────────
    Campos que el estudio no tiene y la ficha sí, definidos por el equipo. Cada lista se inserta
    justo después del campo cuya clave la nombra. */
 const CAMPOS_NUEVOS = {
+  /* El cónyuge del garante casado: nombre y documento (29 sep 2026). */
+  '2.44': [
+    { key: '2.44a', label: 'Nombre completo del cónyuge', col: 'c-tercio', insignia: 'legal', nivel: 'Operativo', nota: 'Con el garante casado, la garantía es compartida: su cónyuge también responde.', traza: '↳ 2.44. Alimenta: GP.' },
+    { key: '2.44b', label: 'Número de documento de identidad del cónyuge', col: 'c-tercio', insignia: 'legal', nivel: 'Operativo', traza: '↳ 2.44. Alimenta: GP.' },
+  ],
+  /* El garante y su garantía (29 sep 2026): el escaneo del documento del garante, y los datos de la garantía. */
+  '2.40b': [
+    { key: '2.40e', label: 'Documento de identidad del garante (anverso + reverso)', tipo: 'archivo', acepta: 'application/pdf,image/*', pista: 'PDF o imagen · arrastrar o hacer clic', col: 'c-tercio c-escaneo', insignia: 'legal', nivel: 'Operativo', nota: 'Un solo archivo con las dos caras, como el del colaborador.', traza: '↳ 2.40. Alimenta: GP.' },
+  ],
+  '2.45': [
+    { key: '2.45o', label: '¿Qué garantía?', ph: 'Joyas, maquinaria, pagaré…', col: 'c-tercio', nivel: 'Operativo', nota: 'Sólo aparece al elegir «Otro».', traza: '↳ 2.45. Alimenta: GP.' },
+    { key: '2.45d', label: 'Descripción de la garantía', ph: 'Casa en calle Sucre 245, Santa Cruz', col: 'c-tercio', nivel: 'Operativo', nota: 'Qué es exactamente, como para reconocerla en el documento.', traza: '↳ 2.45. Alimenta: GP.' },
+    { key: '2.45n', label: 'Número de registro', ph: 'Folio real, placa, n.º de certificado…', col: 'c-tercio', nivel: 'Operativo', nota: 'El número con el que se la identifica: folio real de un inmueble, placa de un vehículo, número del certificado.', traza: '↳ 2.45. Alimenta: GP.' },
+    { key: '2.45v', label: 'Valor de la garantía (Bs)', numero: true, col: 'c-tercio', nivel: 'Operativo', nota: 'El valor declarado o de avalúo, en bolivianos.', traza: '↳ 2.45. Alimenta: GP.' },
+  ],
+  // «Otro» en el tipo de cuenta abre «¿Qué tipo de cuenta?» (29 sep 2026).
+  '3.90': [
+    { key: '3.90o', label: '¿Qué tipo de cuenta?', ph: 'Cuenta sueldo, cuenta en dólares, cuenta digital…', col: 'c-tercio', nivel: 'Operativo', nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que el banco llama a la cuenta.', traza: '↳ 3.90. Alimenta: PL.' },
+  ],
+  /* «¿Qué documento?» al elegir «Otro» en el documento de cónyuge, hijos, beneficiarios y garante (29 sep 2026). */
+  '2.10': [
+    { key: '2.10o', label: '¿Qué documento?', ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…', col: 'c-tercio', nivel: 'Operativo', nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.', traza: '↳ 2.10. Alimenta: GP.' },
+  ],
+  '2.21': [
+    { key: '2.21o', repite: 'hijos', label: '¿Qué documento?', ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…', col: 'c-tercio', nivel: 'Completo', nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.', traza: '↳ 2.21. Alimenta: GP.' },
+  ],
+  '2.33': [
+    { key: '2.33o', repite: 'herederos', label: '¿Qué documento?', ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…', col: 'c-tercio', insignia: 'legal', nivel: 'Operativo', nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.', traza: '↳ 2.33. Alimenta: GP.' },
+  ],
+  '2.40': [
+    { key: '2.40o', label: '¿Qué documento?', ph: 'Certificado de nacimiento, RUN, libreta de servicio militar…', col: 'c-tercio', insignia: 'legal', nivel: 'Operativo', nota: 'Sólo aparece al elegir «Otro». Va el nombre con el que lo emite el país.', traza: '↳ 2.40. Alimenta: GP.' },
+  ],
+  /* El tipo y el grado de discapacidad de cada hijo, con el catálogo de 1.61 (29 sep 2026). */
+  '2.29': [
+    { key: '2.29a', repite: 'hijos', label: 'Tipo de discapacidad', tipo: 'lista', opciones: ['Física o motora', 'Visual', 'Auditiva', 'Intelectual', 'Mental o psíquica', 'Múltiple'], col: 'c-tercio', nivel: 'Operativo', nota: 'El que figura en su carnet de discapacidad. Los seis tipos de la Ley 223.', traza: '↳ 2.29. Alimenta: GP, PL.' },
+    { key: '2.29b', repite: 'hijos', label: 'Grado de discapacidad', tipo: 'lista', opciones: ['Leve', 'Moderada', 'Grave', 'Muy grave'], col: 'c-tercio', nivel: 'Operativo', nota: 'El que figura en su carnet de discapacidad. Los cuatro grados de la Ley 223.', traza: '↳ 2.29. Alimenta: GP, PL.' },
+  ],
   /* Con referencia laboral disponible, a quién llamar: nombre, cargo y teléfono (28 sep 2026). */
   'pf.20': [
     { key: 'pf.20a', repite: 'experiencia', label: 'Nombre de la referencia', col: 'c-tercio', nivel: 'Completo', ph: 'Quién da la referencia' },
@@ -472,7 +547,7 @@ const CAMPOS_NUEVOS = {
   ],
   // El encabezado del bloque de supervisión funcional: lleva el número de cada copia y su papelera.
   '3.14': [
-    { key: '3.rotSupFun', label: 'Supervisión funcional', singular: 'Supervisor funcional', repite: 'supfun', tipo: 'rotulo', col: 'c-todo' },
+    { key: '3.rotSupFun', label: 'Dependencia funcional', singular: 'Supervisor funcional', repite: 'supfun', tipo: 'rotulo', col: 'c-todo' },
   ],
   '3.15': [
     { key: '3.15u', repite: 'supfun', label: '¿En qué unidad lo supervisa?', col: 'c-medio', nivel: 'Operativo',
@@ -502,7 +577,125 @@ const CAMPOS_NUEVOS = {
 /* ── CAMPOS AJUSTADOS ────────────────────────────────────────────────────
    Campos que se quedan, pero con catálogo, ayuda o traza definidos por el equipo en vez de los
    del estudio. Se aplican al final, encima de lo que el estudio diga. */
+const NACIONALIDADES = [
+    'Afgana', 'Albanesa', 'Alemana', 'Andorrana', 'Angoleña', 'Antiguana', 'Argelina', 'Argentina',
+    'Armenia', 'Australiana', 'Austriaca', 'Azerbaiyana', 'Bahameña', 'Bangladesí', 'Barbadense',
+    'Bareiní', 'Belga', 'Beliceña', 'Beninesa', 'Bielorrusa', 'Birmana', 'Bisauguineana',
+    'Boliviana', 'Bosnia', 'Botsuana', 'Brasileña', 'Británica', 'Bruneana', 'Búlgara', 'Burkinesa',
+    'Burundesa', 'Butanesa', 'Caboverdiana', 'Camboyana', 'Camerunesa', 'Canadiense', 'Catarí',
+    'Centroafricana', 'Chadiana', 'Checa', 'Chilena', 'China', 'Chipriota', 'Colombiana',
+    'Comorense', 'Congoleña', 'Costarricense', 'Croata', 'Cubana', 'Danesa', 'Dominicana',
+    'Dominiquesa', 'Ecuatoguineana', 'Ecuatoriana', 'Egipcia', 'Emiratí', 'Eritrea', 'Eslovaca',
+    'Eslovena', 'Española', 'Esrilanquesa', 'Estadounidense', 'Estonia', 'Esuatiní', 'Etíope',
+    'Filipina', 'Finlandesa', 'Fiyiana', 'Francesa', 'Gabonesa', 'Gambiana', 'Georgiana', 'Ghanesa',
+    'Granadina', 'Griega', 'Guatemalteca', 'Guineana', 'Guyanesa', 'Haitiana', 'Hondureña',
+    'Húngara', 'India', 'Indonesia', 'Iraní', 'Iraquí', 'Irlandesa', 'Islandesa', 'Israelí',
+    'Italiana', 'Jamaicana', 'Japonesa', 'Jordana', 'Kazaja', 'Keniana', 'Kirguisa', 'Kiribatiana',
+    'Kuwaití', 'Laosiana', 'Lesotense', 'Letona', 'Libanesa', 'Liberiana', 'Libia',
+    'Liechtensteiniana', 'Lituana', 'Luxemburguesa', 'Macedonia', 'Malasia', 'Malauí', 'Maldiva',
+    'Malgache', 'Maliense', 'Maltesa', 'Marfileña', 'Marroquí', 'Marshalesa', 'Mauriciana',
+    'Mauritana', 'Mexicana', 'Micronesia', 'Moldava', 'Monegasca', 'Mongola', 'Montenegrina',
+    'Mozambiqueña', 'Namibia', 'Nauruana', 'Neerlandesa', 'Neozelandesa', 'Nepalí', 'Nicaragüense',
+    'Nigeriana', 'Nigerina', 'Norcoreana', 'Noruega', 'Omaní', 'Pakistaní', 'Palauana', 'Palestina',
+    'Panameña', 'Papú', 'Paraguaya', 'Peruana', 'Polaca', 'Portuguesa', 'Ruandesa', 'Rumana', 'Rusa',
+    'Salomonense', 'Salvadoreña', 'Samoana', 'Sancristobaleña', 'Sanmarinense', 'Santalucense',
+    'Santotomense', 'Sanvicentina', 'Saudí', 'Senegalesa', 'Serbia', 'Seychellense', 'Sierraleonesa',
+    'Singapurense', 'Siria', 'Somalí', 'Sudafricana', 'Sudanesa', 'Sueca', 'Suiza', 'Surcoreana',
+    'Surinamesa', 'Sursudanesa', 'Tailandesa', 'Tanzana', 'Tayika', 'Timorense', 'Togolesa',
+    'Tongana', 'Trinitense', 'Tunecina', 'Turca', 'Turkmena', 'Tuvaluana', 'Ucraniana', 'Ugandesa',
+    'Uruguaya', 'Uzbeka', 'Vanuatuense', 'Vaticana', 'Venezolana', 'Vietnamita', 'Yemení',
+    'Yibutiana', 'Zambiana', 'Zimbabuense'
+]
+
 const CAMPOS_AJUSTADOS = {
+  // El tipo de cuenta suma «Otro», que abre 3.90o (29 sep 2026).
+  '3.90': { opciones: ['Caja de ahorro', 'Cuenta corriente', 'Otro'], nota: 'Caja de ahorro · Cuenta corriente · Otro.' },
+  // Todos los bancos supervisados por la ASFI; Fassil sale, intervenido en 2023 (29 sep 2026).
+  '3.89': { opciones: ['Banco Nacional de Bolivia', 'Banco Mercantil Santa Cruz', 'Banco BISA', 'Banco de Crédito de Bolivia', 'Banco Unión', 'Banco Económico', 'Banco Ganadero', 'Banco Solidario (BancoSol)', 'Banco FIE', 'Banco Prodem', 'Banco Fortaleza', 'Banco PYME Ecofuturo', 'Banco PYME de la Comunidad', 'Banco de la Nación Argentina', 'Otro'] },
+  // La sucursal de la Caja se elige entre los nueve departamentos, no entre tres (29 sep 2026).
+  '3.52': { opciones: ['La Paz', 'Santa Cruz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Chuquisaca', 'Beni', 'Pando'] },
+  // «Estado de la afiliación» pasa a llamarse «Administradora», a pedido del equipo (29 sep 2026).
+  '3.44': { label: 'Administradora' },
+  // Las fechas de ingreso dicen que son fechas (29 sep 2026).
+  '3.25': { label: 'Fecha de ingreso legal' },
+  // El cargo con buscador siempre, aunque haya pocos (29 sep 2026).
+  '3.11': { buscador: true },
+  /* «Categoría del puesto (Obrero / Administrativo)» pasa a «Tipo de trabajador» (29 sep 2026): así
+     lo dice la Ley General del Trabajo, y no se confunde con la clasificación laboral (3.34). */
+  '3.12': { label: 'Tipo de trabajador', col: 'c-tercio' },
+  // Al lado del cargo, ahora que el rótulo es corto: un tercio y no media fila.
+  '3.42b': { col: 'c-tercio' },
+  /* «¿De quién es tutor?» pasa a lista agrupada con casillas (29 sep 2026): la dibuja ListaTutela. */
+  '1.62': { detalle: undefined },
+  '1.62b': { label: '¿De quién es tutor?', tipo: 'tutela', opciones: undefined, col: 'c-todo', nota: 'Marque a la persona o personas: se ofrecen los hijos, el cónyuge y los contactos de emergencia que ya están en la ficha. Si es alguien que no está, regístrelo con «Otra persona».' },
+  /* El detalle de las cuatro preguntas médicas dice qué se describe, en vez de «¿Cuál o cuáles?» (29 sep 2026). */
+  '1.56b': { label: 'Descripción de la alergia' },
+  '1.58b': { label: 'Descripción de la medicación' },
+  '1.57b': { label: 'Descripción de la condición' },
+  '1.59b': { label: 'Descripción de la recomendación' },
+  /* El tipo de garantía pasa a lista con «Otro» y su caja (29 sep 2026). */
+  '2.45': { tipo: 'lista', opciones: ['Inmueble', 'Vehículo', 'Salario fijo', 'Certificado de depósito', 'Aval de asociación', 'Otro'], insignia: 'legal', nota: 'Las que el estudio nombraba: inmueble, vehículo, salario fijo, certificado y asociación. Si es otra, «Otro» abre una caja para escribirla.' },
+  /* En los bloques de la familia no hay un título «Documento de identidad» que lo diga: el rótulo lo dice (29 sep 2026). */
+  '2.10': { label: 'Tipo de documento de identidad' },
+  '2.10b': { label: 'Número de documento de identidad' },
+  '2.21': { label: 'Tipo de documento de identidad' },
+  '2.21b': { label: 'Número de documento de identidad' },
+  '2.33': { label: 'Tipo de documento de identidad' },
+  '2.33b': { label: 'Número de documento de identidad' },
+  '2.40': { label: 'Tipo de documento de identidad' },
+  '2.40b': { label: 'Número de documento de identidad' },
+  /* El sexo de cada hijo pasa a selector, con las mismas opciones que el del colaborador (29 sep 2026). */
+  '2.23': { tipo: 'lista', opciones: ['F · Femenino', 'M · Masculino'] },
+  /* El parentesco del contacto de emergencia se cierra a los familiares directos (29 sep 2026), a
+     pedido del equipo: salen tío, primo, amigo, vecino y «Otro». */
+  '2.32': {
+    opciones: ['Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)', 'Abuelo(a)'],
+    nota: 'El familiar que se declara como beneficiario o heredero.',
+  },
+  '2.2': {
+    opciones: ['Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)', 'Abuelo(a)'],
+    nota: 'El familiar a quien avisar en una emergencia.',
+  },
+  /* Tipos de licencia o certificación (29 sep 2026), a pedido del equipo: se suman los certificados
+     de No Violencia y de antecedentes penales, y lo que es licencia lo dice delante. */
+  /* La categoría de la licencia pasa a lista con las categorías de Bolivia (29 sep 2026). Solo se
+     pregunta con licencia de conducir, y con otro país emisor vuelve a texto (fichaColaborador.js). */
+  '1.74': {
+    tipo: 'lista',
+    opciones: ['P · Particular', 'A · Profesional', 'B · Profesional', 'C · Profesional', 'M · Motocicleta', 'T · Maquinaria y equipo pesado'],
+    nota: 'Solo para la licencia de conducir. Son las categorías de Bolivia; si la licencia es de otro país, se escribe tal como figura en ella.',
+  },
+  '1.72': {
+    opciones: ['Licencia de conducir', 'Licencia de operador de maquinaria', 'Manipulación de alimentos (carnet de sanidad)', 'Certificación de seguridad industrial', 'Certificado de No Violencia', 'Certificado de antecedentes penales', 'Otro'],
+  },
+  /* «Celular personal» pasa a «Número de celular» (29 sep 2026), a pedido del equipo, con el
+     selector de código de país dentro de la misma caja. */
+  '1.36': { label: 'Número de celular', telefono: true },
+  /* El teléfono principal del contacto de emergencia pasa a celular con código de país (29 sep 2026). */
+  '2.3': { label: 'Número de celular', telefono: true },
+  /* Y el celular del cónyuge y el del garante, con el mismo selector (29 sep 2026). */
+  '2.15': { telefono: true },
+  '2.41': { telefono: true },
+  /* «Dirección · Ciudad · País» del contacto de emergencia pasa a «Dirección de domicilio» (29 sep 2026). */
+  '2.6': { label: 'Dirección de domicilio' },
+  /* «Nombres y apellidos (estructurado)» del cónyuge pasa a «Nombre completo» (29 sep 2026). */
+  '2.9': { label: 'Nombre completo' },
+  /* LAS NACIONALIDADES SE NOMBRAN POR SU GENTILICIO (29 sep 2026): «Chilena», no «Chile» —el país
+     es otro dato, el de nacimiento—, en femenino porque concuerda con «nacionalidad». Todos los
+     países y sin «Otro». La nacionalidad solo se pregunta si 1.24 = No (condición en
+     fichaColaborador.js), y la segunda pasa de texto libre a selector sin repetir la primera. */
+  '1.25': {
+    opciones: NACIONALIDADES,
+    nota: 'Solo se pregunta si la respuesta de al lado es No: si es de nacionalidad boliviana, ya está dicho. Elija la nacionalidad, no el país.',
+  },
+  /* La nacionalidad del cónyuge y la de cada hijo, con el mismo catálogo de gentilicios (29 sep 2026). */
+  '2.12': { opciones: NACIONALIDADES, nota: 'La misma lista de nacionalidades que la del colaborador: se elige la nacionalidad, no el país.' },
+  '2.24': { opciones: NACIONALIDADES, nota: 'La misma lista de nacionalidades que la del colaborador: se elige la nacionalidad, no el país.' },
+  '1.26': {
+    tipo: 'lista',
+    opciones: NACIONALIDADES,
+    nota: 'Solo si tiene otra nacionalidad además de la principal. No se ofrece la que ya figura como nacionalidad.',
+  },
   /* El supervisor funcional pasa a ser repetible (28 sep 2026): puede haber varios, cada uno con la
      unidad donde supervisa. Lo había pedido el propio estudio —obs. #26, «anotar más de una
      persona»—. Sus dos compañeros de bloque van en CAMPOS_NUEVOS. */
@@ -524,11 +717,11 @@ const CAMPOS_AJUSTADOS = {
   },
   '3.77': {
     label: '¿Aguinaldo y prima desde el primer mes?', tipo: 'siNo', deducido: undefined, insignia: undefined, col: 'c-tercio',
-    nota: 'El obrero de producción tiene derecho al aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. Sale de la categoría del puesto, en Información laboral.',
-    traza: 'Alimenta: PL. Sale de: Categoría del puesto (3.12), Obrero / Administrativo.',
+    nota: 'El obrero de producción tiene derecho al aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. Sale del tipo de trabajador, en Información laboral.',
+    traza: 'Alimenta: PL. Sale de: Tipo de trabajador (3.12), Obrero / Administrativo.',
   },
   '3.78': {
-    label: '¿Aplica retroactivo? (y retroactivo de antigüedad)', col: 'c-tercio',
+    label: '¿Aplica retroactivo? (retroactivo de antigüedad)', col: 'c-tercio',
     nota: 'Por ley siempre se aplica: cuando el decreto anual rige antes de publicarse, se paga la diferencia del nuevo salario mínimo o del incremento al haber. El bono de antigüedad se arrastra solo. No aplicarlo bloquea las declaraciones ante el Ministerio y la Gestora, y genera multa.',
     traza: 'Alimenta: PL. Valor por defecto: Sí.',
   },
@@ -607,8 +800,6 @@ const COLUMNAS = {
   '0.2': 'c-tercio',
   '0.3': 'c-tercio',
   '0.4': 'c-tercio',
-  '0.5': 'c-tercio',
-  '0.6': 'c-tercio',
 }
 
 /* ── EN QUÉ ORDEN SE PREGUNTA DENTRO DE UNA TARJETA ───────────────────────

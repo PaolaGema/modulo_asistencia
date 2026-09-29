@@ -30,7 +30,7 @@ const GENERICO = { mayor: 'Región o estado', menor: null, local: 'Ciudad' }
 
 export const NIVELES_PAIS = {
   Bolivia:     { mayor: 'Departamento',        menor: 'Provincia',             local: 'Municipio / Ciudad' },
-  Argentina:   { mayor: 'Provincia',           menor: 'Departamento / Partido', local: 'Localidad' },
+  Argentina:   { mayor: 'Provincia',           menor: 'Departamento',          local: 'Localidad' },
   Brasil:      { mayor: 'Estado',              menor: null,                    local: 'Municipio' },
   Chile:       { mayor: 'Región',              menor: 'Provincia',             local: 'Comuna' },
   Colombia:    { mayor: 'Departamento',        menor: null,                    local: 'Municipio' },
@@ -46,7 +46,23 @@ export const NIVELES_PAIS = {
 /* SIN PAÍS ELEGIDO SE DEVUELVE EL GENÉRICO Y NO NADA. La tarjeta tiene que poder dibujarse desde
    el primer render, antes de que nadie conteste: un rótulo vacío es una pantalla rota, y «Región
    o estado» es verdad en cualquier sitio mientras no se sepa dónde. */
-export const nivelesDe = pais => NIVELES_PAIS[pais] || GENERICO
+export const nivelesDe = (pais, mayor) => {
+  const niveles = NIVELES_PAIS[pais] || GENERICO
+  return pais === 'Argentina' ? { ...niveles, menor: menorArgentino(mayor) } : niveles
+}
+
+/* EN ARGENTINA EL ESCALÓN DE EN MEDIO DEPENDE DE LA PROVINCIA. Casi todas se dividen en
+   departamentos; la de Buenos Aires, en partidos, y la Ciudad de Buenos Aires, en comunas.
+   «Departamento / Partido» obligaba a adivinar cuál tocaba. La provincia es texto libre, así que
+   se compara sin tildes ni mayúsculas; sin provincia escrita se dice «Departamento», que es lo de
+   la mayoría. */
+const sinTildes = t => (t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+const menorArgentino = provincia => {
+  const p = sinTildes(provincia)
+  if (/^(caba|capital federal|ciudad (autonoma )?de buenos aires)$/.test(p)) return 'Comuna'
+  if (/^(provincia de )?buenos aires$/.test(p)) return 'Partido'
+  return 'Departamento'
+}
 
 /* Sólo Bolivia trae catálogo por ahora —los departamentos en el propio campo del estudio, las
    provincias en `divisionPolitica`—. Preguntarlo así y no por el nombre del país deja el sitio

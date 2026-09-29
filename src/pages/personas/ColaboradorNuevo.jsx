@@ -4,18 +4,19 @@ import { AlertTriangle, ArrowLeft, ArrowRight, Check, LogOut, UserPlus, Users } 
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { useUser } from '../../context/UserContext'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
-import { ocupanteDe, TIPOS_CARGO } from '../../data/organigramaData'
+import { ocupanteDe, TIPOS_CARGO, nivelesDe as nivelesDeMando } from '../../data/organigramaData'
 import { descendientes, filasEje, lineaDe } from '../../data/estructuraData'
 import { esVigente } from './colaboradoresData'
 import {
-  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, documentoDe, faltaParaCrear, faltasParaCrear,
-  fechaCorta, inicialesDe, nombreDe, progresoDe, progresoPorPaso, tarjetasDe, tarjetasTodas,
+  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, alDia, documentoDe, faltaParaCrear, faltasParaCrear,
+  consecuenciasDe, fechaCorta, inicialesDe, nombreDe, progresoDe, progresoPorPaso, tarjetasDe, tarjetasTodas,
 } from '../../data/fichaColaborador'
 import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
 import RielPasos from '../../components/personas/RielPasos'
 import Acordeon from '../../components/personas/Acordeon'
 import TarjetaReingreso from '../../components/personas/TarjetaReingreso'
 import ExpedientePrevia from '../../components/personas/ExpedientePrevia'
+import ConfirmarAlta from '../../components/personas/ConfirmarAlta'
 
 /* DAR DE ALTA A UNA PERSONA, EN SU PROPIA PANTALLA.
    «Nuevo colaborador» era un botón que no hacía nada, y lo que tiene que hacer no cabe en un
@@ -75,8 +76,11 @@ export default function ColaboradorNuevo() {
      estaba bien. Volverá a pasar con el siguiente campo que se añada.
 
      La mezcla sólo rellena AUSENCIAS: cualquier clave que el borrador tenga —aunque esté vacía—
-     gana. Nada de lo que alguien escribió se pisa. */
-  const form = useMemo(() => ({ ...EN_BLANCO, ...guardado }), [guardado])
+     gana. Nada de lo que alguien escribió se pisa.
+
+     Y `alDia` trae lo que se guardó con claves que ya no existen —el segundo contacto de
+     emergencia de antes del grupo— a donde hoy se lee. */
+  const form = useMemo(() => alDia({ ...EN_BLANCO, ...guardado }), [guardado])
   const [params, setParams] = useSearchParams()
 
   /* El paso sale de la dirección y se sanea: `?paso=cualquier-cosa` —escrito a mano o de un
@@ -92,7 +96,10 @@ export default function ColaboradorNuevo() {
 
      Se hace acá, en el único sitio por donde pasan todas las escrituras de la ficha, y no en
      cada campo: puesto en el campo habría que acordarse en los 254. */
-  const set = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
+  /* Algunas respuestas corrigen otro dato en el mismo gesto —decir que no es boliviana vacía una
+     nacionalidad «Bolivia»—. Esas consecuencias viven en `consecuenciasDe`, junto a las demás
+     reglas de la ficha, y no repartidas por la pantalla. */
+  const set = (k, v) => setForm(prev => ({ ...prev, [k]: v, ...consecuenciasDe(k, v, prev) }))
 
   /* VARIAS CLAVES DE UNA VEZ, para lo que no es escribir en un campo. Hoy lo usa una sola cosa
      —quitar un hijo del medio, que hace subir un lugar a todos los de abajo— y con `set` en
@@ -228,6 +235,9 @@ export default function ColaboradorNuevo() {
           ? nombreDeId(jefeId)
           : jefeCargo ? `${jefeCargo.nombre} · puesto vacante` : 'Nadie: es la punta del organigrama',
         clase: TIPOS_CARGO.find(t => t.key === (c.tipo || 'colaborador'))?.label || '',
+        /* EL NIVEL DE MANDO DEL CARGO, con el nombre que le puso la empresa en Organización. Es
+           del cargo y no de la persona: la ficha lo enseña, no lo pregunta (3.11n). */
+        mando: nivelesDeMando(organigrama || undefined).find(n => n.id === c.grado)?.nombre || '',
         /* SU UNIDAD Y TODAS LAS DE ENCIMA. Elegir «Comercial» tiene que ofrecer también los
            cargos de «Ventas» y «Preventa», que están dentro: quien contrata piensa en el área
            grande y el cargo vive tres escalones abajo. Por eso es la rama entera y no el padre. */
@@ -294,8 +304,15 @@ export default function ColaboradorNuevo() {
          puede ser ninguna de esas cosas. Sigue en el directorio porque es historia y porque
          hace falta para reconocer un reingreso, no para volver a asignarle nada. */
       personas: colaboradores.filter(esVigente).map(c => c.name).sort((a, b) => a.localeCompare(b)),
+      /* Y DE CADA UNA, LO QUE SE ENSEÑA AL ELEGIRLA: su cargo y su área. Es lo que llena «Cargo
+         del supervisor» (3.14) en cuanto se elige al supervisor inmediato. */
+      datosDePersona: Object.fromEntries(colaboradores.filter(esVigente).map(c => [c.name, {
+        cargo: c.cargo || '', area: c.depto || '', foto: c.foto, initials: c.initials, color: c.color,
+      }])),
       // Quién registra la ficha, para «Historial y auditoría».
       usuario: currentUser?.name || '',
+      // El organigrama tal cual, para la dependencia funcional: unidades y cargos, con sus ids.
+      org: organigrama || { unidades: [], cargos: [] },
     }
   }, [organigrama, nodos, sucursales, colaboradores, empresa, empresasGrupo, currentUser])
 
@@ -372,7 +389,13 @@ export default function ColaboradorNuevo() {
        sin una palabra, y se leía como que el botón había fallado o había sacado de la vista
        previa sin motivo. Ahora un aviso lista todo lo que falta y cada fila lleva a su campo. */
     if (falta) { setAvisoAlta(true); return }
+    /* Y SI NO FALTA NADA, SE CONFIRMA. Es lo único de la ficha que no se deshace con otro clic:
+       el diálogo enseña a quién se da de alta y recién su «Sí» llama a `darDeAlta`. */
+    setConfirmaAlta(true)
+  }
 
+  function darDeAlta() {
+    setConfirmaAlta(false)
     const id = Math.max(0, ...colaboradores.map(c => c.id || 0)) + 1
     /* Las claves son los ids del estudio: 3.11 es «Cargo actual», 3.22 el correo corporativo,
        3.25 la fecha de ingreso legal, 7.6 el rol en el sistema. Se leen raro y valen la pena:
@@ -446,6 +469,7 @@ export default function ColaboradorNuevo() {
      dónde estaba «Fecha de ingreso». Se abre la sección que lo contiene, se baja hasta él, se le
      pone el cursor y se lo resalta un momento para que el ojo lo encuentre. */
   const [avisoAlta, setAvisoAlta] = useState(false)
+  const [confirmaAlta, setConfirmaAlta] = useState(false)
   const [enfocar, setEnfocar] = useState(null)
   const irAlCampo = f => {
     setAvisoAlta(false)
@@ -615,6 +639,14 @@ export default function ColaboradorNuevo() {
   return (
     <div className="content-scroll" ref={raiz}>
       {avisoDeAlta}
+      {confirmaAlta && !falta && (
+        <ConfirmarAlta
+          form={form}
+          puesto={puestos.find(p => p.valor === form['3.11']) || null}
+          onConfirmar={darDeAlta}
+          onCancelar={() => setConfirmaAlta(false)}
+        />
+      )}
       {/* ── LA CABECERA ──
           UNA LÍNEA Y NADA MÁS. Acá hubo, por orden: un «← Colaboradores» con un <h1> debajo y
           un párrafo de veinticinco palabras; después una tarjeta de identidad con foto, nombre,

@@ -16,6 +16,7 @@ import SeguimientoPhone from './SeguimientoPhone'
 import AcompanadosPhone from './AcompanadosPhone'
 import OnboardingHubPhone from './OnboardingHubPhone'
 import BarraVolver from './BarraVolver'
+import RedDeSeguridad from './RedDeSeguridad'
 
 // Destinos que cuelgan de la pestaña Onboarding.
 const SUB_ONBOARDING = ['mi-onboarding', 'seguimiento', 'acompanados']
@@ -542,7 +543,7 @@ export default function Layout() {
         <div className="flex flex-1 overflow-hidden">
           <div className="app-modulos"><ModuleNav /></div>
           <main className="flex-1 overflow-y-auto" style={{ padding: '1.25rem 1rem', background: 'var(--bg-app)' }}>
-            <Outlet />
+            <RedDeSeguridad ruta={location.pathname}><Outlet /></RedDeSeguridad>
           </main>
         </div>
       </div>

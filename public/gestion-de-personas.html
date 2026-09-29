@@ -925,7 +925,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </figure>
     </div>
     <dl class="ficha">
-      <div><dt>Versión</dt><dd>1.8</dd></div>
+      <div><dt>Versión</dt><dd>1.73</dd></div>
       <div><dt>Fecha</dt><dd>28 de septiembre de 2026</dd></div>
       <div><dt>Autoría</dt><dd>Paola Gema — Diseñadora UX</dd></div>
       <div><dt>Revisa y aprueba</dt><dd>Por definir</dd></div>
@@ -937,8 +937,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="cifras-w">
   <div class="cifras">
     <div><b>11</b><span>pasos en la ficha de alta</span></div>
-    <div><b>324</b><span>datos distintos en la ficha</span></div>
-    <div><b>34</b><span>datos del mínimo legal</span></div>
+    <div><b>322</b><span>datos distintos en la ficha</span></div>
+    <div><b>32</b><span>datos del mínimo legal</span></div>
     <div><b>3</b><span>datos que impiden el alta</span></div>
     <div><b>33</b><span>reglas de negocio</span></div>
     <div><b>49</b><span>requisitos funcionales</span></div>
@@ -1219,7 +1219,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 
         <tr><th colspan="2">Cómo se mide la ficha</th></tr>
         <tr><td><strong>Nivel de ficha</strong></td><td>Cuánto de la ficha se está mirando. Son tres, y cada uno contiene al anterior: <b>Mínimo legal</b>, <b>Operativo</b> y <b>Completo</b>. Recorta la vista; nunca borra un dato</td></tr>
-        <tr><td><strong>Mínimo legal</strong></td><td>Los 34 datos que alguna entidad exige para declarar a la persona. Sin ellos, el alta existe en el sistema y no existe para el Ministerio</td></tr>
+        <tr><td><strong>Mínimo legal</strong></td><td>Los 32 datos que alguna entidad exige para declarar a la persona. Sin ellos, el alta existe en el sistema y no existe para el Ministerio</td></tr>
         <tr><td><strong>Bloqueo</strong></td><td>Un dato sin el cual no se puede dar de alta. Son tres y solo tres: primer nombre, apellido paterno y fecha de ingreso</td></tr>
         <tr><td><strong>Insignia <em>legal</em></strong></td><td>La marca junto al rótulo de un dato que exige una entidad. No es una preferencia de la empresa: es una obligación</td></tr>
         <tr><td><strong>Dato calculado</strong></td><td>Un dato que no se escribe: el sistema lo deduce de otros —el nombre completo, el fin del periodo de prueba, quién registró la ficha—</td></tr>
@@ -1253,21 +1253,21 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Paso</th><th>Qué reúne</th><th>Mínimo legal</th></tr></thead>
       <tbody>
-        <tr><td class="id">1</td><td><strong>Información Personal</strong></td><td>Nombre legal, documento, nacimiento y contacto. Empieza por la pregunta del reingreso</td><td>19</td></tr>
-        <tr><td class="id">2</td><td><strong>Información Familiar</strong></td><td>Contactos de emergencia, cónyuge, hijos, padres, beneficiarios, garantes y salud</td><td>5</td></tr>
+        <tr><td class="id">1</td><td><strong>Información Personal</strong></td><td>Nombre legal, documento, nacimiento, contacto, datos médicos y seguro médico privado. Empieza por la pregunta del reingreso</td><td>18</td></tr>
+        <tr><td class="id">2</td><td><strong>Información Familiar</strong></td><td>Contactos de emergencia, cónyuge, hijos, beneficiarios, garantes y garantías y tutela</td><td>4</td></tr>
         <tr><td class="id">3</td><td><strong>Información Laboral</strong></td><td>Dónde encaja en la estructura: puesto, área, sede, jefaturas e imputación contable</td><td>7</td></tr>
-        <tr><td class="id">4</td><td><strong>Perfil profesional</strong></td><td>Formación, trayectoria, idiomas, competencias y desarrollo</td><td>—</td></tr>
-        <tr><td class="id">5</td><td><strong>Contrato</strong></td><td>Qué firmó, por cuánto tiempo y en qué condiciones</td><td>2</td></tr>
+        <tr><td class="id">4</td><td><strong>Perfil profesional</strong></td><td>Profesión, formación, trayectoria, idiomas y desarrollo</td><td>—</td></tr>
+        <tr><td class="id">5</td><td><strong>Relación laboral</strong></td><td>Qué firmó, por cuánto tiempo y en qué condiciones</td><td>2</td></tr>
         <tr><td class="id">6</td><td><strong>Compensación y nómina</strong></td><td>Afiliaciones: Gestora, Caja de Salud, Ministerio de Trabajo y RC‑IVA</td><td>—</td></tr>
         <tr><td class="id">7</td><td><strong>Asistencia</strong></td><td>Jornada, horario, marcación, vacaciones, permisos y compensación de horas</td><td>—</td></tr>
         <tr><td class="id">8</td><td><strong>Remuneración</strong></td><td>Haber básico, beneficios de ley, datos de pago y beneficios adicionales</td><td>1</td></tr>
         <tr><td class="id">9</td><td><strong>Recursos y activos</strong></td><td>Lo que la empresa le entrega para trabajar</td><td>—</td></tr>
-        <tr><td class="id">10</td><td><strong>Configuración del colaborador</strong></td><td>Su acceso al sistema, su rol, sus alcances y el historial de su ficha</td><td>—</td></tr>
+        <tr><td class="id">10</td><td><strong>Configuración del colaborador / Autogestión</strong></td><td>Su acceso al sistema, su rol, sus alcances y el historial de su ficha</td><td>—</td></tr>
         <tr><td class="id">11</td><td><strong>Documentación y expediente</strong></td><td>Sus papeles, reunidos en un solo lugar</td><td>—</td></tr>
         <tr><td class="id">—</td><td><strong>Vista previa</strong></td><td>Todo junto, leído como un expediente, antes de dar de alta</td><td>—</td></tr>
       </tbody>
     </table></div>
-    <div class="nota"><p><strong>Los números del mínimo legal no suman los 34 por casualidad.</strong> Son los datos de nivel Mínimo de cada paso, y los pasos que no tienen ninguno —4, 6, 7, 9, 10 y 11— no tienen nada que la ley exija el primer día. Eso no quiere decir que no importen: la afiliación a la Gestora y a la Caja se exige, pero llega después del alta y se avisa en su propio plazo.</p></div>
+    <div class="nota"><p><strong>Los números del mínimo legal no suman los 32 por casualidad.</strong> Son los datos de nivel Mínimo de cada paso, y los pasos que no tienen ninguno —4, 6, 7, 9, 10 y 11— no tienen nada que la ley exija el primer día. Eso no quiere decir que no importen: la afiliación a la Gestora y a la Caja se exige, pero llega después del alta y se avisa en su propio plazo.</p></div>
 
     <h3 id="p0-2">0.2 Borrador, alta y colaborador: tres estados distintos</h3>
     <p>Es la distinción que ordena todo el módulo, y la que más fácil se confunde.</p>
@@ -1309,7 +1309,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Pregunta</th><th>Qué la contesta</th></tr></thead>
       <tbody>
-        <tr><td><strong>¿Se la puede declarar?</strong></td><td>El mínimo legal: los 34 datos que piden el Ministerio, la Gestora y la Caja</td></tr>
+        <tr><td><strong>¿Se la puede declarar?</strong></td><td>El mínimo legal: los 32 datos que piden el Ministerio, la Gestora y la Caja</td></tr>
         <tr><td><strong>¿Puede empezar a trabajar?</strong></td><td>El nivel operativo: puesto, horario, cuenta de pago, acceso al sistema</td></tr>
         <tr><td><strong>¿La conocemos de verdad?</strong></td><td>El nivel completo: formación, trayectoria, salud, familia, recursos entregados</td></tr>
       </tbody>
@@ -1416,7 +1416,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <thead><tr><th>Entidad</th><th>Qué consume</th><th>Qué pasa si falta</th></tr></thead>
       <tbody>
         <tr><td><strong>Gestora Pública</strong></td><td>Si aporta, NUA o CUA, si está jubilado</td><td>Si la persona <strong>no aporta</strong>, la planilla lleva el aporte en cero —no vacío—, se la excluye de las declaraciones SIP y ANS, y la columna del Ministerio va en 0. El NUA puede llegar semanas después: se marca «en proceso»</td></tr>
-        <tr><td><strong>Caja de Salud</strong></td><td>Si está afiliada, número de asegurado, fecha de ingreso a la Caja —igual al ingreso legal—</td><td>El plazo de afiliación es de 5 días desde el ingreso. Un seguro privado no la reemplaza</td></tr>
+        <tr><td><strong>Caja de Salud</strong></td><td>Si está afiliada, número de asegurado</td><td>El plazo de afiliación es de 5 días desde el ingreso. Un seguro privado no la reemplaza</td></tr>
         <tr><td><strong>Ministerio de Trabajo</strong></td><td>La planilla y el F20, con sus catálogos oficiales</td><td>El alta existe en el sistema y no existe para el Ministerio</td></tr>
         <tr><td><strong>RC‑IVA</strong></td><td>Código de dependiente y saldo inicial</td><td>El saldo a favor de la persona se pierde en la primera corrida</td></tr>
       </tbody>
@@ -1564,11 +1564,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <p>En <span class="mono">/personas/colaboradores/nuevo</span>. Es donde se da de alta a una persona, y lo que se llena es su <strong>ficha del colaborador</strong>.</p>
 
     <h4 class="br-h"><em>A</em>Qué es la ficha del colaborador</h4>
-    <p>Es el registro de todo lo que la empresa necesita saber de una persona para <b>tenerla contratada en regla</b>: quién es, a quién avisar, dónde trabaja, qué firmó, a qué entidades está afiliada, cómo marca, cuánto gana, qué se le entregó, con qué entra al sistema y qué papeles respaldan cada cosa. Son <b>324 datos distintos</b> repartidos en <b>once pasos</b>.</p>
+    <p>Es el registro de todo lo que la empresa necesita saber de una persona para <b>tenerla contratada en regla</b>: quién es, a quién avisar, dónde trabaja, qué firmó, a qué entidades está afiliada, cómo marca, cuánto gana, qué se le entregó, con qué entra al sistema y qué papeles respaldan cada cosa. Son <b>322 datos distintos</b> repartidos en <b>once pasos</b>.</p>
     <p>Tres cosas la definen:</p>
     <ul>
       <li><strong>Se llena por partes.</strong> Los papeles llegan de manos distintas y en días distintos; la ficha se guarda sola y se puede entrar por cualquier paso —<span class="id">BR‑GP‑002</span>—.</li>
-      <li><strong>No todo pesa lo mismo.</strong> 34 datos son del mínimo legal; solo 3 impiden el alta —<span class="id">BR‑GP‑006</span>, <span class="id">BR‑GP‑007</span>—.</li>
+      <li><strong>No todo pesa lo mismo.</strong> 32 datos son del mínimo legal; solo 3 impiden el alta —<span class="id">BR‑GP‑006</span>, <span class="id">BR‑GP‑007</span>—.</li>
       <li><strong>Es la fuente de la persona.</strong> Planillas, Onboarding, Documentación y Evaluación leen de ella; ninguno guarda su propia copia —<span class="id">2.1</span>—.</li>
     </ul>
 
@@ -1576,16 +1576,16 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Paso</th><th>Secciones</th><th>Para qué sirve</th></tr></thead>
       <tbody>
-        <tr><td class="id">1</td><td><strong>Información Personal</strong></td><td>Reingreso o alta nueva · Datos personales · Documento de identidad · Nacionalidad y nacimiento · Residencia · Contacto · Datos profesionales · Datos patrimoniales · Licencias y certificaciones</td><td>Identificar a la persona como la piden el Ministerio, la Gestora y el SEGIP. Empieza por el reingreso para no duplicar a nadie</td></tr>
-        <tr><td class="id">2</td><td><strong>Información Familiar</strong></td><td>Contactos de emergencia · Cónyuge · Hijos · Padres · Beneficiarios y herederos · Garantes · Datos médicos · Tutela y protecciones · Seguro médico privado</td><td>A quién avisar, quién depende de la persona —asignación familiar, subsidio de lactancia—, quién hereda y su salud</td></tr>
-        <tr><td class="id">3</td><td><strong>Información Laboral</strong></td><td>Información organizacional · Imputación contable · Jefaturas y aprobaciones · Contacto corporativo</td><td>Dónde se sienta en la estructura: cargo, área, sede, jefe y a qué centro de costo se carga. Tiene <b>un supervisor inmediato</b> —único, quien responde por su evaluación y su contrato— y <b>uno o varios supervisores funcionales</b>, cada uno con la unidad donde lo supervisa</td></tr>
-        <tr><td class="id">4</td><td><strong>Perfil profesional</strong></td><td>Perfil profesional · Desarrollo y capacitación del talento</td><td>Formación, experiencia e idiomas: lo que después leen Evaluación y desarrollo. En cada experiencia, si hay una referencia laboral disponible, se pide su nombre, su cargo y su teléfono</td></tr>
-        <tr><td class="id">5</td><td><strong>Contrato</strong></td><td>Datos del contrato · Condiciones de contratación · Salida (solo al editar)</td><td>Qué firmó, desde cuándo, por cuánto tiempo y el periodo de prueba</td></tr>
+        <tr><td class="id">1</td><td><strong>Información Personal</strong></td><td>Reingreso o alta nueva · Datos personales · Documento de identidad · Nacionalidad y nacimiento · Residencia · Contacto · Datos patrimoniales · Licencias y certificaciones · Datos médicos</td><td>Identificar a la persona como la piden el Ministerio, la Gestora y el SEGIP. Empieza por el reingreso para no duplicar a nadie</td></tr>
+        <tr><td class="id">2</td><td><strong>Información Familiar</strong></td><td>Contactos de emergencia · Cónyuge · Hijos · Beneficiarios y herederos · Garantes y garantías · Datos de tutela y protecciones</td><td>A quién avisar, quién depende de la persona —asignación familiar, subsidio de lactancia—, quién hereda y su salud</td></tr>
+        <tr><td class="id">3</td><td><strong>Información Laboral</strong></td><td>Información organizacional · Dependencia organizacional y funcional · Contacto corporativo</td><td>Dónde se sienta en la estructura: cargo, área, sede y jefe. Tiene <b>un supervisor inmediato</b> —único, quien responde por su evaluación y su contrato— y <b>uno o varios supervisores funcionales</b>, cada uno con la unidad donde lo supervisa</td></tr>
+        <tr><td class="id">4</td><td><strong>Perfil profesional</strong></td><td>Perfil profesional · Desarrollo y capacitación del talento</td><td>Profesión y matrícula, formación, experiencia e idiomas: lo que después leen Evaluación y desarrollo. En cada experiencia, si hay una referencia laboral disponible, se pide su nombre, su cargo y su teléfono</td></tr>
+        <tr><td class="id">5</td><td><strong>Relación laboral</strong></td><td>Datos del contrato · Condiciones de contratación</td><td>Qué firmó, desde cuándo, por cuánto tiempo y el periodo de prueba</td></tr>
         <tr><td class="id">6</td><td><strong>Compensación y nómina</strong></td><td>Gestora Pública · Caja de Salud · Ministerio de Trabajo · Impuestos RC‑IVA</td><td>Las afiliaciones: lo que se declara a cada entidad</td></tr>
         <tr><td class="id">7</td><td><strong>Asistencia</strong></td><td>Jornada laboral · Horario asignado · Método de marcación · Vacaciones · Permisos · Compensación de horas · Historial disciplinario</td><td>Cómo trabaja y cómo se controla su asistencia</td></tr>
-        <tr><td class="id">8</td><td><strong>Remuneración</strong></td><td>Datos de haber básico · Configuración de Beneficios y Obligaciones · Datos de pago · Datos de beneficios adicionales</td><td>Lo que la planilla calcula y dónde se deposita, incluido el anticipo de quincena. Los beneficios de ley son interruptores, no montos</td></tr>
+        <tr><td class="id">8</td><td><strong>Remuneración</strong></td><td>Datos de haber básico · Configuración de Beneficios y Obligaciones · Datos de pago</td><td>Lo que la planilla calcula y dónde se deposita, incluido el anticipo de quincena. Los beneficios de ley son interruptores, no montos</td></tr>
         <tr><td class="id">9</td><td><strong>Recursos y activos</strong></td><td>Activos entregados · Otros recursos asignados</td><td>Lo que la empresa le entrega para trabajar, y que tendrá que devolver</td></tr>
-        <tr><td class="id">10</td><td><strong>Configuración del colaborador</strong></td><td>Credenciales · Rol y alcances · Autogestión y notificaciones · Historial y auditoría</td><td>Cómo entra al sistema, qué puede ver y quién cambió qué en su ficha</td></tr>
+        <tr><td class="id">10</td><td><strong>Configuración del colaborador / Autogestión</strong></td><td>Credenciales · Rol y alcances · Autogestión y notificaciones · Historial y auditoría</td><td>Cómo entra al sistema, qué puede ver y quién cambió qué en su ficha</td></tr>
         <tr><td class="id">11</td><td><strong>Documentación y expediente</strong></td><td>Archivos</td><td>Reúne los papeles cargados en los demás pasos para que el expediente arranque con ellos</td></tr>
         <tr><td class="id">—</td><td><strong>Vista previa</strong></td><td>La tapa del expediente y cuatro separadores</td><td>Revisar todo junto antes de dar de alta —<span class="id">3.5</span>—</td></tr>
       </tbody>
@@ -1599,8 +1599,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <tbody>
         <tr><td><strong>¿Sujeto a bono de antigüedad?</strong></td><td>Sí/No · Operativo · legal</td><td>Obligatorio por ley. El monto no se digita nunca: <span class="mono">salario mínimo × 3 × % de la escala</span> según los años de servicio. La escala tiene siete tramos —5, 11, 18, 26, 34, 42 y 50 %— fijados por decreto</td><td>Entra desde la <b>fecha de ingreso para bono de antigüedad</b> —distinta de la de ingreso legal, porque a veces se reconoce antigüedad anterior— y el salario mínimo de los parámetros de la empresa. Sale hacia la columna del Ministerio, obligatoria aunque vaya en cero. Es un interruptor de verdad: se apaga para personal de servicios externos, contratos de servicios y eventuales</td></tr>
         <tr><td><strong>¿Aplica aguinaldo de Navidad?</strong></td><td>Sí/No · Operativo · legal</td><td>Un sueldo al año, pagado hasta el 20 de diciembre; por duodécimas si no trabajó la gestión completa</td><td>Derivable de la modalidad de contrato. La base son <b>septiembre, octubre y noviembre</b>, no diciembre ni el promedio del año. Sale hacia la planilla de aguinaldo, una declaración aparte de la mensual</td></tr>
-        <tr><td><strong>¿Aguinaldo y prima desde el primer mes?</strong></td><td>Sí/No · Operativo</td><td>En los hechos, la marca del obrero: el obrero de producción cobra aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. El mismo umbral vale para el proporcional de la prima: 30 días contra 90</td><td>Sale de la <b>Categoría del puesto</b> (Información laboral › Información organizacional). <b>Si la categoría es Obrero y se contesta No, la ficha avisa</b> junto a la respuesta. La recomendación es que no se llame así —describe el efecto, no el dato— y que se muestre de solo lectura</td></tr>
-        <tr><td><strong>¿Aplica retroactivo? (y retroactivo de antigüedad)</strong></td><td>Sí/No · Operativo · <b>arranca en Sí</b></td><td>Cuando el decreto anual rige antes de publicarse, se paga la diferencia acumulada: el nuevo salario mínimo a quien gana el mínimo, y el porcentaje de incremento a quien gana por encima. El bono de antigüedad se arrastra solo, porque depende del salario mínimo</td><td>«Legalmente siempre se tiene que aplicar». No pagarlo bloquea las declaraciones ante el Ministerio y la Gestora, y genera multa. Si siempre se aplica, ¿por qué es un campo? —<span class="id">ABIERTA‑15</span>—</td></tr>
+        <tr><td><strong>¿Aguinaldo y prima desde el primer mes?</strong></td><td>Sí/No · Operativo</td><td>En los hechos, la marca del obrero: el obrero de producción cobra aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. El mismo umbral vale para el proporcional de la prima: 30 días contra 90</td><td>Sale de la <b>Tipo de trabajador</b> (Información laboral › Información organizacional). <b>Si la categoría es Obrero y se contesta No, la ficha avisa</b> junto a la respuesta. La recomendación es que no se llame así —describe el efecto, no el dato— y que se muestre de solo lectura</td></tr>
+        <tr><td><strong>¿Aplica retroactivo? (retroactivo de antigüedad)</strong></td><td>Sí/No · Operativo · <b>arranca en Sí</b></td><td>Cuando el decreto anual rige antes de publicarse, se paga la diferencia acumulada: el nuevo salario mínimo a quien gana el mínimo, y el porcentaje de incremento a quien gana por encima. El bono de antigüedad se arrastra solo, porque depende del salario mínimo</td><td>«Legalmente siempre se tiene que aplicar». No pagarlo bloquea las declaraciones ante el Ministerio y la Gestora, y genera multa. Si siempre se aplica, ¿por qué es un campo? —<span class="id">ABIERTA‑15</span>—</td></tr>
         <tr><td><strong>¿Aplica aportes patronales?</strong></td><td>Sí/No · Operativo</td><td>Si la empresa paga sus propios aportes: 7,21 % a la Gestora y 10 % a la Caja de Salud, sobre el total ganado. No se le descuenta al trabajador: es costo de la empresa</td><td>Alimenta Planillas y el ERP. Es el peor ubicado del bloque: no es remuneración, y ya existe «¿aporta a la Gestora?» en afiliaciones, que puede contradecirlo —<span class="id">ABIERTA‑16</span>—</td></tr>
         <tr><td><strong>¿Incluir en subsidio de frontera?</strong></td><td>Sí/No · Completo</td><td>Un pago adicional para quien trabaja en zona de frontera. Parecía marginal, pero es una columna oficial de la planilla del Ministerio</td><td>Falta la norma, el porcentaje y quién califica. Suena a que se deriva de la sede, no de cada persona —<span class="id">ABIERTA‑17</span>—</td></tr>
       </tbody>
@@ -1654,7 +1654,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <tbody>
         <tr><td class="id" id="RF-GP-030">RF‑GP‑030</td><td>La ficha <b>empieza preguntando</b> si la persona ya trabajó en la empresa</td><td><span class="p p-m">Oblig.</span></td><td>Es la primera sección del paso 1. <em>BR‑GP‑012</em></td></tr>
         <tr><td class="id" id="RF-GP-031">RF‑GP‑031</td><td>Si la respuesta es sí, un buscador por <b>nombre o documento</b> —desde tres letras, hasta seis resultados— con <b>«Traer sus datos»</b> y <b>«No es la misma persona»</b></td><td><span class="p p-m">Oblig.</span></td><td>Buscar por el carnet encuentra a la persona aunque el nombre esté escrito distinto</td></tr>
-        <tr><td class="id" id="RF-GP-032">RF‑GP‑032</td><td>Traídos los datos, se muestra <b>quién era</b> —último puesto, fechas, motivo de salida— y tres preguntas: <b>traer documentos, traer permisos y reconocer antigüedad</b></td><td><span class="p p-s">Import.</span></td><td>«Se copiaron 34 datos suyos a esta ficha», y «No era ésta» deshace todo. <em>BR‑GP‑015</em></td></tr>
+        <tr><td class="id" id="RF-GP-032">RF‑GP‑032</td><td>Traídos los datos, se muestra <b>quién era</b> —último puesto, fechas, motivo de salida— y una pregunta: <b>traer sus documentos</b></td><td><span class="p p-s">Import.</span></td><td>«Se copiaron 34 datos suyos a esta ficha», y «No era ésta» deshace todo. <em>BR‑GP‑015</em></td></tr>
       </tbody>
     </table></div>
 
@@ -1682,7 +1682,6 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Cómo guarda</strong></td><td>Solo, desde la primera letra</td><td>Con <b>«Guardar cambios»</b>, que antes muestra la lista de lo que cambió</td><td>En el alta nada es real hasta dar de alta. Al editar, cambiar el haber o la cuenta bancaria cambia la próxima planilla: se confirma sabiendo qué se toca</td></tr>
         <tr><td><strong>Salir sin guardar</strong></td><td>No existe: no hay nada que perder</td><td>Pregunta si se descartan los cambios</td><td>Acá sí hay algo que perder</td></tr>
         <tr><td><strong>Reingreso</strong></td><td>Primera sección del paso 1</td><td>No aparece</td><td>La persona ya existe</td></tr>
-        <tr><td><strong>Salida</strong></td><td>No aparece</td><td>Aparece en el paso Contrato</td><td>Solo tiene sentido para alguien dado de alta</td></tr>
         <tr><td><strong>Datos con vigencia</strong></td><td>Se escriben</td><td>El haber básico y el cargo piden <b>desde qué fecha</b> rige el cambio</td><td>Una planilla ya pagada no se recalcula con el sueldo nuevo</td></tr>
         <tr><td><strong>Historial</strong></td><td>Se registra quién hizo el alta</td><td>Cada cambio queda en <b>Historial y auditoría</b> del paso 10: quién, cuándo, qué dato, valor anterior y nuevo</td><td>Cuando alguien pregunte por qué cambió un sueldo, la respuesta está en la ficha</td></tr>
       </tbody>
@@ -1989,7 +1988,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>alguien recibe <span class="mono">…/nuevo?paso=contrato</span></li>
                     <li><b>Cuando</b>lo abre</li>
-                    <li><b>Entonces</b>la ficha abre en el paso Contrato, con el borrador de ese navegador</li>
+                    <li><b>Entonces</b>la ficha abre en el paso Relación laboral, con el borrador de ese navegador</li>
                   </ul>
                 </div>
                 <div class="esc ok">
@@ -2049,7 +2048,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div class="esc ok">
                   <div class="esc-t"><i></i>El avance se mide sobre lo que se mira</div>
                   <ul>
-                    <li><b>Dado que</b>están llenos los 34 datos del mínimo y nada más</li>
+                    <li><b>Dado que</b>están llenos los 32 datos del mínimo y nada más</li>
                     <li><b>Cuando</b>se mira el nivel Mínimo</li>
                     <li><b>Entonces</b>el avance es 100 %; en Completo, bastante menos</li>
                   </ul>
@@ -2084,7 +2083,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Un dato es del mínimo legal porque el Ministerio, la Gestora o la Caja lo exigen para declarar a la persona. Son <b>34</b>: la pregunta del reingreso, el nombre, el documento, el nacimiento y la nacionalidad, un teléfono, el contacto de emergencia, la discapacidad, el puesto, la modalidad de contrato y el haber básico. <b>La moneda no se pide</b>: por el momento todo se entiende en bolivianos.</p>
+              <p>Un dato es del mínimo legal porque el Ministerio, la Gestora o la Caja lo exigen para declarar a la persona. Son <b>32</b>: la pregunta del reingreso, el nombre, el documento, el nacimiento y la nacionalidad, un teléfono, el contacto de emergencia, la discapacidad, el puesto, la modalidad de contrato y el haber básico. <b>La moneda no se pide</b>: por el momento todo se entiende en bolivianos.</p>
               <p>Se marcan con asterisco. Y un dato que exige una entidad lleva además la insignia <b>legal</b>, esté o no en el mínimo: la insignia dice de dónde viene la obligación, el asterisco dice si se pide el primer día.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
@@ -2285,7 +2284,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Un dato que se puede deducir se muestra deducido y bloqueado: el <b>nombre completo</b>, el <b>fin del periodo de prueba</b> —ingreso más 89 días, porque a los 90 más uno nacen los beneficios sociales—, la <b>fecha de ingreso a la Caja</b> —igual al ingreso legal—, el <b>estado de una licencia</b>, el <b>total repartido entre herederos</b>, <b>quién registró</b> la ficha y si es <b>reingreso o alta nueva</b>.</p>
+              <p>Un dato que se puede deducir se muestra deducido y bloqueado: el <b>nombre completo</b>, el <b>fin del periodo de prueba</b> —ingreso más 89 días, porque a los 90 más uno nacen los beneficios sociales—, el <b>estado de una licencia</b>, el <b>total repartido entre herederos</b>, <b>quién registró</b> la ficha y si es <b>reingreso o alta nueva</b>.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
@@ -2308,7 +2307,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
               <ul class="br-cond">
                 <li>«Por vencer» son 30 días: es el único umbral que no viene de una norma. <em>ABIERTA‑06</em>.</li>
-                <li>Si un carnet es boliviano, la nacionalidad se deduce Bolivia.</li>
+                <li>La nacionalidad solo se pregunta si la persona no es de nacionalidad boliviana, y entonces «Boliviana» no se ofrece. Se elige por gentilicio —«Chilena», no «Chile»—, de la lista completa de países.</li>
               </ul>
               <h4 class="br-h"><em>4</em>Trazabilidad</h4>
               <dl class="br-traza">
@@ -2349,7 +2348,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               </div>
               <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
               <ul class="br-cond">
-                <li>La ficha tiene 324 datos distintos aunque se vean más en pantalla.</li>
+                <li>La ficha tiene 322 datos distintos aunque se vean más en pantalla.</li>
               </ul>
               <h4 class="br-h"><em>4</em>Trazabilidad</h4>
               <dl class="br-traza">
@@ -2502,7 +2501,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <span class="br-n">4.15</span>
             <div>
               <div class="br-cab"><span class="br-id">BR-GP-015</span><span class="br-estado">Borrador</span></div>
-              <h3 id="BR-GP-015">Documentos, permisos y antigüedad se traen solo si se piden</h3>
+              <h3 id="BR-GP-015">Los documentos se traen solo si se piden</h3>
               <h4 class="br-h"><em>1</em>Información básica</h4>
               <dl class="br-meta">
                 <div><dt>Código</dt><dd>BR-GP-015</dd></div>
@@ -2511,7 +2510,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Tres cosas se preguntan una por una, y cada pregunta dice qué ofrece: <b>traer sus documentos</b> —foto, carnet escaneado, documento secundario, croquis, certificado de nacimiento—, <b>traer sus permisos</b> —rol, alcances y acceso— y <b>reconocer su antigüedad</b>, con la duración en años y meses.</p>
+              <p>Traídos los datos de la persona, se pregunta si se traen también <b>sus documentos</b> —foto, carnet escaneado, documento secundario, croquis, certificado de nacimiento—, y la pregunta dice cuáles hay.</p>
+              <p><b>Los permisos y la antigüedad anteriores no se preguntan.</b> Eran dos preguntas más y se quitaron a pedido del equipo: solo guardaban la respuesta, sin copiar nada. El rol y los accesos se configuran de nuevo en el paso 10, como en cualquier alta.</p>
               <p>Contestar que no <b>deshace</b> lo que se había traído: vacía los datos y borra las copias de los archivos.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
@@ -2780,7 +2780,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
               <ul class="br-cond">
                 <li>Hay una sola Gestora: la pregunta es si aporta, no a cuál.</li>
-                <li>La fecha de ingreso a la Caja es igual al ingreso legal y se calcula.</li>
+                <li>La fecha de ingreso a la Caja es la misma fecha de ingreso: no se pide aparte.</li>
               </ul>
               <h4 class="br-h"><em>4</em>Trazabilidad</h4>
               <dl class="br-traza">
@@ -2861,6 +2861,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
               <ul class="br-cond">
                 <li>Las extensiones son las nueve de los departamentos: LP, SC, CB, OR, PT, TJ, CH, BE y PD.</li>
+                <li><b>El país emisor va primero</b> en la sección, antes del tipo y el número: es lo que decide si se piden la extensión y el complemento, y elegirlo después hacía que esos campos aparecieran y desaparecieran delante de quien llena la ficha. Vale igual para el documento secundario.</li>
                 <li>El documento secundario es opcional y arranca sin ninguno.</li>
               </ul>
               <h4 class="br-h"><em>4</em>Trazabilidad</h4>
@@ -2906,7 +2907,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>en la vista previa se ve un error en el contrato</li>
                     <li><b>Cuando</b>se pulsa «Editar» en la sección del contrato</li>
-                    <li><b>Entonces</b>se abre el paso Contrato</li>
+                    <li><b>Entonces</b>se abre el paso Relación laboral</li>
                   </ul>
                 </div>
               </div>
@@ -2955,7 +2956,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>el aviso está abierto</li>
                     <li><b>Cuando</b>se pulsa «Completar →» en la fecha de ingreso</li>
-                    <li><b>Entonces</b>se abre el paso Contrato con la sección desplegada y el campo resaltado</li>
+                    <li><b>Entonces</b>se abre el paso Relación laboral con la sección desplegada y el campo resaltado</li>
                   </ul>
                 </div>
               </div>
@@ -3443,9 +3444,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Tipo</th><th>Cuántos</th><th>Qué guarda</th></tr></thead>
       <tbody>
-        <tr><td>Texto</td><td>184</td><td>Una línea o varias</td></tr>
-        <tr><td>Lista</td><td>76</td><td>Una opción de un catálogo</td></tr>
-        <tr><td>Sí / no</td><td>52</td><td><span class="mono">si</span> o <span class="mono">no</span></td></tr>
+        <tr><td>Texto</td><td>183</td><td>Una línea o varias</td></tr>
+        <tr><td>Lista</td><td>77</td><td>Una opción de un catálogo</td></tr>
+        <tr><td>Sí / no</td><td>50</td><td><span class="mono">si</span> o <span class="mono">no</span></td></tr>
         <tr><td>Archivo</td><td>18</td><td>La referencia a un adjunto</td></tr>
         <tr><td>Mapa</td><td>2</td><td>Una ubicación</td></tr>
       </tbody>
@@ -3455,7 +3456,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Se guarda</th><th>Se deduce</th></tr></thead>
       <tbody>
-        <tr><td>Lo que alguien escribe o elige</td><td>Nombre completo · fin del periodo de prueba · ingreso a la Caja · estado de una licencia · total repartido entre herederos · tiempo trabajado · quién registró la ficha y cuándo · reingreso o alta nueva</td></tr>
+        <tr><td>Lo que alguien escribe o elige</td><td>Nombre completo · fin del periodo de prueba · estado de una licencia · total repartido entre herederos · tiempo trabajado · quién registró la ficha y cuándo · reingreso o alta nueva</td></tr>
         <tr><td>El puesto elegido</td><td>Área, sede, jefe y clase de cargo, leídos del puesto</td></tr>
         <tr><td>—</td><td>El avance de cada paso y de la ficha, y qué pasos deben algo del mínimo legal</td></tr>
       </tbody>
@@ -3594,7 +3595,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <li>Completa <b>Información Personal</b>: nombre, documento, nacimiento, nacionalidad y un teléfono.</li>
         <li>Completa el <b>contacto de emergencia</b> en Información Familiar.</li>
         <li>En <b>Información Laboral</b> elige el cargo; el área, la sede y el jefe llegan solos.</li>
-        <li>En <b>Contrato</b> pone la modalidad y la fecha de ingreso; en <b>Remuneración</b>, el haber básico.</li>
+        <li>En <b>Relación laboral</b> pone la modalidad y la fecha de ingreso; en <b>Remuneración</b>, el haber básico.</li>
         <li>Pulsa <b>«Revisar la ficha»</b>, recorre el expediente y pulsa <b>«Dar de alta»</b>.</li>
       </ol>
       <div class="desvios">
@@ -3614,7 +3615,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <ol class="pasos">
         <li>El lunes carga lo que trajo la persona: carnet, domicilio, familia. Pulsa <b>«Guardar borrador y salir»</b>.</li>
         <li>El miércoles llega el contrato firmado. Entra a «Nuevo colaborador»: <b>el borrador está donde lo dejó</b>.</li>
-        <li>Va directo al paso <b>Contrato</b> por el riel y lo completa.</li>
+        <li>Va directo al paso <b>Relación laboral</b> por el riel y lo completa.</li>
         <li>El viernes llega la cuenta bancaria; la carga en Remuneración y da de alta.</li>
       </ol>
       <div class="desvios">
@@ -3633,7 +3634,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <li>Contesta <b>«Sí»</b> a si la persona ya trabajó en la empresa.</li>
         <li>Busca por <b>carnet</b> —o por nombre— y encuentra a la persona.</li>
         <li>Pulsa <b>«Traer sus datos»</b>: se copian su nombre, documento, nacimiento, números de por vida y contactos.</li>
-        <li>Decide si trae sus <b>documentos</b>, sus <b>permisos</b> y si reconoce su <b>antigüedad</b>.</li>
+        <li>Decide si trae sus <b>documentos</b>.</li>
         <li>Completa lo del vínculo nuevo —cargo, contrato, haber— y da de alta.</li>
       </ol>
       <div class="desvios">
@@ -3985,7 +3986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <li>La búsqueda encuentra por carnet o por nombre, desde tres letras.</li>
           <li>Una persona vigente se muestra con aviso y sin botón para traer.</li>
           <li>Se traen los datos de la persona y ninguno del vínculo anterior.</li>
-          <li>Documentos, permisos y antigüedad se traen solo si se contesta que sí, y se deshacen si se cambia.</li>
+          <li>Los documentos se traen solo si se contesta que sí, y se deshacen si se cambia.</li>
         </ul>
       </div>
       <div class="hu-r">Se apoya en <b>BR‑GP‑012 a 015 · RF‑GP‑030 a 032</b> · Pantalla: Nuevo colaborador, paso 1</div>
@@ -4152,6 +4153,71 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Versión</th><th>Fecha</th><th>Qué cambió</th></tr></thead>
       <tbody>
+        <tr><td class="rg"><strong>1.73</strong></td><td>29 sep 2026</td><td><strong>El paso 9 pasa a llamarse «Recursos y activos»</strong>, sin «Información de» delante, a pedido del equipo. Además, «Perfil profesional» y «Asistencia» quedan visibles sólo en local (<span class="mono">npm run dev</span>): en la versión publicada no aparecen y los demás pasos se renumeran</td></tr>
+        <tr><td class="rg"><strong>1.72</strong></td><td>29 sep 2026</td><td><strong>«Dar de alta» pide confirmación</strong>, a pedido del equipo. Si no falta ningún dato obligatorio, un diálogo pregunta «¿Está seguro de dar de alta?» y enseña a quién: foto, nombre, cargo y unidad, documento y fecha de ingreso. «Seguir revisando» o Escape vuelven a la vista previa; «Sí, dar de alta» crea a la persona. Si falta algo, sigue saliendo el aviso de lo que falta</td></tr>
+        <tr><td class="rg"><strong>1.71</strong></td><td>29 sep 2026</td><td><strong>El paso 10 pasa a llamarse «Configuración del Colaborador / Autogestión»</strong>, a pedido del equipo. En el riel sigue abreviado «Configuración»</td></tr>
+        <tr><td class="rg"><strong>1.70</strong></td><td>29 sep 2026</td><td><strong>El paso 5 «Contrato» pasa a llamarse «Relación laboral»</strong>, a pedido del equipo; en el riel se abrevia «Relación». Los campos no cambian</td></tr>
+        <tr><td class="rg"><strong>1.69</strong></td><td>29 sep 2026</td><td><strong>Se retira la tarjeta «Datos de beneficios adicionales»</strong> del paso Remuneración, con «Paquete de beneficios asignado» y los beneficios individuales, a pedido del equipo</td></tr>
+        <tr><td class="rg"><strong>1.68</strong></td><td>29 sep 2026</td><td><strong>«Tipo de cuenta» suma «Otro»</strong>, a pedido del equipo, y al elegirlo aparece <strong>«¿Qué tipo de cuenta?»</strong> (3.90o) para escribirlo. <strong>Se retira «Sucursal de la cuenta bancaria»</strong></td></tr>
+        <tr><td class="rg"><strong>1.67</strong></td><td>29 sep 2026</td><td><strong>«Banco» lista todos los bancos</strong> que supervisa la ASFI —catorce, más «Otro» para cooperativas y entidades de vivienda— y sale Fassil, intervenido en 2023. Y <strong>«¿Aplica retroactivo? (y retroactivo de antigüedad)» pierde la «y»</strong>: queda «¿Aplica retroactivo? (retroactivo de antigüedad)»</td></tr>
+        <tr><td class="rg"><strong>1.66</strong></td><td>29 sep 2026</td><td><strong>«Sucursal Caja» lista los nueve departamentos de Bolivia</strong>, a pedido del equipo: La Paz, Santa Cruz, Cochabamba, Oruro, Potosí, Tarija, Chuquisaca, Beni y Pando. Antes ofrecía solo tres</td></tr>
+        <tr><td class="rg"><strong>1.65</strong></td><td>29 sep 2026</td><td><strong>«Estado de la afiliación» pasa a llamarse «Administradora»</strong>, a pedido del equipo. Las opciones no cambian: Gestora Pública · En proceso</td></tr>
+        <tr><td class="rg"><strong>1.64</strong></td><td>29 sep 2026</td><td><strong>«¿Aporta a la Gestora?» y «¿Está jubilado?» arrancan en «No»</strong>, a pedido del equipo. Con «Sí» en la primera se abren estado de la afiliación, NUA/CUA, sucursal y tipo de asegurado; con «Sí» en la segunda, la fecha de jubilación</td></tr>
+        <tr><td class="rg"><strong>1.63</strong></td><td>29 sep 2026</td><td><strong>Se retiran «Clasificación laboral»</strong> de los datos del contrato <strong>y la tarjeta «Salida»</strong> con su «Motivo de retiro», a pedido del equipo</td></tr>
+        <tr><td class="rg"><strong>1.62</strong></td><td>29 sep 2026</td><td><strong>Una sola fecha de ingreso</strong>, a pedido del equipo. Se retiran la fecha de ingreso para vacaciones, la de antigüedad y la de la Caja de Salud, que era la misma fecha de ingreso copiada. Queda <b>Fecha de ingreso legal</b>, la que ven las tres entidades</td></tr>
+        <tr><td class="rg"><strong>1.61</strong></td><td>29 sep 2026</td><td><strong>Las fechas de ingreso dicen que son fechas</strong>, a pedido del equipo: «Ingreso legal / fiscal» pasa a <b>Fecha de ingreso</b>, y las otras tres a <b>Fecha de ingreso para vacaciones</b>, <b>para antigüedad</b> y <b>a la Caja de Salud</b></td></tr>
+        <tr><td class="rg"><strong>1.60</strong></td><td>29 sep 2026</td><td><strong>La dependencia funcional, igual que en el organigrama</strong>, a pedido del equipo. Eran «Supervisor funcional» y «¿En qué unidad lo supervisa?», un par distinto del que el organigrama guarda para cada puesto. Ahora es el mismo editor y la misma frase: <b>«Apoya funcionalmente a [unidad] respondiendo a [cargo de esa unidad]»</b>, con «Otra unidad» para sumar más. No ofrece la unidad del propio cargo ni repite unidades, y el cargo al que responde se elige entre los de la unidad apoyada; si ninguno, «cuelga de la unidad». En la ficha se dibuja como la tabla de aprobadores: columnas «Unidad que apoya» y «Responde a», una cruz por fila y «Agregar otra unidad» al pie</td></tr>
+        <tr><td class="rg"><strong>1.59</strong></td><td>29 sep 2026</td><td><strong>El supervisor inmediato, más ancho y sin repetir su cargo</strong>, a pedido del equipo. El selector ocupa media fila y se lee completo: foto, nombre, cargo y área. Se retira «Cargo del supervisor», que repetía al lado lo que el selector ya enseña. La tabla de aprobadores gana aire: filas más altas, columnas más separadas y el orden en un círculo numerado</td></tr>
+        <tr><td class="rg"><strong>1.58</strong></td><td>29 sep 2026</td><td><strong>Los aprobadores de permisos, en una tabla compacta</strong>, a pedido del equipo (propuesta D), en lugar de la fila de casillas. Tres columnas —<b>Orden</b>, <b>Aprueba</b> y <b>Aprobador suplente</b>—, una fila por firma, cada una con su cruz, y «Agregar otro aprobador» al pie, hasta tres. Cada aprobador tiene su propio suplente en la columna «Aprobador suplente», opcional; al quitar una fila se va con su suplente. En la vista previa: «Diego Morales (suplente: Alejandro Ríos) → Paola Arce»</td></tr>
+        <tr><td class="rg"><strong>1.57</strong></td><td>29 sep 2026</td><td><strong>Los aprobadores de permisos, en una sola fila, y el suplente con el jefe</strong>, a pedido del equipo. Cada aprobador ocupaba un bloque con título propio; ahora «Aprobadores de permisos» es una fila —«1.º en aprobar», «2.º», «3.º», cada uno con su cruz— y «Agregar aprobador» al final, hasta tres. Una persona no se ofrece dos veces. El <b>suplente</b> deja de ser un campo suelto: es el del 1.º aprobador, el jefe, y se agrega bajo su casilla con «+ Agregar suplente». «Cargo del supervisor» ya no muestra el de un supervisor sin puesto elegido de antes</td></tr>
+        <tr><td class="rg"><strong>1.56</strong></td><td>29 sep 2026</td><td><strong>Una cadena de aprobación de permisos</strong>, a pedido del equipo. Un permiso suele pasar por más de una firma —el jefe directo y después RR.HH.—, y había un solo campo. Ahora «Aprobación de permisos» es una lista en orden —Aprobador 1, Aprobador 2—, cada uno con su campo «Aprobador de permisos», con «Agregar otro aprobador» hasta tres y una papelera en cada uno. El aprobador que ya estaba elegido queda como el primero</td></tr>
+        <tr><td class="rg"><strong>1.55</strong></td><td>29 sep 2026</td><td><strong>Elegir a una persona es verla</strong>, a pedido del equipo (propuesta S1). El supervisor inmediato, el supervisor funcional, quién aprueba los permisos, el aprobador suplente y quién autorizó la contratación dejan de ser una lista de nombres: cada opción lleva la foto de la persona y, debajo del nombre, su cargo y su área, y el campo elegido también. El buscador encuentra por nombre o por cargo. Sólo se ofrecen las personas que ocupan un cargo: alguien sin puesto asignado no puede ser supervisor ni aprobador</td></tr>
+        <tr><td class="rg"><strong>1.54</strong></td><td>29 sep 2026</td><td><strong>«Cargo del supervisor» se completa solo</strong>, reportado por el equipo. Se declaraba calculado y no tenía de dónde calcularse: salía siempre en raya. Ahora toma el cargo que tiene en su ficha la persona elegida como supervisor inmediato</td></tr>
+        <tr><td class="rg"><strong>1.53</strong></td><td>29 sep 2026</td><td><strong>«Jefaturas y aprobaciones» pasa a «Dependencia organizacional y funcional»</strong>, a pedido del equipo, y se ordena en dos bloques. <b>Dependencia organizacional</b>: supervisor inmediato, cargo del supervisor, quién aprueba sus permisos y el aprobador suplente. <b>Dependencia funcional</b>: el o los supervisores funcionales y la unidad en que cada uno lo supervisa, con «Agregar otro supervisor funcional»</td></tr>
+        <tr><td class="rg"><strong>1.52</strong></td><td>29 sep 2026</td><td><strong>Se retira «Imputación contable»</strong>, a pedido del equipo, con sus tres campos: centro de costo, proyecto asignado y cliente asignado</td></tr>
+        <tr><td class="rg"><strong>1.51</strong></td><td>29 sep 2026</td><td><strong>El nivel de mando y el tipo de cargo, desde el organigrama</strong>, a pedido del equipo. «Información organizacional» suma <b>Nivel de mando</b> (mando superior, medio o bajo, con los nombres que tenga la empresa) y <b>Tipo de cargo</b> (Regular, Staff o Externo). No se preguntan: se completan solos con lo que el organigrama dice del cargo elegido, para que la ficha y el organigrama no puedan contradecirse. Si el cargo no los declaró, quedan en raya, y si no son los correctos se cambian en el cargo</td></tr>
+        <tr><td class="rg"><strong>1.50</strong></td><td>29 sep 2026</td><td><strong>El cargo con buscador, y el tipo de trabajador a su lado</strong>, a pedido del equipo. El desplegable de <b>Cargo</b> muestra siempre su buscador, aunque la empresa tenga pocos cargos; los demás desplegables lo muestran desde nueve opciones. <b>Tipo de trabajador</b> pasa a ocupar un tercio de la fila, al lado del cargo, y «Modalidad de trabajo» también</td></tr>
+        <tr><td class="rg"><strong>1.49</strong></td><td>29 sep 2026</td><td><strong>«Categoría del puesto (Obrero / Administrativo)» pasa a llamarse «Tipo de trabajador»</strong>, a pedido del equipo. Es como lo distingue la Ley General del Trabajo, y no se confunde con la «Clasificación laboral» del contrato ni con la categoría de la licencia. Las opciones siguen siendo Administrativo y Obrero, y el aviso del aguinaldo ahora dice «el tipo de trabajador es Obrero»</td></tr>
+        <tr><td class="rg"><strong>1.48</strong></td><td>29 sep 2026</td><td><strong>El seguro médico privado pasa a «Datos médicos»</strong>, a pedido del equipo: «¿Tiene seguro médico privado?», el proveedor y el número de asegurado dejan su tarjeta en «Información Familiar» y van al final de «Datos médicos», en «Información Personal», bajo el rótulo «Seguro médico privado»</td></tr>
+        <tr><td class="rg"><strong>1.47</strong></td><td>29 sep 2026</td><td><strong>Corrección: marcar o desmarcar a una persona dejaba la pantalla en blanco</strong>, reportado por el equipo. La casilla de cada fila no estaba anclada a su fila; al recibir el foco, el navegador desplazaba la vista hasta una zona vacía de la página. Ahora queda dentro de su fila y la vista no se mueve. Además, tocar a un hijo con discapacidad declarada, que no se puede desmarcar, muestra un aviso que explica por qué y dónde se cambia</td></tr>
+        <tr><td class="rg"><strong>1.46</strong></td><td>29 sep 2026</td><td><strong>Varias personas que no están en la ficha</strong>, a pedido del equipo. Solo se podía registrar una, y el botón se volvía esa fila: no había cómo agregar una segunda. Ahora «Agregar otra persona» queda siempre al final de la lista, cada clic suma una fila con nombre, relación, tipo y grado, y cada una se quita con la cruz de su derecha. Una ficha guardada con una sola otra persona la conserva como la primera de la lista</td></tr>
+        <tr><td class="rg"><strong>1.45</strong></td><td>29 sep 2026</td><td><strong>Tipo y grado de discapacidad en la misma lista, y la otra persona también</strong>, a pedido del equipo. La columna «Discapacidad» se parte en <b>Tipo</b> y <b>Grado</b>: al marcar a una persona de la ficha, su fila pide los dos con desplegables, y al desmarcarla se borran. Los hijos con discapacidad declarada los muestran bloqueados. «Agregar otra persona» ya no abre campos debajo: la misma fila se vuelve editable —nombre, relación, tipo y grado en sus columnas—. En la vista previa cada persona se lee con su discapacidad entre paréntesis</td></tr>
+        <tr><td class="rg"><strong>1.44</strong></td><td>29 sep 2026</td><td><strong>«Marque a las personas con discapacidad»: lista en un recuadro, con columnas</strong>, a pedido del equipo (propuesta L1), en lugar de las tarjetas. Una fila por persona de la ficha con sus datos en columnas —persona, relación y discapacidad— y un círculo a la derecha para marcarla; la última fila es «Agregar otra persona». El campo deja de llamarse «¿De quién es tutor?». <b>Los hijos con discapacidad declarada aparecen marcados y bloqueados</b>, con un candado: eso se contestó en «Datos de los hijos» y se cambia allá. En la vista previa se leen todos juntos, los marcados a mano y los hijos con discapacidad</td></tr>
+        <tr><td class="rg"><strong>1.43</strong></td><td>29 sep 2026</td><td><strong>«¿De quién es tutor?» pasa a tarjetas que se marcan (propuesta B)</strong>, a pedido del equipo, en lugar de la tabla. Una tarjeta por persona de la ficha —iniciales, nombre, relación y, si está declarada, su discapacidad—, tres por fila, que se marca tocándola; la marcada lleva borde verde y un visto. La última, punteada, es «Otra persona» y abre sus datos debajo. En pantallas angostas pasan a dos y a una por fila</td></tr>
+        <tr><td class="rg"><strong>1.42</strong></td><td>29 sep 2026</td><td><strong>«¿De quién es tutor?» pasa a la lista con casillas (propuesta A)</strong>, a pedido del equipo, en lugar de la agrupada: una sola tabla con las columnas Persona, Relación y Discapacidad, una casilla por fila, y debajo «Es otra persona, que no está en la ficha». La relación dice también de dónde viene la persona («Padre · contacto de emergencia»). Se quita la franja de resumen que había arriba</td></tr>
+        <tr><td class="rg"><strong>1.41</strong></td><td>29 sep 2026</td><td><strong>«¿De quién es tutor?» pasa a una lista agrupada con casillas</strong>, a pedido del equipo (propuesta A2). Era un desplegable de un solo nombre y una caja «¿Quién?». Ahora muestra la gente que ya está en la ficha agrupada por de dónde viene —hijos, cónyuge, contactos de emergencia—, con la discapacidad declarada a la vista, y se puede marcar a una o a varias personas. Si es alguien que no está en la ficha, «Registrar a alguien que no está en la ficha» abre su nombre completo, relación, y tipo y grado de discapacidad. Deja de ofrecer a los padres, porque esa tarjeta se retiró</td></tr>
+        <tr><td class="rg"><strong>1.40</strong></td><td>29 sep 2026</td><td><strong>«Tutela y protecciones» pasa a «Datos de tutela y protecciones»</strong>, a pedido del equipo, como el resto de las tarjetas</td></tr>
+        <tr><td class="rg"><strong>1.39</strong></td><td>29 sep 2026</td><td><strong>«Datos médicos» pasa al final de «Información Personal»</strong>, a pedido del equipo: tipo de sangre, alergias, medicación, condición crónica, recomendación médica y discapacidad son datos de la persona, no de su familia. Con la discapacidad, que es del mínimo legal, el paso 1 pasa a tener 18 datos del mínimo y el paso 2, 4; el total sigue en 32</td></tr>
+        <tr><td class="rg"><strong>1.38</strong></td><td>29 sep 2026</td><td><strong>El detalle de los datos médicos</strong>, a pedido del equipo: las cuatro cajas que se abren con «Sí» decían «¿Cuál o cuáles?» y ahora dicen qué se describe: <b>Descripción de la alergia</b>, <b>de la medicación</b>, <b>de la condición</b> y <b>de la recomendación</b></td></tr>
+        <tr><td class="rg"><strong>1.37</strong></td><td>29 sep 2026</td><td><strong>Se retira el bloque «Propietario de la garantía»</strong>, a pedido del equipo: el dueño de la garantía es el garante, que ya está registrado arriba. Salen «¿La garantía es del mismo garante?» y los campos del propietario (versiones 1.33 y 1.36)</td></tr>
+        <tr><td class="rg"><strong>1.36</strong></td><td>29 sep 2026</td><td><strong>«Relación con el garante» pasa a lista</strong>, a pedido del equipo, con la misma lista de parentesco que los contactos de emergencia y los beneficiarios: Madre, Padre, Cónyuge, Conviviente, Hijo(a), Hermano(a) y Abuelo(a)</td></tr>
+        <tr><td class="rg"><strong>1.35</strong></td><td>29 sep 2026</td><td><strong>«Datos de garantes» pasa a llamarse «Datos de garantes y garantías»</strong>, a pedido del equipo: la tarjeta registra a la persona que respalda y lo que deja en respaldo</td></tr>
+        <tr><td class="rg"><strong>1.34</strong></td><td>29 sep 2026</td><td><strong>El cónyuge del garante casado</strong>, a pedido del equipo. Si el estado civil del garante es «Casado(a)», aparecen <b>Nombre completo del cónyuge</b> y <b>Número de documento de identidad del cónyuge</b>: con el garante casado, la garantía es compartida. Queda abierto si la unión libre también la comparte</td></tr>
+        <tr><td class="rg"><strong>1.33</strong></td><td>29 sep 2026</td><td><strong>El propietario de la garantía</strong>, a pedido del equipo. Lo que se deja en garantía puede no ser del garante —la casa de su cónyuge o de sus padres—, y entonces el dueño firma también. Al final del bloque de la garantía, «¿La garantía es del mismo garante?», que arranca en Sí. Con No se abre el bloque <b>Propietario de la garantía</b>: nombre completo, relación con el garante, tipo y número de documento de identidad, y su documento escaneado</td></tr>
+        <tr><td class="rg"><strong>1.32</strong></td><td>29 sep 2026</td><td><strong>El garante y la garantía, por separado</strong>, a pedido del equipo. La tarjeta de garantes se parte en dos bloques. <b>Garante</b>: la persona, con sus datos y, nuevo, el <b>documento de identidad del garante escaneado</b> (anverso y reverso), que también aparece en «Archivos». <b>Garantía</b>: lo que deja en respaldo. «Tipo de garantía» pasa de texto libre a lista —inmueble, vehículo, salario fijo, certificado de depósito, aval de asociación y «Otro», que abre una caja— y se suman <b>descripción</b>, <b>número de registro</b> (folio real, placa, n.º de certificado) y <b>valor en bolivianos</b>, junto al documento de garantía</td></tr>
+        <tr><td class="rg"><strong>1.31</strong></td><td>29 sep 2026</td><td><strong>«Tipo de documento de identidad» y «Número de documento de identidad»</strong>, a pedido del equipo, en los bloques del cónyuge, de cada hijo, de cada beneficiario y del garante. Decían solo «Tipo de documento» y «Número de documento», y ahí no hay un título que diga de qué documento se habla. En la tarjeta del colaborador siguen igual, porque la tarjeta ya se llama «Documento de identidad»</td></tr>
+        <tr><td class="rg"><strong>1.30</strong></td><td>29 sep 2026</td><td><strong>«¿Qué documento?» al elegir «Otro»</strong>, a pedido del equipo. El tipo de documento del cónyuge, de cada hijo, de cada beneficiario y del garante tenía «Otro» sin ningún sitio donde decir cuál; ahora abre una caja al lado, como ya hacía el del colaborador. En los bloques repetidos, cada uno mira su propia elección</td></tr>
+        <tr><td class="rg"><strong>1.29</strong></td><td>29 sep 2026</td><td><strong>El parentesco de beneficiarios y herederos se cierra a los familiares directos</strong>, a pedido del equipo, igual que el del contacto de emergencia: quedan Madre, Padre, Cónyuge, Conviviente, Hijo(a), Hermano(a) y Abuelo(a); salen Tío(a), Primo(a), Amigo(a), Vecino(a) y «Otro», con su caja</td></tr>
+        <tr><td class="rg"><strong>1.28</strong></td><td>29 sep 2026</td><td><strong>Se retira «Datos de los padres»</strong>, a pedido del equipo: el nombre del padre y el de la madre del colaborador no se usaban. Dejan de ofrecerse en «¿De quién?» de la tutela. Y «¿Presenta discapacidad?» de cada hijo arranca en <b>No</b>, como la del colaborador, también en los hijos que se agregan</td></tr>
+        <tr><td class="rg"><strong>1.27</strong></td><td>29 sep 2026</td><td><strong>El tipo y el grado de discapacidad de cada hijo</strong>, a pedido del equipo. Si un hijo presenta discapacidad aparecen, en su bloque, <b>Tipo de discapacidad</b> y <b>Grado de discapacidad</b>, dos listas con el mismo catálogo que el del colaborador: los seis tipos y los cuatro grados del artículo 5 de la Ley 223. Cada hijo mira su propia respuesta</td></tr>
+        <tr><td class="rg"><strong>1.26</strong></td><td>29 sep 2026</td><td><strong>Todos los celulares llevan su código de país</strong>, a pedido del equipo: se suman el del cónyuge y el del garante al del colaborador y los de los contactos de emergencia. Arrancan en el país de residencia del colaborador, o en Bolivia</td></tr>
+        <tr><td class="rg"><strong>1.25</strong></td><td>29 sep 2026</td><td><strong>Datos de los hijos</strong>, a pedido del equipo. Se retira «¿Es beneficiario del seguro?», como en el cónyuge. El <b>sexo</b> de cada hijo pasa de texto libre a lista, con las mismas opciones que el del colaborador: F · Femenino y M · Masculino</td></tr>
+        <tr><td class="rg"><strong>1.24</strong></td><td>29 sep 2026</td><td><strong>Se retira «¿Es beneficiario del seguro?» de los datos del cónyuge</strong>, a pedido del equipo</td></tr>
+        <tr><td class="rg"><strong>1.23</strong></td><td>29 sep 2026</td><td><strong>La nacionalidad del cónyuge y la de los hijos</strong>, a pedido del equipo, con el mismo catálogo que la del colaborador: el gentilicio —«Boliviana», «Argentina», «Chilena»— en vez del país, todos los países y sin «Otro»</td></tr>
+        <tr><td class="rg"><strong>1.22</strong></td><td>29 sep 2026</td><td><strong>El nombre del cónyuge</strong>, a pedido del equipo: «Nombres y apellidos (estructurado)» pasa a decir <b>Nombre completo</b>, como en los contactos de emergencia</td></tr>
+        <tr><td class="rg"><strong>1.21</strong></td><td>29 sep 2026</td><td><strong>Los contactos de emergencia se agregan con un botón</strong>, a pedido del equipo. Desaparece la pregunta «¿Agregar un segundo contacto?» y su segundo bloque fijo: el contacto pasa a ser un grupo repetible, como los hijos o la experiencia laboral, con «Agregar otro contacto de emergencia» —hasta cinco— y una papelera en cada uno. El primero sigue siendo obligatorio. Las fichas que ya tenían un segundo contacto lo conservan: se muestra como «Contacto 2»</td></tr>
+        <tr><td class="rg"><strong>1.20</strong></td><td>29 sep 2026</td><td><strong>Licencias y certificaciones pasa a ser repetible</strong>, a pedido del equipo: una persona puede tener licencia de conducir y, además, los certificados de antecedentes y de No Violencia. «Agregar otra licencia o certificación» suma un bloque, hasta diez, y cada uno tiene su papelera. Cada bloque se titula con el tipo elegido y aplica sus reglas por su cuenta: la categoría, la suspensión, los rótulos del número y las fechas y el estado calculado miran su propio tipo, su país y su vencimiento, no los del primero</td></tr>
+        <tr><td class="rg"><strong>1.19</strong></td><td>29 sep 2026</td><td><strong>El contacto de emergencia</strong>, a pedido del equipo, en el primer contacto y en el segundo. «Teléfono principal» pasa a <b>Número de celular</b>, con el mismo selector de código de país que el celular del colaborador, que arranca en su país de residencia. «Dirección · Ciudad · País» pasa a <b>Dirección de domicilio</b>. El teléfono alternativo sigue igual, porque puede ser un fijo</td></tr>
+        <tr><td class="rg"><strong>1.18</strong></td><td>29 sep 2026</td><td><strong>El parentesco del contacto de emergencia se cierra a los familiares directos</strong>, a pedido del equipo, en el primer contacto y en el segundo. Quedan Madre, Padre, Cónyuge, Conviviente, Hijo(a), Hermano(a) y Abuelo(a); salen Tío(a), Primo(a), Amigo(a), Vecino(a) y «Otro», y con él la caja para escribir otro parentesco</td></tr>
+        <tr><td class="rg"><strong>1.17</strong></td><td>29 sep 2026</td><td><strong>Solo una licencia se suspende</strong>, a pedido del equipo. «¿Está suspendida?» aparece con una licencia —de conducir o de operador de maquinaria— o con «Otro», que puede serlo; no con un certificado ni con el carnet de sanidad, que no se suspenden: vencen. Al cambiar a uno de esos, la respuesta vuelve a No y el estado deja de decir «Suspendida»</td></tr>
+        <tr><td class="rg"><strong>1.16</strong></td><td>29 sep 2026</td><td><strong>El número y las fechas de la tarjeta de licencias dicen de qué papel son</strong>, a pedido del equipo. Decían «de la licencia» aunque se eligiera un certificado. Ahora siguen al tipo: <b>Número de licencia</b> y <b>Fecha de emisión de la licencia</b>, <b>Número de certificado</b> y <b>Fecha de vencimiento del certificado</b>, o <b>del carnet</b> para el de sanidad. Sin tipo, o con «Otro», dicen solo «Número», «Fecha de emisión» y «Fecha de vencimiento»</td></tr>
+        <tr><td class="rg"><strong>1.15</strong></td><td>29 sep 2026</td><td><strong>La categoría de la licencia</strong>, a pedido del equipo. Solo aparece si el tipo es <b>Licencia de conducir</b>, y al elegir otro tipo se borra. Pasa de texto libre a lista con las categorías de Bolivia: P particular, A, B y C profesional, M motocicleta y T maquinaria y equipo pesado. Como las categorías son de Bolivia, el <b>país emisor</b> pasa a preguntarse justo después del tipo, antes del número y la categoría; si es otro país, la categoría vuelve a ser una caja donde se copia tal como figura en la licencia</td></tr>
+        <tr><td class="rg"><strong>1.14</strong></td><td>29 sep 2026</td><td><strong>Más tipos de licencia o certificación</strong>, a pedido del equipo. Se suman el <b>certificado de No Violencia</b> y el <b>certificado de antecedentes penales</b>, y lo que es licencia lo dice delante: «Operador de maquinaria» pasa a <b>Licencia de operador de maquinaria</b>. La lista queda en dos grupos, primero las licencias y después los certificados, con «Otro» al final</td></tr>
+        <tr><td class="rg"><strong>1.13</strong></td><td>29 sep 2026</td><td><strong>El celular lleva su código de país, y la profesión se muda a Perfil profesional</strong>, a pedido del equipo. <b>Número de celular</b> tiene a la izquierda de la misma caja un selector de código de país —sigla, país y código, con buscador—; arranca en el país de residencia, o en Bolivia si no hay, y se guarda entero, «+591 71244890». <b>Profesión u ocupación</b> y <b>Matrícula profesional</b> dejan la tarjeta «Datos profesionales» del paso 1 y abren el paso 4, bajo el rótulo «Profesión», junto a la formación y la experiencia que las respaldan; conservan sus claves 1.32 y 1.33</td></tr>
+        <tr><td class="rg"><strong>1.12</strong></td><td>29 sep 2026</td><td><strong>Residencia en Argentina y número de celular</strong>, a pedido del equipo. El escalón bajo la provincia argentina deja de llamarse «Departamento / Partido»: dice <b>Partido</b> si la provincia es Buenos Aires, <b>Comuna</b> si es la Ciudad de Buenos Aires y <b>Departamento</b> en el resto. «Celular personal» pasa a llamarse <b>Número de celular</b></td></tr>
+        <tr><td class="rg"><strong>1.11</strong></td><td>29 sep 2026</td><td><strong>Nacionalidad y segunda nacionalidad</strong>, a pedido del equipo. <b>Nacionalidad</b> solo aparece si «¿Es de nacionalidad boliviana?» es No, y entonces no ofrece «Boliviana»; con Sí ya está contestada. <b>Segunda nacionalidad</b> pasa de texto libre a selector y no ofrece la nacionalidad principal. Las dos listas dicen el gentilicio —«Argentina», «Chilena»— en vez del país, con todos los países y sin «Otro». Cambiar la respuesta vacía lo que quedaría contradiciéndola</td></tr>
+        <tr><td class="rg"><strong>1.10</strong></td><td>29 sep 2026</td><td><strong>El país emisor pasa a ser el primer dato del documento de identidad</strong>, en el principal y en el secundario. La extensión y el complemento SEGIP solo existen en el carnet boliviano —un DNI chileno, un pasaporte o un carnet de extranjero no los tienen—, y la ficha ya los escondía; pero el país se elegía después y los campos aparecían antes de tiempo. Nuevo orden: país emisor, tipo, número, extensión y complemento (solo carnet boliviano), fechas y escaneo —<span class="id">BR‑GP‑022</span>—</td></tr>
+        <tr><td class="rg"><strong>1.9</strong></td><td>29 sep 2026</td><td><strong>El reingreso deja de preguntar por los permisos y la antigüedad anteriores</strong>, a pedido del equipo. Solo queda la pregunta de los documentos. Las dos eran del mínimo legal, que pasa de 34 a 32 datos; la ficha pasa a 322 datos distintos</td></tr>
         <tr><td class="rg"><strong>1.8</strong></td><td>28 sep 2026</td><td><strong>Sale el bloque «Competencias»</strong> del perfil profesional, a pedido del equipo. La ficha pasa a 324 datos distintos</td></tr>
         <tr><td class="rg"><strong>1.7</strong></td><td>28 sep 2026</td><td><strong>La referencia laboral de cada experiencia dice a quién llamar.</strong> Si «¿Referencia laboral disponible?» es Sí, aparecen <b>nombre, cargo y teléfono de la referencia</b>. Se mira la respuesta de cada experiencia por separado: la segunda puede tener referencia aunque la primera no. La ficha pasa a 325 datos distintos</td></tr>
         <tr><td class="rg"><strong>1.6</strong></td><td>28 sep 2026</td><td><strong>El supervisor funcional pasa a ser repetible.</strong> Una persona tiene un solo supervisor inmediato, pero puede tener varios funcionales —es lo normal en estructuras matriciales, y el estudio ya lo pedía: obs. #26, «anotar más de una persona»—. Cada uno se declara como un par, <b>supervisor funcional</b> y <b>¿en qué unidad lo supervisa?</b>, igual que la dependencia funcional de Organización. Se agregan con «Agregar otro supervisor funcional», hasta cinco, y cada copia tiene su papelera. <em>Se prefirió esto a mostrarlo de solo lectura desde el puesto; queda el riesgo de que la ficha y el organigrama no coincidan.</em> La ficha pasa a 322 datos distintos</td></tr>
@@ -4188,7 +4254,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 
 <footer class="pie">
-  <div>Documentación del módulo de gestión de personas — versión 1.8, 28 de septiembre de 2026. Souly HR. Documenta la ficha del colaborador tal como está en el prototipo, con los mismos capítulos que el documento de <a href="reglas-de-negocio.html">Organización</a>. <strong>Las treinta y tres reglas están en estado borrador.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
+  <div>Documentación del módulo de gestión de personas — versión 1.10, 29 de septiembre de 2026. Souly HR. Documenta la ficha del colaborador tal como está en el prototipo, con los mismos capítulos que el documento de <a href="reglas-de-negocio.html">Organización</a>. <strong>Las treinta y tres reglas están en estado borrador.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
 </footer>
 
 

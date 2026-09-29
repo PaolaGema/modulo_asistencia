@@ -1,6 +1,7 @@
 import { PASOS_PROPUESTA } from './camposPropuesta'
 import { provinciasDe } from './divisionPolitica'
 import { nivelesDe, tieneCatalogo } from './territorios'
+import { paisPorNombre } from './codigosPais'
 
 /* LA FICHA DEL COLABORADOR.
    Ocho pasos y una vista previa, con los 249 campos del estudio de la propuesta v1.2. Los campos
@@ -24,12 +25,47 @@ import { nivelesDe, tieneCatalogo } from './territorios'
    estudio. Con «Mínimo» a la vista quedan los 34 campos sin los cuales no se puede declarar a
    nadie; el resto sigue existiendo y se llena después. */
 
+/* La nacionalidad boliviana, como se guarda hoy y como se guardaba cuando la lista decía el
+   país: un borrador viejo puede traer todavía «Bolivia». */
+const BOLIVIANA = ['Boliviana', 'Bolivia']
+
+/* La nacionalidad que figura como principal: «Boliviana» si contestó que sí, la elegida si no. */
+const nacionalidadPrincipal = form =>
+  form['1.24'] === 'si' ? 'Boliviana' : form['1.24'] === 'no' ? form['1.25'] || '' : ''
+
+/* De qué papel habla la tarjeta de licencias, según el tipo elegido: «de la licencia», «del
+   certificado», «del carnet». Sin tipo o con «Otro», ninguno. */
+const papelDeLicencia = tipo =>
+  !tipo || tipo === 'Otro' ? null
+    : tipo.startsWith('Licencia') ? { de: 'de la licencia', num: 'de licencia' }
+      : tipo.startsWith('Manipulación') ? { de: 'del carnet', num: 'de carnet' }
+        : { de: 'del certificado', num: 'de certificado' }
+
+// Los campos que eligen a una persona del directorio y la enseñan con foto, cargo y área.
+const PERSONAS_CON_FOTO = ['3.13', '3.15', '3.16', '3.16b', '3.39']
+
 export const PASO_PREVIA = 'previa'
 
 /* Los peldaños del riel y de las pestañas: lo mismo que trae el estudio, sin los campos.
    «Vista previa» no lleva número a propósito —no es un noveno formulario que llenar, es la ficha
    entera leída de corrido antes de crearla— y por eso viene sin `n` desde el conversor. */
-export const PASOS = PASOS_PROPUESTA.map(({ key, n, titulo, corto, pista }) => ({ key, n, titulo, corto, pista }))
+
+/* ── DOS PASOS QUE SÓLO SE VEN EN LOCAL ───────────────────────────────────
+   «Perfil profesional» y «Asistencia» son pasos grandes que el equipo sigue trabajando y todavía
+   no se enseñan (29 sep 2026): se ven con `npm run dev` y NO en la versión publicada en Vercel.
+   El código viaja en el commit igual; lo que cambia es sólo si el paso entra en la lista.
+
+   SE RENUMERA LO QUE QUEDA, para que el riel diga 1, 2, 3… sin huecos en Vercel. Y un enlace con
+   `?paso=asistencia` allá cae al primer paso, como cualquier paso que no existe.
+
+   `?.` porque fuera de Vite —los scripts de node que leen este archivo— no hay `import.meta.env`,
+   y ahí se enseña todo. */
+const SOLO_EN_LOCAL = ['perfil', 'asistencia']
+const EN_LOCAL = import.meta.env?.DEV ?? true
+let numero = 0
+export const PASOS = PASOS_PROPUESTA
+  .filter(p => EN_LOCAL || !SOLO_EN_LOCAL.includes(p.key))
+  .map(({ key, n, titulo, corto, pista }) => ({ key, n: n ? ++numero : n, titulo, corto, pista }))
 
 /* «Paso 4 de 8». El ocho se cuenta, no se escribe: «Vista previa» viene sin número desde el
    conversor justamente para no contar como un formulario más, y si el estudio agrega un paso
@@ -59,7 +95,6 @@ export const EN_BLANCO = {
      todos los días, nunca por el excepcional: sin arranque abriría con los dos botones apagados
      —que en esta ficha significa «todavía no contestaron», no «no»—. El documento secundario
      tuvo la suya (1.19) hasta volverse un grupo que arranca en cero, con su botón de agregar. */
-  '2.seg': 'no',  // ¿Agregar un segundo contacto de emergencia?
   '1.78b': 'no',  // ¿Está suspendida la licencia?
 
   /* ── Y LA DE DISCAPACIDAD, QUE ES LA MÁS DELICADA DE LAS CUATRO ──────────
@@ -78,6 +113,9 @@ export const EN_BLANCO = {
      un clic. Lo que no se puede es que además quede escondido. Si algún día el tipo y el grado
      se llevan la pregunta con ellos detrás de un plegado, esta línea se va. */
   '1.60': 'no',   // ¿Tiene discapacidad?
+  '2.29': 'no',   // ¿Presenta discapacidad? (el primer hijo; los demás lo traen de `arranque` en «Agregar otro hijo»)
+  '3.43': 'no',   // ¿Aporta a la Gestora? (con «Sí» se abren estado, NUA/CUA, sucursal y tipo de asegurado)
+  '3.48': 'no',   // ¿Está jubilado?
 
   /* Y la del seguro privado, que es la misma forma sin ninguna de las asperezas de la anterior:
      no se declara ante nadie, no cuenta para ninguna cuota, y el caso común es que no lo haya.
@@ -91,7 +129,7 @@ export const EN_BLANCO = {
   /* EL RETROACTIVO ARRANCA EN SÍ, y es el único Sí de arranque de la ficha: «legalmente siempre
      se tiene que aplicar». No pagarlo bloquea las declaraciones ante el Ministerio y la Gestora
      y genera multa, así que el error caro es olvidarse de marcarlo, no marcarlo de más. */
-  '3.78': 'si',   // ¿Aplica retroactivo? (y retroactivo de antigüedad)
+  '3.78': 'si',   // ¿Aplica retroactivo? (retroactivo de antigüedad)
 
   /* BOLIVIA VIENE PUESTO por ser el caso común, y se lo gana: el país emisor decide si se piden
      extensión y complemento SEGIP, así que sin un valor de arranque la tarjeta del documento
@@ -205,15 +243,43 @@ const hoyISO = () => {
    mientras la otra seguía ofreciendo suspender, que es el estado imposible.
 
    SIN FECHA NO ESTÁ VENCIDA, está sin saber. Devuelve falso a propósito: es lo que mantiene la
-   pregunta a la vista mientras nadie escribió el vencimiento todavía. */
-const licenciaVencida = form => {
-  const vence = form['1.77']
+   pregunta a la vista mientras nadie escribió el vencimiento todavía.
+
+   RECIBE UN LECTOR Y NO LA FICHA: las licencias son un bloque repetible, y cada una tiene que
+   leer SU fecha —`suyo('1.77')`—, no la de la primera. */
+const licenciaVencida = leer => {
+  const vence = leer('1.77')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(vence || '')) return false
   return vence < hoyISO()
 }
 
+/* LO QUE SE SUSPENDE ES UNA LICENCIA. La de conducir la suspende Tránsito; un certificado de
+   antecedentes o de No Violencia no se suspende: vence, o se saca otro. Por eso la pregunta
+   «¿Está suspendida?» sólo se hace con una licencia, o con «Otro», que puede serlo. Sin tipo
+   elegido tampoco: todavía no se sabe de qué papel se habla. */
+const seSuspende = leer => {
+  const tipo = leer('1.72')
+  return !!tipo && (tipo.startsWith('Licencia') || tipo === 'Otro')
+}
+
 const DERIVADOS = {
   '1.7': form => nombreArmado(form),
+
+  /* ── EL NIVEL DE MANDO Y EL TIPO DE CARGO SALEN DEL CARGO ELEGIDO ───────────
+     Son del cargo, y el cargo ya los tiene declarados en Organización: preguntarlos otra vez acá
+     sería abrir la puerta a que la ficha y el organigrama digan cosas distintas del mismo
+     puesto. Se leen de la opción elegida en 3.11; sin cargo, o con un cargo que no los declaró,
+     quedan en raya. */
+  /* EL CARGO DEL SUPERVISOR ES EL DE LA PERSONA ELEGIDA. Se declaraba calculado y no tenía de
+     dónde calcularse: salía siempre en raya. Ahora lo trae del directorio en cuanto se elige al
+     supervisor inmediato (3.13). */
+  '3.14': (form, suyo, ctx = {}) => {
+    const cargo = ctx.datosDePersona?.[form['3.13']]?.cargo || ''
+    // Un supervisor sin puesto no es supervisor: quedó elegido de antes y ya no está en la lista.
+    return /^sin puesto/i.test(cargo) ? '' : cargo
+  },
+  '3.11n': (form, suyo, ctx = {}) => (ctx.puestos || []).find(o => o.valor === form['3.11'])?.mando || '',
+  '3.11t': (form, suyo, ctx = {}) => (ctx.puestos || []).find(o => o.valor === form['3.11'])?.clase || '',
 
   /* ── EL ESTADO DE UNA LICENCIA, QUE ESTABA DECLARADO Y NO SE CALCULABA ──────
      1.78 llevaba `deducido` y la insignia «se calcula» desde que se portó el estudio, pero
@@ -243,10 +309,10 @@ const DERIVADOS = {
      SIN FECHA NO HAY ESTADO. Devuelve vacío en vez de arriesgar «Vigente» sobre un campo que
      nadie llenó todavía: decirle vigente a una licencia de la que no se sabe nada es peor que
      no decir nada, porque el aviso que esta tarjeta existe para mandar no se mandaría. */
-  '1.78': form => {
-    if (licenciaVencida(form)) return 'Vencida'
-    if (form['1.78b'] === 'si') return 'Suspendida'
-    const vence = form['1.77']
+  '1.78': (form, suyo = k => form[k]) => {
+    if (licenciaVencida(suyo)) return 'Vencida'
+    if (seSuspende(suyo) && suyo('1.78b') === 'si') return 'Suspendida'
+    const vence = suyo('1.77')
     if (!/^\d{4}-\d{2}-\d{2}$/.test(vence || '')) return ''
     return vence <= sumarDias(hoyISO(), 30) ? 'Por vencer' : 'Vigente'
   },
@@ -267,8 +333,6 @@ const DERIVADOS = {
      regañando a quien todavía no llegó al campo. */
   '2.35t': form => repartoDe(form).texto,
 
-  /* «Nunca pueden diferir»: la fecha de ingreso a la Caja es la de ingreso legal. */
-  '3.28': form => fechaCorta(form['3.25']),
   /* Ingreso + 89 días. El periodo de prueba es de 90 y a los 90 + 1 nacen los beneficios
      sociales, así que la alerta tiene que llegar antes. */
   '3.37': form => fechaCorta(sumarDias(form['3.25'], 89)),
@@ -333,13 +397,11 @@ const DERIVADOS = {
    nuestro. */
 const CONDICIONES = {
   /* Todo lo que cuelga de un reingreso: de qué empresa del grupo viene, quién es, y qué se le
-     trae de su registro anterior —documentos, permisos, antigüedad—. Sin reingreso no hay
+     trae de su registro anterior —sus documentos—. Sin reingreso no hay
      registro anterior del que traer nada, así que no hay nada que preguntar. */
   '0.2': form => form['0.1'] === 'si',
   '0.3': form => form['0.1'] === 'si',
   '0.4': form => form['0.1'] === 'si',
-  '0.5': form => form['0.1'] === 'si',
-  '0.6': form => form['0.1'] === 'si',
 
   /* ── LO QUE SÓLO TIENE EL CARNET BOLIVIANO ──────────────────────────────
      «EXTENSIÓN» Y «COMPLEMENTO SEGIP» NO SON DATOS DE UN DOCUMENTO: SON DATOS DE *ESTE*
@@ -378,12 +440,35 @@ const CONDICIONES = {
      en el segundo abre la caja del segundo y no la del primero. */
   '1.10b': form => form['1.10'] === 'Otro',
   '1.20i': (form, suyo) => suyo('1.20a') === 'Otro',
+  /* Y la misma caja en el documento de cada persona de la familia (29 sep 2026): cónyuge, cada
+     hijo, cada beneficiario y el garante. Tenían «Otro» en la lista y ningún sitio donde decir
+     cuál, así que guardaban la palabra «Otro». Los repetidos miran su propia copia. */
+  '2.10o': (form, suyo) => suyo('2.10') === 'Otro',
+  '3.90o': form => form['3.90'] === 'Otro',
+  '2.21o': (form, suyo) => suyo('2.21') === 'Otro',
+  '2.33o': (form, suyo) => suyo('2.33') === 'Otro',
+  '2.40o': (form, suyo) => suyo('2.40') === 'Otro',
+  // La garantía que la lista no nombra, con su caja: la misma válvula que el documento.
+  // El cónyuge del garante casado: la garantía es compartida.
+  '2.44a': form => form['2.44'] === 'Casado(a)',
+  '2.44b': form => form['2.44'] === 'Casado(a)',
+  '2.45o': form => form['2.45'] === 'Otro',
+
+  /* LA NACIONALIDAD SOLO SE PREGUNTA A QUIEN DIJO QUE NO ES BOLIVIANA. Con «Sí» ya está
+     contestada, y enseñar el campo con «Boliviana» dentro era repetir la respuesta de al lado.
+     Sin contestar todavía, tampoco: no se sabe si hace falta. */
+  '1.25': form => form['1.24'] === 'no',
 
   /* La tercera de la misma familia: el tipo de licencia dejó de ser texto libre para poder
      agrupar los avisos de vencimiento, y «Otro» es su válvula. Sin la caja, todo lo que la
      lista no nombra cae en un único montón llamado «Otro» — que para un aviso que se manda
      por tipo es peor que el texto libre que vino a reemplazar. */
-  '1.72b': form => form['1.72'] === 'Otro',
+  '1.72b': (form, suyo) => suyo('1.72') === 'Otro',
+
+  /* LA CATEGORÍA ES DE LA LICENCIA DE CONDUCIR —A, B, C, P, M, T— y de nada más: un certificado de
+     antecedentes o un carnet de sanidad no tienen categoría, y enseñar el campo con su chip
+     LEGAL daba a entender que había que llenarlo. */
+  '1.74': (form, suyo) => suyo('1.72') === 'Licencia de conducir',
 
   /* ── NO SE PREGUNTA POR SUSPENDER LO QUE YA VENCIÓ ─────────────────────────
      Suspender es quitarle valor a un papel que lo tenía. Vencido ya no lo tiene, así que la
@@ -398,7 +483,7 @@ const CONDICIONES = {
      MIENTRAS NO HAYA FECHA SE PREGUNTA IGUAL: no saber cuándo vence no es lo mismo que estar
      vencida, y una suspensión que ya ocurrió hay que poder anotarla antes de tener el papel
      delante. */
-  '1.78b': form => !licenciaVencida(form),
+  '1.78b': (form, suyo) => seSuspende(suyo) && !licenciaVencida(suyo),
 
   /* EL DOCUMENTO SECUNDARIO YA NO CUELGA DE UNA RESPUESTA: es un grupo que arranca en cero, y
      sin copias no hay bloque que esconder —ni campos que cuenten para el progreso—. Ver
@@ -417,6 +502,9 @@ const CONDICIONES = {
      pregunta de al lado (1.60) es la del mínimo legal y sigue estando siempre. */
   '1.61': form => form['1.60'] === 'si',
   '1.61b': form => form['1.60'] === 'si',
+  // Y los mismos dos para cada hijo, mirando la respuesta de SU bloque y no la del primero.
+  '2.29a': (form, suyo) => suyo('2.29') === 'si',
+  '2.29b': (form, suyo) => suyo('2.29') === 'si',
 
   /* LOS DETALLES DE LA TARJETA MÉDICA. Los rótulos decían «+ detalle» desde que se portó el
      estudio y detrás no había más que un Sí/No: la ficha preguntaba si hay algo y no dejaba
@@ -491,7 +579,6 @@ const CONDICIONES = {
 
   /* DE QUIÉN ES TUTOR, Y EL NOMBRE CUANDO NO ES NINGUNO DE LOS OFRECIDOS. */
   '1.62b': form => form['1.62'] === 'si',
-  '1.62c': form => form['1.62'] === 'si' && form['1.62b'] === 'Otra persona',
 
   /* EL SEGURO PRIVADO Y SUS DOS DATOS. Sin esto, quien no tiene seguro privado —la mayoría—
      miraba dos cajas que no se pueden llenar sin inventar. */
@@ -500,7 +587,7 @@ const CONDICIONES = {
 
   /* La caja del parentesco que la lista no contempla. Sin esto, «Otro» sería una respuesta que no
      responde nada — y es un campo del mínimo legal. */
-  '2.2b': form => form['2.2'] === 'Otro',
+  '2.2b': (form, suyo) => suyo('2.2') === 'Otro',
   /* Y la del heredero, que pregunta lo mismo con la misma lista. Acá «Otro» sin caja sería peor
      todavía: lo que queda sin nombre es la relación de quien cobra la indemnización.
 
@@ -508,25 +595,6 @@ const CONDICIONES = {
      beneficiario contesta su relación. Es la única condición de la ficha que lo necesita
      —ver `enSuCopia`— y por eso es la única con dos argumentos. */
   '2.32b': (form, suyo) => suyo('2.32') === 'Otro',
-  /* ── EL SEGUNDO CONTACTO SE PIDE, NO SE OFRECE PUESTO ────────────────────────────────
-     Estaba siempre a la vista, y eso es cinco campos vacíos que la mayoría no va a llenar
-     colgando de una tarjeta que ya tiene siete. Un formulario largo no se alarga por si acaso:
-     quien necesita el segundo contacto lo pide, y quien no, no lo ve.
-
-     ARRANCA EN «NO» como la pregunta del documento secundario, y por la misma razón: acá los dos
-     botones apagados significan «todavía no contestaron», así que sin valor de arranque el caso
-     raro le cobra el precio al común.
-
-     Y SU RÓTULO NO NECESITA CONDICIÓN. Cae solo, porque ya no queda ningún rótulo en la ficha que
-     sobreviva a sus campos — esa regla vive en `sinRotulosHuerfanos` y vale para todos. */
-  '2.1-2':  form => form['2.seg'] === 'si',
-  '2.2-2':  form => form['2.seg'] === 'si',
-  '2.3-2':  form => form['2.seg'] === 'si',
-  '2.4-2':  form => form['2.seg'] === 'si',
-  '2.5-2':  form => form['2.seg'] === 'si',
-  '2.6-2':  form => form['2.seg'] === 'si',
-  '2.7-2':  form => form['2.seg'] === 'si',
-  '2.2b-2': form => form['2.seg'] === 'si' && form['2.2-2'] === 'Otro',
 
   '1.20c': (form, suyo) => suyo('1.20a') === 'Documento nacional de identidad' && suyo('1.20g') === 'Bolivia',
   '1.20d': (form, suyo) => suyo('1.20a') === 'Documento nacional de identidad' && suyo('1.20g') === 'Bolivia',
@@ -542,20 +610,13 @@ const CONDICIONES = {
      o una viuda puede conservarlo legalmente y su carnet lo sigue diciendo, así que esa
      condición lo escondería justo a quien lo tiene en el documento. */}
 
-/* EL ESTUDIO TRAE CUATRO CONDICIONES MÁS Y NO ESTÁN PORTADAS TODAVÍA, a propósito:
+/* EL ESTUDIO TRAE DOS CONDICIONES MÁS Y NO ESTÁN PORTADAS TODAVÍA, a propósito:
 
      3.36  fecha de finalización, sólo si el contrato tiene plazo (depende de 3.32)
      3.117 marcación virtual, sólo si la modalidad no es 100 % presencial (depende de 3.42b)
 
-   Ésas dos son portables tal cual y entran cuando se trabaje el paso «Contrato».
-
-     3.26 y 3.27  dependen de `__fechasDistintas`
-     3.41         depende de `__modo === 'edicion'`
-
-   Esas tres cuelgan de banderas internas del prototipo que esta aplicación no tiene. Portarlas
-   sin la bandera las escondería PARA SIEMPRE, que es peor que enseñarlas de más: un campo que
-   no aparece nunca no se reclama y nadie descubre que falta. Entran cuando exista de dónde
-   leerlas. */
+   Son portables tal cual y entran cuando se trabaje el paso «Relación laboral». (3.26 y 3.27, las otras
+   fechas de ingreso, se retiraron el 29 sep 2026; 3.41, el motivo de retiro, también.) */
 
 /* Qué ranura territorial es cada clave del estudio. Acá y no en el campo porque es una relación
    entre tres campos, y un campo no puede saber qué lugar ocupa en una escalera. */
@@ -783,6 +844,7 @@ const CUENTA = grupo => '__n_' + grupo
    el reingreso trae el escaneo (1.20h) sin la cuenta, y sin esto llegaría a un bloque invisible. */
 const MINIMO_COPIAS = { docsec: 0 }
 const LEGADO = {
+  emergencia: form => (form['2.seg'] === 'si' ? 2 : 1),
   docsec: form => (form['1.19'] === 'si' || ['1.20a', '1.20b', '1.20h'].some(k => form[k]) ? 1 : 0),
 }
 export const minimoDe = grupo => MINIMO_COPIAS[grupo] ?? 1
@@ -794,60 +856,122 @@ export const cuantosHay = (form, grupo) => {
 }
 export const claveDeCuenta = CUENTA
 
-/* ── TODA LA GENTE QUE LA FICHA YA CONOCE ─────────────────────────────────
-   Los contactos de emergencia, el cónyuge, los hijos y los padres: todos los nombres de persona
-   que se escribieron en el paso, con la relación al lado. Alimenta el desplegable de «¿De
-   quién?» en la tarjeta de tutela, donde volver a teclear un nombre que está cuatro tarjetas
-   más arriba es trabajo que el formulario tiene que ahorrar — y de paso evita que la misma
-   persona entre dos veces con dos grafías.
-
-   EMPEZÓ SIENDO SÓLO LOS HIJOS Y SE QUEDÓ CORTO, por una razón de oficio y no de código: la
-   tutela aparece justamente cuando NO hay padres que ejerzan. Un hijo con discapacidad suele
-   estar bajo patria potestad, que no es tutela; lo habitual es ser tutor de un hermano al morir
-   los padres, o de un padre mayor. Ofreciendo sólo hijos, el atajo servía para el caso menos
-   frecuente y obligaba a teclear el más común.
-
-   Y ANTES DE ESO SE FILTRABA POR «¿PRESENTA DISCAPACIDAD?» (2.29). Parecía lo riguroso —se es
-   tutor DE una persona con discapacidad— y en pantalla era una lista que no traía a nadie:
-   quien no había contestado ese campo veía «Otra persona» sola y ninguna pista de qué le
-   faltaba. Un requisito que esconde la opción no enseña el requisito, sólo rompe la lista.
-
-   LA RELACIÓN VIAJA EN LA ETIQUETA Y NO EN EL VALOR. Lo que se guarda es el nombre limpio;
-   «Ana Rojas · hija» es lo que se lee. Si mañana el dato se cruza con otro sistema, se cruza un
-   nombre y no una frase.
-
-   CON NOMBRE PUESTO Y SIN REPETIDOS: una ficha recién abierta trae un bloque de hijo vacío —es
-   el mínimo, no una declaración— y ofrecer a alguien sin nombre es ofrecer a nadie. El segundo
-   contacto de emergencia sólo entra si está activado, porque su nombre puede seguir guardado de
-   cuando lo estuvo. */
-export function personasDeLaFicha(form) {
-  const limpio = k => String(form[k] || '').trim()
-  const fuera = []
-  const mete = (nombre, relacion) => {
-    if (!nombre) return
-    if (fuera.some(p => p.valor === nombre)) return
-    fuera.push({ valor: nombre, etiqueta: relacion ? `${nombre} · ${relacion}` : nombre })
+/* ── UNA FICHA GUARDADA CON LAS CLAVES DE ANTES ───────────────────────────
+   El segundo contacto de emergencia vivía en claves «-2» —`2.1-2`, `2.3-2`…— detrás de la
+   pregunta «¿Agregar un segundo contacto?» (`2.seg`). Hoy es la copia dos de un grupo, `2.1#2`.
+   Se pasa al leer, y solo si la copia nueva no tiene nada todavía: una vez que alguien escribió
+   en ella —o la quitó, que la deja en blanco y no sin clave— lo viejo ya no manda. `LEGADO`
+   pone la cuenta en dos. */
+const CLAVES_DEL_SEGUNDO = ['2.1', '2.2', '2.2b', '2.3', '2.4', '2.5', '2.6', '2.7']
+export function alDia(form) {
+  if (form['2.seg'] !== 'si') return form
+  const fuera = { ...form }
+  for (const k of CLAVES_DEL_SEGUNDO) {
+    if (fuera[k + '#2'] === undefined && form[k + '-2'] !== undefined) fuera[k + '#2'] = form[k + '-2']
   }
-
-  /* CADA CONTACTO DE EMERGENCIA VIENE CON SU PARENTESCO DECLARADO (2.2), así que la relación no
-     se inventa: se copia de lo que contestaron. Y si allá eligieron «Otro», lo que vale es la
-     caja que se abrió al elegirlo. */
-  const parentesco = (kLista, kOtro) =>
-    (limpio(kLista) === 'Otro' ? limpio(kOtro) : limpio(kLista)) || 'contacto de emergencia'
-
-  mete(limpio('2.1'), parentesco('2.2', '2.2b'))
-  if (form['2.seg'] === 'si') mete(limpio('2.1-2'), parentesco('2.2-2', '2.2b-2'))
-
-  mete(limpio('2.9'), 'cónyuge')
-
-  for (let n = 1; n <= cuantosHay(form, 'hijos'); n += 1) {
-    mete(limpio(n === 1 ? '2.20' : '2.20#' + n), 'hijo(a)')
-  }
-
-  mete(limpio('2.47'), 'padre')
-  mete(limpio('2.48'), 'madre')
-
   return fuera
+}
+
+/* ── TODA LA GENTE QUE LA FICHA YA CONOCE, AGRUPADA ──────────────────────
+   Es la lista de «¿De quién es tutor?»: los hijos, el cónyuge y los contactos de emergencia que
+   ya se escribieron en el paso, cada grupo con su título, que es de dónde sale cada persona. Se
+   marca con casillas y se puede marcar a más de una: se puede ser tutor de dos hijos, o de un
+   hijo y de un padre mayor.
+
+   SE OFRECEN TODOS Y NO SÓLO LOS QUE TIENEN LA DISCAPACIDAD DECLARADA. Filtrar parecía lo
+   riguroso y en pantalla era una lista vacía para quien todavía no había contestado ese campo.
+   Lo que sí se hace es enseñarla: el hijo con discapacidad declarada lleva su tipo y su grado al
+   lado del nombre, que es lo que ayuda a elegir.
+
+   CON NOMBRE PUESTO Y SIN REPETIDOS: un bloque de hijo vacío no es nadie, y la misma persona
+   escrita como contacto y como cónyuge sale una vez, en el primer grupo donde aparece.
+
+   Y LA SALIDA ES «OTRA PERSONA»: se puede ser tutor de un hermano o de alguien que no está en la
+   ficha, y entonces se registra ahí mismo (1.62c a 1.62f). */
+export const OTRA_PERSONA = 'Otra persona'
+// Los seis tipos y los cuatro grados del artículo 5 de la Ley 223, los mismos de 1.61 y 2.29a/b.
+export const TIPOS_DISCAPACIDAD = ['Física o motora', 'Visual', 'Auditiva', 'Intelectual', 'Mental o psíquica', 'Múltiple']
+export const GRADOS_DISCAPACIDAD = ['Leve', 'Moderada', 'Grave', 'Muy grave']
+/* EL TIPO Y EL GRADO DE CADA PERSONA MARCADA A MANO se guardan en 1.62t, un mapa por nombre:
+   { 'Ernesto Rojas Saucedo': { tipo: 'Visual', grado: 'Leve' } }. Los de un hijo con
+   discapacidad declarada no: se leen de su bloque (2.29a y 2.29b). */
+export const DISC_TUTELA = '1.62t'
+/* LAS OTRAS PERSONAS —las que no están en la ficha— se escriben dentro de la lista, una fila cada
+   una, y se guardan en 1.62o como una lista: [{ nombre, relacion, tipo, grado }]. Puede haber
+   varias: se puede ser tutor de un hermano y de un sobrino a la vez.
+
+   ANTES HABÍA UNA SOLA, en 1.62c a 1.62f con la marca «Otra persona» en 1.62b. Una ficha guardada
+   así se sigue leyendo: `otrasDeTutela` la trae como la primera de la lista. */
+export const OTRAS_TUTELA = '1.62o'
+export function otrasDeTutela(form) {
+  if (Array.isArray(form[OTRAS_TUTELA])) return form[OTRAS_TUTELA]
+  if (!marcadosDeTutela(form['1.62b']).includes(OTRA_PERSONA)) return []
+  return [{ nombre: form['1.62c'] || '', relacion: form['1.62d'] || '', tipo: form['1.62e'] || '', grado: form['1.62f'] || '' }]
+}
+export const RELACIONES_TUTELA = ['Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)', 'Abuelo(a)']
+export const SEP_TUTELA = ' · '
+// Lo que se guarda en 1.62b: los nombres marcados, separados por « · ». Así se lee tal cual.
+export const marcadosDeTutela = v => String(v || '').split(SEP_TUTELA).map(x => x.trim()).filter(Boolean)
+
+/* QUIÉNES ESTÁN BAJO SU TUTELA, DE VERDAD: los hijos con discapacidad declarada —marcados solos—,
+   los que se marcaron a mano y siguen en la ficha, y la otra persona si se registró. Es lo que
+   se lee en la vista previa; en 1.62b se guardan sólo las marcas hechas a mano. */
+export function bajoTutela(form) {
+  const personas = gruposDeTutela(form).flatMap(g => g.personas)
+  const marcados = marcadosDeTutela(form['1.62b'])
+  const discs = form[DISC_TUTELA] || {}
+  /* Cada nombre con su discapacidad entre paréntesis, si se sabe: «Ernesto Rojas (visual, leve)». */
+  const conDisc = (nombre, tipo, grado) => {
+    const d = [tipo, grado].filter(Boolean).join(', ').toLowerCase()
+    return d ? `${nombre} (${d})` : nombre
+  }
+  const nombres = personas
+    .filter(p => p.fija || marcados.includes(p.nombre))
+    .map(p => (p.fija ? conDisc(p.nombre, p.tipo, p.grado) : conDisc(p.nombre, discs[p.nombre]?.tipo, discs[p.nombre]?.grado)))
+  for (const o of otrasDeTutela(form)) {
+    const nombre = String(o.nombre || '').trim()
+    if (nombre || o.tipo) nombres.push(conDisc(nombre || OTRA_PERSONA, o.tipo, o.grado))
+  }
+  return nombres
+}
+
+export function gruposDeTutela(form) {
+  const limpio = k => String(form[k] || '').trim()
+  const copia = (base, n) => (n === 1 ? base : base + '#' + n)
+  const vistos = new Set()
+  const grupo = (titulo, personas) => ({
+    titulo,
+    personas: personas.filter(x => x.nombre && !vistos.has(x.nombre) && vistos.add(x.nombre)),
+  })
+
+  const hijos = []
+  for (let n = 1; n <= cuantosHay(form, 'hijos'); n += 1) {
+    const sexo = limpio(copia('2.23', n))
+    const tipo = limpio(copia('2.29a', n))
+    const grado = limpio(copia('2.29b', n)).toLowerCase()
+    hijos.push({
+      tipo,
+      grado: limpio(copia('2.29b', n)),
+      nombre: limpio(copia('2.20', n)),
+      relacion: sexo.startsWith('F') ? 'Hija' : sexo.startsWith('M') ? 'Hijo' : 'Hijo(a)',
+      discapacidad: form[copia('2.29', n)] === 'si' ? ([tipo, grado].filter(Boolean).join(' · ') || 'Discapacidad declarada') : '',
+      /* EL HIJO CON DISCAPACIDAD DECLARADA VA MARCADO Y NO SE DESMARCA ACÁ: ya se dijo arriba, en
+         su propio bloque, y dos respuestas a la misma pregunta pueden contradecirse. Si cambia,
+         se cambia en «Datos de los hijos». */
+      fija: form[copia('2.29', n)] === 'si',
+    })
+  }
+
+  const contactos = []
+  for (let n = 1; n <= cuantosHay(form, 'emergencia'); n += 1) {
+    contactos.push({ nombre: limpio(copia('2.1', n)), relacion: limpio(copia('2.2', n)) })
+  }
+
+  return [
+    grupo('Hijos', hijos),
+    grupo('Cónyuge', [{ nombre: limpio('2.9'), relacion: '' }]),
+    grupo('Contactos de emergencia', contactos),
+  ].filter(g => g.personas.length)
 }
 
 /* La clave sin su número de copia: `2.20#3` es, para cualquier regla, `2.20`. */
@@ -951,6 +1075,32 @@ export function quitarCopia(form, campos, grupo, n) {
   return parche
 }
 
+/* ── LO QUE UN CAMPO REPETIDO CAMBIA SEGÚN SU COPIA ───────────────────────
+   Rótulos y tipos que dependen de otro campo del MISMO bloque. En `tarjetasDe` sólo se conoce la
+   primera copia; acá cada una lee la suya. Con dos licencias —una de conducir, un certificado de
+   antecedentes— cada bloque tiene que llamarse a sí mismo por su nombre. */
+const EN_SU_COPIA = {
+  /* LAS CATEGORÍAS DE LA LICENCIA SON LAS DE BOLIVIA. Una licencia argentina o chilena tiene
+     las suyas, con otras letras, así que con otro país emisor la lista deja paso a una caja
+     donde se copia la categoría como figura en la licencia. */
+  '1.74': (campo, suyo) => {
+    if (!suyo('1.75') || suyo('1.75') === 'Bolivia') return
+    delete campo.tipo
+    delete campo.opciones
+    campo.ph = 'Como figura en la licencia'
+  },
+  /* EL NÚMERO Y LAS FECHAS DICEN DE QUÉ PAPEL SON. La tarjeta guarda licencias, certificados y
+     el carnet de sanidad, y los rótulos decían «de la licencia» aunque se hubiera elegido el
+     certificado de antecedentes. Siguen al tipo; sin tipo, o con «Otro», no nombran ninguno:
+     «Fecha de emisión» a secas, que es verdad para todos. */
+  '1.73': (campo, suyo) => { const p = papelDeLicencia(suyo('1.72')); campo.label = p ? `Número ${p.num}` : 'Número' },
+  '1.76': (campo, suyo) => { const p = papelDeLicencia(suyo('1.72')); campo.label = p ? `Fecha de emisión ${p.de}` : 'Fecha de emisión' },
+  '1.77': (campo, suyo) => { const p = papelDeLicencia(suyo('1.72')); campo.label = p ? `Fecha de vencimiento ${p.de}` : 'Fecha de vencimiento' },
+  /* EL TÍTULO DEL BLOQUE ES EL PAPEL. Con dos o tres, «Licencia o certificación 2» obliga a
+     abrirlo para saber cuál es; «Certificado de No Violencia» lo dice de lejos. */
+  '1.rotLicencias': (campo, suyo) => { const t = suyo('1.72'); if (t && t !== 'Otro') campo.label = t },
+}
+
 function expandirRepetibles(campos, form) {
   const fuera = []
   for (let i = 0; i < campos.length;) {
@@ -982,6 +1132,8 @@ function expandirRepetibles(campos, form) {
           if (cual) copia.label = `${campo.label} · ${cual}`
           else if (cuantos > 1) copia.label = `${campo.label} ${n}`
         }
+        // Y lo que depende de otro campo de su copia, al final: manda sobre el número del rótulo.
+        if (EN_SU_COPIA[campo.key]) EN_SU_COPIA[campo.key](copia, enSuCopia(form, n))
         fuera.push(copia)
       }
     }
@@ -1029,7 +1181,8 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
 
         const ops = opcionesDeEstructura(c.key, ctx, form)
         if (ops) {
-          campo.tipo = 'lista'
+          // Las opciones vienen de la empresa; el control lo decide el campo si tiene uno propio.
+          if (c.tipo !== 'aprobadores') campo.tipo = 'lista'
           campo.opciones = ops
           Object.assign(campo, avisoDeRecorte(c.key, ops, ctx, form))
         }
@@ -1058,7 +1211,7 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
            peor que una caja porque parece autoridad. El rótulo ya es el correcto, que era el
            problema de verdad — a un chileno se le pedía un «departamento» boliviano. */
         if (TERRITORIO[c.key]) {
-          const niveles = nivelesDe(form['1.42'])
+          const niveles = nivelesDe(form['1.42'], form['1.43'])
           campo.label = niveles[TERRITORIO[c.key]]
           if (!tieneCatalogo(form['1.42'])) {
             delete campo.tipo
@@ -1145,11 +1298,11 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
         /* ── UN OBRERO CON UMBRAL DE ADMINISTRATIVO SE AVISA ──────────────────────────────
            «¿Aguinaldo y prima desde el primer mes?» es, en los hechos, la marca del obrero: el
            obrero de producción cobra aguinaldo con 1 mes trabajado; el administrativo necesita 3
-           meses y 1 día. Si la categoría del puesto dice Obrero y acá se contesta No, se guardaría
+           meses y 1 día. Si el tipo de trabajador dice Obrero y acá se contesta No, se guardaría
            un obrero con umbral de administrativo y nadie lo notaría hasta la planilla. No se
            corrige solo —puede haber una razón—: se avisa, al lado de la respuesta. */
         if (c.key === '3.77' && form['3.77'] === 'no' && form['3.12'] === 'Obrero') {
-          campo.ayuda = 'Atención: en Información laboral, la categoría del puesto es Obrero. Un obrero de producción tiene derecho al aguinaldo desde el primer mes.'
+          campo.ayuda = 'Atención: en Información laboral, el tipo de trabajador es Obrero. Un obrero de producción tiene derecho al aguinaldo desde el primer mes.'
           campo.excede = true
         }
 
@@ -1173,44 +1326,63 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
            que se acaba de declarar que sobra. */
         if (CONDICIONES[claveBase(c.key)]) campo.col = (campo.col || 'c-med') + ' c-aparece'
 
-        /* ── «¿DE QUIÉN?» SE LLENA CON LO QUE YA HAY ESCRITO EN LA FICHA ─────────────────
-           Es el primer desplegable que no sale ni de un catálogo fijo ni de la organización,
-           sino del propio formulario: los hijos que se declararon con discapacidad. Por eso se
-           arma acá, donde hay `form` a mano, y no en el descriptor, que se escribe una vez y no
-           sabe nada de lo que alguien esté tecleando.
+        /* «¿DE QUIÉN ES TUTOR?» SE ARMA CON LO QUE YA HAY ESCRITO EN LA FICHA: los grupos salen de
+           `gruposDeTutela`, acá, que es donde hay formulario a mano. */
+        /* LA DEPENDENCIA FUNCIONAL VIAJA CON SU ORGANIGRAMA: las unidades y los cargos para
+           elegir, la unidad propia del cargo elegido —que no se ofrece— y, para leerla, los
+           nombres. Una ficha guardada con el par de antes (unidad escrita en 3.15u) trae esas
+           unidades si coinciden con alguna del organigrama. */
+        if (c.key === '3.15f') {
+          const org = ctx.org || { unidades: [], cargos: [] }
+          campo.org = org
+          const cargo = org.cargos.find(x => x.id === form['3.11'])
+          campo.unidadPropia = cargo?.unidadId || null
+          campo.cargoId = cargo?.id || null
+          campo.apoyos = Array.isArray(form['3.15f']) ? form['3.15f']
+            : [form['3.15u'], ...Array.from({ length: 4 }, (_, i) => form[`3.15u#${i + 2}`])]
+              .filter(Boolean)
+              .map(n => org.unidades.find(u => u.nombre === n))
+              .filter(Boolean)
+              .map(u => ({ unidadId: u.id, reportaA: null }))
+          campo.leido = campo.apoyos.map(f => {
+            const u = org.unidades.find(x => x.id === f.unidadId)?.nombre
+            const j = org.cargos.find(x => x.id === f.reportaA)?.nombre
+            return u ? (j ? `${u}, respondiendo a ${j}` : u) : ''
+          }).filter(Boolean)
+        }
 
-           Y ES DESPLEGABLE SIEMPRE, TENGA CANDIDATOS O NO. Primero se hizo al revés —lista con
-           hijos, caja de texto sin ellos— por la regla que sigue la provincia: un desplegable
-           vacío promete opciones que no existen. No es el mismo caso y la diferencia importa.
-           Aquel se abre sin NADA; éste nunca está vacío, porque «Otra persona» siempre está y
-           es una respuesta de verdad, no un relleno.
+        // Para leerlos en la vista previa: los aprobadores en orden y el suplente del primero.
+        if (c.key === '3.16') {
+          campo.cuantos = Math.max(1, Number(form.__n_aprobadores) || 1)
+          campo.valores = Array.from({ length: campo.cuantos }, (_, i) => form[i === 0 ? '3.16' : `3.16#${i + 1}`] || '')
+          campo.suplentes = Array.from({ length: campo.cuantos }, (_, i) => form[i === 0 ? '3.16b' : `3.16b#${i + 1}`] || '')
+        }
 
-           LO QUE SÍ SERÍA MALO ES QUE EL CONTROL CAMBIARA DE FORMA. Quien marca la discapacidad
-           de un hijo dos tarjetas más arriba vería este campo convertirse de caja en
-           desplegable sin haberlo tocado, y al revés al desmarcarla — con lo que hubiera escrito
-           dentro quedándose sin sitio. Un campo que muta según algo que pasó en otra pantalla es
-           más desconcertante que una lista de una sola opción. */
         if (c.key === '1.62b') {
-          const gente = personasDeLaFicha(form)
-          campo.tipo = 'lista'
-          campo.opciones = [...gente, 'Otra persona']
-          /* SIN NADIE ESCRITO TODAVÍA, EL DISPARADOR LO DICE en vez de invitar a elegir de una
-             lista que sólo tiene la salida. «Elige una opción» delante de un desplegable con un
-             solo renglón hace abrirlo para descubrir que no había nada — y deja sin contestar
-             la pregunta de por qué: no es que falle, es que arriba no hay ningún nombre puesto.
+          campo.grupos = gruposDeTutela(form)
+          campo.bajoTutela = bajoTutela(form)
+        }
 
-             LA OPCIÓN «OTRA PERSONA» SIGUE AHÍ, así que esto no bloquea nada: quien sea tutor de
-             alguien que no está en la ficha lo elige y escribe el nombre, sin haber tenido que
-             registrar a nadie antes. */
-          if (!gente.length) {
-            campo.ph = 'Aún no hay nadie registrado'
-            /* Y LA MISMA NOTICIA DENTRO DE LA LISTA, que es donde se va a buscar. El disparador
-               la da sin abrir nada, y aun así hay que decirla dentro: quien abre el desplegable
-               ya no está leyendo el disparador, está mirando lo que hay. Las dos no son la misma
-               frase repetida — ésta además dice qué hacer, que es lo que falta cuando descubres
-               que la lista no trae a quien buscabas. */
-            campo.notaLista = 'Aún no hay nadie registrado en el paso. Elige «Otra persona» y escribe el nombre.'
+        /* ── ELEGIR A UNA PERSONA ES VERLA ─────────────────────────────────────────────
+           Los campos que piden a alguien de la empresa —el supervisor, quien aprueba, quien
+           autorizó— se ofrecían como una lista de nombres. Ahora cada opción lleva su foto y, debajo
+           del nombre, su cargo y su área: dos «Ana» dejan de ser la misma, y se ve de un vistazo si
+           el elegido tiene sentido. Lo que se guarda sigue siendo el nombre. */
+        /* SÓLO QUIEN OCUPA UN CARGO. Un supervisor o un aprobador manda desde un puesto de la
+           estructura: alguien «Sin puesto asignado» no puede ser jefe de nadie, y ofrecerlo sólo
+           invita a elegir mal. Quedan fuera de estas listas hasta que se les asigne un cargo. */
+        if (PERSONAS_CON_FOTO.includes(c.key) && ctx.datosDePersona && Array.isArray(campo.opciones)) {
+          const conCargo = nombre => {
+            const cargo = ctx.datosDePersona[nombre]?.cargo || ''
+            return cargo && !/^sin puesto/i.test(cargo)
           }
+          campo.opciones = campo.opciones.filter(o => conCargo(typeof o === 'string' ? o : o.valor)).map(o => {
+            const nombre = typeof o === 'string' ? o : o.valor
+            const d = ctx.datosDePersona[nombre]
+            return d
+              ? { valor: nombre, etiqueta: nombre, sub: [d.cargo, d.area].filter(Boolean).join(' · '), persona: { foto: d.foto, initials: d.initials, color: d.color } }
+              : o
+          })
         }
 
         if (DERIVADOS[c.key]) campo.deducido = DERIVADOS[c.key](form, k => form[k], ctx) || ''
@@ -1232,28 +1404,36 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
         if (c.key === '1.9') { campo.retrato = true; campo.col = 'c-tercio c-retrato' }
 
         /* ── LA NACIONALIDAD NO SE PREGUNTA DOS VECES ─────────────────────────────────────
-           Quien contesta que sí es boliviana ya dijo cuál es su nacionalidad. Preguntarlo otra
-           vez en el desplegable de al lado es pedirle que repita lo que acaba de decir, y abre la
-           puerta a que se contradiga: hoy se puede contestar «Sí» y elegir «Argentina», y la
-           ficha se lo traga.
-
-           EL ESTUDIO YA LO PEDÍA —la nota del campo dice «aparece solo si 1.24 = No»— y la regla
-           nunca se portó. Se porta deduciendo y no escondiendo, que es lo que esta ficha hace con
-           lo que se sabe solo: el campo se queda a la vista con «Bolivia» dentro y la insignia de
-           calculado, en vez de desaparecer. Un dato que alimenta a Gestión de Personas y a
-           Planillas no debe irse de la pantalla justo cuando por fin se conoce; y de paso deja de
-           contar para el progreso, porque `escribiblesUnicos` salta los deducidos: no se puede exigir
-           que alguien rellene lo que no tiene dónde escribir. */
-        if (c.key === '1.25' && form['1.24'] === 'si') {
-          campo.deducido = 'Bolivia'
-          campo.insignia = 'se calcula'
+           Quien contesta que sí es boliviana ya dijo cuál es su nacionalidad: el campo de al lado
+           ni aparece —la condición está en CONDICIONES—. Y dicho que NO, «Boliviana» sale de la
+           lista: elegirla dejaba una ficha que se desmiente a sí misma en dos campos contiguos. */
+        if (c.key === '1.25' && form['1.24'] === 'no') {
+          campo.opciones = (campo.opciones || []).filter(o => o !== 'Boliviana')
+          /* UN BORRADOR QUE YA TRAÍA LA CONTRADICCIÓN. Contestar «No» ahora vacía la nacionalidad
+             —`consecuenciasDe`—, pero una ficha guardada antes puede tener las dos cosas (y de
+             cuando la lista decía el país, «Bolivia»). El desplegable conserva el valor que no
+             está en la lista para no perder nada: se avisa en el campo, para que se elija la
+             correcta. */
+          if (BOLIVIANA.includes(form['1.25'])) {
+            campo.ayuda = 'No es de nacionalidad boliviana: elija su nacionalidad.'
+            campo.excede = true
+          }
         }
 
-        /* Y POR EL OTRO LADO, LA CONTRADICCIÓN TAMPOCO SE OFRECE. Dicho que NO es boliviana,
-           «Bolivia» sale de la lista: seguía ahí, primera de trece, y elegirla dejaba una ficha
-           que se desmiente a sí misma en dos campos contiguos. */
-        if (c.key === '1.25' && form['1.24'] === 'no') {
-          campo.opciones = (campo.opciones || []).filter(o => o !== 'Bolivia')
+        /* LA SEGUNDA NACIONALIDAD NO REPITE LA PRIMERA. Es el mismo catálogo, sin la que ya figura
+           como nacionalidad —«Boliviana» si se contestó que sí—: ofrecerla sería ofrecer declarar
+           dos veces lo mismo. */
+        /* EL CÓDIGO DEL CELULAR ARRANCA EN EL PAÍS DONDE VIVE. Quien reside en Argentina casi
+           seguro tiene un número argentino; que tenga que ir a buscar el +54 es trabajo que la
+           ficha ya puede ahorrarle. Sin país de residencia, o con uno que no está en la lista,
+           arranca en Bolivia. Elegido a mano, manda lo elegido. Vale igual para el celular de
+           los contactos de emergencia, del cónyuge y del garante: casi siempre viven donde vive la
+           persona. */
+        if (['1.36', '2.3', '2.15', '2.41'].includes(c.key)) campo.paisPorDefecto = paisPorNombre(form['1.42'])?.sigla || 'BO'
+
+        if (c.key === '1.26') {
+          const primera = nacionalidadPrincipal(form)
+          if (primera) campo.opciones = (campo.opciones || []).filter(o => o !== primera)
         }
 
         /* EL LUGAR DE NACIMIENTO SE ESCRIBE DENTRO DE UN PAÍS. Es texto libre porque no hay
@@ -1374,6 +1554,37 @@ const BLOQUEOS = [
   { key: '1.4',  paso: 'quien',    nombre: 'apellido paterno', que: 'Falta el apellido paterno' },
   { key: '3.25', paso: 'contrato', nombre: 'fecha de ingreso', que: 'Falta la fecha de ingreso' },
 ]
+
+/* ── LO QUE UNA RESPUESTA CORRIGE EN OTRO CAMPO ──────────────────────────
+   Casi siempre un campo es independiente, y esconder uno no borra lo escrito. Esto es para las
+   pocas respuestas que dejan a otro dato diciendo lo contrario, y que por eso lo corrigen en el
+   mismo gesto. Devuelve lo que hay que cambiar además del campo contestado.
+
+   «¿ES DE NACIONALIDAD BOLIVIANA?» = NO VACÍA UNA NACIONALIDAD «BOLIVIANA». Si no, el
+   desplegable seguía enseñándola —conserva el valor elegido aunque ya no esté en la lista— y la
+   ficha se desmentía en dos campos contiguos. Solo se vacía si decía boliviana: otra
+   nacionalidad ya elegida se respeta. Y con «Sí» se vacía siempre, porque el campo se esconde
+   y lo que quedara dentro contradiría la respuesta sin que nadie lo viera.
+
+   LA SEGUNDA NACIONALIDAD SE VACÍA SI PASA A SER LA PRINCIPAL: elegida «Chilena» de segunda y
+   luego «Chilena» de principal, la ficha diría la misma nacionalidad dos veces. */
+export function consecuenciasDe(clave, valor, form) {
+  const cambios = {}
+  if (clave === '1.24' && (valor === 'si' || BOLIVIANA.includes(form['1.25']))) cambios['1.25'] = ''
+  /* La categoría es solo de la licencia de conducir: con otro tipo se esconde, y no se queda
+     guardada. Y la suspensión es de las licencias: con un certificado vuelve a su «no». Las dos,
+     en la MISMA copia que cambió de tipo —`1.72#2` limpia `1.74#2`—. */
+  if (claveBase(clave) === '1.72') {
+    const de = k => k + clave.slice(4)
+    if (valor !== 'Licencia de conducir' && form[de('1.74')]) cambios[de('1.74')] = ''
+    if (!seSuspende(() => valor) && form[de('1.78b')] === 'si') cambios[de('1.78b')] = 'no'
+  }
+  if (clave === '1.24' || clave === '1.25') {
+    const primera = nacionalidadPrincipal({ ...form, ...cambios, [clave]: valor })
+    if (primera && form['1.26'] === primera) cambios['1.26'] = ''
+  }
+  return cambios
+}
 
 export function faltaParaCrear(form) {
   return BLOQUEOS.find(b => !(form[b.key] || '').trim()) || null

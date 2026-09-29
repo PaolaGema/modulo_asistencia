@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Check, Search } from 'lucide-react'
+import Avatar from '../personas/Avatar'
 
 /* EL DESPLEGABLE DE LA CASA.
    Un `<select>` nativo lo dibuja el sistema operativo: su flecha, su lista y su resaltado son
@@ -45,6 +46,17 @@ export default function Desplegable({
      VA ARRIBA Y NO ABAJO: lo que explica por qué hay tan poco tiene que leerse antes de mirar
      lo poco que hay. */
   nota,
+  /* UN DISPARADOR QUE NO ES UN CAMPO. El código de país del teléfono va DENTRO de la caja del
+     número, a la izquierda: sin borde propio y enseñando la sigla y el código en vez de la
+     etiqueta entera. `claseBoton` le cambia la cara, `contenido` lo que dice, y `anchoMenu` le
+     da a la lista el ancho que el disparador, tan estrecho, no tiene. */
+  claseBoton = '',
+  contenido,
+  anchoMenu,
+  buscaPh = 'Buscar…',
+  /* EL BUSCADOR SIEMPRE, aunque la lista sea corta. Para las listas que crecen con la empresa
+     —los cargos— y que en una empresa grande son decenas: se busca igual desde el primer día. */
+  conBuscador = false,
 }) {
   const [abierto, setAbierto] = useState(false)
   const [busca, setBusca] = useState('')
@@ -68,10 +80,10 @@ export default function Desplegable({
 
   /* Busca sin tildes: nadie escribe «Potosí» ni «Bogotá» con acento en un buscador, y una lista
      que no encuentra lo que se le pide bien escrito enseña a no usarla. */
-  const hayBuscador = items.length > CON_BUSCADOR
+  const hayBuscador = conBuscador || items.length > CON_BUSCADOR
   const escrito = busca.trim()
   const visibles = escrito
-    ? items.filter(o => sinTildes(o.etiqueta).includes(sinTildes(escrito)))
+    ? items.filter(o => sinTildes(`${o.etiqueta} ${o.lateral || ''} ${o.sub || ''}`).includes(sinTildes(escrito)))
     : items
   /* DÓNDE VA LA LISTA, medido contra la ventana. Se calcula al abrir y no al montar porque la
      página se desplaza: el mismo campo cabe o no cabe según dónde esté el scroll. El ancho sale
@@ -118,6 +130,12 @@ export default function Desplegable({
       window.removeEventListener('scroll', seguir, true)
       window.removeEventListener('resize', seguir)
     }
+  }, [abierto])
+
+  /* AL ABRIR, LA LISTA ENSEÑA LO ELEGIDO. En una de doscientos países arrancaba en Afganistán y
+     Bolivia quedaba veinte filas más abajo, fuera de la vista: parecía que no había nada puesto. */
+  useEffect(() => {
+    if (abierto) menuRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' })
   }, [abierto])
 
   function abrir() {
@@ -174,11 +192,20 @@ export default function Desplegable({
            el valor entero se guarda aquí: pasando el ratón se lee completo. Solo cuando hay algo
            elegido —un `title` con el placeholder repetiría lo que ya se ve. */
         title={elegida ? elegida.etiqueta : undefined}
-        className={`pl-dropdown-trigger${abierto ? ' open' : ''}${elegida ? '' : ' placeholder'}`}
+        className={`pl-dropdown-trigger${abierto ? ' open' : ''}${elegida ? '' : ' placeholder'}${elegida?.persona ? ' con-persona' : ''} ${claseBoton}`.trim()}
         onClick={() => (abierto ? setAbierto(false) : abrir())}
         onKeyDown={teclas}
       >
-        <span>{elegida ? elegida.etiqueta : placeholder}</span>
+        {/* UNA PERSONA ELEGIDA SE VE COMO PERSONA: su foto, su nombre y, debajo, su cargo. */}
+        {contenido ? contenido(elegida) : elegida?.persona ? (
+          <span className="pl-dd-persona">
+            <Avatar persona={elegida.persona} size={32} />
+            <span className="pl-dd-persona-txt">
+              <span>{elegida.etiqueta}</span>
+              {elegida.sub && <span className="pl-dd-sub">{elegida.sub}</span>}
+            </span>
+          </span>
+        ) : <span>{elegida ? elegida.etiqueta : placeholder}</span>}
         <ChevronDown size={15} className="pl-dropdown-chevron" />
       </button>
 
@@ -188,7 +215,9 @@ export default function Desplegable({
           className={`pl-dropdown-menu pl-dd-fija${pos.arriba ? ' up' : ''}`}
           role="listbox"
           tabIndex={-1}
-          style={{ left: pos.left, width: pos.width, top: pos.top, bottom: pos.bottom }}
+          /* Una lista de personas pide más ancho que su campo: nombre y cargo en una columna de
+             un tercio se cortaban a la mitad. */
+          style={{ left: pos.left, width: Math.max(pos.width, anchoMenu || (items.some(o => o.persona) ? 340 : 0)), top: pos.top, bottom: pos.bottom }}
         >
           {hayBuscador && (
             <div className="pl-dd-buscar">
@@ -198,7 +227,7 @@ export default function Desplegable({
                 value={busca}
                 onChange={e => { setBusca(e.target.value); setActivo(0) }}
                 onKeyDown={teclasBusqueda}
-                placeholder="Buscar…"
+                placeholder={buscaPh}
                 autoFocus
               />
             </div>
@@ -248,11 +277,17 @@ export default function Desplegable({
                     Buscando no se dibuja, por lo mismo que no se sangra: los resultados salen de
                     ramas distintas y una jerarquía dibujada entre ellos sería falsa. */}
                 {!!o.nivel && !escrito && <span className="pl-dd-rama" aria-hidden="true" />}
-                <span>
-                  {o.etiqueta}
+                {/* La sigla del país antes y su código al final: se lee «BO Bolivia +591». */}
+                {o.sigla && <span className="pl-dd-sigla">{o.sigla}</span>}
+                {/* Y en la lista, igual: foto, nombre y el cargo debajo. */}
+                {o.persona && <Avatar persona={o.persona} size={32} />}
+                <span className={o.lateral ? 'pl-dd-crece' : o.persona ? 'pl-dd-persona-txt' : undefined}>
+                  {o.persona ? <span>{o.etiqueta}</span> : o.etiqueta}
+                  {o.persona && o.sub && <span className="pl-dd-sub">{o.sub}</span>}
                   {escrito && o.pista && <span className="pl-dd-pista">en {o.pista}</span>}
                   {agotada && o.motivo && <span className="pl-dd-pista">{o.motivo}</span>}
                 </span>
+                {o.lateral && <span className="pl-dd-lateral">{o.lateral}</span>}
                 {puesta && <Check size={14} />}
               </button>
             )
