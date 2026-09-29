@@ -1470,9 +1470,17 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
   /* Y ACÁ LA SEGUNDA PASADA, la que sí puede: después de expandir, cada copia lleva su
      `instancia` y `seVe` le pasa a la condición un lector de SU copia. Sólo se vuelve a
      preguntar por lo repetible; lo demás ya contestó arriba y no cambió. */
-  })).map(t => ({ ...t, campos: sinRotulosHuerfanos(expandirRepetibles(t.campos, form).filter(c => !c.repite || seVe(c, form))) }))
+  })).map(t => ({ ...t, campos: sinRotulosHuerfanos(expandirRepetibles(t.campos, form).filter(c => !c.repite || seVe(c, form))).map(sinMarcas) }))
     .filter(t => t.campos.some(c => c.tipo !== 'rotulo'))
 }
+
+/* ── SIN CHIPS NI SIGNOS DE AYUDA EN PANTALLA ─────────────────────────────
+   «legal», «se calcula» y «v1.2» eran marcas del estudio de la propuesta, y las notas detrás del
+   signo de interrogación eran sus apuntes: por qué existe cada dato, citas de las reuniones, códigos
+   de campo. Útiles para el equipo, no para quien llena la ficha. El equipo pidió quitarlos (29 sep
+   2026): la descripción de cada sección ya dice qué registrar. Los apuntes siguen en el estudio
+   —camposPropuesta.js— y en la documentación; lo que se quita es sólo su dibujo en la ficha. */
+const sinMarcas = ({ nota, insignia, ...campo }) => (void nota, void insignia, campo)
 
 /* TODAS LAS TARJETAS DE LA FICHA, en orden. Es lo que lee la vista previa —que no es un paso más
    sino los ocho leídos de corrido— y de donde salen las cuentas. */

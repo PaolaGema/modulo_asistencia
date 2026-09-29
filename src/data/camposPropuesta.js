@@ -24,7 +24,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'reingreso',
         titulo: 'Reingreso o alta nueva',
-        desc: 'Va primero por una razón: si la persona ya estuvo en el grupo, hay que recuperar su registro en vez de crear uno nuevo. Un duplicado se arrastra para siempre.',
+        desc: 'Indique si la persona ya trabajó en la empresa o en el grupo, para recuperar su registro en lugar de crear uno nuevo.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -69,7 +69,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'nombre',
         titulo: 'Datos personales',
-        desc: 'El nombre se guarda descompuesto porque cada entidad lo pide distinto: la OVT en tres partes, la Gestora en cinco y RC-IVA en una sola.',
+        desc: 'Registre los nombres y apellidos del colaborador tal como figuran en su documento de identidad.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -171,7 +171,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'documento',
         titulo: 'Documento de identidad',
-        desc: 'El documento con el que se la identifica ante el Estado. Es lo primero que valida cualquier declaración.',
+        desc: 'Registre el documento de identidad del colaborador y adjunte su copia escaneada.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -554,7 +554,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'nacimiento',
         titulo: 'Datos de nacionalidad y nacimiento',
-        desc: 'Información requerida para el cumplimiento de normativas laborales, cómputo de cupos legales y contratos de trabajo.',
+        desc: 'Registre la nacionalidad, la fecha y el lugar de nacimiento del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -1080,7 +1080,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'residencia',
         titulo: 'Datos de residencia',
-        desc: 'Registre la dirección exacta de su residencia habitual para fines contractuales, asignación de centro de trabajo y trámites de ley.',
+        desc: 'Registre la dirección de residencia habitual del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -1230,7 +1230,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'contacto',
         titulo: 'Datos de contacto',
-        desc: 'Contacto personal, el que no depende de la empresa.',
+        desc: 'Registre los medios de contacto personales del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -1274,7 +1274,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'patrimonio',
         titulo: 'Datos patrimoniales',
-        desc: 'Bienes propios que la empresa necesita conocer para calcular un reembolso o una prestación, no para juzgar a nadie.',
+        desc: 'Registre los bienes propios del colaborador que la empresa necesite conocer para un reembolso o una prestación.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -1320,7 +1320,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'licencias',
         titulo: 'Licencias y certificaciones',
-        desc: 'Las que vencen: licencia de conducir, manipulación de alimentos, certificaciones de seguridad. Necesitan alerta de vencimiento.',
+        desc: 'Registre las licencias y certificaciones del colaborador, con sus fechas de vencimiento.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -1533,7 +1533,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'medica',
         titulo: 'Datos médicos',
-        desc: 'Lo que hace falta saber si algo pasa en el puesto de trabajo.',
+        desc: 'Registre la información médica relevante del colaborador y su seguro médico privado, si lo tiene.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -1868,7 +1868,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'emergencia',
         titulo: 'Datos de contactos de emergencia',
-        desc: 'Al menos un contacto es obligatorio. Es el único bloque repetible del mínimo legal.',
+        desc: 'Registre al menos una persona a quien avisar en caso de emergencia.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -2017,7 +2017,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'conyuge',
         titulo: 'Datos del cónyuge',
-        desc: 'Cónyuge o conviviente. La unión libre cuenta igual que el matrimonio para las asignaciones familiares.',
+        desc: 'Registre los datos del cónyuge o conviviente del colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -2333,7 +2333,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'hijos',
         titulo: 'Datos de los hijos',
-        desc: 'Alimenta asignaciones familiares y el subsidio de lactancia. El bloque se repite por cada hijo.',
+        desc: 'Registre los datos de cada hijo del colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -2698,7 +2698,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'herederos',
         titulo: 'Datos de beneficiarios y herederos',
-        desc: 'Es una obligación legal y hoy no tiene dónde vivir. Cuando hace falta, ya es tarde para pedirla.',
+        desc: 'Registre a los beneficiarios y herederos que designa el colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -2872,7 +2872,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'garantes',
         titulo: 'Datos de garantes y garantías',
-        desc: 'Se activa según el cargo: los que manejan dinero o valores.',
+        desc: 'Registre los datos del garante y de la garantía, cuando el cargo lo requiera.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -3159,7 +3159,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'discapacidad',
         titulo: 'Datos de tutela y protecciones',
-        desc: 'Ser tutor de una persona con discapacidad da protecciones propias y cuenta dentro del 2 % legal, aunque la discapacidad no sea suya.',
+        desc: 'Indique si el colaborador es tutor de alguna persona con discapacidad.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3197,7 +3197,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'examenes',
         titulo: 'Exámenes ocupacionales',
-        desc: 'No son datos de la persona: son obligaciones de la empresa, con fecha de vencimiento. El preocupacional protege ante un reclamo por enfermedad profesional.',
+        desc: 'Registre los exámenes ocupacionales del colaborador y sus fechas de vencimiento.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3236,7 +3236,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'posicion',
         titulo: 'Información organizacional',
-        desc: 'De acá cuelga todo lo demás: sin estructura cargada, estos selectores vienen vacíos y el alta no se puede completar.',
+        desc: 'Indique la ubicación del colaborador en la estructura de la empresa: su unidad, su sede y su cargo.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3413,7 +3413,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'jefaturas',
         titulo: 'Dependencia organizacional y funcional',
-        desc: 'A quién responde en la estructura y quién le firma los permisos; y, aparte, quién le dirige parte del trabajo desde otra área. Quien manda no siempre es quien firma.',
+        desc: 'Indique a quién reporta el colaborador, quién aprueba sus permisos y en qué otras áreas apoya.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3484,7 +3484,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'contactoLab',
         titulo: 'Contacto corporativo',
-        desc: 'El que da la empresa, distinto del personal.',
+        desc: 'Registre el correo y el celular corporativos asignados al colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3521,7 +3521,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'perfilProfesional',
         titulo: 'Datos de perfil profesional',
-        desc: 'El perfil profesional y curricular del colaborador: qué estudió, dónde trabajó, qué acredita, qué idiomas y herramientas maneja y quién da fe de ello.',
+        desc: 'Registre la formación, la experiencia laboral, las certificaciones, los idiomas, las herramientas y las referencias del colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -3731,7 +3731,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'desarrollo',
         titulo: 'Datos de desarrollo y capacitación del talento',
-        desc: 'Cómo entró, qué ha aprendido desde entonces, cómo le ha ido y hacia dónde puede crecer.',
+        desc: 'Registre las capacitaciones y evaluaciones del colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -3796,7 +3796,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'doc',
         titulo: 'Datos del contrato',
-        desc: 'La fecha de ingreso es la que ven las tres entidades y nunca puede diferir. Después, modalidad, tipo y plazo: de la modalidad depende que se dispare la regla de los dos contratos a plazo fijo.',
+        desc: 'Registre la fecha de ingreso, la modalidad y el tipo de contrato del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3884,7 +3884,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'condiciones',
         titulo: 'Condiciones de contratación',
-        desc: 'Quién autorizó la contratación, con qué motivo y si está sindicalizado.',
+        desc: 'Indique quién autorizó la contratación, con qué motivo y si el colaborador está sindicalizado.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -3932,7 +3932,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'gestora',
         titulo: 'Datos de Gestora Pública',
-        desc: 'El NUA/CUA llega días o semanas después del alta: el estado inicial es literalmente «En proceso». Sin NUA no se puede declarar a la Gestora, pero la persona sí puede cobrar.',
+        desc: 'Registre la afiliación del colaborador a la Gestora Pública.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4055,7 +4055,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'caja',
         titulo: 'Datos de Caja de Salud',
-        desc: 'Trámite aparte, y el más urgente de todos: el plazo legal es de 5 días desde el ingreso. Si se pasa, todo lo que le pase al trabajador se le puede cobrar a la empresa.',
+        desc: 'Registre la afiliación del colaborador a la Caja de Salud. El plazo legal es de 5 días desde su ingreso.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4135,7 +4135,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'ovt',
         titulo: 'Datos del Ministerio de Trabajo',
-        desc: 'La sucursal OVT no se deduce: el Ministerio le asigna un código a cada empresa y hay que ir a buscarlo. Es la cuarta «sucursal» distinta que maneja el sistema.',
+        desc: 'Registre los datos del colaborador ante el Ministerio de Trabajo.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4159,7 +4159,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'impuestos',
         titulo: 'Impuestos — RC-IVA',
-        desc: 'El código dependiente lo da contabilidad. Y el saldo inicial importa: un caso real llegó con Bs 30.395 acumulados a favor.',
+        desc: 'Registre los datos tributarios del colaborador para el RC-IVA.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4209,7 +4209,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'jornada',
         titulo: 'Jornada laboral',
-        desc: 'Cuatro de estos campos son del mínimo legal, y no por completitud: sin ellos la persona no entra a la corrida.',
+        desc: 'Defina la jornada laboral del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4310,7 +4310,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'horario',
         titulo: 'Horario asignado',
-        desc: 'Horario × persona × vigencia. El histórico no se reescribe: es la prueba ante una inspección.',
+        desc: 'Asigne el horario de trabajo del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4345,7 +4345,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'marcacion',
         titulo: 'Método de marcación',
-        desc: 'Biométrico, app, web o manual. La manual siempre deja rastro de quién la hizo y por qué.',
+        desc: 'Indique cómo registrará el colaborador su asistencia.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4449,7 +4449,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'vacaciones',
         titulo: 'Vacaciones',
-        desc: 'La escala es 15, 20 o 30 días hábiles según antigüedad, y son un derecho irrenunciable: pagarlas en lugar de otorgarlas está prohibido.',
+        desc: 'Registre la información de vacaciones del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4519,7 +4519,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'permisos',
         titulo: 'Permisos',
-        desc: 'Sin aprobador declarado, una solicitud no tiene a quién ir. Y no se puede deducir del jefe.',
+        desc: 'Indique quién aprueba los permisos del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4547,7 +4547,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'compensaciones',
         titulo: 'Compensación de horas',
-        desc: 'Es legal compensar horas extra con tiempo libre si hay acuerdo escrito. El saldo es el único registro de verdad: si se compensa y además se paga, la planilla y la asistencia dejan de cuadrar.',
+        desc: 'Registre el acuerdo y el saldo de compensación de horas extra del colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4593,7 +4593,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'reglamentos',
         titulo: 'Reglamentos entregados',
-        desc: 'Con versión, fecha y acuse firmado. Sin acuse no se puede sancionar: es lo que hace exigible el reglamento.',
+        desc: 'Registre los reglamentos entregados al colaborador y su acuse de recibo.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -4623,7 +4623,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'disciplina',
         titulo: 'Historial disciplinario',
-        desc: 'Faltas acumuladas, medidas y procesos abiertos. Es información sensible: debería verla solo quien corresponda.',
+        desc: 'Registre las faltas, medidas y procesos disciplinarios del colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -4684,7 +4684,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'sueldo',
         titulo: 'Datos de haber básico',
-        desc: 'El haber básico no puede ser inferior al salario mínimo nacional.',
+        desc: 'Registre el haber básico del colaborador. No puede ser inferior al salario mínimo nacional.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4766,7 +4766,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'aplica',
         titulo: 'Configuración de Beneficios y Obligaciones',
-        desc: 'Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este empleado.',
+        desc: 'Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este colaborador.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4831,7 +4831,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'banco',
         titulo: 'Datos de pago',
-        desc: 'La cuenta a veces se abre después del ingreso. Sin ella no entra al archivo de dispersión, aunque la planilla sí se le calcule.',
+        desc: 'Registre la cuenta bancaria en la que el colaborador recibirá su pago.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4974,7 +4974,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'equipos',
         titulo: 'Equipos',
-        desc: 'Computadoras, celulares y otros equipos que se le prestan y que devuelve al salir.',
+        desc: 'Registre los equipos que la empresa entrega al colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5021,7 +5021,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'uniformes',
         titulo: 'Uniformes',
-        desc: 'Las prendas de trabajo que se le entregan, con su talla y cuándo se reponen.',
+        desc: 'Registre los uniformes entregados al colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5050,7 +5050,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'epp',
         titulo: 'Equipo de Protección Personal (EPP)',
-        desc: 'Lo que protege a la persona en su trabajo. Vence y se repone: por eso lleva certificación y fecha de vencimiento.',
+        desc: 'Registre el equipo de protección personal entregado al colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5079,7 +5079,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'herramientas',
         titulo: 'Herramientas',
-        desc: 'Las herramientas de trabajo a su cargo.',
+        desc: 'Registre las herramientas de trabajo asignadas al colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5100,7 +5100,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'vehiculos',
         titulo: 'Vehículos',
-        desc: 'El vehículo de la empresa asignado a la persona.',
+        desc: 'Registre los vehículos de la empresa asignados al colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5129,7 +5129,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'software',
         titulo: 'Software y Licencias',
-        desc: 'Los programas y cuentas pagadas a su nombre. Se revocan cuando se va.',
+        desc: 'Registre el software y las licencias asignados al colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5158,7 +5158,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'preferencias',
         titulo: 'Preferencias',
-        desc: 'Lo que a la persona le gustaría recibir, lo que le interesa y lo que sabe hacer.',
+        desc: 'Registre los deseos, intereses y habilidades del colaborador.',
         propuesta: true,
         incierto: false,
         campos: [
@@ -5185,7 +5185,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'acceso',
         titulo: 'Acceso al sistema',
-        desc: 'Con qué usuario entra y qué rol tiene.',
+        desc: 'Asigne el nombre de usuario y el rol del colaborador en el sistema.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -5232,7 +5232,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'archivos',
         titulo: 'Archivos',
-        desc: 'Todos los adjuntos de la ficha, reunidos. Filtre por tipo de documento, y agregue los que no tienen otro sitio.',
+        desc: 'Consulte y adjunte los documentos del colaborador. Use el buscador o el filtro por tipo, y agregue los documentos adicionales que necesite.',
         propuesta: false,
         incierto: false,
         campos: [
