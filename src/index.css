@@ -10088,6 +10088,43 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 }
 .doc-buscar { flex: 1 1 260px; min-width: 0; }
 .doc-vacio { margin: 0 0 20px; font-size: 13px; color: var(--text-muted); }
+
+/* El recuadro «Agregar documento»: del alto de los adjuntos de al lado, punteado en verde. Cada
+   toque suma un documento, con la caja de su nombre y su archivo, y el recuadro queda al final. */
+.doc-nuevo-hueco { visibility: hidden; }
+.doc-nuevo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 172px;
+  box-sizing: border-box;
+  border: 2px dashed color-mix(in srgb, var(--green) 70%, transparent);
+  border-radius: 14px;
+  background: var(--green-tint);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.doc-nuevo:hover { background: var(--bg-puesto); border-color: var(--green); }
+.doc-nuevo:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.doc-nuevo-mas {
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: #0C2D40;
+  color: var(--green);
+}
+.doc-nuevo-tit { font-size: 14px; font-weight: 700; color: var(--text-heading); }
+.doc-nuevo-sub { font-size: 11.5px; color: var(--text-muted); }
+/* El rótulo de un documento agregado es la caja de su nombre, con la cruz que lo quita al lado. */
+.doc-nombre { flex-direction: row !important; align-items: center; gap: 6px; }
+.doc-nombre .pl-input { flex: 1; min-width: 0; height: 36px; font-size: 13px; font-weight: 600; }
+.doc-nombre-listo { min-height: 36px; }
+.doc-nombre-listo .emp-rot-linea { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.doc-nuevo-tope { margin: 0; padding-top: 30px; font-size: 13px; color: var(--text-muted); }
 .doc-buscar .pl-search { width: 100%; }
 .doc-tipo { flex: 0 1 300px; min-width: 220px; }
 @media (max-width: 600px) {

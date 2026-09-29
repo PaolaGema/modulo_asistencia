@@ -6,6 +6,7 @@ import CampoTelefono from './CampoTelefono'
 import ListaTutela from './ListaTutela'
 import ListaAprobadores from './ListaAprobadores'
 import TablaFuncional from './TablaFuncional'
+import AgregarDocumento from './AgregarDocumento'
 import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
 /* EL MAPA SE DESCARGA CUANDO SE USA, Y NO ANTES. Leaflet con su hoja de estilos son unos
    cincuenta kilobytes comprimidos que hacen falta en UN campo de doscientos cuarenta y nueve, y
@@ -13,7 +14,7 @@ import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
    mirar un teléfono en el directorio y nunca abre una ficha. */
 const SelectorUbicacion = lazy(() => import('../personas/SelectorUbicacion'))
 import AyudaCampo from '../personas/AyudaCampo'
-import { Plus, Search, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { conRieles, estilosDeRiel } from './rejillaFicha'
 import { claveDeCuenta, cuantosHay, quitarCopia } from '../../data/fichaColaborador'
 
@@ -186,6 +187,55 @@ function ValorLeido({ campo, valor }) {
   )
 }
 
+/* ── EL NOMBRE DE UN DOCUMENTO AGREGADO ──────────────────────────────────────
+   Recién agregado es una caja para escribirlo. Escrito —al salir de la caja o con Enter— pasa a
+   ser un título como el de cualquier otro adjunto, con un lápiz para corregirlo y la papelera que
+   quita el documento entero. Una caja abierta después de escribir el nombre seguía pidiendo algo
+   que ya estaba dado. */
+function NombreDocumento({ campo, form, set, quitar }) {
+  const nombre = form[campo.claveNombre] || ''
+  const [escribiendo, setEscribiendo] = useState(!nombre.trim())
+  const cerrar = () => { if (nombre.trim()) setEscribiendo(false) }
+  const papelera = quitar && (
+    <button
+      type="button"
+      className="emp-quitar"
+      aria-label={`Quitar ${nombre || 'este documento'}`}
+      onClick={() => quitar(campo.grupo, campo.instancia)}
+    >
+      <Trash2 size={15} aria-hidden="true" />
+    </button>
+  )
+
+  if (escribiendo) {
+    return (
+      <div className="pl-label doc-nombre">
+        <input
+          className="pl-input"
+          value={nombre}
+          placeholder="Nombre del documento"
+          aria-label="Nombre del documento"
+          onChange={e => set(campo.claveNombre, e.target.value)}
+          onBlur={cerrar}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); cerrar() } }}
+          autoFocus
+        />
+        {papelera}
+      </div>
+    )
+  }
+
+  return (
+    <div className="pl-label doc-nombre doc-nombre-listo">
+      <span className="emp-rot-linea">{nombre}</span>
+      <button type="button" className="emp-quitar" aria-label={`Editar el nombre de ${nombre}`} onClick={() => setEscribiendo(true)}>
+        <Pencil size={14} aria-hidden="true" />
+      </button>
+      {papelera}
+    </div>
+  )
+}
+
 function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo, quitar }) {
   const id = `${prefijo}-${campo.key}`
   /* UN CAMPO VACÍO NO ESTÁ MAL TODAVÍA. Una ficha en blanco pintaba de rojo sus obligatorios
@@ -211,6 +261,11 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
      campo del estudio y no un control suelto de la pantalla — vive donde viven los campos, se
      recorta con el nivel como ellos, y el día que «Beneficiarios» o «Garantes» se vuelvan
      repetibles no hay que tocar esta pantalla. */
+  // El recuadro que agrega un documento en Archivos: se abre ahí mismo. Sólo editando.
+  if (campo.tipo === 'agregarDoc') {
+    return editando ? <AgregarDocumento campo={campo} form={form} set={set} /> : null
+  }
+
   if (campo.tipo === 'repetir') {
     const cuantos = cuantosHay(form, campo.grupo)
     /* Sin `max` no hay tope: los hijos no lo tienen porque nadie puede decirle a alguien cuántos
@@ -302,7 +357,12 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
           promete a un lector de pantalla un control que no existe. Y el asterisco tampoco sale,
           porque en lectura no hay nada que rellenar. Lo mismo vale para un dato deducido, que no
           tiene control al que apuntar en ningún estado. */}
-      {editando && !fijo ? (
+      {/* UN DOCUMENTO AGREGADO A MANO SE NOMBRA EN SU PROPIO RÓTULO: donde los demás adjuntos
+          tienen su título fijo, éste tiene la caja del nombre, y al lado la papelera que lo quita
+          entero. La papelera del archivo, abajo, quita sólo el archivo, como en todos. */}
+      {editando && campo.quitable ? (
+        <NombreDocumento campo={campo} form={form} set={set} quitar={quitar} />
+      ) : editando && !fijo ? (
         <label className="pl-label" htmlFor={id}>
           <span className="emp-rot-linea">
             {campo.label}
@@ -664,9 +724,9 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
   /* Tampoco el botón de «Agregar otro hijo»: no es un dato, y en la línea de «Sin completar» se
      leía como uno que faltaba. Ni un calculado vacío, que nadie puede completar desde acá: se
      llena solo en cuanto se escribe aquello de lo que sale. */
-  const deLectura = campos.filter(c => !c.soloEdicion && c.tipo !== 'rotulo' && c.tipo !== 'repetir')
+  const deLectura = campos.filter(c => !c.soloEdicion && !c.oculto && c.tipo !== 'agregarDoc' && c.tipo !== 'rotulo' && c.tipo !== 'repetir')
   const vacios = editando ? [] : deLectura.filter(c => !c.vacio && c.deducido === undefined && vacio(valorDe(c)))
-  const sinFiltro = editando ? campos : deLectura.filter(c => c.vacio || !vacio(valorDe(c)))
+  const sinFiltro = editando ? campos.filter(c => !c.oculto) : deLectura.filter(c => c.vacio || !vacio(valorDe(c)))
   /* EL FILTRO POR TIPO DE DOCUMENTO sólo existe donde los campos traen `categoria` —Archivos—; en
      cualquier otra tarjeta no hay chips ni filtro. Lo que no tiene categoría, como el botón de
      agregar, se queda siempre. Si la categoría elegida se vacía —se quitó el último documento de
@@ -774,7 +834,7 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
    Los rótulos de un bloque que se repite —«Hijo 2», «Formación 1»— vuelven como subtítulo: acá
    los renglones vacíos se ven, así que ya no encabezan la nada. */
 function HojaDePapel({ titulo, campos, form }) {
-  const filas = campos.filter(c => !c.soloEdicion && c.tipo !== 'repetir')
+  const filas = campos.filter(c => !c.soloEdicion && !c.oculto && c.tipo !== 'repetir' && c.tipo !== 'agregarDoc')
   return (
     <section className="emp-papel">
       <h2 className="emp-papel-tit">{titulo}</h2>

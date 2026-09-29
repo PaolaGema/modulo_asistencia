@@ -1083,7 +1083,17 @@ const EN_SU_COPIA = {
   /* UN DOCUMENTO AGREGADO A MANO VA EN «OTROS», el tipo de lo que ningún otro campo pide, y el
      buscador lo encuentra por el nombre que le pusieron. Cada campo de su bloque —rótulo incluido—
      lleva los dos, para que el filtro lo muestre o lo esconda entero. */
-  ...Object.fromEntries(['ex.rot', 'ex.2', 'ex.3', 'ex.4'].map(k => [k, (campo, suyo) => { campo.categoria = 'Otros'; campo.busca = suyo('ex.2') || 'Documento' }])),
+  ...Object.fromEntries(['ex.2', 'ex.4'].map(k => [k, (campo, suyo) => {
+    campo.categoria = 'Otros'
+    campo.busca = suyo('ex.2') || 'Documento'
+    /* El archivo se llama como el documento, y editando su rótulo es la caja del nombre: es lo
+       único que se ve de él. `claveNombre` es la clave de ESTA copia, no la del primero. */
+    if (k === 'ex.4') {
+      campo.label = suyo('ex.2') || 'Documento'
+      campo.quitable = true
+      campo.claveNombre = campo.key.replace('ex.4', 'ex.2')
+    }
+  }])),
   /* LAS CATEGORÍAS DE LA LICENCIA SON LAS DE BOLIVIA. Una licencia argentina o chilena tiene
      las suyas, con otras letras, así que con otro país emisor la lista deja paso a una caja
      donde se copia la categoría como figura en la licencia. */

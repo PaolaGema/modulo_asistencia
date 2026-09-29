@@ -5429,11 +5429,10 @@ export const PASOS_PROPUESTA = [
           },
           /* ── LOS DOCUMENTOS QUE NO TIENEN OTRO SITIO ───────────────────────────
              Un memorándum, una constancia, una adenda: papeles del legajo que ningún campo de la
-             ficha pide. Se agregan acá con su nombre, su fecha y su archivo, y arrancan en cero
+             ficha pide. Se agregan acá con su nombre y su archivo, y arrancan en cero
              como las entregas. Van en «Otros» y se encuentran con el buscador. */
-          { key: 'ex.rot', label: 'Documento', singular: 'Documento', repite: 'docsExtra', tipo: 'rotulo', col: 'c-todo' },
-          { key: 'ex.2', repite: 'docsExtra', label: 'Nombre del documento', col: 'c-tercio', nivel: 'Operativo', ph: 'Memorándum de designación, constancia…' },
-          { key: 'ex.3', repite: 'docsExtra', label: 'Fecha de emisión', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          // El nombre se escribe en el recuadro de agregar y da nombre al archivo: no tiene caja propia.
+          { key: 'ex.2', repite: 'docsExtra', oculto: true, label: 'Nombre del documento', col: 'c-tercio', nivel: 'Operativo', ph: 'Memorándum de designación, constancia…' },
           {
             key: 'ex.4',
             repite: 'docsExtra',
@@ -5444,7 +5443,7 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             nivel: 'Operativo'
           },
-          { key: 'ex.mas', tipo: 'repetir', grupo: 'docsExtra', max: 20, label: 'Agregar otro documento', labelPrimero: 'Agregar documento', col: 'c-todo', nivel: 'Operativo' }
+          { key: 'ex.mas', tipo: 'agregarDoc', grupo: 'docsExtra', max: 20, label: 'Agregar documento', acepta: 'application/pdf,image/*', col: 'c-tercio', nivel: 'Operativo' }
         ]
       }
     ]
