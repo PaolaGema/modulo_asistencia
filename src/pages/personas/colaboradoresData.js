@@ -263,16 +263,8 @@ export const colaboradoresData = [
       '3.89': 'Banco Nacional de Bolivia', '3.90': 'Caja de ahorro',
       '3.91': '1500-4432-19', '3.93': 'BOB · Boliviano',
 
-      /* LO QUE PODÍA HACER EN EL SISTEMA, que es lo que la tarjeta de reingreso pregunta y no
-         tenía con qué contestar. «¿Los mismos permisos que tenía?» enseñaba «Colaborador» —el
-         `rol` del directorio— y ahí se acababa: un nombre de paquete no dice qué hay dentro, y
-         quien aprueba el reingreso puede no ser quien configuró ese rol.
-
-         EL INGRESO EN «NO» PORQUE SE FUE EN 2023. Un ex-colaborador con el acceso todavía
-         habilitado es un hallazgo de auditoría, no un detalle de la ficha: el dato tiene que
-         llegar al reingreso diciendo justamente eso. */
-      '7.5': 'no', '7.6': 'Colaborador',
-      '7.11': 'Autogestión de vacaciones, boletas y datos personales',
+      // Su rol en el sistema cuando se fue.
+      '7.6': 'Colaborador',
     } },
   { id: 61, name: 'Luis Alberto Mamani Quispe', email: 'la.mamani@farmavida.com.bo', depto: 'Operaciones', cargo: 'Auxiliar de Almacén', rol: 'Colaborador', ingreso: '18 Ene 2021', salida: '29 Feb 2024', motivoSalida: 'Fin de contrato a plazo fijo', documento: '6103884 LP', empresaGrupo: 'FarmaDistribución', status: 'desvinculado', registro: 100, onb: 'n-a', foto: 'm/24', initials: 'LM', color: '#0891b2',
     ficha: { '1.1': 'Luis', '1.2': 'Alberto', '1.4': 'Mamani', '1.5': 'Quispe', '1.10': 'Documento nacional de identidad', '1.11': '6103884', '1.12': 'LP', '1.14': 'Bolivia' } },

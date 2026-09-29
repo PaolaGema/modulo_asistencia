@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, LogOut, UserPlus, Users } from 'lucide-react'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { useUser } from '../../context/UserContext'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
 import { ocupanteDe, TIPOS_CARGO, nivelesDe as nivelesDeMando } from '../../data/organigramaData'
 import { descendientes, filasEje, lineaDe } from '../../data/estructuraData'
@@ -60,7 +59,6 @@ export default function ColaboradorNuevo() {
     organigrama, setOrganigrama, nodos, sucursales, colaboradores, setColaboradores, empresa,
     empresasGrupo,
   } = useOnboardingData()
-  const { currentUser } = useUser()
   // La raíz de la pantalla, para encontrar desde ella el contenedor que se desplaza.
   const raiz = useRef(null)
   const [guardado, setForm] = useLocalStorage(LLAVE_BORRADOR, EN_BLANCO)
@@ -309,12 +307,10 @@ export default function ColaboradorNuevo() {
       datosDePersona: Object.fromEntries(colaboradores.filter(esVigente).map(c => [c.name, {
         cargo: c.cargo || '', area: c.depto || '', foto: c.foto, initials: c.initials, color: c.color,
       }])),
-      // Quién registra la ficha, para «Historial y auditoría».
-      usuario: currentUser?.name || '',
       // El organigrama tal cual, para la dependencia funcional: unidades y cargos, con sus ids.
       org: organigrama || { unidades: [], cargos: [] },
     }
-  }, [organigrama, nodos, sucursales, colaboradores, empresa, empresasGrupo, currentUser])
+  }, [organigrama, nodos, sucursales, colaboradores, empresa, empresasGrupo])
 
   const puestos = ctx.puestos
 

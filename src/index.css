@@ -10076,6 +10076,24 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   .cn-confirma-persona { margin: 16px 16px 18px; }
 }
 
+/* ── EL FILTRO DE ARCHIVOS ──────────────────────────────────────────────────
+   Un buscador y la lista de tipos, en una fila encima de los adjuntos. El buscador se estira; la
+   lista tiene el ancho de un campo. En pantallas angostas van uno debajo del otro. */
+.doc-filtro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 20px;
+}
+.doc-buscar { flex: 1 1 260px; min-width: 0; }
+.doc-vacio { margin: 0 0 20px; font-size: 13px; color: var(--text-muted); }
+.doc-buscar .pl-search { width: 100%; }
+.doc-tipo { flex: 0 1 300px; min-width: 220px; }
+@media (max-width: 600px) {
+  .doc-tipo { flex-basis: 100%; }
+}
+
 /* El campo al que se llegó desde el aviso: un halo verde que se apaga solo. */
 .cn-resaltado {
   border-radius: 12px;

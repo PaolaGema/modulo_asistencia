@@ -42,7 +42,9 @@ const papelDeLicencia = tipo =>
         : { de: 'del certificado', num: 'de certificado' }
 
 // Los campos que eligen a una persona del directorio y la enseñan con foto, cargo y área.
-const PERSONAS_CON_FOTO = ['3.13', '3.15', '3.16', '3.16b', '3.39']
+// Y quien entrega un equipo, un uniforme, una herramienta, un vehículo o una licencia.
+const RESPONSABLES_DE_ENTREGA = ['ra.e11', 'ra.u8', 'ra.h9', 'ra.v9', 'ra.s9']
+const PERSONAS_CON_FOTO = ['3.13', '3.15', '3.16', '3.16b', '3.39', ...RESPONSABLES_DE_ENTREGA]
 
 export const PASO_PREVIA = 'previa'
 
@@ -366,11 +368,6 @@ const DERIVADOS = {
     if (vence < hoyISO()) return 'Vencida'
     return vence <= sumarDias(hoyISO(), 30) ? 'Por vencer' : 'Vigente'
   },
-  /* Historial y auditoría. Quién registra viene de la sesión, no del formulario: `ctx.usuario`
-     lo pone la pantalla, que es la única que sabe quién está sentado delante. */
-  'au.1': (form, suyo, ctx = {}) => ctx.usuario || '',
-  'au.2': () => hoyISO().split('-').reverse().join('/'),
-  'au.3': form => (form['0.1'] === 'si' ? 'Reingreso' : 'Alta nueva'),
 }
 
 /* ── Qué campos aparecen y cuándo ─────────────────────────────────────────
@@ -738,6 +735,7 @@ const opcionesDeEstructura = (key, ctx, form = {}) => {
       ? enLugar(form['3.5'] ? bajoDe(puestos, '3.5') : deNegocio(puestos)) : null
     // Supervisor, aprobadores y quien autorizó la contratación salen del directorio.
     case '3.13': case '3.15': case '3.16': case '3.16b': case '3.39':
+    case 'ra.e11': case 'ra.u8': case 'ra.h9': case 'ra.v9': case 'ra.s9':
       return personas.length ? personas : null
     /* EN QUÉ UNIDAD LO SUPERVISA: todas las unidades de la empresa, sin recortar por la sede ni
        el negocio de la persona. La supervisión funcional existe justamente para cruzar áreas. */
@@ -842,7 +840,9 @@ const CUENTA = grupo => '__n_' + grupo
    documento secundario se abría con «¿Tiene documento secundario?» (1.19), y quien dijo que sí
    tiene su documento en las claves del primero. También cuenta si ya hay algo escrito en ellas:
    el reingreso trae el escaneo (1.20h) sin la cuenta, y sin esto llegaría a un bloque invisible. */
-const MINIMO_COPIAS = { docsec: 0 }
+/* Lo que se entrega en Recursos y activos también arranca en cero: casi nadie recibe a la vez
+   un vehículo, un EPP y una licencia, y cada cosa entregada se agrega con su botón. */
+const MINIMO_COPIAS = { docsec: 0, docsExtra: 0, equipos: 0, uniformes: 0, epp: 0, herrActivos: 0, vehiculos: 0, software: 0 }
 const LEGADO = {
   emergencia: form => (form['2.seg'] === 'si' ? 2 : 1),
   docsec: form => (form['1.19'] === 'si' || ['1.20a', '1.20b', '1.20h'].some(k => form[k]) ? 1 : 0),
@@ -1080,6 +1080,10 @@ export function quitarCopia(form, campos, grupo, n) {
    primera copia; acá cada una lee la suya. Con dos licencias —una de conducir, un certificado de
    antecedentes— cada bloque tiene que llamarse a sí mismo por su nombre. */
 const EN_SU_COPIA = {
+  /* UN DOCUMENTO AGREGADO A MANO VA EN «OTROS», el tipo de lo que ningún otro campo pide, y el
+     buscador lo encuentra por el nombre que le pusieron. Cada campo de su bloque —rótulo incluido—
+     lleva los dos, para que el filtro lo muestre o lo esconda entero. */
+  ...Object.fromEntries(['ex.rot', 'ex.2', 'ex.3', 'ex.4'].map(k => [k, (campo, suyo) => { campo.categoria = 'Otros'; campo.busca = suyo('ex.2') || 'Documento' }])),
   /* LAS CATEGORÍAS DE LA LICENCIA SON LAS DE BOLIVIA. Una licencia argentina o chilena tiene
      las suyas, con otras letras, así que con otro país emisor la lista deja paso a una caja
      donde se copia la categoría como figura en la licencia. */
@@ -1176,6 +1180,8 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
          respuesta valdría para las tres. Marcar «Otro» en el beneficiario dos abría la caja en
          los tres o en ninguno. Se deja pasar y se filtra abajo, ya con la copia sabida. */
       .filter(c => (c.tipo === 'rotulo' || entraEnNivel(c, nivel)) && (c.repite || seVe(c, form)))
+      // Un adjunto espejado de un paso que no se enseña —en la versión publicada— tampoco sale acá.
+      .filter(c => !c.dePaso || PASOS.some(p => p.key === c.dePaso))
       .map(c => {
         const campo = { ...c }
 

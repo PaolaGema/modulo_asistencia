@@ -1,4 +1,4 @@
-import { lazy, Suspense, useLayoutEffect, useRef } from 'react'
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react'
 import Desplegable from '../layout/Desplegable'
 import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
@@ -13,7 +13,7 @@ import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
    mirar un teléfono en el directorio y nunca abre una ficha. */
 const SelectorUbicacion = lazy(() => import('../personas/SelectorUbicacion'))
 import AyudaCampo from '../personas/AyudaCampo'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Search, Trash2 } from 'lucide-react'
 import { conRieles, estilosDeRiel } from './rejillaFicha'
 import { claveDeCuenta, cuantosHay, quitarCopia } from '../../data/fichaColaborador'
 
@@ -578,8 +578,61 @@ function useRotulosAlineados(activo) {
   return ref
 }
 
+/* ── EL FILTRO DE ARCHIVOS ────────────────────────────────────────────────────
+   Encima de los adjuntos, un buscador y una lista desplegable de tipos. Los chips se probaron
+   primero y el equipo prefirió la lista (29 sep 2026): con siete categorías eran dos filas de
+   botones antes del primer documento. La lista trae «Todos» y cada tipo que tenga al menos un
+   documento, con cuántos hay subidos de cuántos a la derecha. Los tipos van siempre en el mismo
+   orden, el de este arreglo, y no en el de aparición. */
+const TODAS = 'Todos'
+const ORDEN_CATEGORIAS = ['Identidad', 'Certificados y licencias', 'Formación', 'Garantías', 'Entregas de activos', 'Otros']
+const esDocumento = c => c.categoria && c.tipo === 'archivo'
+function categoriasDe(campos, form) {
+  const docs = campos.filter(esDocumento)
+  if (!docs.length) return []
+  const cuenta = lista => ({ total: lista.length, subidos: lista.filter(c => form[c.key]).length })
+  return [
+    { nombre: TODAS, ...cuenta(docs) },
+    ...ORDEN_CATEGORIAS
+      .map(nombre => ({ nombre, ...cuenta(docs.filter(c => c.categoria === nombre)) }))
+      .filter(c => c.total > 0),
+  ]
+}
+/* EL BUSCADOR MIRA EL NOMBRE DEL DOCUMENTO: el rótulo del campo —«Certificado de nacimiento»,
+   «Entrega firmada del equipo · Celular»— o, en uno agregado a mano, el nombre que le pusieron.
+   Sin tildes ni mayúsculas, como el resto de los buscadores. */
+const sinTildes = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+const coincide = (campo, texto) => !texto || sinTildes(`${campo.busca || campo.label} ${campo.categoria}`).includes(sinTildes(texto))
+function FiltroDocumentos({ categorias, activo, onElegir, busca, onBuscar }) {
+  return (
+    <div className="doc-filtro">
+      <div className="pl-search-wrap doc-buscar">
+        <Search size={13} className="pl-search-ico" />
+        <input
+          type="search"
+          className="pl-search"
+          placeholder="Buscar documento…"
+          aria-label="Buscar documento por nombre"
+          value={busca}
+          onChange={e => onBuscar(e.target.value)}
+        />
+      </div>
+      <div className="doc-tipo">
+        <Desplegable
+          valor={activo}
+          opciones={categorias.map(c => ({ valor: c.nombre, etiqueta: c.nombre, lateral: `${c.subidos}/${c.total}` }))}
+          onCambio={onElegir}
+          ariaLabel="Filtrar por tipo de documento"
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar, editando, prefijo, marcarFaltas = true, desnudo = false, papel = false, children }) {
   const rejillaRef = useRotulosAlineados(editando)
+  const [filtro, setFiltro] = useState(TODAS)
+  const [busca, setBusca] = useState('')
   if (papel && !editando) return <HojaDePapel titulo={titulo} campos={campos} form={form} />
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
@@ -613,7 +666,14 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
      llena solo en cuanto se escribe aquello de lo que sale. */
   const deLectura = campos.filter(c => !c.soloEdicion && c.tipo !== 'rotulo' && c.tipo !== 'repetir')
   const vacios = editando ? [] : deLectura.filter(c => !c.vacio && c.deducido === undefined && vacio(valorDe(c)))
-  const visibles = editando ? campos : deLectura.filter(c => c.vacio || !vacio(valorDe(c)))
+  const sinFiltro = editando ? campos : deLectura.filter(c => c.vacio || !vacio(valorDe(c)))
+  /* EL FILTRO POR TIPO DE DOCUMENTO sólo existe donde los campos traen `categoria` —Archivos—; en
+     cualquier otra tarjeta no hay chips ni filtro. Lo que no tiene categoría, como el botón de
+     agregar, se queda siempre. Si la categoría elegida se vacía —se quitó el último documento de
+     ese tipo—, se vuelve a ver todo. */
+  const categorias = categoriasDe(campos, form)
+  const activo = categorias.some(c => c.nombre === filtro) ? filtro : TODAS
+  const visibles = sinFiltro.filter(c => !c.categoria || ((activo === TODAS || c.categoria === activo) && coincide(c, busca)))
 
   /* Dónde empieza cada riel y cuánto mide sale de los campos que de verdad se están viendo, así
      que se recalcula solo: al elegir «Pasaporte» desaparecen la extensión y el complemento y el
@@ -662,6 +722,15 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
       </div>
 
       {children}
+
+      {categorias.length > 1 && (
+        <FiltroDocumentos categorias={categorias} activo={activo} onElegir={setFiltro} busca={busca} onBuscar={setBusca} />
+      )}
+      {categorias.length > 1 && !visibles.some(c => c.categoria) && (
+        <p className="doc-vacio">
+          Ningún documento coincide{busca ? <> con «{busca}»</> : null}{activo !== TODAS ? <> en {activo}</> : null}.
+        </p>
+      )}
 
       {/* Una rejilla sin nada adentro no se dibuja: desde que una tarjeta puede traer su propio
           cuerpo y ningún campo —la de reingreso—, el grid vacío dejaba un hueco al pie. */}

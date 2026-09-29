@@ -449,6 +449,12 @@ const CAMPOS_RETIRADOS = {
   '3.94': 'Sucursal de la cuenta bancaria: retirada a pedido del equipo (29 sep 2026)',
   '3.96a': 'Paquete de beneficios asignado y su tarjeta «Datos de beneficios adicionales»: retirados a pedido del equipo (29 sep 2026)',
   '3.96b': 'Beneficios individuales: se van con su tarjeta (29 sep 2026)',
+  '7.3': 'Contraseña: la elige quien la usa, en su primer ingreso (29 sep 2026)',
+  '7.8': 'Acceso a otras empresas del grupo: configuración del sistema, no dato de la ficha (29 sep 2026)',
+  '7.11': 'Alcances habilitados: configuración del sistema, no dato de la ficha (29 sep 2026)',
+  '7.1': 'Modo de autenticación: retirado a pedido del equipo (29 sep 2026)',
+  '7.5': '¿Ingreso al sistema habilitado?: retirado a pedido del equipo (29 sep 2026)',
+  '7.4': '¿Enviar usuario y contraseña por correo?: retirado a pedido del equipo (29 sep 2026)',
   '3.34': 'Clasificación laboral: retirada a pedido del equipo (29 sep 2026)',
   /* Las otras fechas de ingreso, retiradas a pedido del equipo el 29 sep 2026: queda una sola. */
   '3.26': 'Fecha de ingreso para vacaciones: retirada',
@@ -608,6 +614,8 @@ const NACIONALIDADES = [
 ]
 
 const CAMPOS_AJUSTADOS = {
+  // Los seis roles del equipo, de más a menos alcance (29 sep 2026).
+  '7.6': { opciones: ['Administrador General', 'Sub Administrador - RRHH - IT', 'Gerente', 'Supervisor', 'Asistente', 'Colaborador'] },
   // El tipo de cuenta suma «Otro», que abre 3.90o (29 sep 2026).
   '3.90': { opciones: ['Caja de ahorro', 'Cuenta corriente', 'Otro'], nota: 'Caja de ahorro · Cuenta corriente · Otro.' },
   // Todos los bancos supervisados por la ASFI; Fassil sale, intervenido en 2023 (29 sep 2026).

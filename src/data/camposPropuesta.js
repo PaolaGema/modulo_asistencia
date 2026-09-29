@@ -4957,100 +4957,214 @@ export const PASOS_PROPUESTA = [
     titulo: 'Recursos y activos',
     corto: 'Activos',
     pista: 'Lo que la empresa le entrega para trabajar',
+    /* ── SIETE SECCIONES, UNA POR CLASE DE COSA ───────────────────────────────
+       Era una sola lista de «activos» con un tipo que decía si era una laptop o un casco, y los
+       campos no alcanzaban a ninguno: un EPP vence y tiene certificación, un vehículo tiene placa
+       y año, una licencia de software se revoca. El equipo mandó la lista de campos de cada clase
+       (29 sep 2026) y se arma tal cual: Equipos, Uniformes, EPP, Herramientas, Vehículos, Software
+       y licencias, y Preferencias.
+
+       TODAS LAS ENTREGAS ARRANCAN EN CERO, con su botón «Agregar…». Casi nadie recibe a la vez un
+       vehículo, un EPP y una licencia: seis bloques vacíos serían sesenta cajas para llenar de
+       nada. Quien recibe algo lo agrega, y cada cosa entregada es un bloque con su rótulo.
+
+       EL RESPONSABLE DE LA ENTREGA SE ELIGE DEL DIRECTORIO, con foto y cargo, como el supervisor:
+       es quien firma que entregó, y al salir la persona es a quien se le pregunta. */
     tarjetas: [
       {
-        id: 'activos',
-        titulo: 'Activos entregados',
-        desc: 'Lo que la empresa le presta para trabajar y que tiene que devolver al salir: equipos, vehículo, herramientas, uniforme, llaves.',
+        id: 'equipos',
+        titulo: 'Equipos',
+        desc: 'Computadoras, celulares y otros equipos que se le prestan y que devuelve al salir.',
         propuesta: true,
         incierto: false,
         campos: [
-          { key: 'ra.rotActivos', label: 'Activo asignado', singular: 'Activo', repite: 'activos', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'ra.rotEquipos', label: 'Equipo', singular: 'Equipo', repite: 'equipos', tipo: 'rotulo', col: 'c-todo' },
           {
-            key: 'ra.1',
-            repite: 'activos',
-            label: 'Tipo de activo',
+            key: 'ra.e1',
+            repite: 'equipos',
+            label: 'Tipo de equipo',
             tipo: 'lista',
-            opciones: [
-              'Computadora portátil',
-              'Computadora de escritorio',
-              'Monitor',
-              'Celular',
-              'Tablet',
-              'Vehículo',
-              'Herramienta o equipo',
-              'Uniforme o EPP',
-              'Llave o tarjeta de acceso',
-              'Otro'
-            ],
+            opciones: ['Computadora portátil', 'Computadora de escritorio', 'Monitor', 'Celular', 'Tablet', 'Impresora', 'Teléfono fijo', 'Radio', 'Otro'],
             col: 'c-tercio',
             nivel: 'Operativo'
           },
-          { key: 'ra.2', repite: 'activos', label: 'Marca y modelo', col: 'c-tercio', nivel: 'Operativo', ph: 'Lenovo ThinkPad E14' },
           {
-            key: 'ra.3',
-            repite: 'activos',
-            label: 'Código de inventario',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El de la etiqueta del activo, el mismo que figura en el inventario de la empresa. Es lo que permite saber quién lo tiene.'
-          },
-          { key: 'ra.4', repite: 'activos', label: 'Número de serie', col: 'c-tercio', nivel: 'Completo', nota: 'El del fabricante. En un vehículo, la placa.' },
-          { key: 'ra.5', repite: 'activos', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
-          {
-            key: 'ra.6',
-            repite: 'activos',
-            label: 'Estado al entregarlo',
+            key: 'ra.e2',
+            repite: 'equipos',
+            label: 'Categoría del equipo',
             tipo: 'lista',
-            opciones: ['Nuevo', 'Bueno', 'Regular'],
+            opciones: ['Cómputo', 'Comunicación', 'Periférico', 'Oficina', 'Otro'],
             col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Contra esto se compara cuando lo devuelva.'
+            nivel: 'Operativo'
           },
+          { key: 'ra.e3', repite: 'equipos', label: 'Marca', col: 'c-tercio', nivel: 'Operativo', ph: 'Lenovo' },
+          { key: 'ra.e4', repite: 'equipos', label: 'Modelo', col: 'c-tercio', nivel: 'Operativo', ph: 'ThinkPad E14' },
+          { key: 'ra.e5', repite: 'equipos', label: 'Número de serie', col: 'c-tercio', nivel: 'Operativo', nota: 'El del fabricante, en la etiqueta del equipo.' },
           {
-            key: 'ra.7',
-            repite: 'activos',
-            label: 'Valor referencial',
-            html: 'text',
+            key: 'ra.e6',
+            repite: 'equipos',
+            label: 'Código patrimonial / Activo fijo',
             col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Lo que costaría reponerlo, en la moneda del haber básico.'
-          },
-          /* EL ACTA ANCLA SU BLOQUE, como el título en la formación: el tipo, el código, la serie
-             y la fecha se copian de ella, y es además lo único que prueba qué recibió la persona y
-             en qué estado. Cada activo empieza con su rótulo, así que cada uno ancla el suyo. */
-          {
-            key: 'ra.8',
-            repite: 'activos',
-            label: 'Acta de entrega',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio c-escaneo',
             nivel: 'Operativo',
-            nota: 'El acta firmada por quien lo recibe. Sin ella no hay cómo reclamar el activo al salir.'
+            nota: 'El de la etiqueta de inventario de la empresa. Es lo que permite saber quién lo tiene.'
           },
-          { key: 'ra.masActivos', tipo: 'repetir', grupo: 'activos', max: 15, label: 'Agregar otro activo', col: 'c-todo', nivel: 'Operativo' }
+          { key: 'ra.e7', repite: 'equipos', label: 'Estado del equipo', tipo: 'lista', opciones: ['Nuevo', 'Bueno', 'Regular', 'Dañado'], col: 'c-tercio', nivel: 'Operativo', nota: 'Cómo se entregó. Contra esto se compara cuando lo devuelva.' },
+          { key: 'ra.e8', repite: 'equipos', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.e9', repite: 'equipos', label: 'Fecha de devolución', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.e10', repite: 'equipos', label: 'Fecha de reposición', html: 'date', col: 'c-tercio', nivel: 'Operativo', nota: 'Cuándo toca cambiarlo por uno nuevo.' },
+          { key: 'ra.e11', repite: 'equipos', label: 'Responsable de entrega', tipo: 'lista', opciones: [], buscador: true, col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.e12', repite: 'equipos', label: 'Documento de entrega firmado', tipo: 'archivo', acepta: 'application/pdf,image/*', pista: 'PDF o imagen · arrastrar o hacer clic', col: 'c-tercio', nivel: 'Operativo', nota: 'El acta firmada por quien lo recibe. Sin ella no hay cómo reclamar el equipo al salir.' },
+          { key: 'ra.e13', repite: 'equipos', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
+          { key: 'ra.masEquipos', tipo: 'repetir', grupo: 'equipos', max: 15, label: 'Agregar otro equipo', labelPrimero: 'Agregar equipo', col: 'c-todo', nivel: 'Operativo' }
         ]
       },
       {
-        id: 'recursos',
-        titulo: 'Otros recursos asignados',
-        desc: 'Lo que no es un objeto que se lleve, pero igual se le asigna: dónde trabaja y con qué cuenta.',
+        id: 'uniformes',
+        titulo: 'Uniformes',
+        desc: 'Las prendas de trabajo que se le entregan, con su talla y cuándo se reponen.',
         propuesta: true,
         incierto: false,
         campos: [
-          { key: 'ra.9', label: 'Puesto de trabajo', col: 'c-tercio', nivel: 'Completo', ph: 'Piso 2, escritorio 14', nota: 'Dónde se sienta: oficina, piso, escritorio.' },
-          { key: 'ra.10', label: 'Estacionamiento', col: 'c-tercio', nivel: 'Completo', ph: 'Espacio 7', nota: 'Déjelo vacío si no tiene uno asignado.' },
+          { key: 'ra.rotUniformes', label: 'Uniforme', singular: 'Uniforme', repite: 'uniformes', tipo: 'rotulo', col: 'c-todo' },
           {
-            key: 'ra.11',
-            label: 'Licencias de software',
-            tipo: 'texto',
+            key: 'ra.u1',
+            repite: 'uniformes',
+            label: 'Tipo de uniforme',
+            tipo: 'lista',
+            opciones: ['Camisa o polera', 'Pantalón', 'Chaqueta', 'Guardapolvo o mandil', 'Calzado', 'Gorra', 'Otro'],
             col: 'c-tercio',
-            nivel: 'Completo',
-            ph: 'Office 365, AutoCAD…',
-            nota: 'Las licencias pagadas a su nombre. Se liberan cuando se va.'
-          }
+            nivel: 'Operativo'
+          },
+          { key: 'ra.u2', repite: 'uniformes', label: 'Talla', col: 'c-tercio', nivel: 'Operativo', ph: 'M, 42, única…' },
+          { key: 'ra.u3', repite: 'uniformes', label: 'Cantidad entregada', numero: true, col: 'c-tercio', nivel: 'Operativo', ph: '2' },
+          { key: 'ra.u4', repite: 'uniformes', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.u5', repite: 'uniformes', label: 'Fecha de reposición', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.u6', repite: 'uniformes', label: 'Fecha de devolución', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.u7', repite: 'uniformes', label: 'Estado', tipo: 'lista', opciones: ['Nuevo', 'Bueno', 'Regular', 'Dañado'], col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.u8', repite: 'uniformes', label: 'Responsable de entrega', tipo: 'lista', opciones: [], buscador: true, col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.u9', repite: 'uniformes', label: 'Documento de entrega firmado', tipo: 'archivo', acepta: 'application/pdf,image/*', pista: 'PDF o imagen · arrastrar o hacer clic', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.u10', repite: 'uniformes', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
+          { key: 'ra.masUniformes', tipo: 'repetir', grupo: 'uniformes', max: 15, label: 'Agregar otro uniforme', labelPrimero: 'Agregar uniforme', col: 'c-todo', nivel: 'Operativo' }
+        ]
+      },
+      {
+        id: 'epp',
+        titulo: 'Equipo de Protección Personal (EPP)',
+        desc: 'Lo que protege a la persona en su trabajo. Vence y se repone: por eso lleva certificación y fecha de vencimiento.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.rotEpp', label: 'Equipo de protección', singular: 'Equipo de protección', repite: 'epp', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: 'ra.p1',
+            repite: 'epp',
+            label: 'Tipo de Equipo de Protección Personal (EPP)',
+            tipo: 'lista',
+            opciones: ['Casco', 'Guantes', 'Lentes de seguridad', 'Protección auditiva', 'Mascarilla o respirador', 'Calzado de seguridad', 'Chaleco reflectivo', 'Arnés', 'Ropa de protección', 'Otro'],
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'ra.p2', repite: 'epp', label: 'Certificación', col: 'c-tercio', nivel: 'Operativo', ph: 'ANSI Z89.1, EN 388…', nota: 'La norma que cumple, como figura en la etiqueta o en la ficha del proveedor.' },
+          { key: 'ra.p3', repite: 'epp', label: 'Talla', col: 'c-tercio', nivel: 'Operativo', ph: 'M, 42, única…' },
+          { key: 'ra.p4', repite: 'epp', label: 'Cantidad', numero: true, col: 'c-tercio', nivel: 'Operativo', ph: '1' },
+          { key: 'ra.p5', repite: 'epp', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.p6', repite: 'epp', label: 'Fecha de vencimiento', html: 'date', col: 'c-tercio', nivel: 'Operativo', nota: 'Pasada esta fecha el EPP ya no protege como debe, aunque se vea bien.' },
+          { key: 'ra.p7', repite: 'epp', label: 'Fecha de reposición', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.p8', repite: 'epp', label: 'Estado', tipo: 'lista', opciones: ['Nuevo', 'Bueno', 'Regular', 'Dañado', 'Vencido'], col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.p9', repite: 'epp', label: 'Documento de entrega firmado', tipo: 'archivo', acepta: 'application/pdf,image/*', pista: 'PDF o imagen · arrastrar o hacer clic', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.p10', repite: 'epp', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
+          { key: 'ra.masEpp', tipo: 'repetir', grupo: 'epp', max: 15, label: 'Agregar otro EPP', labelPrimero: 'Agregar EPP', col: 'c-todo', nivel: 'Operativo' }
+        ]
+      },
+      {
+        id: 'herramientas',
+        titulo: 'Herramientas',
+        desc: 'Las herramientas de trabajo a su cargo.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.rotHerramientas', label: 'Herramienta', singular: 'Herramienta', repite: 'herrActivos', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'ra.h1', repite: 'herrActivos', label: 'Tipo de herramienta', col: 'c-tercio', nivel: 'Operativo', ph: 'Taladro, multímetro, escalera…' },
+          { key: 'ra.h2', repite: 'herrActivos', label: 'Código interno', col: 'c-tercio', nivel: 'Operativo', nota: 'El de la etiqueta de inventario de la empresa.' },
+          { key: 'ra.h3', repite: 'herrActivos', label: 'Marca', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h4', repite: 'herrActivos', label: 'Modelo', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h5', repite: 'herrActivos', label: 'Número de serie', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h6', repite: 'herrActivos', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h7', repite: 'herrActivos', label: 'Fecha de devolución', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h8', repite: 'herrActivos', label: 'Estado', tipo: 'lista', opciones: ['Nuevo', 'Bueno', 'Regular', 'Dañado'], col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h9', repite: 'herrActivos', label: 'Responsable de entrega', tipo: 'lista', opciones: [], buscador: true, col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.h10', repite: 'herrActivos', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
+          { key: 'ra.masHerramientas', tipo: 'repetir', grupo: 'herrActivos', max: 15, label: 'Agregar otra herramienta', labelPrimero: 'Agregar herramienta', col: 'c-todo', nivel: 'Operativo' }
+        ]
+      },
+      {
+        id: 'vehiculos',
+        titulo: 'Vehículos',
+        desc: 'El vehículo de la empresa asignado a la persona.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.rotVehiculos', label: 'Vehículo', singular: 'Vehículo', repite: 'vehiculos', tipo: 'rotulo', col: 'c-todo' },
+          {
+            key: 'ra.v1',
+            repite: 'vehiculos',
+            label: 'Tipo de vehículo',
+            tipo: 'lista',
+            opciones: ['Automóvil', 'Camioneta', 'Vagoneta', 'Furgoneta', 'Motocicleta', 'Camión', 'Otro'],
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'ra.v2', repite: 'vehiculos', label: 'Marca', col: 'c-tercio', nivel: 'Operativo', ph: 'Toyota' },
+          { key: 'ra.v3', repite: 'vehiculos', label: 'Modelo', col: 'c-tercio', nivel: 'Operativo', ph: 'Hilux' },
+          { key: 'ra.v4', repite: 'vehiculos', label: 'Placa', col: 'c-tercio', nivel: 'Operativo', ph: '4521-KTD' },
+          { key: 'ra.v5', repite: 'vehiculos', label: 'Año', numero: true, col: 'c-tercio', nivel: 'Operativo', ph: '2022' },
+          { key: 'ra.v6', repite: 'vehiculos', label: 'Fecha de asignación', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.v7', repite: 'vehiculos', label: 'Fecha de devolución', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.v8', repite: 'vehiculos', label: 'Estado', tipo: 'lista', opciones: ['Nuevo', 'Bueno', 'Regular', 'En mantenimiento', 'Dañado'], col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.v9', repite: 'vehiculos', label: 'Responsable de asignación', tipo: 'lista', opciones: [], buscador: true, col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.v10', repite: 'vehiculos', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
+          { key: 'ra.masVehiculos', tipo: 'repetir', grupo: 'vehiculos', max: 5, label: 'Agregar otro vehículo', labelPrimero: 'Agregar vehículo', col: 'c-todo', nivel: 'Operativo' }
+        ]
+      },
+      {
+        id: 'software',
+        titulo: 'Software y Licencias',
+        desc: 'Los programas y cuentas pagadas a su nombre. Se revocan cuando se va.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.rotSoftware', label: 'Software', singular: 'Software', repite: 'software', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'ra.s1', repite: 'software', label: 'Nombre del software', col: 'c-tercio', nivel: 'Operativo', ph: 'Microsoft 365, AutoCAD…' },
+          {
+            key: 'ra.s2',
+            repite: 'software',
+            label: 'Tipo de licencia',
+            tipo: 'lista',
+            opciones: ['Suscripción', 'Perpetua', 'Por usuario', 'Corporativa o por volumen', 'Gratuita', 'Otro'],
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'ra.s3', repite: 'software', label: 'Usuario asignado', col: 'c-tercio', nivel: 'Operativo', ph: 'jperez' },
+          { key: 'ra.s4', repite: 'software', label: 'Correo asociado', html: 'email', col: 'c-tercio', nivel: 'Operativo', ph: 'nombre@empresa.com' },
+          { key: 'ra.s5', repite: 'software', label: 'Fecha de asignación', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.s6', repite: 'software', label: 'Fecha de vencimiento', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.s7', repite: 'software', label: 'Fecha de revocación', html: 'date', col: 'c-tercio', nivel: 'Operativo', nota: 'Cuándo se le quitó el acceso. Se llena al salir la persona.' },
+          { key: 'ra.s8', repite: 'software', label: 'Estado', tipo: 'lista', opciones: ['Activa', 'Suspendida', 'Vencida', 'Revocada'], col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.s9', repite: 'software', label: 'Responsable de asignación', tipo: 'lista', opciones: [], buscador: true, col: 'c-tercio', nivel: 'Operativo' },
+          { key: 'ra.s10', repite: 'software', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
+          { key: 'ra.masSoftware', tipo: 'repetir', grupo: 'software', max: 15, label: 'Agregar otro software', labelPrimero: 'Agregar software', col: 'c-todo', nivel: 'Operativo' }
+        ]
+      },
+      {
+        id: 'preferencias',
+        titulo: 'Preferencias',
+        desc: 'Lo que a la persona le gustaría recibir, lo que le interesa y lo que sabe hacer.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          { key: 'ra.f1', label: 'Lista de deseos', tipo: 'texto', col: 'c-tercio', nivel: 'Operativo', ph: 'Un segundo monitor, una silla ergonómica…' },
+          { key: 'ra.f2', label: 'Intereses', tipo: 'texto', col: 'c-tercio', nivel: 'Operativo', ph: 'Fotografía, fútbol, lectura…' },
+          { key: 'ra.f3', label: 'Habilidades', tipo: 'texto', col: 'c-tercio', nivel: 'Operativo', ph: 'Excel avanzado, oratoria…' }
         ]
       }
     ]
@@ -5060,30 +5174,21 @@ export const PASOS_PROPUESTA = [
     n: 10,
     titulo: 'Configuración del Colaborador / Autogestión',
     corto: 'Configuración',
-    pista: 'Su acceso, su rol y el historial de su ficha',
+    pista: 'Su usuario y su rol en el sistema',
     tarjetas: [
+      /* ── UNA SOLA TARJETA: CON QUÉ USUARIO ENTRA Y QUÉ ROL TIENE ─────────────
+         Eran cuatro —Credenciales, Rol y alcances, Autogestión y notificaciones, Historial y
+         auditoría— y el equipo las redujo a lo que la ficha tiene que decir (29 sep 2026). La
+         contraseña no va: la conoce sólo quien la usa, y la elige en su primer ingreso. El modo
+         de autenticación, el envío por correo, el ingreso habilitado, el acceso a otras empresas
+         y los alcances son configuración del sistema, no datos de la persona. */
       {
-        id: 'credenciales',
-        titulo: 'Credenciales',
-        desc: 'Cómo entra al sistema.',
+        id: 'acceso',
+        titulo: 'Acceso al sistema',
+        desc: 'Con qué usuario entra y qué rol tiene.',
         propuesta: false,
         incierto: false,
         campos: [
-          {
-            key: '7.1',
-            label: 'Modo de autenticación',
-            tipo: 'lista',
-            opciones: [
-              'Usuario y contraseña',
-              'Correo corporativo',
-              'SSO'
-            ],
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'Interno · SSO (Azure) · CI + fecha de nacimiento.',
-            traza: 'Alimenta: GP.'
-          },
           {
             key: '7.2',
             label: 'Nombre de usuario',
@@ -5092,155 +5197,21 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo'
           },
           {
-            key: '7.3',
-            label: 'Contraseña / Generar contraseña',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: 'La crea RR.HH. y se comparte con el colaborador.',
-            traza: 'Alimenta: GP.'
-          },
-          {
-            key: '7.4',
-            label: '¿Enviar usuario y contraseña por correo?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: 'Agregar opción \'enviar por WhatsApp\' — el correo no llega al personal operativo.',
-            traza: 'Alimenta: CC, GP.'
-          },
-          {
-            key: '7.5',
-            label: '¿Ingreso al sistema habilitado?',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo'
-          }
-        ]
-      },
-      {
-        id: 'rol',
-        titulo: 'Rol y alcances',
-        desc: 'Qué puede ver y hacer. La separación de roles —generar ≠ aprobar ≠ eliminar— es control interno, no burocracia.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
             key: '7.6',
             label: 'Rol del usuario',
             tipo: 'lista',
+            /* Los seis roles del equipo (29 sep 2026), de más a menos alcance. */
             opciones: [
-              'Administrador general',
-              'Administrador de RR.HH.',
+              'Administrador General',
+              'Sub Administrador - RRHH - IT',
+              'Gerente',
               'Supervisor',
+              'Asistente',
               'Colaborador'
             ],
             col: 'c-tercio',
             insignia: 'legal',
             nivel: 'Operativo'
-          },
-          /* SE RETIRA 7.7, «Estado del usuario». Llevaba la insignia «se calcula» y nunca tuvo
-             regla en DERIVADOS: salía siempre en blanco y no se podía escribir, una promesa sin
-             nada detrás. Si el usuario puede entrar ya lo dice «¿Ingreso al sistema habilitado?». */
-          {
-            key: '7.8',
-            label: 'Acceso a otras empresas del grupo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El colaborador puede estar en dos empresas distintas.',
-            traza: 'Alimenta: GP.'
-          },
-          /* SE RETIRA 7.9, «Separación de roles (generar ≠ aprobar ≠ eliminar)». Era una caja de
-             texto libre con una regla de control interno por rótulo —que una misma persona no
-             genere, apruebe y elimine planillas, hallazgo del Salar—: nadie sabía qué escribir, y
-             lo escrito no lo podía leer el sistema para impedir nada. La regla es de permisos, no
-             un dato de la ficha. */
-          {
-            key: '7.11',
-            label: 'Alcances habilitados',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Individual · Unidad organizativa · Organización.',
-            traza: 'Alimenta: DE.'
-          }
-        ]
-      },
-      {
-        id: 'autogestion',
-        titulo: 'Autogestión y notificaciones',
-        desc: 'Qué puede hacer solo desde su propio perfil y por dónde se le avisa.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '7.10',
-            label: 'Autogestión — permisos',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Ver lista abajo.'
-          },
-          {
-            key: '7.12',
-            label: 'Canal de notificación preferido',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo',
-            nota: 'Correo · WhatsApp · App · SMS. absorbe la función del eliminado 1.37 — el canal se define una sola vez, aquí.',
-            traza: '✏ v1.2. Alimenta: CC, ON.'
-          },
-          {
-            key: '7.13',
-            label: 'Restricción de acceso a datos sensibles de salud',
-            col: 'c-medio',
-            insignia: 'legal',
-            nivel: 'Operativo',
-            nota: '18:43): CAMPO NUEVO. *\'Se acordó implementar permisos restringidos para que solo personal autorizado acceda a estos datos sensibles.\'* Cubre §5.1.6 completa (tipo de sangre, alergias, condiciones crónicas, medicación, discapacidad, exámenes ocupacionales). El acceso por defecto es denegado, se concede explícitamente por rol.',
-            traza: '✏ v1.2 (sesión 1, 01. Alimenta: GP.'
-          }
-        ]
-      },
-      /* ── QUIÉN TOCÓ LA FICHA ──────────────────────────────────────────────────
-         No se llena: se lee. Todo lo de esta tarjeta sale de quién está usando el sistema y de
-         cuándo, y un dato de auditoría que se puede escribir a mano deja de ser auditoría.
-
-         AL CREAR SÓLO HAY UNA LÍNEA DE HISTORIA, la del alta, y es lo que se enseña. Los cambios
-         posteriores —qué dato, de qué valor a cuál, quién y cuándo— se registran desde que la
-         ficha existe, y no tiene sentido pintarlos vacíos en un formulario que todavía no la creó. */
-      {
-        id: 'auditoria',
-        titulo: 'Historial y auditoría',
-        desc: 'Quién registra la ficha y cuándo. Desde que se crea, cada cambio queda anotado: qué dato, quién lo cambió y cuándo.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          {
-            key: 'au.1',
-            label: 'Registrado por',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'La persona con la sesión abierta al crear la ficha.'
-          },
-          {
-            key: 'au.2',
-            label: 'Fecha de registro',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El día en que se crea la ficha en el sistema, que no tiene por qué ser su fecha de ingreso.'
-          },
-          {
-            key: 'au.3',
-            label: 'Tipo de alta',
-            deducido: '',
-            insignia: 'se calcula',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Sale de la primera pregunta de la ficha: si ya tenía registro en el grupo, es un reingreso.'
           }
         ]
       }
@@ -5261,12 +5232,13 @@ export const PASOS_PROPUESTA = [
       {
         id: 'archivos',
         titulo: 'Archivos',
-        desc: 'Todos los adjuntos del formulario, reunidos.',
+        desc: 'Todos los adjuntos de la ficha, reunidos. Filtre por tipo de documento, y agregue los que no tienen otro sitio.',
         propuesta: false,
         incierto: false,
         campos: [
           {
             key: '1.9',
+            categoria: 'Identidad',
             label: 'Fotografía del colaborador',
             tipo: 'archivo',
             /* UN PDF NO ES UNA FOTOGRAFÍA. Aceptaba `application/pdf` como los otros ocho
@@ -5298,6 +5270,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.17',
+            categoria: 'Identidad',
             label: 'Documento escaneado (anverso + reverso)',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -5309,6 +5282,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.20h',
+            categoria: 'Identidad',
             repite: 'docsec',
             nombraCon: '1.20a',
             label: 'Documento secundario escaneado (anverso + reverso)',
@@ -5322,6 +5296,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.21b',
+            categoria: 'Certificados y licencias',
             label: 'Certificado de nacimiento',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -5333,6 +5308,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.53',
+            categoria: 'Otros',
             label: 'Croquis',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -5344,7 +5320,10 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '1.79',
-            label: 'Documento adjunto',
+            categoria: 'Certificados y licencias',
+            repite: 'licencias',
+            nombraCon: '1.72',
+            label: 'Licencia o certificado',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
             pista: 'PDF o imagen · arrastrar o hacer clic',
@@ -5355,6 +5334,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.40e',
+            categoria: 'Garantías',
             label: 'Documento de identidad del garante',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -5365,6 +5345,7 @@ export const PASOS_PROPUESTA = [
           },
           {
             key: '2.46',
+            categoria: 'Garantías',
             label: 'Documento de garantía',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
@@ -5373,21 +5354,97 @@ export const PASOS_PROPUESTA = [
             insignia: 'v1.2',
             nivel: 'Operativo'
           },
-          /* EL ACTA DE CADA ACTIVO, espejada del paso 9 con su misma clave: subirla acá o allá es
-             subir la misma. Va una por activo declarado, y cada una dice de cuál es. Sin
-             `c-escaneo`: el riel de este bloque ya es 1.17, y dos rieles en un bloque se desanclan. */
+          /* LAS ENTREGAS FIRMADAS, espejadas de Recursos y activos con su misma clave: subirlas acá o
+             allá es subir la misma. Va una por cada equipo, uniforme y EPP declarado, y cada una dice
+             de cuál es. Sin `c-escaneo`: el riel de este bloque ya es 1.17, y dos rieles se desanclan. */
           {
-            key: 'ra.8',
-            repite: 'activos',
-            label: 'Acta de entrega',
-            nombraCon: 'ra.1',
+            key: 'ra.e12',
+            categoria: 'Entregas de activos',
+            repite: 'equipos',
+            label: 'Entrega firmada del equipo',
+            nombraCon: 'ra.e1',
             tipo: 'archivo',
             acepta: 'application/pdf,image/*',
             pista: 'PDF o imagen · arrastrar o hacer clic',
             col: 'c-tercio',
             nivel: 'Operativo',
-            nota: 'El acta firmada del activo entregado, la misma que se sube en Recursos y Activos.'
-          }
+            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
+          },
+          {
+            key: 'ra.u9',
+            categoria: 'Entregas de activos',
+            repite: 'uniformes',
+            label: 'Entrega firmada del uniforme',
+            nombraCon: 'ra.u1',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
+          },
+          {
+            key: 'ra.p9',
+            categoria: 'Entregas de activos',
+            repite: 'epp',
+            label: 'Entrega firmada del EPP',
+            nombraCon: 'ra.p1',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
+          },
+          /* LOS RESPALDOS DEL PERFIL PROFESIONAL, espejados como los demás: el título de cada
+             formación y el certificado de cada certificación. `dePaso` los deja fuera donde ese
+             paso no se enseña —la versión publicada—, para no pedir un papel de algo que no está. */
+          {
+            key: 'pf.11',
+            categoria: 'Formación',
+            dePaso: 'perfil',
+            repite: 'formacion',
+            nombraCon: 'pf.2',
+            label: 'Respaldo de formación',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El título o diploma, el mismo que se sube en Perfil profesional.'
+          },
+          {
+            key: 'pf.27',
+            categoria: 'Certificados y licencias',
+            dePaso: 'perfil',
+            repite: 'certificaciones',
+            nombraCon: 'pf.21',
+            label: 'Certificación',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'El certificado, el mismo que se sube en Perfil profesional.'
+          },
+          /* ── LOS DOCUMENTOS QUE NO TIENEN OTRO SITIO ───────────────────────────
+             Un memorándum, una constancia, una adenda: papeles del legajo que ningún campo de la
+             ficha pide. Se agregan acá con su nombre, su fecha y su archivo, y arrancan en cero
+             como las entregas. Van en «Otros» y se encuentran con el buscador. */
+          { key: 'ex.rot', label: 'Documento', singular: 'Documento', repite: 'docsExtra', tipo: 'rotulo', col: 'c-todo' },
+          { key: 'ex.2', repite: 'docsExtra', label: 'Nombre del documento', col: 'c-tercio', nivel: 'Operativo', ph: 'Memorándum de designación, constancia…' },
+          { key: 'ex.3', repite: 'docsExtra', label: 'Fecha de emisión', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
+          {
+            key: 'ex.4',
+            repite: 'docsExtra',
+            label: 'Archivo',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'ex.mas', tipo: 'repetir', grupo: 'docsExtra', max: 20, label: 'Agregar otro documento', labelPrimero: 'Agregar documento', col: 'c-todo', nivel: 'Operativo' }
         ]
       }
     ]
