@@ -539,7 +539,7 @@ export default function ColaboradorNuevo() {
   }
   useEffect(() => {
     if (!enfocar || paso === PASO_PREVIA) return
-    // Un cuadro después del cambio de paso, cuando la sección ya se abrió y el campo existe.
+    // Después del cambio de parte y de que la sección termine de abrirse (su movimiento dura ~0,3 s).
     const t = setTimeout(() => {
       const el = document.getElementById(`cn-${enfocar}`)
       setEnfocar(null)
@@ -550,7 +550,7 @@ export default function ColaboradorNuevo() {
       const caja = el.closest('.pl-label')?.parentElement || el.parentElement
       caja?.classList.add('cn-resaltado')
       setTimeout(() => caja?.classList.remove('cn-resaltado'), 2400)
-    }, 60)
+    }, 320)
     return () => clearTimeout(t)
   }, [enfocar, paso])
 
@@ -814,10 +814,13 @@ export default function ColaboradorNuevo() {
                 total: avance[k]?.total,
               }))}
               onParte={irA}
+              conPartes={new Set(PESTANAS.filter(t => t.partes.length > 1).map(t => t.key))}
             />
 
             <div className="cn-cuerpo">
-              <div className="cn-paso-cab">
+              {/* La cabecera y el contenido llevan la clave de la parte: al cambiar, vuelven a entrar
+                  con el fundido de `.cn-entra`. */}
+              <div className="cn-paso-cab cn-entra" key={`cab-${paso}`}>
                 {/* Con varias partes, el título es la parte con su número —1.1, 2.3— y debajo se nombra su pestaña. */}
                 <h2>{pestana ? (pestana.partes.length > 1 ? `${pestana.n}.${pestana.partes.indexOf(paso) + 1} · ${pasoActual.titulo}` : `${pestana.n} · ${pestana.titulo}`) : pasoActual.titulo}</h2>
                 <p>{pestana && pestana.partes.length > 1 ? `${pestana.titulo} · ${pasoActual.pista}` : pasoActual.pista}</p>
@@ -853,7 +856,7 @@ export default function ColaboradorNuevo() {
                   })}
                 </div>
               )}
-              {campos}
+              <div className="cn-entra" key={paso}>{campos}</div>
               {pie}
             </div>
           </div>

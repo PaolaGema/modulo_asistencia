@@ -649,7 +649,10 @@ function useRotulosAlineados(activo) {
    documento, con cuántos hay subidos de cuántos a la derecha. Los tipos van siempre en el mismo
    orden, el de este arreglo, y no en el de aparición. */
 const TODAS = 'Todos'
-const ORDEN_CATEGORIAS = ['Identidad', 'Certificados y licencias', 'Formación', 'Garantías', 'Entregas de activos', 'Otros']
+/* LOS TIPOS SON LAS PESTAÑAS DE LA FICHA (30 sep 2026, a pedido del equipo): cada documento se
+   filtra por la pestaña de donde viene, que es como se piensa la ficha. Los que se agregan a mano
+   van aparte. Un tipo sin documentos no se ofrece. */
+const ORDEN_CATEGORIAS = ['Información Personal', 'Información Laboral', 'Perfil Profesional', 'Recursos y Activos', 'Documentos agregados']
 const esDocumento = c => c.categoria && c.tipo === 'archivo'
 function categoriasDe(campos, form) {
   const docs = campos.filter(esDocumento)

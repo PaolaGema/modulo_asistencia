@@ -1140,11 +1140,11 @@ export function quitarCopia(form, campos, grupo, n) {
    primera copia; acá cada una lee la suya. Con dos licencias —una de conducir, un certificado de
    antecedentes— cada bloque tiene que llamarse a sí mismo por su nombre. */
 const EN_SU_COPIA = {
-  /* UN DOCUMENTO AGREGADO A MANO VA EN «OTROS», el tipo de lo que ningún otro campo pide, y el
+  /* UN DOCUMENTO AGREGADO A MANO VA EN «DOCUMENTOS AGREGADOS», el tipo de lo que ningún otro campo pide, y el
      buscador lo encuentra por el nombre que le pusieron. Cada campo de su bloque —rótulo incluido—
      lleva los dos, para que el filtro lo muestre o lo esconda entero. */
   ...Object.fromEntries(['ex.2', 'ex.4'].map(k => [k, (campo, suyo) => {
-    campo.categoria = 'Otros'
+    campo.categoria = 'Documentos agregados'
     campo.busca = suyo('ex.2') || 'Documento'
     /* El archivo se llama como el documento, y editando su rótulo es la caja del nombre: es lo
        único que se ve de él. `claveNombre` es la clave de ESTA copia, no la del primero. */

@@ -9118,22 +9118,45 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
    pestaña abierta cuelgan debajo con su numeración —1.1, 1.2—, junto a una guía vertical fina que
    las ata a su pestaña. La parte en la que se está se pinta del verde claro de su pestaña. */
 .rp-grupo { display: flex; flex-direction: column; }
+/* La flechita de la pestaña con partes, como la de los grupos del menú: de lado cerrada, hacia
+   abajo abierta. */
+.rp-chev { flex: none; margin-left: auto; color: var(--text-muted); opacity: .6; transition: transform .18s ease, opacity .18s; }
+.rp-chev.abierto { transform: rotate(90deg); opacity: .9; }
+@media (prefers-reduced-motion: reduce) { .rp-chev { transition: none; } }
+@media (max-width: 1000px) { .rp-chev { display: none; } }
 /* En escritorio las partes cuelgan del riel, así que la barra de píldoras sobra. */
 @media (min-width: 1001px) { .cn-cuerpo > .cn-partes { display: none; } }
 
+/* ── ABRIR Y CERRAR CON MOVIMIENTO ────────────────────────────────────────────
+   La caja pasa de alto cero a su alto real —el truco de la rejilla con 0fr y 1fr, que anima sin
+   saber cuánto mide—, y cada parte entra con un leve desplazamiento, escalonada. Al abrir otra
+   pestaña, sus partes entran igual. Quien pidió menos movimiento las ve aparecer sin recorrido. */
+.rp-subs-caja { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s cubic-bezier(.22, 1, .36, 1); }
+.rp-subs-caja.abierta { grid-template-rows: 1fr; animation: rp-desplegar .32s cubic-bezier(.22, 1, .36, 1); }
+.rp-subs-dentro { overflow: hidden; min-height: 0; }
+@keyframes rp-desplegar { from { grid-template-rows: 0fr; } to { grid-template-rows: 1fr; } }
+.rp-subs-caja .rp-sub { opacity: 0; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease, background .12s, color .12s; }
+.rp-subs-caja.abierta .rp-sub { opacity: 1; transform: none; transition: opacity .26s ease calc(var(--i, 0) * 45ms + 60ms), transform .3s cubic-bezier(.22, 1, .36, 1) calc(var(--i, 0) * 45ms + 60ms), background .12s, color .12s; }
+.rp-subs-caja.abierta .rp-sub { animation: rp-entrar .34s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i, 0) * 45ms + 60ms); }
+@keyframes rp-entrar { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .rp-subs-caja, .rp-subs-caja .rp-sub { transition: none !important; animation: none !important; }
+}
+@media (max-width: 1000px) { .rp-subs-caja { display: none; } }
 .rp-subs {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin: 4px 0 8px 22px;
-  padding-left: 10px;
+  gap: 4px;
+  /* Aire arriba y abajo para que las partes no se peguen a su pestaña ni a la siguiente. */
+  margin: 10px 0 12px 22px;
+  padding: 2px 0 2px 10px;
   border-left: 1.5px solid var(--border-soft);
 }
 .rp-sub {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 9px;
+  padding: 7px 10px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: none;
@@ -10578,6 +10601,42 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .dark .ac-cuenta.llena { background: var(--green); color: var(--navy-dark); }
 
 .ac-cuerpo { padding: 18px 20px 20px; }
+
+/* ── LA SECCIÓN SE ABRE Y SE CIERRA CON MOVIMIENTO ────────────────────────────
+   El mismo truco que las partes del riel: una rejilla de 0fr a 1fr anima el alto sin saber cuánto
+   mide, y el contenido llega con un fundido. El recorte (`overflow: hidden`) sólo vale mientras se
+   mueve: abierta del todo lo suelta, porque el calendario de las fechas se abre por encima de la
+   sección y quedaría cortado. */
+.ac-anim { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s cubic-bezier(.22, 1, .36, 1); }
+.ac-anim.on { grid-template-rows: 1fr; }
+.ac-anim-dentro { min-height: 0; overflow: hidden; }
+.ac-anim.on .ac-anim-dentro { animation: ac-soltar 0s .3s forwards; }
+@keyframes ac-soltar { to { overflow: visible; } }
+.ac-anim .ac-cuerpo { opacity: 0; transform: translateY(-4px); transition: opacity .16s ease, transform .16s ease; }
+.ac-anim.on .ac-cuerpo { opacity: 1; transform: none; transition: opacity .24s ease .06s, transform .28s cubic-bezier(.22, 1, .36, 1) .06s; }
+
+/* La pastilla que se completa brilla una vez: un anillo verde que se expande y se apaga. */
+.ac-cuenta.brilla { animation: ac-brillo .8s ease-out; }
+@keyframes ac-brillo {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 70%, transparent); transform: scale(1); }
+  30% { transform: scale(1.12); }
+  100% { box-shadow: 0 0 0 10px transparent; transform: scale(1); }
+}
+
+/* ── EL CONTENIDO DE UNA PARTE ENTRA CON UN FUNDIDO ──────────────────────────
+   Al cambiar de parte —por el riel o con «Siguiente»— el cambio era instantáneo y costaba notar
+   que la pantalla era otra. Ahora la cabecera y las secciones llegan con un fundido corto. */
+/* `backwards` y no `both`: una animación de `transform` que queda puesta al terminar convierte al
+   contenedor en la referencia de todo lo `position: fixed` de adentro, y los menús desplegables se
+   dibujaban fuera de la pantalla. Soltándola al terminar, vuelven a medirse contra la ventana. */
+.cn-entra { animation: cn-entrar .28s cubic-bezier(.22, 1, .36, 1) backwards; }
+@keyframes cn-entrar { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-anim, .ac-anim .ac-cuerpo { transition: none !important; }
+  .ac-anim.on .ac-anim-dentro { animation: none; overflow: visible; }
+  .ac-cuenta.brilla, .cn-entra { animation: none !important; }
+}
 .ac-desc { margin: 0 0 16px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
 
 /* ── AÑADIR OTRA COPIA DEL BLOQUE ──

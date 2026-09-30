@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
-import { Eye } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronRight, Eye } from 'lucide-react'
 
 /* EL RIEL DE LOS OCHO PASOS.
    Un formulario por pasos que no enseña los pasos es un formulario que se llena a ciegas: no se
@@ -47,7 +47,14 @@ import { Eye } from 'lucide-react'
    `partes` llega sólo para la pestaña abierta y sólo si tiene más de una: una pestaña de una
    sola parte no tiene nada que desplegar. En el celular el riel se acuesta y las partes no caben
    colgadas: ahí se esconden y las enseña la barra de píldoras de arriba del contenido. */
-export default function RielPasos({ pasos, actual, onIr, avance, pendientes, partes, onParte }) {
+/* SE ABRE Y SE CIERRA COMO UN GRUPO DEL MENÚ (30 sep 2026, a pedido del equipo): la pestaña con
+   partes lleva una flechita, y tocarla estando abierta pliega o despliega sus partes sin moverse de
+   la parte en la que se está. Tocar otra pestaña la abre, como siempre. `conPartes` dice qué
+   pestañas tienen más de una parte, para dibujarles la flecha aunque no estén abiertas. */
+export default function RielPasos({ pasos, actual, onIr, avance, pendientes, partes, onParte, conPartes }) {
+  // Plegada es de la pestaña abierta: al cambiar de pestaña vuelve a verse desplegada.
+  const [plegadaEn, setPlegadaEn] = useState(null)
+  const plegada = plegadaEn === actual
   /* ACOSTADO, EL PASO PUESTO VA AL MEDIO. En pantallas angostas el riel es una tira con scroll y
      el paso elegido podía quedar pegado a un borde, o fuera de la vista: no se sabía dónde se
      estaba ni que había más pasos a los lados. Centrado, siempre asoman vecinos por los dos
@@ -83,6 +90,9 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes, par
            medirle. Llega como `undefined` desde el avance y eso alcanza para dejarlo liso. */
         const t = avance?.[p.key]
         const debe = pendientes?.has(p.key)
+        const tienePartes = !!conPartes?.has(p.key)
+        const abierta = puesto && !plegada
+        // Las partes de la pestaña puesta se dibujan siempre, abiertas o no, para poder animar el cierre.
         const colgadas = puesto && partes?.length > 1
         return (
           <div key={p.key} className="rp-grupo">
@@ -90,7 +100,8 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes, par
             type="button"
             className={`rp-paso${puesto ? ' on' : ''}${p.n ? '' : ' rp-previa'}`}
             aria-current={puesto ? 'step' : undefined}
-            onClick={() => onIr(p.key)}
+            aria-expanded={tienePartes ? abierta : undefined}
+            onClick={() => (puesto && tienePartes ? setPlegadaEn(plegada ? null : actual) : onIr(p.key))}
             /* El aro no lleva cifra —no cabe—, así que el número exacto vive acá, que es
                donde se lo busca en cuanto un paso llama la atención. */
             title={t ? `${t.puestos} de ${t.total} campos` + (pendientes?.has(p.key) ? ' · falta un dato del mínimo legal' : '') : undefined}
@@ -119,14 +130,20 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes, par
               </span>
               <span className="rp-pista">{p.pista}</span>
             </span>
+            {tienePartes && <ChevronRight className={`rp-chev${abierta ? ' abierto' : ''}`} size={14} strokeWidth={2.5} aria-hidden="true" />}
           </button>
           {colgadas && (
+            /* LA CAJA CRECE Y SE ENCOGE, y las partes entran de a una. Cerrada queda `inert`: no se
+               ve, no se pulsa y el tabulador la salta. */
+            <div className={`rp-subs-caja${abierta ? ' abierta' : ''}`} inert={!abierta}>
+            <div className="rp-subs-dentro">
             <div className="rp-subs" role="group" aria-label={`Partes de ${p.titulo}`}>
               {partes.map((x, j) => (
                 <button
                   key={x.key}
                   type="button"
                   className={`rp-sub${x.on ? ' on' : ''}`}
+                  style={{ '--i': j }}
                   aria-current={x.on ? 'step' : undefined}
                   onClick={() => onParte(x.key)}
                   title={x.total ? `${x.puestos} de ${x.total} campos · ${x.pct}%` : undefined}
@@ -138,6 +155,8 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes, par
                   </span>
                 </button>
               ))}
+            </div>
+            </div>
             </div>
           )}
           </div>
