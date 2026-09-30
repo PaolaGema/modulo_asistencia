@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, LogOut, UserPlus, Users } from 'lucide-react'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
+import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
 import { ocupanteDe, TIPOS_CARGO, nivelesDe as nivelesDeMando } from '../../data/organigramaData'
 import { descendientes, filasEje, lineaDe } from '../../data/estructuraData'
 import { esVigente } from './colaboradoresData'
@@ -391,6 +392,40 @@ export default function ColaboradorNuevo() {
 
   const volverALista = () => navigate('/personas/colaboradores')
 
+  /* ── «¿ESTÁ SEGURO DE SALIR?» ─────────────────────────────────────────────────
+     Pedido por el equipo (30 sep 2026): con un registro empezado, irse a otra pantalla —el menú
+     lateral, el menú del módulo, la miga de «Colaboradores»— pregunta antes. El borrador ya se
+     guarda solo desde la primera letra, así que «Guardar borrador y salir» no pierde nada;
+     «Salir sin guardar» es la única forma de tirarlo, y por eso lo borra de verdad.
+
+     SE PREGUNTA SÓLO SI HAY ALGO REGISTRADO: una ficha recién abierta, con los valores de
+     arranque —Bolivia, «No» en el reingreso—, no tiene nada que perder. Y no se pregunta al
+     pulsar «Guardar borrador y salir» ni al dar de alta: ahí la persona ya dijo qué quiere. */
+  const { setDirty, setSaveHandler, setDiscardHandler, setTextos, guardNavigate } = useUnsavedChanges()
+  const hayRegistro = Object.keys(guardado || {}).some(k => {
+    if (k.startsWith('__')) return false
+    const v = guardado[k]
+    const texto = v && typeof v === 'object' ? JSON.stringify(v) : String(v ?? '').trim()
+    const base = EN_BLANCO[k]
+    const deArranque = base && typeof base === 'object' ? JSON.stringify(base) : String(base ?? '').trim()
+    return texto !== '' && texto !== deArranque
+  })
+  useEffect(() => { setDirty(hayRegistro) }, [hayRegistro, setDirty])
+  useEffect(() => {
+    setTextos({
+      titulo: '¿Está seguro de salir?',
+      texto: 'El registro de este colaborador está a medio llenar. ¿Quiere guardarlo como borrador para continuar después?',
+      guardar: 'Guardar borrador y salir',
+      descartar: 'Salir sin guardar',
+      quedarse: 'Seguir registrando',
+    })
+    // El borrador ya está guardado: guardar es sólo salir. Descartar lo borra.
+    setSaveHandler(() => {})
+    setDiscardHandler(() => setForm(EN_BLANCO))
+    return () => { setDirty(false); setTextos(null); setSaveHandler(null); setDiscardHandler(null) }
+  }, [setDirty, setTextos, setSaveHandler, setDiscardHandler, setForm])
+  const salirPorLaMiga = () => guardNavigate(volverALista)
+
   /* CREAR ES DOS COSAS A LA VEZ y por eso vive en una sola función: la persona entra al
      directorio y, si eligió un puesto, se sienta en él. Hacer solo lo primero deja a alguien
      contratado que el organigrama no conoce, y es justo el estado que obliga a acordarse
@@ -708,7 +743,7 @@ export default function ColaboradorNuevo() {
               flecha es lo que convierte la palabra en una puerta — y de paso agranda el blanco
               donde hay que acertar con el ratón, que en un tramo de miga es siempre demasiado
               chico. */}
-          <button type="button" onClick={volverALista}>
+          <button type="button" onClick={salirPorLaMiga}>
             <ArrowLeft size={13} aria-hidden="true" />
             Colaboradores
           </button>

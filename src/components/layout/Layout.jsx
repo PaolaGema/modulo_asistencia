@@ -25,7 +25,7 @@ export default function Layout() {
   const { currentUser } = useUser()
   const navigate = useNavigate()
   const location = useLocation()
-  const { exitConfirmOpen, confirmDiscard, confirmSave, cancelExit } = useUnsavedChanges()
+  const { exitConfirmOpen, confirmDiscard, confirmSave, cancelExit, textos } = useUnsavedChanges()
 
   const isMobile = currentUser.mobile === true
 
@@ -555,9 +555,9 @@ export default function Layout() {
               <div className="jb-del-ico" style={{ background: '#fef3c7', color: '#b45309' }}>
                 <Info size={24} />
               </div>
-              <h2 className="pl-del-title">Cambios sin guardar</h2>
+              <h2 className="pl-del-title">{textos?.titulo || 'Cambios sin guardar'}</h2>
               <p className="pl-del-desc">
-                Hiciste cambios en esta ruta que todavía no guardaste. ¿Qué quieres hacer?
+                {textos?.texto || 'Hiciste cambios en esta ruta que todavía no guardaste. ¿Qué quieres hacer?'}
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '20px 24px 22px' }}>
@@ -565,19 +565,19 @@ export default function Layout() {
                 onClick={confirmSave}
                 style={{ width: '100%', padding: '11px 20px', border: 'none', borderRadius: 10, background: '#0C2D40', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer' }}
               >
-                Guardar y salir
+                {textos?.guardar || 'Guardar y salir'}
               </button>
               <button
                 onClick={confirmDiscard}
                 style={{ width: '100%', padding: '10px 20px', border: '1px solid #fecaca', borderRadius: 10, background: '#fff', color: '#ef4444', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}
               >
-                Salir sin guardar
+                {textos?.descartar || 'Salir sin guardar'}
               </button>
               <button
                 onClick={cancelExit}
                 style={{ width: '100%', padding: '9px 20px', border: 'none', background: 'none', color: 'var(--text-muted)', fontSize: 12.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}
               >
-                Seguir editando
+                {textos?.quedarse || 'Seguir editando'}
               </button>
             </div>
           </div>

@@ -907,6 +907,44 @@ td.rg{color:var(--tinta-3);font-weight:700}
   .br, .flujo, .wf, .esc { break-inside: avoid; box-shadow: none; }
 }
 
+
+/* ── Diagramas de la ficha ─────────────────────────────────────── */
+.dgm .lienzo-svg svg.gp-dgm, .taxo .lienzo svg.gp-dgm { min-width: 0; }
+.gp-txt { font-family: var(--texto); fill: var(--tinta); }
+.gp-tach { text-decoration: line-through; text-decoration-color: var(--outsourcing); }
+.gp-t { font-family: var(--texto); font-size: 13px; font-weight: 700; fill: var(--tinta); }
+.gp-s { font-family: var(--texto); font-size: 11.5px; fill: var(--tinta-2); }
+.gp-e { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .1em; }
+.gp-n { font-family: var(--mono); font-size: 11px; font-weight: 700; }
+.gp-caja { fill: var(--hoja); stroke: var(--regla-2); stroke-width: 1.2; }
+.gp-caja.p1 { stroke: var(--estructural); }
+.gp-caja.p2 { stroke: var(--funcional); }
+.gp-caja.p3 { stroke: var(--aprobacion); }
+.gp-banda.p1 { fill: var(--estructural); } .gp-banda.p2 { fill: var(--funcional); } .gp-banda.p3 { fill: var(--aprobacion); }
+.gp-num.p1 { fill: var(--estructural); } .gp-num.p2 { fill: var(--funcional); } .gp-num.p3 { fill: var(--aprobacion); }
+.gp-chip-ext rect { fill: color-mix(in srgb, var(--outsourcing) 11%, var(--hoja)); stroke: color-mix(in srgb, var(--outsourcing) 45%, transparent); }
+.gp-chip-ext text { fill: color-mix(in srgb, var(--outsourcing) 80%, var(--tinta)); }
+.gp-chip-int rect { fill: color-mix(in srgb, var(--estructural) 9%, var(--hoja)); stroke: color-mix(in srgb, var(--estructural) 40%, transparent); }
+.gp-chip-int text { fill: var(--estructural); }
+.gp-chip text { font-family: var(--texto); font-size: 11px; font-weight: 600; }
+.gp-min circle { fill: color-mix(in srgb, var(--alerta) 15%, var(--hoja)); stroke: var(--alerta); stroke-width: 1.2; }
+.gp-min text { font-family: var(--mono); font-size: 10.5px; font-weight: 700; fill: color-mix(in srgb, var(--alerta) 85%, var(--tinta)); }
+.gp-lin { fill: none; stroke: var(--regla-2); stroke-width: 1.2; }
+.gp-flecha { fill: none; stroke: var(--trazo); stroke-width: 1.6; }
+.gp-flecha.fuerte { stroke: var(--estructural); stroke-width: 2; }
+.gp-flecha.vuelta { stroke-dasharray: 5 4; }
+.gp-punta { fill: var(--trazo); } .gp-punta.fuerte { fill: var(--estructural); }
+.gp-lleno { fill: var(--estructural); } .gp-lleno-t { fill: var(--sobre-acento); }
+.gp-alerta { fill: color-mix(in srgb, var(--alerta) 12%, var(--hoja)); stroke: var(--alerta); stroke-width: 1.4; }
+.gp-malo { fill: color-mix(in srgb, var(--outsourcing) 9%, var(--hoja)); stroke: var(--outsourcing); stroke-width: 1.3; }
+.gp-bueno { fill: color-mix(in srgb, var(--funcional) 9%, var(--hoja)); stroke: var(--funcional); stroke-width: 1.3; }
+.gp-anillo { stroke-width: 1.5; }
+.gp-anillo.a1 { fill: color-mix(in srgb, var(--estructural) 5%, var(--hoja)); stroke: color-mix(in srgb, var(--estructural) 45%, transparent); }
+.gp-anillo.a2 { fill: color-mix(in srgb, var(--estructural) 11%, var(--hoja)); stroke: color-mix(in srgb, var(--estructural) 60%, transparent); }
+.gp-anillo.a3 { fill: color-mix(in srgb, var(--alerta) 13%, var(--hoja)); stroke: var(--alerta); }
+.gp-anillo.a4 { fill: color-mix(in srgb, var(--outsourcing) 16%, var(--hoja)); stroke: var(--outsourcing); }
+.gp-tachado { stroke: var(--outsourcing); stroke-width: 1.2; }
+.gp-verde { fill: var(--funcional); } .gp-gris { fill: var(--tinta-3); } .gp-naranja { fill: var(--outsourcing); } .gp-azul { fill: var(--estructural); }
 </style>
 <script>(function(){try{var t=localStorage.getItem('org-doc-tema');if(t==='oscuro'||t==='claro')document.documentElement.setAttribute('data-tema',t);}catch(e){}})();</script>
 <noscript><style>.sec-h{opacity:1!important;transform:none!important}</style></noscript>
@@ -925,8 +963,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </figure>
     </div>
     <dl class="ficha">
-      <div><dt>Versión</dt><dd>1.82</dd></div>
-      <div><dt>Fecha</dt><dd>28 de septiembre de 2026</dd></div>
+      <div><dt>Versión</dt><dd>1.99</dd></div>
+      <div><dt>Fecha</dt><dd>30 de septiembre de 2026</dd></div>
       <div><dt>Autoría</dt><dd>Paola Gema — Diseñadora UX</dd></div>
       <div><dt>Revisa y aprueba</dt><dd>Por definir</dd></div>
       <div><dt>Estado</dt><dd>Borrador</dd></div>
@@ -936,15 +974,94 @@ td.rg{color:var(--tinta-3);font-weight:700}
 
 <div class="cifras-w">
   <div class="cifras">
-    <div><b>11</b><span>pasos en la ficha de alta</span></div>
-    <div><b>322</b><span>datos distintos en la ficha</span></div>
+    <div><b>5</b><span>pestañas en la ficha de alta</span></div>
+    <div><b>240</b><span>datos distintos en la ficha</span></div>
     <div><b>32</b><span>datos del mínimo legal</span></div>
     <div><b>3</b><span>datos que impiden el alta</span></div>
-    <div><b>33</b><span>reglas de negocio</span></div>
-    <div><b>49</b><span>requisitos funcionales</span></div>
+    <div><b>34</b><span>reglas de negocio</span></div>
+    <div><b>52</b><span>requisitos funcionales</span></div>
     <div><b>13</b><span>historias de usuario</span></div>
-    <div><b>17</b><span>decisiones abiertas</span></div>
+    <div><b>5</b><span>diagramas</span></div>
+    <div><b>15</b><span>decisiones abiertas</span></div>
   </div>
+</div>
+
+
+<div class="taxo">
+  <div class="taxo-head">
+    <div>
+      <p class="taxo-cap">La ficha, de un vistazo</p>
+      <p class="taxo-sub">Cinco pestañas en el riel y, bajo la abierta, sus partes numeradas. Cada pestaña dice <strong>cuánto está lleno</strong> con su aro y <strong>si debe algo del mínimo legal</strong> con un punto rojo; cada sección dice cuántos de sus datos están escritos. Todo se guarda solo, y el pie queda siempre abajo.</p>
+    </div>
+    <div class="leyenda">
+      <div>
+        <p class="ley-t">Lo que dice el riel</p>
+        <div class="ley-i">
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--regla-2)" stroke-width="3"/><circle cx="11" cy="11" r="8" fill="none" stroke="var(--funcional)" stroke-width="3" stroke-dasharray="30 50" transform="rotate(-90 11 11)"/></svg> Aro: cuánto está lleno</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="4" fill="#E5484D"/></svg> Debe algo del mínimo legal</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="5" width="20" height="12" rx="4" fill="color-mix(in srgb, var(--funcional) 18%, var(--hoja))"/></svg> Parte en la que se está</span>
+        </div>
+      </div>
+      <div>
+        <p class="ley-t">Lo que dice cada sección</p>
+        <div class="ley-i">
+          <span class="ly"><b style="font-family:var(--mono);font-size:10px;padding:1px 7px;border:1px solid var(--regla-2);border-radius:999px">1 de 6</b> Datos escritos</span>
+          <span class="ly"><b style="color:var(--outsourcing);font-size:15px;width:22px;text-align:center">*</b> Obligatorio para el alta</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="lienzo">
+    <svg class="gp-dgm" viewBox="0 0 900 490" role="img" aria-labelledby="gp-d0-t gp-d0-d">
+      <title id="gp-d0-t">La pantalla de alta de un colaborador, con sus partes señaladas</title>
+      <desc id="gp-d0-d">A la izquierda, el riel con las cinco pestañas —Información Personal, Información Laboral, Documentación, Recursos y Activos y Configuración— cada una con un aro que se llena según su avance; las dos primeras llevan un punto rojo porque deben datos del mínimo legal. Información Laboral está abierta y muestra sus partes 2.1, 2.2 y 2.3; la 2.2 Relación Laboral, en verde claro, es la que se está llenando. Debajo, la vista previa. A la derecha, la cabecera «2.2 · Relación Laboral», la sección «Datos del contrato» abierta con su cuenta «1 de 6», su instrucción y tres campos obligatorios con asterisco, y la sección «Condiciones de contratación» cerrada. Abajo, el pie con Volver atrás, Guardar borrador y salir y Siguiente. Cinco llamadas numeradas señalan el riel, las partes, la cabecera, la cuenta de datos y el pie.</desc>
+            <rect x="10" y="10" width="880" height="470" rx="14" fill="var(--papel)" stroke="var(--regla-2)"/>
+            <text class="gp-s" x="30" y="38">← Colaboradores  ›  </text><text class="gp-t" x="150" y="38">Nuevo colaborador</text>
+            <rect x="30" y="54" width="250" height="400" rx="12" fill="var(--hoja)" stroke="var(--regla)"/>
+<circle cx="62" cy="92" r="12" fill="none" stroke="var(--regla-2)" stroke-width="3"/><circle cx="62" cy="92" r="12" fill="none" stroke="var(--funcional)" stroke-width="3" stroke-dasharray="48.3 75.4" transform="rotate(-90 62 92)"/><text class="gp-n" x="62" y="96" text-anchor="middle" fill="var(--tinta-3)">1</text>            <text class="gp-t" x="84" y="96" font-size="12.5">Información Personal</text><circle cx="232" cy="91" r="3.5" fill="#E5484D"/>
+            <rect x="40" y="116" width="230" height="44" rx="9" fill="color-mix(in srgb, var(--funcional) 14%, var(--hoja))"/>
+<circle cx="62" cy="138" r="12" fill="none" stroke="var(--regla-2)" stroke-width="3"/><circle cx="62" cy="138" r="12" fill="none" stroke="var(--funcional)" stroke-width="3" stroke-dasharray="28.7 75.4" transform="rotate(-90 62 138)"/><text class="gp-n" x="62" y="142" text-anchor="middle" fill="var(--funcional)">2</text>            <text class="gp-t" x="84" y="142" font-size="12.5">Información Laboral</text><circle cx="225" cy="137" r="3.5" fill="#E5484D"/>
+            <path d="M62 158 L62 250" stroke="var(--regla-2)" stroke-width="1.5"/>
+            <text class="gp-n" x="84" y="182" font-size="10" fill="var(--tinta-3)">2.1</text><text class="gp-s" x="110" y="182" >Información Laboral</text><circle cx="238" cy="178" r="3" fill="#E5484D"/>
+            <rect x="72" y="192" width="196" height="28" rx="7" fill="color-mix(in srgb, var(--funcional) 14%, var(--hoja))"/>
+            <text class="gp-n" x="84" y="212" font-size="10" fill="var(--funcional)">2.2</text><text class="gp-s" x="110" y="212" font-weight="700" fill="var(--tinta)">Relación Laboral</text><circle cx="219" cy="208" r="3" fill="#E5484D"/>
+            <text class="gp-n" x="84" y="242" font-size="10" fill="var(--tinta-3)">2.3</text><text class="gp-s" x="110" y="242" >Compensación, Nómina…</text>
+<circle cx="62" cy="278" r="12" fill="none" stroke="var(--regla-2)" stroke-width="3"/><circle cx="62" cy="278" r="12" fill="none" stroke="var(--funcional)" stroke-width="3" stroke-dasharray="15.1 75.4" transform="rotate(-90 62 278)"/><text class="gp-n" x="62" y="282" text-anchor="middle" fill="var(--tinta-3)">3</text>            <text class="gp-t" x="84" y="282" font-size="12.5">Documentación</text>
+<circle cx="62" cy="324" r="12" fill="none" stroke="var(--regla-2)" stroke-width="3"/><text class="gp-n" x="62" y="328" text-anchor="middle" fill="var(--tinta-3)">4</text>            <text class="gp-t" x="84" y="328" font-size="12.5">Recursos y Activos</text>
+<circle cx="62" cy="370" r="12" fill="none" stroke="var(--regla-2)" stroke-width="3"/><text class="gp-n" x="62" y="374" text-anchor="middle" fill="var(--tinta-3)">5</text>            <text class="gp-t" x="84" y="374" font-size="12.5">Configuración</text>
+            <path d="M44 396 L266 396" stroke="var(--regla)"/><text class="gp-t" x="84" y="424" font-size="12.5">Vista previa</text><text class="gp-s" x="84" y="440">Todo junto, antes de crearlo</text>
+            <text class="gp-t" x="306" y="76" font-size="17">2.2 · Relación Laboral</text>
+            <text class="gp-s" x="306" y="96">Información Laboral · Qué firmó, por cuánto tiempo y en qué condiciones</text>
+            <rect x="306" y="110" width="564" height="190" rx="11" fill="var(--hoja)" stroke="var(--regla)"/>
+            <path d="M306 121 a11 11 0 0 1 11 -11 L859 110 a11 11 0 0 1 11 11 L870 146 L306 146 Z" fill="color-mix(in srgb, var(--funcional) 14%, var(--hoja))"/>
+            <text class="gp-t" x="324" y="133">Datos del contrato</text>
+            <rect x="790" y="120" width="62" height="20" rx="10" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-n" x="821" y="134" text-anchor="middle" font-size="10">1 de 6</text>
+            <text class="gp-s" x="324" y="168">Registre la fecha de ingreso, la modalidad y el tipo de contrato del colaborador.</text>
+            <text class="gp-t" x="324" y="196" font-size="11.5">Fecha de ingreso <tspan fill="var(--outsourcing)">*</tspan></text><rect x="324" y="204" width="166" height="32" rx="8" fill="var(--hoja-2)" stroke="var(--regla-2)"/><text class="gp-s" x="336" y="224">15/03/2025</text>
+            <text class="gp-t" x="506" y="196" font-size="11.5">Modalidad de contrato <tspan fill="var(--outsourcing)">*</tspan></text><rect x="506" y="204" width="166" height="32" rx="8" fill="var(--hoja-2)" stroke="var(--regla-2)"/><text class="gp-s" x="518" y="224" fill="var(--tinta-3)">Elige una opción</text>
+            <text class="gp-t" x="688" y="196" font-size="11.5">Tipo de contrato <tspan fill="var(--outsourcing)">*</tspan></text><rect x="688" y="204" width="166" height="32" rx="8" fill="var(--hoja-2)" stroke="var(--regla-2)"/><text class="gp-s" x="700" y="224" fill="var(--tinta-3)">Elige una opción</text>
+            <text class="gp-s" x="324" y="270" fill="var(--tinta-3)">* Campo obligatorio para poder dar de alta</text>
+            <rect x="306" y="312" width="564" height="40" rx="11" fill="var(--hoja)" stroke="var(--regla)"/><text class="gp-t" x="324" y="337">Condiciones de contratación</text>
+            <rect x="790" y="322" width="62" height="20" rx="10" fill="var(--hoja-2)" stroke="var(--regla-2)"/><text class="gp-n" x="821" y="336" text-anchor="middle" font-size="10">0 de 3</text>
+            <rect x="296" y="404" width="584" height="64" rx="0" fill="color-mix(in srgb, var(--papel) 88%, transparent)"/><path d="M296 404 L880 404" stroke="var(--regla)"/>
+            <rect x="306" y="418" width="116" height="36" rx="9" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="364" y="441" text-anchor="middle">← Volver atrás</text>
+            <rect x="432" y="418" width="190" height="36" rx="9" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="527" y="441" text-anchor="middle">Guardar borrador y salir</text>
+            <rect x="764" y="418" width="106" height="36" rx="9" fill="var(--estructural)"/><text class="gp-t" x="817" y="441" text-anchor="middle" font-size="12" fill="var(--sobre-acento)">Siguiente →</text>
+            <circle cx="30" cy="70" r="10" fill="var(--estructural)"/><text class="gp-n" x="30" y="74" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">1</text>
+            <circle cx="272" cy="150" r="10" fill="var(--estructural)"/><text class="gp-n" x="272" y="154" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">2</text>
+            <circle cx="296" cy="70" r="10" fill="var(--estructural)"/><text class="gp-n" x="296" y="74" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">3</text>
+            <circle cx="862" cy="108" r="10" fill="var(--estructural)"/><text class="gp-n" x="862" y="112" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">4</text>
+            <circle cx="882" cy="410" r="10" fill="var(--estructural)"/><text class="gp-n" x="882" y="414" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">5</text>
+
+    </svg>
+  </div>
+  <dl class="dgm-lista">
+    <div><dt>1 · El riel</dt><dd>Las cinco pestañas, siempre a la vista y todas se pueden pulsar. El aro se llena con lo escrito; el punto rojo avisa lo que falta del mínimo legal.</dd></div>
+    <div><dt>2 · Las partes</dt><dd>Cuelgan de la pestaña abierta con su número —2.1, 2.2, 2.3—; la parte en la que se está va en verde claro. En el celular pasan arriba del contenido, como píldoras.</dd></div>
+    <div><dt>3 · La cabecera</dt><dd>La parte con su número, y debajo su pestaña y de qué trata.</dd></div>
+    <div><dt>4 · Las secciones</dt><dd>Se pliegan y despliegan, empiezan con una instrucción en usted y cuentan sus datos escritos: «1 de 6».</dd></div>
+    <div><dt>5 · El pie</dt><dd>Siempre abajo: volver, salir con el borrador guardado o seguir. Irse con algo escrito por otro camino pregunta antes.</dd></div>
+  </dl>
 </div>
 
 <div class="doc">
@@ -970,7 +1087,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <a href="#s0"><span>00</span>Glosario</a>
           <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s0"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 3 subtítulos de Glosario</span></button>
           <ul class="rail-sub" id="sub-s0" hidden>
-            <li><a href="#p0-1">0.1 Los once pasos</a></li>
+            <li><a href="#p0-1">0.1 Las cinco pestañas</a></li>
             <li><a href="#p0-2">0.2 Borrador, alta y colaborador</a></li>
             <li><a href="#p0-3">0.3 Las entidades que piden datos</a></li>
           </ul>
@@ -1021,13 +1138,14 @@ td.rg{color:var(--tinta-3);font-weight:700}
         </div>
         <div class="rail-s" data-sec="s4">
           <a href="#s4"><span>04</span>Reglas de negocio</a>
-          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s4"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver las 33 reglas</span></button>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s4"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver las 34 reglas</span></button>
           <ul class="rail-sub" id="sub-s4" hidden>
             <li class="rail-g"><a href="#br-g-borrador">El alta como borrador</a></li>
             <li><a href="#BR-GP-001">001 · No existe hasta el alta</a></li>
             <li><a href="#BR-GP-002">002 · Se guarda sola</a></li>
+            <li><a href="#BR-GP-034">034 · Salir pregunta antes</a></li>
             <li><a href="#BR-GP-003">003 · Borradores viejos</a></li>
-            <li><a href="#BR-GP-004">004 · Paso y nivel en la dirección</a></li>
+            <li><a href="#BR-GP-004">004 · Parte y nivel en la dirección</a></li>
             <li class="rail-g"><a href="#br-g-datos">Los datos y sus niveles</a></li>
             <li><a href="#BR-GP-005">005 · Tres niveles anidados</a></li>
             <li><a href="#BR-GP-006">006 · El mínimo legal</a></li>
@@ -1114,7 +1232,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <ul class="rail-sub" id="sub-s8" hidden>
             <li><a href="#p8-1">8.1 Las pantallas del módulo</a></li>
             <li><a href="#W-GP-01">W-GP-01 · Directorio</a></li>
-            <li><a href="#W-GP-02">W-GP-02 · Un paso del alta</a></li>
+            <li><a href="#W-GP-02">W-GP-02 · Una parte del alta</a></li>
             <li><a href="#W-GP-03">W-GP-03 · Vista previa</a></li>
             <li><a href="#W-GP-04">W-GP-04 · Clientes externos</a></li>
           </ul>
@@ -1132,7 +1250,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         </div>
         <div class="rail-s" data-sec="sa">
           <a href="#sa"><span>—</span>Por qué decidimos así</a>
-          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-sa"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 9 subtítulos del anexo</span></button>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-sa"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 12 subtítulos del anexo</span></button>
           <ul class="rail-sub" id="sub-sa" hidden>
             <li><a href="#ax-0">Por qué una pantalla y no un modal</a></li>
             <li><a href="#ax-1">Por qué un borrador y no un colaborador a medias</a></li>
@@ -1143,6 +1261,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#ax-6">Por qué «dar de alta» y no «crear»</a></li>
             <li><a href="#ax-7">Por qué la vista previa es un expediente</a></li>
             <li><a href="#ax-8">Por qué las claves son las del estudio</a></li>
+            <li><a href="#ax-9">Por qué pestañas y no once pasos</a></li>
+            <li><a href="#ax-10">Por qué las partes cuelgan del riel</a></li>
+            <li><a href="#ax-11">Por qué Preferencias se escribe a mano</a></li>
           </ul>
         </div>
       </nav>
@@ -1163,7 +1284,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <figure class="perf-fig"><img src="assets/imagenes/via_ux_ui.png" width="463" height="539" alt="VIA con anteojos redondos y una bufanda de colores, sosteniendo un portátil donde se ve un tablero de wireframes conectados entre sí"></figure>
       <div class="perf-txt">
         <p class="perf-mision"><b>Tu misión</b>Que dar de alta a una persona con trescientos datos posibles se sienta como llenar una carpeta por partes, y no como enfrentarse a una pared de campos.</p>
-        <p class="perf-lead">Los papeles de una persona llegan de manos distintas y en días distintos: el carnet, el contrato, la Gestora, el banco. La ficha tiene que dejar entrar por cualquier paso, guardar sola lo escrito y decir en todo momento qué falta y para qué. El documento define qué debe respetar cada pantalla y de dónde sale cada palabra.</p>
+        <p class="perf-lead">Los papeles de una persona llegan de manos distintas y en días distintos: el carnet, el contrato, la Gestora, el banco. La ficha tiene que dejar entrar por cualquier pestaña, guardar sola lo escrito y decir en todo momento qué falta y para qué. El documento define qué debe respetar cada pantalla y de dónde sale cada palabra.</p>
         <dl class="perf-l">
           <div><dt>Empezar por</dt><dd><a href="#s0">00 · Glosario</a> · <a href="#p1-4">1.4 · Principios de diseño</a> · <a href="#s8">08 · Recursos visuales</a></dd></div>
           <div><dt>No omitir</dt><dd><a href="#s4">04 · Reglas de negocio</a>: es lo que la maqueta debe cumplir, con el escenario con el que se verifica cada regla</dd></div>
@@ -1209,11 +1330,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <tbody>
         <tr><th colspan="2">La persona y su ficha</th></tr>
         <tr><td><strong>Colaborador</strong></td><td>La persona que trabaja en la empresa. Existe en el sistema <strong>desde que se la da de alta</strong>, no desde que alguien empieza a llenar su ficha</td></tr>
-        <tr><td><strong>Ficha del colaborador</strong></td><td>Todo lo que la empresa sabe de una persona: identidad, familia, puesto, contrato, afiliaciones, asistencia, sueldo, recursos, acceso y papeles. Se llena en once pasos</td></tr>
+        <tr><td><strong>Ficha del colaborador</strong></td><td>Todo lo que la empresa sabe de una persona: identidad, familia, puesto, contrato, sueldo, afiliaciones, recursos, acceso y papeles. Se llena en cinco pestañas</td></tr>
         <tr><td><strong>Alta</strong> · dar de alta</td><td>El gesto que convierte un borrador en un colaborador. Es como lo dice Recursos Humanos —alta en la Gestora, en la Caja, en planilla—. En pantalla, el botón dice <code>Dar de alta</code></td></tr>
         <tr><td><strong>Borrador</strong></td><td>La ficha a medio llenar. Se guarda sola, <strong>no es un colaborador</strong>: no sale en el directorio, no ocupa puesto y no cuenta en ningún tablero</td></tr>
-        <tr><td><strong>Paso</strong></td><td>Cada una de las once partes de la ficha, más la vista previa. Se puede entrar a cualquiera en cualquier orden</td></tr>
-        <tr><td><strong>Sección</strong> · acordeón</td><td>Un bloque dentro de un paso —«Datos del contrato», «Datos de pago»—. Se pliega y despliega, y dice cuántos de sus datos están llenos</td></tr>
+        <tr><td><strong>Pestaña</strong></td><td>Cada uno de los seis grandes bloques de la ficha, en el riel de la izquierda, más la vista previa. Se puede entrar a cualquiera en cualquier orden</td></tr>
+        <tr><td><strong>Parte</strong></td><td>Una división de una pestaña, numerada con la pestaña delante: 1.1 Información Personal, 1.2 Información Familiar, 2.1 a 2.3 en Información Laboral. Las pestañas de una sola parte no se dividen. Cada parte conserva las secciones del paso del estudio del que sale, y su clave en la dirección —<span class="mono">?paso=contrato</span>— sigue siendo la misma</td></tr>
+        <tr><td><strong>Sección</strong> · acordeón</td><td>Un bloque dentro de una parte —«Datos del contrato», «Datos de pago»—. Se pliega y despliega, y dice cuántos de sus datos están llenos</td></tr>
         <tr><td><strong>Dato</strong> · campo</td><td>Cada pregunta de la ficha. Tiene una <strong>clave del estudio</strong> —<span class="mono">1.1</span>, <span class="mono">3.65</span>— que no cambia aunque cambie su rótulo</td></tr>
         <tr><td><strong>Estudio de la propuesta</strong></td><td>El relevamiento de campos v1.2 del que sale la ficha: qué se pide, por qué y quién lo consume. La ficha se genera a partir de él</td></tr>
 
@@ -1221,12 +1343,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Nivel de ficha</strong></td><td>Cuánto de la ficha se está mirando. Son tres, y cada uno contiene al anterior: <b>Mínimo legal</b>, <b>Operativo</b> y <b>Completo</b>. Recorta la vista; nunca borra un dato</td></tr>
         <tr><td><strong>Mínimo legal</strong></td><td>Los 32 datos que alguna entidad exige para declarar a la persona. Sin ellos, el alta existe en el sistema y no existe para el Ministerio</td></tr>
         <tr><td><strong>Bloqueo</strong></td><td>Un dato sin el cual no se puede dar de alta. Son tres y solo tres: primer nombre, apellido paterno y fecha de ingreso</td></tr>
-        <tr><td><strong>Insignia <em>legal</em></strong></td><td>La marca junto al rótulo de un dato que exige una entidad. No es una preferencia de la empresa: es una obligación</td></tr>
+        <tr><td><strong>Descripción de la sección</strong></td><td>La frase gris bajo el título de cada sección, escrita como instrucción en usted: «Registre…», «Indique…», «Asigne…». Reemplaza a las ayudas con «?» y a las insignias que la ficha mostraba antes</td></tr>
         <tr><td><strong>Dato calculado</strong></td><td>Un dato que no se escribe: el sistema lo deduce de otros —el nombre completo, el fin del periodo de prueba, quién registró la ficha—</td></tr>
         <tr><td><strong>Dato condicional</strong></td><td>Un dato que solo aparece según otra respuesta: el NUA solo si la persona aporta a la Gestora</td></tr>
-        <tr><td><strong>Grupo repetible</strong></td><td>Un bloque que se agrega tantas veces como haga falta: hijos, herederos, formación, experiencia, activos entregados</td></tr>
+        <tr><td><strong>Grupo repetible</strong></td><td>Un bloque que se agrega tantas veces como haga falta: contactos de emergencia, hijos, herederos, supervisores funcionales, licencias, cada equipo, uniforme, EPP, herramienta, vehículo o licencia entregados, y los documentos adicionales</td></tr>
         <tr><td><strong>Avance</strong> · registro %</td><td>Cuántos datos están llenos sobre los que se ven en el nivel elegido. Es el porcentaje que el directorio enseña como <code>Registro</code></td></tr>
-        <tr><td><strong>Punto rojo</strong></td><td>La marca de un paso que todavía debe algún dato del mínimo legal, se esté mirando el nivel que se esté mirando</td></tr>
+        <tr><td><strong>Punto rojo</strong></td><td>La marca de una pestaña o de una parte que todavía debe algún dato del mínimo legal, se esté mirando el nivel que se esté mirando</td></tr>
 
         <tr><th colspan="2">La persona y la empresa</th></tr>
         <tr><td><strong>Reingreso</strong></td><td>Dar de alta a alguien que ya trabajó en la empresa. Se trae su ficha anterior; no se trae su vínculo anterior</td></tr>
@@ -1237,7 +1359,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Desvincular</strong></td><td>Terminar el vínculo de una persona, con motivo y fecha. <strong>No la borra</strong>: queda en el directorio con su historia</td></tr>
         <tr><td><strong>Eliminar</strong></td><td>Quitar del sistema un alta hecha por error. Solo se puede si la persona no tiene historia</td></tr>
         <tr><td><strong>Cliente externo</strong></td><td>Una persona de afuera de la empresa que participa en las evaluaciones. <strong>No es un colaborador</strong>: no tiene ficha, puesto ni vínculo</td></tr>
-        <tr><td><strong>Expediente</strong></td><td>La ficha leída como un legajo: la tapa con los datos que identifican a la persona y un separador por familia de pasos. Es lo que muestra la vista previa</td></tr>
+        <tr><td><strong>Expediente</strong></td><td>La ficha leída como un legajo: la tapa con los datos que identifican a la persona y un separador por familia de partes. Es lo que muestra la vista previa</td></tr>
 
         <tr><th colspan="2">Cómo está escrito este documento</th></tr>
         <tr><td><strong>BR‑GP‑000</strong></td><td>Una <strong>regla de negocio</strong>, con el escenario que la verifica</td></tr>
@@ -1248,21 +1370,140 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </tbody>
     </table></div>
 
-    <h3 id="p0-1">0.1 Las seis pestañas</h3>
-    <p>La ficha se reparte en seis pestañas y una vista previa. Las pestañas van en el riel de la izquierda; las partes de la pestaña abierta cuelgan debajo con su numeración —1.1, 1.2— y una guía vertical fina, y la parte en la que se está se pinta del verde claro de su pestaña. En el celular, donde el riel se acuesta, las partes van arriba del contenido como píldoras. <strong>El orden es de lectura, no de dependencia</strong>: quien tiene el contrato en la mano puede ir directo a Relación Laboral sin inventarse antes una fecha de nacimiento. Cada parte conserva las secciones y los campos del paso que era: sólo cambió dónde está.</p>
+    <figure class="dgm">
+      <figcaption class="dgm-cap"><b>Cuánto se pide, dibujado.</b> Los niveles de la ficha son anillos: el Completo contiene al Operativo, que contiene al mínimo legal. Y dentro del mínimo, sólo tres datos impiden dar de alta.</figcaption>
+      <div class="lienzo">
+        <div class="lienzo-svg">
+          <svg class="gp-dgm" viewBox="0 0 900 310" role="img" aria-labelledby="gp-d3-t gp-d3-d">
+            <title id="gp-d3-t">Los tres niveles de la ficha como anillos anidados, con los tres datos que bloquean el alta en el centro</title>
+            <desc id="gp-d3-d">Un anillo exterior, Completo, con los 240 datos de la ficha. Dentro, Operativo: lo que hace falta para que la persona opere. Dentro, Mínimo legal, con 32 datos sin los cuales no se la puede declarar. Y en el centro, en naranja, los tres datos que bloquean el alta: primer nombre, apellido paterno y fecha de ingreso. A la derecha: cada nivel contiene al anterior y elegir uno recorta la vista sin borrar nada; el asterisco marca lo obligatorio para dar de alta y el punto rojo marca la pestaña o parte que debe algo del mínimo legal.</desc>
+            <rect class="gp-anillo a1" x="20" y="20" width="560" height="270" rx="16"/>
+            <text class="gp-e gp-azul" x="40" y="46">COMPLETO</text><text class="gp-t" x="40" y="66">Los 240 datos de la ficha</text><text class="gp-s" x="40" y="83">Todo lo que la empresa sabe de la persona</text>
+            <rect class="gp-anillo a2" x="56" y="98" width="488" height="176" rx="14"/>
+            <text class="gp-e gp-azul" x="76" y="122">OPERATIVO</text><text class="gp-s" x="76" y="140">Lo que hace falta para que la persona opere</text>
+            <rect class="gp-anillo a3" x="92" y="154" width="416" height="106" rx="12"/>
+            <text class="gp-e" x="112" y="178" fill="color-mix(in srgb, var(--alerta) 85%, var(--tinta))">MÍNIMO LEGAL · 32</text><text class="gp-s" x="112" y="196">Sin esto no se la puede declarar</text>
+            <rect class="gp-anillo a4" x="300" y="170" width="190" height="76" rx="10"/>
+            <text class="gp-e gp-naranja" x="316" y="192">BLOQUEAN EL ALTA · 3</text>
+            <text class="gp-s" x="316" y="211">Primer nombre</text><text class="gp-s" x="316" y="226">Apellido paterno</text><text class="gp-s" x="316" y="241">Fecha de ingreso</text>
+            <text class="gp-t" x="620" y="60">Cada nivel contiene al anterior</text>
+            <text class="gp-s" x="620" y="82">Elegir un nivel recorta lo que se ve:</text>
+            <text class="gp-s" x="620" y="98">nunca borra un dato escrito.</text>
+            <text class="gp-t" x="620" y="136">En pantalla</text>
+            <text class="gp-t" x="620" y="160" fill="var(--outsourcing)">*</text><text class="gp-s" x="636" y="160">asterisco: obligatorio para dar de alta</text>
+            <circle cx="624" cy="180" r="4" fill="#E5484D"/><text class="gp-s" x="636" y="184">punto rojo: la pestaña o la parte</text>
+            <text class="gp-s" x="636" y="199">debe algo del mínimo legal</text>
+            <text class="gp-t" x="620" y="236">Al dar de alta</text>
+            <text class="gp-s" x="620" y="258">Sólo los 3 bloqueos lo impiden; el</text>
+            <text class="gp-s" x="620" y="273">resto del mínimo se avisa y se completa.</text>
+          </svg>
+        </div>
+      </div>
+    </figure>
+
+    <h3 id="p0-1">0.1 Las cinco pestañas</h3>
+    <p>La ficha se reparte en cinco pestañas y una vista previa. Las pestañas van en el riel de la izquierda; las partes de la pestaña abierta cuelgan debajo con su numeración —1.1, 1.2— y una guía vertical fina, y la parte en la que se está se pinta del verde claro de su pestaña. En el celular, donde el riel se acuesta, las partes van arriba del contenido como píldoras. <strong>El orden es de lectura, no de dependencia</strong>: quien tiene el contrato en la mano puede ir directo a Relación Laboral sin inventarse antes una fecha de nacimiento. Cada parte conserva las secciones y los campos del paso que era: sólo cambió dónde está.</p>
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Pestaña</th><th>Partes</th><th>Mínimo legal</th></tr></thead>
       <tbody>
         <tr><td class="id">1</td><td><strong>Información Personal</strong></td><td>Información Personal (antes paso 1) · Información Familiar (paso 2)</td><td>22</td></tr>
-        <tr><td class="id">2</td><td><strong>Información Laboral</strong></td><td>Información Laboral (paso 3) · Relación Laboral (paso 5) · Compensación, Nómina y Afiliaciones (pasos 8 y 6: haber, beneficios y pago, y después Gestora, Caja, Ministerio y RC‑IVA) · Asistencia (paso 7, sólo en local)</td><td>10</td></tr>
-        <tr><td class="id">3</td><td><strong>Perfil Profesional</strong></td><td>Una sola parte (paso 4, sólo en local)</td><td>—</td></tr>
-        <tr><td class="id">4</td><td><strong>Documentación y Expediente Digital</strong></td><td>Una sola parte: Archivos</td><td>—</td></tr>
-        <tr><td class="id">5</td><td><strong>Recursos y Activos</strong></td><td>Una sola parte: las siete secciones de lo entregado</td><td>—</td></tr>
-        <tr><td class="id">6</td><td><strong>Configuración de Colaborador</strong></td><td>Una sola parte: Acceso al sistema</td><td>—</td></tr>
+        <tr><td class="id">2</td><td><strong>Información Laboral</strong></td><td>Información Laboral (paso 3) · Relación Laboral (paso 5) · Compensación, Nómina y Afiliaciones (pasos 8 y 6: haber, beneficios y pago, y después Gestora, Caja, Ministerio y RC‑IVA)</td><td>10</td></tr>
+        <tr><td class="id">3</td><td><strong>Documentación y Expediente Digital</strong></td><td>Una sola parte: Archivos</td><td>—</td></tr>
+        <tr><td class="id">4</td><td><strong>Recursos y Activos</strong></td><td>Una sola parte: las seis clases de cosas entregadas</td><td>—</td></tr>
+        <tr><td class="id">5</td><td><strong>Configuración de Colaborador</strong></td><td>Una sola parte: Acceso al sistema</td><td>—</td></tr>
         <tr><td class="id">—</td><td><strong>Vista previa</strong></td><td>Todo junto, leído como un expediente, antes de dar de alta</td><td>—</td></tr>
       </tbody>
     </table></div>
-    <div class="nota"><p><strong>Los números del mínimo legal no suman los 32 por casualidad.</strong> Son los datos de nivel Mínimo de cada paso, y los pasos que no tienen ninguno —4, 6, 7, 9, 10 y 11— no tienen nada que la ley exija el primer día. Eso no quiere decir que no importen: la afiliación a la Gestora y a la Caja se exige, pero llega después del alta y se avisa en su propio plazo.</p></div>
+    <div class="nota"><p><strong>Los números del mínimo legal no suman los 32 por casualidad.</strong> Son los datos de nivel Mínimo de cada pestaña: 18 en 1.1 y 4 en 1.2; 7 en 2.1, 2 en 2.2 y 1 en 2.3. Las pestañas 3 a 5 no tienen ninguno: nada de lo que piden lo exige la ley el primer día. Eso no quiere decir que no importen: la afiliación a la Gestora y a la Caja se exige, pero llega después del alta y se avisa en su propio plazo.</p></div>
+
+    <figure class="dgm">
+      <figcaption class="dgm-cap"><b>La ficha, parte por parte.</b> Cada fila es una parte del riel; a la derecha, quién la lee. La mitad de la ficha existe porque una entidad de afuera la pide, y casi todo el mínimo legal vive en las pestañas 1 y 2.</figcaption>
+      <div class="lienzo">
+        <div class="lienzo-svg">
+          <svg class="gp-dgm" viewBox="0 0 900 534" role="img" aria-labelledby="gp-d1-t gp-d1-d">
+            <title id="gp-d1-t">Las cinco pestañas de la ficha, sus partes, cuántos datos del mínimo legal tiene cada una y quién las lee</title>
+            <desc id="gp-d1-d">Ocho filas, una por parte: 1.1 Información Personal con 18 datos del mínimo legal, leída por el SEGIP, el Ministerio, la Gestora y Onboarding; 1.2 Información Familiar con 4, leída por el Ministerio y Planillas; 2.1 Información Laboral con 7, que llega de Organización y leen el Ministerio y el ERP; 2.2 Relación Laboral con 2, leída por el Ministerio y Planillas; 2.3 Compensación, Nómina y Afiliaciones con 1, leída por Planillas, la Gestora, la Caja de Salud, Impuestos y el ERP; 3 Documentación, que alimenta el módulo de Documentación; 4 Recursos y Activos, que RR.HH. revisa al desvincular; y 5 Configuración, que da el acceso a Souly y el rol que usará Evaluación. Las entidades externas van en naranja y los módulos de Souly en azul.</desc>
+            <text class="gp-e" x="20" y="36" fill="var(--tinta-3)">PESTAÑA · PARTE</text>
+            <text class="gp-e" x="382" y="36" fill="var(--tinta-3)">MÍN.</text>
+            <text class="gp-e" x="436" y="36" fill="var(--tinta-3)">QUIÉN LEE ESA PARTE</text>
+            <path class="gp-lin" d="M20 48 L880 48"/>
+            <rect class="gp-caja p1" x="44" y="74" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p1" x="58" y="98">1.1</text>
+            <text class="gp-t" x="94" y="98">Información Personal</text>
+            <g class="gp-min"><circle cx="394" cy="93" r="13"/><text x="394" y="97" text-anchor="middle">18</text></g>
+            <path class="gp-lin" d="M360 93 L381 93"/>
+            <g class="gp-chip gp-chip-ext"><rect x="436" y="81" width="53" height="24" rx="12"/><text x="462.5" y="97" text-anchor="middle">SEGIP</text></g>
+            <g class="gp-chip gp-chip-ext"><rect x="497" y="81" width="84" height="24" rx="12"/><text x="539" y="97" text-anchor="middle">Ministerio</text></g>
+            <g class="gp-chip gp-chip-ext"><rect x="589" y="81" width="65" height="24" rx="12"/><text x="621.5" y="97" text-anchor="middle">Gestora</text></g>
+            <g class="gp-chip gp-chip-int"><rect x="662" y="81" width="84" height="24" rx="12"/><text x="704" y="97" text-anchor="middle">Onboarding</text></g>
+            <rect class="gp-caja p1" x="44" y="120" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p1" x="58" y="144">1.2</text>
+            <text class="gp-t" x="94" y="144">Información Familiar</text>
+            <g class="gp-min"><circle cx="394" cy="139" r="13"/><text x="394" y="143" text-anchor="middle">4</text></g>
+            <path class="gp-lin" d="M360 139 L381 139"/>
+            <g class="gp-chip gp-chip-ext"><rect x="436" y="127" width="84" height="24" rx="12"/><text x="478" y="143" text-anchor="middle">Ministerio</text></g>
+            <g class="gp-chip gp-chip-int"><rect x="528" y="127" width="77" height="24" rx="12"/><text x="566.5" y="143" text-anchor="middle">Planillas</text></g>
+            <rect class="gp-caja p2" x="44" y="178" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p2" x="58" y="202">2.1</text>
+            <text class="gp-t" x="94" y="202">Información Laboral</text>
+            <g class="gp-min"><circle cx="394" cy="197" r="13"/><text x="394" y="201" text-anchor="middle">7</text></g>
+            <path class="gp-lin" d="M360 197 L381 197"/>
+            <g class="gp-chip gp-chip-int"><rect x="436" y="185" width="96" height="24" rx="12"/><text x="484" y="201" text-anchor="middle">Organización</text></g>
+            <g class="gp-chip gp-chip-ext"><rect x="540" y="185" width="84" height="24" rx="12"/><text x="582" y="201" text-anchor="middle">Ministerio</text></g>
+            <g class="gp-chip gp-chip-int"><rect x="632" y="185" width="40" height="24" rx="12"/><text x="652" y="201" text-anchor="middle">ERP</text></g>
+            <rect class="gp-caja p2" x="44" y="224" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p2" x="58" y="248">2.2</text>
+            <text class="gp-t" x="94" y="248">Relación Laboral</text>
+            <g class="gp-min"><circle cx="394" cy="243" r="13"/><text x="394" y="247" text-anchor="middle">2</text></g>
+            <path class="gp-lin" d="M360 243 L381 243"/>
+            <g class="gp-chip gp-chip-ext"><rect x="436" y="231" width="84" height="24" rx="12"/><text x="478" y="247" text-anchor="middle">Ministerio</text></g>
+            <g class="gp-chip gp-chip-int"><rect x="528" y="231" width="77" height="24" rx="12"/><text x="566.5" y="247" text-anchor="middle">Planillas</text></g>
+            <rect class="gp-caja p2" x="44" y="270" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p2" x="58" y="294">2.3</text>
+            <text class="gp-t" x="94" y="294">Compensación, Nómina y Afiliaciones</text>
+            <g class="gp-min"><circle cx="394" cy="289" r="13"/><text x="394" y="293" text-anchor="middle">1</text></g>
+            <path class="gp-lin" d="M360 289 L381 289"/>
+            <g class="gp-chip gp-chip-int"><rect x="436" y="277" width="77" height="24" rx="12"/><text x="474.5" y="293" text-anchor="middle">Planillas</text></g>
+            <g class="gp-chip gp-chip-ext"><rect x="521" y="277" width="65" height="24" rx="12"/><text x="553.5" y="293" text-anchor="middle">Gestora</text></g>
+            <g class="gp-chip gp-chip-ext"><rect x="594" y="277" width="102" height="24" rx="12"/><text x="645" y="293" text-anchor="middle">Caja de Salud</text></g>
+            <g class="gp-chip gp-chip-ext"><rect x="704" y="277" width="77" height="24" rx="12"/><text x="742.5" y="293" text-anchor="middle">Impuestos</text></g>
+            <g class="gp-chip gp-chip-int"><rect x="789" y="277" width="40" height="24" rx="12"/><text x="809" y="293" text-anchor="middle">ERP</text></g>
+            <rect class="gp-caja p3" x="44" y="328" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p3" x="58" y="352">3</text>
+            <text class="gp-t" x="94" y="352">Documentación y Expediente Digital</text>
+            <text class="gp-s" x="394" y="351" text-anchor="middle" fill="var(--tinta-3)">—</text>
+            <path class="gp-lin" d="M360 347 L381 347"/>
+            <g class="gp-chip gp-chip-int"><rect x="436" y="335" width="102" height="24" rx="12"/><text x="487" y="351" text-anchor="middle">Documentación</text></g>
+            <rect class="gp-caja p3" x="44" y="386" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p3" x="58" y="410">4</text>
+            <text class="gp-t" x="94" y="410">Recursos y Activos</text>
+            <text class="gp-s" x="394" y="409" text-anchor="middle" fill="var(--tinta-3)">—</text>
+            <path class="gp-lin" d="M360 405 L381 405"/>
+            <g class="gp-chip gp-chip-int"><rect x="436" y="393" width="151" height="24" rx="12"/><text x="511.5" y="409" text-anchor="middle">RR.HH. al desvincular</text></g>
+            <rect class="gp-caja p3" x="44" y="444" width="316" height="38" rx="7"/>
+            <text class="gp-n gp-num p3" x="58" y="468">5</text>
+            <text class="gp-t" x="94" y="468">Configuración de Colaborador</text>
+            <text class="gp-s" x="394" y="467" text-anchor="middle" fill="var(--tinta-3)">—</text>
+            <path class="gp-lin" d="M360 463 L381 463"/>
+            <g class="gp-chip gp-chip-int"><rect x="436" y="451" width="108" height="24" rx="12"/><text x="490" y="467" text-anchor="middle">Acceso a Souly</text></g>
+            <g class="gp-chip gp-chip-int"><rect x="552" y="451" width="84" height="24" rx="12"/><text x="594" y="467" text-anchor="middle">Evaluación</text></g>
+            <rect class="gp-banda p1" x="20" y="74" width="16" height="84" rx="5"/>
+            <text class="gp-n" x="28" y="120" text-anchor="middle" fill="var(--sobre-acento)">1</text>
+            <rect class="gp-banda p2" x="20" y="178" width="16" height="130" rx="5"/>
+            <text class="gp-n" x="28" y="247" text-anchor="middle" fill="var(--sobre-acento)">2</text>
+            <rect class="gp-banda p3" x="20" y="328" width="16" height="38" rx="5"/>
+            <text class="gp-n" x="28" y="351" text-anchor="middle" fill="var(--sobre-acento)">3</text>
+            <rect class="gp-banda p3" x="20" y="386" width="16" height="38" rx="5"/>
+            <text class="gp-n" x="28" y="409" text-anchor="middle" fill="var(--sobre-acento)">4</text>
+            <rect class="gp-banda p3" x="20" y="444" width="16" height="38" rx="5"/>
+            <text class="gp-n" x="28" y="467" text-anchor="middle" fill="var(--sobre-acento)">5</text>
+            <g class="gp-chip gp-chip-ext"><rect x="436" y="500" width="22" height="16" rx="8"/></g><text class="gp-s" x="466" y="512">Entidad que exige el dato</text>
+            <g class="gp-chip gp-chip-int"><rect x="636" y="500" width="22" height="16" rx="8"/></g><text class="gp-s" x="666" y="512">Módulo de Souly que lo usa</text>
+            <g class="gp-min"><circle cx="54" cy="508" r="9"/></g><text class="gp-s" x="70" y="512">Datos del mínimo legal de esa parte: 32 en total</text>
+          </svg>
+        </div>
+      </div>
+    </figure>
 
     <h3 id="p0-2">0.2 Borrador, alta y colaborador: tres estados distintos</h3>
     <p>Es la distinción que ordena todo el módulo, y la que más fácil se confunde.</p>
@@ -1276,16 +1517,55 @@ td.rg{color:var(--tinta-3);font-weight:700}
     </table></div>
     <p><strong>Media ficha cargada no es media persona contratada.</strong> Por eso un borrador no aparece en ningún lado: si lo hiciera, los tableros contarían a alguien que quizá nunca llegue a firmar.</p>
 
+    <figure class="dgm">
+      <figcaption class="dgm-cap"><b>Tres estados, un solo gesto.</b> El borrador se llena por partes y se guarda solo; la vista previa dice si ya se puede dar de alta; «Dar de alta» convierte el borrador en colaborador. Irse con algo escrito pregunta antes.</figcaption>
+      <div class="lienzo">
+        <div class="lienzo-svg">
+          <svg class="gp-dgm" viewBox="0 0 900 372" role="img" aria-labelledby="gp-d2-t gp-d2-d">
+            <title id="gp-d2-t">Cómo una ficha pasa de borrador a colaborador, y qué pasa si se sale a medio llenar</title>
+            <desc id="gp-d2-d">De izquierda a derecha: «Nuevo colaborador» abre un borrador, que se guarda solo y no sale en el directorio. «Revisar la ficha» lleva a la vista previa, y «Dar de alta» la convierte en colaborador, que aparece en el directorio y en su puesto. Si falta un dato, una flecha de vuelta lleva de la vista previa al borrador. Debajo del borrador, irse a otra pantalla con algo escrito abre el aviso «¿Está seguro de salir?», con tres salidas: guardar el borrador y salir, salir sin guardar, que lo borra, o seguir registrando, que vuelve al borrador. Un colaborador no se borra: se desvincula.</desc>
+            <rect class="gp-caja" x="20" y="72" width="120" height="40" rx="20"/><text class="gp-t" x="80" y="97" text-anchor="middle">Nuevo colaborador</text>
+            <rect class="gp-caja p1" x="170" y="40" width="190" height="104" rx="9"/>
+            <text class="gp-e" x="184" y="62" fill="var(--tinta-3)">BORRADOR</text>
+            <text class="gp-t" x="184" y="82">Se llena por partes</text>
+            <text class="gp-s" x="184" y="100">Se guarda solo, desde la</text>
+            <text class="gp-s" x="184" y="115">primera letra. No sale en el</text>
+            <text class="gp-s" x="184" y="130">directorio ni ocupa silla.</text>
+            <rect class="gp-caja p2" x="460" y="40" width="180" height="104" rx="9"/>
+            <text class="gp-e" x="474" y="62" fill="var(--tinta-3)">VISTA PREVIA</text>
+            <text class="gp-t" x="474" y="82">La ficha como expediente</text>
+            <text class="gp-s" x="474" y="100">La tapa dice qué falta</text>
+            <text class="gp-s" x="474" y="115">para dar de alta.</text>
+            <rect class="gp-lleno" x="730" y="40" width="160" height="104" rx="9"/>
+            <text class="gp-e" x="744" y="62" fill="var(--sobre-acento)">COLABORADOR</text>
+            <text class="gp-t gp-lleno-t" x="744" y="82">Dado de alta</text>
+            <text class="gp-s gp-lleno-t" x="744" y="100">En el directorio y</text>
+            <text class="gp-s gp-lleno-t" x="744" y="115">sentado en su puesto.</text>
+<path class="gp-flecha " d="M140 92 L158.0 92.0"/><path class="gp-punta " d="M166 92 L158.0 87.5 L158.0 96.5 Z"/><path class="gp-flecha fuerte" d="M360 80 L448.0 80.0"/><path class="gp-punta fuerte" d="M456 80 L448.0 75.5 L448.0 84.5 Z"/><text class="gp-s" x="408" y="68" text-anchor="middle">Revisar la ficha</text>
+<path class="gp-flecha fuerte" d="M640 80 L718.0 80.0"/><path class="gp-punta fuerte" d="M726 80 L718.0 75.5 L718.0 84.5 Z"/><text class="gp-s" x="683" y="68" text-anchor="middle" font-weight="700" fill="var(--estructural)">Dar de alta</text>
+            <path class="gp-flecha vuelta" d="M550 144 L550 172 L300 172 L300 152"/><path class="gp-punta" d="M300 146 L295.5 154 L304.5 154 Z"/><text class="gp-s" x="386" y="192">Si falta un dato: el aviso lo lista</text><text class="gp-s" x="386" y="207">y «Completar →» lleva a él</text>
+            <path class="gp-flecha" d="M200 144 L200 224"/><path class="gp-punta" d="M200 232 L195.5 224 L204.5 224 Z"/><text class="gp-s" x="190" y="196" text-anchor="end">Ir a otra pantalla</text><text class="gp-s" x="190" y="211" text-anchor="end">con algo escrito</text>
+            <rect class="gp-alerta" x="110" y="234" width="200" height="44" rx="9"/><text class="gp-t" x="210" y="261" text-anchor="middle">¿Está seguro de salir?</text>
+<path class="gp-flecha " d="M150 278 L125.8 300.5"/><path class="gp-punta " d="M120 306 L128.9 303.8 L122.8 297.3 Z"/><path class="gp-flecha " d="M270 278 L322.8 302.6"/><path class="gp-punta " d="M330 306 L324.7 298.5 L320.8 306.7 Z"/>            <rect class="gp-bueno" x="20" y="308" width="200" height="50" rx="9"/><text class="gp-t" x="34" y="329">Guardar borrador y salir</text><text class="gp-s" x="34" y="347">El borrador sigue ahí al volver</text>
+            <rect class="gp-malo" x="260" y="308" width="190" height="50" rx="9"/><text class="gp-t" x="274" y="329">Salir sin guardar</text><text class="gp-s" x="274" y="347">El borrador se borra</text>
+            <path class="gp-flecha vuelta" d="M310 256 L340 256 L340 150"/><path class="gp-punta" d="M340 144 L335.5 152 L344.5 152 Z"/><text class="gp-s" x="350" y="252">Seguir registrando</text>
+            <text class="gp-s" x="730" y="170">Después del alta no se</text><text class="gp-s" x="730" y="185">borra: se desvincula, con</text><text class="gp-s" x="730" y="200">motivo y fecha.</text>
+
+          </svg>
+        </div>
+      </div>
+    </figure>
+
     <h3 id="p0-3">0.3 Las entidades que piden datos</h3>
     <p>La mitad de la ficha existe porque alguien de afuera la pide. Conocerlas explica por qué hay datos que parecen repetidos o raros.</p>
     <div class="tbl"><table>
       <thead><tr><th>Entidad</th><th>Qué pide</th><th>Dónde está en la ficha</th></tr></thead>
       <tbody>
-        <tr><td><strong>Ministerio de Trabajo</strong> · OVT</td><td>La planilla trimestral y el formulario F20: nombre en tres partes, documento, nacionalidad, sexo, discapacidad, sucursal OVT, modalidad de contrato y motivo de retiro</td><td>Pasos 1, 3, 5 y 6</td></tr>
-        <tr><td><strong>Gestora Pública</strong></td><td>La afiliación al sistema de pensiones: NUA o CUA, nombre en cinco partes, si aporta o no y si está jubilado</td><td>Paso 6</td></tr>
-        <tr><td><strong>Caja de Salud</strong></td><td>La afiliación al seguro de corto plazo, dentro de los <strong>5 días</strong> desde el ingreso</td><td>Paso 6</td></tr>
-        <tr><td><strong>Impuestos</strong> · RC‑IVA</td><td>El código de dependiente y el saldo inicial a favor</td><td>Paso 6</td></tr>
-        <tr><td><strong>SEGIP</strong> · Migración</td><td>El documento de identidad: extensión departamental y complemento para el carnet boliviano; el de extranjero lo emite Migración y no lleva extensión</td><td>Paso 1</td></tr>
+        <tr><td><strong>Ministerio de Trabajo</strong> · OVT</td><td>La planilla trimestral y el formulario F20: nombre en tres partes, documento, nacionalidad, sexo, discapacidad, sucursal OVT, modalidad de contrato y motivo de retiro</td><td>Partes 1.1, 2.1, 2.2 y 2.3</td></tr>
+        <tr><td><strong>Gestora Pública</strong></td><td>La afiliación al sistema de pensiones: NUA o CUA, nombre en cinco partes, si aporta o no y si está jubilado</td><td>Parte 2.3</td></tr>
+        <tr><td><strong>Caja de Salud</strong></td><td>La afiliación al seguro de corto plazo, dentro de los <strong>5 días</strong> desde el ingreso</td><td>Parte 2.3</td></tr>
+        <tr><td><strong>Impuestos</strong> · RC‑IVA</td><td>El código de dependiente y el saldo inicial a favor</td><td>Parte 2.3</td></tr>
+        <tr><td><strong>SEGIP</strong> · Migración</td><td>El documento de identidad: extensión departamental y complemento para el carnet boliviano; el de extranjero lo emite Migración y no lleva extensión</td><td>Parte 1.1</td></tr>
       </tbody>
     </table></div>
     <div class="nota"><p><strong>Por eso el nombre se pide partido.</strong> La OVT lo quiere en tres partes, la Gestora en cinco y el RC‑IVA en una. La ficha guarda las cinco y cada exportador arma la forma que su entidad pide; lo que no se puede es partir después un nombre que se guardó entero.</p></div>
@@ -1299,14 +1579,14 @@ td.rg{color:var(--tinta-3);font-weight:700}
     </header>
 
     <h3 id="p1-1">1.1 ¿Qué es la ficha del colaborador?</h3>
-    <p>Es el registro de todo lo que la empresa necesita saber de una persona para <strong>tenerla contratada en regla</strong>: quién es, a quién avisar, dónde trabaja, qué firmó, a qué entidades está afiliada, cómo marca, cuánto gana, qué se le entregó, con qué accede al sistema y qué papeles respaldan cada cosa.</p>
+    <p>Es el registro de todo lo que la empresa necesita saber de una persona para <strong>tenerla contratada en regla</strong>: quién es, a quién avisar, dónde trabaja, qué firmó, a qué entidades está afiliada, cuánto gana, qué se le entregó, con qué accede al sistema y qué papeles respaldan cada cosa.</p>
     <p>Responde tres preguntas:</p>
     <div class="tbl"><table>
       <thead><tr><th>Pregunta</th><th>Qué la contesta</th></tr></thead>
       <tbody>
         <tr><td><strong>¿Se la puede declarar?</strong></td><td>El mínimo legal: los 32 datos que piden el Ministerio, la Gestora y la Caja</td></tr>
         <tr><td><strong>¿Puede empezar a trabajar?</strong></td><td>El nivel operativo: puesto, horario, cuenta de pago, acceso al sistema</td></tr>
-        <tr><td><strong>¿La conocemos de verdad?</strong></td><td>El nivel completo: formación, trayectoria, salud, familia, recursos entregados</td></tr>
+        <tr><td><strong>¿La conocemos de verdad?</strong></td><td>El nivel completo: salud, familia, garantías, recursos entregados</td></tr>
       </tbody>
     </table></div>
     <p><strong>La ficha no es el vínculo.</strong> La persona es una sola aunque entre y salga de la empresa varias veces; cada entrada abre un vínculo nuevo —otro contrato, otras fechas, otro sueldo—. Esa distinción es la que permite que un reingreso traiga a la persona sin arrastrar un contrato que ya terminó.</p>
@@ -1315,7 +1595,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <p>Dar de alta a alguien hoy es juntar papeles que llegan de manos distintas y en días distintos: el carnet lo trae la persona, el contrato lo prepara legal, el NUA lo da la Gestora semanas después, la cuenta bancaria llega cuando se abre. Un formulario de una sola sentada fracasa de tres maneras:</p>
     <ul>
       <li><strong>Obliga a inventar.</strong> Si el sistema no guarda sin la fecha de nacimiento, alguien pone una cualquiera para poder seguir, y ese dato falso llega a la planilla del Ministerio.</li>
-      <li><strong>Se pierde.</strong> Cerrar la pestaña en el paso 5 cuesta todo lo escrito, así que se deja de cargar en el sistema y se vuelve al Excel.</li>
+      <li><strong>Se pierde.</strong> Cerrar la ventana a mitad del contrato cuesta todo lo escrito, así que se deja de cargar en el sistema y se vuelve al Excel.</li>
       <li><strong>No dice qué falta.</strong> Doscientos campos sin prioridad no distinguen el que impide declarar a la persona del que es un «estaría bien saber».</li>
     </ul>
 
@@ -1325,8 +1605,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <h3 id="p1-4">1.4 Principios de diseño</h3>
     <ol>
       <li><strong>Se guarda desde la primera letra.</strong> No hay botón de guardar ni aviso de cambios sin guardar, porque no hay nada que se pueda perder.</li>
-      <li><strong>Se entra por cualquier paso.</strong> El orden es de lectura; los papeles llegan en otro orden.</li>
-      <li><strong>Lo que falta se dice, con su motivo.</strong> Un paso que debe algo del mínimo legal lo muestra; un bloqueo nombra el dato y dice por qué hace falta.</li>
+      <li><strong>Se entra por cualquier pestaña.</strong> El orden es de lectura; los papeles llegan en otro orden.</li>
+      <li><strong>Lo que falta se dice, con su motivo.</strong> Una pestaña que debe algo del mínimo legal lo muestra; un bloqueo nombra el dato y dice por qué hace falta.</li>
       <li><strong>Bloquear solo lo imprescindible.</strong> Tres datos impiden el alta; los demás se avisan, porque muchos llegan después y la persona igual tiene que poder cobrar.</li>
       <li><strong>La estructura manda.</strong> Área, sucursal, cargo y jefe salen de Organización. La ficha no los inventa ni los copia: los lee.</li>
       <li><strong>Lo que se calcula no se escribe.</strong> Un dato que se puede deducir se muestra deducido; pedirlo a mano es invitar a que contradiga al otro.</li>
@@ -1358,7 +1638,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     </table></div>
 
     <h3 id="p1-7">1.7 Alcance y límites</h3>
-    <p><strong>Entra en esta versión:</strong> la lista de colaboradores, el alta en once pasos con su borrador, el reingreso, la vista previa como expediente, el alta que sienta a la persona en su puesto y los clientes externos.</p>
+    <p><strong>Entra en esta versión:</strong> la lista de colaboradores, el alta en cinco pestañas con su borrador, el reingreso, la vista previa como expediente, el alta que sienta a la persona en su puesto y los clientes externos.</p>
     <p><strong>Especificado pero sin construir:</strong> ver y editar la ficha de alguien dado de alta —<span class="id">3.6</span>— y eliminar o desvincular —<span class="id">3.7</span>—. <strong>No entra:</strong> la liquidación de una desvinculación y los exportadores a cada entidad. Están contados en <span class="id">3.11</span>.</p>
     <p><strong>Prioridades.</strong> Cada requisito lleva una: <span class="p p-m">Oblig.</span> sin esto no se entrega; <span class="p p-s">Import.</span> se entrega en la etapa que le toca; <span class="p p-c">Deseable</span> si hay tiempo.</p>
   </section>
@@ -1379,10 +1659,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Lo que se lee</th><th>Para qué</th><th>Dónde en la ficha</th></tr></thead>
       <tbody>
-        <tr><td><strong>Cargos y sus puestos libres</strong></td><td>Ofrecer en qué cargo entra la persona y asignarle la primera silla libre</td><td>Paso 3 · 3.11</td></tr>
+        <tr><td><strong>Cargos y sus puestos libres</strong></td><td>Ofrecer en qué cargo entra la persona y asignarle la primera silla libre</td><td>Parte 2.1 · 3.11</td></tr>
         <tr><td><strong>Unidades, sucursales y centros de trabajo</strong></td><td>Las listas de área y sucursal, con la misma función que arma las tablas de Organización —no pueden discrepar—</td><td>Paso 3 · 3.2 a 3.10</td></tr>
-        <tr><td><strong>Jefe del puesto</strong></td><td>Mostrar de quién depende, deducido de la silla y no escrito a mano</td><td>Paso 3</td></tr>
-        <tr><td><strong>Empresas del grupo</strong></td><td>Para qué empresa trabaja y a cuáles tiene acceso</td><td>Pasos 3 y 10</td></tr>
+        <tr><td><strong>Jefe del puesto</strong></td><td>Mostrar de quién depende, deducido de la silla y no escrito a mano</td><td>Parte 2.1</td></tr>
+        <tr><td><strong>Empresas del grupo</strong></td><td>Para qué empresa trabaja y a cuáles tiene acceso</td><td>Parte 2.1</td></tr>
       </tbody>
     </table></div>
     <p>Y lo que <strong>escribe</strong> en Organización es una sola cosa: al dar de alta, sienta a la persona en su puesto —<span class="id">BR‑GP‑018</span>—.</p>
@@ -1391,19 +1671,19 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <p>Una persona recién dada de alta nace <strong>sin ruta de onboarding</strong>. La ruta se asigna desde el directorio, porque es una decisión de Recursos Humanos sobre esa persona y no un dato de su ficha. Onboarding elige la ruta por área y cargo, que lee del puesto.</p>
 
     <h3 id="p2-4">2.4 Evaluación</h3>
-    <p>Evaluación va a sacar de la estructura quién evalúa a quién, y de la ficha los datos de la persona. El módulo todavía no existe en el prototipo; los alcances del paso 11 —individual, unidad u organización— ya están pensados para ese uso.</p>
+    <p>Evaluación va a sacar de la estructura quién evalúa a quién, y de la ficha los datos de la persona. El módulo todavía no existe en el prototipo; el rol que se asigna en la pestaña 5, Configuración de Colaborador, es el que dirá qué puede ver cada uno.</p>
     <p><strong>Los clientes externos también son de Evaluación.</strong> Se registran en este módulo —<span class="id">3.8</span>— y Evaluación los va a ofrecer como evaluadores de afuera: los activos, nunca los inactivos.</p>
 
     <h3 id="p2-5">2.5 Documentación</h3>
-    <p>El expediente digital cuelga del colaborador: <strong>un expediente es una persona</strong>, y lleva su mismo identificador. El paso 10 de la ficha reúne los archivos que se cargaron en los demás pasos —foto, carnet escaneado, certificado de nacimiento, croquis— para que el expediente arranque con ellos.</p>
+    <p>El expediente digital cuelga del colaborador: <strong>un expediente es una persona</strong>, y lleva su mismo identificador. La pestaña 3 de la ficha, Documentación y Expediente Digital, reúne los archivos que se cargaron en las demás —foto, carnet escaneado, certificado de nacimiento, croquis— para que el expediente arranque con ellos.</p>
     <div class="nota al"><p><strong>Hoy la integración es de intención, no de código.</strong> El módulo de Documentación todavía no lee la ficha guardada de la persona: lo va a hacer, y por eso la ficha entera viaja con ella al dar de alta —<span class="id">5.6</span>—.</p></div>
 
     <h3 id="p2-6">2.6 Asistencia, planillas y ERP</h3>
     <p>La mitad operativa de la ficha existe para que la planilla corra sin preguntar:</p>
     <ul>
-      <li><strong>Asistencia</strong> lee del paso 7: jornada, horario, método de marcación, vacaciones y permisos.</li>
-      <li><strong>Planillas</strong> lee del paso 8: haber básico —en bolivianos— y los <strong>beneficios de ley</strong>, que son interruptores y no montos: dicen qué calcula la corrida, no cuánto. Y el <b>anticipo de quincena</b>, que se descuenta del líquido pagable en la misma corrida del mes: una boleta, no dos —<span class="id">BR‑GP‑033</span>—. El <b>tipo de remuneración</b> y la <b>frecuencia de pago</b> se guardan como dato <b>informativo</b>: no gobiernan ningún cálculo.</li>
-      <li><strong>ERP y contabilidad</strong> leen la imputación contable del paso 3 y los datos de pago.</li>
+      <li><strong>Asistencia</strong> todavía no lee de la ficha: los datos de jornada, horario y marcación se están definiendo y se documentarán cuando estén en la versión publicada.</li>
+      <li><strong>Planillas</strong> lee de la parte 2.3, Compensación, Nómina y Afiliaciones: haber básico —en bolivianos— y los <strong>beneficios de ley</strong>, que son interruptores y no montos: dicen qué calcula la corrida, no cuánto. Y el <b>anticipo de quincena</b>, que se descuenta del líquido pagable en la misma corrida del mes: una boleta, no dos —<span class="id">BR‑GP‑033</span>—. El <b>tipo de remuneración</b> y la <b>frecuencia de pago</b> se guardan como dato <b>informativo</b>: no gobiernan ningún cálculo.</li>
+      <li><strong>ERP y contabilidad</strong> leen la imputación contable de la parte 2.1 y los datos de pago de la 2.3.</li>
     </ul>
 
     <h3 id="p2-7">2.7 Las entidades externas</h3>
@@ -1441,7 +1721,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <header class="sec-h">
       <span class="sec-n" aria-hidden="true">03</span>
       <h2>Funcionalidades</h2>
-      <p class="sec-d">Cuarenta y nueve requisitos funcionales y cinco no funcionales, pantalla por pantalla: la lista, la ficha, editar, eliminar y los clientes externos, cada uno con su condición de comprobación.</p>
+      <p class="sec-d">Cincuenta y dos requisitos funcionales y cinco no funcionales, pantalla por pantalla: la lista, la ficha, editar, eliminar y los clientes externos, cada uno con su condición de comprobación.</p>
     </header>
 
     <p>Cada requisito lleva prioridad —según la escala de <span class="id">1.7</span>—, y una condición de comprobación, que es lo que QA va a verificar. <strong>Los números son estables</strong> y los bloques saltan de diez en diez para poder crecer sin mover a nadie.</p>
@@ -1481,11 +1761,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Colaborador</strong></td><td>Foto o iniciales, nombre y correo</td><td>La ficha: nombre, correo corporativo o personal, foto</td><td>Reconocer a la persona de un vistazo y tener a mano cómo escribirle</td></tr>
         <tr><td><strong>Departamento</strong></td><td>El área</td><td>El área del puesto; si no tiene puesto, la que se declaró en la ficha</td><td>Ubicar a la persona en la empresa sin abrir nada</td></tr>
         <tr><td><strong>Cargo</strong></td><td>El nombre del cargo</td><td><b>El cuadro que ocupa en el organigrama</b>, no un texto de la ficha</td><td>Si el cargo se renombra en Organización, el directorio lo refleja solo. Dos fuentes para el mismo dato terminan diciendo cosas distintas</td></tr>
-        <tr><td><strong>Rol</strong></td><td>El rol en el sistema: Administrador General, Sub Administrador - RRHH - IT, Gerente, Supervisor, Asistente o Colaborador</td><td>La configuración del colaborador (paso 11)</td><td>Qué puede hacer esa persona dentro de Souly, que no es lo mismo que su cargo</td></tr>
+        <tr><td><strong>Rol</strong></td><td>El rol en el sistema: Administrador General, Sub Administrador - RRHH - IT, Gerente, Supervisor, Asistente o Colaborador</td><td>Configuración de Colaborador (pestaña 5)</td><td>Qué puede hacer esa persona dentro de Souly, que no es lo mismo que su cargo</td></tr>
         <tr><td><strong>Registro</strong></td><td>El avance de la ficha, como porcentaje y barra: verde al 100 %, azul desde 50 %, amarilla por debajo</td><td>Los datos llenos sobre los que se ven, calculado al dar de alta</td><td>Encontrar rápido las fichas que quedaron flojas. El color ordena la urgencia sin leer el número</td></tr>
         <tr><td><strong>Onboarding</strong></td><td>El estado de su incorporación, con una ayuda «?» que explica los seis estados</td><td>El módulo de Onboarding</td><td>Ver quién necesita una ruta, quién la está haciendo y quién se trabó, sin salir del directorio</td></tr>
         <tr><td><strong>Buddy</strong></td><td>Quién lo acompaña, o «—»</td><td>La asignación de Onboarding</td><td>Saber a quién preguntarle por un recién llegado</td></tr>
-        <tr><td><strong>Ingreso</strong></td><td>La fecha de ingreso, «15 Mar 2025»</td><td>La ficha, paso 5 · 3.25</td><td>La antigüedad, las vacaciones y el periodo de prueba cuelgan de ella</td></tr>
+        <tr><td><strong>Ingreso</strong></td><td>La fecha de ingreso, «15 Mar 2025»</td><td>La ficha, parte 2.2 · 3.25</td><td>La antigüedad, las vacaciones y el periodo de prueba cuelgan de ella</td></tr>
         <tr><td><strong>Estado</strong></td><td>Una insignia de color; al pasar el cursor, su explicación o las fechas de la ausencia</td><td>La ausencia en curso, y si no hay, el estado del vínculo —<span class="id">BR‑GP‑025</span>—</td><td>Contesta «¿puedo contar con esta persona esta semana?», que es lo que uno mira en una tabla</td></tr>
         <tr><td><strong>⋯</strong></td><td>El menú de acciones de la fila</td><td>—</td><td>Cada acción donde está la persona, sin abrir su ficha</td></tr>
       </tbody>
@@ -1559,42 +1839,51 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <p>En <span class="mono">/personas/colaboradores/nuevo</span>. Es donde se da de alta a una persona, y lo que se llena es su <strong>ficha del colaborador</strong>.</p>
 
     <h4 class="br-h"><em>A</em>Qué es la ficha del colaborador</h4>
-    <p>Es el registro de todo lo que la empresa necesita saber de una persona para <b>tenerla contratada en regla</b>: quién es, a quién avisar, dónde trabaja, qué firmó, a qué entidades está afiliada, cómo marca, cuánto gana, qué se le entregó, con qué entra al sistema y qué papeles respaldan cada cosa. Son <b>322 datos distintos</b> repartidos en <b>once pasos</b>.</p>
+    <p>Es el registro de todo lo que la empresa necesita saber de una persona para <b>tenerla contratada en regla</b>: quién es, a quién avisar, dónde trabaja, qué firmó, a qué entidades está afiliada, cómo marca, cuánto gana, qué se le entregó, con qué entra al sistema y qué papeles respaldan cada cosa. Son <b>240 datos distintos</b> repartidos en <b>cinco pestañas</b>.</p>
     <p>Tres cosas la definen:</p>
     <ul>
-      <li><strong>Se llena por partes.</strong> Los papeles llegan de manos distintas y en días distintos; la ficha se guarda sola y se puede entrar por cualquier paso —<span class="id">BR‑GP‑002</span>—.</li>
+      <li><strong>Se llena por partes.</strong> Los papeles llegan de manos distintas y en días distintos; la ficha se guarda sola y se puede entrar por cualquier pestaña —<span class="id">BR‑GP‑002</span>—.</li>
       <li><strong>No todo pesa lo mismo.</strong> 32 datos son del mínimo legal; solo 3 impiden el alta —<span class="id">BR‑GP‑006</span>, <span class="id">BR‑GP‑007</span>—.</li>
       <li><strong>Es la fuente de la persona.</strong> Planillas, Onboarding, Documentación y Evaluación leen de ella; ninguno guarda su propia copia —<span class="id">2.1</span>—.</li>
     </ul>
 
-    <h4 class="br-h"><em>B</em>Los once pasos y sus secciones</h4>
+    <h4 class="br-h"><em>B</em>Las cinco pestañas, sus partes y sus secciones</h4>
     <div class="tbl"><table>
-      <thead><tr><th>#</th><th>Paso</th><th>Secciones</th><th>Para qué sirve</th></tr></thead>
+      <thead><tr><th>#</th><th>Pestaña · parte</th><th>Secciones</th><th>Para qué sirve</th></tr></thead>
       <tbody>
-        <tr><td class="id">1</td><td><strong>Información Personal</strong></td><td>Reingreso o alta nueva · Datos personales · Documento de identidad · Nacionalidad y nacimiento · Residencia · Contacto · Datos patrimoniales · Licencias y certificaciones · Datos médicos</td><td>Identificar a la persona como la piden el Ministerio, la Gestora y el SEGIP. Empieza por el reingreso para no duplicar a nadie</td></tr>
-        <tr><td class="id">2</td><td><strong>Información Familiar</strong></td><td>Contactos de emergencia · Cónyuge · Hijos · Beneficiarios y herederos · Garantes y garantías · Datos de tutela y protecciones</td><td>A quién avisar, quién depende de la persona —asignación familiar, subsidio de lactancia—, quién hereda y su salud</td></tr>
-        <tr><td class="id">3</td><td><strong>Información Laboral</strong></td><td>Información organizacional · Dependencia organizacional y funcional · Contacto corporativo</td><td>Dónde se sienta en la estructura: cargo, área, sucursal y jefe. Tiene <b>un supervisor inmediato</b> —único, quien responde por su evaluación y su contrato— y <b>uno o varios supervisores funcionales</b>, cada uno con la unidad donde lo supervisa</td></tr>
-        <tr><td class="id">4</td><td><strong>Perfil profesional</strong></td><td>Perfil profesional · Desarrollo y capacitación del talento</td><td>Profesión y matrícula, formación, experiencia e idiomas: lo que después leen Evaluación y desarrollo. En cada experiencia, si hay una referencia laboral disponible, se pide su nombre, su cargo y su teléfono</td></tr>
-        <tr><td class="id">5</td><td><strong>Relación laboral</strong></td><td>Datos del contrato · Condiciones de contratación</td><td>Qué firmó, desde cuándo, por cuánto tiempo y el periodo de prueba</td></tr>
-        <tr><td class="id">6</td><td><strong>Compensación y nómina</strong></td><td>Gestora Pública · Caja de Salud · Ministerio de Trabajo · Impuestos RC‑IVA</td><td>Las afiliaciones: lo que se declara a cada entidad</td></tr>
-        <tr><td class="id">7</td><td><strong>Asistencia</strong></td><td>Jornada laboral · Horario asignado · Método de marcación · Vacaciones · Permisos · Compensación de horas · Historial disciplinario</td><td>Cómo trabaja y cómo se controla su asistencia</td></tr>
-        <tr><td class="id">8</td><td><strong>Remuneración</strong></td><td>Datos de haber básico · Configuración de Beneficios y Obligaciones · Datos de pago</td><td>Lo que la planilla calcula y dónde se deposita, incluido el anticipo de quincena. Los beneficios de ley son interruptores, no montos</td></tr>
-        <tr><td class="id">9</td><td><strong>Recursos y activos</strong></td><td>Equipos · Uniformes · Equipo de Protección Personal (EPP) · Herramientas · Vehículos · Software y Licencias</td><td>Lo que la empresa le entrega para trabajar, y que tendrá que devolver</td></tr>
-        <tr><td class="id">10</td><td><strong>Documentación y expediente</strong></td><td>Archivos</td><td>Reúne los papeles cargados en los demás pasos para que el expediente arranque con ellos</td></tr>
-        <tr><td class="id">11</td><td><strong>Configuración del colaborador / Autogestión</strong></td><td>Acceso al sistema: nombre de usuario y rol</td><td>Cómo entra al sistema, qué puede ver y quién cambió qué en su ficha</td></tr>
-        <tr><td class="id">—</td><td><strong>Vista previa</strong></td><td>La tapa del expediente y cuatro separadores</td><td>Revisar todo junto antes de dar de alta —<span class="id">3.5</span>—</td></tr>
+        <tr><th colspan="4">1 · Información Personal — sus datos y los de su familia</th></tr>
+        <tr><td class="id">1.1</td><td><strong>Información Personal</strong></td><td>Reingreso o alta nueva · Datos personales · Documento de identidad · Nacionalidad y nacimiento · Residencia · Contacto · Datos patrimoniales · Licencias y certificaciones · Datos médicos · Preferencias</td><td>Identificar a la persona como la piden el Ministerio, la Gestora y el SEGIP. Empieza por el reingreso para no duplicar a nadie, y termina con los regalos y experiencias que le gustaría recibir y vivir</td></tr>
+        <tr><td class="id">1.2</td><td><strong>Información Familiar</strong></td><td>Contactos de emergencia · Cónyuge · Hijos · Beneficiarios y herederos · Garantes y garantías · Datos de tutela y protecciones</td><td>A quién avisar, quién depende de la persona —asignación familiar, subsidio de lactancia—, quién hereda y su salud</td></tr>
+        <tr><th colspan="4">2 · Información Laboral — su puesto, contrato, pago y afiliaciones</th></tr>
+        <tr><td class="id">2.1</td><td><strong>Información Laboral</strong></td><td>Información organizacional · Dependencia organizacional y funcional · Contacto corporativo</td><td>Dónde se sienta en la estructura: cargo, área, sucursal y jefe. Tiene <b>un supervisor inmediato</b> —único, quien responde por su evaluación y su contrato— y <b>uno o varios supervisores funcionales</b>, cada uno con la unidad donde lo supervisa</td></tr>
+        <tr><td class="id">2.2</td><td><strong>Relación Laboral</strong></td><td>Datos del contrato · Condiciones de contratación</td><td>Qué firmó, desde cuándo, por cuánto tiempo y el periodo de prueba</td></tr>
+        <tr><td class="id">2.3</td><td><strong>Compensación, Nómina y Afiliaciones</strong></td><td>Datos de haber básico · Configuración de Beneficios y Obligaciones · Datos de pago · Gestora Pública · Caja de Salud · Ministerio de Trabajo · Impuestos RC‑IVA</td><td>Lo que la planilla calcula y dónde se deposita —incluido el anticipo de quincena—, y lo que se declara a cada entidad. Junta lo que eran los pasos Remuneración y Afiliaciones. Los beneficios de ley son interruptores, no montos</td></tr>
+        <tr><td class="id">3</td><td><strong>Documentación y Expediente Digital</strong></td><td>Archivos</td><td>Reúne los papeles cargados en las demás pestañas —y los que se agreguen a mano— para que el expediente arranque con ellos</td></tr>
+        <tr><td class="id">4</td><td><strong>Recursos y Activos</strong></td><td>Equipos · Uniformes · Equipo de Protección Personal (EPP) · Herramientas · Vehículos · Software y Licencias</td><td>Lo que la empresa le entrega para trabajar, y que tendrá que devolver</td></tr>
+        <tr><td class="id">5</td><td><strong>Configuración de Colaborador</strong></td><td>Acceso al sistema: nombre de usuario y rol</td><td>Con qué usuario entra al sistema y qué rol tiene</td></tr>
+        <tr><td class="id">—</td><td><strong>Vista previa</strong></td><td>La tapa del expediente y tres separadores</td><td>Revisar todo junto antes de dar de alta —<span class="id">3.5</span>—</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4 class="br-h"><em>C</em>Tres secciones que se llenan distinto</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Sección</th><th>Cómo se llena</th><th>Por qué así</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Preferencias</strong> · 1.1</td><td>Dos tablitas, una al lado de la otra: <b>Regalos que le gustaría recibir</b> y <b>Experiencias que le gustaría vivir</b> —un viaje, un curso, un concierto—. Cada fila es una celda para escribir; «Agregar regalo» y «Agregar experiencia» suman filas, Enter al final de una fila abre la siguiente y la cruz la quita. Sin categorías ni tipo</td><td>El equipo vio tablas con categoría, precio y prioridad, tarjetas y etiquetas, y eligió que se escriba directamente. Se guarda una fila por renglón, así que lo escrito antes en una caja de texto se conserva</td></tr>
+        <tr><td><strong>Recursos y Activos</strong> · 4</td><td>Cada clase de cosa entregada arranca vacía, con su botón «Agregar…». En las listas de tipo de equipo, categoría, tipo de uniforme, de EPP, de vehículo y de licencia, elegir <b>«Otro»</b> abre una caja para escribir cuál</td><td>Casi nadie recibe a la vez un vehículo, un EPP y una licencia: seis bloques vacíos serían sesenta cajas para llenar de nada. Y «Otro» sin caja guardaba la palabra «Otro»</td></tr>
+        <tr><td><strong>Archivos</strong> · 3</td><td>Arriba de los documentos, un buscador y tres píldoras en una sola fila: <b>Tipo</b>, <b>Estado</b> y <b>Fechas</b>. Una píldora con filtro se pinta de verde, dice el valor y trae una cruz para quitarlo. El estado de cada documento es Pendiente (sin archivo), Vencido, Por vencer (30 días antes), Vigente o Sin vencimiento. Fechas abre un panel para elegir emisión o vencimiento, con atajos —próximos 30 y 90 días, ya vencidos, último mes, este año— o un rango. Al final, un recuadro «Agregar documento» suma documentos propios con su nombre</td><td>Con trece documentos o más, lo que RR.HH. busca casi siempre es qué falta o qué vence. Los documentos agregados a mano no tienen fechas y no entran en el filtro de fechas</td></tr>
       </tbody>
     </table></div>
 
     <h4 class="br-h"><em>D</em>Configuración de Beneficios y Obligaciones</h4>
-    <p>La sección del paso 8 que dice a la planilla qué calcular para esta persona. Su descripción en pantalla: <b>«Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este empleado.»</b> Son <b>interruptores de Sí/No</b>: ninguno lleva un monto. El monto lo pone la fórmula, siempre.</p>
+    <p>La sección de la parte 2.3 que dice a la planilla qué calcular para esta persona. Su descripción en pantalla: <b>«Active los beneficios sociales y obligaciones patronales que el sistema debe calcular para este empleado.»</b> Son <b>interruptores de Sí/No</b>: ninguno lleva un monto. El monto lo pone la fórmula, siempre.</p>
     <div class="nota al"><p><strong>La pregunta de fondo del bloque.</strong> Varios de estos interruptores <b>no son decisiones: son consecuencias</b> de dos datos que la ficha ya tiene —la <b>modalidad de contrato</b> y la <b>categoría del puesto</b> (obrero de producción o administrativo)—. Dejarlos como casillas editables permite marcar una combinación que la ley no admite, y nadie se entera hasta que llega la multa. La recomendación es la misma que para el RC‑IVA: <b>derivarlos y mostrarlos de solo lectura</b>, con el dato del que salen a la vista —<span class="id">ABIERTA‑14</span>—.</p></div>
     <div class="tbl"><table>
       <thead><tr><th>Campo</th><th>Tipo · nivel</th><th>Concepto</th><th>Con qué se enlaza</th></tr></thead>
       <tbody>
         <tr><td><strong>¿Sujeto a bono de antigüedad?</strong></td><td>Sí/No · Operativo · legal</td><td>Obligatorio por ley. El monto no se digita nunca: <span class="mono">salario mínimo × 3 × % de la escala</span> según los años de servicio. La escala tiene siete tramos —5, 11, 18, 26, 34, 42 y 50 %— fijados por decreto</td><td>Entra desde la <b>fecha de ingreso para bono de antigüedad</b> —distinta de la de ingreso legal, porque a veces se reconoce antigüedad anterior— y el salario mínimo de los parámetros de la empresa. Sale hacia la columna del Ministerio, obligatoria aunque vaya en cero. Es un interruptor de verdad: se apaga para personal de servicios externos, contratos de servicios y eventuales</td></tr>
         <tr><td><strong>¿Aplica aguinaldo de Navidad?</strong></td><td>Sí/No · Operativo · legal</td><td>Un sueldo al año, pagado hasta el 20 de diciembre; por duodécimas si no trabajó la gestión completa</td><td>Derivable de la modalidad de contrato. La base son <b>septiembre, octubre y noviembre</b>, no diciembre ni el promedio del año. Sale hacia la planilla de aguinaldo, una declaración aparte de la mensual</td></tr>
-        <tr><td><strong>¿Aguinaldo y prima desde el primer mes?</strong></td><td>Sí/No · Operativo</td><td>En los hechos, la marca del obrero: el obrero de producción cobra aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. El mismo umbral vale para el proporcional de la prima: 30 días contra 90</td><td>Sale de la <b>Tipo de trabajador</b> (Información laboral › Información organizacional). <b>Si la categoría es Obrero y se contesta No, la ficha avisa</b> junto a la respuesta. La recomendación es que no se llame así —describe el efecto, no el dato— y que se muestre de solo lectura</td></tr>
+        <tr><td><strong>¿Aguinaldo y prima desde el primer mes?</strong></td><td>Sí/No · Operativo</td><td>En los hechos, la marca del obrero: el obrero de producción cobra aguinaldo con 1 mes trabajado; el administrativo necesita 3 meses y 1 día. El mismo umbral vale para el proporcional de la prima: 30 días contra 90</td><td>Sale del <b>Tipo de trabajador</b> (2.1 Información Laboral › Información organizacional). <b>Si la categoría es Obrero y se contesta No, la ficha avisa</b> junto a la respuesta. La recomendación es que no se llame así —describe el efecto, no el dato— y que se muestre de solo lectura</td></tr>
         <tr><td><strong>¿Aplica aportes patronales?</strong></td><td>Sí/No · Operativo</td><td>Si la empresa paga sus propios aportes: 7,21 % a la Gestora y 10 % a la Caja de Salud, sobre el total ganado. No se le descuenta al trabajador: es costo de la empresa</td><td>Alimenta Planillas y el ERP. Es el peor ubicado del bloque: no es remuneración, y ya existe «¿aporta a la Gestora?» en afiliaciones, que puede contradecirlo —<span class="id">ABIERTA‑16</span>—</td></tr>
         <tr><td><strong>¿Incluir en subsidio de frontera?</strong></td><td>Sí/No · Completo</td><td>Un pago adicional para quien trabaja en zona de frontera. Parecía marginal, pero es una columna oficial de la planilla del Ministerio</td><td>Falta la norma, el porcentaje y quién califica. Suena a que se deriva de la sucursal, no de cada persona —<span class="id">ABIERTA‑17</span>—</td></tr>
       </tbody>
@@ -1612,17 +1901,18 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="nota al"><p><strong>Una trampa que conviene tener a la vista.</strong> El aguinaldo de fin de año y el aguinaldo que se paga dentro de un finiquito usan ventanas de promedio distintas: el de diciembre promedia septiembre, octubre y noviembre; el del finiquito, los tres meses previos a la salida. Es de los errores más fáciles de cometer en este módulo.</p></div>
 
     <h4 class="br-h"><em>E</em>Navegación y botones</h4>
-    <p>A la izquierda, el <b>riel de pasos</b> —en pantallas angostas, una barra horizontal con el paso elegido al centro—. En el centro, el paso abierto como <b>secciones plegables</b>, cada una con su cuenta de datos llenos. Abajo, el pie: <b>«Volver atrás»</b>, <b>«Guardar borrador y salir»</b> y <b>«Siguiente»</b>, que en el último paso dice <b>«Revisar la ficha»</b>.</p>
+    <p>A la izquierda, el <b>riel</b> con las cinco pestañas, cada una con el aro de su avance. Bajo la pestaña abierta cuelgan sus <b>partes numeradas</b> —1.1, 1.2—, atadas por una guía vertical fina; la parte en la que se está se pinta del verde claro de su pestaña, y su porcentaje aparece al pasar el ratón. En pantallas angostas el riel se acuesta en una barra horizontal y las partes pasan arriba del contenido, como píldoras. En el centro, la cabecera dice la parte con su número —«2.3 · Compensación, Nómina y Afiliaciones»— y debajo su pestaña; después, las <b>secciones plegables</b>, cada una con su descripción en usted y su cuenta de datos llenos. Abajo, el pie, <b>siempre pegado al borde inferior</b> aunque la parte sea corta: <b>«Volver atrás»</b>, <b>«Guardar borrador y salir»</b> y <b>«Siguiente»</b>, que recorre las partes y después pasa a la pestaña siguiente, y en la última dice <b>«Revisar la ficha»</b>.</p>
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
-        <tr><td class="id" id="RF-GP-010">RF‑GP‑010</td><td>El alta es <b>una pantalla propia</b>, no un modal, con un <b>riel de once pasos y la vista previa</b></td><td><span class="p p-m">Oblig.</span></td><td>Se puede enlazar y mandar: <span class="mono">?paso=contrato</span> abre el contrato. <em>BR‑GP‑004</em></td></tr>
-        <tr><td class="id" id="RF-GP-011">RF‑GP‑011</td><td><b>Todos los pasos se pueden visitar desde el primer momento</b>, en cualquier orden</td><td><span class="p p-m">Oblig.</span></td><td>Con la ficha vacía, se pulsa «Contrato» y se llena sin pasar por los anteriores</td></tr>
-        <tr><td class="id" id="RF-GP-012">RF‑GP‑012</td><td>Cada paso del riel muestra un <b>aro de avance</b> alrededor de su número y un <b>punto rojo</b> si debe algo del mínimo legal</td><td><span class="p p-m">Oblig.</span></td><td>Un paso al 90 % que debe un dato legal muestra el punto. <em>BR‑GP‑008</em></td></tr>
-        <tr><td class="id" id="RF-GP-013">RF‑GP‑013</td><td>Cada paso se lee como <b>índice de secciones plegables</b>; cada sección dice <b>cuántos de sus datos están llenos</b>, y la primera abre sola</td><td><span class="p p-m">Oblig.</span></td><td>«Datos de haber básico · 1 de 4» se pone verde al completarse</td></tr>
-        <tr><td class="id" id="RF-GP-014">RF‑GP‑014</td><td>El pie ofrece <b>«Volver atrás»</b> —no en el primer paso—, <b>«Guardar borrador y salir»</b> y <b>«Siguiente»</b>, que en el último paso dice <b>«Revisar la ficha»</b></td><td><span class="p p-m">Oblig.</span></td><td>En el paso 1 no hay «Volver atrás». <em>BR‑GP‑002</em></td></tr>
-        <tr><td class="id" id="RF-GP-015">RF‑GP‑015</td><td>Cambiar de paso <b>vuelve arriba</b> del formulario</td><td><span class="p p-s">Import.</span></td><td>Pasar del final del paso 2 al 3 no deja a la persona a media altura</td></tr>
-        <tr><td class="id" id="RF-GP-016">RF‑GP‑016</td><td>En pantallas angostas el riel se vuelve una <b>barra horizontal</b> con el paso elegido <b>centrado</b>, para que siempre asomen pasos a los dos lados</td><td><span class="p p-s">Import.</span></td><td>En un teléfono, abrir la ficha en el paso 8 lo muestra al centro de la barra</td></tr>
+        <tr><td class="id" id="RF-GP-010">RF‑GP‑010</td><td>El alta es <b>una pantalla propia</b>, no un modal, con un <b>riel de cinco pestañas, sus partes y la vista previa</b></td><td><span class="p p-m">Oblig.</span></td><td>Se puede enlazar y mandar: <span class="mono">?paso=contrato</span> abre el contrato. <em>BR‑GP‑004</em></td></tr>
+        <tr><td class="id" id="RF-GP-011">RF‑GP‑011</td><td><b>Todas las pestañas y partes se pueden visitar desde el primer momento</b>, en cualquier orden</td><td><span class="p p-m">Oblig.</span></td><td>Con la ficha vacía, se pulsa Información Laboral › 2.2 Relación Laboral y se llena sin pasar por las anteriores</td></tr>
+        <tr><td class="id" id="RF-GP-012">RF‑GP‑012</td><td>Cada pestaña del riel muestra un <b>aro de avance</b> alrededor de su número, y cada pestaña y cada parte un <b>punto rojo</b> si deben algo del mínimo legal</td><td><span class="p p-m">Oblig.</span></td><td>Una pestaña al 90 % que debe un dato legal muestra el punto. <em>BR‑GP‑008</em></td></tr>
+        <tr><td class="id" id="RF-GP-013">RF‑GP‑013</td><td>Cada parte se lee como <b>índice de secciones plegables</b>; cada sección dice <b>cuántos de sus datos están llenos</b>, y la primera abre sola</td><td><span class="p p-m">Oblig.</span></td><td>«Datos de haber básico · 1 de 4» se pone verde al completarse</td></tr>
+        <tr><td class="id" id="RF-GP-014">RF‑GP‑014</td><td>El pie, siempre al borde inferior, ofrece <b>«Volver atrás»</b> —no en la parte 1.1—, <b>«Guardar borrador y salir»</b> y <b>«Siguiente»</b>, que recorre las partes y después las pestañas, y en la última dice <b>«Revisar la ficha»</b></td><td><span class="p p-m">Oblig.</span></td><td>En 1.1 no hay «Volver atrás»; en Configuración, que tiene una sola sección, el pie sigue abajo. <em>BR‑GP‑002</em></td></tr>
+        <tr><td class="id" id="RF-GP-017">RF‑GP‑017</td><td>Irse a otra pantalla con un registro empezado abre <b>«¿Está seguro de salir?»</b>, con «Guardar borrador y salir», «Salir sin guardar» —que borra el borrador— y «Seguir registrando»</td><td><span class="p p-m">Oblig.</span></td><td>Con el nombre escrito, pulsar otra opción del menú abre el aviso; con la ficha vacía, no. <em>BR‑GP‑034</em></td></tr>
+        <tr><td class="id" id="RF-GP-015">RF‑GP‑015</td><td>Cambiar de parte o de pestaña <b>vuelve arriba</b> del formulario</td><td><span class="p p-s">Import.</span></td><td>Pasar del final de 1.2 a 2.1 no deja a la persona a media altura</td></tr>
+        <tr><td class="id" id="RF-GP-016">RF‑GP‑016</td><td>En pantallas angostas el riel se vuelve una <b>barra horizontal</b> con la pestaña elegida <b>centrada</b>, y las partes van arriba del contenido como píldoras</td><td><span class="p p-s">Import.</span></td><td>En un teléfono, abrir la ficha en 2.3 muestra Información Laboral al centro de la barra y las píldoras 2.1 a 2.3 arriba</td></tr>
       </tbody>
     </table></div>
 
@@ -1630,23 +1920,66 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
-        <tr><td class="id" id="RF-GP-020">RF‑GP‑020</td><td>Los datos obligatorios llevan <b>asterisco</b>, y los que exige una entidad, la insignia <b>legal</b>. Al pie: «* Campo obligatorio para poder dar de alta»</td><td><span class="p p-m">Oblig.</span></td><td>El haber básico lleva asterisco e insignia legal. <em>BR‑GP‑006</em></td></tr>
-        <tr><td class="id" id="RF-GP-021">RF‑GP‑021</td><td>Cada dato que lo necesita tiene una <b>ayuda</b> detrás de un «?», escrita en <b>usted</b></td><td><span class="p p-s">Import.</span></td><td>La ayuda del haber básico dice qué es y por qué no puede ser menor al salario mínimo</td></tr>
+        <tr><td class="id" id="RF-GP-020">RF‑GP‑020</td><td>Los datos obligatorios llevan <b>asterisco</b>. Al pie: «* Campo obligatorio para poder dar de alta». La ficha ya no muestra insignias —«legal», «se calcula»—: siguen en el estudio y en este documento</td><td><span class="p p-m">Oblig.</span></td><td>El haber básico lleva asterisco. <em>BR‑GP‑006</em></td></tr>
+        <tr><td class="id" id="RF-GP-021">RF‑GP‑021</td><td>Cada sección abre con una <b>descripción escrita como instrucción</b>, en <b>usted</b>: «Registre…», «Indique…», «Asigne…». No hay ayudas detrás de un «?»</td><td><span class="p p-s">Import.</span></td><td>«Datos de haber básico» dice: «Registre el haber básico del colaborador. No puede ser inferior al salario mínimo nacional.»</td></tr>
         <tr><td class="id" id="RF-GP-022">RF‑GP‑022</td><td>Los datos <b>condicionales</b> aparecen y desaparecen según la respuesta, con una animación breve</td><td><span class="p p-m">Oblig.</span></td><td>Contestar «Sí» a si aporta a la Gestora muestra el NUA. <em>BR‑GP‑009</em></td></tr>
         <tr><td class="id" id="RF-GP-023">RF‑GP‑023</td><td>Los <b>grupos repetibles</b> se agregan con un botón y se quitan de a uno</td><td><span class="p p-m">Oblig.</span></td><td>Se agregan tres hijos y se quita el segundo: el tercero sube. Lo mismo con los supervisores funcionales</td></tr>
         <tr><td class="id" id="RF-GP-024">RF‑GP‑024</td><td>Los <b>archivos</b> aceptan PDF o imagen de hasta 10 MB; la foto, hasta 5 MB</td><td><span class="p p-m">Oblig.</span></td><td>Un PDF de 12 MB no se carga y el aviso dice el tope</td></tr>
         <tr><td class="id" id="RF-GP-025">RF‑GP‑025</td><td>Las listas de área, sucursal, cargo y jefe <b>se acotan entre sí</b> y dicen por qué vienen cortas o vacías</td><td><span class="p p-m">Oblig.</span></td><td>«Solo se muestran cargos de Ventas en La Paz». <em>BR‑GP‑019</em></td></tr>
         <tr><td class="id" id="RF-GP-027">RF‑GP‑027</td><td><b>¿Recibe anticipo de quincena?</b> habilita <b>Tipo de anticipo</b> y <b>Valor</b>; el valor tiene tope —100 % o el haber básico— y el rótulo dice la unidad</td><td><span class="p p-s">Import.</span></td><td>Con monto fijo y haber de Bs 5.000, el valor no admite 9.000. <em>BR‑GP‑033</em></td></tr>
-        <tr><td class="id" id="RF-GP-026">RF‑GP‑026</td><td>Los datos <b>calculados</b> se muestran bloqueados, con la insignia <b>se calcula</b></td><td><span class="p p-m">Oblig.</span></td><td>El fin del periodo de prueba no se puede escribir. <em>BR‑GP‑010</em></td></tr>
+        <tr><td class="id" id="RF-GP-028">RF‑GP‑028</td><td>En las listas con <b>«Otro»</b>, elegirlo abre una caja para escribir cuál; en los grupos repetidos, cada copia tiene la suya</td><td><span class="p p-m">Oblig.</span></td><td>Elegir «Otro» en el tipo del segundo equipo abre la caja del segundo, no la del primero. <em>BR‑GP‑009</em></td></tr>
+        <tr><td class="id" id="RF-GP-029">RF‑GP‑029</td><td>Las <b>listas escritas a mano</b> —regalos y experiencias— son tablitas: una fila por deseo, con «Agregar», Enter para la siguiente y una cruz para quitar</td><td><span class="p p-s">Import.</span></td><td>Escribir un regalo y presionar Enter abre la fila 2 con el cursor dentro</td></tr>
+        <tr><td class="id" id="RF-GP-026">RF‑GP‑026</td><td>Los datos <b>calculados</b> se muestran bloqueados: se leen pero no se escriben</td><td><span class="p p-m">Oblig.</span></td><td>El fin del periodo de prueba no se puede escribir. <em>BR‑GP‑010</em></td></tr>
       </tbody>
     </table></div>
 
     <h3 id="p3-4">3.4 El reingreso</h3>
+    <figure class="dgm">
+      <figcaption class="dgm-cap"><b>Vuelve la persona, no el vínculo.</b> De un registro anterior se trae quién es y cómo encontrarla; nada de su puesto, contrato ni sueldo. Sus documentos, sólo si se piden.</figcaption>
+      <div class="lienzo">
+        <div class="lienzo-svg">
+          <svg class="gp-dgm" viewBox="0 0 900 380" role="img" aria-labelledby="gp-d4-t gp-d4-d">
+            <title id="gp-d4-t">Qué se trae de un registro anterior al recontratar a alguien, y qué no</title>
+            <desc id="gp-d4-d">A la izquierda, el registro anterior de Ana Quispe, de 2019 a 2023, partido en dos. Arriba, en verde, la persona: nombre y documento, nacimiento y nacionalidad, NUA, asegurado de la Caja y RC-IVA, estado civil y profesión, teléfonos, correo y domicilio, contacto de emergencia y cuenta bancaria. Abajo, en naranja y tachado, el vínculo: puesto, área, sucursal y jefe; contrato y fechas; haber y horario; rol y accesos. Una flecha lleva la persona a la ficha nueva, donde llega marcada para revisar; una línea con una cruz dice que el vínculo no se trae, porque quien vuelve firma otro contrato; y una flecha punteada dice que los documentos se traen sólo si se piden. En la ficha nueva, el vínculo se llena de nuevo como en cualquier alta.</desc>
+            <rect class="gp-caja" x="20" y="30" width="300" height="330" rx="12"/>
+            <text class="gp-e" x="38" y="54" fill="var(--tinta-3)">REGISTRO ANTERIOR</text><text class="gp-t" x="38" y="74">Ana Quispe · 2019 a 2023</text>
+            <rect class="gp-bueno" x="34" y="88" width="272" height="160" rx="9"/>
+            <text class="gp-e gp-verde" x="48" y="108">LA PERSONA</text>
+            <text class="gp-s" x="48" y="128">Nombre y documento</text>
+            <text class="gp-s" x="48" y="144.5">Nacimiento y nacionalidad</text>
+            <text class="gp-s" x="48" y="161">NUA · asegurado de la Caja · RC‑IVA</text>
+            <text class="gp-s" x="48" y="177.5">Estado civil y profesión</text>
+            <text class="gp-s" x="48" y="194">Teléfonos, correo y domicilio</text>
+            <text class="gp-s" x="48" y="210.5">Contacto de emergencia</text>
+            <text class="gp-s" x="48" y="227">Cuenta bancaria</text>
+            <rect class="gp-malo" x="34" y="258" width="272" height="90" rx="9"/>
+            <text class="gp-e gp-naranja" x="48" y="278">EL VÍNCULO</text>
+            <text class="gp-s gp-tach" x="48" y="297">Puesto, área, sucursal y jefe</text>
+            <text class="gp-s gp-tach" x="48" y="312.5">Contrato y fechas</text>
+            <text class="gp-s gp-tach" x="48" y="328">Haber y horario</text>
+            <text class="gp-s gp-tach" x="48" y="343.5">Rol y accesos</text>
+            <path class="gp-flecha fuerte" d="M306 168 L558.0 168.0"/><path class="gp-punta fuerte" d="M566 168 L558.0 163.5 L558.0 172.5 Z"/><text class="gp-t" x="436" y="156" text-anchor="middle" fill="var(--funcional)">Se trae</text><text class="gp-s" x="436" y="188" text-anchor="middle">lo que puede haber cambiado se revisa</text>
+            <path class="gp-flecha vuelta" d="M306 303 L420 303"/><circle cx="436" cy="303" r="11" class="gp-malo"/><path d="M431 298 L441 308 M441 298 L431 308" stroke="var(--outsourcing)" stroke-width="1.6" stroke-linecap="round"/><text class="gp-t" x="456" y="299" fill="var(--outsourcing)">No se trae</text><text class="gp-s" x="456" y="315">Firma otro contrato</text>
+            <path class="gp-flecha vuelta" d="M306 228 L566 228"/><path class="gp-punta" d="M574 228 L566 223.5 L566 232.5 Z"/><text class="gp-s" x="436" y="220" text-anchor="middle">Sus documentos, sólo si se piden</text>
+            <rect class="gp-caja p1" x="580" y="30" width="300" height="330" rx="12"/>
+            <text class="gp-e" x="598" y="54" fill="var(--tinta-3)">FICHA NUEVA</text><text class="gp-t" x="598" y="74">Reingreso de Ana Quispe</text>
+            <rect class="gp-bueno" x="594" y="88" width="272" height="160" rx="9"/>
+            <text class="gp-e gp-verde" x="608" y="108">TRAÍDO DEL REGISTRO</text>
+            <text class="gp-s" x="608" y="130">Los datos de la persona llegan</text><text class="gp-s" x="608" y="146">puestos, marcados para revisar.</text>
+            <text class="gp-s" x="608" y="170">Escribir encima de uno es</text><text class="gp-s" x="608" y="186">confirmarlo, y la marca se va.</text>
+            <text class="gp-s" x="608" y="210">«No era ésta» deshace todo:</text><text class="gp-s" x="608" y="226">vacía los datos y los archivos.</text>
+            <rect class="gp-caja" x="594" y="258" width="272" height="90" rx="9" stroke-dasharray="5 4"/>
+            <text class="gp-e" x="608" y="278" fill="var(--tinta-3)">SE LLENA DE NUEVO</text>
+            <text class="gp-s" x="608" y="298">Cargo y puesto, contrato y fecha</text><text class="gp-s" x="608" y="314">de ingreso, haber, horario, rol y</text><text class="gp-s" x="608" y="330">accesos: como en cualquier alta.</text>
+          </svg>
+        </div>
+      </div>
+    </figure>
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
-        <tr><td class="id" id="RF-GP-030">RF‑GP‑030</td><td>La ficha <b>empieza preguntando</b> si la persona ya trabajó en la empresa</td><td><span class="p p-m">Oblig.</span></td><td>Es la primera sección del paso 1. <em>BR‑GP‑012</em></td></tr>
-        <tr><td class="id" id="RF-GP-031">RF‑GP‑031</td><td>Si la respuesta es sí, un buscador por <b>nombre o documento</b> —desde tres letras, hasta seis resultados— con <b>«Traer sus datos»</b> y <b>«No es la misma persona»</b></td><td><span class="p p-m">Oblig.</span></td><td>Buscar por el carnet encuentra a la persona aunque el nombre esté escrito distinto</td></tr>
+        <tr><td class="id" id="RF-GP-030">RF‑GP‑030</td><td>La ficha <b>empieza preguntando</b> si la persona ya trabajó en la empresa</td><td><span class="p p-m">Oblig.</span></td><td>Es la primera sección de 1.1 Información Personal. <em>BR‑GP‑012</em></td></tr>
+        <tr><td class="id" id="RF-GP-031">RF‑GP‑031</td><td>Si la respuesta es sí, un buscador por <b>nombre, apellido o número de documento de identidad</b> —desde tres letras, hasta seis resultados— con <b>«Traer sus datos»</b> y <b>«No es la misma persona»</b></td><td><span class="p p-m">Oblig.</span></td><td>Buscar por el carnet encuentra a la persona aunque el nombre esté escrito distinto</td></tr>
         <tr><td class="id" id="RF-GP-032">RF‑GP‑032</td><td>Traídos los datos, se muestra <b>quién era</b> —último puesto, fechas, motivo de salida— y una pregunta: <b>traer sus documentos</b></td><td><span class="p p-s">Import.</span></td><td>«Se copiaron 34 datos suyos a esta ficha», y «No era ésta» deshace todo. <em>BR‑GP‑015</em></td></tr>
       </tbody>
     </table></div>
@@ -1656,8 +1989,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
         <tr><td class="id" id="RF-GP-040">RF‑GP‑040</td><td>La vista previa es la ficha <b>leída como expediente</b>: una tapa con foto, nombre, cargo, documento, ingreso, contrato, correo y avance</td><td><span class="p p-m">Oblig.</span></td><td>Lo que falta dice «Por completar», no queda en blanco. <em>BR‑GP‑023</em></td></tr>
-        <tr><td class="id" id="RF-GP-041">RF‑GP‑041</td><td>Los pasos se agrupan en <b>cuatro separadores</b> —la persona, su trayectoria, contrato y pago, en la empresa— con el avance de cada paso</td><td><span class="p p-s">Import.</span></td><td>Pulsar un separador baja a su sección</td></tr>
-        <tr><td class="id" id="RF-GP-042">RF‑GP‑042</td><td>Cada sección tiene <b>«Editar»</b>, que lleva a su paso</td><td><span class="p p-m">Oblig.</span></td><td>Desde la vista previa se corrige el contrato sin recorrer los pasos</td></tr>
+        <tr><td class="id" id="RF-GP-041">RF‑GP‑041</td><td>Las partes se agrupan en <b>tres separadores</b> —Información Personal, Información Laboral y En la empresa— con el avance de cada parte</td><td><span class="p p-s">Import.</span></td><td>Pulsar un separador baja a su sección</td></tr>
+        <tr><td class="id" id="RF-GP-042">RF‑GP‑042</td><td>Cada sección tiene <b>«Editar»</b>, que lleva a su parte</td><td><span class="p p-m">Oblig.</span></td><td>Desde la vista previa se corrige el contrato sin recorrer las pestañas</td></tr>
         <tr><td class="id" id="RF-GP-043">RF‑GP‑043</td><td>El sello de la tapa dice <b>qué falta</b> para dar de alta, o <b>«Ya se puede dar de alta»</b></td><td><span class="p p-m">Oblig.</span></td><td>Con el nombre vacío, el sello dice «Falta el primer nombre» y lleva a él</td></tr>
         <tr><td class="id" id="RF-GP-044">RF‑GP‑044</td><td>Pulsar <b>«Dar de alta»</b> con faltantes abre un aviso que <b>los lista todos</b>, cada uno con <b>«Completar →»</b></td><td><span class="p p-m">Oblig.</span></td><td>Con tres faltantes, el aviso tiene tres filas. <em>BR‑GP‑024</em></td></tr>
         <tr><td class="id" id="RF-GP-045">RF‑GP‑045</td><td>Ir a un dato <b>abre su sección, lo enfoca y lo resalta</b> un momento</td><td><span class="p p-s">Import.</span></td><td>«Completar →» deja el cursor en el campo que faltaba</td></tr>
@@ -1667,14 +2000,14 @@ td.rg{color:var(--tinta-3);font-weight:700}
 
         <h3 id="p3-6">3.6 Editar un colaborador</h3>
     <p>Se llega desde <b>«Editar»</b> o <b>«Ver perfil»</b> en el menú de la fila, a <span class="mono">/personas/colaboradores/:id</span>. <strong>Está especificado pero todavía no está construido en el prototipo.</strong></p>
-    <p><strong>Es la misma ficha, no otra pantalla.</strong> Los mismos once pasos, el mismo riel y las mismas secciones que en el alta: quien aprendió a dar de alta ya sabe editar. Lo que cambia es el comportamiento, porque ahora cada dato es real: <b>está en planilla y declarado a las entidades</b>.</p>
+    <p><strong>Es la misma ficha, no otra pantalla.</strong> Las mismas cinco pestañas, el mismo riel y las mismas secciones que en el alta: quien aprendió a dar de alta ya sabe editar. Lo que cambia es el comportamiento, porque ahora cada dato es real: <b>está en planilla y declarado a las entidades</b>.</p>
     <div class="tbl"><table>
       <thead><tr><th>Qué</th><th>En el alta</th><th>Al editar</th><th>Por qué</th></tr></thead>
       <tbody>
         <tr><td><strong>Cómo abre</strong></td><td>Para escribir</td><td><b>En lectura</b>, con el botón «Editar»</td><td>Casi siempre se entra a mirar. Abrir para escribir invita a cambiar algo sin querer en la ficha de alguien que ya cobra</td></tr>
         <tr><td><strong>Cómo guarda</strong></td><td>Solo, desde la primera letra</td><td>Con <b>«Guardar cambios»</b>, que antes muestra la lista de lo que cambió</td><td>En el alta nada es real hasta dar de alta. Al editar, cambiar el haber o la cuenta bancaria cambia la próxima planilla: se confirma sabiendo qué se toca</td></tr>
         <tr><td><strong>Salir sin guardar</strong></td><td>No existe: no hay nada que perder</td><td>Pregunta si se descartan los cambios</td><td>Acá sí hay algo que perder</td></tr>
-        <tr><td><strong>Reingreso</strong></td><td>Primera sección del paso 1</td><td>No aparece</td><td>La persona ya existe</td></tr>
+        <tr><td><strong>Reingreso</strong></td><td>Primera sección de 1.1</td><td>No aparece</td><td>La persona ya existe</td></tr>
         <tr><td><strong>Datos con vigencia</strong></td><td>Se escriben</td><td>El haber básico y el cargo piden <b>desde qué fecha</b> rige el cambio</td><td>Una planilla ya pagada no se recalcula con el sueldo nuevo</td></tr>
         <tr><td><strong>Historial</strong></td><td>Se registra quién hizo el alta</td><td>Cada cambio queda en el <b>historial de cambios</b> de la ficha: quién, cuándo, qué dato, valor anterior y nuevo</td><td>Cuando alguien pregunte por qué cambió un sueldo, la respuesta está en la ficha</td></tr>
       </tbody>
@@ -1683,10 +2016,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
-        <tr><td class="id" id="RF-GP-050">RF‑GP‑050</td><td>«Ver perfil» y «Editar» abren <b>la misma ficha</b> del alta, con sus once pasos, en <span class="mono">/personas/colaboradores/:id</span></td><td><span class="p p-m">Oblig.</span></td><td>Los pasos y las secciones son los mismos del alta. <em>BR‑GP‑027</em></td></tr>
+        <tr><td class="id" id="RF-GP-050">RF‑GP‑050</td><td>«Ver perfil» y «Editar» abren <b>la misma ficha</b> del alta, con sus cinco pestañas, en <span class="mono">/personas/colaboradores/:id</span></td><td><span class="p p-m">Oblig.</span></td><td>Las pestañas, las partes y las secciones son las mismas del alta. <em>BR‑GP‑027</em></td></tr>
         <tr><td class="id" id="RF-GP-051">RF‑GP‑051</td><td>La ficha <b>abre en lectura</b>; «Editar» la pasa a edición sin mover nada de sitio</td><td><span class="p p-m">Oblig.</span></td><td>Los campos están donde van a estar, solo que bloqueados</td></tr>
         <tr><td class="id" id="RF-GP-052">RF‑GP‑052</td><td><b>«Guardar cambios»</b> muestra antes la lista de lo cambiado, con valor anterior y nuevo; salir con cambios pregunta si se descartan</td><td><span class="p p-m">Oblig.</span></td><td>Cambiar la cuenta bancaria y guardar muestra la cuenta vieja y la nueva</td></tr>
-        <tr><td class="id" id="RF-GP-053">RF‑GP‑053</td><td>Cada cambio guardado queda en el <b>historial de cambios</b> de la ficha: quién, cuándo, dato, antes y después</td><td><span class="p p-m">Oblig.</span></td><td>El historial del paso 11 muestra el cambio de cuenta con el nombre de quien lo hizo</td></tr>
+        <tr><td class="id" id="RF-GP-053">RF‑GP‑053</td><td>Cada cambio guardado queda en el <b>historial de cambios</b> de la ficha: quién, cuándo, dato, antes y después</td><td><span class="p p-m">Oblig.</span></td><td>El historial de cambios muestra el cambio de cuenta con el nombre de quien lo hizo</td></tr>
         <tr><td class="id" id="RF-GP-054">RF‑GP‑054</td><td>Cambiar el <b>haber básico</b> o el <b>cargo</b> pide la fecha desde la que rige</td><td><span class="p p-s">Import.</span></td><td>Un aumento con vigencia del 1 del mes siguiente no cambia la planilla del mes actual</td></tr>
         <tr><td class="id" id="RF-GP-055">RF‑GP‑055</td><td>Cambiar el cargo <b>libera la silla anterior y sienta a la persona en la nueva</b></td><td><span class="p p-m">Oblig.</span></td><td>En el organigrama, la silla anterior queda vacante y la nueva muestra a la persona. <em>BR‑GP‑028</em></td></tr>
       </tbody>
@@ -1802,7 +2135,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <header class="sec-h">
       <span class="sec-n" aria-hidden="true">04</span>
       <h2>Reglas de negocio</h2>
-      <p class="sec-d">Treinta y tres condiciones que el sistema cumple siempre, en el orden en que se vive una persona en el sistema: el borrador, los datos, el reingreso, el puesto, las entidades, la revisión, el directorio, la edición y la baja, y los clientes externos. Todas se leen igual, en cuatro apartados: información básica, escenarios ágiles de ejecución, condiciones y excepciones, y trazabilidad.</p>
+      <p class="sec-d">Treinta y cuatro condiciones que el sistema cumple siempre, en el orden en que se vive una persona en el sistema: el borrador, los datos, el reingreso, el puesto, las entidades, la revisión, el directorio, la edición y la baja, y los clientes externos. Todas se leen igual, en cuatro apartados: información básica, escenarios ágiles de ejecución, condiciones y excepciones, y trazabilidad.</p>
     </header>
 
         <h3 class="br-grupo" id="br-g-borrador">El alta como borrador<em>Lo que pasa con una ficha mientras todavía no es un colaborador</em></h3>
@@ -1827,7 +2160,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div class="esc ok">
                   <div class="esc-t"><i></i>Un borrador no aparece en el directorio</div>
                   <ul>
-                    <li><b>Dado que</b>se llenaron los pasos 1 a 5 de una persona nueva</li>
+                    <li><b>Dado que</b>se llenaron las pestañas 1 y 2 de una persona nueva</li>
                     <li><b>Cuando</b>se vuelve al directorio con «Guardar borrador y salir»</li>
                     <li><b>Entonces</b>la persona no figura en la lista ni en el total de colaboradores</li>
                     <li><b>Y</b>su puesto sigue libre en el organigrama</li>
@@ -1872,7 +2205,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Cada cambio se guarda en el momento. No hay botón de guardar ni aviso de «cambios sin guardar», porque no hay nada que se pueda perder. Los archivos adjuntos se guardan aparte, en el almacenamiento del navegador.</p>
+              <p>Cada cambio se guarda en el momento, sin botón de guardar. Los archivos adjuntos se guardan aparte, en el almacenamiento del navegador. Irse a otra pantalla con un registro empezado pregunta antes —<a class="id" href="#BR-GP-034">BR‑GP‑034</a>—, pero lo escrito ya está a salvo.</p>
               <p>El botón del medio del pie dice <b>«Guardar borrador y salir»</b>: no guarda —ya está guardado—, ofrece soltar la ficha a medias sin miedo, que es el gesto real de quien se quedó sin el papel que le faltaba.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
@@ -1885,12 +2218,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Salir no pregunta</div>
+                  <div class="esc-t"><i></i>«Guardar borrador y salir» no pregunta</div>
                   <ul>
-                    <li><b>Dado que</b>se está en el paso 4</li>
+                    <li><b>Dado que</b>se está en 2.2 Relación Laboral</li>
                     <li><b>Cuando</b>se pulsa «Guardar borrador y salir»</li>
                     <li><b>Entonces</b>se vuelve al directorio sin ningún aviso</li>
-                    <li><b>Y</b>al volver a entrar, el borrador sigue en el paso donde estaba</li>
+                    <li><b>Y</b>al volver a entrar, el borrador sigue en la parte donde estaba</li>
                   </ul>
                 </div>
               </div>
@@ -1903,6 +2236,71 @@ td.rg{color:var(--tinta-3);font-weight:700}
               <dl class="br-traza">
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-014">RF‑GP‑014</a> · <a class="id" href="#RNF-GP-01">RNF‑GP‑01</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-01">HU‑GP‑01</a></dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+
+          <li class="br">
+            <span class="br-n">4.2b</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-034</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-034">Salir con un registro empezado pregunta antes</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-034</dd></div>
+                <div><dt>Grupo</dt><dd>El alta como borrador</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Salida de la ficha</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Si la ficha tiene algo registrado e intenta irse a otra pantalla —desde el menú lateral, el menú del módulo o la miga «Colaboradores»—, un aviso pregunta antes: <b>«¿Está seguro de salir?»</b>, con el texto «El registro de este colaborador está a medio llenar. ¿Quiere guardarlo como borrador para continuar después?» y tres botones:</p>
+              <ul>
+                <li><b>«Guardar borrador y salir»</b> — sale, y el borrador sigue ahí al volver a «Nuevo colaborador».</li>
+                <li><b>«Salir sin guardar»</b> — sale y <b>borra el borrador</b>. Es la única forma de tirar un registro empezado.</li>
+                <li><b>«Seguir registrando»</b> — cierra el aviso y deja la ficha como estaba.</li>
+              </ul>
+              <p>«Registrado» quiere decir distinto de como abre la ficha: los valores de arranque —Bolivia como país emisor, «No» en el reingreso— no cuentan. Por eso una ficha recién abierta se deja sin preguntar.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Con algo escrito, pregunta</div>
+                  <ul>
+                    <li><b>Dado que</b>se escribió el primer nombre en 1.1</li>
+                    <li><b>Cuando</b>se pulsa «Clientes externos» en el menú del módulo</li>
+                    <li><b>Entonces</b>aparece «¿Está seguro de salir?» y la pantalla no cambia hasta elegir</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Salir sin guardar tira el registro</div>
+                  <ul>
+                    <li><b>Dado que</b>el aviso está abierto</li>
+                    <li><b>Cuando</b>se pulsa «Salir sin guardar»</li>
+                    <li><b>Entonces</b>se va a la otra pantalla</li>
+                    <li><b>Y</b>al volver a «Nuevo colaborador», la ficha está vacía</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>La ficha vacía no pregunta</div>
+                  <ul>
+                    <li><b>Dado que</b>se abrió «Nuevo colaborador» y no se escribió nada</li>
+                    <li><b>Cuando</b>se pulsa otra pantalla del menú</li>
+                    <li><b>Entonces</b>se va sin ningún aviso</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>No pregunta al pulsar «Guardar borrador y salir» en el pie, ni al dar de alta: ahí la persona ya dijo qué quiere.</li>
+                <li>Cerrar o recargar la pestaña del navegador no muestra este aviso: el borrador ya está guardado y sigue ahí al volver —<a class="id" href="#BR-GP-002">BR‑GP‑002</a>—.</li>
+                <li>Es el mismo aviso de «cambios sin guardar» del resto de la aplicación, con los textos de la ficha.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-017">RF‑GP‑017</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-01">HU‑GP‑01</a></dd></div>
                 <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
@@ -1964,7 +2362,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <span class="br-n">4.4</span>
             <div>
               <div class="br-cab"><span class="br-id">BR-GP-004</span><span class="br-estado">Borrador</span></div>
-              <h3 id="BR-GP-004">El paso y el nivel viajan en la dirección</h3>
+              <h3 id="BR-GP-004">La parte y el nivel viajan en la dirección</h3>
               <h4 class="br-h"><em>1</em>Información básica</h4>
               <dl class="br-meta">
                 <div><dt>Código</dt><dd>BR-GP-004</dd></div>
@@ -1973,29 +2371,29 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>El paso en el que se está y el nivel que se mira van en la dirección: <span class="mono">?paso=contrato&amp;nivel=Mínimo</span>. Así se puede mandar un enlace —«llename el paso 5»—, la flecha de atrás del navegador retrocede de paso en paso y recargar no devuelve al principio.</p>
+              <p>La parte en la que se está y el nivel que se mira van en la dirección: <span class="mono">?paso=contrato&amp;nivel=Mínimo</span>. Así se puede mandar un enlace —«llename la 2.2»—, la flecha de atrás del navegador retrocede de parte en parte y recargar no devuelve al principio. Un enlace viejo a una parte que se juntó con otra —<span class="mono">?paso=afiliaciones</span>— abre la que la contiene, 2.3.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Un enlace abre el paso justo</div>
+                  <div class="esc-t"><i></i>Un enlace abre la parte justa</div>
                   <ul>
                     <li><b>Dado que</b>alguien recibe <span class="mono">…/nuevo?paso=contrato</span></li>
                     <li><b>Cuando</b>lo abre</li>
-                    <li><b>Entonces</b>la ficha abre en el paso Relación laboral, con el borrador de ese navegador</li>
+                    <li><b>Entonces</b>la ficha abre en 2.2 Relación Laboral, con el borrador de ese navegador</li>
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Un paso inventado no deja la pantalla en blanco</div>
+                  <div class="esc-t"><i></i>Una parte inventada no deja la pantalla en blanco</div>
                   <ul>
                     <li><b>Dado que</b>la dirección dice <span class="mono">?paso=cualquier-cosa</span></li>
                     <li><b>Cuando</b>se abre</li>
-                    <li><b>Entonces</b>la ficha abre en el primer paso</li>
+                    <li><b>Entonces</b>la ficha abre en 1.1 Información Personal</li>
                   </ul>
                 </div>
               </div>
               <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
               <ul class="br-cond">
-                <li>El primer paso y el nivel Completo no se escriben en la dirección: son los de siempre.</li>
+                <li>La primera parte y el nivel Completo no se escriben en la dirección: son los de siempre.</li>
                 <li>Un nivel desconocido se trata como Completo.</li>
               </ul>
               <h4 class="br-h"><em>4</em>Trazabilidad</h4>
@@ -2032,10 +2430,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div class="esc ok">
                   <div class="esc-t"><i></i>Mirar el mínimo esconde el resto</div>
                   <ul>
-                    <li><b>Dado que</b>la ficha tiene cargada la formación de la persona</li>
+                    <li><b>Dado que</b>la ficha tiene cargada la fecha de emisión del documento, que es de nivel Completo</li>
                     <li><b>Cuando</b>se elige ver el nivel Mínimo legal</li>
-                    <li><b>Entonces</b>el paso Perfil queda sin datos a la vista</li>
-                    <li><b>Y</b>al volver a Completo, la formación sigue ahí</li>
+                    <li><b>Entonces</b>la fecha de emisión no se ve en Documento de identidad</li>
+                    <li><b>Y</b>al volver a Completo, la fecha sigue ahí</li>
                   </ul>
                 </div>
                 <div class="esc ok">
@@ -2077,13 +2475,13 @@ td.rg{color:var(--tinta-3);font-weight:700}
               </dl>
               <p class="br-dg-t">Descripción general</p>
               <p>Un dato es del mínimo legal porque el Ministerio, la Gestora o la Caja lo exigen para declarar a la persona. Son <b>32</b>: la pregunta del reingreso, el nombre, el documento, el nacimiento y la nacionalidad, un teléfono, el contacto de emergencia, la discapacidad, el puesto, la modalidad de contrato y el haber básico. <b>La moneda no se pide</b>: por el momento todo se entiende en bolivianos.</p>
-              <p>Se marcan con asterisco. Y un dato que exige una entidad lleva además la insignia <b>legal</b>, esté o no en el mínimo: la insignia dice de dónde viene la obligación, el asterisco dice si se pide el primer día.</p>
+              <p>Se marcan con asterisco. La insignia <b>legal</b> que los acompañaba ya no se muestra en la ficha (29 sep 2026): el equipo la quitó junto con las demás marcas internas. De dónde viene cada obligación sigue escrito en el estudio y en la tabla de entidades de este documento —<a class="id" href="#p0-3">0.3</a>—.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
                   <div class="esc-t"><i></i>El asterisco dice qué se pide el primer día</div>
                   <ul>
-                    <li><b>Dado que</b>se abre el paso Remuneración</li>
+                    <li><b>Dado que</b>se abre 2.3 Compensación, Nómina y Afiliaciones</li>
                     <li><b>Cuando</b>se mira la sección de haber básico</li>
                     <li><b>Entonces</b>el haber básico lleva asterisco; frecuencia de pago no</li>
                   </ul>
@@ -2093,7 +2491,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>el NUA lo exige la Gestora pero llega semanas después</li>
                     <li><b>Cuando</b>se mira en la ficha</li>
-                    <li><b>Entonces</b>lleva la insignia legal y no lleva asterisco</li>
+                    <li><b>Entonces</b>no lleva asterisco: no impide el alta ni cuenta para el punto rojo</li>
                   </ul>
                 </div>
               </div>
@@ -2144,7 +2542,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                     <li><b>Dado que</b>la ficha tiene los tres datos pero no el NUA ni el número de la Caja</li>
                     <li><b>Cuando</b>se pulsa «Dar de alta»</li>
                     <li><b>Entonces</b>la persona se da de alta</li>
-                    <li><b>Y</b>los pasos que deben datos del mínimo siguen con su punto rojo</li>
+                    <li><b>Y</b>las pestañas y partes que deben datos del mínimo siguen con su punto rojo</li>
                   </ul>
                 </div>
               </div>
@@ -2168,33 +2566,33 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <span class="br-n">4.8</span>
             <div>
               <div class="br-cab"><span class="br-id">BR-GP-008</span><span class="br-estado">Borrador</span></div>
-              <h3 id="BR-GP-008">El punto rojo de un paso se mide siempre contra el mínimo legal</h3>
+              <h3 id="BR-GP-008">El punto rojo de una pestaña se mide siempre contra el mínimo legal</h3>
               <h4 class="br-h"><em>1</em>Información básica</h4>
               <dl class="br-meta">
                 <div><dt>Código</dt><dd>BR-GP-008</dd></div>
                 <div><dt>Grupo</dt><dd>Los datos y sus niveles</dd></div>
-                <div><dt>Qué gobierna</dt><dd>Riel de pasos</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Riel de pestañas y partes</dd></div>
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>El riel da dos señales por paso, y dicen cosas distintas. El <b>aro</b> dice cuánto está escrito; el <b>punto rojo</b> dice que falta algo que una entidad exige. Un paso puede estar al 90 % y deber justo el dato que impide declarar a la persona.</p>
+              <p>El riel da dos señales por pestaña, y dicen cosas distintas. El <b>aro</b> dice cuánto está escrito, sumando todas sus partes; el <b>punto rojo</b> dice que falta algo que una entidad exige, y se enciende si cualquiera de sus partes lo debe. Las partes llevan su propio punto. Una pestaña puede estar al 90 % y deber justo el dato que impide declarar a la persona.</p>
               <p>El punto se calcula siempre sobre el mínimo legal, se esté mirando el nivel que se esté mirando.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
                   <div class="esc-t"><i></i>Casi lleno, pero debe</div>
                   <ul>
-                    <li><b>Dado que</b>en el paso 1 están llenos 60 de 70 datos, pero no el documento</li>
+                    <li><b>Dado que</b>en 1.1 están llenos 60 de 70 datos, pero no el documento</li>
                     <li><b>Cuando</b>se mira el riel</li>
-                    <li><b>Entonces</b>el aro del paso 1 está casi cerrado y el paso lleva punto rojo</li>
+                    <li><b>Entonces</b>el aro de la pestaña 1 está casi cerrado, y la pestaña y la parte 1.1 llevan punto rojo</li>
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Un paso sin nada legal no lleva punto</div>
+                  <div class="esc-t"><i></i>Una pestaña sin nada legal no lleva punto</div>
                   <ul>
-                    <li><b>Dado que</b>el paso Perfil está vacío</li>
+                    <li><b>Dado que</b>la pestaña Recursos y Activos está vacía</li>
                     <li><b>Cuando</b>se mira el riel</li>
-                    <li><b>Entonces</b>Perfil tiene el aro vacío y no lleva punto rojo</li>
+                    <li><b>Entonces</b>Recursos y Activos tiene el aro vacío y no lleva punto rojo</li>
                   </ul>
                 </div>
               </div>
@@ -2235,7 +2633,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <div class="esc-t"><i></i>Lo que no aplica no resta</div>
                   <ul>
                     <li><b>Dado que</b>la persona no aporta a la Gestora</li>
-                    <li><b>Cuando</b>se mira el avance del paso 6</li>
+                    <li><b>Cuando</b>se mira el avance de 2.3</li>
                     <li><b>Entonces</b>el NUA no aparece ni cuenta como faltante</li>
                   </ul>
                 </div>
@@ -2326,14 +2724,14 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>El paso 10 reúne archivos que se cargan en otros pasos —la foto, el carnet escaneado, el certificado de nacimiento—. Son el mismo dato en dos lugares: se cuentan <b>una vez</b>, en el primer paso donde aparecen. Si contaran dos veces, cargar la foto subiría el avance el doble.</p>
+              <p>La pestaña 3, Documentación, reúne archivos que se cargan en otras partes —la foto, el carnet escaneado, el certificado de nacimiento—. Son el mismo dato en dos lugares: se cuentan <b>una vez</b>, en la primera parte donde aparecen. Si contaran dos veces, cargar la foto subiría el avance el doble.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
                   <div class="esc-t"><i></i>La foto no cuenta doble</div>
                   <ul>
-                    <li><b>Dado que</b>se carga la foto en el paso 1</li>
-                    <li><b>Cuando</b>se mira el paso 10</li>
+                    <li><b>Dado que</b>se carga la foto en 1.1</li>
+                    <li><b>Cuando</b>se mira la pestaña 3</li>
                     <li><b>Entonces</b>la foto aparece cargada también ahí</li>
                     <li><b>Y</b>el avance total subió por un solo dato</li>
                   </ul>
@@ -2401,7 +2799,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-030">RF‑GP‑030</a> · <a class="id" href="#RF-GP-031">RF‑GP‑031</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-04">HU‑GP‑04</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 1</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 1.1 Información Personal</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2441,7 +2839,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-031">RF‑GP‑031</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-04">HU‑GP‑04</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 1</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 1.1 Información Personal</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2484,7 +2882,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-032">RF‑GP‑032</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-04">HU‑GP‑04</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 1</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 1.1 Información Personal</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2504,7 +2902,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               </dl>
               <p class="br-dg-t">Descripción general</p>
               <p>Traídos los datos de la persona, se pregunta si se traen también <b>sus documentos</b> —foto, carnet escaneado, documento secundario, croquis, certificado de nacimiento—, y la pregunta dice cuáles hay.</p>
-              <p><b>Los permisos y la antigüedad anteriores no se preguntan.</b> Eran dos preguntas más y se quitaron a pedido del equipo: solo guardaban la respuesta, sin copiar nada. El rol y los accesos se configuran de nuevo en el paso 10, como en cualquier alta.</p>
+              <p><b>Los permisos y la antigüedad anteriores no se preguntan.</b> Eran dos preguntas más y se quitaron a pedido del equipo: solo guardaban la respuesta, sin copiar nada. El rol y los accesos se configuran de nuevo en la pestaña 5, Configuración de Colaborador, como en cualquier alta.</p>
               <p>Contestar que no <b>deshace</b> lo que se había traído: vacía los datos y borra las copias de los archivos.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
@@ -2534,7 +2932,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-032">RF‑GP‑032</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-04">HU‑GP‑04</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 1</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 1.1 Información Personal</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2588,7 +2986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-025">RF‑GP‑025</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-05">HU‑GP‑05</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 3</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 2.1 Información Laboral</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2608,7 +3006,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               </dl>
               <p class="br-dg-t">Descripción general</p>
               <p>Un cargo lleno <b>no desaparece</b> de la lista: aparece apagado y dice por qué —«sin puestos libres · 3 ocupados»—. Si desapareciera, quien lo busca pensaría que no existe.</p>
-              <p>Si no queda ningún cargo con silla libre, el paso avisa: se puede dar de alta igual y ubicar a la persona después, o abrir un puesto en Organización.</p>
+              <p>Si no queda ningún cargo con silla libre, la parte 2.1 avisa —«Puede crear al colaborador de todos modos y ubicarlo después»—: se puede dar de alta igual y ubicar a la persona después, o abrir un puesto en Organización.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
@@ -2623,7 +3021,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <div class="esc-t"><i></i>Sin ninguna silla, se ofrece la salida</div>
                   <ul>
                     <li><b>Dado que</b>la estructura no tiene ninguna silla libre</li>
-                    <li><b>Cuando</b>se entra al paso 3</li>
+                    <li><b>Cuando</b>se entra a 2.1 Información Laboral</li>
                     <li><b>Entonces</b>el aviso ofrece «Ir a Estructura»</li>
                   </ul>
                 </div>
@@ -2637,7 +3035,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-025">RF‑GP‑025</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-05">HU‑GP‑05</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 3</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 2.1 Información Laboral</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2727,7 +3125,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-025">RF‑GP‑025</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-05">HU‑GP‑05</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 3</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 2.1 Información Laboral</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2780,7 +3178,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-022">RF‑GP‑022</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-06">HU‑GP‑06</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 6</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 2.3 Compensación, Nómina y Afiliaciones</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2820,7 +3218,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-023">RF‑GP‑023</a> · <a class="id" href="#RF-GP-026">RF‑GP‑026</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-06">HU‑GP‑06</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 2</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 1.2 Información Familiar</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2862,7 +3260,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-022">RF‑GP‑022</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-06">HU‑GP‑06</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 1</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 1.1 Información Personal</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -2884,7 +3282,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>No es otra pantalla con otros datos: son las mismas secciones con el formulario cerrado, bajo una <b>tapa de expediente</b> —foto, nombre, cargo, documento, ingreso, contrato, correo, avance— y <b>cuatro separadores</b>: la persona, su trayectoria, contrato y pago, y en la empresa. Lo que se revisa antes de dar de alta es el legajo de una persona, y se ve como tal.</p>
+              <p>No es otra pantalla con otros datos: son las mismas secciones con el formulario cerrado, bajo una <b>tapa de expediente</b> —foto, nombre, cargo, documento, ingreso, contrato, correo, avance— y <b>tres separadores</b>: Información Personal, Información Laboral y En la empresa. Lo que se revisa antes de dar de alta es el legajo de una persona, y se ve como tal.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
@@ -2900,7 +3298,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>en la vista previa se ve un error en el contrato</li>
                     <li><b>Cuando</b>se pulsa «Editar» en la sección del contrato</li>
-                    <li><b>Entonces</b>se abre el paso Relación laboral</li>
+                    <li><b>Entonces</b>se abre 2.2 Relación Laboral</li>
                   </ul>
                 </div>
               </div>
@@ -2949,7 +3347,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>el aviso está abierto</li>
                     <li><b>Cuando</b>se pulsa «Completar →» en la fecha de ingreso</li>
-                    <li><b>Entonces</b>se abre el paso Relación laboral con la sección desplegada y el campo resaltado</li>
+                    <li><b>Entonces</b>se abre 2.2 Relación Laboral con la sección desplegada y el campo resaltado</li>
                   </ul>
                 </div>
               </div>
@@ -3069,14 +3467,14 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador · sin construir</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>La ficha de alguien dado de alta se edita en <b>la misma pantalla del alta</b>, con sus once pasos. Abre <b>en lectura</b> y se pasa a edición. A diferencia del alta, no se guarda sola: <b>«Guardar cambios»</b> muestra antes qué cambió, porque cada dato ya está en planilla y declarado a las entidades. Cada cambio queda en el historial de la ficha.</p>
+              <p>La ficha de alguien dado de alta se edita en <b>la misma pantalla del alta</b>, con sus cinco pestañas. Abre <b>en lectura</b> y se pasa a edición. A diferencia del alta, no se guarda sola: <b>«Guardar cambios»</b> muestra antes qué cambió, porque cada dato ya está en planilla y declarado a las entidades. Cada cambio queda en el historial de la ficha.</p>
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
                   <div class="esc-t"><i></i>Mirar no cambia nada</div>
                   <ul>
                     <li><b>Dado que</b>se abre la ficha de Diego Morales desde «Ver perfil»</li>
-                    <li><b>Cuando</b>se recorren sus pasos</li>
+                    <li><b>Cuando</b>se recorren sus pestañas</li>
                     <li><b>Entonces</b>todos los campos están bloqueados hasta pulsar «Editar»</li>
                   </ul>
                 </div>
@@ -3085,7 +3483,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>se cambia la cuenta bancaria y se pulsa «Guardar cambios»</li>
                     <li><b>Cuando</b>se confirma la lista de cambios</li>
-                    <li><b>Entonces</b>el historial del paso 11 registra quién, cuándo, la cuenta anterior y la nueva</li>
+                    <li><b>Entonces</b>el historial de cambios de la ficha registra quién, cuándo, la cuenta anterior y la nueva</li>
                   </ul>
                 </div>
               </div>
@@ -3140,7 +3538,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-054">RF‑GP‑054</a> · <a class="id" href="#RF-GP-055">RF‑GP‑055</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-11">HU‑GP‑11</a></dd></div>
-                <div><dt>Pantalla</dt><dd>Ficha del colaborador · paso 3</dd></div>
+                <div><dt>Pantalla</dt><dd>Ficha del colaborador · 2.1 Información Laboral</dd></div>
                 <div><dt>Diseño</dt><dd>Por prototipar</dd></div>
               </dl>
             </div>
@@ -3331,7 +3729,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               <dl class="br-meta">
                 <div><dt>Código</dt><dd>BR-GP-033</dd></div>
                 <div><dt>Grupo</dt><dd>El anticipo de quincena</dd></div>
-                <div><dt>Qué gobierna</dt><dd>Remuneración · planilla</dd></div>
+                <div><dt>Qué gobierna</dt><dd>2.3 Compensación, Nómina y Afiliaciones · planilla</dd></div>
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
@@ -3368,7 +3766,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
                 <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-027">RF‑GP‑027</a></dd></div>
                 <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-06">HU‑GP‑06</a></dd></div>
-                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · paso 8</dd></div>
+                <div><dt>Pantalla</dt><dd><a class="id" href="#W-GP-02">W‑GP‑02</a> Alta · 2.3 Compensación, Nómina y Afiliaciones</dd></div>
                 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
               </dl>
             </div>
@@ -3451,12 +3849,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <tbody>
         <tr><td>Lo que alguien escribe o elige</td><td>Nombre completo · fin del periodo de prueba · estado de una licencia · total repartido entre herederos · tiempo trabajado · quién registró la ficha y cuándo · reingreso o alta nueva</td></tr>
         <tr><td>El puesto elegido</td><td>Área, sucursal, jefe y clase de cargo, leídos del puesto</td></tr>
-        <tr><td>—</td><td>El avance de cada paso y de la ficha, y qué pasos deben algo del mínimo legal</td></tr>
+        <tr><td>—</td><td>El avance de cada parte, de cada pestaña y de la ficha, y qué pestañas y partes deben algo del mínimo legal</td></tr>
       </tbody>
     </table></div>
 
     <h3 id="p5-4">5.4 Los grupos repetibles</h3>
-    <p>Hijos, herederos, <b>supervisores funcionales</b>, formación, experiencia, certificaciones, idiomas, herramientas, referencias, capacitaciones, evaluaciones, activos y documento secundario se repiten. Cada copia numera su clave: <span class="mono">2.20</span>, <span class="mono">2.20#2</span>, <span class="mono">2.20#3</span>. Quitar una copia sube las de abajo y vacía la última. Todos los grupos arrancan con una copia, salvo el documento secundario, que arranca en cero.</p>
+    <p>Contactos de emergencia, hijos, herederos, <b>supervisores funcionales</b>, licencias, cada equipo, uniforme, EPP, herramienta, vehículo o licencia de software entregado, el documento secundario y los documentos adicionales se repiten. Cada copia numera su clave: <span class="mono">2.20</span>, <span class="mono">2.20#2</span>, <span class="mono">2.20#3</span>. Quitar una copia sube las de abajo y vacía la última. Todos los grupos arrancan con una copia, salvo el documento secundario, lo entregado en Recursos y Activos y los documentos adicionales, que arrancan en cero.</p>
 
     <h3 id="p5-5">5.5 La traza de cada dato</h3>
     <p>Cada dato lleva una traza de auditoría que no se muestra en pantalla: quién lo consume, en qué condición aparece y de qué formulario oficial sale. El «quién lo consume» se escribe con códigos:</p>
@@ -3466,7 +3864,6 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td class="id">GP</td><td>Gestión de personas <em>— a confirmar</em></td><td>173</td></tr>
         <tr><td class="id">PL</td><td>Planillas</td><td>87</td></tr>
         <tr><td class="id">—</td><td><em>Informativo, sin gobernar ningún cálculo</em></td><td>2</td></tr>
-        <tr><td class="id">AS</td><td>Asistencia</td><td>39</td></tr>
         <tr><td class="id">CC</td><td>Comunicación <em>— a confirmar</em></td><td>20</td></tr>
         <tr><td class="id">ON</td><td>Onboarding</td><td>20</td></tr>
         <tr><td class="id">ERP</td><td>ERP y contabilidad</td><td>19</td></tr>
@@ -3491,7 +3888,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Fase</th><th>Qué pasa</th><th>Quién</th><th>Cuándo</th></tr></thead>
       <tbody>
-        <tr><td><strong>Prototipo</strong></td><td>El directorio, el alta en once pasos y la vista previa, navegables</td><td>Diseño UX</td><td><strong>Hecho</strong> y en ajuste</td></tr>
+        <tr><td><strong>Prototipo</strong></td><td>El directorio, el alta en cinco pestañas y la vista previa, navegables</td><td>Diseño UX</td><td><strong>Hecho</strong> y en ajuste</td></tr>
         <tr><td><strong>Documento</strong></td><td>Este: reglas, requisitos, modelo y flujos</td><td>Diseño UX</td><td><strong>En borrador</strong></td></tr>
         <tr><td><strong>Validación</strong></td><td>Se recorre el prototipo con Recursos Humanos y con quien corresponda</td><td>Por definir</td><td>Por definir</td></tr>
         <tr><td><strong>Correcciones</strong></td><td>Se ajusta el prototipo con lo que salga de la validación</td><td>Diseño UX</td><td>Por definir</td></tr>
@@ -3503,8 +3900,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Etapa</th><th>Qué incluye</th><th>Cuándo se considera lista</th></tr></thead>
       <tbody>
-        <tr><td><strong>1 · Dar de alta en regla</strong></td><td class="id">RF‑GP‑001 a 007<br>RF‑GP‑010 a 014<br>RF‑GP‑020, 022, 025, 046<br>RNF‑GP‑01, 02</td><td>Recursos Humanos da de alta a una persona con su mínimo legal y la ve en el directorio y en su puesto</td></tr>
-        <tr><td><strong>2 · La ficha completa</strong></td><td class="id">RF‑GP‑015, 016<br>RF‑GP‑021, 023, 024, 026<br>RF‑GP‑030 a 032<br>RF‑GP‑040 a 045<br>RF‑GP‑070 a 076<br>RNF‑GP‑03, 04</td><td>Los once pasos, el reingreso, la vista previa como expediente y los clientes externos</td></tr>
+        <tr><td><strong>1 · Dar de alta en regla</strong></td><td class="id">RF‑GP‑001 a 007<br>RF‑GP‑010 a 014, 017<br>RF‑GP‑020, 022, 025, 046<br>RNF‑GP‑01, 02</td><td>Recursos Humanos da de alta a una persona con su mínimo legal y la ve en el directorio y en su puesto</td></tr>
+        <tr><td><strong>2 · La ficha completa</strong></td><td class="id">RF‑GP‑015, 016<br>RF‑GP‑021, 023, 024, 026, 028, 029<br>RF‑GP‑030 a 032<br>RF‑GP‑040 a 045<br>RF‑GP‑070 a 076<br>RNF‑GP‑03, 04</td><td>Las cinco pestañas con sus partes, el reingreso, la vista previa como expediente y los clientes externos</td></tr>
         <tr><td><strong>3 · Después del alta</strong></td><td class="id">RF‑GP‑050 a 055<br>RF‑GP‑060 a 063<br>FUERA‑02, 03<br>RNF‑GP‑05<br>Registro de actividad</td><td>Ver y editar la ficha de alguien dado de alta, desvincular, exportar a las entidades y medir los indicadores de <span class="id">1.5</span></td></tr>
       </tbody>
     </table></div>
@@ -3540,7 +3937,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>El borrador vive en el navegador</strong></td><td>En el prototipo, un alta empezada en una computadora no se ve en otra, y sus datos —incluidos salud y cuenta bancaria— quedan en ese equipo. En el producto el borrador tiene que vivir en el servidor</td></tr>
         <tr><td><strong>Cambiar la clave de un dato</strong></td><td>Toda ficha guardada con la clave vieja pierde ese dato. Las claves del estudio no se renumeran</td></tr>
         <tr><td><strong>Acciones que se ven y no hacen nada</strong></td><td>En el directorio, «Ver perfil», «Editar», «Enviar credenciales» y guardar un cambio de estado todavía no funcionan. Un prototipo que los muestra puede leerse como hecho</td></tr>
-        <tr><td><strong>Cifras viejas en los comentarios del código</strong></td><td>Varios dicen ocho o nueve pasos y 249 campos. Los números vigentes son los de este documento</td></tr>
+        <tr><td><strong>Cifras viejas en los comentarios del código</strong></td><td>Varios dicen ocho, nueve u once pasos y 249 campos. Lo vigente son cinco pestañas y 240 datos, como dice este documento</td></tr>
       </tbody>
     </table></div>
 
@@ -3552,7 +3949,6 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td class="id">ABIERTA‑02</td><td>En un reingreso, ¿se vuelven a marcar «a confirmar» los datos que pudieron cambiar —domicilio, cuenta bancaria—?</td><td>RR.HH.</td></tr>
         <tr><td class="id">ABIERTA‑03</td><td>La fecha de ingreso bloquea el alta pero está en el nivel Operativo. ¿Pasa al mínimo legal?</td><td>RR.HH.</td></tr>
         <tr><td class="id">ABIERTA‑04</td><td>¿Quién puede ver el sueldo, los datos de salud y el historial disciplinario?</td><td>RR.HH. y Legal</td></tr>
-        <tr><td class="id">ABIERTA‑05</td><td>La escala de vacaciones por antigüedad está pendiente de confirmar</td><td>RR.HH.</td></tr>
         <tr><td class="id">ABIERTA‑06</td><td>¿30 días es el umbral correcto para que una licencia se vea «por vencer»?</td><td>RR.HH.</td></tr>
         <tr><td class="id">ABIERTA‑07</td><td>Veintidós secciones están marcadas como propuesta del estudio. ¿Cuáles se quedan?</td><td>RR.HH. y Producto</td></tr>
         <tr><td class="id">ABIERTA‑08</td><td>«Exámenes ocupacionales» y «Reglamentos entregados» no tienen datos todavía y no se muestran. ¿Qué piden?</td><td>RR.HH.</td></tr>
@@ -3583,11 +3979,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <div><b>Termina en</b><span>La persona en el directorio y en su puesto</span></div>
       </div>
       <ol class="pasos">
-        <li>Pulsa <b>«Nuevo colaborador»</b>. Se abre la ficha en el paso 1, con la pregunta del reingreso respondida «No».</li>
+        <li>Pulsa <b>«Nuevo colaborador»</b>. Se abre la ficha en 1.1 Información Personal, con la pregunta del reingreso respondida «No».</li>
         <li>Completa <b>Información Personal</b>: nombre, documento, nacimiento, nacionalidad y un teléfono.</li>
         <li>Completa el <b>contacto de emergencia</b> en Información Familiar.</li>
         <li>En <b>Información Laboral</b> elige el cargo; el área, la sucursal y el jefe llegan solos.</li>
-        <li>En <b>Relación laboral</b> pone la modalidad y la fecha de ingreso; en <b>Remuneración</b>, el haber básico.</li>
+        <li>En <b>2.2 Relación Laboral</b> pone la modalidad y la fecha de ingreso; en <b>2.3 Compensación, Nómina y Afiliaciones</b>, el haber básico.</li>
         <li>Pulsa <b>«Revisar la ficha»</b>, recorre el expediente y pulsa <b>«Dar de alta»</b>.</li>
       </ol>
       <div class="desvios">
@@ -3607,8 +4003,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <ol class="pasos">
         <li>El lunes carga lo que trajo la persona: carnet, domicilio, familia. Pulsa <b>«Guardar borrador y salir»</b>.</li>
         <li>El miércoles llega el contrato firmado. Entra a «Nuevo colaborador»: <b>el borrador está donde lo dejó</b>.</li>
-        <li>Va directo al paso <b>Relación laboral</b> por el riel y lo completa.</li>
-        <li>El viernes llega la cuenta bancaria; la carga en Remuneración y da de alta.</li>
+        <li>Va directo a <b>2.2 Relación Laboral</b> por el riel y la completa.</li>
+        <li>El viernes llega la cuenta bancaria; la carga en 2.3 y da de alta.</li>
       </ol>
       <div class="desvios">
         <div class="desvio"><b>Si abre la ficha en otra computadora:</b> en el prototipo no ve el borrador —<span class="id">6.6</span>—.</div>
@@ -3619,7 +4015,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div class="flujo-cab"><span class="flujo-id">F-GP-03</span><h3 id="F-GP-03">Recontratar a alguien</h3></div>
       <div class="flujo-meta">
         <div><b>Quién</b><span>Recursos Humanos</span></div>
-        <div><b>Desde dónde</b><span>Paso 1, pregunta del reingreso</span></div>
+        <div><b>Desde dónde</b><span>1.1 Información Personal, pregunta del reingreso</span></div>
         <div><b>Termina en</b><span>Una ficha con los datos de la persona y un vínculo nuevo</span></div>
       </div>
       <ol class="pasos">
@@ -3639,11 +4035,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div class="flujo-cab"><span class="flujo-id">F-GP-04</span><h3 id="F-GP-04">Dar de alta sin puestos libres</h3></div>
       <div class="flujo-meta">
         <div><b>Quién</b><span>Recursos Humanos</span></div>
-        <div><b>Desde dónde</b><span>Paso 3, Información Laboral</span></div>
+        <div><b>Desde dónde</b><span>2.1 Información Laboral</span></div>
         <div><b>Termina en</b><span>La persona dada de alta, con o sin puesto</span></div>
       </div>
       <ol class="pasos">
-        <li>Entra al paso 3 y ve el aviso: <b>no hay puestos libres en la estructura</b>.</li>
+        <li>Entra a 2.1 y ve el aviso: <b>no hay puestos libres en la estructura</b>.</li>
         <li>Elige: <b>«Ir a Estructura»</b> para abrir una silla en Organización, o seguir sin puesto.</li>
         <li>Si abrió la silla, vuelve a la ficha —el borrador sigue ahí— y elige el cargo.</li>
       </ol>
@@ -3666,7 +4062,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <li>Con los tres bloqueos resueltos, el sello dice <b>«Ya se puede dar de alta»</b>.</li>
       </ol>
       <div class="desvios">
-        <div class="desvio"><b>Si falta algo del mínimo que no bloquea:</b> el alta se hace, y el paso sigue con su punto rojo hasta completarlo.</div>
+        <div class="desvio"><b>Si falta algo del mínimo que no bloquea:</b> el alta se hace, y la pestaña sigue con su punto rojo hasta completarlo.</div>
       </div>
     </div>
 
@@ -3692,7 +4088,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </div>
       <ol class="pasos">
         <li>En la lista, abre el menú de la persona y elige <b>«Editar»</b>. La ficha abre en lectura.</li>
-        <li>Pulsa <b>«Editar»</b>, va al paso que corresponde y corrige el dato.</li>
+        <li>Pulsa <b>«Editar»</b>, va a la parte que corresponde y corrige el dato.</li>
         <li>Pulsa <b>«Guardar cambios»</b>, revisa la lista de lo que cambió y confirma.</li>
         <li>El cambio queda en el <b>historial de cambios</b>, con su nombre y la fecha.</li>
       </ol>
@@ -3751,7 +4147,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <thead><tr><th>Pantalla</th><th>Ruta</th><th>Para qué se entra</th><th>Requisitos</th><th>Wireframe</th></tr></thead>
       <tbody>
         <tr><td><strong>Directorio</strong></td><td><span class="mono">/personas/colaboradores</span></td><td>Encontrar a una persona, ver su estado y su avance, y asignarle su ruta</td><td class="id">RF‑GP‑001 a 007</td><td><a href="#W-GP-01">W‑GP‑01</a></td></tr>
-        <tr><td><strong>Nuevo colaborador</strong></td><td><span class="mono">/personas/colaboradores/nuevo</span></td><td>Dar de alta en once pasos, con el borrador que se guarda solo</td><td class="id">RF‑GP‑010 a 032</td><td><a href="#W-GP-02">W‑GP‑02</a></td></tr>
+        <tr><td><strong>Nuevo colaborador</strong></td><td><span class="mono">/personas/colaboradores/nuevo</span></td><td>Dar de alta en cinco pestañas, con el borrador que se guarda solo</td><td class="id">RF‑GP‑010 a 032</td><td><a href="#W-GP-02">W‑GP‑02</a></td></tr>
         <tr><td><strong>Vista previa</strong></td><td><span class="mono">…/nuevo?paso=previa</span></td><td>Revisar la ficha como expediente y dar de alta</td><td class="id">RF‑GP‑040 a 046</td><td><a href="#W-GP-03">W‑GP‑03</a></td></tr>
         <tr><td><strong>Ficha del colaborador</strong></td><td><span class="mono">/personas/colaboradores/:id</span></td><td>Ver y editar la ficha de alguien dado de alta. Especificada, sin construir</td><td class="id">RF‑GP‑050 a 055</td><td>—</td></tr>
         <tr><td><strong>Clientes externos</strong></td><td><span class="mono">/personas/clientes-externos</span></td><td>Registrar a las personas de afuera que participan en las evaluaciones</td><td class="id">RF‑GP‑070 a 076</td><td><a href="#W-GP-04">W‑GP‑04</a></td></tr>
@@ -3794,42 +4190,46 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <li><span class="wf-n">5</span><span><b>El menú de la fila</b>: ruta de onboarding, buddy y cambio de estado.</span></li>
     </ol>
 
-    <h3 id="W-GP-02">W-GP-02 · Un paso del alta</h3>
-    <p class="wf-lead">El riel de pasos a la izquierda, el paso abierto como índice de secciones, y el pie con las tres salidas.</p>
+    <h3 id="W-GP-02">W-GP-02 · Una parte del alta</h3>
+    <p class="wf-lead">El riel de pestañas a la izquierda, con las partes de la abierta colgando debajo; la parte abierta como índice de secciones, y el pie con las tres salidas.</p>
     <div class="wf">
       <div class="wf-tit"><strong>Nuevo colaborador</strong><span class="wf-ruta">/personas/colaboradores/nuevo?paso=remuneracion</span></div>
       <div class="wf-app">
         <div class="wf-rail">
-          <div class="wf-rail-t"><span class="wf-n">1</span>Pasos</div>
+          <div class="wf-rail-t"><span class="wf-n">1</span>Pestañas</div>
           <div class="wf-nav">1 Información Personal •</div>
-          <div class="wf-nav">3 Información Laboral •</div>
-          <div class="wf-nav">5 Contrato •</div>
-          <div class="wf-nav">7 Asistencia</div>
-          <div class="wf-nav on">8 Remuneración •</div>
-          <div class="wf-nav">9 Recursos y activos</div>
+          <div class="wf-nav on">2 Información Laboral •</div>
+          <div class="wf-nav" style="padding-left:22px;opacity:.9">2.1 Información Laboral •</div>
+          <div class="wf-nav" style="padding-left:22px;opacity:.9">2.2 Relación Laboral •</div>
+          <div class="wf-nav on" style="padding-left:22px;opacity:.9"><span class="wf-n">2</span>2.3 Compensación, Nómina…</div>
+          <div class="wf-nav">3 Documentación</div>
+          <div class="wf-nav">4 Recursos y Activos</div>
+          <div class="wf-nav">5 Configuración</div>
           <div class="wf-nav">Vista previa</div>
         </div>
         <div class="wf-cuerpo">
-          <div class="wf-h1">8 · Remuneración</div>
-          <div class="wf-sub">Haber básico, beneficios de ley y datos de pago</div>
+          <div class="wf-h1">2.3 · Compensación, Nómina y Afiliaciones</div>
+          <div class="wf-sub">Información Laboral · Haber, beneficios, pago y afiliaciones</div>
           <div class="wf-caja">
-            <div class="wf-caja-t"><span class="wf-n">2</span>Datos de haber básico · 1 de 4 <span class="wf-n">3</span></div>
+            <div class="wf-caja-t"><span class="wf-n">3</span>Datos de haber básico · 1 de 4</div>
+            <div class="wf-sub">Registre el haber básico del colaborador. No puede ser inferior al salario mínimo nacional.</div>
             <div class="wf-campos">
-              <div class="wf-campo oblig"><b>Haber básico · legal</b><span>0,00</span></div>
+              <div class="wf-campo oblig"><b>Haber básico</b><span>0,00</span></div>
               <div class="wf-campo"><b>Frecuencia de pago</b><span>Elige una opción</span></div>
             </div>
           </div>
-          <div class="wf-caja"><div class="wf-caja-t">Configuración de Beneficios y Obligaciones · 1 de 6</div></div>
-          <div class="wf-caja"><div class="wf-caja-t">Datos de pago · 0 de 7</div></div>
+          <div class="wf-caja"><div class="wf-caja-t">Configuración de Beneficios y Obligaciones · 1 de 5</div></div>
+          <div class="wf-caja"><div class="wf-caja-t">Datos de pago · 0 de 6</div></div>
+          <div class="wf-caja"><div class="wf-caja-t">Datos de Gestora Pública · 0 de 2</div></div>
           <div class="wf-barra" style="justify-content:flex-end"><span class="wf-btn ghost">Volver atrás</span><span class="wf-btn ghost">Guardar borrador y salir</span><span class="wf-btn"><span class="wf-n">4</span>Siguiente</span></div>
         </div>
       </div>
     </div>
     <ol class="wf-llaves">
-      <li><span class="wf-n">1</span><span><b>El riel</b>: los once pasos con su aro de avance y el punto de los que deben algo del mínimo legal. Todos se pueden pulsar.</span></li>
-      <li><span class="wf-n">2</span><span><b>Secciones plegables</b> con su cuenta de datos llenos. La primera abre sola.</span></li>
-      <li><span class="wf-n">3</span><span><b>Asterisco e insignia legal</b> en lo que exige una entidad.</span></li>
-      <li><span class="wf-n">4</span><span><b>El pie</b>: volver, salir con el borrador guardado o seguir. En el último paso, «Revisar la ficha».</span></li>
+      <li><span class="wf-n">1</span><span><b>El riel</b>: las cinco pestañas con su aro de avance y el punto de las que deben algo del mínimo legal. Todas se pueden pulsar.</span></li>
+      <li><span class="wf-n">2</span><span><b>Las partes</b> de la pestaña abierta, numeradas y atadas por una guía fina; la activa en verde claro. En el celular van arriba del contenido, como píldoras.</span></li>
+      <li><span class="wf-n">3</span><span><b>Secciones plegables</b> con su descripción en usted y su cuenta de datos llenos. La primera abre sola. El asterisco marca lo obligatorio para dar de alta.</span></li>
+      <li><span class="wf-n">4</span><span><b>El pie</b>, siempre abajo: volver, salir con el borrador guardado o seguir a la parte siguiente. En la última, «Revisar la ficha».</span></li>
     </ol>
 
     <h3 id="W-GP-03">W-GP-03 · Vista previa</h3>
@@ -3838,11 +4238,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div class="wf-tit"><strong>Vista previa</strong><span class="wf-ruta">/personas/colaboradores/nuevo?paso=previa</span></div>
       <div class="wf-app">
         <div class="wf-rail">
-          <div class="wf-rail-t">Pasos</div>
+          <div class="wf-rail-t">Pestañas</div>
           <div class="wf-nav">1 Información Personal •</div>
-          <div class="wf-nav">5 Contrato •</div>
-          <div class="wf-nav">8 Remuneración •</div>
-          <div class="wf-nav">10 Documentación</div>
+          <div class="wf-nav">2 Información Laboral •</div>
+          <div class="wf-nav">3 Documentación</div>
+          <div class="wf-nav">5 Configuración</div>
           <div class="wf-nav on">Vista previa</div>
         </div>
         <div class="wf-cuerpo">
@@ -3855,8 +4255,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
             </div>
             <div class="wf-barra"><span class="wf-btn ghost"><span class="wf-n">2</span>Falta la fecha de ingreso →</span></div>
           </div>
-          <div class="wf-barra"><span class="wf-tab"><span class="wf-n">3</span>La persona</span><span class="wf-tab">Su trayectoria</span><span class="wf-tab">Contrato y pago</span><span class="wf-tab">En la empresa</span></div>
-          <div class="wf-caja"><div class="wf-caja-t">1 · Información Personal · 41 de 70 datos · <span class="wf-n">4</span>Editar</div></div>
+          <div class="wf-barra"><span class="wf-tab"><span class="wf-n">3</span>Información Personal</span><span class="wf-tab">Información Laboral</span><span class="wf-tab">En la empresa</span></div>
+          <div class="wf-caja"><div class="wf-caja-t">1 · Información Personal · 41 de 71 datos · <span class="wf-n">4</span>Editar</div></div>
           <div class="wf-barra" style="justify-content:flex-end"><span class="wf-btn"><span class="wf-n">5</span>Dar de alta</span></div>
         </div>
       </div>
@@ -3864,8 +4264,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <ol class="wf-llaves">
       <li><span class="wf-n">1</span><span><b>La tapa</b>: foto, nombre, cargo, documento, ingreso, contrato, correo y avance. Lo vacío dice «Por completar».</span></li>
       <li><span class="wf-n">2</span><span><b>El sello</b> dice qué falta para dar de alta, y lleva a ese dato; o «Ya se puede dar de alta».</span></li>
-      <li><span class="wf-n">3</span><span><b>Cuatro separadores</b> que agrupan los once pasos por familia.</span></li>
-      <li><span class="wf-n">4</span><span><b>«Editar»</b> en cada sección lleva a su paso.</span></li>
+      <li><span class="wf-n">3</span><span><b>Tres separadores</b> que agrupan las partes por familia: Información Personal, Información Laboral y En la empresa —Documentación, Recursos y Configuración—.</span></li>
+      <li><span class="wf-n">4</span><span><b>«Editar»</b> en cada sección lleva a su parte.</span></li>
       <li><span class="wf-n">5</span><span><b>«Dar de alta»</b>: con faltantes, abre el aviso que los lista todos.</span></li>
     </ol>
     <h3 id="W-GP-04">W-GP-04 · Clientes externos</h3>
@@ -3934,7 +4334,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <li>Lo escrito se conserva al cerrar el navegador y volver.</li>
           <li>No existe un botón de «guardar» ni un aviso de cambios sin guardar.</li>
           <li>El borrador no aparece en el directorio ni ocupa un puesto.</li>
-          <li>Un enlace con <span class="mono">?paso=contrato</span> abre ese paso.</li>
+          <li>Un enlace con <span class="mono">?paso=contrato</span> abre 2.2 Relación Laboral.</li>
         </ul>
       </div>
       <div class="hu-r">Se apoya en <b>BR‑GP‑001 a 004 · RF‑GP‑010, 014 · RNF‑GP‑01</b> · Pantalla: Nuevo colaborador</div>
@@ -3943,12 +4343,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="hu">
       <div class="hu-h"><b id="HU-GP-02">HU-GP-02 · Saber qué falta para poder declarar a la persona</b></div>
       <div class="hu-b">
-        <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> ver qué pasos deben datos que exige una entidad <b>para</b> completar primero lo que me pueden observar.</p>
+        <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> ver qué pestañas deben datos que exige una entidad <b>para</b> completar primero lo que me pueden observar.</p>
         <h6>Criterios de aceptación</h6>
         <ul>
-          <li>Cada paso del riel muestra su avance y, si debe algo del mínimo legal, un punto rojo.</li>
+          <li>Cada pestaña del riel muestra su avance y, si debe algo del mínimo legal, un punto rojo; sus partes también llevan el punto.</li>
           <li>El punto no cambia al cambiar el nivel que se mira.</li>
-          <li>Los datos del mínimo llevan asterisco; los que exige una entidad, la insignia legal.</li>
+          <li>Los datos obligatorios para dar de alta llevan asterisco.</li>
         </ul>
       </div>
       <div class="hu-r">Se apoya en <b>BR‑GP‑005 a 008 · RF‑GP‑012, 020</b> · Pantalla: Nuevo colaborador</div>
@@ -3963,7 +4363,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <li>Los datos condicionales aparecen solo con la respuesta que los activa.</li>
           <li>Esconder un dato no borra su valor.</li>
           <li>Los datos calculados están bloqueados y dicen que se calculan.</li>
-          <li>Un archivo que se ve en dos pasos cuenta una vez en el avance.</li>
+          <li>Un archivo que se ve en dos partes cuenta una vez en el avance.</li>
         </ul>
       </div>
       <div class="hu-r">Se apoya en <b>BR‑GP‑009 a 011 · RF‑GP‑022, 026</b> · Pantalla: Nuevo colaborador</div>
@@ -3981,7 +4381,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <li>Los documentos se traen solo si se contesta que sí, y se deshacen si se cambia.</li>
         </ul>
       </div>
-      <div class="hu-r">Se apoya en <b>BR‑GP‑012 a 015 · RF‑GP‑030 a 032</b> · Pantalla: Nuevo colaborador, paso 1</div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑012 a 015 · RF‑GP‑030 a 032</b> · Pantalla: Nuevo colaborador, 1.1 Información Personal</div>
     </div>
 
     <div class="hu">
@@ -3996,7 +4396,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <li>Al dar de alta, la silla deja de estar vacante.</li>
         </ul>
       </div>
-      <div class="hu-r">Se apoya en <b>BR‑GP‑016 a 019 · RF‑GP‑025, 046</b> · Pantalla: Nuevo colaborador, paso 3</div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑016 a 019 · RF‑GP‑025, 046</b> · Pantalla: Nuevo colaborador, 2.1 Información Laboral</div>
     </div>
 
     <div class="hu">
@@ -4010,7 +4410,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <li>Extensión y complemento se piden solo para un carnet boliviano.</li>
         </ul>
       </div>
-      <div class="hu-r">Se apoya en <b>BR‑GP‑020 a 022</b> · Pantalla: Nuevo colaborador, pasos 1, 2 y 6</div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑020 a 022</b> · Pantalla: Nuevo colaborador, 1.1, 1.2 y 2.3</div>
     </div>
 
     <div class="hu">
@@ -4020,8 +4420,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <h6>Criterios de aceptación</h6>
         <ul>
           <li>La tapa muestra los datos que identifican a la persona, y lo vacío dice «Por completar».</li>
-          <li>Los cuatro separadores bajan a su sección.</li>
-          <li>«Editar» en una sección abre su paso.</li>
+          <li>Los tres separadores bajan a su sección.</li>
+          <li>«Editar» en una sección abre su parte.</li>
         </ul>
       </div>
       <div class="hu-r">Se apoya en <b>BR‑GP‑023 · RF‑GP‑040 a 042</b> · Pantalla: Vista previa</div>
@@ -4074,9 +4474,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> corregir los datos de una persona que ya trabaja <b>para</b> que su planilla y sus declaraciones salgan bien, sabiendo qué cambié.</p>
         <h6>Criterios de aceptación</h6>
         <ul>
-          <li>La ficha abre en lectura, con los mismos pasos del alta.</li>
+          <li>La ficha abre en lectura, con las mismas pestañas del alta.</li>
           <li>«Guardar cambios» muestra antes lo que cambió, con valor anterior y nuevo.</li>
-          <li>Cada cambio queda en el historial del paso 11.</li>
+          <li>Cada cambio queda en el historial de cambios de la ficha.</li>
           <li>Cambiar el cargo mueve a la persona en el organigrama.</li>
         </ul>
       </div>
@@ -4117,7 +4517,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <thead><tr><th>Etapa</th><th>Qué se prototipa</th><th>La pregunta que contesta</th><th>Estado</th></tr></thead>
       <tbody>
         <tr><td class="rg"><strong>P‑1</strong></td><td>El directorio</td><td>¿Se encuentra a una persona y se entiende su estado de un vistazo?</td><td>Construido</td></tr>
-        <tr><td class="rg"><strong>P‑2</strong></td><td>El alta en once pasos, con el riel y los acordeones</td><td>¿Se llena una ficha de trescientos datos sin sentirla una pared?</td><td>Construido</td></tr>
+        <tr><td class="rg"><strong>P‑2</strong></td><td>El alta en cinco pestañas, con el riel, sus partes y los acordeones</td><td>¿Se llena una ficha de trescientos datos sin sentirla una pared?</td><td>Construido</td></tr>
         <tr><td class="rg"><strong>P‑3</strong></td><td>El reingreso</td><td>¿Se recontrata a alguien sin duplicarlo ni arrastrar su contrato anterior?</td><td>Construido</td></tr>
         <tr><td class="rg"><strong>P‑4</strong></td><td>La vista previa como expediente y el alta</td><td>¿Se revisa todo antes de dar de alta, y se sabe qué falta?</td><td>Construido</td></tr>
         <tr><td class="rg"><strong>P‑5</strong></td><td>Los clientes externos</td><td>¿Se registra a un evaluador de afuera en menos de un minuto?</td><td>Construido</td></tr>
@@ -4138,13 +4538,16 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <li><strong>Si el prototipo y este documento no coinciden</strong>, se corrige el que esté mal antes de entregarle nada a desarrollo.</li>
       <li><strong>Los códigos no se reutilizan.</strong> Una regla o un requisito eliminado deja su número libre y vacío.</li>
       <li><strong>Cada regla se escribe en los cuatro apartados</strong>, y la trazabilidad se declara aunque esté pendiente.</li>
-      <li><strong>Las cifras de la ficha —pasos, datos, mínimo legal— se cuentan del archivo generado</strong>, no de los comentarios del código.</li>
+      <li><strong>Las cifras de la ficha —pestañas, datos, mínimo legal— se cuentan del archivo generado</strong>, no de los comentarios del código.</li>
     </ul>
 
     <h3 id="tsm-hist">Historial de versiones</h3>
     <div class="tbl"><table>
       <thead><tr><th>Versión</th><th>Fecha</th><th>Qué cambió</th></tr></thead>
       <tbody>
+        <tr><td class="rg"><strong>1.99</strong></td><td>30 sep 2026</td><td><strong>El documento suma diagramas</strong>, como el de Organización. Antes del índice, «La ficha, de un vistazo»: la pantalla de alta dibujada, con el riel, las partes, la cabecera, las secciones y el pie señalados. Y cuatro diagramas en el cuerpo: los niveles de la ficha como anillos (0), la ficha parte por parte con quién lee cada una (0.1), el paso de borrador a colaborador con el aviso al salir (0.2) y qué se trae en un reingreso (3.4). Sale ABIERTA‑05, sobre las vacaciones, que es de Asistencia</td></tr>
+        <tr><td class="rg"><strong>1.98</strong></td><td>30 sep 2026</td><td><strong>El documento describe sólo lo que se ve en la versión publicada</strong>, a pedido del equipo, para que desarrollo no construya lo que todavía se está definiendo: salen Perfil Profesional y la parte Asistencia. La ficha queda en <b>cinco pestañas</b> —Documentación pasa a ser la 3, Recursos y Activos la 4 y Configuración la 5—, Información Laboral en tres partes y la vista previa en tres separadores; la ficha cuenta 240 datos. Y una regla nueva, <b>BR‑GP‑034</b>: irse a otra pantalla con un registro empezado pregunta «¿Está seguro de salir?», con «Guardar borrador y salir», «Salir sin guardar» —que borra el borrador— y «Seguir registrando»; va con <b>RF‑GP‑017</b></td></tr>
+        <tr><td class="rg"><strong>1.97</strong></td><td>30 sep 2026</td><td><strong>El documento se pone al día con la ficha de seis pestañas</strong>. El glosario define pestaña y parte, y la descripción de la sección reemplaza a la insignia legal y a las ayudas con «?». Las tablas de entidades e integraciones, los requisitos, las reglas, los flujos, las pantallas y las historias nombran partes —1.1, 2.3— en vez de pasos. La tabla de la ficha se rearma por pestaña, y una nueva, «Tres secciones que se llenan distinto», explica Preferencias, Recursos y Activos y los filtros de Archivos. Se agregan RF‑GP‑028 (la caja de «Otro») y RF‑GP‑029 (las tablitas), los wireframes W‑GP‑02 y W‑GP‑03 se redibujan con el riel nuevo y el anexo suma tres porqués. Las cifras pasan a 6 pestañas, 326 datos y 51 requisitos funcionales</td></tr>
         <tr><td class="rg"><strong>1.96</strong></td><td>30 sep 2026</td><td><strong>Regalos y experiencias son tablitas</strong>, a pedido del equipo: cada una es un recuadro con una fila por deseo, numerada, con una celda para escribir y una cruz para quitarla. «Agregar regalo» y «Agregar experiencia» suman filas, y Enter al final de una fila abre la siguiente. Sin categorías ni tipo. Se guarda una fila por renglón, así que lo escrito antes en la caja se conserva</td></tr>
         <tr><td class="rg"><strong>1.95</strong></td><td>30 sep 2026</td><td><strong>Preferencias pide regalos y experiencias, en texto libre</strong>, a pedido del equipo: «Regalos que le gustaría recibir» y «Experiencias que le gustaría vivir» (viajes, cursos, conciertos…), una al lado de la otra. Sin categorías ni tablas: se escribe directamente. Sale «Intereses»</td></tr>
         <tr><td class="rg"><strong>1.94</strong></td><td>30 sep 2026</td><td><strong>Se retira «Habilidades» de Preferencias</strong>, a pedido del equipo. La sección queda con la lista de deseos y los intereses, y su descripción dice «Registre los deseos e intereses del colaborador.»</td></tr>
@@ -4260,8 +4663,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div><h5 id="ax-4">Por qué se elige el cargo y no la silla</h5><p>Recursos Humanos piensa en «entra como cajero», no en «entra en CAJ‑003». Pedir la silla obliga a conocer códigos que no le importan; elegir el cargo y asignar la silla libre habla como habla la empresa, y el organigrama queda igual de exacto.</p></div>
       <div><h5 id="ax-5">Por qué el reingreso no trae el vínculo</h5><p>La persona es la misma; el contrato no. Traer el puesto, el sueldo o las fechas del vínculo anterior es la manera más rápida de firmar un contrato nuevo con condiciones viejas. Lo de por vida —el carnet, el NUA— se trae; lo del vínculo se vuelve a decidir.</p></div>
       <div><h5 id="ax-6">Por qué «dar de alta» y no «crear»</h5><p>A una persona no se la crea: se la da de alta, que es como lo dice Recursos Humanos —alta en la Gestora, en la Caja, en planilla—. El botón usa la palabra de quien lo va a pulsar.</p></div>
-      <div><h5 id="ax-7">Por qué la vista previa es un expediente</h5><p>Lo que se revisa antes de dar de alta es el legajo de una persona. Mostrarlo como otro formulario hacía que se leyera como un paso más; mostrarlo como la carpeta que Recursos Humanos ya conoce hace que se revise como se revisa una carpeta.</p></div>
+      <div><h5 id="ax-7">Por qué la vista previa es un expediente</h5><p>Lo que se revisa antes de dar de alta es el legajo de una persona. Mostrarlo como otro formulario hacía que se leyera como una pestaña más; mostrarlo como la carpeta que Recursos Humanos ya conoce hace que se revise como se revisa una carpeta.</p></div>
       <div><h5 id="ax-8">Por qué las claves son las del estudio</h5><p>Cada dato de la ficha tiene detrás una fila del estudio de la propuesta que justifica por qué existe, quién lo pide y quién lo consume. Usar esa misma clave en el sistema permite volver a esa justificación desde cualquier dato, y que el rótulo o el paso cambien sin que se pierda nada guardado.</p></div>
+      <div><h5 id="ax-9">Por qué pestañas y no once pasos</h5><p>Once pasos en una columna eran once decisiones antes de empezar, y el equipo los ordenó como se piensan los datos de una persona: quién es, dónde trabaja y cómo se le paga, sus papeles, lo que se le entrega y cómo entra al sistema. Se agrupó sin quitar nada —cada parte conserva las secciones y los campos del paso que era— y sin cambiar las claves, así que los enlaces, los avisos y las cuentas siguieron funcionando.</p></div>
+      <div><h5 id="ax-10">Por qué las partes cuelgan del riel</h5><p>Se probaron las partes como pestañas arriba del contenido, como subtítulos dentro de la vista y como un índice. Colgadas de su pestaña, numeradas como un índice —1.1, 1.2—, dicen a la vez dónde se está y qué queda en esa pestaña, sin un segundo menú que mirar. La parte activa se pinta del mismo verde que su pestaña: un recuadro con borde se leía como un campo de formulario. En el celular, donde no hay dónde colgarlas, vuelven a ser píldoras arriba.</p></div>
+      <div><h5 id="ax-11">Por qué Preferencias se escribe a mano</h5><p>Se ofrecieron categorías, rangos de precio, prioridades y etiquetas para los regalos y las experiencias. El equipo prefirió que cada persona escriba lo que quiera, una fila por deseo: nadie tiene que decidir en qué categoría va un curso de fotografía, y lo que se lee es exactamente lo que la persona pidió.</p></div>
     </div>
   </section>
 
@@ -4269,7 +4675,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 
 <footer class="pie">
-  <div>Documentación del módulo de gestión de personas — versión 1.10, 29 de septiembre de 2026. Souly HR. Documenta la ficha del colaborador tal como está en el prototipo, con los mismos capítulos que el documento de <a href="reglas-de-negocio.html">Organización</a>. <strong>Las treinta y tres reglas están en estado borrador.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
+  <div>Documentación del módulo de gestión de personas — versión 1.99, 30 de septiembre de 2026. Souly HR. Documenta la ficha del colaborador tal como está en el prototipo, con los mismos capítulos que el documento de <a href="reglas-de-negocio.html">Organización</a>. <strong>Las treinta y cuatro reglas están en estado borrador.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
 </footer>
 
 
