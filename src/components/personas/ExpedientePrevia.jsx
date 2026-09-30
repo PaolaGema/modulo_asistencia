@@ -18,11 +18,14 @@ import { documentoDe, fechaCorta, inicialesDe, nombreDe, tarjetasTodas } from '.
    la empresa le da— y el color vive sólo en el índice: las secciones de abajo van en los de la
    marca. El verde se queda fuera de la paleta a propósito: en esta ficha quiere decir «completo». */
 
+/* Las familias siguen a las pestañas de la ficha (30 sep 2026): la persona, lo laboral, su perfil
+   y lo que la empresa le da y le pide. Cuatro colores y no seis: Documentación, Recursos y
+   Configuración son de una sola parte y van juntas. */
 const FAMILIAS = [
-  { key: 'persona', nombre: 'La persona', pasos: ['quien', 'entorno'] },
-  { key: 'trayectoria', nombre: 'Su trayectoria', pasos: ['puesto', 'perfil'] },
-  { key: 'contrato', nombre: 'Contrato y pago', pasos: ['contrato', 'afiliaciones', 'asistencia', 'remuneracion'] },
-  { key: 'empresa', nombre: 'En la empresa', pasos: ['recursos', 'sistema', 'expediente'] },
+  { key: 'persona', nombre: 'Información Personal', pasos: ['quien', 'entorno'] },
+  { key: 'contrato', nombre: 'Información Laboral', pasos: ['puesto', 'contrato', 'remuneracion', 'asistencia'] },
+  { key: 'trayectoria', nombre: 'Perfil Profesional', pasos: ['perfil'] },
+  { key: 'empresa', nombre: 'En la empresa', pasos: ['expediente', 'recursos', 'sistema'] },
 ]
 
 /* El anillo de la tapa. Decorativo: la cifra va escrita al lado con todas sus letras. */
@@ -148,7 +151,7 @@ export default function ExpedientePrevia({ form, set, ctx, nivel, avance, progre
           eligió entre seis propuestas; la anterior eran filas de pestañas por familia. Cada tramo
           es un botón que baja hasta su sección. */}
       <nav className="xp-lomo" aria-label="Secciones del expediente">
-        {FAMILIAS.map(f => (
+        {FAMILIAS.filter(f => f.pasos.some(c => pasos.some(x => x.paso.key === c))).map(f => (
           <div key={f.key} className="xp-lomo-fam" data-familia={f.key} style={{ flexGrow: f.pasos.filter(c => pasos.some(x => x.paso.key === c)).length }}>
             <p className="xp-lomo-nom">{f.nombre}</p>
             <div className="xp-lomo-tramos">
@@ -170,7 +173,7 @@ export default function ExpedientePrevia({ form, set, ctx, nivel, avance, progre
                     <span className="xp-tramo-nom" aria-hidden="true">{p.corto}</span>
                     {/* El número va aparte del nombre: delante le quitaba el sitio y «Contrato» acababa partido. */}
                     <span className="xp-tramo-pct" aria-hidden="true">
-                      <b>Paso {p.n}</b> · {pct === 100 ? <><Check size={11} strokeWidth={3} /> Completo</> : `${pct}%`}
+                      <b>Pestaña {p.n}</b> · {pct === 100 ? <><Check size={11} strokeWidth={3} /> Completo</> : `${pct}%`}
                     </span>
                   </button>
                 )

@@ -39,7 +39,15 @@ import { Eye } from 'lucide-react'
 
    Y NO HAY MARCA DE «COMPLETO». Un aro lleno es un aro lleno; un sello de terminado sobre un
    paso donde ningún campo es obligatorio sería una promesa que nadie puede cobrar. */
-export default function RielPasos({ pasos, actual, onIr, avance, pendientes }) {
+/* ── LAS PARTES DE LA PESTAÑA ABIERTA, COMO UN ÍNDICE ────────────────────────────
+   El diseño que mandó el equipo (30 sep 2026): las partes cuelgan debajo de su pestaña con su
+   numeración —1.1, 1.2— y una guía vertical fina; la puesta va en un recuadro con borde verde.
+   El avance de cada parte queda en el título, al pasar el ratón.
+
+   `partes` llega sólo para la pestaña abierta y sólo si tiene más de una: una pestaña de una
+   sola parte no tiene nada que desplegar. En el celular el riel se acuesta y las partes no caben
+   colgadas: ahí se esconden y las enseña la barra de píldoras de arriba del contenido. */
+export default function RielPasos({ pasos, actual, onIr, avance, pendientes, partes, onParte }) {
   /* ACOSTADO, EL PASO PUESTO VA AL MEDIO. En pantallas angostas el riel es una tira con scroll y
      el paso elegido podía quedar pegado a un borde, o fuera de la vista: no se sabía dónde se
      estaba ni que había más pasos a los lados. Centrado, siempre asoman vecinos por los dos
@@ -75,9 +83,10 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes }) {
            medirle. Llega como `undefined` desde el avance y eso alcanza para dejarlo liso. */
         const t = avance?.[p.key]
         const debe = pendientes?.has(p.key)
+        const colgadas = puesto && partes?.length > 1
         return (
+          <div key={p.key} className="rp-grupo">
           <button
-            key={p.key}
             type="button"
             className={`rp-paso${puesto ? ' on' : ''}${p.n ? '' : ' rp-previa'}`}
             aria-current={puesto ? 'step' : undefined}
@@ -111,6 +120,27 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes }) {
               <span className="rp-pista">{p.pista}</span>
             </span>
           </button>
+          {colgadas && (
+            <div className="rp-subs" role="group" aria-label={`Partes de ${p.titulo}`}>
+              {partes.map((x, j) => (
+                <button
+                  key={x.key}
+                  type="button"
+                  className={`rp-sub${x.on ? ' on' : ''}`}
+                  aria-current={x.on ? 'step' : undefined}
+                  onClick={() => onParte(x.key)}
+                  title={x.total ? `${x.puestos} de ${x.total} campos · ${x.pct}%` : undefined}
+                >
+                  <span className="rp-sub-num">{p.n}.{j + 1}</span>
+                  <span className="rp-sub-nom">
+                    {x.titulo}
+                    {x.debe && <i className="rp-punto" aria-label="Falta un dato del mínimo legal" />}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          </div>
         )
       })}
     </nav>

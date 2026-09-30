@@ -7,7 +7,7 @@ import { ocupanteDe, TIPOS_CARGO, nivelesDe as nivelesDeMando } from '../../data
 import { descendientes, filasEje, lineaDe } from '../../data/estructuraData'
 import { esVigente } from './colaboradoresData'
 import {
-  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, alDia, documentoDe, faltaParaCrear, faltasParaCrear,
+  EN_BLANCO, NIVELES, PASOS, PASO_PREVIA, PESTANAS, alDia, pasoPedido, pestanaDe, documentoDe, faltaParaCrear, faltasParaCrear,
   consecuenciasDe, fechaCorta, inicialesDe, nombreDe, progresoDe, progresoPorPaso, tarjetasDe, tarjetasTodas,
 } from '../../data/fichaColaborador'
 import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
@@ -84,7 +84,7 @@ export default function ColaboradorNuevo() {
   /* El paso sale de la dirección y se sanea: `?paso=cualquier-cosa` —escrito a mano o de un
      enlace viejo— abre el primero en vez de una pantalla en blanco. */
   const pedido = params.get('paso')
-  const paso = PASOS.some(p => p.key === pedido) ? pedido : PASOS[0].key
+  const paso = pasoPedido(pedido)
   const indice = PASOS.findIndex(p => p.key === paso)
 
   /* TOCAR UN CAMPO ES CONFIRMARLO. Los datos que llegan de un reingreso —teléfono, domicilio,
@@ -337,6 +337,17 @@ export default function ColaboradorNuevo() {
     for (const t of progresoPorPaso(form, ctx, nivel)) porClave[t.key] = t
     return porClave
   }, [form, ctx, nivel])
+  /* EL RIEL MIDE PESTAÑAS: su aro suma los campos de todas sus partes, y su punto rojo se
+     enciende si cualquiera de ellas debe algo del mínimo legal. */
+  const avancePestana = useMemo(() => {
+    const porClave = {}
+    for (const t of PESTANAS) {
+      const puestos = t.partes.reduce((n, k) => n + (avance[k]?.puestos || 0), 0)
+      const total = t.partes.reduce((n, k) => n + (avance[k]?.total || 0), 0)
+      porClave[t.key] = { puestos, total, pct: total ? Math.round((puestos / total) * 100) : 0 }
+    }
+    return porClave
+  }, [avance])
   const falta = faltaParaCrear(form)
 
   /* Qué pasos tienen algo del MÍNIMO LEGAL sin llenar: es el punto rojo de las pestañas. Se
@@ -352,6 +363,10 @@ export default function ColaboradorNuevo() {
     }
     return set
   }, [form, ctx])
+  const pendientesPestana = useMemo(
+    () => new Set(PESTANAS.filter(t => t.partes.some(k => pendientes.has(k))).map(t => t.key)),
+    [pendientes],
+  )
 
   /* EL NIVEL SIGUE VIVIENDO EN LA DIRECCIÓN, no en un ajuste escondido: `?nivel=Mínimo` se copia
      y se manda, que es de lo que se trata. Lo acompañaba un `?vista=` para elegir entre las tres
@@ -446,6 +461,13 @@ export default function ColaboradorNuevo() {
   const enPrevia = paso === PASO_PREVIA
   const tarjetas = enPrevia ? [] : tarjetasDe(paso, form, ctx, nivel)
   const pasoActual = PASOS[indice]
+  const pestana = pestanaDe(paso)
+  /* El riel lista las pestañas y la vista previa; pulsar una pestaña abre su primera parte. */
+  const itemsRiel = [
+    ...PESTANAS.map(t => ({ key: t.key, n: t.n, titulo: t.titulo, pista: t.pista })),
+    PASOS[PASOS.length - 1],
+  ]
+  const irAPestana = clave => irA(clave === PASO_PREVIA ? PASO_PREVIA : PESTANAS.find(t => t.key === clave).partes[0])
 
   /* QUÉ ACORDEONES ESTÁN ABIERTOS, por paso y sin efecto que lo sincronice: mientras nadie tocó
      el paso, la respuesta se DEDUCE —el primero abierto, el resto plegado—, y recién cuando
@@ -531,7 +553,7 @@ export default function ColaboradorNuevo() {
                 <span className="cn-alta-num" aria-hidden="true">{p?.n}</span>
                 <span className="cn-alta-txt">
                   <b>{f.nombre[0].toUpperCase() + f.nombre.slice(1)}</b>
-                  <small>{p?.titulo}</small>
+                  <small>{pestanaDe(f.paso)?.titulo}{pestanaDe(f.paso)?.partes.length > 1 ? ` · ${p?.titulo}` : ''}</small>
                 </span>
                 <button type="button" onClick={() => irAlCampo(f)}>
                   Completar <ArrowRight size={13} aria-hidden="true" />
@@ -633,7 +655,7 @@ export default function ColaboradorNuevo() {
   )
 
   return (
-    <div className="content-scroll" ref={raiz}>
+    <div className="content-scroll cn-pantalla" ref={raiz}>
       {avisoDeAlta}
       {confirmaAlta && !falta && (
         <ConfirmarAlta
@@ -742,18 +764,60 @@ export default function ColaboradorNuevo() {
         return (
           <div className="cn-grid">
             <RielPasos
-              pasos={PASOS}
-              actual={paso}
-              onIr={irA}
-              avance={avance}
-              pendientes={pendientes}
+              pasos={itemsRiel}
+              actual={enPrevia ? PASO_PREVIA : pestana?.key}
+              onIr={irAPestana}
+              avance={avancePestana}
+              pendientes={pendientesPestana}
+              partes={pestana?.partes.map(k => ({
+                key: k,
+                titulo: PASOS.find(x => x.key === k).titulo,
+                on: k === paso,
+                debe: pendientes.has(k),
+                pct: avance[k]?.pct ?? 0,
+                puestos: avance[k]?.puestos,
+                total: avance[k]?.total,
+              }))}
+              onParte={irA}
             />
 
             <div className="cn-cuerpo">
               <div className="cn-paso-cab">
-                <h2>{pasoActual.n ? `${pasoActual.n} · ${pasoActual.titulo}` : pasoActual.titulo}</h2>
-                <p>{pasoActual.pista}</p>
+                {/* Con varias partes, el título es la parte con su número —1.1, 2.3— y debajo se nombra su pestaña. */}
+                <h2>{pestana ? (pestana.partes.length > 1 ? `${pestana.n}.${pestana.partes.indexOf(paso) + 1} · ${pasoActual.titulo}` : `${pestana.n} · ${pestana.titulo}`) : pasoActual.titulo}</h2>
+                <p>{pestana && pestana.partes.length > 1 ? `${pestana.titulo} · ${pasoActual.pista}` : pasoActual.pista}</p>
               </div>
+              {/* LAS PARTES DE LA PESTAÑA EN EL CELULAR. En escritorio cuelgan del riel; en una
+                  pantalla angosta el riel se acuesta y no hay dónde colgarlas, así que van acá
+                  como píldoras: la activa en azul oscuro, cada una con su aro de avance y su
+                  punto rojo si debe algo del mínimo legal. */}
+              {pestana && pestana.partes.length > 1 && (
+                <div className="cn-partes" role="tablist" aria-label={`Partes de ${pestana.titulo}`}>
+                  {pestana.partes.map((k, j) => {
+                    const parte = PASOS.find(x => x.key === k)
+                    const a = avance[k]
+                    const puesta = k === paso
+                    return (
+                      <button
+                        key={k}
+                        type="button"
+                        role="tab"
+                        aria-selected={puesta}
+                        className={`cn-parte${puesta ? ' on' : ''}`}
+                        onClick={() => irA(k)}
+                        title={a ? `${a.puestos} de ${a.total} campos` : undefined}
+                      >
+                        <span className="rp-aro">
+                          {a && <i className="rp-arco" style={{ '--pct': `${a.pct}%` }} />}
+                          <b>{j + 1}</b>
+                        </span>
+                        <span className="cn-parte-nom">{parte.titulo}</span>
+                        {pendientes.has(k) && <i className="rp-punto" aria-label="Falta un dato del mínimo legal" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
               {campos}
               {pie}
             </div>

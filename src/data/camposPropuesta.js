@@ -1855,6 +1855,23 @@ export const PASOS_PROPUESTA = [
             traza: '↳ 1.63. Alimenta: GP, PL.'
           }
         ]
+      },
+      /* LAS PREFERENCIAS SON DE LA PERSONA, NO DE LO QUE SE LE ENTREGA. Vivían al final de
+         Recursos y activos; el equipo las trajo al final de Información Personal (30 sep 2026).
+         Conservan sus claves `ra.f*` para no perder lo que ya se escribió en un borrador. */
+      {
+        id: 'preferencias',
+        titulo: 'Preferencias',
+        desc: 'Registre los regalos que le gustaría recibir y las experiencias que le gustaría vivir.',
+        propuesta: true,
+        incierto: false,
+        campos: [
+          /* SE ESCRIBE Y NADA MÁS (30 sep 2026): el equipo vio tablas, tarjetas y categorías y prefirió dos cajas
+             libres, y después pidió que cada una fuera una tablita con una celda por fila (tipo `filas`,
+             ver ListaFilas). «Intereses» se fue; las experiencias usan una clave nueva para no heredar lo que se escribió ahí. */
+          { key: 'ra.f1', label: 'Regalos que le gustaría recibir', tipo: 'filas', columna: 'Regalo', agregar: 'Agregar regalo', col: 'c-medio', nivel: 'Operativo', ph: 'Unos audífonos, un libro…' },
+          { key: 'ra.f4', label: 'Experiencias que le gustaría vivir', tipo: 'filas', columna: 'Experiencia', agregar: 'Agregar experiencia', col: 'c-medio', nivel: 'Operativo', ph: 'Un viaje, un curso, un concierto…' }
+        ]
       }
     ]
   },
@@ -4953,7 +4970,7 @@ export const PASOS_PROPUESTA = [
        campos no alcanzaban a ninguno: un EPP vence y tiene certificación, un vehículo tiene placa
        y año, una licencia de software se revoca. El equipo mandó la lista de campos de cada clase
        (29 sep 2026) y se arma tal cual: Equipos, Uniformes, EPP, Herramientas, Vehículos, Software
-       y licencias, y Preferencias.
+       y licencias. (Preferencias se mudó a Información Personal el 30 sep 2026.)
 
        TODAS LAS ENTREGAS ARRANCAN EN CERO, con su botón «Agregar…». Casi nadie recibe a la vez un
        vehículo, un EPP y una licencia: seis bloques vacíos serían sesenta cajas para llenar de
@@ -5198,18 +5215,6 @@ export const PASOS_PROPUESTA = [
           { key: 'ra.s9', repite: 'software', label: 'Responsable de asignación', tipo: 'lista', opciones: [], buscador: true, col: 'c-tercio', nivel: 'Operativo' },
           { key: 'ra.s10', repite: 'software', label: 'Observaciones', tipo: 'texto', col: 'c-todo', nivel: 'Operativo' },
           { key: 'ra.masSoftware', tipo: 'repetir', grupo: 'software', max: 15, label: 'Agregar otro software', labelPrimero: 'Agregar software', col: 'c-todo', nivel: 'Operativo' }
-        ]
-      },
-      {
-        id: 'preferencias',
-        titulo: 'Preferencias',
-        desc: 'Registre los deseos, intereses y habilidades del colaborador.',
-        propuesta: true,
-        incierto: false,
-        campos: [
-          { key: 'ra.f1', label: 'Lista de deseos', tipo: 'texto', col: 'c-tercio', nivel: 'Operativo', ph: 'Un segundo monitor, una silla ergonómica…' },
-          { key: 'ra.f2', label: 'Intereses', tipo: 'texto', col: 'c-tercio', nivel: 'Operativo', ph: 'Fotografía, fútbol, lectura…' },
-          { key: 'ra.f3', label: 'Habilidades', tipo: 'texto', col: 'c-tercio', nivel: 'Operativo', ph: 'Excel avanzado, oratoria…' }
         ]
       }
     ]

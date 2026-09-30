@@ -4,6 +4,7 @@ import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
 import CampoTelefono from './CampoTelefono'
 import ListaTutela from './ListaTutela'
+import ListaFilas, { FilasLeidas } from './ListaFilas'
 import ListaAprobadores from './ListaAprobadores'
 import TablaFuncional from './TablaFuncional'
 import AgregarDocumento from './AgregarDocumento'
@@ -174,6 +175,7 @@ function ValorLeido({ campo, valor }) {
   /* Leído, un texto de varias líneas conserva sus saltos: escribirlo en tres párrafos y verlo
      en un chorizo es perder la mitad de lo que quien lo escribió quiso decir. */
   if (campo.tipo === 'texto') return <p className="emp-valor emp-valor-parrafo">{v}</p>
+  if (campo.tipo === 'filas') return <FilasLeidas valor={v} />
 
   if (!href) return <p className="emp-valor">{v}</p>
   return (
@@ -411,6 +413,8 @@ function CampoFicha({ campo, form, set, editando, prefijo, marcarFaltas, estilo,
         <ValorLeido campo={campo} valor={form[campo.key]} />
       ) : campo.telefono ? (
         <CampoTelefono id={id} campo={campo} form={form} set={set} falta={falta} />
+      ) : campo.tipo === 'filas' ? (
+        <ListaFilas id={id} campo={campo} form={form} set={set} />
       ) : campo.tipo === 'tutela' ? (
         <ListaTutela campo={campo} form={form} set={set} />
       ) : campo.tipo === 'aprobadores' ? (

@@ -9113,6 +9113,51 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 /* La vista previa no es el noveno paso: el filete la separa de los ocho que sí se llenan. */
 .rp-previa { margin-top: 6px; border-top: 1px solid var(--border-soft); padding-top: 12px; }
 
+/* ── LAS PARTES, COMO UN ÍNDICE BAJO SU PESTAÑA ────────────────────────────
+   El diseño que mandó el equipo (30 sep 2026): sin línea que una las pestañas. Las partes de la
+   pestaña abierta cuelgan debajo con su numeración —1.1, 1.2—, junto a una guía vertical fina que
+   las ata a su pestaña. La parte en la que se está se pinta del verde claro de su pestaña. */
+.rp-grupo { display: flex; flex-direction: column; }
+/* En escritorio las partes cuelgan del riel, así que la barra de píldoras sobra. */
+@media (min-width: 1001px) { .cn-cuerpo > .cn-partes { display: none; } }
+
+.rp-subs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 8px 22px;
+  padding-left: 10px;
+  border-left: 1.5px solid var(--border-soft);
+}
+.rp-sub {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.rp-sub:hover { background: var(--surface-hover); color: var(--text-heading); }
+.rp-sub:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+/* La parte en la que se está, con el mismo verde claro de su pestaña y sin borde (30 sep 2026,
+   la opción A de seis): el recuadro con borde verde se veía como un campo de formulario. */
+.rp-sub.on {
+  background: var(--bg-puesto);
+  color: var(--text-heading);
+  font-weight: 600;
+}
+.rp-sub.on .rp-sub-num { color: var(--green-fuerte); }
+.dark .rp-sub.on .rp-sub-num { color: var(--green); }
+.rp-sub-num { flex: none; font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rp-sub-nom { display: inline-flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.35; }
+
 /* ── LOS MANDOS DEL PROTOTIPO ──────────────────────────────────────────────
    ANDAMIO Y SE BORRA. No son una función del producto: son la comparación entre varios diseños
    de la ficha de alta, puesta donde un equipo pueda accionarla mientras la recorre. Cuando
@@ -9595,6 +9640,47 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   margin: 0;
 }
 .cn-paso-cab p { font-size: 12px; color: var(--text-muted); margin: 3px 0 0; }
+
+/* ── LAS PARTES DE UNA PESTAÑA ──────────────────────────────────────────────
+   Una barra blanca con una píldora por parte, cada una con su aro de avance. La puesta va en azul
+   oscuro, como las pestañas de la propuesta que eligió el equipo. En el celular la barra se
+   desplaza de lado en vez de partirse en dos renglones. */
+.cn-partes {
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.cn-parte {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  padding: 6px 11px 6px 7px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.cn-parte:hover { background: var(--bg-app); color: var(--text-heading); }
+.cn-parte:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.cn-parte.on { background: #0C2D40; color: #fff; font-weight: 600; }
+.cn-parte.on .rp-aro b { color: #fff; }
+.cn-parte.on .rp-arco { background: conic-gradient(var(--green) 0 var(--pct, 0%), rgba(255,255,255,.22) var(--pct, 0%) 100%); }
+.dark .cn-parte.on { background: var(--green); color: #0C2D40; }
+.dark .cn-parte.on .rp-aro b { color: #0C2D40; }
+.dark .cn-parte.on .rp-arco { background: conic-gradient(#0C2D40 0 var(--pct, 0%), rgba(12,45,64,.25) var(--pct, 0%) 100%); }
+.cn-parte .rp-aro { width: 24px; height: 24px; }
 .cn-tarjetas { display: flex; flex-direction: column; gap: 16px; }
 
 /* ── LA VISTA PREVIA COMO EXPEDIENTE ────────────────────────────────────────
@@ -10076,6 +10162,41 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   .cn-confirma-persona { margin: 16px 16px 18px; }
 }
 
+/* ── LA TABLITA DE FILAS (regalos, experiencias) ─────────────────────────────
+   Un recuadro con una fila por deseo: el número, una celda sin borde para escribir y la cruz que
+   la quita. Al pie, el botón que suma otra fila. */
+.lf { border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden; background: var(--surface-card); }
+.lf-tabla { width: 100%; border-collapse: collapse; }
+.lf-tabla th {
+  text-align: left; padding: 8px 10px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-muted); background: var(--bg-app); border-bottom: 1px solid var(--border-soft);
+}
+.lf-tabla td { padding: 0; border-bottom: 1px solid var(--border-soft); }
+.lf-n { width: 36px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.lf-tabla th.lf-n { text-align: center; }
+.lf-x { width: 36px; text-align: center; }
+.lf-celda {
+  width: 100%; height: 40px; padding: 0 10px; border: 0; background: none;
+  font-family: inherit; font-size: 13px; color: var(--text-heading);
+}
+.lf-celda::placeholder { color: var(--text-muted); }
+.lf-celda:focus { outline: none; background: var(--bg-puesto); }
+.lf-quitar {
+  display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto;
+  border: 0; border-radius: 7px; background: none; color: var(--text-muted); cursor: pointer;
+}
+.lf-quitar:hover { background: var(--bg-app); color: var(--text-heading); }
+.lf-quitar:focus-visible, .lf-mas:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.lf-mas {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 9px 12px; border: 0; background: var(--bg-app);
+  font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--green-fuerte);
+  cursor: pointer; text-align: left;
+}
+.lf-mas:hover { background: var(--bg-puesto); }
+.lf-leidas { margin: 0; padding-left: 20px; display: grid; gap: 2px; font-size: 14px; font-weight: 600; color: var(--text-heading); }
+
 /* ── EL FILTRO DE ARCHIVOS ──────────────────────────────────────────────────
    El buscador y tres píldoras —Tipo, Estado, Fechas— en una sola fila. El buscador se estira y
    las píldoras miden lo que dicen. En el celular el buscador ocupa su fila y las píldoras van
@@ -10282,6 +10403,14 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   box-shadow: 0 -12px 24px -20px rgba(12,45,64,.45);
 }
 .cn-pie .pl-btn-save { margin-left: auto; }
+/* EL PIE VIVE SIEMPRE ABAJO. En una pestaña larga ya quedaba pegado al borde inferior; en una
+   corta —Configuración, con una sola sección— aparecía justo debajo del contenido, a media
+   pantalla, y los botones cambiaban de sitio de una pestaña a otra. La pantalla ocupa ahora todo
+   el alto, el cuerpo se estira y el pie se empuja al final. */
+.cn-pantalla { min-height: 100%; }
+.cn-pantalla > .cn-grid { flex: 1 0 auto; }
+.cn-grid > .cn-cuerpo { align-self: stretch; }
+.cn-cuerpo > .cn-pie { margin-top: auto; }
 
 @media (max-width: 1000px) {
   .cn-grid { grid-template-columns: minmax(0, 1fr); }
@@ -10296,6 +10425,10 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
      recortado a la mitad es peor que no estar. */
   .rp-pista { display: none; }
   .rp-previa { margin: 0 0 0 6px; border-top: none; border-left: 1px solid var(--border-soft); padding: 0 0 0 12px; }
+  /* Acostado, el riel no tiene línea ni partes colgadas: las partes van en las píldoras. */
+  .rp-grupo { flex-direction: row; flex-shrink: 0; }
+  .rp-grupo::before, .rp-subs { display: none; }
+  .rp-grupo + .rp-grupo:not(.rp-grupo-previa) { margin-top: 0; }
 }
 
 @media (max-width: 640px) {

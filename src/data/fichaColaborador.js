@@ -64,14 +64,69 @@ export const PASO_PREVIA = 'previa'
    y ahí se enseña todo. */
 const SOLO_EN_LOCAL = ['perfil', 'asistencia']
 const EN_LOCAL = import.meta.env?.DEV ?? true
-let numero = 0
-export const PASOS = PASOS_PROPUESTA
-  .filter(p => EN_LOCAL || !SOLO_EN_LOCAL.includes(p.key))
-  .map(({ key, n, titulo, corto, pista }) => ({ key, n: n ? ++numero : n, titulo, corto, pista }))
+const seEnsena = key => EN_LOCAL || !SOLO_EN_LOCAL.includes(key)
 
-/* «Paso 4 de 8». El ocho se cuenta, no se escribe: «Vista previa» viene sin número desde el
-   conversor justamente para no contar como un formulario más, y si el estudio agrega un paso
-   nueve esta cifra se entera sola. */
+/* ── SEIS PESTAÑAS, CADA UNA CON SUS PARTES ──────────────────────────────────
+   La organización que pidió el equipo (30 sep 2026): los once pasos del estudio se agrupan en
+   seis pestañas sin quitar ninguna sección ni ningún campo. Sólo cambia dónde está cada cosa.
+   El riel enseña las pestañas; las partes de la pestaña abierta van arriba del contenido, como
+   píldoras.
+
+   CADA PARTE SIGUE SIENDO UN PASO DEL ESTUDIO, con su misma clave: `?paso=contrato` sigue
+   abriendo el contrato, y las cuentas, los avisos y la vista previa no se enteran del cambio.
+
+   REMUNERACIÓN Y AFILIACIONES SON UNA SOLA PARTE, «Compensación, Nómina y Afiliaciones»: el haber,
+   los beneficios y el pago primero, y después la Gestora, la Caja, el Ministerio y el RC-IVA.
+   `JUNTA` dice qué pasos del estudio caen en una parte, en orden. Un enlace viejo a
+   `?paso=afiliaciones` abre esa parte — ver `pasoPedido`.
+
+   LA PESTAÑA QUE SE QUEDA SIN PARTES NO SE ENSEÑA: en Vercel Perfil Profesional no tiene nada
+   que mostrar, y las demás se renumeran para que el riel diga 1, 2, 3… sin huecos. */
+const PESTANAS_BASE = [
+  { key: 'personal', titulo: 'Información Personal', pista: 'Sus datos y los de su familia', partes: ['quien', 'entorno'] },
+  { key: 'laboral', titulo: 'Información Laboral', pista: 'Su puesto, contrato, pago y afiliaciones', partes: ['puesto', 'contrato', 'remuneracion', 'asistencia'] },
+  { key: 'perfil', titulo: 'Perfil Profesional', pista: 'Su formación, trayectoria y habilidades', partes: ['perfil'] },
+  { key: 'documentos', titulo: 'Documentación y Expediente Digital', pista: 'Sus papeles, reunidos en un solo lugar', partes: ['expediente'] },
+  { key: 'recursos', titulo: 'Recursos y Activos', pista: 'Lo que la empresa le entrega para trabajar', partes: ['recursos'] },
+  { key: 'configuracion', titulo: 'Configuración de Colaborador', pista: 'Su usuario y su rol en el sistema', partes: ['sistema'] },
+]
+/* Los pasos del estudio que forman cada parte, cuando son más de uno. */
+const JUNTA = { remuneracion: ['remuneracion', 'afiliaciones'] }
+/* El nombre de cada parte dentro de su pestaña, cuando no es el del paso del estudio. */
+const PARTE = {
+  // Se llama como su pestaña, igual que la 2.1 «Información Laboral» (30 sep 2026).
+  quien: { titulo: 'Información Personal', corto: 'Personal' },
+  entorno: { titulo: 'Información Familiar', corto: 'Familia' },
+  puesto: { titulo: 'Información Laboral', corto: 'Laboral' },
+  contrato: { titulo: 'Relación Laboral', corto: 'Contrato' },
+  remuneracion: { titulo: 'Compensación, Nómina y Afiliaciones', corto: 'Compensación', pista: 'Haber, beneficios, pago y afiliaciones' },
+}
+const pasoDelEstudio = key => PASOS_PROPUESTA.find(p => p.key === key)
+
+export const PESTANAS = PESTANAS_BASE
+  .map(t => ({ ...t, partes: t.partes.filter(seEnsena) }))
+  .filter(t => t.partes.length)
+  .map((t, i) => ({ ...t, n: i + 1 }))
+
+/* LOS PASOS, EN EL ORDEN DE LAS PESTAÑAS, y la vista previa al final. Cada uno lleva el número y
+   la clave de su pestaña: «Pestaña 2 · Relación Laboral». */
+export const PASOS = [
+  ...PESTANAS.flatMap(t => t.partes.map(key => {
+    const { titulo, corto, pista } = pasoDelEstudio(key)
+    return { key, n: t.n, pestana: t.key, titulo, corto, pista, ...PARTE[key] }
+  })),
+  (({ key, titulo, corto, pista }) => ({ key, n: null, titulo, corto, pista }))(pasoDelEstudio(PASO_PREVIA)),
+]
+
+/* La pestaña de un paso, y el paso que abre un enlace: uno viejo a una parte que se juntó con
+   otra —`?paso=afiliaciones`— abre la parte que la contiene. */
+export const pestanaDe = paso => PESTANAS.find(t => t.partes.includes(paso)) || null
+export const pasoPedido = pedido => {
+  if (PASOS.some(p => p.key === pedido)) return pedido
+  const junto = Object.keys(JUNTA).find(k => JUNTA[k].includes(pedido))
+  return junto && PASOS.some(p => p.key === junto) ? junto : PASOS[0].key
+}
+
 export const TOTAL_PASOS = PASOS.filter(p => p.n).length
 
 /* ── Los tres niveles del estudio ────────────────────────────────────────── */
@@ -1183,10 +1238,11 @@ const sinRotulosHuerfanos = campos => campos.filter((c, i) => {
 })
 
 export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
-  const p = PASOS_PROPUESTA.find(x => x.key === paso)
-  if (!p) return []
+  // Una parte hecha de varios pasos del estudio junta sus secciones, en orden. Ver `JUNTA`.
+  const fuentes = (JUNTA[paso] || [paso]).map(pasoDelEstudio).filter(Boolean)
+  if (!fuentes.length) return []
 
-  return p.tarjetas.map(t => ({
+  return fuentes.flatMap(p => p.tarjetas).map(t => ({
     ...t,
     campos: t.campos
       /* LA CONDICIÓN DE UN CAMPO REPETIBLE NO SE MIRA TODAVÍA. Acá cada descriptor es uno
