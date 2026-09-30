@@ -47,7 +47,7 @@ export const TIPOS_BASE = [
   { key: 'region',   label: 'Región',             plural: 'Regionales',   eje: 'fisica',
     desc: 'Una agrupación geográfica de sucursales. Sirve para filtrar y consolidar información —las ventas de todo el oriente— y no para mandar: nadie le reporta a una región.' },
   { key: 'sucursal', label: 'Sucursal',           plural: 'Sucursales',   eje: 'fisica',
-    desc: 'Una sede desde la que opera la empresa: una dirección física con su gente. Debajo van sus centros de trabajo.' },
+    desc: 'Una sucursal desde la que opera la empresa: una dirección física con su gente. Debajo van sus centros de trabajo.' },
   /* CENTRO DE TRABAJO Y NO «OFICINA». El nombre viejo era «Oficina o centro», y un nombre con
      «o» en el medio es un nombre que no se pudo decidir. La descripción ya decía lo que este
      peldaño es de verdad —donde se marca asistencia— y eso no es una oficina: es una oficina, un
@@ -824,7 +824,7 @@ export const EJES = {
       { key: 'region', label: 'Regionales', tipos: ['region'],
         desc: 'Agrupan sucursales por geografía. Sirven para filtrar y consolidar, no para mandar.' },
       { key: 'sucursal', label: 'Sucursales', tipos: ['sucursal'],
-        desc: 'Las sedes desde las que opera la empresa. Cada una agrupa sus centros de trabajo.' },
+        desc: 'Las sucursales desde las que opera la empresa. Cada una agrupa sus centros de trabajo.' },
       { key: 'centro', label: 'Centros de trabajo', tipos: ['centro'],
         desc: 'Centros de trabajo dentro de una sucursal. Es donde se marca asistencia.' },
     ],
@@ -1606,8 +1606,8 @@ export function gruposDe(tipo, { personas, padres, ciudades, nivel, niveles, val
           opciones: [{ valor: RAIZ, etiqueta: vacioLugar }, ...opcionesLugar],
           ph: vacioLugar, vacio: vacioLugar,
           ayuda: primerNivel
-            ? 'Es la sede de la unidad, no la de su gente: cada puesto puede declarar otra si trabaja en otro sitio.'
-            : 'Es la sede de la unidad, no la de su gente. Declarar una propia no contradice a la de arriba: la afina para esta rama —«Almacén La Paz» dentro de «Logística», que está en Casa Matriz—.',
+            ? 'Es la sucursal de la unidad, no la de su gente: cada puesto puede declarar otra si trabaja en otro sitio.'
+            : 'Es la sucursal de la unidad, no la de su gente. Declarar una propia no contradice a la de arriba: la afina para esta rama —«Almacén La Paz» dentro de «Logística», que está en Casa Matriz—.',
         },
         /* DE DÓNDE SALE EL DATO, AL LADO Y NO DENTRO. El desplegable ya no tiene que explicarse a
            sí mismo: enseña el sitio y ya. Que sea heredado o propio es OTRA pregunta, y tenía la

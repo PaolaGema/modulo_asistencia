@@ -1,4 +1,4 @@
-import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Desplegable from '../layout/Desplegable'
 import SelectorPersona, { AvatarPersona } from '../personas/SelectorPersona'
 import SelectorFecha from '../layout/SelectorFecha'
@@ -14,7 +14,7 @@ import SubirArchivo, { ArchivoLeido } from '../personas/SubirArchivo'
    mirar un teléfono en el directorio y nunca abre una ficha. */
 const SelectorUbicacion = lazy(() => import('../personas/SelectorUbicacion'))
 import AyudaCampo from '../personas/AyudaCampo'
-import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { CalendarDays, ChevronDown, CircleCheck, FileText, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { conRieles, estilosDeRiel } from './rejillaFicha'
 import { claveDeCuenta, cuantosHay, quitarCopia } from '../../data/fichaColaborador'
 
@@ -663,7 +663,159 @@ function categoriasDe(campos, form) {
    Sin tildes ni mayúsculas, como el resto de los buscadores. */
 const sinTildes = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 const coincide = (campo, texto) => !texto || sinTildes(`${campo.busca || campo.label} ${campo.categoria}`).includes(sinTildes(texto))
-function FiltroDocumentos({ categorias, activo, onElegir, busca, onBuscar }) {
+/* ── EL ESTADO Y LAS FECHAS DE CADA DOCUMENTO ─────────────────────────────────
+   Pedidos por el equipo (30 sep 2026). Cada documento dice en `emite` y `vence` de qué campo de
+   su misma copia salen sus fechas: el carnet, de 1.15 y 1.16; la tercera licencia, de 1.76#3 y
+   1.77#3. Lo que no las declara —la foto, el croquis— no tiene fecha.
+
+   EL ESTADO VA PRIMERO POR EL ARCHIVO y después por la fecha: sin archivo está «Pendiente», se
+   sepa o no cuándo vence, porque lo que falta es subirlo. Con archivo, la fecha de vencimiento
+   leída contra hoy, con los mismos 30 días de aviso que las licencias. Sin fecha de vencimiento,
+   «Sin vencimiento». */
+const ISO = /^\d{4}-\d{2}-\d{2}$/
+const isoDe = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+const fechaDe = (campo, form, base) => {
+  if (!base) return ''
+  const v = form[!campo.instancia || campo.instancia === 1 ? base : `${base}#${campo.instancia}`]
+  return ISO.test(v || '') ? v : ''
+}
+function estadoDe(campo, form) {
+  if (!form[campo.key]) return 'Pendiente'
+  const vence = fechaDe(campo, form, campo.vence)
+  if (!vence) return 'Sin vencimiento'
+  const hoy = new Date()
+  if (vence < isoDe(hoy)) return 'Vencido'
+  hoy.setDate(hoy.getDate() + 30)
+  return vence <= isoDe(hoy) ? 'Por vencer' : 'Vigente'
+}
+const TODOS_ESTADOS = 'todos'
+const ESTADOS_DOC = ['Pendiente', 'Vencido', 'Por vencer', 'Vigente', 'Sin vencimiento']
+/* ── LOS FILTROS SON PÍLDORAS ────────────────────────────────────────────────
+   Elegidas por el equipo entre cuatro propuestas (30 sep 2026): el buscador y tres píldoras en
+   una sola fila. Sin filtro, cada una dice sólo qué filtra —«Tipo», «Estado», «Fechas»— con su
+   icono; con filtro, se pinta de verde, dice el valor y trae una × para quitarlo. Así la fila
+   queda en silencio y sólo resalta lo que está filtrando.
+
+   LAS FECHAS VAN EN UN PANEL y no en cuatro calendarios a la vista: se elige qué fecha mirar
+   —emisión o vencimiento—, un atajo o un rango. Con un rango puesto, un documento sin esa fecha
+   no entra: no se puede decir que se emitió en marzo algo cuya emisión nadie anotó. */
+const COLOR_ESTADO = { 'Pendiente': '#94A3B8', 'Vencido': '#E5484D', 'Por vencer': '#F5A524', 'Vigente': '#00C27D', 'Sin vencimiento': '#6B8CAE' }
+const diasDesdeHoy = n => { const d = new Date(); d.setDate(d.getDate() + n); return isoDe(d) }
+const ATAJOS_FECHA = {
+  vence: [
+    { id: 'v30', boton: 'Próximos 30 días', pildora: 'Vence en 30 días', rango: () => [isoDe(new Date()), diasDesdeHoy(30)] },
+    { id: 'v90', boton: 'Próximos 90 días', pildora: 'Vence en 90 días', rango: () => [isoDe(new Date()), diasDesdeHoy(90)] },
+    { id: 'vya', boton: 'Ya vencidos', pildora: 'Ya vencidos', rango: () => ['', diasDesdeHoy(-1)] },
+  ],
+  emite: [
+    { id: 'e30', boton: 'Último mes', pildora: 'Emitidos en el último mes', rango: () => [diasDesdeHoy(-30), isoDe(new Date())] },
+    { id: 'eano', boton: 'Este año', pildora: `Emitidos en ${new Date().getFullYear()}`, rango: () => [`${new Date().getFullYear()}-01-01`, isoDe(new Date())] },
+  ],
+}
+const SIN_FECHAS = { cual: 'vence', desde: '', hasta: '', atajo: '' }
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+const fechaCorta = iso => { const [a, m, d] = iso.split('-'); return `${+d} ${MESES_CORTOS[+m - 1]} ${a}` }
+function textoFechas({ cual, desde, hasta, atajo }) {
+  const a = ATAJOS_FECHA[cual].find(x => x.id === atajo)
+  if (a) return a.pildora
+  const pre = cual === 'vence' ? 'Vence' : 'Emitido'
+  if (desde && hasta) return `${pre} del ${fechaCorta(desde)} al ${fechaCorta(hasta)}`
+  return desde ? `${pre} desde el ${fechaCorta(desde)}` : `${pre} hasta el ${fechaCorta(hasta)}`
+}
+const enRango = (campo, form, { cual, desde, hasta }) => {
+  if (!desde && !hasta) return true
+  const f = fechaDe(campo, form, campo[cual])
+  return !!f && (!desde || f >= desde) && (!hasta || f <= hasta)
+}
+
+/* Una píldora de lista: el desplegable de la casa con cara de píldora. La × va AL LADO del
+   botón y no dentro, porque un botón no puede contener otro. */
+function PildoraLista({ icono: Icono, rotulo, valor, opciones, onCambio, punto }) {
+  return (
+    <div className={`doc-pil${valor ? ' activa' : ''}`}>
+      <Desplegable
+        valor={valor}
+        opciones={opciones}
+        onCambio={onCambio}
+        ariaLabel={`Filtrar por ${rotulo.toLowerCase()}`}
+        claseBoton="doc-pil-btn"
+        anchoMenu={260}
+        contenido={elegida => (
+          <span className="doc-pil-cara">
+            {elegida && punto
+              ? <i className="doc-punto" style={{ background: punto(elegida.valor) }} />
+              : <Icono size={14} className="doc-pil-ico" />}
+            {elegida ? <b>{elegida.valor}</b> : rotulo}
+          </span>
+        )}
+      />
+      {valor && (
+        <button type="button" className="doc-pil-x" aria-label={`Quitar filtro de ${rotulo.toLowerCase()}`} onClick={() => onCambio('')}>
+          <X size={13} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+function PildoraFechas({ fechas, onFechas }) {
+  const [abierto, setAbierto] = useState(false)
+  const cajaRef = useRef(null)
+  const activa = !!(fechas.desde || fechas.hasta)
+  useEffect(() => {
+    if (!abierto) return
+    const fuera = e => { if (!cajaRef.current?.contains(e.target)) setAbierto(false) }
+    const esc = e => { if (e.key === 'Escape') setAbierto(false) }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', esc)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', esc) }
+  }, [abierto])
+  const atajo = a => {
+    if (fechas.atajo === a.id) return onFechas({ ...fechas, desde: '', hasta: '', atajo: '' })
+    const [desde, hasta] = a.rango()
+    onFechas({ ...fechas, desde, hasta, atajo: a.id })
+  }
+  return (
+    <div className={`doc-pil${activa ? ' activa' : ''}`} ref={cajaRef}>
+      <button type="button" className="pl-dropdown-trigger doc-pil-btn" aria-expanded={abierto} aria-haspopup="dialog" onClick={() => setAbierto(a => !a)}>
+        <span className="doc-pil-cara">
+          <CalendarDays size={14} className="doc-pil-ico" />
+          {activa ? <b>{textoFechas(fechas)}</b> : 'Fechas'}
+        </span>
+        <ChevronDown size={15} className="pl-dropdown-chevron" />
+      </button>
+      {activa && (
+        <button type="button" className="doc-pil-x" aria-label="Quitar filtro de fechas" onClick={() => { onFechas(SIN_FECHAS); setAbierto(false) }}>
+          <X size={13} />
+        </button>
+      )}
+      {abierto && (
+        <div className="doc-fechas" role="dialog" aria-label="Filtrar por fechas">
+          <div className="doc-seg" role="group" aria-label="Qué fecha mirar">
+            {[['emite', 'Emisión'], ['vence', 'Vencimiento']].map(([cual, rot]) => (
+              <button key={cual} type="button" aria-pressed={fechas.cual === cual} onClick={() => onFechas({ ...SIN_FECHAS, cual })}>{rot}</button>
+            ))}
+          </div>
+          <div className="doc-atajos">
+            {ATAJOS_FECHA[fechas.cual].map(a => (
+              <button key={a.id} type="button" aria-pressed={fechas.atajo === a.id} onClick={() => atajo(a)}>{a.boton}</button>
+            ))}
+          </div>
+          <div className="doc-rango">
+            <SelectorFecha valor={fechas.desde} onCambio={desde => onFechas({ ...fechas, desde, atajo: '' })} placeholder="Desde" ariaLabel="Desde" />
+            <SelectorFecha valor={fechas.hasta} onCambio={hasta => onFechas({ ...fechas, hasta, atajo: '' })} placeholder="Hasta" ariaLabel="Hasta" />
+          </div>
+          <div className="doc-fechas-pie">
+            <button type="button" className="doc-limpiar" onClick={() => onFechas({ ...SIN_FECHAS, cual: fechas.cual })}>Limpiar</button>
+            <button type="button" className="doc-listo" onClick={() => setAbierto(false)}>Listo</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FiltroDocumentos({ categorias, activo, onElegir, busca, onBuscar, estados, estado, onEstado, fechas, onFechas }) {
   return (
     <div className="doc-filtro">
       <div className="pl-search-wrap doc-buscar">
@@ -677,14 +829,22 @@ function FiltroDocumentos({ categorias, activo, onElegir, busca, onBuscar }) {
           onChange={e => onBuscar(e.target.value)}
         />
       </div>
-      <div className="doc-tipo">
-        <Desplegable
-          valor={activo}
-          opciones={categorias.map(c => ({ valor: c.nombre, etiqueta: c.nombre, lateral: `${c.subidos}/${c.total}` }))}
-          onCambio={onElegir}
-          ariaLabel="Filtrar por tipo de documento"
-        />
-      </div>
+      <PildoraLista
+        icono={FileText}
+        rotulo="Tipo"
+        valor={activo === TODAS ? '' : activo}
+        opciones={categorias.filter(c => c.nombre !== TODAS).map(c => ({ valor: c.nombre, etiqueta: c.nombre, lateral: `${c.subidos}/${c.total}` }))}
+        onCambio={v => onElegir(v || TODAS)}
+      />
+      <PildoraLista
+        icono={CircleCheck}
+        rotulo="Estado"
+        valor={estado === TODOS_ESTADOS ? '' : estado}
+        opciones={estados.map(e => ({ valor: e.nombre, etiqueta: e.nombre, lateral: String(e.total) }))}
+        onCambio={v => onEstado(v || TODOS_ESTADOS)}
+        punto={v => COLOR_ESTADO[v]}
+      />
+      <PildoraFechas fechas={fechas} onFechas={onFechas} />
     </div>
   )
 }
@@ -693,6 +853,8 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
   const rejillaRef = useRotulosAlineados(editando)
   const [filtro, setFiltro] = useState(TODAS)
   const [busca, setBusca] = useState('')
+  const [estado, setEstado] = useState(TODOS_ESTADOS)
+  const [fechas, setFechas] = useState(SIN_FECHAS)
   if (papel && !editando) return <HojaDePapel titulo={titulo} campos={campos} form={form} />
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
@@ -733,7 +895,18 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
      ese tipo—, se vuelve a ver todo. */
   const categorias = categoriasDe(campos, form)
   const activo = categorias.some(c => c.nombre === filtro) ? filtro : TODAS
-  const visibles = sinFiltro.filter(c => !c.categoria || ((activo === TODAS || c.categoria === activo) && coincide(c, busca)))
+  /* Los cinco estados se ofrecen siempre, con cuántos documentos hay en cada uno: así se ve qué
+     se puede filtrar aunque la ficha recién empiece y todo esté pendiente. */
+  const docs = campos.filter(c => !c.oculto && esDocumento(c))
+  const estados = ESTADOS_DOC.map(nombre => ({ nombre, total: docs.filter(c => estadoDe(c, form) === nombre).length }))
+  const estadoActivo = estado
+  const visibles = sinFiltro.filter(c => !c.categoria || (
+    (activo === TODAS || c.categoria === activo)
+    && coincide(c, busca)
+    && (estadoActivo === TODOS_ESTADOS || estadoDe(c, form) === estadoActivo)
+    && enRango(c, form, fechas)
+  ))
+  const conRango = fechas.desde || fechas.hasta
 
   /* Dónde empieza cada riel y cuánto mide sale de los campos que de verdad se están viendo, así
      que se recalcula solo: al elegir «Pasaporte» desaparecen la extensión y el complemento y el
@@ -784,11 +957,14 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
       {children}
 
       {categorias.length > 1 && (
-        <FiltroDocumentos categorias={categorias} activo={activo} onElegir={setFiltro} busca={busca} onBuscar={setBusca} />
+        <FiltroDocumentos
+          categorias={categorias} activo={activo} onElegir={setFiltro} busca={busca} onBuscar={setBusca}
+          estados={estados} estado={estadoActivo} onEstado={setEstado} fechas={fechas} onFechas={setFechas}
+        />
       )}
       {categorias.length > 1 && !visibles.some(c => c.categoria) && (
         <p className="doc-vacio">
-          Ningún documento coincide{busca ? <> con «{busca}»</> : null}{activo !== TODAS ? <> en {activo}</> : null}.
+          Ningún documento coincide{busca ? <> con «{busca}»</> : null}{activo !== TODAS ? <> en {activo}</> : null}{estadoActivo !== TODOS_ESTADOS ? <> con estado «{estadoActivo}»</> : null}{conRango ? <> en ese rango de {fechas.cual === 'emite' ? 'emisión' : 'vencimiento'}</> : null}.
         </p>
       )}
 

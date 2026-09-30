@@ -330,7 +330,7 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
       {esReingreso && !traido && (
         <>
           <label className="rg-buscar">
-            <span className="pl-label">Buscar por nombre, apellido o carnet</span>
+            <span className="pl-label">Buscar por nombre, apellido o número de documento de identidad</span>
             <span className="rg-caja">
               <Search size={15} />
               <input
@@ -344,7 +344,7 @@ export default function TarjetaReingreso({ form, set, gente = [] }) {
           </label>
 
           {q.trim().length > 0 && q.trim().length < 3 && (
-            <p className="rg-pista">Escribí al menos tres letras.</p>
+            <p className="rg-pista">Escriba al menos tres letras.</p>
           )}
 
           {q.trim().length >= 3 && hallazgos.length === 0 && (

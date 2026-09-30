@@ -170,7 +170,7 @@ function PuestoFicha({
           <span className="og-label-fila">
             Sucursal
             <AyudaCampo>
-              El organigrama es uno solo: lo que cambia por sede es qué puestos existen en cada
+              El organigrama es uno solo: lo que cambia por sucursal es qué puestos existen en cada
               una. Si el mismo trabajo se hace en dos ciudades, son <strong>dos puestos</strong>,
               cada uno con su código y su gente.
             </AyudaCampo>
@@ -689,7 +689,7 @@ function CargoModal({ cargo, base, sedeActiva, onGuardar, onEliminar, onEliminar
                   <Layers size={13} />
                   <span>
                     Lo de acá abajo vale para <strong>los {form.puestos.length} puestos</strong>.
-                    El código, la sede y los apoyos son de cada uno: se eligen en el panel.
+                    El código, la sucursal y los apoyos son de cada uno: se eligen en el panel.
                   </span>
                 </p>
               )}
@@ -734,7 +734,7 @@ function CargoModal({ cargo, base, sedeActiva, onGuardar, onEliminar, onEliminar
                     <span className="og-label-fila">
                       Número máximo de ocupantes en este cargo
                       <AyudaCampo>
-                        Cada ocupante ocupa una silla, y cada silla nace con su código y su sede —
+                        Cada ocupante ocupa una silla, y cada silla nace con su código y su sucursal —
                         no es un puesto compartido entre varios. Es la misma pregunta que la ficha
                         del cargo hace en Estructura organizacional.
                       </AyudaCampo>
@@ -1463,7 +1463,7 @@ function UnidadModal({ unidad, base, org, onGuardar, onEliminar, onCerrar, onAbr
                 <AyudaCampo>
                   La región, la sucursal o el centro de trabajo al que pertenece esta unidad y
                   todo lo que cuelgue de ella.<br /><br />
-                  Es la sede de la unidad, <strong>no la de su gente</strong>: cada puesto puede
+                  Es la sucursal de la unidad, <strong>no la de su gente</strong>: cada puesto puede
                   declarar otra si trabaja en otro sitio.
                 </AyudaCampo>
               </span>

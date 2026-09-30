@@ -111,7 +111,7 @@ function FichaSucursal({ sucursal, puestos, personasEnSede, onEditar }) {
         <div className="kpi-card" style={{ '--kpi-accent': 'var(--blue)' }}>
           <div className="kpi-title" style={{ color: 'var(--blue)' }}>Puestos</div>
           <div className="kpi-val">{puestos}</div>
-          <div className="kpi-lbl">Plazas declaradas en esta sede</div>
+          <div className="kpi-lbl">Plazas declaradas en esta sucursal</div>
         </div>
         <div className="kpi-card" style={{ '--kpi-accent': 'var(--green)' }}>
           <div className="kpi-title" style={{ color: 'var(--green)' }}>Personas</div>
@@ -123,7 +123,7 @@ function FichaSucursal({ sucursal, puestos, personasEnSede, onEditar }) {
       <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>
         La razón social, el NIT y el logo son de la empresa entera y no cambian por sucursal:
         están en <strong style={{ fontWeight: 600, color: 'var(--text-heading)' }}>Datos de la empresa</strong>.
-        Para ver o crear otras sedes, cambia la sucursal a «todas» en el riel.
+        Para ver o crear otras sucursales, cambia la sucursal a «todas» en el riel.
       </p>
     </>
   )

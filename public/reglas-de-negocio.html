@@ -1152,7 +1152,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#BR-ORG-005">005 · Dos dimensiones, un solo árbol</a></li>
             <li class="rail-g"><a href="#br-g-fisica">Estructura física</a></li>
             <li><a href="#BR-ORG-025">025 · La regional agrupa y no depende de nada</a></li>
-            <li><a href="#BR-ORG-026">026 · La sucursal es la sede; el centro, el domicilio</a></li>
+            <li><a href="#BR-ORG-026">026 · La sucursal es la sucursal; el centro, el domicilio</a></li>
             <li><a href="#BR-ORG-027">027 · Tres listas que se acotan entre sí</a></li>
             <li><a href="#BR-ORG-028">028 · La dirección sale de catálogos</a></li>
             <li class="rail-g"><a href="#br-g-negocio">Unidades de negocio</a></li>
@@ -1199,7 +1199,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#BR-ORG-016">016 · Desactivar no es borrar</a></li>
             <li><a href="#BR-ORG-020">020 · De esto dependen los demás módulos</a></li>
             <li><a href="#BR-ORG-046">046 · Desactivar arrastra la rama</a></li>
-            <li><a href="#BR-ORG-047">047 · Cerrar una sede ofrece mudar a su gente</a></li>
+            <li><a href="#BR-ORG-047">047 · Cerrar una sucursal ofrece mudar a su gente</a></li>
             <li><a href="#ts4-permisos">4.1 Quién hace qué</a></li>
             <li><a href="#ts4-convencion">4.2 Cómo se escribe una regla</a></li>
           </ul>
@@ -1275,7 +1275,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#HU-ORG-11">11 · Llevarme el organigrama</a></li>
             <li><a href="#HU-ORG-12">12 · Ajustar los colores</a></li>
             <li><a href="#HU-ORG-13">13 · Reorganizar sin volver a cargar</a></li>
-            <li><a href="#HU-ORG-14">14 · Cerrar una sede sin perder su historia</a></li>
+            <li><a href="#HU-ORG-14">14 · Cerrar una sucursal sin perder su historia</a></li>
             <li><a href="#HU-ORG-15">15 · Saber de quién dependo</a></li>
             <li><a href="#p9-2">9.2 Plan de prototipado</a></li>
           </ul>
@@ -1385,7 +1385,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Estructura física</strong></td><td>El recorte de la estructura que contesta <strong>dónde opera</strong> la empresa: regionales, sucursales y centros de trabajo. También se la llama estructura geográfica</td></tr>
         <tr><td><strong>Empresa</strong></td><td>La raíz de la estructura, y el cliente de Souly. Se define en Datos de la empresa y no se crea desde el árbol</td></tr>
         <tr><td><strong>Regional</strong></td><td>Agrupa sucursales por geografía. Sirve para filtrar y consolidar, <em>no para mandar</em></td></tr>
-        <tr><td><strong>Sucursal</strong></td><td>La sede desde la que se opera en un sitio</td></tr>
+        <tr><td><strong>Sucursal</strong></td><td>La sucursal desde la que se opera en un sitio</td></tr>
         <tr><td><strong>Centro de trabajo</strong></td><td>Dónde se marca asistencia: una oficina, un almacén, una planta, una obra, una tienda</td></tr>
         <tr><td><strong>Sitio de trabajo</strong></td><td>La sucursal o el centro donde se desempeña un puesto. <strong>Solo filtra, nunca forma la estructura</strong></td></tr>
 
@@ -1425,7 +1425,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </tbody>
     </table></div>
 
-    <div class="nota"><p><strong>«Nodo» y «nivel de estructura», dichas de otra manera.</strong> La estructura de una empresa —sus sedes, sus áreas, sus cargos— se guarda como <strong>una sola lista de piezas</strong>. Cada pieza dice dos cosas y nada más: <strong>qué es</strong> y <strong>de qué cuelga</strong>. A la pieza este documento la llama <strong>nodo</strong>; a lo que esa pieza es —sucursal, área, cargo— la llama <strong>nivel de estructura</strong>.</p>
+    <div class="nota"><p><strong>«Nodo» y «nivel de estructura», dichas de otra manera.</strong> La estructura de una empresa —sus sucursales, sus áreas, sus cargos— se guarda como <strong>una sola lista de piezas</strong>. Cada pieza dice dos cosas y nada más: <strong>qué es</strong> y <strong>de qué cuelga</strong>. A la pieza este documento la llama <strong>nodo</strong>; a lo que esa pieza es —sucursal, área, cargo— la llama <strong>nivel de estructura</strong>.</p>
     <p>Por eso son ocho niveles de estructura y no ocho listas separadas: una sucursal y un cargo se guardan igual, y lo único que los distingue es su nivel de estructura y de qué cuelgan. <strong>Para recursos humanos</strong> eso significa que la empresa decide qué niveles de estructura usa y cómo los llama. <strong>Para desarrollo</strong> significa una sola tabla con <span class="mono">tipo</span> y <span class="mono">padreId</span>, y ninguna tabla por nivel de estructura.</p>
     <p>Quien usa el producto ve sucursales, áreas, cargos y puestos, y los ve con <strong>la palabra que sale de la lista de niveles de su empresa</strong>, nunca con una escrita en el código de la pantalla. Esa es la condición de <span class="id">RNF‑ORG‑06</span>. Hoy esa lista trae los nombres de fábrica y no hay dónde cambiarlos —<span class="id">FUERA‑05</span>—; lo que la condición asegura es que el día que lo haya, cambiarlos no sea tocar cada pantalla.</p></div>
 
@@ -1595,7 +1595,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <tbody>
         <tr><td><strong>Empresa</strong></td><td>Ninguno</td><td>Fijo</td><td>Es la raíz. Se define en Datos de la empresa y no se crea desde el árbol</td><td>De nada</td></tr>
         <tr><td><strong>Regional</strong></td><td>Física</td><td>Sí</td><td>Agrupa sucursales por geografía. Para filtrar y consolidar, <em>no para mandar</em></td><td>De la empresa</td></tr>
-        <tr><td><strong>Sucursal</strong></td><td>Física</td><td>Sí</td><td>La sede desde la que se opera en un sitio</td><td>De la empresa o de una regional</td></tr>
+        <tr><td><strong>Sucursal</strong></td><td>Física</td><td>Sí</td><td>La sucursal desde la que se opera en un sitio</td><td>De la empresa o de una regional</td></tr>
         <tr><td><strong>Centro de trabajo</strong></td><td>Física</td><td>Sí</td><td>Dónde se marca asistencia: una oficina, un almacén, una planta, una obra, una tienda</td><td>De una sucursal, o de otro centro</td></tr>
         <tr><td><strong>Unidad de negocio</strong></td><td>Organizacional</td><td>Sí</td><td>La línea por la que la empresa separa lo que hace: Corporativo, Operativo, Servicios. Agrupa para medir, <em>no para mandar</em></td><td>De la empresa</td></tr>
         <tr><td><strong>Unidad organizacional</strong></td><td>Organizacional</td><td>Fijo</td><td>Agrupa personas y cargos. La palabra —Dirección, Gerencia, Departamento, Área, Equipo— es un campo, no un nivel de estructura. Se anida sin límite de profundidad</td><td>De cualquier nivel de estructura superior, y <strong>de otra unidad</strong></td></tr>
@@ -1733,7 +1733,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td>Cupo de sillas</td><td><strong>Del cargo</strong></td><td>Es un techo: hasta cuántas personas pueden ocuparlo a la vez</td></tr>
         <tr><td>Código</td><td><strong>Del puesto</strong></td><td>Distingue una silla de otra del mismo cargo</td></tr>
         <tr><td>Dónde se trabaja</td><td><strong>Del puesto</strong></td><td>Tres sillas del mismo cargo pueden estar en tres ciudades</td></tr>
-        <tr><td>De quién depende</td><td><strong>Del puesto</strong></td><td>Dos sillas en dos sedes pueden responderle a jefes distintos</td></tr>
+        <tr><td>De quién depende</td><td><strong>Del puesto</strong></td><td>Dos sillas en dos sucursales pueden responderle a jefes distintos</td></tr>
         <tr><td>Quién lo ocupa</td><td><strong>Del puesto</strong></td><td>La persona ocupa una silla, no un catálogo</td></tr>
       </tbody>
     </table></div>
@@ -1864,7 +1864,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     </table></div>
     <div class="nota"><p><strong>Cuidado con «organizacional»: en este documento nombra tres cosas distintas.</strong> Es una de las dos <strong>dimensiones</strong>, es el nivel llamado <strong>unidad organizacional</strong>, y es el adjetivo de <strong>estructura organizacional</strong>. Ninguna de las tres es una dependencia, y por eso la primera de las dos de acá abajo se llama <strong>estructural</strong> y no «organizacional».</p>
     <p><strong>Y «dependencia» no quiere decir jerarquía en los dos casos.</strong> La estructural es de quién se depende: una sola, y es la que dibuja el árbol. La funcional es dónde se trabaja además: todas las que haga falta, y no mueven a nadie de sitio en el organigrama.</p></div>
-    <div class="nota"><p><strong>Por qué las dos viven en el puesto y no en el cargo.</strong> Dos sillas del mismo cargo en dos sedes pueden responderle a jefes distintos. Deducirlo —«cada cargo responde a la cabeza de su unidad»— alcanza para el caso corriente y miente en cuanto una unidad tiene dos jefaturas. <span class="id">BR‑ORG‑012</span> y <span class="id">BR‑ORG‑013</span>.</p></div>
+    <div class="nota"><p><strong>Por qué las dos viven en el puesto y no en el cargo.</strong> Dos sillas del mismo cargo en dos sucursales pueden responderle a jefes distintos. Deducirlo —«cada cargo responde a la cabeza de su unidad»— alcanza para el caso corriente y miente en cuanto una unidad tiene dos jefaturas. <span class="id">BR‑ORG‑012</span> y <span class="id">BR‑ORG‑013</span>.</p></div>
 
     <h3 id="p0-7">0.7 Cómo se nombra cada cosa según dónde aparezca</h3>
     <p>Un mismo concepto se llama distinto en pantalla, en la documentación y en la base. No es descuido: cada lector es otro. Y hay una vuelta más: <strong>en pantalla la palabra la elige la empresa</strong>, no el producto.</p>
@@ -1925,7 +1925,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <tbody>
         <tr><td class="rg">01</td><td><strong>Un solo árbol de nodos</strong></td><td>Ocho niveles de estructura que no son ocho tablas. Cada nodo declara su tipo y su nodo superior, y de ahí sale todo lo demás</td></tr>
         <tr><td class="rg">02</td><td><strong>El esquema de niveles es un dato de la empresa</strong></td><td>Cada una enciende los niveles de estructura que usa y apaga los que no. Lo que antes era programar —una pantalla por cada forma de organización— ahora es configurar</td></tr>
-        <tr><td class="rg">03</td><td><strong>Dos dimensiones que se tocan en un punto</strong></td><td>La geografía y el trabajo, cruzados solo en el puesto. Es lo que evita que el mismo cargo aparezca dibujado tres veces por tener tres sedes</td></tr>
+        <tr><td class="rg">03</td><td><strong>Dos dimensiones que se tocan en un punto</strong></td><td>La geografía y el trabajo, cruzados solo en el puesto. Es lo que evita que el mismo cargo aparezca dibujado tres veces por tener tres sucursales</td></tr>
         <tr><td class="rg">04</td><td><strong>Cargo y puesto separados</strong></td><td>El rol se define una vez; las sillas se abren tantas como haga falta, cada una con su sitio, su jefe y su ocupante</td></tr>
         <tr><td class="rg">05</td><td><strong>El organigrama y las tablas son el mismo dato</strong></td><td>Tres vistas del mismo árbol —gráfico, cards y tabla—, sin copia que sincronizar y sin dos verdades posibles</td></tr>
       </tbody>
@@ -1990,7 +1990,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Quién</th><th>Qué quiere hacer</th><th>Para qué</th></tr></thead>
       <tbody>
-        <tr><td><strong>RR.HH., en la puesta en marcha</strong></td><td>Cargar la empresa entera —sedes, áreas, cargos— una sola vez</td><td>Para poder empezar a usar el resto de los módulos sin volver a cargar lo mismo</td></tr>
+        <tr><td><strong>RR.HH., en la puesta en marcha</strong></td><td>Cargar la empresa entera —sucursales, áreas, cargos— una sola vez</td><td>Para poder empezar a usar el resto de los módulos sin volver a cargar lo mismo</td></tr>
         <tr><td><strong>RR.HH., todos los meses</strong></td><td>Abrir un cargo nuevo, cerrar una sucursal, mover un área de dirección</td><td>Para que el organigrama diga lo que de verdad pasa, y no lo que pasaba en enero</td></tr>
         <tr><td><strong>Alta dirección</strong></td><td>Mirar el organigrama completo, recortarlo por sucursal y llevárselo a una presentación</td><td>Para decidir dónde falta gente y dónde sobra estructura</td></tr>
         <tr><td><strong>Un líder de equipo</strong></td><td>Ver de quién depende cada persona de su rama y quién está sin cubrir</td><td>Para saber a quién pedirle qué, sin preguntar</td></tr>
@@ -2099,7 +2099,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Se apoya en</strong></td><td><span class="id">BR‑ORG‑020</span></td></tr>
       </tbody>
     </table></div>
-    <p>Una ruta de onboarding apunta a un <strong>cargo y una sede</strong>, no a una persona: cuando se abre un puesto de ese cargo en esa sede, quien lo ocupe recibe la ruta sin que nadie la elija. Es el ejemplo más claro de por qué escribir en la estructura tiene que ser de RR.HH. y de nadie más: <strong>una unidad borrada deja rutas sin destino</strong>.</p>
+    <p>Una ruta de onboarding apunta a un <strong>cargo y una sucursal</strong>, no a una persona: cuando se abre un puesto de ese cargo en esa sucursal, quien lo ocupe recibe la ruta sin que nadie la elija. Es el ejemplo más claro de por qué escribir en la estructura tiene que ser de RR.HH. y de nadie más: <strong>una unidad borrada deja rutas sin destino</strong>.</p>
 
     <h3 id="p2-5">2.5 Evaluación</h3>
     <div class="tbl"><table>
@@ -2120,7 +2120,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Se apoya en</strong></td><td><span class="id">BR‑ORG‑005</span> · <span class="id">BR‑ORG‑006</span></td></tr>
       </tbody>
     </table></div>
-    <p>Se apoya en la estructura para enviar comunicados internos de forma focalizada: a una regional, a una sucursal, a una unidad o a un nivel de mando. <strong>La herencia de sucursal es lo que hace que eso funcione:</strong> un anuncio «para Santa Cruz» alcanza a los puestos que trabajan ahí aunque ninguno lo haya declarado, porque la sede se deduce de la rama.</p>
+    <p>Se apoya en la estructura para enviar comunicados internos de forma focalizada: a una regional, a una sucursal, a una unidad o a un nivel de mando. <strong>La herencia de sucursal es lo que hace que eso funcione:</strong> un anuncio «para Santa Cruz» alcanza a los puestos que trabajan ahí aunque ninguno lo haya declarado, porque la sucursal se deduce de la rama.</p>
 
     <h3 id="p2-7">2.7 Asistencia, planillas y salarios</h3>
     <div class="tbl"><table>
@@ -2137,9 +2137,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <thead><tr><th>Módulo</th><th>Lee</th><th>Escribe</th><th>Qué le aporta este módulo</th></tr></thead>
       <tbody>
         <tr><td><strong>Gestión de personas</strong></td><td>Cargos, puestos, cupo, unidad, sitio</td><td><strong>Ocupantes</strong></td><td>Un catálogo de sillas reales donde sentar a la gente</td></tr>
-        <tr><td><strong>Onboarding</strong></td><td>Cargos, unidades, sucursales</td><td>—</td><td>Rutas que se asignan solas por cargo y sede</td></tr>
+        <tr><td><strong>Onboarding</strong></td><td>Cargos, unidades, sucursales</td><td>—</td><td>Rutas que se asignan solas por cargo y sucursal</td></tr>
         <tr><td><strong>Evaluación</strong></td><td>Niveles de mando, jerarquía, dependencias funcionales</td><td>—</td><td>Las cadenas de evaluación, incluida la funcional</td></tr>
-        <tr><td><strong>Comunicación</strong></td><td>Regionales, sucursales, unidades, niveles</td><td>—</td><td>Segmentación real, con la sede heredada de la rama</td></tr>
+        <tr><td><strong>Comunicación</strong></td><td>Regionales, sucursales, unidades, niveles</td><td>—</td><td>Segmentación real, con la sucursal heredada de la rama</td></tr>
         <tr><td><strong>Asistencia</strong></td><td>Centro de trabajo, tipo de cargo</td><td>—</td><td>Dónde ficha cada quien, y quién no ficha</td></tr>
         <tr><td><strong>Planillas y salarios</strong></td><td>Tipo de cargo, unidad</td><td>—</td><td>A quién se liquida y a quién no</td></tr>
       </tbody>
@@ -2211,7 +2211,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
         <tr><td class="id" id="RF-ORG-030">RF‑ORG‑030</td><td>Tres vistas del mismo dato: <b>gráfico, cards y tabla</b>. Cambiar de vista no cambia lo que hay, cambia cómo se mira</td><td><span class="p p-m">Oblig.</span></td><td>Lo creado en una pantalla está en la otra al instante, sin sincronizar. <em>BR‑ORG‑017</em></td></tr>
-        <tr><td class="id" id="RF-ORG-031">RF‑ORG‑031</td><td>Los filtros —sucursal, unidad, tipo de cargo— <b>recortan la vista, no el sistema</b>, y la pantalla dice en una frase qué se está mirando</td><td><span class="p p-m">Oblig.</span></td><td>Filtrar por una sede conserva la dependencia estructural completa hasta arriba. <em>BR‑ORG‑018</em></td></tr>
+        <tr><td class="id" id="RF-ORG-031">RF‑ORG‑031</td><td>Los filtros —sucursal, unidad, tipo de cargo— <b>recortan la vista, no el sistema</b>, y la pantalla dice en una frase qué se está mirando</td><td><span class="p p-m">Oblig.</span></td><td>Filtrar por una sucursal conserva la dependencia estructural completa hasta arriba. <em>BR‑ORG‑018</em></td></tr>
         <tr><td class="id" id="RF-ORG-032">RF‑ORG‑032</td><td><b>Los cargos de staff y los externos se dibujan al costado</b> de la línea, no debajo, porque no mandan</td><td><span class="p p-m">Oblig.</span></td><td>Un puesto de staff nunca aparece como subordinado de quien asiste. <em>BR‑ORG‑014</em></td></tr>
         <tr><td class="id" id="RF-ORG-033">RF‑ORG‑033</td><td>La dependencia funcional —«también trabaja en»— se dibuja como <b>línea secundaria</b>, distinguible de la estructural</td><td><span class="p p-s">Import.</span></td><td>En escala de grises las dos líneas se siguen distinguiendo. <em>BR‑ORG‑013</em></td></tr>
         <tr><td class="id" id="RF-ORG-034">RF‑ORG‑034</td><td>Se exporta a <b>PNG, SVG e impresión o PDF</b>, y siempre <b>el organigrama entero a tamaño natural</b>, no el pedazo que se ve en pantalla</td><td><span class="p p-m">Oblig.</span></td><td>La exportación de una estructura de 200 puestos sale completa y legible</td></tr>
@@ -2374,12 +2374,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Una sede en otro país</div>
+                  <div class="esc-t"><i></i>Una sucursal en otro país</div>
                   <ul>
                     <li><b>Dado que</b>la empresa es boliviana y abre una oficina en Argentina</li>
                     <li><b>Cuando</b>esa sucursal declara «Argentina» como su país</li>
                     <li><b>Entonces</b>sus ciudades salen del catálogo argentino</li>
-                    <li><b>Y</b>la empresa y las demás sedes no cambian</li>
+                    <li><b>Y</b>la empresa y las demás sucursales no cambian</li>
                   </ul>
                 </div>
                 <div class="esc ok">
@@ -2976,7 +2976,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <span class="br-id">BR-ORG-026</span>
                 <span class="br-estado">Borrador</span>
               </div>
-              <h3 id="BR-ORG-026">La sucursal es la sede; el centro de trabajo es el domicilio</h3>
+              <h3 id="BR-ORG-026">La sucursal es la sucursal; el centro de trabajo es el domicilio</h3>
 
               <h4 class="br-h"><em>1</em>Información básica</h4>
               <dl class="br-meta">
@@ -2986,7 +2986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Son dos niveles y contestan dos preguntas distintas. La <b>sucursal</b> es la sede: la unidad con la que la empresa se presenta en una ciudad, y es lo que hereda todo lo que cuelga de ella. El <b>centro de trabajo</b> es el sitio físico donde la gente trabaja, y su domicilio <b>es el que sale en los papeles laborales</b>: es el nivel donde de verdad se sabe dónde está una persona.</p>
+              <p>Son dos niveles y contestan dos preguntas distintas. La <b>sucursal</b> es la sucursal: la unidad con la que la empresa se presenta en una ciudad, y es lo que hereda todo lo que cuelga de ella. El <b>centro de trabajo</b> es el sitio físico donde la gente trabaja, y su domicilio <b>es el que sale en los papeles laborales</b>: es el nivel donde de verdad se sabe dónde está una persona.</p>
               <p>Por eso el centro pide una cosa que la sucursal no: <b>qué clase de sitio es</b> —oficina, planta, almacén, taller, obra, tienda u otro—, y es obligatorio. Sin el tipo, un almacén y una oficina se leen igual en toda la aplicación.</p>
               <p>Una empresa que no separe sus centros de trabajo apaga ese nivel y su gente queda ubicada en la sucursal, que ahí pasa a ser las dos cosas. Es la decisión de <span class="id">BR‑ORG‑004</span>, y por eso el centro de trabajo no es obligatorio para nadie.</p>
 
@@ -2998,7 +2998,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                     <li><b>Dado que</b>existe la sucursal «Casa Matriz» en Santa Cruz</li>
                     <li><b>Cuando</b>se crea el centro de trabajo «Depósito Norte» dentro de ella, de tipo «Almacén»</li>
                     <li><b>Entonces</b>el depósito guarda su propio domicilio, que es el que va en los papeles de quien marca ahí</li>
-                    <li><b>Y</b>la sucursal sigue siendo la sede: lo que cuelga del depósito hereda las dos cosas</li>
+                    <li><b>Y</b>la sucursal sigue siendo la sucursal: lo que cuelga del depósito hereda las dos cosas</li>
                   </ul>
                 </div>
                 <div class="esc ok">
@@ -3015,7 +3015,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>toda la gente de la empresa marca en la propia sucursal</li>
                     <li><b>Cuando</b>apaga «Centro de trabajo» en Configuración</li>
-                    <li><b>Entonces</b>la sucursal pasa a ser las dos cosas: la sede y el domicilio</li>
+                    <li><b>Entonces</b>la sucursal pasa a ser las dos cosas: la sucursal y el domicilio</li>
                     <li><b>Y</b>nadie tiene que crear un centro por cada sucursal para que la estructura cierre</li>
                   </ul>
                 </div>
@@ -3496,7 +3496,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
               </dl>
               <p class="br-dg-t">Descripción general</p>
               <p>Una unidad organizacional declara <b>en qué región, sucursal o centro de trabajo está</b>, y ese sitio vale para ella y para todo lo que cuelgue de ella. Las de más abajo no lo vuelven a contestar: su ficha muestra el heredado y, al lado, de qué unidad sale.</p>
-              <p>Declarar uno propio en una unidad de más abajo no contradice a su rama: la <b>afina</b> —«Almacén La Paz» dentro de «Logística», que está en Casa Matriz— y desde ahí manda el nuevo hacia abajo. No declarar ninguno significa «toda la empresa», que es la respuesta de una unidad que no está atada a ninguna sede.</p>
+              <p>Declarar uno propio en una unidad de más abajo no contradice a su rama: la <b>afina</b> —«Almacén La Paz» dentro de «Logística», que está en Casa Matriz— y desde ahí manda el nuevo hacia abajo. No declarar ninguno significa «toda la empresa», que es la respuesta de una unidad que no está atada a ninguna sucursal.</p>
               <p>Por eso la columna «Sucursal» tiene dato en unidades y cargos que nunca lo escribieron, y por eso mover una rama de sitio corrige el de todo lo que cuelga de ella sin tocar un solo registro.</p>
 
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
@@ -3520,12 +3520,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Una unidad que no está atada a ninguna sede</div>
+                  <div class="esc-t"><i></i>Una unidad que no está atada a ninguna sucursal</div>
                   <ul>
                     <li><b>Dado que</b>ni la unidad ni ninguna de su rama declara un sitio</li>
                     <li><b>Cuando</b>se mira su ficha</li>
                     <li><b>Entonces</b>dice «Toda la empresa»</li>
-                    <li><b>Y</b>no es un dato faltante: es la respuesta de una unidad que vale para todas las sedes</li>
+                    <li><b>Y</b>no es un dato faltante: es la respuesta de una unidad que vale para todas las sucursales</li>
                   </ul>
                 </div>
               </div>
@@ -4214,12 +4214,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>El mismo cargo en dos sedes</div>
+                  <div class="esc-t"><i></i>El mismo cargo en dos sucursales</div>
                   <ul>
                     <li><b>Dado que</b>el cargo «Cajero» tiene una silla en Casa Matriz y otra en El Prado</li>
                     <li><b>Cuando</b>se filtra por El Prado</li>
                     <li><b>Entonces</b>aparece solo la segunda</li>
-                    <li><b>Y</b>las dos siguen siendo el mismo cargo: lo que cambia por sede es qué puestos existen</li>
+                    <li><b>Y</b>las dos siguen siendo el mismo cargo: lo que cambia por sucursal es qué puestos existen</li>
                   </ul>
                 </div>
               </div>
@@ -4395,7 +4395,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Un puesto con una persona adentro <b>no se puede eliminar</b>. Esa persona está ubicada en la estructura por su puesto: de ahí salen su unidad, su sede, su jefe y las rutas, campañas y anuncios que le tocan —<span class="id">BR‑ORG‑020</span>—. Borrado el puesto, el colaborador queda sin ninguna de esas respuestas y los demás módulos empiezan a contestar mal.</p>
+              <p>Un puesto con una persona adentro <b>no se puede eliminar</b>. Esa persona está ubicada en la estructura por su puesto: de ahí salen su unidad, su sucursal, su jefe y las rutas, campañas y anuncios que le tocan —<span class="id">BR‑ORG‑020</span>—. Borrado el puesto, el colaborador queda sin ninguna de esas respuestas y los demás módulos empiezan a contestar mal.</p>
               <p>El intento abre un <b>aviso que explica la consecuencia y ofrece los dos caminos que sí resuelven</b>: mover a la persona a otro puesto, o desvincularla primero en Gestión de personas. No es un «no se puede» a secas: quien lo intenta tiene un motivo, y lo que necesita es saber por dónde sigue.</p>
               <p>Un puesto <b>vacante sí se elimina</b>, y uno ocupado siempre se puede <b>desactivar</b>: desactivar conserva la historia, que es lo que casi siempre se quiere cuando una plaza deja de usarse —<span class="id">BR‑ORG‑016</span>—.</p>
 
@@ -4406,7 +4406,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>el puesto <span class="mono">PU‑03</span> lo ocupa una persona</li>
                     <li><b>Cuando</b>se elige «Eliminar» en su menú</li>
-                    <li><b>Entonces</b>se abre un aviso que la nombra y dice que quedaría fuera de la estructura: sin unidad, sin sede y sin jefe</li>
+                    <li><b>Entonces</b>se abre un aviso que la nombra y dice que quedaría fuera de la estructura: sin unidad, sin sucursal y sin jefe</li>
                     <li><b>Y</b>ofrece mover a la persona a otro puesto o desvincularla primero, y no deja eliminar desde ahí</li>
                   </ul>
                 </div>
@@ -4818,16 +4818,16 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Filtrar por unidad, por sede, por tipo de cargo o por estado cambia <b>lo que se está mirando</b> y nada más: no cambia lo que se crea ni lo que existe. Cada recorte queda escrito en la frase de arriba y se quita tocándolo.</p>
+              <p>Filtrar por unidad, por sucursal, por tipo de cargo o por estado cambia <b>lo que se está mirando</b> y nada más: no cambia lo que se crea ni lo que existe. Cada recorte queda escrito en la frase de arriba y se quita tocándolo.</p>
 
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Ver una sede</div>
+                  <div class="esc-t"><i></i>Ver una sucursal</div>
                   <ul>
                     <li><b>Dado que</b>se elige «Sucursal Sopocachi» en el filtro del organigrama</li>
                     <li><b>Cuando</b>se mira el dibujo</li>
-                    <li><b>Entonces</b>se ven los puestos de esa sede con su dependencia estructural completa hasta arriba</li>
+                    <li><b>Entonces</b>se ven los puestos de esa sucursal con su dependencia estructural completa hasta arriba</li>
                     <li><b>Y</b>un jefe que no trabaja ahí se queda dibujado si alguno de los suyos sí: sin eso, los de abajo colgarían de nada</li>
                   </ul>
                 </div>
@@ -4846,7 +4846,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                     <li><b>Dado que</b>se filtra por una sucursal</li>
                     <li><b>Cuando</b>se mira un puesto de ahí</li>
                     <li><b>Entonces</b>su dependencia sube completa hasta arriba</li>
-                    <li><b>Y</b>los jefes de otra sede se siguen viendo: si no, la rama quedaría colgando de la nada</li>
+                    <li><b>Y</b>los jefes de otra sucursal se siguen viendo: si no, la rama quedaría colgando de la nada</li>
                   </ul>
                 </div>
               </div>
@@ -4914,7 +4914,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <ul>
                     <li><b>Dado que</b>se filtra por una sucursal</li>
                     <li><b>Cuando</b>se mira un puesto de ahí</li>
-                    <li><b>Entonces</b>su dependencia sube completa hasta arriba, aunque sus jefes sean de otra sede</li>
+                    <li><b>Entonces</b>su dependencia sube completa hasta arriba, aunque sus jefes sean de otra sucursal</li>
                     <li><b>Y</b>sin eso la rama quedaría colgando de la nada, que es dibujar una mentira</li>
                   </ul>
                 </div>
@@ -5458,9 +5458,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   <div class="esc-t"><i></i>Un cambio se propaga</div>
                   <ul>
                     <li><b>Dado que</b>una ruta de onboarding apunta al cargo «Ejecutivo Comercial» en La Paz</li>
-                    <li><b>Cuando</b>se abre un puesto de ese cargo en esa sede</li>
+                    <li><b>Cuando</b>se abre un puesto de ese cargo en esa sucursal</li>
                     <li><b>Entonces</b>la persona que lo ocupe recibe esa ruta sin que nadie la elija</li>
-                    <li><b>Y</b>el vínculo es el cargo y la sede, no la persona</li>
+                    <li><b>Y</b>el vínculo es el cargo y la sucursal, no la persona</li>
                   </ul>
                 </div>
                 <div class="esc ok">
@@ -5517,7 +5517,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Cerrar una sucursal cierra lo que había dentro. Por eso desactivar un nodo <b>desactiva también su rama entera</b> —centros de trabajo, unidades, cargos y puestos—, con la misma fecha. Dejarlos activos colgando de algo inactivo describe una empresa que no existe: un cargo en funciones dentro de una sede cerrada.</p>
+              <p>Cerrar una sucursal cierra lo que había dentro. Por eso desactivar un nodo <b>desactiva también su rama entera</b> —centros de trabajo, unidades, cargos y puestos—, con la misma fecha. Dejarlos activos colgando de algo inactivo describe una empresa que no existe: un cargo en funciones dentro de una sucursal cerrada.</p>
               <p>Antes de hacerlo, el aviso dice <b>cuántos nodos se desactivan y de qué tipos</b>, y cuántos de esos puestos están ocupados, que es la consecuencia que de verdad importa: esas personas quedan en una rama inactiva y hay que reubicarlas. Es el mismo aviso de <span class="id">BR‑ORG‑044</span>, contado para toda la rama.</p>
               <p>Cada nodo arrastrado guarda <b>que cayó con otro y con cuál</b>. Así, reactivar el nodo de arriba ofrece devolver al estado activo a los que cayeron con él, y no toca a los que ya estaban desactivados por su cuenta antes: esos se desactivaron por otro motivo y en otra fecha.</p>
               <p>La regla no cambia lo que ya dice <span class="id">BR‑ORG‑016</span>: nada se borra. Un nodo desactivado deja de ofrecerse para cosas nuevas y sigue en las tablas y en los históricos.</p>
@@ -5534,7 +5534,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>Reabrir la sede devuelve lo que cayó con ella</div>
+                  <div class="esc-t"><i></i>Reabrir la sucursal devuelve lo que cayó con ella</div>
                   <ul>
                     <li><b>Dado que</b>esa sucursal se reactiva seis meses después</li>
                     <li><b>Cuando</b>se cambia su estado a activo</li>
@@ -5580,7 +5580,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <span class="br-id">BR-ORG-047</span>
                 <span class="br-estado">Borrador</span>
               </div>
-              <h3 id="BR-ORG-047">Cerrar una sede ofrece mudar a su gente antes de cerrarla</h3>
+              <h3 id="BR-ORG-047">Cerrar una sucursal ofrece mudar a su gente antes de cerrarla</h3>
 
               <h4 class="br-h"><em>1</em>Información básica</h4>
               <dl class="br-meta">
@@ -5590,15 +5590,15 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div><dt>Estado</dt><dd>Borrador</dd></div>
               </dl>
               <p class="br-dg-t">Descripción general</p>
-              <p>Cuando lo que se desactiva es una <b>sede</b> —una sucursal o un centro de trabajo— y en su rama hay <b>puestos ocupados</b>, el aviso de <span class="id">BR‑ORG‑046</span> suma un paso: <b>a qué sede activa pasan esas personas</b>. Se elige un destino y vale para todas; repartirlas entre dos sedes se hace después, puesto por puesto, que es el caso raro.</p>
-              <p>Mudar <b>cambia el sitio de trabajo del puesto y nada más</b>. La persona sigue en su unidad, con su cargo, con su nivel de mando y con su jefe: cerrar una sede reubica, no reorganiza. Por eso la mudanza no pasa por el editor del organigrama ni pide volver a contestar nada.</p>
-              <p>También se puede <b>cerrar sin mudar</b>, y es un caso real: si la sede cierra porque esa operación termina, esas personas se desvinculan y no hay adónde mandarlas. Entonces el aviso lo dice con todas sus letras —los puestos quedan en una rama inactiva y se resuelven en Gestión de personas— en vez de obligar a inventar un destino.</p>
-              <p>Lo que no se muda son los <b>centros de trabajo y las unidades</b>: un centro es un domicilio y un domicilio no cambia de sede, y una unidad no está en ningún sitio físico más que por herencia. Esos se desactivan con la sede. Lo que se muda son los puestos, que es donde está la gente.</p>
+              <p>Cuando lo que se desactiva es una <b>sucursal</b> —una sucursal o un centro de trabajo— y en su rama hay <b>puestos ocupados</b>, el aviso de <span class="id">BR‑ORG‑046</span> suma un paso: <b>a qué sucursal activa pasan esas personas</b>. Se elige un destino y vale para todas; repartirlas entre dos sucursales se hace después, puesto por puesto, que es el caso raro.</p>
+              <p>Mudar <b>cambia el sitio de trabajo del puesto y nada más</b>. La persona sigue en su unidad, con su cargo, con su nivel de mando y con su jefe: cerrar una sucursal reubica, no reorganiza. Por eso la mudanza no pasa por el editor del organigrama ni pide volver a contestar nada.</p>
+              <p>También se puede <b>cerrar sin mudar</b>, y es un caso real: si la sucursal cierra porque esa operación termina, esas personas se desvinculan y no hay adónde mandarlas. Entonces el aviso lo dice con todas sus letras —los puestos quedan en una rama inactiva y se resuelven en Gestión de personas— en vez de obligar a inventar un destino.</p>
+              <p>Lo que no se muda son los <b>centros de trabajo y las unidades</b>: un centro es un domicilio y un domicilio no cambia de sucursal, y una unidad no está en ningún sitio físico más que por herencia. Esos se desactivan con la sucursal. Lo que se muda son los puestos, que es donde está la gente.</p>
 
               <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
               <div class="escenarios">
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>La sede cierra y su gente pasa a Casa Matriz</div>
+                  <div class="esc-t"><i></i>La sucursal cierra y su gente pasa a Casa Matriz</div>
                   <ul>
                     <li><b>Dado que</b>la sucursal El Prado cierra y tiene 9 puestos ocupados</li>
                     <li><b>Cuando</b>se la desactiva y se elige Casa Matriz como destino</li>
@@ -5609,19 +5609,19 @@ td.rg{color:var(--tinta-3);font-weight:700}
                 <div class="esc ok">
                   <div class="esc-t"><i></i>La operación termina y no hay adónde mandarlos</div>
                   <ul>
-                    <li><b>Dado que</b>la sede cierra porque esa operación se discontinúa</li>
+                    <li><b>Dado que</b>la sucursal cierra porque esa operación se discontinúa</li>
                     <li><b>Cuando</b>se elige cerrar sin destino</li>
                     <li><b>Entonces</b>el aviso dice que los 9 puestos quedan en una rama inactiva y que esas desvinculaciones se resuelven en Gestión de personas</li>
                     <li><b>Y</b>el cierre se completa igual: el sistema no obliga a inventar un destino</li>
                   </ul>
                 </div>
                 <div class="esc ok">
-                  <div class="esc-t"><i></i>El destino solo puede ser una sede en pie</div>
+                  <div class="esc-t"><i></i>El destino solo puede ser una sucursal en pie</div>
                   <ul>
                     <li><b>Dado que</b>se está eligiendo adónde pasa la gente</li>
                     <li><b>Cuando</b>se abre la lista de destinos</li>
                     <li><b>Entonces</b>ofrece las sucursales y los centros de trabajo activos, y nada más</li>
-                    <li><b>Y</b>no aparecen ni la sede que se está cerrando ni ninguna inactiva</li>
+                    <li><b>Y</b>no aparecen ni la sucursal que se está cerrando ni ninguna inactiva</li>
                   </ul>
                 </div>
               </div>
@@ -5629,12 +5629,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
               <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
               <ul class="br-cond">
                 <li>El paso de mudanza aparece solo cuando en la rama hay puestos ocupados.</li>
-                <li>El destino se elige entre sedes activas; no se ofrece la que se cierra ni ninguna inactiva.</li>
+                <li>El destino se elige entre sucursales activas; no se ofrece la que se cierra ni ninguna inactiva.</li>
                 <li>Mudar cambia el sitio de trabajo del puesto y no toca su unidad, su cargo, su nivel de mando ni su jefatura.</li>
-                <li>Un destino vale para todas las personas de esa sede; repartirlas entre varias se hace después, puesto por puesto.</li>
-                <li>Los centros de trabajo y las unidades no se mudan: se desactivan con la sede —<span class="id">BR‑ORG‑046</span>—.</li>
+                <li>Un destino vale para todas las personas de esa sucursal; repartirlas entre varias se hace después, puesto por puesto.</li>
+                <li>Los centros de trabajo y las unidades no se mudan: se desactivan con la sucursal —<span class="id">BR‑ORG‑046</span>—.</li>
                 <li>Cerrar sin destino está permitido, y el aviso dice qué queda pendiente de resolver.</li>
-                <li>Una unidad de otra rama que declaraba esa sede como su sitio queda señalada para revisar: su sitio apunta a una sede inactiva —<span class="id">BR‑ORG‑006</span>—.</li>
+                <li>Una unidad de otra rama que declaraba esa sucursal como su sitio queda señalada para revisar: su sitio apunta a una sucursal inactiva —<span class="id">BR‑ORG‑006</span>—.</li>
               </ul>
 
               <h4 class="br-h"><em>4</em>Trazabilidad</h4>
@@ -5865,7 +5865,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Etapa</th><th>Qué incluye</th><th>Cuándo se considera lista</th></tr></thead>
       <tbody>
-        <tr><td><strong>1 · Estructura utilizable</strong></td><td class="id">RF‑ORG‑001 a 003, 006, 007<br>RF‑ORG‑010 a 016<br>RF‑ORG‑020 a 025, 028<br>RF‑ORG‑030, 037<br>RNF‑ORG‑01 a 06</td><td>Una empresa que empieza de cero llega sola a tener su árbol completo —sedes, unidades, cargos y puestos— y a verlo dibujado</td></tr>
+        <tr><td><strong>1 · Estructura utilizable</strong></td><td class="id">RF‑ORG‑001 a 003, 006, 007<br>RF‑ORG‑010 a 016<br>RF‑ORG‑020 a 025, 028<br>RF‑ORG‑030, 037<br>RNF‑ORG‑01 a 06</td><td>Una empresa que empieza de cero llega sola a tener su árbol completo —sucursales, unidades, cargos y puestos— y a verlo dibujado</td></tr>
         <tr><td><strong>2 · El organigrama completo</strong></td><td class="id">RF‑ORG‑006, 026, 027<br>RF‑ORG‑031 a 035</td><td>Filtros, dependencia funcional dibujada, exportación e importación desde planilla</td></tr>
         <tr><td><strong>3 · Comodidad</strong></td><td class="id">RF‑ORG‑036<br>Registro de actividad</td><td>Configuración de presentación del organigrama y lo que hace medibles los indicadores de <span class="id">1.5</span></td></tr>
         <tr><td><strong>Fuera de esta versión</strong></td><td><span class="id">FUERA‑01</span> a <span class="id">FUERA‑04</span></td><td>Registrado para más adelante</td></tr>
@@ -5875,8 +5875,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Etapa</th><th>Módulos que pasan a funcionar</th></tr></thead>
       <tbody>
-        <tr><td class="rg">1</td><td>Gestión de personas puede sentar gente. Onboarding puede apuntar rutas a cargos y sedes. Asistencia sabe dónde ficha cada quien</td></tr>
-        <tr><td class="rg">2</td><td>Evaluación recibe la dependencia funcional. Comunicación recibe la segmentación por sede. RR.HH. puede presentar el organigrama</td></tr>
+        <tr><td class="rg">1</td><td>Gestión de personas puede sentar gente. Onboarding puede apuntar rutas a cargos y sucursales. Asistencia sabe dónde ficha cada quien</td></tr>
+        <tr><td class="rg">2</td><td>Evaluación recibe la dependencia funcional. Comunicación recibe la segmentación por sucursal. RR.HH. puede presentar el organigrama</td></tr>
         <tr><td class="rg">3</td><td>Nada nuevo se desbloquea: es comodidad y medición</td></tr>
       </tbody>
     </table></div>
@@ -6582,7 +6582,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li>Al intentar guardar sin él, el aviso dice el motivo —el organigrama lo imprime en su cabecera— y no guarda.</li>
             <li>Razón social, NIT, rubro, contacto, dirección y redes se pueden dejar vacíos y completar después.</li>
             <li>El <b>país</b> se elige de un catálogo, y de él salen las ciudades que se ofrecen al crear regionales, sucursales y centros de trabajo.</li>
-            <li>La dirección que se pide acá es la de la <b>casa matriz</b>; la de cada sede se carga en su propia ficha.</li>
+            <li>La dirección que se pide acá es la de la <b>casa matriz</b>; la de cada sucursal se carga en su propia ficha.</li>
             <li>Guardado el nombre, ya se puede crear el primer nodo que cuelgue de la empresa.</li>
           </ul>
         </div>
@@ -6621,9 +6621,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li>Además del anidamiento, la unidad declara <b>«Bajo el mando de»</b>: el puesto que la manda, y de ahí sale su línea en el dibujo.</li>
             <li>Sin «Bajo el mando de», la unidad y todo lo que tiene dentro se dibujan <b>sueltos</b>, y eso es visible.</li>
             <li>La <b>cabeza</b> de la unidad —el cargo que no le responde a nadie de adentro— se muestra sin pedir que se la declare.</li>
-            <li>La unidad declara <b>en qué sede está</b>; las de más abajo lo muestran heredado y dicen de qué unidad sale.</li>
-            <li>Declarar una sede propia en una unidad de más abajo <b>afina</b> la rama y no contradice a la de arriba.</li>
-            <li>Sin ninguna sede declarada en toda la rama, la ficha dice «Toda la empresa», y eso no es un dato faltante.</li>
+            <li>La unidad declara <b>en qué sucursal está</b>; las de más abajo lo muestran heredado y dicen de qué unidad sale.</li>
+            <li>Declarar una sucursal propia en una unidad de más abajo <b>afina</b> la rama y no contradice a la de arriba.</li>
+            <li>Sin ninguna sucursal declarada en toda la rama, la ficha dice «Toda la empresa», y eso no es un dato faltante.</li>
             <li>La tabla dibuja el anidamiento <b>con sangría</b>.</li>
           </ul>
         </div>
@@ -6742,7 +6742,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div class="hu">
         <div class="hu-h"><b id="HU-ORG-10">HU-ORG-10 · Mirar solo el pedazo que me importa</b></div>
         <div class="hu-b">
-          <p class="hu-q"><b>Como</b> líder de una unidad, <b>quiero</b> recortar el organigrama por sede, por área o por lo que hace a un cargo lo que es <b>para</b> poder revisar mi parte sin perderme en la empresa entera.</p>
+          <p class="hu-q"><b>Como</b> líder de una unidad, <b>quiero</b> recortar el organigrama por sucursal, por área o por lo que hace a un cargo lo que es <b>para</b> poder revisar mi parte sin perderme en la empresa entera.</p>
           <h6>Criterios de aceptación</h6>
           <ul>
             <li>Lo que se está mirando se dice en <b>una frase legible</b> arriba del lienzo.</li>
@@ -6751,7 +6751,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li>Se puede recortar por <b>sucursal</b>, por <b>unidad</b> y por <b>estado</b>.</li>
             <li>Se puede recortar por lo que hace a un cargo lo que es —<b>tipo, nivel de mando y si está vacante</b>— y los tres comparten un solo hueco de la frase.</li>
             <li>Filtrar <b>no borra ni oculta datos del sistema</b>: solo cambia lo que se dibuja.</li>
-            <li>Al filtrar por una sede, la <b>línea de mando sube completa</b> hasta arriba, aunque los jefes sean de otra sede.</li>
+            <li>Al filtrar por una sucursal, la <b>línea de mando sube completa</b> hasta arriba, aunque los jefes sean de otra sucursal.</li>
             <li>El control de <b>«qué se dibuja»</b> —áreas y cargos, solo cargos, solo áreas— está a la vista sobre el lienzo y <b>no</b> entra en la frase de los filtros.</li>
             <li>Cambiar «qué se dibuja» no deja a nadie afuera: cambia qué documento es.</li>
             <li>«Qué se dibuja» y los recortes se pueden combinar.</li>
@@ -6804,7 +6804,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li>El desplegable <b>no ofrece</b> nodos de niveles inferiores, así que la opción imposible no está.</li>
             <li>El organigrama y las tablas lo reflejan <b>en el acto</b>.</li>
             <li>Los <b>ids no cambian</b>: los otros módulos siguen encontrando lo que tenían guardado.</li>
-            <li>La sede que la rama heredaba se <b>recalcula sola</b> con el sitio nuevo, sin tocar un registro.</li>
+            <li>La sucursal que la rama heredaba se <b>recalcula sola</b> con el sitio nuevo, sin tocar un registro.</li>
             <li>Eliminar un nodo que tiene cosas dentro está <b>impedido</b>, y el sistema dice cuántas hay que mover primero.</li>
             <li>Eliminar pide <b>escribir la palabra</b> y va marcado como acción de riesgo.</li>
           </ul>
@@ -6813,7 +6813,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </div>
 
       <div class="hu">
-        <div class="hu-h"><b id="HU-ORG-14">HU-ORG-14 · Cerrar una sede sin perder su historia</b></div>
+        <div class="hu-h"><b id="HU-ORG-14">HU-ORG-14 · Cerrar una sucursal sin perder su historia</b></div>
         <div class="hu-b">
           <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> dar de baja una sucursal que dejó de operar <b>para</b> que deje de ofrecerse sin borrar lo que pasó ahí.</p>
           <h6>Criterios de aceptación</h6>
@@ -6887,7 +6887,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td class="rg">1.0</td><td>7 sep 2026</td><td>La documentación del módulo en formato BR: veinte reglas con escenarios, treinta y un requisitos funcionales con código estable, ocho flujos y cinco wireframes. <strong>Cambia el modelo:</strong> un solo árbol de nodos, el esquema de niveles como dato de la empresa, y el cargo separado del puesto</td></tr>
         <tr><td class="rg"><strong>2.0</strong></td><td>7 sep 2026</td><td><strong>Los dos documentos se unen en uno.</strong> El contenido del módulo —reglas, requisitos, flujos y wireframes— entra en la estructura de nueve secciones del PRD, que es la que se sostiene: glosario al frente, contexto, integraciones módulo por módulo, modelo de datos y roadmap. <strong>Se rescata del PRD de agosto</strong> todo lo que seguía valiendo y se reescribe sobre el modelo nuevo: qué es un organigrama, los principios de diseño, las integraciones, el camino hasta desarrollo, los riesgos y el anexo de decisiones. <strong>Se anota lo que falta</strong> en vez de disimularlo: registro de actividad, estados vacíos y permisos verificados en el servidor quedan como <span class="id">ABIERTA‑07</span> a <span class="id">ABIERTA‑09</span>. <strong>Sin revisar todavía</strong></td></tr>
         <tr><td class="rg"><strong>2.1</strong></td><td>9 sep 2026</td><td>Entra <span class="id">BR‑ORG‑021</span>: <strong>el cargo y la plaza llevan códigos distintos</strong>, también cuando el cargo tiene una sola plaza. Es como lo maneja Recursos Humanos —el manual de cargos y la plantilla de personal son dos documentos— y no estaba escrito en ninguna parte, así que el formulario mostraba dos campos «Código» sin decir por qué eran dos</td></tr>
-        <tr><td class="rg"><strong>3.4</strong></td><td>10 sep 2026</td><td><strong>Cuatro reglas que el módulo daba por sabidas y nadie había escrito.</strong> <span class="id">BR‑ORG‑043</span>: <b>ni los códigos ni los nombres se repiten</b> —el código, único en toda la empresa; el nombre, único entre hermanos del mismo tipo, porque un «Almacén» en La Paz y otro en Santa Cruz son dos sitios distintos—, y la comprobación ignora mayúsculas, tildes y espacios de más. <span class="id">BR‑ORG‑044</span>: <b>un puesto ocupado no se elimina</b>, y el intento abre un aviso que nombra a la persona, explica que quedaría fuera de la estructura y ofrece los dos caminos que sí resuelven. <span class="id">BR‑ORG‑045</span>: <b>una persona ocupa un solo puesto</b>; trabajar para otra área es dependencia funcional, no una segunda silla. <span class="id">BR‑ORG‑046</span>: <b>desactivar arrastra la rama entera</b>, contando antes cuántos nodos caen y cuántos de esos puestos están ocupados, y reactivar ofrece devolver a los que cayeron. Esta última contesta <span class="id">ABIERTA‑02</span>, que <strong>sale de las decisiones abiertas</strong>. Y entra <span class="id">BR‑ORG‑047</span>: <b>cerrar una sede ofrece mudar a su gente a otra activa</b> antes de cerrarla, cambiando el sitio de trabajo de sus puestos y nada más —ni unidad, ni cargo, ni jefe—, y permite cerrar sin destino cuando la operación termina y esas personas se desvinculan. Y <span class="id">BR‑ORG‑048</span>: <b>ningún nodo cuelga de sí mismo ni de los que cuelgan de él</b>. La regla de jerarquía no lo cubría —compara niveles, y «una unidad dentro de otra unidad» le parece válido en las dos direcciones—, y un bucle desprende esa rama del árbol: el organigrama, que se dibuja desde la empresa hacia abajo, deja de mostrarla. El tercer nivel de mando pasa a llamarse <b>mando inferior</b> en todo el documento</td></tr>
+        <tr><td class="rg"><strong>3.4</strong></td><td>10 sep 2026</td><td><strong>Cuatro reglas que el módulo daba por sabidas y nadie había escrito.</strong> <span class="id">BR‑ORG‑043</span>: <b>ni los códigos ni los nombres se repiten</b> —el código, único en toda la empresa; el nombre, único entre hermanos del mismo tipo, porque un «Almacén» en La Paz y otro en Santa Cruz son dos sitios distintos—, y la comprobación ignora mayúsculas, tildes y espacios de más. <span class="id">BR‑ORG‑044</span>: <b>un puesto ocupado no se elimina</b>, y el intento abre un aviso que nombra a la persona, explica que quedaría fuera de la estructura y ofrece los dos caminos que sí resuelven. <span class="id">BR‑ORG‑045</span>: <b>una persona ocupa un solo puesto</b>; trabajar para otra área es dependencia funcional, no una segunda silla. <span class="id">BR‑ORG‑046</span>: <b>desactivar arrastra la rama entera</b>, contando antes cuántos nodos caen y cuántos de esos puestos están ocupados, y reactivar ofrece devolver a los que cayeron. Esta última contesta <span class="id">ABIERTA‑02</span>, que <strong>sale de las decisiones abiertas</strong>. Y entra <span class="id">BR‑ORG‑047</span>: <b>cerrar una sucursal ofrece mudar a su gente a otra activa</b> antes de cerrarla, cambiando el sitio de trabajo de sus puestos y nada más —ni unidad, ni cargo, ni jefe—, y permite cerrar sin destino cuando la operación termina y esas personas se desvinculan. Y <span class="id">BR‑ORG‑048</span>: <b>ningún nodo cuelga de sí mismo ni de los que cuelgan de él</b>. La regla de jerarquía no lo cubría —compara niveles, y «una unidad dentro de otra unidad» le parece válido en las dos direcciones—, y un bucle desprende esa rama del árbol: el organigrama, que se dibuja desde la empresa hacia abajo, deja de mostrarla. El tercer nivel de mando pasa a llamarse <b>mando inferior</b> en todo el documento</td></tr>
         <tr><td class="rg"><strong>3.3</strong></td><td>10 sep 2026</td><td><strong>Las cuarenta y una reglas pasan a un formato único de cuatro apartados</strong>, por observación de QA: <b>1 Información básica</b> —código, grupo, alcance, estado y una descripción general—, <b>2 Escenarios ágiles de ejecución</b>, <b>3 Condiciones y excepciones</b> y <b>4 Trazabilidad</b>. <strong>El «Ticket: pendiente» suelto al pie de cada regla desaparece</strong> y pasa a ser el apartado 4, con ticket, requisitos, historia de usuario, pantalla y estado del diseño declarados uno por uno. <strong>Las descripciones se reescriben en tono descriptivo</strong>: lo narrativo —«es la cima del eje físico», «es la ficha más corta»— se enuncia como lo que el sistema hace, sin perder el motivo. Y <span class="id">BR‑ORG‑004</span> decía tres niveles fijos donde son cuatro: el puesto faltaba</td></tr>
         <tr><td class="rg"><strong>3.2</strong></td><td>10 sep 2026</td><td><strong>Dos diagramas y dos wireframes.</strong> Se dibujan los dos casos que más cuesta contar por escrito: <b>los nueve vendedores</b> —un cargo, nueve sillas, dos líneas de mando— en el <span class="id">0.4</span>, y <b>las tres empresas</b> que pegan la unidad de negocio en tres escalones distintos, dentro de <span class="id">BR‑ORG‑022</span>. Entran <span class="id">W‑06</span> Niveles de mando y <span class="id">W‑07</span> El cargo y sus plazas —las dos pantallas sin dibujar, y W‑07 es donde vive lo más difícil del módulo—. Y <span class="id">W‑05</span> marcaba como obligatorios la razón social, el NIT y el país, que no lo son: el único obligatorio de la empresa es el nombre comercial</td></tr>
         <tr><td class="rg"><strong>3.1</strong></td><td>10 sep 2026</td><td><strong>Entra el punto <span class="id">09</span>: quince historias de usuario con sus criterios de aceptación, y el plan de prototipado.</strong> El documento decía qué es verdad —las reglas— y qué tiene que hacer cada pantalla —los requisitos—, pero no decía <b>qué se entrega ni cómo se acepta</b>, y sin eso dos personas leen los mismos requisitos y construyen cosas distintas, las dos defendibles. Los criterios están escritos como afirmaciones que se marcan hechas o no hechas delante de la pantalla: si uno necesita interpretación, no es un criterio. <span class="id">HU‑ORG‑09</span> cubre las tres vistas del organigrama —gráfico, cards y tabla— una por una. El <span class="id">9.2</span> dice qué contesta cada etapa del prototipo, cómo se sabe que terminó, y qué está construido hoy y qué está solo dibujado</td></tr>
@@ -6895,9 +6895,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td class="rg"><strong>2.9</strong></td><td>10 sep 2026</td><td><strong>Tres asuntos con pantalla propia y sin reglas.</strong> <b>Dependencia funcional</b> pasa a ser su propio grupo: <span class="id">BR‑ORG‑031</span> cada apoyo es un par —la unidad y a quién responde ahí, elegido entre los cargos de esa unidad—, y <span class="id">BR‑ORG‑032</span> se dibuja con línea secundaria y no se cuenta dos veces, porque «¿cuánta gente tiene esta área?» no puede tener dos respuestas defendibles. <b>Los filtros:</b> <span class="id">BR‑ORG‑033</span> se leen como una frase que sin filtros sigue siendo verdad, y <span class="id">BR‑ORG‑034</span> «qué se dibuja» no es un filtro —cambia el papel, no a quién se deja afuera—. <b>Los colores:</b> <span class="id">BR‑ORG‑035</span> la empresa elige los tonos y nunca los significados, y el color nunca va solo: cada codificación lleva color, borde e ícono a la vez</td></tr>
         <tr><td class="rg"><strong>2.8</strong></td><td>10 sep 2026</td><td><strong>Niveles de mando pasa a ser su propio grupo.</strong> Tiene su pantalla, su editor y su dibujo, y estaba al final del grupo de Cargos como si fuera un detalle del cargo. Entran dos reglas que nadie había escrito y salen del prototipo: <span class="id">BR‑ORG‑029</span> un nivel de mando <b>no es una línea de mando</b> —los peldaños no se reportan entre sí, y por eso la escala se dibuja sin una sola línea entre los cuadros—, y <span class="id">BR‑ORG‑030</span> la altura de un cuadro se mide <b>contra su jefe y no contra su fila</b>, porque medir contra la fila dibujaba a un jefe de planta y a un pasante como pares</td></tr>
         <tr><td class="rg"><strong>2.7</strong></td><td>10 sep 2026</td><td><strong>Dos reglas decían «no cuelga de X» donde la frase honesta es «cuelga de X en el árbol y de otra cosa en el dibujo».</strong> <span class="id">BR‑ORG‑008</span>: un cargo pertenece a una unidad y su cuadro aparece debajo del cuadro de otro cargo, porque la línea sale de a quién responden sus sillas. <span class="id">BR‑ORG‑023</span>: una unidad <b>sí se anida en otra unidad</b> —el nivel es anidable y hay empresas con cuatro escalones de área—; lo que no sale del anidamiento es la línea, que sale del puesto que la manda. Enunciadas como estaban, las dos contradecían lo que cualquiera ve en pantalla. <strong>Y los tres escenarios de <span class="id">BR‑ORG‑022</span></strong> pasan a ser tres empresas que pegan la etiqueta en tres escalones distintos —regionales, sucursales, áreas— con la misma escalera debajo, que es lo que la regla venía a enseñar</td></tr>
-        <tr><td class="rg"><strong>2.6</strong></td><td>10 sep 2026</td><td><strong>Los ocho flujos y los cinco wireframes, contra la pantalla real.</strong> <span class="id">W‑04</span> dibujaba un lápiz en cada nivel, «Sede <i>(era Sucursal)</i>» y un botón «Agregar un nivel»: tres controles que ya no van a existir, y un wireframe que los dibuja es lo que alguien va a construir. Sale el vocabulario viejo —«clase de puesto: colaborador, staff u outsourcing»— del glosario, el modelo de datos, las integraciones, dos flujos, un wireframe y el anexo. <span class="id">F‑ORG‑02</span> pedía «nombre, país, estado» y la ficha también pide ciudad; <span class="id">F‑ORG‑04</span> seguía diciendo que la sucursal de una unidad se deduce, y se declara; <span class="id">F‑ORG‑03</span> gana el cupo y la jefatura de las sillas; y <span class="id">W‑02</span> decía seis tipos donde son siete</td></tr>
+        <tr><td class="rg"><strong>2.6</strong></td><td>10 sep 2026</td><td><strong>Los ocho flujos y los cinco wireframes, contra la pantalla real.</strong> <span class="id">W‑04</span> dibujaba un lápiz en cada nivel, «Sucursal <i>(era Sucursal)</i>» y un botón «Agregar un nivel»: tres controles que ya no van a existir, y un wireframe que los dibuja es lo que alguien va a construir. Sale el vocabulario viejo —«clase de puesto: colaborador, staff u outsourcing»— del glosario, el modelo de datos, las integraciones, dos flujos, un wireframe y el anexo. <span class="id">F‑ORG‑02</span> pedía «nombre, país, estado» y la ficha también pide ciudad; <span class="id">F‑ORG‑04</span> seguía diciendo que la sucursal de una unidad se deduce, y se declara; <span class="id">F‑ORG‑03</span> gana el cupo y la jefatura de las sillas; y <span class="id">W‑02</span> decía seis tipos donde son siete</td></tr>
         <tr><td class="rg"><strong>2.5</strong></td><td>10 sep 2026</td><td><strong>Tres escenarios por regla</strong> —el camino corriente, el caso distinto que la regla también gobierna, y lo que el sistema hace cuando algo no cierra—: ochenta y uno en total, y lo que estaba dicho en prosa vuelve a ser verificable. <strong>Pasada del documento contra el prototipo:</strong> entra «Niveles de mando» al mapa de pantallas, que tiene su ruta y su editor y no estaba listada; <span class="id">RF‑ORG‑025</span> deja de confundir el cupo con las plazas abiertas, que son dos cosas; y <span class="id">RF‑ORG‑012</span> agrega que una columna también desaparece cuando ninguno de los tipos a la vista podría llenarla. <strong>Se cierra <span class="id">ABIERTA‑05</span>:</strong> un cupo que baja por debajo de los puestos abiertos se bloquea, y así está construido</td></tr>
-        <tr><td class="rg"><strong>2.4</strong></td><td>10 sep 2026</td><td><strong>Estructura física deja de tener una sola regla y encima ajena.</strong> Entran cuatro escritas de lo que las fichas piden hoy: <span class="id">BR‑ORG‑025</span> la regional agrupa y no depende de nada —y pide nombre, país, ciudad y estado, nada más—, <span class="id">BR‑ORG‑026</span> la sucursal es la sede y el centro de trabajo el domicilio que sale en los papeles laborales, <span class="id">BR‑ORG‑027</span> los tres desplegables del centro se acotan entre sí y se guarda el más específico, y <span class="id">BR‑ORG‑028</span> la dirección sale de catálogos y el departamento solo aparece donde esa división existe con ese nombre. <span class="id">BR‑ORG‑006</span> se muda a Unidades organizacionales: habla de dónde está una unidad, no de un nivel físico</td></tr>
+        <tr><td class="rg"><strong>2.4</strong></td><td>10 sep 2026</td><td><strong>Estructura física deja de tener una sola regla y encima ajena.</strong> Entran cuatro escritas de lo que las fichas piden hoy: <span class="id">BR‑ORG‑025</span> la regional agrupa y no depende de nada —y pide nombre, país, ciudad y estado, nada más—, <span class="id">BR‑ORG‑026</span> la sucursal es la sucursal y el centro de trabajo el domicilio que sale en los papeles laborales, <span class="id">BR‑ORG‑027</span> los tres desplegables del centro se acotan entre sí y se guarda el más específico, y <span class="id">BR‑ORG‑028</span> la dirección sale de catálogos y el departamento solo aparece donde esa división existe con ese nombre. <span class="id">BR‑ORG‑006</span> se muda a Unidades organizacionales: habla de dónde está una unidad, no de un nivel físico</td></tr>
         <tr><td class="rg"><strong>2.3</strong></td><td>10 sep 2026</td><td><strong>Renombrar, reordenar y agregar niveles de estructura salen del producto</strong> y pasan a <span class="id">FUERA‑05</span>: la escalera se enciende y se apaga, y nada más. Se va <span class="id">BR‑ORG‑019</span> con ellos, y las dos mitades que los exigían —RF‑ORG‑004 y RF‑ORG‑005—, dejando el hueco en la numeración como manda el <span class="id">4.2</span>. Lo que <strong>no</strong> se toca es que ninguna etiqueta esté escrita en el código de una pantalla —<span class="id">RNF‑ORG‑06</span>—: sale de la lista de la empresa, y eso es lo que hará barato el editor el día que se agregue. <strong>El nivel de mando no se administra en Configuración</strong>: tiene su pantalla dentro de Estructura organizacional, así que <span class="id">BR‑ORG‑015</span> se muda al grupo de Cargos</td></tr>
         <tr><td class="rg"><strong>2.2</strong></td><td>10 sep 2026</td><td><strong>Las reglas se agrupan por lo que gobiernan</strong> —la configuración, los cimientos del modelo, la estructura física, las unidades de negocio, las organizacionales, los cargos, los puestos y el dibujo— y en el orden en que una empresa arma su estructura. <strong>Un solo escenario por regla:</strong> los segundos estaban marcados como el camino cerrado y casi ninguno lo era, así que lo que de verdad se impide pasó al párrafo de cada regla. <strong>Entran tres reglas:</strong> <span class="id">BR‑ORG‑022</span> la unidad de negocio se declara en un nivel y se hereda, <span class="id">BR‑ORG‑023</span> una unidad organizacional cuelga de un puesto, y <span class="id">BR‑ORG‑024</span> con qué jefatura nacen las sillas nuevas de un cargo. <strong>Se reescriben tres:</strong> el sitio se declara una vez y baja por la rama —<span class="id">BR‑ORG‑006</span>—, el cupo es un techo que no se puede bajar por debajo de las sillas abiertas —<span class="id">BR‑ORG‑009</span>—, y la jefatura se pregunta silla por silla —<span class="id">BR‑ORG‑012</span>—. <strong>Los tres tipos de cargo</strong> pasan a llamarse regular, staff y externo, con su definición completa</td></tr>
       </tbody>
@@ -6918,12 +6918,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div><h5 id="ax-2">Por qué la regla de jerarquía es una sola y no cuarenta</h5><p>La alternativa era escribir cada prohibición a mano: «una región no va dentro de un cargo», «un cargo no va dentro de un puesto», y así hasta cansarse. Ordenar los niveles de estructura de lo más grande a lo más chico y exigir que el nodo superior esté por encima cubre todas de una vez, y además cubre las que todavía no existen: un nivel de estructura propio que la empresa agregue mañana ya está validado el día que lo crea.</p></div>
       <div><h5 id="ax-3">Por qué saltarse un nivel de estructura es legal</h5><p>La regla exige que el nodo superior esté por encima, no que sea el inmediato superior. Una empresa que usa regiones puede tener igual una sucursal que cuelga directamente de la empresa, porque en la vida real esa sucursal no pertenece a ninguna región. Exigir la cadena completa obligaría a inventar una región vacía para poder guardar, y ese es el tipo de dato falso que después nadie sabe de dónde salió.</p></div>
       <div><h5 id="ax-4">Por qué el cargo se separó del puesto</h5><p>Es el cambio más grande respecto del PRD de agosto. Con el cargo como unidad, cinco cajeros son cinco cargos que hay que renombrar de a uno, o un cargo con una persona adentro y las otras cuatro en ninguna parte. Separándolos, el rol se define una vez —y renombrarlo renombra las cinco sillas— y cada silla lleva lo que de verdad la distingue: dónde está, quién la ocupa y a quién le responde. Los tres son datos que cambian silla por silla, y ninguno se puede guardar en el rol sin mentir.</p></div>
-      <div><h5 id="ax-5">Por qué la dependencia estructural vive en el puesto</h5><p>Dos sillas del mismo cargo en dos sedes pueden responderle a jefes distintos: el cajero de Casa Matriz le responde al supervisor de Casa Matriz. Deducirlo del cargo —«todos responden a la cabeza de su unidad»— alcanza para el caso corriente y miente en cuanto una unidad tiene dos jefaturas, que es exactamente el caso que uno necesita modelar bien.</p></div>
-      <div><h5 id="ax-6">Por qué la sucursal de una unidad se deduce</h5><p>Si fuera un campo, habría que llenarlo en cada unidad, en cada subunidad y en cada cargo, y quedaría viejo el día que alguien mueva la rama de sitio. Heredándolo del primer ancestro físico, mover una dirección de una sucursal a otra corrige la sede de todo lo que cuelga de ella sin tocar un solo registro. El precio es que la ficha no pregunta dónde opera cuando ya lo sabe, y eso al principio se lee como un campo que falta.</p></div>
+      <div><h5 id="ax-5">Por qué la dependencia estructural vive en el puesto</h5><p>Dos sillas del mismo cargo en dos sucursales pueden responderle a jefes distintos: el cajero de Casa Matriz le responde al supervisor de Casa Matriz. Deducirlo del cargo —«todos responden a la cabeza de su unidad»— alcanza para el caso corriente y miente en cuanto una unidad tiene dos jefaturas, que es exactamente el caso que uno necesita modelar bien.</p></div>
+      <div><h5 id="ax-6">Por qué la sucursal de una unidad se deduce</h5><p>Si fuera un campo, habría que llenarlo en cada unidad, en cada subunidad y en cada cargo, y quedaría viejo el día que alguien mueva la rama de sitio. Heredándolo del primer ancestro físico, mover una dirección de una sucursal a otra corrige la sucursal de todo lo que cuelga de ella sin tocar un solo registro. El precio es que la ficha no pregunta dónde opera cuando ya lo sabe, y eso al principio se lee como un campo que falta.</p></div>
       <div><h5 id="ax-7">Por qué «jefe» no es un tipo de cargo</h5><p>Porque se puede leer del árbol: es jefe quien tiene otros colgando de él. Declararlo abre la puerta a la contradicción más fácil de todas —alguien marcado como jefe sin nadie a cargo, o al revés— y esa contradicción no la detecta nadie hasta que el organigrama sale raro en una presentación.</p></div>
       <div><h5 id="ax-8">Por qué staff y outsourcing se dibujan al costado</h5><p>No están en la dependencia estructural: asisten a un cargo o prestan un servicio. Dibujarlos debajo los convierte en subordinados y hace que el organigrama afirme algo que no es cierto. Y como no mandan, preguntarles a qué altura mandan no tiene respuesta posible: por eso el formulario les saca el campo en vez de dejarlo vacío.</p></div>
       <div><h5 id="ax-9">Por qué desactivar y no borrar</h5><p>Una sucursal que cerró tiene historia, gente y planillas detrás. Borrarla deja huérfano todo lo que la nombraba y no hay forma de reconstruirlo. Desactivarla la saca de los formularios —deja de ofrecerse para cosas nuevas— y la conserva en las tablas y en los históricos, que es lo que uno necesita cuando alguien pregunta dónde trabajaba tal persona en 2024.</p></div>
-      <div><h5 id="ax-10">Por qué filtrar recorta la vista y no el sistema</h5><p>Un filtro que ocultara los cargos de otras sedes rompería el árbol: se irían los jefes y los subordinados quedarían colgando de la nada. Por eso filtrar por una sucursal se queda con las ramas que llegan a ella, jefes incluidos, y por eso el recorte está escrito arriba en una frase: ningún filtro se aplica sin que quien mira sepa que lo puso.</p></div>
+      <div><h5 id="ax-10">Por qué filtrar recorta la vista y no el sistema</h5><p>Un filtro que ocultara los cargos de otras sucursales rompería el árbol: se irían los jefes y los subordinados quedarían colgando de la nada. Por eso filtrar por una sucursal se queda con las ramas que llegan a ella, jefes incluidos, y por eso el recorte está escrito arriba en una frase: ningún filtro se aplica sin que quien mira sepa que lo puso.</p></div>
       <div><h5 id="ax-11">Por qué el glosario va primero y no en un anexo</h5><p>Casi todos los desacuerdos de este módulo fueron de vocabulario, no de criterio: «cargo» y «puesto», «sucursal» como nivel del árbol o como filtro, «jefe» como clase o como consecuencia. Un glosario al final es un diccionario que se consulta cuando ya hubo un malentendido. Al principio es un acuerdo que lo previene.</p></div>
     </div>
   </section>

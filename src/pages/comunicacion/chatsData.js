@@ -120,7 +120,7 @@ export const conversacionesSeed = [
     noLeidos: 0,
     mensajes: [
       { id: 1, autor: 'Nicolás Zapata', texto: 'Necesito abrir una plaza más de SDR para Santa Cruz.', hora: '9:15 AM' },
-      { id: 2, autor: 'yo', texto: 'Pásame el cargo y la sede y la creo en Puestos hoy mismo.', hora: '9:30 AM', mio: true },
+      { id: 2, autor: 'yo', texto: 'Pásame el cargo y la sucursal y la creo en Puestos hoy mismo.', hora: '9:30 AM', mio: true },
       { id: 3, autor: 'Nicolás Zapata', texto: 'SDR Junior, sucursal Santa Cruz. Gracias!', hora: '9:33 AM' },
     ],
   },

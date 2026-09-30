@@ -10077,16 +10077,82 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 }
 
 /* ── EL FILTRO DE ARCHIVOS ──────────────────────────────────────────────────
-   Un buscador y la lista de tipos, en una fila encima de los adjuntos. El buscador se estira; la
-   lista tiene el ancho de un campo. En pantallas angostas van uno debajo del otro. */
+   El buscador y tres píldoras —Tipo, Estado, Fechas— en una sola fila. El buscador se estira y
+   las píldoras miden lo que dicen. En el celular el buscador ocupa su fila y las píldoras van
+   debajo. */
 .doc-filtro {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin: 4px 0 20px;
 }
-.doc-buscar { flex: 1 1 260px; min-width: 0; }
+.doc-buscar { flex: 1 1 240px; min-width: 0; max-width: none; }
+.doc-buscar .pl-search { height: 36px; border-radius: 999px; }
+
+.doc-pil { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
+.doc-pil .pl-dropdown-wrap { width: auto; }
+.doc-pil .doc-pil-btn {
+  width: auto;
+  height: 36px;
+  padding: 0 12px;
+  gap: 6px;
+  border-radius: 999px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  box-shadow: none;
+  font-size: 13px;
+  color: var(--text-heading);
+}
+.doc-pil .doc-pil-btn.placeholder span { color: var(--text-heading); font-weight: 500; }
+.doc-pil-cara { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 500; }
+.doc-pil-cara b { font-weight: 600; }
+.doc-pil-ico { color: var(--text-muted); flex: none; }
+.doc-pil .pl-dropdown-chevron { color: var(--text-muted); }
+.doc-punto { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+/* Con filtro: verde, y la × ocupa el sitio de la flecha. */
+.doc-pil.activa .doc-pil-btn { background: var(--bg-puesto); border-color: var(--green); padding-right: 34px; }
+.doc-pil.activa .doc-pil-ico { color: var(--text-heading); }
+.doc-pil.activa .pl-dropdown-chevron { display: none; }
+.doc-pil-x {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center;
+  width: 20px; height: 20px;
+  border: 0; border-radius: 50%;
+  background: transparent; color: var(--text-heading);
+  cursor: pointer;
+}
+.doc-pil-x:hover { background: rgba(12,45,64,.12); }
+.doc-pil-x:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+/* El panel de fechas: qué fecha, atajos, rango y listo. */
+.doc-fechas {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
+  width: 320px;
+  display: grid; gap: 12px;
+  padding: 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(12,45,64,.16);
+}
+.doc-seg { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: 9px; background: var(--bg-app); }
+.doc-seg button {
+  border: 0; background: none; padding: 7px 0; border-radius: 7px;
+  font: inherit; font-size: 12.5px; font-weight: 500; color: var(--text-muted); cursor: pointer;
+}
+.doc-seg button[aria-pressed="true"] { background: var(--surface-card); color: var(--text-heading); font-weight: 600; box-shadow: 0 1px 2px rgba(12,45,64,.12); }
+.doc-atajos { display: flex; flex-wrap: wrap; gap: 6px; }
+.doc-atajos button {
+  border: 1px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading);
+  font: inherit; font-size: 12px; padding: 5px 11px; border-radius: 999px; cursor: pointer;
+}
+.doc-atajos button:hover { border-color: var(--green); }
+.doc-atajos button[aria-pressed="true"] { border-color: var(--green); background: var(--bg-puesto); font-weight: 600; }
+.doc-fechas-pie { display: flex; justify-content: space-between; align-items: center; }
+.doc-limpiar { border: 0; background: none; padding: 6px 2px; font: inherit; font-size: 12.5px; color: var(--text-muted); cursor: pointer; }
+.doc-limpiar:hover { color: var(--text-heading); }
+.doc-listo { border: 0; border-radius: 8px; padding: 7px 16px; background: #0C2D40; color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .doc-vacio { margin: 0 0 20px; font-size: 13px; color: var(--text-muted); }
 
 /* El recuadro «Agregar documento»: del alto de los adjuntos de al lado, punteado en verde. Cada
@@ -10126,9 +10192,12 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .doc-nombre-listo .emp-rot-linea { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .doc-nuevo-tope { margin: 0; padding-top: 30px; font-size: 13px; color: var(--text-muted); }
 .doc-buscar .pl-search { width: 100%; }
-.doc-tipo { flex: 0 1 300px; min-width: 220px; }
+.doc-rango { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.doc-rango > * { min-width: 0; }
 @media (max-width: 600px) {
-  .doc-tipo { flex-basis: 100%; }
+  .doc-buscar { flex-basis: 100%; }
+  .doc-fechas { right: auto; left: 0; width: min(320px, calc(100vw - 48px)); }
+  .doc-pil:last-child .doc-fechas { left: auto; right: 0; }
 }
 
 /* El campo al que se llegó desde el aviso: un halo verde que se apaga solo. */

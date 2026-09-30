@@ -567,7 +567,7 @@ export default function ColaboradorNuevo() {
     <div className="cn-aviso cn-aviso-suave">
       <Users size={15} />
       <span>
-        No hay puestos libres en la estructura. Podés crear igual al colaborador y ubicarlo
+        No hay puestos libres en la estructura. Puede crear al colaborador de todos modos y ubicarlo
         después, o abrir un puesto en Organización.
       </span>
       <button type="button" onClick={() => navigate('/organizacion/estructura')}>

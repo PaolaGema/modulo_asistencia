@@ -179,6 +179,8 @@ export default function Desplegable({
     }
   }
 
+  const anchoDelMenu = Math.max(pos?.width || 0, anchoMenu || (items.some(o => o.persona) ? 340 : 0))
+
   return (
     <div className="pl-dropdown-wrap" ref={cajaRef}>
       <button
@@ -216,8 +218,9 @@ export default function Desplegable({
           role="listbox"
           tabIndex={-1}
           /* Una lista de personas pide más ancho que su campo: nombre y cargo en una columna de
-             un tercio se cortaban a la mitad. */
-          style={{ left: pos.left, width: Math.max(pos.width, anchoMenu || (items.some(o => o.persona) ? 340 : 0)), top: pos.top, bottom: pos.bottom }}
+             un tercio se cortaban a la mitad. Y un menú más ancho que su botón no se sale por la
+             derecha de la ventana: se corre a la izquierda lo que haga falta. */
+          style={{ left: Math.max(8, Math.min(pos.left, window.innerWidth - anchoDelMenu - 8)), width: anchoDelMenu, top: pos.top, bottom: pos.bottom }}
         >
           {hayBuscador && (
             <div className="pl-dd-buscar">

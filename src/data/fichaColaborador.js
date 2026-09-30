@@ -128,11 +128,6 @@ export const EN_BLANCO = {
      en No, y con eso el tipo y el valor no aparecen ni se piden. */
   '3.69a': 'no',  // ¿Recibe anticipo de quincena?
 
-  /* EL RETROACTIVO ARRANCA EN SÍ, y es el único Sí de arranque de la ficha: «legalmente siempre
-     se tiene que aplicar». No pagarlo bloquea las declaraciones ante el Ministerio y la Gestora
-     y genera multa, así que el error caro es olvidarse de marcarlo, no marcarlo de más. */
-  '3.78': 'si',   // ¿Aplica retroactivo? (retroactivo de antigüedad)
-
   /* BOLIVIA VIENE PUESTO por ser el caso común, y se lo gana: el país emisor decide si se piden
      extensión y complemento SEGIP, así que sin un valor de arranque la tarjeta del documento
      abre incompleta para el 95 % de las altas y hay que contestar un desplegable para que
@@ -450,6 +445,16 @@ const CONDICIONES = {
   '2.44a': form => form['2.44'] === 'Casado(a)',
   '2.44b': form => form['2.44'] === 'Casado(a)',
   '2.45o': form => form['2.45'] === 'Otro',
+
+  /* Y en lo que la empresa entrega (30 sep 2026): el tipo de equipo, su categoría, el uniforme,
+     el EPP, el vehículo y el tipo de licencia tenían «Otro» sin sitio para decir cuál. Cada cosa
+     entregada es su propia copia, así que cada caja mira la lista de su bloque. */
+  'ra.e1o': (form, suyo) => suyo('ra.e1') === 'Otro',
+  'ra.e2o': (form, suyo) => suyo('ra.e2') === 'Otro',
+  'ra.u1o': (form, suyo) => suyo('ra.u1') === 'Otro',
+  'ra.p1o': (form, suyo) => suyo('ra.p1') === 'Otro',
+  'ra.v1o': (form, suyo) => suyo('ra.v1') === 'Otro',
+  'ra.s2o': (form, suyo) => suyo('ra.s2') === 'Otro',
 
   /* LA NACIONALIDAD SOLO SE PREGUNTA A QUIEN DIJO QUE NO ES BOLIVIANA. Con «Sí» ya está
      contestada, y enseñar el campo con «Boliviana» dentro era repetir la respuesta de al lado.

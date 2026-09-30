@@ -3236,7 +3236,7 @@ export const PASOS_PROPUESTA = [
       {
         id: 'posicion',
         titulo: 'Información organizacional',
-        desc: 'Indique la ubicación del colaborador en la estructura de la empresa: su unidad, su sede y su cargo.',
+        desc: 'Indique la ubicación del colaborador en la estructura de la empresa: su unidad, su sucursal y su cargo.',
         propuesta: false,
         incierto: false,
         campos: [
@@ -4800,15 +4800,6 @@ export const PASOS_PROPUESTA = [
             traza: 'Alimenta: PL. Sale de: Tipo de trabajador (3.12), Obrero / Administrativo.'
           },
           {
-            key: '3.78',
-            label: '¿Aplica retroactivo? (retroactivo de antigüedad)',
-            tipo: 'siNo',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Por ley siempre se aplica: cuando el decreto anual rige antes de publicarse, se paga la diferencia del nuevo salario mínimo o del incremento al haber. El bono de antigüedad se arrastra solo. No aplicarlo bloquea las declaraciones ante el Ministerio y la Gestora, y genera multa.',
-            traza: 'Alimenta: PL. Valor por defecto: Sí.'
-          },
-          {
             key: '3.81',
             label: '¿Aplica aportes patronales?',
             tipo: 'siNo',
@@ -4989,6 +4980,15 @@ export const PASOS_PROPUESTA = [
             nivel: 'Operativo'
           },
           {
+            key: 'ra.e1o',
+            repite: 'equipos',
+            label: '¿Qué equipo?',
+            ph: 'Proyector, escáner, disco externo…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escriba cuál es.'
+          },
+          {
             key: 'ra.e2',
             repite: 'equipos',
             label: 'Categoría del equipo',
@@ -4996,6 +4996,15 @@ export const PASOS_PROPUESTA = [
             opciones: ['Cómputo', 'Comunicación', 'Periférico', 'Oficina', 'Otro'],
             col: 'c-tercio',
             nivel: 'Operativo'
+          },
+          {
+            key: 'ra.e2o',
+            repite: 'equipos',
+            label: '¿Qué categoría?',
+            ph: 'Audiovisual, laboratorio…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escriba cuál es.'
           },
           { key: 'ra.e3', repite: 'equipos', label: 'Marca', col: 'c-tercio', nivel: 'Operativo', ph: 'Lenovo' },
           { key: 'ra.e4', repite: 'equipos', label: 'Modelo', col: 'c-tercio', nivel: 'Operativo', ph: 'ThinkPad E14' },
@@ -5035,6 +5044,15 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             nivel: 'Operativo'
           },
+          {
+            key: 'ra.u1o',
+            repite: 'uniformes',
+            label: '¿Qué prenda?',
+            ph: 'Overol, chompa, corbata…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escriba cuál es.'
+          },
           { key: 'ra.u2', repite: 'uniformes', label: 'Talla', col: 'c-tercio', nivel: 'Operativo', ph: 'M, 42, única…' },
           { key: 'ra.u3', repite: 'uniformes', label: 'Cantidad entregada', numero: true, col: 'c-tercio', nivel: 'Operativo', ph: '2' },
           { key: 'ra.u4', repite: 'uniformes', label: 'Fecha de entrega', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
@@ -5063,6 +5081,15 @@ export const PASOS_PROPUESTA = [
             opciones: ['Casco', 'Guantes', 'Lentes de seguridad', 'Protección auditiva', 'Mascarilla o respirador', 'Calzado de seguridad', 'Chaleco reflectivo', 'Arnés', 'Ropa de protección', 'Otro'],
             col: 'c-tercio',
             nivel: 'Operativo'
+          },
+          {
+            key: 'ra.p1o',
+            repite: 'epp',
+            label: '¿Qué equipo de protección?',
+            ph: 'Careta de soldar, rodilleras…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escriba cuál es.'
           },
           { key: 'ra.p2', repite: 'epp', label: 'Certificación', col: 'c-tercio', nivel: 'Operativo', ph: 'ANSI Z89.1, EN 388…', nota: 'La norma que cumple, como figura en la etiqueta o en la ficha del proveedor.' },
           { key: 'ra.p3', repite: 'epp', label: 'Talla', col: 'c-tercio', nivel: 'Operativo', ph: 'M, 42, única…' },
@@ -5114,6 +5141,15 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             nivel: 'Operativo'
           },
+          {
+            key: 'ra.v1o',
+            repite: 'vehiculos',
+            label: '¿Qué vehículo?',
+            ph: 'Minibús, tractor, cuadratrack…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escriba cuál es.'
+          },
           { key: 'ra.v2', repite: 'vehiculos', label: 'Marca', col: 'c-tercio', nivel: 'Operativo', ph: 'Toyota' },
           { key: 'ra.v3', repite: 'vehiculos', label: 'Modelo', col: 'c-tercio', nivel: 'Operativo', ph: 'Hilux' },
           { key: 'ra.v4', repite: 'vehiculos', label: 'Placa', col: 'c-tercio', nivel: 'Operativo', ph: '4521-KTD' },
@@ -5144,6 +5180,15 @@ export const PASOS_PROPUESTA = [
             col: 'c-tercio',
             nivel: 'Operativo'
           },
+          {
+            key: 'ra.s2o',
+            repite: 'software',
+            label: '¿Qué tipo de licencia?',
+            ph: 'Educativa, de prueba, OEM…',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Sólo aparece al elegir «Otro». Escriba cuál es.'
+          },
           { key: 'ra.s3', repite: 'software', label: 'Usuario asignado', col: 'c-tercio', nivel: 'Operativo', ph: 'jperez' },
           { key: 'ra.s4', repite: 'software', label: 'Correo asociado', html: 'email', col: 'c-tercio', nivel: 'Operativo', ph: 'nombre@empresa.com' },
           { key: 'ra.s5', repite: 'software', label: 'Fecha de asignación', html: 'date', col: 'c-tercio', nivel: 'Operativo' },
@@ -5169,9 +5214,258 @@ export const PASOS_PROPUESTA = [
       }
     ]
   },
+  /* ── LOS PAPELES TIENEN SU PROPIO PASO ─────────────────────────────────────
+     Compartían uno con las credenciales —«Acceso y documentos»— y no tienen nada que ver: lo
+     primero lo configura quien administra el sistema, lo segundo es el expediente de la persona.
+     Juntos, quien buscaba el carnet escaneado tenía que pasar por contraseñas y roles, y quien
+     configuraba el usuario se topaba con una pila de adjuntos que no eran asunto suyo.
+
+     VA ANTES DEL ACCESO AL SISTEMA (30 sep 2026, a pedido del equipo): los papeles son de la
+     persona y completan su expediente; el usuario y el rol se dan al final, con la ficha lista. */
+  {
+    key: 'expediente',
+    n: 10,
+    titulo: 'Documentación y Expediente Digital',
+    corto: 'Expediente',
+    pista: 'Sus papeles, reunidos en un solo lugar',
+    tarjetas: [
+      {
+        id: 'archivos',
+        titulo: 'Archivos',
+        desc: 'Consulte y adjunte los documentos del colaborador. Use el buscador o los filtros de tipo, estado y fechas, y agregue los documentos adicionales que necesite.',
+        propuesta: false,
+        incierto: false,
+        campos: [
+          {
+            key: '1.9',
+            categoria: 'Identidad',
+            label: 'Fotografía del colaborador',
+            tipo: 'archivo',
+            /* UN PDF NO ES UNA FOTOGRAFÍA. Aceptaba `application/pdf` como los otros ocho
+               archivos de la ficha, que sí son papeles escaneados; acá el recuadro dibuja la
+               imagen y con un PDF adentro enseña un icono gris donde va la cara. Se cierra a
+               imágenes, que es lo que el campo pide desde su rótulo.
+
+               Y CINCO MEGAS Y NO DIEZ. El tope general está pensado para un escaneo a color;
+               una fotografía de carnet no llega a uno, y lo que pasa de cinco es casi siempre
+               una foto de celular sin recortar que además se va a ver en 88 px. El número está
+               escrito en el recuadro y es el mismo que valida — ver `topeMB` en SubirArchivo.
+
+               TRES TIPOS CONCRETOS Y NO `image/*`, QUE ES LO QUE PARECÍA MÁS GENEROSO. Con el
+               comodín entra el HEIC del iPhone, que es el formato con el que sale de fábrica
+               cualquier foto sacada con un teléfono de Apple. Se sube sin protestar, se guarda
+               bien, y el navegador no sabe dibujarlo: el recuadro queda en blanco. Para un
+               campo cuyo motivo de existir es MIRAR lo que se subió, eso es peor que
+               rechazarlo — se descubre tarde y sin decir por qué.
+
+               Nombrados, el selector de archivos los filtra y el HEIC sale gris con su razón a
+               la vista. `.jpg` y `.jpeg` son el mismo `image/jpeg`, así que los dos entran. */
+            acepta: 'image/jpeg,image/png,image/webp',
+            pista: 'JPG, PNG o WEBP · máximo 5 MB',
+            topeMB: 5,
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Suba una fotografía formal y reciente.',
+            traza: 'Alimenta: CC, GP, ON.'
+          },
+          {
+            key: '1.17',
+            emite: '1.15',
+            vence: '1.16',
+            categoria: 'Identidad',
+            label: 'Documento escaneado (anverso + reverso)',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio c-escaneo',
+            nivel: 'Operativo',
+            nota: 'Un solo archivo PDF, no dos imágenes. Acuerdo de la sesión 1 (01:05:06): *\'al igual que en los procesos bancarios, se debe escanear el anverso y el reverso del documento en un solo archivo PDF para facilitar su carga\'*. Sigue siendo la fuente del autocompletado por OCR.',
+            traza: '✏ v1.2 (obs. #5). Alimenta: GP.'
+          },
+          {
+            key: '1.20h',
+            emite: '1.20e',
+            vence: '1.20f',
+            categoria: 'Identidad',
+            repite: 'docsec',
+            nombraCon: '1.20a',
+            label: 'Documento secundario escaneado (anverso + reverso)',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Solo aparece si se declaró un segundo documento: acá no hay una lista fija de adjuntos, hay los adjuntos que esta ficha pide.',
+            traza: '↳ 1.20. Alimenta: GP.'
+          },
+          {
+            key: '1.21b',
+            categoria: 'Certificados y licencias',
+            label: 'Certificado de nacimiento',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'Respalda la fecha, el lugar y el país de nacimiento.',
+            traza: '↳ 1.21. Alimenta: GP, ON.'
+          },
+          {
+            key: '1.53',
+            categoria: 'Otros',
+            label: 'Croquis',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'Queda como respaldo opcional. El enlace de mapa (1.51) lo sustituye funcionalmente.',
+            traza: '✏ v1.2. El estudio lo marca como a confirmar. Alimenta: GP.'
+          },
+          {
+            key: '1.79',
+            emite: '1.76',
+            vence: '1.77',
+            categoria: 'Certificados y licencias',
+            repite: 'licencias',
+            nombraCon: '1.72',
+            label: 'Licencia o certificado',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El documento digitalizado es obligatorio para dar la licencia por registrada (01:24:00).',
+            traza: '✏ v1.2.'
+          },
+          {
+            key: '2.40e',
+            categoria: 'Garantías',
+            label: 'Documento de identidad del garante',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            insignia: 'legal',
+            nivel: 'Operativo'
+          },
+          {
+            key: '2.46',
+            categoria: 'Garantías',
+            label: 'Documento de garantía',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            insignia: 'v1.2',
+            nivel: 'Operativo'
+          },
+          /* `emite` y `vence` dicen de qué campo salen las fechas de cada documento: con ellas se
+             filtra Archivos por estado y por fecha. En una entrega, la emisión es el día en que se
+             entregó. */
+          /* LAS ENTREGAS FIRMADAS, espejadas de Recursos y activos con su misma clave: subirlas acá o
+             allá es subir la misma. Va una por cada equipo, uniforme y EPP declarado, y cada una dice
+             de cuál es. Sin `c-escaneo`: el riel de este bloque ya es 1.17, y dos rieles se desanclan. */
+          {
+            key: 'ra.e12',
+            emite: 'ra.e8',
+            categoria: 'Entregas de activos',
+            repite: 'equipos',
+            label: 'Entrega firmada del equipo',
+            nombraCon: 'ra.e1',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
+          },
+          {
+            key: 'ra.u9',
+            emite: 'ra.u4',
+            categoria: 'Entregas de activos',
+            repite: 'uniformes',
+            label: 'Entrega firmada del uniforme',
+            nombraCon: 'ra.u1',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
+          },
+          {
+            key: 'ra.p9',
+            emite: 'ra.p5',
+            vence: 'ra.p6',
+            categoria: 'Entregas de activos',
+            repite: 'epp',
+            label: 'Entrega firmada del EPP',
+            nombraCon: 'ra.p1',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
+          },
+          /* LOS RESPALDOS DEL PERFIL PROFESIONAL, espejados como los demás: el título de cada
+             formación y el certificado de cada certificación. `dePaso` los deja fuera donde ese
+             paso no se enseña —la versión publicada—, para no pedir un papel de algo que no está. */
+          {
+            key: 'pf.11',
+            categoria: 'Formación',
+            dePaso: 'perfil',
+            repite: 'formacion',
+            nombraCon: 'pf.2',
+            label: 'Respaldo de formación',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo',
+            nota: 'El título o diploma, el mismo que se sube en Perfil profesional.'
+          },
+          {
+            key: 'pf.27',
+            emite: 'pf.24',
+            vence: 'pf.25',
+            categoria: 'Certificados y licencias',
+            dePaso: 'perfil',
+            repite: 'certificaciones',
+            nombraCon: 'pf.21',
+            label: 'Certificación',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Completo',
+            nota: 'El certificado, el mismo que se sube en Perfil profesional.'
+          },
+          /* ── LOS DOCUMENTOS QUE NO TIENEN OTRO SITIO ───────────────────────────
+             Un memorándum, una constancia, una adenda: papeles del legajo que ningún campo de la
+             ficha pide. Se agregan acá con su nombre y su archivo, y arrancan en cero
+             como las entregas. Van en «Otros» y se encuentran con el buscador. */
+          // El nombre se escribe en el recuadro de agregar y da nombre al archivo: no tiene caja propia.
+          { key: 'ex.2', repite: 'docsExtra', oculto: true, label: 'Nombre del documento', col: 'c-tercio', nivel: 'Operativo', ph: 'Memorándum de designación, constancia…' },
+          {
+            key: 'ex.4',
+            repite: 'docsExtra',
+            label: 'Archivo',
+            tipo: 'archivo',
+            acepta: 'application/pdf,image/*',
+            pista: 'PDF o imagen · arrastrar o hacer clic',
+            col: 'c-tercio',
+            nivel: 'Operativo'
+          },
+          { key: 'ex.mas', tipo: 'agregarDoc', grupo: 'docsExtra', max: 20, label: 'Agregar documento', acepta: 'application/pdf,image/*', col: 'c-tercio', nivel: 'Operativo' }
+        ]
+      }
+    ]
+  },
   {
     key: 'sistema',
-    n: 10,
+    n: 11,
     titulo: 'Configuración del Colaborador / Autogestión',
     corto: 'Configuración',
     pista: 'Su usuario y su rol en el sistema',
@@ -5213,237 +5507,6 @@ export const PASOS_PROPUESTA = [
             insignia: 'legal',
             nivel: 'Operativo'
           }
-        ]
-      }
-    ]
-  },
-  /* ── LOS PAPELES TIENEN SU PROPIO PASO ─────────────────────────────────────
-     Compartían uno con las credenciales —«Acceso y documentos»— y no tienen nada que ver: lo
-     primero lo configura quien administra el sistema, lo segundo es el expediente de la persona.
-     Juntos, quien buscaba el carnet escaneado tenía que pasar por contraseñas y roles, y quien
-     configuraba el usuario se topaba con una pila de adjuntos que no eran asunto suyo. */
-  {
-    key: 'expediente',
-    n: 11,
-    titulo: 'Documentación y Expediente Digital',
-    corto: 'Expediente',
-    pista: 'Sus papeles, reunidos en un solo lugar',
-    tarjetas: [
-      {
-        id: 'archivos',
-        titulo: 'Archivos',
-        desc: 'Consulte y adjunte los documentos del colaborador. Use el buscador o el filtro por tipo, y agregue los documentos adicionales que necesite.',
-        propuesta: false,
-        incierto: false,
-        campos: [
-          {
-            key: '1.9',
-            categoria: 'Identidad',
-            label: 'Fotografía del colaborador',
-            tipo: 'archivo',
-            /* UN PDF NO ES UNA FOTOGRAFÍA. Aceptaba `application/pdf` como los otros ocho
-               archivos de la ficha, que sí son papeles escaneados; acá el recuadro dibuja la
-               imagen y con un PDF adentro enseña un icono gris donde va la cara. Se cierra a
-               imágenes, que es lo que el campo pide desde su rótulo.
-
-               Y CINCO MEGAS Y NO DIEZ. El tope general está pensado para un escaneo a color;
-               una fotografía de carnet no llega a uno, y lo que pasa de cinco es casi siempre
-               una foto de celular sin recortar que además se va a ver en 88 px. El número está
-               escrito en el recuadro y es el mismo que valida — ver `topeMB` en SubirArchivo.
-
-               TRES TIPOS CONCRETOS Y NO `image/*`, QUE ES LO QUE PARECÍA MÁS GENEROSO. Con el
-               comodín entra el HEIC del iPhone, que es el formato con el que sale de fábrica
-               cualquier foto sacada con un teléfono de Apple. Se sube sin protestar, se guarda
-               bien, y el navegador no sabe dibujarlo: el recuadro queda en blanco. Para un
-               campo cuyo motivo de existir es MIRAR lo que se subió, eso es peor que
-               rechazarlo — se descubre tarde y sin decir por qué.
-
-               Nombrados, el selector de archivos los filtra y el HEIC sale gris con su razón a
-               la vista. `.jpg` y `.jpeg` son el mismo `image/jpeg`, así que los dos entran. */
-            acepta: 'image/jpeg,image/png,image/webp',
-            pista: 'JPG, PNG o WEBP · máximo 5 MB',
-            topeMB: 5,
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Suba una fotografía formal y reciente.',
-            traza: 'Alimenta: CC, GP, ON.'
-          },
-          {
-            key: '1.17',
-            categoria: 'Identidad',
-            label: 'Documento escaneado (anverso + reverso)',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio c-escaneo',
-            nivel: 'Operativo',
-            nota: 'Un solo archivo PDF, no dos imágenes. Acuerdo de la sesión 1 (01:05:06): *\'al igual que en los procesos bancarios, se debe escanear el anverso y el reverso del documento en un solo archivo PDF para facilitar su carga\'*. Sigue siendo la fuente del autocompletado por OCR.',
-            traza: '✏ v1.2 (obs. #5). Alimenta: GP.'
-          },
-          {
-            key: '1.20h',
-            categoria: 'Identidad',
-            repite: 'docsec',
-            nombraCon: '1.20a',
-            label: 'Documento secundario escaneado (anverso + reverso)',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Solo aparece si se declaró un segundo documento: acá no hay una lista fija de adjuntos, hay los adjuntos que esta ficha pide.',
-            traza: '↳ 1.20. Alimenta: GP.'
-          },
-          {
-            key: '1.21b',
-            categoria: 'Certificados y licencias',
-            label: 'Certificado de nacimiento',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'Respalda la fecha, el lugar y el país de nacimiento.',
-            traza: '↳ 1.21. Alimenta: GP, ON.'
-          },
-          {
-            key: '1.53',
-            categoria: 'Otros',
-            label: 'Croquis',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'Queda como respaldo opcional. El enlace de mapa (1.51) lo sustituye funcionalmente.',
-            traza: '✏ v1.2. El estudio lo marca como a confirmar. Alimenta: GP.'
-          },
-          {
-            key: '1.79',
-            categoria: 'Certificados y licencias',
-            repite: 'licencias',
-            nombraCon: '1.72',
-            label: 'Licencia o certificado',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El documento digitalizado es obligatorio para dar la licencia por registrada (01:24:00).',
-            traza: '✏ v1.2.'
-          },
-          {
-            key: '2.40e',
-            categoria: 'Garantías',
-            label: 'Documento de identidad del garante',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            insignia: 'legal',
-            nivel: 'Operativo'
-          },
-          {
-            key: '2.46',
-            categoria: 'Garantías',
-            label: 'Documento de garantía',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            insignia: 'v1.2',
-            nivel: 'Operativo'
-          },
-          /* LAS ENTREGAS FIRMADAS, espejadas de Recursos y activos con su misma clave: subirlas acá o
-             allá es subir la misma. Va una por cada equipo, uniforme y EPP declarado, y cada una dice
-             de cuál es. Sin `c-escaneo`: el riel de este bloque ya es 1.17, y dos rieles se desanclan. */
-          {
-            key: 'ra.e12',
-            categoria: 'Entregas de activos',
-            repite: 'equipos',
-            label: 'Entrega firmada del equipo',
-            nombraCon: 'ra.e1',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
-          },
-          {
-            key: 'ra.u9',
-            categoria: 'Entregas de activos',
-            repite: 'uniformes',
-            label: 'Entrega firmada del uniforme',
-            nombraCon: 'ra.u1',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
-          },
-          {
-            key: 'ra.p9',
-            categoria: 'Entregas de activos',
-            repite: 'epp',
-            label: 'Entrega firmada del EPP',
-            nombraCon: 'ra.p1',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El documento de entrega firmado, el mismo que se sube en Recursos y activos.'
-          },
-          /* LOS RESPALDOS DEL PERFIL PROFESIONAL, espejados como los demás: el título de cada
-             formación y el certificado de cada certificación. `dePaso` los deja fuera donde ese
-             paso no se enseña —la versión publicada—, para no pedir un papel de algo que no está. */
-          {
-            key: 'pf.11',
-            categoria: 'Formación',
-            dePaso: 'perfil',
-            repite: 'formacion',
-            nombraCon: 'pf.2',
-            label: 'Respaldo de formación',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo',
-            nota: 'El título o diploma, el mismo que se sube en Perfil profesional.'
-          },
-          {
-            key: 'pf.27',
-            categoria: 'Certificados y licencias',
-            dePaso: 'perfil',
-            repite: 'certificaciones',
-            nombraCon: 'pf.21',
-            label: 'Certificación',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Completo',
-            nota: 'El certificado, el mismo que se sube en Perfil profesional.'
-          },
-          /* ── LOS DOCUMENTOS QUE NO TIENEN OTRO SITIO ───────────────────────────
-             Un memorándum, una constancia, una adenda: papeles del legajo que ningún campo de la
-             ficha pide. Se agregan acá con su nombre y su archivo, y arrancan en cero
-             como las entregas. Van en «Otros» y se encuentran con el buscador. */
-          // El nombre se escribe en el recuadro de agregar y da nombre al archivo: no tiene caja propia.
-          { key: 'ex.2', repite: 'docsExtra', oculto: true, label: 'Nombre del documento', col: 'c-tercio', nivel: 'Operativo', ph: 'Memorándum de designación, constancia…' },
-          {
-            key: 'ex.4',
-            repite: 'docsExtra',
-            label: 'Archivo',
-            tipo: 'archivo',
-            acepta: 'application/pdf,image/*',
-            pista: 'PDF o imagen · arrastrar o hacer clic',
-            col: 'c-tercio',
-            nivel: 'Operativo'
-          },
-          { key: 'ex.mas', tipo: 'agregarDoc', grupo: 'docsExtra', max: 20, label: 'Agregar documento', acepta: 'application/pdf,image/*', col: 'c-tercio', nivel: 'Operativo' }
         ]
       }
     ]

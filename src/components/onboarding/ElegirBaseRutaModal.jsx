@@ -189,7 +189,7 @@ export default function ElegirBaseRutaModal({ rutaActualId, rutas = [], etapasAc
                     <Route size={22} style={{ color: '#94a3b8' }} />
                   </div>
                   <div style={{ fontSize: 12.5, color: 'var(--text-muted)', maxWidth: 280, lineHeight: 1.6 }}>
-                    Elegí una plantilla o una ruta de la izquierda para ver su contenido aquí.
+                    Elige una plantilla o una ruta de la izquierda para ver su contenido aquí.
                   </div>
                 </div>
               ) : (

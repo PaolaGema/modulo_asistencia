@@ -44,7 +44,7 @@ const PASTILLA_ESTADO = valor => {
 const GRUPOS = personas => [
   {
     titulo: 'Identificación',
-    desc: 'Cómo se llama esta sede y con qué número factura.',
+    desc: 'Cómo se llama esta sucursal y con qué número factura.',
     campos: [
       { key: 'nombre', label: 'Nombre', ph: 'Sucursal Central', requerido: true, col: 'c-tercio',
         ayuda: 'Cómo la llama la empresa por dentro.',
@@ -53,7 +53,7 @@ const GRUPOS = personas => [
         ayuda: 'Es lo que la identifica en toda la aplicación: hay tres «Sucursal».',
         faltaMsg: 'Es lo que distingue una «Sucursal» de otra.' },
       { key: 'codigo', label: 'Código de sucursal', ph: '0001', col: 'c-tercio',
-        ayuda: 'El número con el que esta sede factura. El NIT y la razón social son de la empresa y viven en Datos de la empresa.' },
+        ayuda: 'El número con el que esta sucursal factura. El NIT y la razón social son de la empresa y viven en Datos de la empresa.' },
     ],
   },
   {
@@ -236,8 +236,8 @@ export default function SucursalDetalle({ nueva = false }) {
           <h1 className="pl-title">{nueva ? 'Nueva sucursal' : form.nombre || 'Sucursal'}</h1>
           <p className="pl-subtitle">
             {nueva
-              ? 'Una sede nueva. Solo el nombre y la ciudad son obligatorios; el resto se puede completar después.'
-              : `${form.ciudad || 'Sin ciudad'} · Ficha de la sede.`}
+              ? 'Una sucursal nueva. Solo el nombre y la ciudad son obligatorios; el resto se puede completar después.'
+              : `${form.ciudad || 'Sin ciudad'} · Ficha de la sucursal.`}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center' }}>
@@ -305,7 +305,7 @@ export default function SucursalDetalle({ nueva = false }) {
           <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
             <strong style={{ color: 'var(--text-heading)' }}>La razón social, el NIT y el logo no cambian por sucursal.</strong>{' '}
             Son de la empresa entera y se editan en Datos de la empresa. Aquí vive lo que sí es
-            propio de esta sede: dónde está, con qué código factura, quién responde por ella y en
+            propio de esta sucursal: dónde está, con qué código factura, quién responde por ella y en
             qué horario abre.
           </div>
         </div>
