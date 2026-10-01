@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Building2, CalendarDays, Network, Settings, Gift, Sparkles, Plus, FileText, MapPin } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
@@ -7,6 +7,9 @@ import { colaboradoresData } from '../personas/colaboradoresData'
 import { cargoDe, areaDe, sedesDe } from '../../data/organigramaData'
 import { HOY, avatarUrl } from '../../utils/calendarEvents'
 import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
+import { useMiFicha } from '../../hooks/useMiFicha'
+import MiFichaWeb, { Preferencias, SeccionMiFicha, EditarMisDatos, Volver } from '../../components/personas/MiFichaWeb'
+import { pestanasCon } from '../../data/miFichaLectura'
 
 /* MI PERFIL — LA FICHA PROPIA, NO UN FORMULARIO.
    Es la misma pantalla que el colaborador tiene en el teléfono: se entra a mirarse, no a
@@ -72,6 +75,7 @@ export default function Perfil() {
   /* El usuario de la demo y la ficha del directorio son dos cosas distintas —uno es con quién
      estás mirando, la otra es la persona— y no todos los perfiles de la demo existen en el
      directorio. Cuando no está, la pantalla se dibuja igual con lo que el usuario sí trae. */
+  const { ficha: miFicha, guardar, solicitudes, solicitar } = useMiFicha(currentUser.name)
   const ficha = colaboradoresData.find(c => c.name === currentUser.name) || null
 
   /* El cargo sale del cuadro que la persona ocupa; si no está en el organigrama, del respaldo
@@ -79,14 +83,46 @@ export default function Perfil() {
      trabajo que hace, y ponerlo en la pastilla del cargo mezcla dos cosas que el producto se
      pasa el día distinguiendo. Sin ninguno de los dos se dice que falta, que es la verdad. */
   const cargo = (ficha && cargoDe(ficha, org)) || currentUser.cargo || null
-  const area = (ficha && areaDe(ficha, org)) || ficha?.depto || currentUser.area || null
+  const area = (ficha && areaDe(ficha, org)) || ficha?.depto || currentUser.area || miFicha?.area || null
   const sedes = ficha ? sedesDe(ficha, org) : null
   const sede = sedes?.[0] || null
-  const tiempo = antiguedad(fechaIngreso(ficha?.ingreso))
+  const tiempo = antiguedad(fechaIngreso(ficha?.ingreso || miFicha?.ingreso))
   const gestiona = currentUser.role === 'admin' || currentUser.role === 'manager'
 
+  /* QUÉ PANTALLA SE VE: el perfil, una sección de Mi ficha o Configuración. Como en el teléfono,
+     cada una ocupa la página entera y vuelve al perfil. Se recuerda por usuario: al cambiar de
+     persona en la demo la página no se vuelve a montar, y la de antes no debe quedar abierta. */
+  const [abierta, setAbierta] = useState({ id: currentUser.id, vista: 'perfil' })
+  const scroll = useRef(null)
+  const abrir = vista => { setAbierta({ id: currentUser.id, vista }); scroll.current?.scrollTo(0, 0) }
+  const vista = abierta.id === currentUser.id ? abierta.vista : 'perfil'
+  const pestana = miFicha && pestanasCon(miFicha.form).find(p => p.key === vista)
+
+  if (vista === 'config' || pestana) {
+    return (
+      <div ref={scroll} className="content-scroll" style={{ maxWidth: 960, margin: '0 auto', width: '100%', gap: 20 }}>
+        <Volver texto="Mi perfil" onVolver={() => abrir('perfil')} />
+        <div className="mf-pantalla-cab">
+          <small>{pestana ? 'Mi ficha' : 'Mi perfil'}</small>
+          <h1>{pestana ? pestana.titulo : 'Configuración'}</h1>
+        </div>
+        {pestana
+          ? <SeccionMiFicha key={vista} ficha={miFicha} pestana={vista} solicitudes={solicitudes} onSolicitar={solicitar} />
+          : miFicha
+            ? (
+              <>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-heading)' }}>Mis datos personales</h2>
+                <EditarMisDatos ficha={miFicha} onGuardar={guardar} />
+              </>
+            )
+            : <p className="mf-nota" style={{ fontStyle: 'italic' }}>RR.HH. todavía no registró su ficha.</p>}
+        <div style={{ height: 8 }} />
+      </div>
+    )
+  }
+
   return (
-    <div className="content-scroll" style={{ maxWidth: 720, margin: '0 auto', width: '100%', gap: 26 }}>
+    <div ref={scroll} className="content-scroll" style={{ maxWidth: 720, margin: '0 auto', width: '100%', gap: 26 }}>
 
       {/* LA BANDA Y LA FICHA VAN JUNTAS: la foto monta sobre las dos, así que si fueran dos
           bloques sueltos cualquier separación entre ellos partiría el avatar por la mitad. */}
@@ -162,9 +198,9 @@ export default function Perfil() {
             )}
             {/* La sucursal sale del puesto, igual que el cargo y el área. Quien no está en el
                 organigrama no tiene sede y aquí, sencillamente, no aparece la línea. */}
-            {sede && (
+            {(sede || miFicha) && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <MapPin size={15} style={{ color: 'var(--icon-muted)' }} /> {sede.ciudad}
+                <MapPin size={15} style={{ color: 'var(--icon-muted)' }} /> {sede ? sede.ciudad : miFicha.sucursal}
               </span>
             )}
             {tiempo && (
@@ -191,12 +227,12 @@ export default function Perfil() {
               </button>
             )}
             <button
-              title="Los ajustes de la cuenta todavía no están construidos en el prototipo"
+              onClick={() => abrir('config')}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 9, padding: '12px 22px',
                 borderRadius: 12, border: 'none', background: 'var(--green)',
                 color: '#0C2D40', fontFamily: 'inherit', fontSize: 13.5, fontWeight: 700,
-                cursor: 'default',
+                cursor: 'pointer',
               }}
             >
               <Settings size={16} /> Configuración
@@ -205,8 +241,21 @@ export default function Perfil() {
         </div>
       </div>
 
-      <SeccionVacia icon={Gift} titulo="Wishlist" vacio="Sin deseos agregados" />
-      <SeccionVacia icon={Sparkles} titulo="Habilidades" vacio="Sin habilidades agregadas" />
+      {/* LA FICHA PROPIA, PARA MIRARLA, como en el teléfono: una fila por sección, y cada una se
+          abre en su pantalla. Las preferencias reemplazan a «Wishlist»: son los mismos regalos y
+          experiencias que RR.HH. registra en Información Personal, y se editan en Configuración.
+          Quien no tiene ficha de ejemplo sigue viendo las secciones vacías, que dicen lo que falta. */}
+      {miFicha ? (
+        <>
+          <MiFichaWeb ficha={miFicha} onAbrir={abrir} />
+          <Preferencias ficha={miFicha} onEditar={() => abrir('config')} />
+        </>
+      ) : (
+        <>
+          <SeccionVacia icon={Gift} titulo="Wishlist" vacio="Sin deseos agregados" />
+          <SeccionVacia icon={Sparkles} titulo="Habilidades" vacio="Sin habilidades agregadas" />
+        </>
+      )}
 
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>

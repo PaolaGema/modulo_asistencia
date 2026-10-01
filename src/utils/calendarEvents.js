@@ -94,6 +94,8 @@ export const CALENDAR_LEGEND = [
    modelo: en producción la foto la sube cada quien. Cambiar una cara es cambiar un número. */
 const FOTO_FIJA = {
   'Juan Pérez Gómez': 68,
+  // La foto de su ficha (Documentación) tiene que ser de él: la que sale al azar por nombre no lo era.
+  'Carlos Mendoza Ríos': 12,
 }
 
 export const avatarUrl = (name, size = 40) => (

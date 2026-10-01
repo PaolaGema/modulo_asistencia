@@ -10932,3 +10932,169 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   .apr-dos .apr-fila > :nth-child(2) { grid-column: 1 / 3; grid-row: 2; }
   .apr-dos .apr-fila > :nth-child(3) { grid-column: 2; grid-row: 1; }
 }
+
+/* ── Mi ficha (vista del colaborador, web) ─────────────────────────────────── */
+.mf { display: flex; flex-direction: column; gap: 14px; }
+.mf-cab { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mf-cab h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text-heading); }
+.mf-cab p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
+.mf-fecha { font-size: 12px; font-weight: 600; color: #00804F; }
+/* La lista de Mi ficha, como la del teléfono: una fila por sección que abre su pantalla. */
+.mf-filas { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 16px; overflow: hidden; }
+.mf-fila { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: 0; border-top: 1px solid var(--border); background: none; font-family: inherit; text-align: left; cursor: pointer; transition: background .15s; }
+.mf-fila:first-child { border-top: 0; }
+.mf-fila:hover { background: var(--surface-hover); }
+.mf-fila:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.mf-fila-ico { width: 40px; height: 40px; border-radius: 12px; background: var(--green-bg); color: var(--mf-verde-txt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mf-fila-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mf-fila-txt strong { font-size: 14.5px; font-weight: 600; color: var(--text-heading); }
+.mf-fila-txt span { font-size: 12.5px; color: var(--text-muted); }
+.mf-fila-flecha { color: var(--icon-muted); flex-shrink: 0; transition: transform .15s; }
+.mf-fila:hover .mf-fila-flecha { transform: translateX(2px); color: var(--text-heading); }
+.mf-volver { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; font: 700 14px 'Poppins', sans-serif; color: var(--text-heading); cursor: pointer; }
+.mf-volver > span { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-soft); background: var(--surface-card); display: flex; align-items: center; justify-content: center; }
+.mf-volver:hover > span { border-color: var(--green); }
+.mf-pantalla-cab { display: flex; flex-direction: column; gap: 2px; }
+.mf-pantalla-cab small { font-size: 12px; color: var(--text-muted); }
+.mf-pantalla-cab h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.02em; color: var(--text-heading); }
+.mf-punto { width: 7px; height: 7px; border-radius: 50%; background: #D9480F; }
+.mf-cuerpo { display: flex; flex-direction: column; gap: 18px; animation: cn-entrar .28s cubic-bezier(.22, 1, .36, 1) backwards; }
+.mf-parte h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: var(--text-heading); }
+.mf-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.mf-tarjeta { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; padding: 14px 16px; }
+.mf-tarjeta-cab { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.mf-tarjeta-cab h4 { margin: 0; flex: 1; font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
+.mf-privada { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--text-muted); }
+.mf-mini { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; border-radius: 99px; border: 0; background: var(--green-bg); color: #00804F; font: 600 12px 'Poppins', sans-serif; cursor: pointer; }
+.mf-mini.gris { background: var(--input-bg); color: var(--text-heading); }
+.mf-datos { margin: 0; display: flex; flex-direction: column; }
+.mf-datos > div { padding: 7px 0; border-top: 1px solid var(--border); }
+.mf-datos > div:first-child { border-top: 0; }
+.mf-datos dt { font-size: 11.5px; color: var(--text-muted); }
+.mf-datos dd { margin: 2px 0 0; font-size: 13.5px; font-weight: 500; color: var(--text-heading); }
+.mf-datos dd.vacio { font-style: italic; font-weight: 400; color: var(--icon-muted); }
+.mf-pie { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border-soft); font-size: 13px; color: var(--text-heading); }
+.mf-pie > span { flex: 1; }
+.mf-corregir { height: 36px; padding: 0 16px; border-radius: 10px; border: 1.5px solid var(--text-heading); background: transparent; color: var(--text-heading); font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
+.mf-aviso { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; border-radius: 12px; background: #FFF1E6; color: #7A2E05; font-size: 13px; }
+.mf-grupo-tit { margin: 0 0 8px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+.mf-lista { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; }
+.mf-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-top: 1px solid var(--border); }
+.mf-item:first-child { border-top: 0; }
+.mf-item-ico { width: 34px; height: 34px; border-radius: 10px; background: var(--input-bg); color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mf-item-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mf-item-txt strong { font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
+.mf-item-txt > span { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+.mf-est { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.mf-est.vig { background: #E6FBF3; color: #05603F; }
+.mf-est.por { background: #FFF1E6; color: #A33B06; }
+.mf-descargar { width: 36px; height: 36px; border-radius: 10px; border: 0; background: none; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.mf-descargar:hover { background: var(--input-bg); color: var(--text-heading); }
+.mf-nota { margin: 0; font-size: 12.5px; color: var(--text-muted); }
+.mf-pref { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+.mf-pref-tit { display: flex; align-items: center; gap: 9px; margin: 0 0 8px; font-size: 16px; font-weight: 700; color: var(--text-heading); }
+.mf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-chips span { padding: 6px 13px; border-radius: 99px; background: var(--surface-card); border: 1px solid var(--border-soft); font-size: 12.5px; color: var(--text-heading); }
+.mf-editar-pref { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px; border-radius: 10px; border: 1px dashed var(--green); background: transparent; color: #00804F; font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .mf-cuerpo { animation: none; } }
+.mf-tarjeta.editando, .mf-pref.editando { box-shadow: 0 0 0 2px var(--green); border-color: transparent; }
+.mf-pref.editando { background: var(--surface-card); border-radius: 14px; padding: 16px 18px; }
+.mf-form { display: flex; flex-direction: column; gap: 10px; }
+.mf-form label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--text-muted); }
+.mf-form input, .mf-agregar input { height: 38px; padding: 0 11px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--input-bg); font: 400 13.5px 'Poppins', sans-serif; color: var(--text-heading); outline: none; }
+.mf-form input:focus, .mf-agregar input:focus { border-color: var(--green); }
+.mf-acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.mf-btn { height: 36px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading); font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
+.mf-btn.primario { background: var(--green); border-color: var(--green); color: #0C2D40; }
+.mf-guardado { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #05603F; }
+.mf-chips span.con-x { display: inline-flex; align-items: center; gap: 6px; padding-right: 5px; }
+.mf-chips span.con-x button { width: 20px; height: 20px; border-radius: 50%; border: 0; background: var(--input-bg); color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.mf-agregar { display: flex; gap: 8px; margin-top: 10px; max-width: 420px; }
+.mf-agregar input { flex: 1; }
+.mf-bloque { margin: 10px 0 2px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #00804F; }
+.mf-tarjeta.vacia { background: transparent; border-style: dashed; }
+.mf-est.ven { background: #FDE8E8; color: #B42318; }
+.mf-est.pend { display: inline-flex; align-items: center; gap: 4px; background: #FFF7E0; color: #8A5A00; }
+.mf-aviso.rojo { background: #FDE8E8; color: #7A1C12; }
+.mf-form select, .mf-form textarea { padding: 0 11px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--input-bg); font: 400 13.5px 'Poppins', sans-serif; color: var(--text-heading); outline: none; }
+.mf-form select { height: 38px; }
+.mf-form textarea { padding: 9px 11px; resize: vertical; }
+.mf-form select:focus, .mf-form textarea:focus { border-color: var(--green); }
+.mf-form select:disabled { opacity: .5; }
+.mf-btn:disabled { opacity: .45; cursor: default; }
+.mf-btn { display: inline-flex; align-items: center; gap: 6px; }
+.mf-velo { position: fixed; inset: 0; z-index: 80; background: rgba(12,45,64,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: cn-entrar .2s ease-out backwards; }
+.mf-modal { position: relative; width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow: auto; background: var(--surface-card); border-radius: 18px; padding: 24px; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.mf-modal h3 { margin: 0 0 4px; font-size: 18px; font-weight: 700; color: var(--text-heading); }
+.mf-cerrar { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 10px; border: 0; background: none; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.mf-cerrar:hover { background: var(--input-bg); }
+.mf-registrado { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--input-bg); font-size: 11.5px; color: var(--text-muted); }
+.mf-registrado strong { font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
+.mf-enviada { text-align: center; padding: 12px 8px 4px; }
+.mf-enviada p { margin: 8px auto 18px; max-width: 340px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.mf-enviada-ico { width: 56px; height: 56px; border-radius: 50%; background: #E6FBF3; color: #05603F; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+
+/* ── MI FICHA: LOS COLORES QUE COMPARTEN LA WEB Y EL TELÉFONO ─────────────────
+   El teléfono tenía sus colores escritos a mano y se quedaba claro aunque la app estuviera en
+   oscuro. Ahora las dos vistas de la ficha del colaborador leen de aquí, así que el mismo
+   estado —vigente, por vencer, vencido, pendiente— y el mismo aviso se ven igual en las dos, y
+   el modo oscuro alcanza también al teléfono. */
+:root {
+  --mf-verde-txt: #00804F;
+  --mf-info-bg: #E8F1FB;   --mf-info-txt: #1F4E79;
+  --mf-vig-bg: #E6FBF3;    --mf-vig-txt: #05603F;
+  --mf-por-bg: #FFF1E6;    --mf-por-txt: #A33B06;   --mf-por-aviso: #7A2E05;
+  --mf-ven-bg: #FDE8E8;    --mf-ven-txt: #B42318;   --mf-ven-aviso: #7A1C12;
+  --mf-pend-bg: #FFF7E0;   --mf-pend-txt: #8A5A00;
+  --mf-punto: #D9480F;
+}
+.dark {
+  --mf-verde-txt: #34D399;
+  --mf-info-bg: rgba(96,165,250,.12);  --mf-info-txt: #BFDBFE;
+  --mf-vig-bg: rgba(0,224,145,.14);    --mf-vig-txt: #6EE7B7;
+  --mf-por-bg: rgba(251,146,60,.14);   --mf-por-txt: #FDBA74;   --mf-por-aviso: #FED7AA;
+  --mf-ven-bg: rgba(248,113,113,.14);  --mf-ven-txt: #FCA5A5;   --mf-ven-aviso: #FECACA;
+  --mf-pend-bg: rgba(250,204,21,.13);  --mf-pend-txt: #FDE68A;
+  --mf-punto: #FB923C;
+}
+.mf-fecha, .mf-mini, .mf-guardado, .mf-bloque, .mf-editar-pref { color: var(--mf-verde-txt); }
+.mf-est.vig { background: var(--mf-vig-bg); color: var(--mf-vig-txt); }
+.mf-est.por { background: var(--mf-por-bg); color: var(--mf-por-txt); }
+.mf-est.ven { background: var(--mf-ven-bg); color: var(--mf-ven-txt); }
+.mf-est.pend { background: var(--mf-pend-bg); color: var(--mf-pend-txt); }
+.mf-aviso { background: var(--mf-por-bg); color: var(--mf-por-aviso); }
+.mf-aviso.rojo { background: var(--mf-ven-bg); color: var(--mf-ven-aviso); }
+.mf-punto { background: var(--mf-punto); }
+.mf-enviada-ico { background: var(--mf-vig-bg); color: var(--mf-vig-txt); }
+.mf-info { display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px; border-radius: 12px; background: var(--mf-info-bg); color: var(--mf-info-txt); font-size: 13px; line-height: 1.45; }
+.mf-info svg { flex-shrink: 0; margin-top: 2px; }
+
+/* ── CABECERAS DE SECCIÓN DE MI FICHA, COMO LAS DE RR.HH. (`.ac-cab`) ─────────
+   Plegada en gris, abierta en verde suave; en oscuro, azul marino y un escalón más claro.
+   Mismos tokens que el acordeón de la ficha de RR.HH., para que la sección se lea igual en las
+   dos pantallas. En la web las tarjetas están siempre abiertas, así que van en verde; la que no
+   tiene nada asignado queda en gris. */
+.mf-sec-cab { background: var(--bg-seccion-plegada); color: var(--navy-dark); transition: background .15s; }
+.mf-sec-cab.on { background: var(--bg-seccion); border-bottom: 1px solid var(--border-soft) !important; }
+.dark .mf-sec-cab { background: var(--navy); color: #fff; }
+.dark .mf-sec-cab.on { background: var(--navy-alt); }
+.mf-tarjeta { padding: 0 0 12px; overflow: hidden; }
+.mf-tarjeta > *:not(.mf-tarjeta-cab) { margin-left: 16px; margin-right: 16px; }
+.mf-tarjeta-cab { margin: 0 0 8px; padding: 12px 16px; background: var(--bg-seccion); color: var(--navy-dark); border-bottom: 1px solid var(--border-soft); }
+.mf-tarjeta-cab h4 { color: inherit; }
+.mf-tarjeta.vacia .mf-tarjeta-cab { background: var(--bg-seccion-plegada); border-bottom-color: transparent; }
+.dark .mf-tarjeta-cab { background: var(--navy-alt); color: #fff; }
+.dark .mf-tarjeta.vacia .mf-tarjeta-cab { background: var(--navy); }
+.mf-tarjeta.editando .mf-tarjeta-cab { background: var(--bg-seccion); }
+.dark .mf-tarjeta.editando .mf-tarjeta-cab { background: var(--navy-alt); }
+.mf-tarjeta-cab .mf-privada { color: inherit; opacity: .75; }
+.mf-tarjeta-cab .mf-mini { background: var(--surface-card); }
+.mf-item-abrir { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 0; border: 0; background: none; font-family: inherit; text-align: left; cursor: pointer; color: inherit; }
+.mf-item-abrir:hover strong { color: var(--mf-verde-txt); }
+.mf-ver { display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading); font: 600 12.5px 'Poppins', sans-serif; cursor: pointer; flex-shrink: 0; }
+.mf-ver:hover { border-color: var(--green); }
+.mf-modal.mf-visor { max-width: 860px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; padding: 20px; }
+.mf-visor-hoja { background: var(--bg-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; min-height: 420px; }
+.mf-visor-datos { padding: 28px 8px 8px 0; }
+.mf-visor-datos h3 { margin: 4px 0 12px; font-size: 17px; line-height: 1.3; }
+@media (max-width: 720px) { .mf-modal.mf-visor { grid-template-columns: 1fr; } .mf-visor-hoja { min-height: 0; } }

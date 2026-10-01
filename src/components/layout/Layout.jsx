@@ -15,6 +15,7 @@ import OrganigramaPhone from './OrganigramaPhone'
 import SeguimientoPhone from './SeguimientoPhone'
 import AcompanadosPhone from './AcompanadosPhone'
 import OnboardingHubPhone from './OnboardingHubPhone'
+import PerfilPhone from './PerfilPhone'
 import BarraVolver from './BarraVolver'
 import RedDeSeguridad from './RedDeSeguridad'
 
@@ -56,6 +57,17 @@ export default function Layout() {
   // de su día, no lo único que hace.
   const tabInicial = enOnboarding ? 'onboarding' : 'inicio'
   const [mobileTab, setMobileTab] = useState(tabInicial)
+
+  /* EL TELÉFONO CRECE CON LA VENTANA. Dibujado a 280×560 se leía chico en un monitor: se
+     agranda entero, en proporción, hasta ocupar el alto disponible (la etiqueta y el selector
+     van en las esquinas y no le estorban), sin pasar de 2,2 veces ni bajar del tamaño original. */
+  const zoomDelTelefono = () => Math.min(2.2, Math.max(1, (window.innerHeight - 24) / 570))
+  const [zoomCel, setZoomCel] = useState(zoomDelTelefono)
+  useEffect(() => {
+    const alCambiar = () => setZoomCel(zoomDelTelefono())
+    window.addEventListener('resize', alCambiar)
+    return () => window.removeEventListener('resize', alCambiar)
+  }, [])
 
   /* Un módulo abierto desde Zona HR ocupa la pantalla completa: el lanzador te saca del
      árbol de pestañas, así que dejar la barra abajo sugiere que sigues dentro de ella.
@@ -163,10 +175,10 @@ export default function Layout() {
 
         {/* Phone frame */}
         <div style={{
-          width: 280, height: 560,
+          width: 280, height: 560, zoom: zoomCel,
           borderRadius: 36,
           border: '5px solid #334155',
-          background: '#fff',
+          background: mobileTab === 'perfil' ? 'var(--bg-nav)' : '#fff',
           overflow: 'hidden',
           boxShadow: '0 0 0 2px #1e293b, 0 25px 60px rgba(0,0,0,.4)',
           display: 'flex',
@@ -193,7 +205,9 @@ export default function Layout() {
           {/* Content */}
           <div style={{
             flex: 1, overflowY: 'auto', padding: '10px 10px 10px',
-            background: '#f8fafc',
+            /* La ficha del colaborador sigue el tema; el resto de las pantallas del teléfono todavía
+               tiene sus colores fijos y se queda en claro. */
+            background: mobileTab === 'perfil' ? 'var(--bg-app)' : '#f8fafc',
             scrollbarWidth: 'none', msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
           }}
@@ -430,6 +444,8 @@ export default function Layout() {
               </div>
             ) : mobileTab === 'hr' ? (
               <ZonaHRPhone currentUser={currentUser} onNavegar={abrirDesdeHR} />
+            ) : mobileTab === 'perfil' ? (
+              <PerfilPhone key={currentUser.id} currentUser={currentUser} />
             ) : mobileTab === 'organigrama' ? (
               <OrganigramaPhone onSalir={volverAHR} />
             ) : mobileTab === 'seguimiento' ? (
@@ -461,7 +477,7 @@ export default function Layout() {
             display: origenHR ? 'none' : 'block',
           }}>
             <div style={{
-              background: '#fff',
+              background: mobileTab === 'perfil' ? 'var(--bg-nav)' : '#fff',
               borderRadius: 18,
               boxShadow: '0 -2px 16px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-around',
@@ -478,7 +494,7 @@ export default function Layout() {
                 // la mantienen encendida mientras estás adentro.
                 const active = mobileTab === tab.key
                   || (tab.key === 'onboarding' && SUB_ONBOARDING.includes(mobileTab))
-                const navegable = ['inicio', 'onboarding', 'hr'].includes(tab.key)
+                const navegable = ['inicio', 'onboarding', 'hr', 'perfil'].includes(tab.key)
                 return (
                 <div key={tab.label}
                   onClick={() => navegable && irAPestana(tab.key)}
