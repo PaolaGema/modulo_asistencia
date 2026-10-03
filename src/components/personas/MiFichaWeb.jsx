@@ -1,18 +1,23 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  User, Briefcase, FileText, Monitor, GraduationCap, Info, Lock, Pencil, Eye, EyeOff, Download,
-  AlertTriangle, Gift, Sparkles, Check, X, Send, Clock, Image, ChevronRight, ChevronLeft, Settings,
+  User, Briefcase, FileText, Monitor, GraduationCap, Info, Eye, EyeOff, Download,
+  AlertTriangle, Gift, Sparkles, Check, X, Image, ChevronRight,
 } from 'lucide-react'
 import {
-  pestanasCon, partesDe, documentosDe, camposEditables, agrupar, lineas, titularDe,
-  resumenDe, porRenovar, seccionesEditables,
+  pestanasCon, partesDe, documentosDe, agrupar, lineas, titularDe, resumenDe, porRenovar, FORMATO_PROPIO,
 } from '../../data/miFichaLectura'
+import { tarjetasDe } from '../../data/fichaColaborador'
+import { useEdicionPerfil } from '../../hooks/useEdicionPerfil'
+import RielPasos from './RielPasos'
+import TarjetaCampos from '../organizacion/TarjetaCampos'
+import Acordeon from './Acordeon'
 import HojaDocumento from './HojaDocumento'
 
 /* «MI FICHA» EN LA WEB, IGUAL QUE EN EL TELÉFONO: una lista con las secciones de la ficha, y cada
-   una se abre en su propia pantalla con «Volver a Mi perfil». Se lee y no se edita: lo que el
-   colaborador mantiene al día lo cambia en Configuración › Mis datos personales (`EditarMisDatos`).
-   Lo que se enseña y cómo se lee sale de `miFichaLectura`, el mismo módulo que usa el teléfono. */
+   una se abre en su propia pantalla con «Volver a Mi perfil». Se lee y no se edita: su
+   Información Personal, con sus documentos, y sus preferencias las cambia en Configuración ›
+   Editar perfil de usuario (`EditarPerfil`). Lo que se enseña y cómo se lee sale de
+   `miFichaLectura`, el mismo módulo que usa el teléfono. */
 
 const ICONOS = { personal: User, laboral: Briefcase, perfil: GraduationCap, documentos: FileText, recursos: Monitor }
 const ESTADO = {
@@ -32,194 +37,35 @@ function useAvisoGuardado() {
   return [visto, avisar]
 }
 
-/* Un campo en edición: lista y sí/no con sus opciones, el resto a texto libre. */
-function Entrada({ campo, valor, onCambiar }) {
-  if (campo.tipo === 'siNo' || campo.tipo === 'lista') {
-    const ops = campo.tipo === 'siNo'
-      ? [{ v: 'si', t: 'Sí' }, { v: 'no', t: 'No' }]
-      : (campo.opciones || []).map(o => (typeof o === 'string' ? { v: o, t: o } : { v: o.valor, t: o.etiqueta ?? o.valor }))
-    return (
-      <select value={valor} onChange={e => onCambiar(e.target.value)}>
-        <option value="">Elegir…</option>
-        {ops.map(o => <option key={o.v} value={o.v}>{o.t}</option>)}
-      </select>
-    )
-  }
-  return <input value={valor} onChange={e => onCambiar(e.target.value)} />
-}
-
-/* Los datos de una sección, como se leen en las dos pantallas. */
-function Datos({ s, ver }) {
-  if (s.vacia) return <p className="mf-nota" style={{ fontStyle: 'italic' }}>Sin datos registrados.</p>
-  return s.bloques.map((b, i) => (
-    <div key={i}>
-      {b.titulo && <p className="mf-bloque">{b.titulo}</p>}
-      <dl className="mf-datos">
-        {b.datos.map(d => (
-          <div key={d.key}>
-            <dt>{d.label}</dt>
-            <dd>{d.reservado && !ver ? '••••••' : d.valor}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  ))
-}
-
-/* Una sección de Mi ficha: sólo para mirar. Los montos reservados se destapan a pedido. */
-function Tarjeta({ s }) {
+/* UNA SECCIÓN DE MI FICHA: un acordeón, como en «Editar perfil», con los datos escritos como en la
+   hoja de expediente de la vista previa de RR.HH. —rótulo, línea de puntos, dato— (2 oct 2026).
+   Sin la cuenta «X de Y»: leyendo, parece una tarea pendiente. Lo que se enseña lo decide `leer`
+   (sólo lo que tiene valor, así que no hay renglones con guion; los archivos van a Documentación).
+   Los montos llevan el formato de la ficha del colaborador —«Bs 8.500»— y los reservados se tapan
+   hasta que se pide verlos. */
+function SeccionLeida({ s, form, abierta, onAlternar }) {
   const [ver, setVer] = useState(false)
+  const datos = new Map(s.bloques.flatMap(b => b.datos).map(d => [d.key, d]))
+  const conValor = s.campos.filter(c => c.tipo === 'rotulo' || datos.has(c.key))
+  // Un rótulo sin datos debajo —«Contacto 3» vacío— no se enseña.
+  const campos = conValor
+    .filter((c, i) => c.tipo !== 'rotulo' || (conValor[i + 1] && conValor[i + 1].tipo !== 'rotulo'))
+    .map(c => {
+      const d = datos.get(c.key)
+      if (!d || !(d.reservado || FORMATO_PROPIO.has(c.key.split('#')[0]))) return c
+      return { ...c, leer: () => (d.reservado && !ver ? '••••••' : d.valor) }
+    })
   return (
-    <section className={`mf-tarjeta${s.vacia ? ' vacia' : ''}`}>
-      <header className="mf-tarjeta-cab">
-        <h4>{s.titulo}</h4>
-        {s.privada && <span className="mf-privada"><Lock size={12} /> Solo usted y RR.HH.</span>}
-        {s.reservada && (
-          <button type="button" className="mf-mini gris" onClick={() => setVer(v => !v)}>
-            {ver ? <EyeOff size={12} /> : <Eye size={12} />} {ver ? 'Ocultar montos' : 'Mostrar montos'}
-          </button>
-        )}
-      </header>
-      {s.vacia
-        ? <p className="mf-nota" style={{ fontStyle: 'italic' }}>Sin asignaciones en esta categoría.</p>
-        : <Datos s={s} ver={ver} />}
-    </section>
-  )
-}
-
-/* Una sección que el colaborador mantiene al día, en Configuración › Mis datos personales. */
-function TarjetaEditable({ s, form, onGuardar }) {
-  const [valores, setValores] = useState(null)
-  const [guardado, avisar] = useAvisoGuardado()
-  const editables = camposEditables(s)
-
-  if (valores) {
-    return (
-      <section className="mf-tarjeta editando">
-        <header className="mf-tarjeta-cab"><h4>{s.titulo}</h4></header>
-        <div className="mf-form">
-          {editables.map(c => c.tipo === 'rotulo'
-            ? <p key={c.key} className="mf-bloque">{c.label}</p>
-            : (
-              <label key={c.key}>
-                <span>{c.label}</span>
-                <Entrada campo={c} valor={valores[c.key]} onCambiar={v => setValores(x => ({ ...x, [c.key]: v }))} />
-              </label>
-            ))}
-        </div>
-        <div className="mf-acciones">
-          <button type="button" className="mf-btn" onClick={() => setValores(null)}>Cancelar</button>
-          <button type="button" className="mf-btn primario" onClick={() => { onGuardar(valores); setValores(null); avisar() }}>Guardar</button>
-        </div>
-      </section>
-    )
-  }
-
-  return (
-    <section className="mf-tarjeta">
-      <header className="mf-tarjeta-cab">
-        <h4>{s.titulo}</h4>
-        {guardado && <Guardado />}
-        <button type="button" className="mf-mini" onClick={() => setValores(Object.fromEntries(editables.filter(c => c.tipo !== 'rotulo').map(c => [c.key, form[c.key] ?? ''])))}>
-          <Pencil size={12} /> Editar
+    <Acordeon titulo={s.titulo} abierto={abierta} onAlternar={onAlternar}>
+      {s.reservada && (
+        <button type="button" className="mf-mini gris mf-ver-montos" onClick={() => setVer(v => !v)}>
+          {ver ? <EyeOff size={12} /> : <Eye size={12} />} {ver ? 'Ocultar montos' : 'Mostrar montos'}
         </button>
-      </header>
-      <Datos s={s} ver />
-    </section>
-  )
-}
-
-/* ── SOLICITAR LA CORRECCIÓN DE UN DATO ─────────────────────────────────────
-   Se elige la sección y el dato de la pestaña abierta, se ve lo registrado y se escribe el valor
-   correcto. RR.HH. recibe el pedido; el dato no cambia hasta que lo atienda. */
-function Correccion({ pestana, form, onEnviar, onCerrar }) {
-  const secciones = partesDe(pestana, form).flatMap(p => p.secciones).filter(s => !s.vacia)
-  const [seccionId, setSeccionId] = useState('')
-  const [datoKey, setDatoKey] = useState('')
-  const [correcto, setCorrecto] = useState('')
-  const [comentario, setComentario] = useState('')
-  const [enviada, setEnviada] = useState(false)
-  const seccion = secciones.find(s => s.id === seccionId)
-  const datos = seccion ? seccion.bloques.flatMap(b => b.datos.map(d => ({ ...d, nombre: b.titulo ? `${d.label} (${b.titulo})` : d.label }))) : []
-  const dato = datos.find(d => d.key === datoKey)
-  const listo = dato && correcto.trim()
-
-  return (
-    <div className="mf-velo" onClick={onCerrar}>
-      <div className="mf-modal" role="dialog" aria-modal="true" aria-labelledby="mf-corr-tit" onClick={e => e.stopPropagation()}>
-        <button type="button" className="mf-cerrar" aria-label="Cerrar" onClick={onCerrar}><X size={18} /></button>
-        {enviada ? (
-          <div className="mf-enviada">
-            <span className="mf-enviada-ico"><Check size={24} /></span>
-            <h3 id="mf-corr-tit">Solicitud enviada</h3>
-            <p>RR.HH. revisará su pedido para corregir «{dato.label}». El dato se actualizará cuando lo apruebe.</p>
-            <button type="button" className="mf-btn primario" onClick={onCerrar}>Volver a mi ficha</button>
-          </div>
-        ) : (
-          <>
-            <h3 id="mf-corr-tit">Solicitar corrección</h3>
-            <p className="mf-nota">Indique qué dato está mal y cuál es el correcto. RR.HH. lo revisará y lo actualizará.</p>
-            <div className="mf-form" style={{ marginTop: 14 }}>
-              <label>
-                <span>Sección</span>
-                <select value={seccionId} onChange={e => { setSeccionId(e.target.value); setDatoKey('') }}>
-                  <option value="">Elija la sección…</option>
-                  {secciones.map(s => <option key={s.id} value={s.id}>{s.titulo}</option>)}
-                </select>
-              </label>
-              <label>
-                <span>Dato a corregir</span>
-                <select value={datoKey} onChange={e => setDatoKey(e.target.value)} disabled={!seccion}>
-                  <option value="">Elija el dato…</option>
-                  {datos.map(d => <option key={d.key} value={d.key}>{d.nombre}</option>)}
-                </select>
-              </label>
-              {dato && (
-                <div className="mf-registrado">
-                  <span>Registrado actualmente</span>
-                  <strong>{dato.reservado ? '••••••' : dato.valor}</strong>
-                </div>
-              )}
-              <label>
-                <span>¿Cuál es el dato correcto?</span>
-                <input value={correcto} onChange={e => setCorrecto(e.target.value)} placeholder="Escriba el dato correcto" />
-              </label>
-              <label>
-                <span>Comentario (opcional)</span>
-                <textarea rows={3} value={comentario} onChange={e => setComentario(e.target.value)} placeholder="Ej.: Adjuntaré la copia del documento en Zona HR" />
-              </label>
-            </div>
-            <div className="mf-acciones">
-              <button type="button" className="mf-btn" onClick={onCerrar}>Cancelar</button>
-              <button type="button" className="mf-btn primario" disabled={!listo} onClick={() => {
-                onEnviar({ seccion: seccion.titulo, dato: dato.nombre, registrado: dato.valor, correcto: correcto.trim(), comentario: comentario.trim() })
-                setEnviada(true)
-              }}><Send size={14} /> Enviar a RR.HH.</button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function Solicitudes({ lista }) {
-  if (!lista.length) return null
-  return (
-    <div className="mf-grupo">
-      <h4 className="mf-grupo-tit">Mis solicitudes de corrección</h4>
-      <div className="mf-lista">
-        {lista.map(x => (
-          <div key={x.id} className="mf-item">
-            <span className="mf-item-txt">
-              <strong>{x.dato}</strong>
-              <span>{x.seccion} · Correcto: <b>{x.correcto}</b>{x.comentario ? ` · «${x.comentario}»` : ''}</span>
-            </span>
-            <span className="mf-est pend"><Clock size={12} /> {x.estado}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+      )}
+      {s.vacia
+        ? <p className="mf-nota" style={{ fontStyle: 'italic', margin: 0 }}>Sin asignaciones en esta categoría.</p>
+        : <TarjetaCampos campos={campos} form={form} set={() => {}} editando={false} papel desnudo prefijo="mf" />}
+    </Acordeon>
   )
 }
 
@@ -250,8 +96,39 @@ function Visor({ doc, titular, onCerrar }) {
   )
 }
 
+/* UN DOCUMENTO, COMO EN «NUEVO COLABORADOR» PERO SIN CAMBIARLO: su rótulo arriba, la hoja con el
+   archivo —tocarla lo abre— y en la esquina Ver y Descargar, los mismos botones flotantes del
+   recuadro de RR.HH. Debajo, sus fechas y su estado. */
+function DocumentoLeido({ d, onVer }) {
+  const e = ESTADO[d.estado]
+  const fechas = [d.emite && `Emitido ${d.emite}`, d.vence && `Vence ${d.vence}`].filter(Boolean).join(' · ')
+  return (
+    <div className="c-tercio">
+      <span className="pl-label">{d.nombre}</span>
+      <div className="sa-doc">
+        <div className="sa-hoja con-archivo">
+          <button type="button" className="mf-doc-abrir" onClick={onVer} aria-label={`Ver ${d.nombre}`}>
+            {esImagen(d) ? <Image size={22} /> : <FileText size={22} />}
+            <span>{d.archivo}</span>
+          </button>
+          <div className="sa-hoja-acciones">
+            <button type="button" className="sa-flota" onClick={onVer} title="Ver" aria-label={`Ver ${d.nombre}`}><Eye size={14} /></button>
+            <button type="button" className="sa-flota" title="Descargar" aria-label={`Descargar ${d.nombre}`}><Download size={14} /></button>
+          </div>
+        </div>
+        <div className="sa-doc-pie">
+          <div className="sa-datos"><span className="sa-peso">{fechas || 'Sin vencimiento'}</span></div>
+          {e && <span className={e.cls}>{e.t}</span>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Documentos({ form }) {
   const [viendo, setViendo] = useState(null)
+  const [cerradas, setCerradas] = useState(() => new Set())
+  const alternar = t => setCerradas(a => { const n = new Set(a); n.has(t) ? n.delete(t) : n.add(t); return n })
   const docs = documentosDe(form)
   const renovar = docs.filter(d => d.estado === 'por-vencer' || d.estado === 'vencido')
   return (
@@ -262,36 +139,16 @@ function Documentos({ form }) {
           <span><b>{d.nombre.split(' · ').pop()}</b> {d.estado === 'vencido' ? 'venció' : 'vence'} el {d.vence}. Renuévelo y envíe la copia a RR.HH.</span>
         </div>
       ))}
-      {agrupar(docs, 'grupo').map(g => (
-        <div key={g.titulo} className="mf-grupo">
-          <h4 className="mf-grupo-tit">{g.titulo}</h4>
-          <div className="mf-lista">
-            {g.items.map(d => {
-              const e = ESTADO[d.estado]
-              return (
-                <div key={d.key} className="mf-item">
-                  {/* La fila entera abre la vista previa; la descarga va aparte, a la derecha. */}
-                  <button type="button" className="mf-item-abrir" onClick={() => setViendo(d)}>
-                  <span className="mf-item-ico">{esImagen(d) ? <Image size={16} /> : <FileText size={16} />}</span>
-                  <span className="mf-item-txt">
-                    <strong>{d.nombre}</strong>
-                    <span>
-                      {d.archivo}
-                      {d.emite && ` · Emitido ${d.emite}`}
-                      {d.vence && ` · Vence ${d.vence}`}
-                      {e && <span className={e.cls}>{e.t}</span>}
-                    </span>
-                  </span>
-                  </button>
-                  <button type="button" className="mf-ver" onClick={() => setViendo(d)}><Eye size={15} /> Ver</button>
-                  <button type="button" className="mf-descargar" aria-label={`Descargar ${d.nombre}`}><Download size={16} /></button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      ))}
-      <p className="mf-nota">Los documentos los sube RR.HH. Si necesita agregar uno, envíelo desde Zona HR.</p>
+      <div className="cn-acordeones">
+        {agrupar(docs, 'grupo').map(g => (
+          <Acordeon key={g.titulo} titulo={g.titulo} abierto={!cerradas.has(g.titulo)} onAlternar={() => alternar(g.titulo)}>
+            <div className="emp-form">
+              {g.items.map(d => <DocumentoLeido key={d.key} d={d} onVer={() => setViendo(d)} />)}
+            </div>
+          </Acordeon>
+        ))}
+      </div>
+      <p className="mf-nota">Los documentos de su Información Personal puede cambiarlos en Configuración › Editar perfil de usuario. Los demás los sube RR.HH.</p>
       {viendo && <Visor doc={viendo} titular={titularDe(form)} onCerrar={() => setViendo(null)} />}
     </>
   )
@@ -332,100 +189,216 @@ export default function MiFichaWeb({ ficha, onAbrir }) {
   )
 }
 
-/* El «volver» de las pantallas que se abren desde Mi perfil. */
-export function Volver({ texto, onVolver }) {
-  return (
-    <button type="button" className="mf-volver" onClick={onVolver}>
-      <span><ChevronLeft size={16} /></span> {texto}
-    </button>
-  )
-}
 
-/* ── UNA SECCIÓN DE MI FICHA, EN SU PROPIA PANTALLA ───────────────────────── */
-export function SeccionMiFicha({ ficha, pestana, solicitudes, onSolicitar }) {
+/* ── UNA SECCIÓN DE MI FICHA, EN SU PROPIA PANTALLA ─────────────────────────
+   Se entra desde la lista de Mi ficha del perfil y se vuelve por la miga. Sin riel: los pasos
+   numerados son para llenar un formulario, y esto sólo se lee. Las partes de una sección —las
+   tres de Información Laboral— van una debajo de otra con su título. */
+export function SeccionMiFicha({ ficha, pestana }) {
   const form = ficha.form
-  const [corrigiendo, setCorrigiendo] = useState(false)
   if (pestana === 'documentos') return <div className="mf-cuerpo"><Documentos form={form} /></div>
-  const partes = partesDe(pestana, form)
-  const titulos = new Set(partes.flatMap(p => p.secciones.map(s => s.titulo)))
   return (
     <div className="mf-cuerpo">
       <div className="mf-info">
         <Info size={15} />
-        <span>{pestana === 'recursos'
-          ? 'Lo que la empresa le entregó para trabajar. Si algo no coincide, solicite su corrección.'
-          : 'Estos datos los registró RR.HH. Si alguno no es correcto, solicite su corrección.'}</span>
+        <span>{pestana === 'personal'
+          ? 'Estos datos los mantiene usted al día. Para cambiarlos, entre a Configuración › Editar perfil de usuario.'
+          : pestana === 'recursos'
+            ? 'Lo que la empresa le entregó para trabajar.'
+            : 'Estos datos los registró RR.HH.'}</span>
       </div>
-      {partes.map(parte => (
-        <div key={parte.key} className="mf-parte">
-          {parte.titulo && <h3>{parte.titulo}</h3>}
-          <div className="mf-rejilla">
-            {parte.secciones.map(s => <Tarjeta key={s.id} s={s} />)}
-          </div>
-        </div>
-      ))}
-      <div className="mf-pie">
-        <Info size={15} />
-        <span>¿Algún dato no es correcto?</span>
-        <button type="button" className="mf-corregir" onClick={() => setCorrigiendo(true)}>Solicitar corrección</button>
-      </div>
-      <Solicitudes lista={solicitudes.filter(x => titulos.has(x.seccion))} />
-      {corrigiendo && <Correccion pestana={pestana} form={form} onEnviar={onSolicitar} onCerrar={() => setCorrigiendo(false)} />}
+      <PartesLeidas partes={partesDe(pestana, form)} form={form} />
     </div>
   )
 }
 
-/* ── CONFIGURACIÓN › MIS DATOS PERSONALES ─────────────────────────────────
-   Lo único que el colaborador cambia por su cuenta: su contacto, sus contactos de emergencia y
-   sus preferencias. Se guarda al momento y Mi ficha lo muestra en seguida. */
-export function EditarMisDatos({ ficha, onGuardar }) {
-  return (
-    <div className="mf-cuerpo">
-      <div className="mf-info">
-        <Info size={15} />
-        <span>Mantenga al día estos datos. El resto de su ficha lo registra RR.HH.; si algo no es correcto, solicite su corrección desde Mi ficha.</span>
-      </div>
-      <div className="mf-rejilla">
-        {seccionesEditables(ficha.form).map(s => <TarjetaEditable key={s.id} s={s} form={ficha.form} onGuardar={onGuardar} />)}
-      </div>
-      <PreferenciasEditables ficha={ficha} onGuardar={onGuardar} />
-    </div>
-  )
-}
-
-function ListaEditable({ lista, setLista, placeholder }) {
-  const [nuevo, setNuevo] = useState('')
-  const agregar = () => {
-    const t = nuevo.trim()
-    if (t && !lista.includes(t)) setLista([...lista, t])
-    setNuevo('')
-  }
-  return (
-    <>
-      <div className="mf-chips">
-        {lista.map(x => (
-          <span key={x} className="con-x">
-            {x}
-            <button type="button" aria-label={`Quitar ${x}`} onClick={() => setLista(lista.filter(y => y !== x))}><X size={12} /></button>
-          </span>
+/* Las partes de la pestaña, una debajo de otra, cada una con sus acordeones. Todos abiertos de
+   entrada: esto se viene a leer, y doce clics para ver la propia ficha son once de más. */
+function PartesLeidas({ partes, form }) {
+  const [cerradas, setCerradas] = useState(() => new Set())
+  const alternar = id => setCerradas(a => { const n = new Set(a); n.has(id) ? n.delete(id) : n.add(id); return n })
+  return partes.map(parte => (
+    <div key={parte.key} className="mf-parte">
+      {parte.titulo && partes.length > 1 && <h3>{parte.titulo}</h3>}
+      <div className="cn-acordeones">
+        {parte.secciones.map(s => (
+          <SeccionLeida key={s.id} s={s} form={form} abierta={!cerradas.has(s.id)} onAlternar={() => alternar(s.id)} />
         ))}
       </div>
-      <div className="mf-agregar">
-        <input value={nuevo} placeholder={placeholder} onChange={e => setNuevo(e.target.value)} onKeyDown={e => e.key === 'Enter' && agregar()} />
-        <button type="button" className="mf-btn" onClick={agregar}>Agregar</button>
+    </div>
+  ))
+}
+
+/* ── CONFIGURACIÓN › EDITAR PERFIL DE USUARIO ──────────────────────────────
+   Su Información Personal —la suya y la de su familia— con los documentos que van en ella, y sus
+   preferencias. Los campos están abiertos desde que se entra; los cambios se juntan y se guardan
+   todos con «Guardar cambios», en la barra que aparece abajo apenas hay uno. Lo que se escribe y
+   cómo se guarda vive en `useEdicionPerfil`, lo mismo que en el teléfono. */
+
+const ESCRIBIBLES = new Set(['texto', 'lista', 'siNo', 'archivo', undefined])
+const vacio = v => v === null || v === undefined || (typeof v === 'string' && v.trim() === '') || (typeof v === 'object' && !v?.nombre)
+function contarLlenos(s, vivo) {
+  const esc = s.campos.filter(c => ESCRIBIBLES.has(c.tipo) && c.tipo !== 'rotulo' && c.tipo !== 'repetir' && c.deducido === undefined && !c.oculto)
+  return { llenos: esc.filter(c => !vacio(vivo[c.key])).length, total: esc.length }
+}
+
+function CamposSeccion({ s, ed }) {
+  return (
+    <TarjetaCampos
+      campos={s.campos}
+      form={ed.vivo}
+      set={ed.set}
+      aplicar={ed.aplicar}
+      editando
+      prefijo="mf"
+      marcarFaltas={false}
+      desnudo
+    />
+  )
+}
+
+const PESTANAS_PERFIL = [
+  { key: 'personal', titulo: 'Información Personal', pista: 'Sus datos y los de su familia', partes: ['quien', 'entorno'] },
+  { key: 'preferencias', titulo: 'Preferencias', pista: 'Regalos y experiencias que le gustarían', partes: ['preferencias'] },
+]
+const TITULO_PARTE = { quien: 'Información Personal', entorno: 'Información Familiar', preferencias: 'Preferencias' }
+
+export function EditarPerfil({ ficha, onGuardar }) {
+  const ed = useEdicionPerfil(ficha.form, onGuardar)
+  const [guardado, avisar] = useAvisoGuardado()
+  const [docViendo, setDocViendo] = useState(null)
+  const [paso, setPaso] = useState('quien')
+
+  const pestana = PESTANAS_PERFIL.find(t => t.partes.includes(paso)) || PESTANAS_PERFIL[0]
+  const parteActual = ed.partes.find(p => p.key === paso)
+
+  const avance = useMemo(() => {
+    const m = {}
+    for (const p of ed.partes) {
+      let puestos = 0, total = 0
+      for (const s of p.secciones) {
+        const c = contarLlenos(s, ed.vivo)
+        puestos += c.llenos; total += c.total
+      }
+      m[p.key] = { puestos, total, pct: total ? Math.round(puestos * 100 / total) : 0 }
+    }
+    m.preferencias = { puestos: 0, total: 0, pct: 0 }
+    return m
+  }, [ed.partes, ed.vivo])
+
+  const avancePestana = useMemo(() => {
+    const m = {}
+    for (const t of PESTANAS_PERFIL) {
+      let puestos = 0, total = 0
+      for (const k of t.partes) { puestos += avance[k]?.puestos || 0; total += avance[k]?.total || 0 }
+      m[t.key] = { puestos, total, pct: total ? Math.round(puestos * 100 / total) : 0 }
+    }
+    return m
+  }, [avance])
+
+  const itemsRiel = PESTANAS_PERFIL.map((t, i) => ({ key: t.key, n: i + 1, titulo: t.titulo, pista: t.pista }))
+  const irAPestana = clave => setPaso(PESTANAS_PERFIL.find(t => t.key === clave)?.partes[0] || 'quien')
+  const conPartes = new Set(PESTANAS_PERFIL.filter(t => t.partes.length > 1).map(t => t.key))
+
+  const [abiertos, setAbiertos] = useState(() => {
+    const first = ed.partes[0]?.secciones[0]
+    return first ? [first.titulo] : []
+  })
+  const alternar = t => setAbiertos(a => a.includes(t) ? a.filter(x => x !== t) : [...a, t])
+
+  const contenido = paso === 'preferencias' ? (
+    <PreferenciasEditables ed={ed} />
+  ) : parteActual ? (
+    <div className="cn-acordeones">
+      {parteActual.secciones.map(s => {
+        const { llenos, total } = contarLlenos(s, ed.vivo)
+        return (
+          <Acordeon key={s.id} titulo={s.titulo} abierto={abiertos.includes(s.titulo)} onAlternar={() => alternar(s.titulo)} llenos={llenos} total={total}>
+            <CamposSeccion s={s} ed={ed} />
+          </Acordeon>
+        )
+      })}
+    </div>
+  ) : null
+
+  return (
+    <div className="mf-cuerpo">
+      <div className="mf-info">
+        <Info size={15} />
+        <span>Mantenga al día su información personal y sus documentos. Lo laboral lo registra RR.HH.</span>
       </div>
-    </>
+      <div className="cn-grid">
+        <RielPasos
+          pasos={itemsRiel}
+          actual={pestana.key}
+          onIr={irAPestana}
+          avance={avancePestana}
+          partes={pestana.partes.length > 1 ? pestana.partes.map(k => ({
+            key: k,
+            titulo: TITULO_PARTE[k] || k,
+            on: k === paso,
+            pct: avance[k]?.pct ?? 0,
+            puestos: avance[k]?.puestos,
+            total: avance[k]?.total,
+          })) : undefined}
+          onParte={setPaso}
+          conPartes={conPartes}
+        />
+        <div className="cn-cuerpo">
+          <div className="cn-paso-cab cn-entra" key={`cab-${paso}`}>
+            <h2>
+              {pestana.partes.length > 1
+                ? `${PESTANAS_PERFIL.indexOf(pestana) + 1}.${pestana.partes.indexOf(paso) + 1} · ${TITULO_PARTE[paso] || paso}`
+                : `${PESTANAS_PERFIL.indexOf(pestana) + 1} · ${pestana.titulo}`}
+            </h2>
+            <p>{pestana.partes.length > 1 ? `${pestana.titulo} · ${pestana.pista}` : pestana.pista}</p>
+          </div>
+          {contenido}
+        </div>
+      </div>
+      {(ed.hayCambios || guardado) && (
+        <div className="mf-barra-guardar">
+          {ed.hayCambios ? (
+            <>
+              <span className={ed.faltan.length ? 'falta' : ''}>
+                {ed.faltan.length
+                  ? `Complete ${ed.faltan.length === 1 ? 'el dato obligatorio' : `los ${ed.faltan.length} datos obligatorios`}`
+                  : ed.cuantos === 1 ? '1 cambio sin guardar' : ed.cuantos ? `${ed.cuantos} cambios sin guardar` : 'Cambios sin guardar'}
+              </span>
+              <button type="button" className="mf-btn" onClick={ed.descartar}>Descartar</button>
+              <button type="button" className="mf-btn primario" disabled={ed.faltan.length > 0} onClick={() => { if (ed.guardar()) avisar() }}>Guardar cambios</button>
+            </>
+          ) : <Guardado />}
+        </div>
+      )}
+      {docViendo && <Visor doc={docViendo} titular={titularDe(ficha.form)} onCerrar={() => setDocViendo(null)} />}
+    </div>
+  )
+}
+
+// La misma sección y las mismas tablitas que llena RR.HH. en «Nuevo colaborador».
+function PreferenciasEditables({ ed }) {
+  const [abierto, setAbierto] = useState(true)
+  const t = tarjetasDe('quien', ed.vivo, {}).find(x => x.id === 'preferencias')
+  if (!t) return null
+  const llenos = t.campos.filter(c => lineas(ed.vivo[c.key]).length).length
+  return (
+    <div className="cn-acordeones">
+      <Acordeon titulo={t.titulo} desc={t.desc} abierto={abierto} onAlternar={() => setAbierto(a => !a)} llenos={llenos} total={t.campos.length}>
+        <TarjetaCampos campos={t.campos} form={ed.vivo} set={ed.set} aplicar={ed.aplicar} editando prefijo="mf" marcarFaltas={false} desnudo />
+      </Acordeon>
+    </div>
   )
 }
 
 const GRUPOS_PREF = [
-  ['regalos', Gift, 'Regalos que le gustaría recibir', 'Sin regalos agregados', 'Ej.: Un libro'],
-  ['experiencias', Sparkles, 'Experiencias que le gustaría vivir', 'Sin experiencias agregadas', 'Ej.: Un viaje'],
+  ['regalos', Gift, 'Regalos que le gustaría recibir', 'Sin regalos agregados', 'Ej.: Un libro', 'Indique detalles que le alegrarían en su cumpleaños o en un reconocimiento.'],
+  ['experiencias', Sparkles, 'Experiencias que le gustaría vivir', 'Sin experiencias agregadas', 'Ej.: Un viaje', 'Indique actividades o vivencias que la empresa podría regalarle.'],
 ]
 const prefDe = form => ({ regalos: lineas(form['ra.f1']), experiencias: lineas(form['ra.f4']) })
 
 /* Regalos y experiencias en Mi perfil: para mirar. Se cambian en Configuración. */
-export function Preferencias({ ficha, onEditar }) {
+export function Preferencias({ ficha }) {
   const actual = prefDe(ficha.form)
   return (
     <div className="mf-pref">
@@ -437,46 +410,7 @@ export function Preferencias({ ficha, onEditar }) {
             : <p className="mf-nota" style={{ fontStyle: 'italic' }}>{vacio}</p>}
         </div>
       ))}
-      <button type="button" className="mf-editar-pref" onClick={onEditar}>
-        <Settings size={14} /> Editar en Configuración
-      </button>
     </div>
   )
 }
 
-/* Regalos y experiencias en edición: los dos se editan juntos y se guardan juntos, como las
-   tablitas de Preferencias en la ficha de RR.HH. (una por línea). */
-function PreferenciasEditables({ ficha, onGuardar }) {
-  const [edicion, setEdicion] = useState(null)
-  const [guardado, avisar] = useAvisoGuardado()
-  const actual = prefDe(ficha.form)
-  const grupos = GRUPOS_PREF
-  return (
-    <div className={`mf-pref${edicion ? ' editando' : ''}`}>
-      {grupos.map(([k, I, t, vacio, ej]) => (
-        <div key={k} style={{ width: '100%' }}>
-          <h2 className="mf-pref-tit"><I size={18} /> {t}</h2>
-          {edicion
-            ? <ListaEditable lista={edicion[k]} setLista={l => setEdicion(e => ({ ...e, [k]: l }))} placeholder={ej} />
-            : actual[k].length
-              ? <div className="mf-chips">{actual[k].map(x => <span key={x}>{x}</span>)}</div>
-              : <p className="mf-nota" style={{ fontStyle: 'italic' }}>{vacio}</p>}
-        </div>
-      ))}
-      {edicion ? (
-        <div className="mf-acciones" style={{ width: '100%' }}>
-          <button type="button" className="mf-btn" onClick={() => setEdicion(null)}>Cancelar</button>
-          <button type="button" className="mf-btn primario" onClick={() => {
-            onGuardar({ 'ra.f1': edicion.regalos.join('\n'), 'ra.f4': edicion.experiencias.join('\n') })
-            setEdicion(null); avisar()
-          }}>Guardar</button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button type="button" className="mf-editar-pref" onClick={() => setEdicion(actual)}>Editar preferencias</button>
-          {guardado && <Guardado />}
-        </div>
-      )}
-    </div>
-  )
-}

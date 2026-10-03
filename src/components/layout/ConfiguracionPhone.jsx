@@ -8,8 +8,8 @@ import {
 /* CONFIGURACIÓN DEL TELÉFONO, como está hoy en la app de Souly: cuenta y seguridad,
    preferencias del sistema, empresa y la zona de peligro. Se abre desde el botón
    «Configuración» del perfil. Los interruptores funcionan; el resto de las filas todavía no
-   tienen pantalla, salvo «Perfil de usuario», donde el colaborador edita lo que mantiene al día de
-   su ficha: contacto, contactos de emergencia y preferencias. Mi ficha, en cambio, sólo se lee. */
+   tienen pantalla, salvo «Editar perfil de usuario», donde el colaborador edita su Información
+   Personal con sus documentos, y sus preferencias. Mi ficha, en cambio, sólo se lee. */
 
 const VERDE = '#00E091'
 
@@ -83,7 +83,7 @@ export default function ConfiguracionPhone({ onVolver, onPerfilUsuario }) {
       <Grupo icon={ShieldHalf} titulo="Gestión de cuenta y seguridad">
         <Fila icon={Fingerprint} titulo="Seguridad biométrica" texto="Usa tu huella o Face ID para iniciar sesión"
           derecha={<Interruptor encendido={biometria} onCambiar={() => setBiometria(v => !v)} etiqueta="Seguridad biométrica" />} />
-        <Fila icon={User} titulo="Perfil de usuario" texto="Edita tu información personal" onClick={onPerfilUsuario} />
+        <Fila icon={User} titulo="Editar perfil de usuario" texto="Tu información personal y tus documentos" onClick={onPerfilUsuario} />
         <Fila icon={Lock} titulo="Cambiar contraseña" texto="Actualiza tu contraseña de acceso" />
       </Grupo>
 

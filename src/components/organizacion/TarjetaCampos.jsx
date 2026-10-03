@@ -862,7 +862,7 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
   const [busca, setBusca] = useState('')
   const [estado, setEstado] = useState(TODOS_ESTADOS)
   const [fechas, setFechas] = useState(SIN_FECHAS)
-  if (papel && !editando) return <HojaDePapel titulo={titulo} campos={campos} form={form} />
+  if (papel && !editando) return <HojaDePapel titulo={titulo} campos={campos} form={form} desnudo={desnudo} />
   /* LEYENDO, LO QUE NO HAY NO OCUPA UNA FILA. Una ficha recién creada enseñaba once rótulos con
      un guion debajo —código, país, ciudad, teléfono, correo, descripción, responsable— y entre
      tanto hueco había que buscar los tres datos que sí existían. El guion tiene sentido en un
@@ -1016,11 +1016,13 @@ export default function TarjetaCampos({ titulo, desc, campos, form, set, aplicar
 
    Los rótulos de un bloque que se repite —«Hijo 2», «Formación 1»— vuelven como subtítulo: acá
    los renglones vacíos se ven, así que ya no encabezan la nada. */
-function HojaDePapel({ titulo, campos, form }) {
+/* `desnudo`, como en la tarjeta de siempre: sin marco ni título, para ir dentro de algo que ya los
+   pone —el acordeón de Mi ficha—. */
+function HojaDePapel({ titulo, campos, form, desnudo }) {
   const filas = campos.filter(c => !c.soloEdicion && !c.oculto && c.tipo !== 'repetir' && c.tipo !== 'agregarDoc')
   return (
-    <section className="emp-papel">
-      <h2 className="emp-papel-tit">{titulo}</h2>
+    <section className={`emp-papel${desnudo ? ' desnudo' : ''}`}>
+      {!desnudo && <h2 className="emp-papel-tit">{titulo}</h2>}
       <div className="emp-papel-filas">
         {filas.map(c => {
           if (c.tipo === 'rotulo') return <p key={c.key} className="emp-papel-rotulo">{c.label}</p>

@@ -45,9 +45,12 @@ export default function Acordeon({ titulo, desc, abierto, onAlternar, llenos, to
             teñir la cuenta de verde pase lo que pase haría que el color deje de decir nada.
             Encendida sólo al llegar al total, el acordeón cerrado se vuelve un índice: pastilla
             verde es sección terminada, y se ve sin abrir ninguna. */}
-        <span className={`ac-cuenta${llena ? ' llena' : ''}${brilla ? ' brilla' : ''}`}>
-          {llenos} de {total}
-        </span>
+        {/* Sin `total` no hay cuenta: leyendo, «5 de 7» parece una tarea pendiente de quien lee. */}
+        {total != null && (
+          <span className={`ac-cuenta${llena ? ' llena' : ''}${brilla ? ' brilla' : ''}`}>
+            {llenos} de {total}
+          </span>
+        )}
       </button>
       <div className={`ac-anim${abierto ? ' on' : ''}`} inert={!abierto}>
         <div className="ac-anim-dentro">

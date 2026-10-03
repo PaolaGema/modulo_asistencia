@@ -10,7 +10,12 @@
    las mismas funciones que la de RR.HH. (`tarjetasDe`) y no con una lista paralela que un día
    diría otra cosa. Las copias de un bloque repetido llevan `#n` y su cuenta va en `__n_<grupo>`. */
 
-const pdf = nombre => ({ nombre })
+// Sin el archivo en sí: la demo sólo sabe que RR.HH. lo registró, y así lo dice el recuadro.
+const pdf = nombre => ({
+  nombre,
+  tipo: /\.(jpe?g|png|webp)$/i.test(nombre) ? 'image/jpeg' : 'application/pdf',
+  origen: 'Registrado por RR.HH.',
+})
 
 const CARLOS = {
   '0.1': 'no',
@@ -41,6 +46,21 @@ const CARLOS = {
   // Preferencias
   'ra.f1': 'Audífonos inalámbricos\nLibro de diseño de interfaces\nCafé de especialidad',
   'ra.f4': 'Curso de React avanzado\nViaje al Salar de Uyuni',
+
+  // Perfil profesional
+  '1.32': 'Ingeniero de Sistemas', '1.33': 'SIB-LP-18342',
+  '__n_formacion': 1,
+  'pf.1': 'Licenciatura', 'pf.2': 'Licenciado en Ingeniería de Sistemas', 'pf.3': 'Ingeniería de Sistemas',
+  'pf.4': 'Universidad Mayor de San Andrés', 'pf.5': 'Bolivia', 'pf.6': 'La Paz', 'pf.7': 'Presencial',
+  'pf.8': '2012-02-06', 'pf.9': '2017-12-15', 'pf.10': 'Finalizado',
+  '__n_experiencia': 1,
+  'pf.12': 'Softek S.R.L.', 'pf.13': 'Desarrollador web', 'pf.14': 'Desarrollo de software',
+  'pf.15': '2018-03-01', 'pf.16': '2024-12-31', 'pf.17': '6 años y 10 meses',
+  'pf.18': 'Desarrollo de sistemas internos con React y Node.js', 'pf.19': 'Mejor oferta laboral', 'pf.20': 'si',
+  '__n_idiomas': 2, 'pf.28': 'Español', 'pf.29': 'Nativo', 'pf.28#2': 'Inglés', 'pf.29#2': 'Avanzado', 'pf.30#2': 'TOEFL iBT 98',
+  '__n_herramientas': 2, 'pf.32': 'React', 'pf.33': 'Avanzado', 'pf.32#2': 'PostgreSQL', 'pf.33#2': 'Intermedio',
+  'pf.42': 'Ruta de cargo', 'pf.43': 'Completado',
+  '__n_capacitaciones': 1, 'pf.44': 'Seguridad de la información', 'pf.45': '2025-05-20', 'pf.46': '8',
 
   // Contactos de emergencia: dos
   '__n_emergencia': 2,
@@ -135,6 +155,21 @@ const MARIA = {
   'ra.f1': 'Set de plantas de interior\nAgenda de cuero',
   'ra.f4': 'Cena en familia\nTaller de negociación',
 
+  // Perfil profesional
+  '1.32': 'Administradora de Empresas',
+  '__n_formacion': 1,
+  'pf.1': 'Licenciatura', 'pf.2': 'Licenciada en Administración de Empresas', 'pf.3': 'Administración de Empresas',
+  'pf.4': 'Universidad Autónoma Gabriel René Moreno', 'pf.5': 'Bolivia', 'pf.6': 'Santa Cruz', 'pf.7': 'Presencial',
+  'pf.8': '2010-02-01', 'pf.9': '2014-12-10', 'pf.10': 'Finalizado',
+  '__n_experiencia': 1,
+  'pf.12': 'Droguería Inti S.A.', 'pf.13': 'Ejecutiva de ventas', 'pf.14': 'Comercial',
+  'pf.15': '2015-04-01', 'pf.16': '2024-02-29', 'pf.17': '8 años y 11 meses',
+  'pf.18': 'Atención de cartera de farmacias y cumplimiento de metas de venta', 'pf.19': 'Crecimiento profesional', 'pf.20': 'si',
+  '__n_idiomas': 2, 'pf.28': 'Español', 'pf.29': 'Nativo', 'pf.28#2': 'Inglés', 'pf.29#2': 'Intermedio',
+  '__n_herramientas': 1, 'pf.32': 'Microsoft Excel', 'pf.33': 'Avanzado',
+  'pf.42': 'Ruta de área', 'pf.43': 'Completado',
+  '__n_capacitaciones': 1, 'pf.44': 'Técnicas de negociación', 'pf.45': '2025-08-14', 'pf.46': '16',
+
   '__n_emergencia': 2,
   '2.1': 'Jorge Paz Arteaga', '2.2': 'Cónyuge', '2.3': '+591 773 34 590', '2.4': '3 342 8870',
   '2.5': 'jorge.paz@gmail.com', '2.6': 'Av. Beni 2140, Equipetrol Norte, Santa Cruz', '2.7': 'si',
@@ -215,6 +250,25 @@ const JUAN = {
   '1.63': 'si', '1.64': 'Nacional Seguros', '1.65': 'NS-1180-2207',
   'ra.f1': 'Libro de liderazgo de equipos\nCafé de especialidad',
   'ra.f4': 'Diplomado en gestión del talento\nFin de semana en Coroico',
+
+  // Perfil profesional
+  '1.32': 'Psicólogo organizacional', '1.33': 'CPB-LP-0921',
+  '__n_formacion': 2,
+  'pf.1': 'Licenciatura', 'pf.2': 'Licenciado en Psicología', 'pf.3': 'Psicología',
+  'pf.4': 'Universidad Católica Boliviana', 'pf.5': 'Bolivia', 'pf.6': 'La Paz', 'pf.7': 'Presencial',
+  'pf.8': '2006-02-01', 'pf.9': '2011-07-15', 'pf.10': 'Finalizado',
+  'pf.1#2': 'Maestría', 'pf.2#2': 'Magíster en Gestión del Talento Humano', 'pf.3#2': 'Gestión del Talento Humano',
+  'pf.4#2': 'Universidad Andina Simón Bolívar', 'pf.5#2': 'Bolivia', 'pf.6#2': 'La Paz', 'pf.7#2': 'Semipresencial',
+  'pf.8#2': '2016-03-01', 'pf.9#2': '2018-06-30', 'pf.10#2': 'Finalizado',
+  '__n_experiencia': 1,
+  'pf.12': 'Banco Unión S.A.', 'pf.13': 'Jefe de Selección', 'pf.14': 'Recursos Humanos',
+  'pf.15': '2012-08-01', 'pf.16': '2021-12-31', 'pf.17': '9 años y 5 meses',
+  'pf.18': 'Selección, evaluación de desempeño y clima laboral', 'pf.19': 'Mejor oferta laboral', 'pf.20': 'si',
+  '__n_idiomas': 2, 'pf.28': 'Español', 'pf.29': 'Nativo', 'pf.28#2': 'Aymara', 'pf.29#2': 'Intermedio',
+  '__n_herramientas': 1, 'pf.32': 'SoulyHR', 'pf.33': 'Experto',
+  'pf.42': 'Ruta de cargo', 'pf.43': 'Completado',
+  '__n_capacitaciones': 1, 'pf.44': 'Ley General del Trabajo: actualización 2025', 'pf.45': '2025-03-12', 'pf.46': '12',
+  '__n_evaluaciones': 1, 'pf.47': 'Desempeño anual', 'pf.48': '2025-12-15', 'pf.49': 'Supera expectativas',
 
   '__n_emergencia': 2,
   '2.1': 'Patricia Rojas Vargas', '2.2': 'Cónyuge', '2.3': '+591 715 66 092', '2.4': '2 279 3310',

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { FileText, Paperclip, Trash2, UploadCloud } from 'lucide-react'
+import { Eye, FileText, Paperclip, Trash2, Upload, UploadCloud } from 'lucide-react'
 import { borrarArchivo, guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
 import { useArchivoLocal } from '../../hooks/useArchivoLocal'
 
@@ -121,7 +121,7 @@ export default function SubirArchivo({
     ? pesoLegible(valor.peso)
     : valor?.url
       ? (valor.origen || 'Traída de su registro anterior')
-      : pesoLegible(valor?.peso) + ' · no se pudo guardar la copia local'
+      : valor?.origen || pesoLegible(valor?.peso) + ' · no se pudo guardar la copia local'
   const esPdf = (valor?.tipo || '') === 'application/pdf'
   const abrir = () => entrada.current?.click()
 
@@ -231,6 +231,9 @@ export default function SubirArchivo({
               ) : (
                 <span className="sa-hoja-sin"><FileText size={22} />{valor.nombre}</span>
               )
+            ) : valor?.nombre && valor.origen ? (
+              // Registrado en otro lado y sin copia en este navegador: la hoja con su nombre, sin error.
+              <span className="sa-hoja-sin"><FileText size={22} />{valor.nombre}</span>
             ) : (
               /* EL RECUADRO ENTERO ES EL BOTÓN mientras está vacío, igual que en la caja
                  angosta: es el gesto que se repite ocho veces en esta ficha. */
@@ -250,37 +253,35 @@ export default function SubirArchivo({
                 </span>
               </button>
             )}
+
+            {/* LAS ACCIONES FLOTAN EN LA ESQUINA DE LA HOJA, siempre visibles —no al pasar el
+                ratón, que en un táctil no existe—. En el pie competían con el nombre por una
+                columna de un tercio y el nombre salía cortado. «Ver» abre la copia local en otra
+                pestaña, así que sólo aparece si esa copia existe. */}
+            {valor?.nombre && (
+              <div className="sa-hoja-acciones">
+                {url && (
+                  <a className="sa-flota" href={url} target="_blank" rel="noreferrer" title="Ver" aria-label={`Ver ${valor.nombre}`}>
+                    <Eye size={14} />
+                  </a>
+                )}
+                <button type="button" className="sa-flota sa-flota-texto" onClick={abrir} aria-label={`Cambiar ${valor.nombre}`}>
+                  <Upload size={13} /> Cambiar
+                </button>
+                <button type="button" className="sa-flota sa-flota-quitar" onClick={quitar} title="Quitar" aria-label={`Quitar ${valor.nombre}`}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* EL PIE SÓLO CON ARCHIVO. Vacío, el recuadro ya dice qué hacer y con letras grandes;
-              repetirlo debajo en un botón chico es ofrecer dos veces lo mismo. */}
+          {/* EL PIE SÓLO CON ARCHIVO, y sólo con su nombre y de dónde viene, a todo el ancho. */}
           {valor?.nombre && (
             <div className="sa-doc-pie">
               <div className="sa-datos">
                 <span className="sa-nombre" title={valor.nombre}>{valor.nombre}</span>
-                <span className="sa-peso">
-                  {pesoLegible(valor.peso)}
-                  {!valor.clave && ' · no se pudo guardar la copia local'}
-                </span>
+                <span className="sa-peso">{subtitulo}</span>
               </div>
-              {/* A ESTE TAMAÑO NO SE LEE UN CARNET, y tampoco hace falta: la miniatura contesta
-                  «¿es el papel correcto y está derecho?» y «Ver» contesta el resto. Abre la copia
-                  local en otra pestaña, así que sólo aparece si esa copia existe. */}
-              {/* A ESTE TAMAÑO NO SE LEE UN CARNET, y tampoco hace falta: la miniatura contesta
-                  «¿es el papel correcto y está derecho?» y «Ver» contesta el resto. Abre la copia
-                  local en otra pestaña, así que sólo aparece si esa copia existe. */}
-              {url && (
-                <a className="sa-accion" href={url} target="_blank" rel="noreferrer">Ver</a>
-              )}
-              <button type="button" className="sa-accion" onClick={abrir}>Cambiar</button>
-              <button
-                type="button"
-                className="sa-quitar"
-                onClick={quitar}
-                aria-label={`Quitar ${valor.nombre}`}
-              >
-                <Trash2 size={13} />
-              </button>
             </div>
           )}
         </div>
@@ -311,10 +312,7 @@ export default function SubirArchivo({
             )}
             <div className="sa-datos">
               <span className="sa-nombre" title={valor.nombre}>{valor.nombre}</span>
-              <span className="sa-peso">
-                {pesoLegible(valor.peso)}
-                {!valor.clave && ' · no se pudo guardar la copia local'}
-              </span>
+              <span className="sa-peso">{subtitulo}</span>
             </div>
             <button type="button" className="sa-accion" onClick={abrir}>Cambiar</button>
             <button

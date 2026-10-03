@@ -10,9 +10,9 @@ import { PESTANAS, tarjetasDe } from './fichaColaborador'
    - UN CAMPO VACÍO NO SE ENSEÑA. El colaborador no llena su ficha: la mira, y veinte
      «Sin registrar» taparían lo que sí está.
    - LOS ARCHIVOS VAN A «DOCUMENTACIÓN», juntos, y no desperdigados entre los datos.
-   - MI FICHA SÓLO SE LEE. Lo que sólo él sabe al día —su contacto, sus contactos de emergencia
-     y sus preferencias— lo edita desde Configuración › Mis datos personales, en web y en el
-     teléfono. Todo lo demás se corrige pidiéndoselo a RR.HH. */
+   - MI FICHA SÓLO SE LEE. Su Información Personal, con sus documentos, y sus preferencias las
+     edita desde Configuración › Editar perfil de usuario, en web y en el teléfono. Todo lo
+     demás se corrige pidiéndoselo a RR.HH. */
 
 export const PESTANAS_COLABORADOR = PESTANAS.filter(p => p.key !== 'configuracion')
 
@@ -29,12 +29,13 @@ export const pistaDe = key => PISTAS[key] || ''
    exámenes aún no guardan un dato legible; los archivos van a Documentación; las preferencias
    viven en la portada del perfil. */
 const OCULTAS = new Set(['reingreso', 'examenes', 'archivos', 'preferencias'])
-export const EDITABLES = new Set(['contacto', 'emergencia'])
 const PRIVADAS = new Set(['medica'])
 const SIN_VALOR = new Set(['archivo', 'repetir', 'agregarDoc', 'mapa', 'tutela', 'aprobadores', 'apoyoFuncional', 'rotulo'])
 /* Montos que se tapan hasta que la persona pide verlos: el sueldo no tiene por qué quedar a la
    vista de quien pase detrás de la pantalla. */
 const RESERVADOS = new Set(['3.65', '3.69c'])
+// Los que esta ficha escribe a su manera —en bolivianos o en porcentaje— y no como los deja RR.HH.
+export const FORMATO_PROPIO = new Set(['3.65', '3.69c', '2.35', '2.45v'])
 
 const base = key => key.split('#')[0]
 const vacio = v => v === null || v === undefined || String(v).trim() === ''
@@ -73,7 +74,6 @@ function leer(t, form) {
     titulo: t.titulo,
     bloques: llenos,
     vacia: !llenos.length,
-    editable: EDITABLES.has(t.id),
     privada: PRIVADAS.has(t.id),
     reservada: llenos.some(b => b.datos.some(d => d.reservado)),
     campos: t.campos,
@@ -122,19 +122,37 @@ export function resumenDe(form, key) {
   return pistaDe(key)
 }
 
-/* Las secciones que el colaborador edita desde Configuración › Mis datos personales, leídas
-   aunque estén vacías: quien todavía no tiene teléfono fijo tiene que poder agregarlo. */
-export function seccionesEditables(form) {
-  return [['quien', 'contacto'], ['entorno', 'emergencia']]
-    .map(([parte, id]) => tarjetasDe(parte, form, {}).find(t => t.id === id))
-    .filter(Boolean)
-    .map(t => leer(t, form))
-}
+/* ── CONFIGURACIÓN › EDITAR PERFIL DE USUARIO ─────────────────────────────
+   Lo que el colaborador cambia por su cuenta es su Información Personal entera —la suya y la de
+   su familia— con los documentos que van en ella: el carnet escaneado, el certificado de
+   nacimiento, el croquis, las licencias. Se guarda al momento, sin pasar por RR.HH. Lo demás
+   —puesto, contrato, pago, recursos— ni se ve ahí: no lo puede cambiar.
 
-/* ── LOS CAMPOS QUE EL COLABORADOR PUEDE ESCRIBIR ────────────────────────── */
-const ESCRIBIBLES = new Set(['texto', 'lista', 'siNo', undefined])
-export function camposEditables(seccion) {
-  return seccion.campos.filter(c => c.tipo === 'rotulo' || (ESCRIBIBLES.has(c.tipo) && c.deducido === undefined))
+   LAS SECCIONES SALEN AUNQUE ESTÉN VACÍAS y con todos sus campos: quien todavía no tiene teléfono
+   fijo tiene que poder agregarlo. Se leen con `tarjetasDe` sobre lo que se está escribiendo, así
+   que lo condicional aparece al contestar: «Sí» a las alergias abre su descripción.
+   Queda fuera lo que no es un dato suyo: si es reingreso lo decide el trámite de RR.HH. Las
+   preferencias van aparte, en su pestaña. */
+const PARTES_EDITABLES = ['quien', 'entorno']
+const NO_SE_EDITAN = new Set(['reingreso', 'preferencias'])
+/* El mapa y los calculados se quedan: en la web se dibujan con la rejilla de RR.HH., y el mapa
+   ancla la columna izquierda de «Datos de residencia» —sin él, el croquis cae suelto—. Los
+   calculados no se escriben, se enseñan, igual que allá. El teléfono, de una columna, los salta. */
+const SE_ESCRIBEN = new Set(['texto', 'lista', 'siNo', 'archivo', 'rotulo', 'repetir', 'mapa', undefined])
+export function perfilEditable(form) {
+  return PARTES_EDITABLES.map(parte => ({
+    key: parte,
+    titulo: tituloDeParte(parte),
+    secciones: tarjetasDe(parte, form, {})
+      .filter(t => !NO_SE_EDITAN.has(t.id))
+      .map(t => ({
+        id: t.id,
+        titulo: t.titulo,
+        privada: PRIVADAS.has(t.id),
+        campos: t.campos.filter(c => SE_ESCRIBEN.has(c.tipo) && !c.oculto),
+      }))
+      .filter(s => s.campos.some(c => c.tipo !== 'rotulo' && c.tipo !== 'repetir')),
+  }))
 }
 
 /* ── DOCUMENTACIÓN ─────────────────────────────────────────────────────────

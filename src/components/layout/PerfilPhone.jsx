@@ -1,23 +1,27 @@
 import { useState } from 'react'
 import {
   HelpCircle, LogOut, Network, Settings, User, Briefcase, FileText, Monitor, ChevronRight,
-  ChevronDown, Gift, Sparkles, Plus, Info, Lock, Download, AlertTriangle, Pencil, Eye, EyeOff, Check, X,
-  GraduationCap, Send, Clock, ChevronLeft, Image as ImageIcon,
+  ChevronDown, Gift, Sparkles, Plus, Info, Download, AlertTriangle, Pencil, Eye, EyeOff, Check, X,
+  GraduationCap, Image as ImageIcon, Trash2, Upload,
 } from 'lucide-react'
 import BarraVolver from './BarraVolver'
 import ConfiguracionPhone from './ConfiguracionPhone'
 import HojaDocumento from '../personas/HojaDocumento'
 import { useMiFicha } from '../../hooks/useMiFicha'
+import { useEdicionPerfil } from '../../hooks/useEdicionPerfil'
 import {
-  pestanasCon, partesDe, documentosDe, camposEditables, agrupar, lineas, titularDe,
-  resumenDe, porRenovar, seccionesEditables,
+  pestanasCon, partesDe, documentosDe, agrupar, lineas, titularDe, resumenDe, porRenovar,
 } from '../../data/miFichaLectura'
+import { cuantosHay, tarjetasDe } from '../../data/fichaColaborador'
+import { avatarUrl } from '../../utils/calendarEvents'
+import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 
 /* LA PESTAÑA «PERFIL» DEL TELÉFONO: el perfil de siempre —banda, foto, nombre, cargo— con
    «Mi ficha» debajo. Cada fila abre una pestaña de la ficha en pantalla propia; la barra de
-   abajo sigue visible porque no se sale de «Perfil». Mi ficha sólo se lee: lo que el
-   colaborador mantiene al día lo edita en Configuración › Perfil de usuario (`MisDatos`). Lo que
-   se enseña y cómo se lee sale de `miFichaLectura`, el mismo módulo que usa la web. */
+   abajo sigue visible porque no se sale de «Perfil». Mi ficha sólo se lee: su Información
+   Personal, con sus documentos, y sus preferencias las edita en Configuración › Editar perfil
+   de usuario (`EditarPerfil`). Lo que se enseña y cómo se lee sale de `miFichaLectura`, el mismo
+   módulo que usa la web. */
 
 const ICONOS = { personal: User, laboral: Briefcase, perfil: GraduationCap, documentos: FileText, recursos: Monitor }
 const BOTON = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 24, padding: '0 11px', borderRadius: 7, fontFamily: 'inherit', fontSize: 7.5, fontWeight: 600, cursor: 'pointer' }
@@ -64,36 +68,6 @@ function Chips({ lista }) {
   )
 }
 
-/* Una lista de preferencias en edición: cada una se quita con su ×, y se agrega escribiendo
-   y tocando «Agregar» o Enter. Repetidas y en blanco no entran. */
-function ListaEditable({ lista, setLista, placeholder }) {
-  const [nuevo, setNuevo] = useState('')
-  const agregar = () => {
-    const t = nuevo.trim()
-    if (t && !lista.includes(t)) setLista([...lista, t])
-    setNuevo('')
-  }
-  return (
-    <>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-        {lista.map(x => (
-          <span key={x} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 7, padding: '2px 3px 2px 7px', borderRadius: 99, background: 'var(--surface-card)', border: '1px solid var(--border-dark)', color: 'var(--text-heading)' }}>
-            {x}
-            <button onClick={() => setLista(lista.filter(y => y !== x))} aria-label={`Quitar ${x}`} style={{ width: 14, height: 14, borderRadius: '50%', border: 'none', background: 'var(--bg-secondary)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, cursor: 'pointer' }}>
-              <X size={8} />
-            </button>
-          </span>
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: 4, marginTop: 5 }}>
-        <input value={nuevo} onChange={e => setNuevo(e.target.value)} onKeyDown={e => e.key === 'Enter' && agregar()}
-          placeholder={placeholder} style={{ ...CAMPO, marginTop: 0, flex: 1 }} />
-        <button onClick={agregar} style={{ ...BOTON, border: '1px solid var(--mf-verde-txt)', background: 'var(--surface-card)', color: 'var(--mf-verde-txt)' }}>Agregar</button>
-      </div>
-    </>
-  )
-}
-
 const tituloPref = (I, t, arriba) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9, fontWeight: 700, color: 'var(--text-heading)', marginTop: arriba ? 11 : 0 }}>
     <I size={11} /> {t}
@@ -102,7 +76,7 @@ const tituloPref = (I, t, arriba) => (
 const vacioPref = t => <div style={{ fontSize: 7, fontStyle: 'italic', color: 'var(--icon-muted)', marginTop: 5 }}>{t}</div>
 
 /* Regalos y experiencias en la portada: para mirar. Se cambian en Configuración. */
-function PreferenciasPhone({ form, onEditar }) {
+function PreferenciasPhone({ form }) {
   const regalos = lineas(form['ra.f1'])
   const experiencias = lineas(form['ra.f4'])
   return (
@@ -111,54 +85,13 @@ function PreferenciasPhone({ form, onEditar }) {
       {regalos.length ? <Chips lista={regalos} /> : vacioPref('Sin regalos agregados')}
       {tituloPref(Sparkles, 'Experiencias que le gustaría vivir', true)}
       {experiencias.length ? <Chips lista={experiencias} /> : vacioPref('Sin experiencias agregadas')}
-      <button onClick={onEditar} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, marginTop: 8, padding: '5px 9px', borderRadius: 7, border: '1px dashed var(--mf-verde-txt)', background: 'none', color: 'var(--mf-verde-txt)', fontSize: 7, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-        <Settings size={8} /> Editar en Configuración
-      </button>
-    </div>
-  )
-}
-
-/* Regalos y experiencias en edición, en Configuración › Perfil de usuario. */
-function PreferenciasEditables({ form, onGuardar }) {
-  const [edicion, setEdicion] = useState(null)
-  const [guardado, avisar] = useAvisoGuardado()
-  const regalos = lineas(form['ra.f1'])
-  const experiencias = lineas(form['ra.f4'])
-  const titulo = tituloPref
-  if (edicion) {
-    return (
-      <div style={{ margin: '14px 2px 0', padding: '9px 9px 10px', borderRadius: 12, background: 'var(--surface-card)', boxShadow: '0 0 0 1.5px #00E091' }}>
-        {titulo(Gift, 'Regalos que le gustaría recibir')}
-        <ListaEditable lista={edicion.regalos} setLista={r => setEdicion(e => ({ ...e, regalos: r }))} placeholder="Ej.: Un libro" />
-        {titulo(Sparkles, 'Experiencias que le gustaría vivir', true)}
-        <ListaEditable lista={edicion.experiencias} setLista={x => setEdicion(e => ({ ...e, experiencias: x }))} placeholder="Ej.: Un viaje" />
-        <div style={{ marginTop: 10 }}>
-          <GuardarCancelar
-            onCancelar={() => setEdicion(null)}
-            onGuardar={() => { onGuardar({ 'ra.f1': edicion.regalos.join('\n'), 'ra.f4': edicion.experiencias.join('\n') }); setEdicion(null); avisar() }} />
-        </div>
-      </div>
-    )
-  }
-  const vacio = vacioPref
-  return (
-    <div style={{ ...TARJETA, marginTop: 10, padding: '9px 9px 10px' }}>
-      {titulo(Gift, 'Regalos que le gustaría recibir')}
-      {regalos.length ? <Chips lista={regalos} /> : vacio('Sin regalos agregados')}
-      {titulo(Sparkles, 'Experiencias que le gustaría vivir', true)}
-      {experiencias.length ? <Chips lista={experiencias} /> : vacio('Sin experiencias agregadas')}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-        <button onClick={() => setEdicion({ regalos, experiencias })} style={{ padding: '5px 9px', borderRadius: 7, border: '1px dashed var(--mf-verde-txt)', background: 'none', color: 'var(--mf-verde-txt)', fontSize: 7, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-          Editar preferencias
-        </button>
-        {guardado && <Guardado />}
-      </div>
     </div>
   )
 }
 
 function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
   const form = ficha?.form
+  const [sinFoto, setSinFoto] = useState(false)
   return (
     <div>
       <div style={{
@@ -171,6 +104,9 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
             background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}><I size={11} style={{ color: 'var(--text-heading)' }} /></span>
         ))}
+        <img src={logoClaro} alt="SoulyHR" style={{
+          position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', height: 15, width: 'auto', opacity: .95,
+        }} />
       </div>
 
       <div style={{
@@ -179,10 +115,19 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
       }}>
         <div style={{
           position: 'absolute', top: -28, left: '50%', marginLeft: -28, width: 56, height: 56,
-          borderRadius: '50%', border: '2.5px solid #19D992', background: currentUser.color, color: '#fff',
-          fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          borderRadius: '50%', border: '2.5px solid #19D992', overflow: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxSizing: 'border-box',
-        }}>{currentUser.initials}</div>
+        }}>
+          {sinFoto ? (
+            <span style={{ width: '100%', height: '100%', background: currentUser.color, color: '#fff', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {currentUser.initials}
+            </span>
+          ) : (
+            <img src={avatarUrl(currentUser.name, 120)} alt={currentUser.name} onError={() => setSinFoto(true)}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          )}
+        </div>
         <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-heading)' }}>{currentUser.name}</div>
         <div style={{
           display: 'inline-block', marginTop: 5, padding: '3px 10px', borderRadius: 99, background: 'var(--green-bg)',
@@ -235,7 +180,7 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
             })}
           </div>
 
-          <PreferenciasPhone form={form} onEditar={onConfiguracion} />
+          <PreferenciasPhone form={form} />
         </>
       ) : (
         <div style={{ margin: '14px 2px 0', padding: 10, borderRadius: 10, background: 'var(--surface-card)', fontSize: 7.5, color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center' }}>
@@ -253,66 +198,30 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
   )
 }
 
-/* Un campo en edición: lista y sí/no con sus opciones, el resto a texto libre. */
-function Entrada({ campo, valor, onCambiar }) {
-  if (campo.tipo === 'siNo' || campo.tipo === 'lista') {
-    const ops = campo.tipo === 'siNo'
-      ? [{ v: 'si', t: 'Sí' }, { v: 'no', t: 'No' }]
-      : (campo.opciones || []).map(o => (typeof o === 'string' ? { v: o, t: o } : { v: o.valor, t: o.etiqueta ?? o.valor }))
-    return (
-      <select value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO}>
-        <option value="">Elegir…</option>
-        {ops.map(o => <option key={o.v} value={o.v}>{o.t}</option>)}
-      </select>
-    )
-  }
-  return <input value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO} />
-}
-
-/* Una sección de la ficha. En Mi ficha sólo se lee; con `onGuardar` —desde Configuración ›
-   Perfil de usuario— se puede editar. */
-function Seccion({ s, form, abierta, onAlternar, onGuardar }) {
-  const puedeEditar = Boolean(onGuardar)
+/* Una sección de la ficha, para leer. Acordeón con cabecera verde abierta / gris plegada,
+   igual que el de la ficha de RR.HH. Los montos reservados se destapan a pedido. */
+function Seccion({ s, abierta, onAlternar }) {
   const [ver, setVer] = useState(false)
-  const [valores, setValores] = useState(null)
-  const [guardado, avisar] = useAvisoGuardado()
-  const editables = camposEditables(s)
-  const editar = () => setValores(Object.fromEntries(editables.filter(c => c.tipo !== 'rotulo').map(c => [c.key, form[c.key] ?? ''])))
-  const guardar = () => { onGuardar(valores); setValores(null); avisar() }
-
-  if (valores) {
-    return (
-      <div style={{ ...TARJETA, overflow: 'visible', boxShadow: '0 0 0 1.5px #00E091', padding: '8px 9px' }}>
-        <div style={{ fontSize: 8, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 2 }}>{s.titulo}</div>
-        {editables.map(c => c.tipo === 'rotulo' ? (
-          <div key={c.key} style={{ fontSize: 7, fontWeight: 700, color: 'var(--mf-verde-txt)', marginTop: 9, textTransform: 'uppercase', letterSpacing: '.06em' }}>{c.label}</div>
-        ) : (
-          <label key={c.key} style={{ display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 5 }}>
-            {c.label}
-            <Entrada campo={c} valor={valores[c.key]} onCambiar={v => setValores(x => ({ ...x, [c.key]: v }))} />
-          </label>
-        ))}
-        <div style={{ marginTop: 9 }}>
-          <GuardarCancelar onGuardar={guardar} onCancelar={() => setValores(null)} />
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div style={TARJETA}>
-      {/* La cabecera con los colores de la ficha de RR.HH.: gris plegada, verde abierta. */}
+    <div style={{ ...TARJETA, borderStyle: s.vacia ? 'dashed' : 'solid' }}>
       <button onClick={onAlternar} aria-expanded={abierta} className={`mf-sec-cab${abierta && !s.vacia ? ' on' : ''}`} style={{
         display: 'flex', alignItems: 'center', gap: 5, width: '100%', padding: '8px 9px', border: 'none',
         fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+        borderRadius: abierta && !s.vacia ? '11px 11px 0 0' : 11,
       }}>
+        <ChevronDown size={10} style={{ flexShrink: 0, opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
         <span style={{ flex: 1, fontSize: 8, fontWeight: 600 }}>{s.titulo}</span>
-        {s.privada && <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 6, opacity: .75 }}><Lock size={7} /> Solo usted y RR.HH.</span>}
-        {s.vacia && !puedeEditar && <span style={{ fontSize: 6.5, opacity: .7 }}>Sin asignaciones</span>}
-        {!s.vacia && <ChevronDown size={10} style={{ opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />}
+        {s.vacia && <span style={{ fontSize: 6.5, opacity: .7 }}>Sin asignaciones</span>}
       </button>
-      {abierta && (!s.vacia || puedeEditar) && (
+      {abierta && !s.vacia && (
         <div>
+          {s.reservada && (
+            <div style={{ display: 'flex', alignItems: 'center', padding: '5px 9px', borderBottom: '1px solid var(--border)' }}>
+              <button onClick={() => setVer(v => !v)} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, border: 'none', background: 'var(--surface-card)', color: 'var(--text-heading)', fontSize: 6, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                {ver ? <EyeOff size={7} /> : <Eye size={7} />} {ver ? 'Ocultar montos' : 'Mostrar montos'}
+              </button>
+            </div>
+          )}
           {s.bloques.map((b, bi) => (
             <div key={bi}>
               {b.titulo && (
@@ -326,86 +235,38 @@ function Seccion({ s, form, abierta, onAlternar, onGuardar }) {
               ))}
             </div>
           ))}
-          {(puedeEditar || s.reservada) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 9px 8px', borderTop: '1px solid var(--border)' }}>
-              {puedeEditar && (
-                <button onClick={editar} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 99, border: 'none', background: 'var(--green-bg)', color: 'var(--mf-verde-txt)', fontSize: 6.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-                  <Pencil size={7} /> Editar
-                </button>
-              )}
-              {guardado && <Guardado />}
-              {s.reservada && (
-                <button onClick={() => setVer(v => !v)} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 99, border: 'none', background: 'var(--bg-secondary)', color: 'var(--text-heading)', fontSize: 6.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-                  {ver ? <EyeOff size={7} /> : <Eye size={7} />} {ver ? 'Ocultar montos' : 'Mostrar montos'}
-                </button>
-              )}
-            </div>
-          )}
         </div>
       )}
     </div>
   )
 }
 
-function MisSolicitudes({ lista }) {
-  if (!lista.length) return null
-  return (
-    <div style={{ marginTop: 12 }}>
-      <div style={{ fontSize: 6, letterSpacing: '.1em', fontWeight: 700, color: 'var(--text-muted)', margin: '0 2px 4px' }}>MIS SOLICITUDES DE CORRECCIÓN</div>
-      <div style={{ background: 'var(--surface-card)', borderRadius: 11, border: '1px solid var(--border-soft)' }}>
-        {lista.map((x, i) => (
-          <div key={x.id} style={{ padding: '7px 9px', borderTop: i ? '1px solid var(--border)' : 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ flex: 1, fontSize: 7.5, fontWeight: 600, color: 'var(--text-heading)' }}>{x.dato}</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 6, fontWeight: 600, padding: '1px 6px', borderRadius: 99, background: 'var(--mf-pend-bg)', color: 'var(--mf-pend-txt)' }}>
-                <Clock size={7} /> {x.estado}
-              </span>
-            </div>
-            <div style={{ fontSize: 6.5, color: 'var(--text-muted)', marginTop: 2 }}>{x.seccion} · Correcto: <b style={{ color: 'var(--text-heading)', fontWeight: 600 }}>{x.correcto}</b></div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function Datos({ pestana, form, solicitudes, onCorregir }) {
+function Datos({ pestana, form }) {
+  const suya = pestana === 'personal'
   const partes = partesDe(pestana, form)
-  const [parte, setParte] = useState(0)
-  const [abiertas, setAbiertas] = useState(() => new Set([0]))
-  const alternar = i => setAbiertas(a => { const n = new Set(a); n.has(i) ? n.delete(i) : n.add(i); return n })
-  const actual = partes[Math.min(parte, partes.length - 1)]
-  const titulosDePestana = new Set(partes.flatMap(p => p.secciones.map(s => s.titulo)))
-  const mias = solicitudes.filter(x => titulosDePestana.has(x.seccion))
   const recursos = pestana === 'recursos'
+  const [abiertas, setAbiertas] = useState(() => new Set([0]))
+  let idx = 0
+  const alternar = i => setAbiertas(a => { const n = new Set(a); n.has(i) ? n.delete(i) : n.add(i); return n })
   return (
     <>
-      {partes.length > 1 && (
-        <div style={{ display: 'flex', gap: 3, background: 'var(--bg-secondary)', borderRadius: 8, padding: 2.5, marginBottom: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {partes.map((p, i) => (
-            <button key={p.key} onClick={() => { setParte(i); setAbiertas(new Set([0])) }} style={{
-              flex: '1 0 auto', padding: '5px 7px', borderRadius: 6, border: 'none', fontFamily: 'inherit', cursor: 'pointer',
-              fontSize: 7, fontWeight: parte === i ? 700 : 500, whiteSpace: 'nowrap',
-              background: parte === i ? 'var(--surface-card)' : 'transparent', color: parte === i ? 'var(--text-heading)' : 'var(--text-muted)',
-              boxShadow: parte === i ? '0 1px 3px rgba(12,45,64,.12)' : 'none',
-            }}>{p.titulo.replace('Información ', '').replace(', Nómina y Afiliaciones', '')}</button>
-          ))}
-        </div>
-      )}
       <div style={{ display: 'flex', gap: 5, padding: '6px 8px', borderRadius: 8, background: 'var(--mf-info-bg)', color: 'var(--mf-info-txt)', fontSize: 6.5, lineHeight: 1.45 }}>
         <Info size={9} style={{ flexShrink: 0, marginTop: 1 }} />
-        <span>{recursos
-          ? 'Lo que la empresa le entregó para trabajar. Si algo no coincide, solicite su corrección.'
-          : 'Estos datos los registró RR.HH. Si alguno no es correcto, solicite su corrección.'}</span>
+        <span>{suya
+          ? 'Estos datos los mantiene usted al día. Para cambiarlos, entre a Configuración › Editar perfil de usuario.'
+          : recursos
+            ? 'Lo que la empresa le entregó para trabajar.'
+            : 'Estos datos los registró RR.HH.'}</span>
       </div>
-      {actual?.secciones.map((s, i) => (
-        <Seccion key={`${actual.key}-${s.id}`} s={s} form={form} abierta={abiertas.has(i)} onAlternar={() => alternar(i)} />
+      {partes.map(parte => (
+        <div key={parte.key}>
+          {parte.titulo && <div style={{ margin: '10px 0 5px', fontSize: 8, fontWeight: 700, color: 'var(--text-heading)' }}>{parte.titulo}</div>}
+          {parte.secciones.map(s => {
+            const i = idx++
+            return <Seccion key={s.id} s={s} abierta={abiertas.has(i)} onAlternar={() => alternar(i)} />
+          })}
+        </div>
       ))}
-      <button onClick={onCorregir} style={{
-        width: '100%', marginTop: 10, height: 28, borderRadius: 8, border: '1.5px solid var(--text-heading)', background: 'var(--surface-card)',
-        color: 'var(--text-heading)', fontSize: 7.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
-      }}>Solicitar corrección de un dato</button>
-      <MisSolicitudes lista={mias} />
     </>
   )
 }
@@ -419,40 +280,49 @@ const ESTADO = {
 const esImagen = d => /\.(jpe?g|png|webp)$/i.test(d.archivo)
 
 /* ── VER UN DOCUMENTO ──────────────────────────────────────────────────────
-   A pantalla completa del teléfono: la hoja arriba, sus datos debajo y la descarga al final. */
+   Bottom sheet dentro del teléfono: fondo oscuro arriba, tarjeta blanca con la vista previa,
+   los datos del documento y la descarga. */
 function VisorPhone({ doc, titular, onVolver }) {
   const e = ESTADO[doc.estado]
   const dato = (t, v) => v && (
-    <div style={{ padding: '5px 9px', borderTop: '1px solid var(--border)' }}>
-      <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>{t}</div>
-      <div style={{ fontSize: 8, fontWeight: 500, color: 'var(--text-heading)', marginTop: 1 }}>{v}</div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '4px 0', borderTop: '1px solid var(--border)' }}>
+      <span style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>{t}</span>
+      <span style={{ fontSize: 7, fontWeight: 500, color: 'var(--text-heading)' }}>{v}</span>
     </div>
   )
   return (
-    <>
-      <button onClick={onVolver} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: 0, border: 'none', background: 'none', fontFamily: 'inherit', fontSize: 7.5, fontWeight: 600, color: 'var(--mf-verde-txt)', cursor: 'pointer', marginBottom: 6 }}>
-        <ChevronLeft size={10} /> Todos los documentos
-      </button>
-      <div style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--text-heading)', lineHeight: 1.3 }}>{doc.nombre}</div>
-      <div style={{ marginTop: 8, borderRadius: 10, background: 'var(--bg-secondary)' }}>
-        <HojaDocumento doc={doc} titular={titular} chico />
-      </div>
-      <div style={{ ...TARJETA, marginTop: 8 }}>
-        <div style={{ padding: '6px 9px', fontSize: 6, letterSpacing: '.1em', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{doc.grupo}</div>
-        {dato('Archivo', doc.archivo)}
-        {dato('Fecha de emisión', doc.emite)}
-        {dato('Fecha de vencimiento', doc.vence)}
-        {e && (
-          <div style={{ padding: '5px 9px 7px', borderTop: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Estado</div>
-            <span style={{ display: 'inline-block', marginTop: 2, padding: '1px 6px', borderRadius: 99, background: e.bg, color: e.c, fontWeight: 600, fontSize: 6.5 }}>{e.t}</span>
+    <div className="mf-sheet-velo" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', margin: '-10px -10px 0' }}>
+      <div onClick={onVolver} style={{ flex: '0 0 30px', background: 'rgba(12,45,64,.55)', cursor: 'pointer' }} />
+      <div className="mf-sheet-panel" style={{ flex: 1, background: 'var(--surface-card)', borderRadius: '14px 14px 0 0', padding: '0 10px 10px', marginTop: -4 }}>
+        <div style={{ width: 28, height: 3, borderRadius: 2, background: 'var(--border-dark)', margin: '6px auto 8px' }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-heading)', lineHeight: 1.3 }}>{doc.nombre}</div>
+            <div style={{ fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1 }}>{doc.grupo}</div>
           </div>
-        )}
+          <button onClick={onVolver} style={{ width: 20, height: 20, borderRadius: 6, border: 'none', background: 'var(--bg-secondary)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
+            <X size={10} />
+          </button>
+        </div>
+        <div style={{ borderRadius: 8, overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+          <HojaDocumento doc={doc} titular={titular} chico />
+        </div>
+        <div style={{ padding: '6px 0' }}>
+          {dato('Archivo', doc.archivo)}
+          {dato('Fecha de emisión', doc.emite)}
+          {dato('Fecha de vencimiento', doc.vence)}
+          {e && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderTop: '1px solid var(--border)' }}>
+              <span style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Estado</span>
+              <span style={{ padding: '1px 6px', borderRadius: 99, background: e.bg, color: e.c, fontWeight: 600, fontSize: 6.5 }}>{e.t}</span>
+            </div>
+          )}
+        </div>
+        <button style={{ ...BOTON, width: '100%', height: 24, gap: 4, border: 'none', background: '#00E091', color: '#0C2D40' }}>
+          <Download size={9} /> Descargar
+        </button>
       </div>
-      <button style={{ ...BOTON, width: '100%', height: 28, marginTop: 10, gap: 4, border: 'none', background: '#00E091', color: '#0C2D40' }}>
-        <Download size={9} /> Descargar
-      </button>
-    </>
+    </div>
   )
 }
 
@@ -513,133 +383,343 @@ function Documentos({ form }) {
         </div>
       ))}
       <p style={{ margin: '10px 2px 0', fontSize: 6.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-        Los documentos los sube RR.HH. Si necesita agregar uno, envíelo desde Zona HR.
+        Los documentos de su Información Personal puede cambiarlos en Configuración › Editar perfil de usuario. Los demás los sube RR.HH.
       </p>
     </>
   )
 }
 
-/* ── SOLICITAR LA CORRECCIÓN DE UN DATO ────────────────────────────────────
-   Se elige la sección y el dato de la pestaña donde se estaba, se ve lo que está registrado y
-   se escribe el valor correcto. RR.HH. recibe el pedido; el dato no cambia hasta que lo atienda. */
-function Correccion({ pestana, form, onEnviar, onVolver }) {
-  const secciones = partesDe(pestana, form).flatMap(p => p.secciones).filter(s => !s.vacia)
-  const [seccionId, setSeccionId] = useState('')
-  const [datoKey, setDatoKey] = useState('')
-  const [correcto, setCorrecto] = useState('')
-  const [comentario, setComentario] = useState('')
-  const [enviada, setEnviada] = useState(false)
-  const seccion = secciones.find(s => s.id === seccionId)
-  const datos = seccion ? seccion.bloques.flatMap(b => b.datos.map(d => ({ ...d, nombre: b.titulo ? `${d.label} (${b.titulo})` : d.label }))) : []
-  const dato = datos.find(d => d.key === datoKey)
-  const listo = dato && correcto.trim()
+/* ── CONFIGURACIÓN › EDITAR PERFIL DE USUARIO ──────────────────────────────
+   Su Información Personal —la suya y la de su familia— con los documentos que van en ella, y sus
+   preferencias. Los campos están abiertos desde que se entra; los cambios se juntan y se guardan
+   todos con «Guardar cambios», que aparece abajo apenas hay uno. Lo que vive en `useEdicionPerfil`
+   es lo mismo que usa la web. */
+const ROTULO_CAMPO = { display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 6 }
 
-  if (enviada) {
+/* Un campo abierto: lista y sí/no con sus opciones, fecha con su calendario, descripción en
+   varias líneas y el resto a texto libre. */
+function Entrada({ campo, valor, onCambiar }) {
+  if (campo.tipo === 'siNo' || campo.tipo === 'lista') {
+    const ops = campo.tipo === 'siNo'
+      ? [{ v: 'si', t: 'Sí' }, { v: 'no', t: 'No' }]
+      : (campo.opciones || []).map(o => (typeof o === 'string' ? { v: o, t: o } : { v: o.valor, t: o.etiqueta ?? o.valor }))
     return (
-      <div style={{ textAlign: 'center', padding: '28px 8px 10px' }}>
-        <span style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--green-bg)', color: 'var(--mf-vig-txt)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Check size={18} />
+      <select value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO}>
+        <option value="">Elegir…</option>
+        {ops.map(o => <option key={o.v} value={o.v}>{o.t}</option>)}
+      </select>
+    )
+  }
+  if (campo.tipo === 'texto') {
+    return <textarea value={valor} rows={2} onChange={e => onCambiar(e.target.value)} placeholder={campo.ph} style={{ ...CAMPO, height: 'auto', padding: '5px 7px', resize: 'none' }} />
+  }
+  if (campo.html === 'date') return <input type="date" value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO} />
+  return <input value={valor} onChange={e => onCambiar(e.target.value)} placeholder={campo.ph} style={CAMPO} />
+}
+
+/* Un documento de la sección: el archivo que hay, o que falta, y el botón para subir otro. En la
+   demo se guarda su nombre, que es lo que la vista previa necesita. */
+function EntradaArchivo({ campo, valor, onCambiar, onVer }) {
+  const nombre = valor?.nombre
+  const esImg = nombre && /\.(jpe?g|png|webp)$/i.test(nombre)
+  const esPdf = nombre && /\.pdf$/i.test(nombre)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '6px 7px', borderRadius: 8, border: '1px dashed var(--border-dark)' }}>
+      {nombre ? (
+        <button onClick={() => onVer({ nombre: campo.label, archivo: nombre, grupo: 'Documentos personales' })} style={{
+          flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6,
+          padding: 0, border: 'none', background: 'none', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+        }}>
+          <span style={{
+            width: 24, height: 24, borderRadius: 6, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: esImg ? 'var(--green-bg)' : esPdf ? '#fef2f2' : 'var(--bg-secondary)',
+            color: esImg ? 'var(--mf-verde-txt)' : esPdf ? '#dc2626' : 'var(--text-muted)',
+          }}>
+            {esImg ? <ImageIcon size={12} /> : esPdf ? <span style={{ fontSize: 6, fontWeight: 800 }}>PDF</span> : <FileText size={11} />}
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', fontSize: 7, fontWeight: 600, color: 'var(--text-heading)', lineHeight: 1.3 }}>{campo.label}</span>
+            <span style={{ display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nombre}</span>
+          </span>
+        </button>
+      ) : (
+        <span style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 24, height: 24, borderRadius: 6, background: 'var(--bg-secondary)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <FileText size={11} />
+          </span>
+          <span>
+            <span style={{ display: 'block', fontSize: 7, fontWeight: 600, color: 'var(--text-heading)', lineHeight: 1.3 }}>{campo.label}</span>
+            <span style={{ display: 'block', fontSize: 6.5, color: 'var(--icon-muted)', fontStyle: 'italic', marginTop: 1 }}>Sin archivo</span>
+          </span>
         </span>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-heading)', marginTop: 10 }}>Solicitud enviada</div>
-        <p style={{ fontSize: 7.5, color: 'var(--text-muted)', lineHeight: 1.5, margin: '6px 6px 14px' }}>
-          RR.HH. revisará su pedido para corregir «{dato.label}». El dato se actualizará cuando lo apruebe.
-        </p>
-        <button onClick={onVolver} style={{ ...BOTON, height: 28, border: 'none', background: '#00E091', color: '#0C2D40' }}>Volver a mi ficha</button>
+      )}
+      <label style={{ ...BOTON, height: 20, padding: '0 8px', gap: 3, border: '1px solid var(--mf-verde-txt)', color: 'var(--mf-verde-txt)', background: 'var(--surface-card)', flexShrink: 0 }}>
+        <Upload size={8} /> {nombre ? 'Cambiar' : 'Subir'}
+        <input type="file" accept=".pdf,image/*" hidden onChange={e => { const a = e.target.files?.[0]; if (a) onCambiar({ nombre: a.name }); e.target.value = '' }} />
+      </label>
+    </div>
+  )
+}
+
+function SeccionEditable({ s, ed, abierta, onAlternar, onVerDoc }) {
+  return (
+    <div style={{ ...TARJETA, overflow: 'visible' }}>
+      <button onClick={onAlternar} aria-expanded={abierta} className={`mf-sec-cab${abierta ? ' on' : ''}`} style={{
+        display: 'flex', alignItems: 'center', gap: 5, width: '100%', padding: '8px 9px', border: 'none',
+        fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+        borderRadius: abierta ? '11px 11px 0 0' : 11,
+      }}>
+        <ChevronDown size={10} style={{ flexShrink: 0, opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+        <span style={{ flex: 1, fontSize: 8, fontWeight: 600 }}>{s.titulo}</span>
+      </button>
+      {abierta && (
+        <div style={{ padding: '8px 9px 10px' }}>
+          {s.campos.map(c => {
+            if (c.tipo === 'rotulo') {
+              return (
+                <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 11, paddingTop: 7, borderTop: '1px solid var(--border)' }}>
+                  <span style={{ flex: 1, fontSize: 6.5, fontWeight: 700, color: 'var(--mf-verde-txt)', textTransform: 'uppercase', letterSpacing: '.06em' }}>{c.label}</span>
+                  {c.instancia && c.total > c.minimo && (
+                    <button onClick={() => ed.quitar(s, c)} aria-label={`Quitar ${c.label}`} style={{ width: 18, height: 18, borderRadius: 5, border: 'none', background: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, cursor: 'pointer' }}>
+                      <Trash2 size={9} />
+                    </button>
+                  )}
+                </div>
+              )
+            }
+            if (c.tipo === 'repetir') {
+              const cuantos = cuantosHay(ed.vivo, c.grupo)
+              if (cuantos >= (c.max || Infinity)) return null
+              return (
+                <button key={c.key} onClick={() => ed.agregar(c)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, width: '100%', marginTop: 9, height: 22, borderRadius: 7, border: '1px dashed var(--mf-verde-txt)', background: 'none', color: 'var(--mf-verde-txt)', fontSize: 7, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                  <Plus size={8} /> {cuantos === 0 && c.labelPrimero ? c.labelPrimero : c.label}
+                </button>
+              )
+            }
+            if (c.tipo === 'archivo') return <EntradaArchivo key={c.key} campo={c} valor={ed.vivo[c.key]} onCambiar={v => ed.set(c.key, v)} onVer={onVerDoc} />
+            const falta = ed.faltan.some(x => x.key === c.key)
+            return (
+              <label key={c.key} style={ROTULO_CAMPO}>
+                {c.label}{c.requerido && <span style={{ color: 'var(--mf-ven-txt)' }}> *</span>}
+                <Entrada campo={c} valor={ed.vivo[c.key] ?? ''} onCambiar={v => ed.set(c.key, v)} />
+                {falta && <span style={{ display: 'block', fontSize: 6, color: 'var(--mf-ven-txt)', marginTop: 2 }}>Este dato es obligatorio.</span>}
+              </label>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* Una tablita de la ficha de RR.HH. (tipo `filas`) a la escala del teléfono: una fila numerada
+   por elemento, se guarda como en la web, un renglón por fila. */
+function TablaPhone({ campo, valor, onCambiar }) {
+  const texto = String(valor || '')
+  const filas = texto ? texto.split('\n') : ['']
+  const guardar = nuevas => onCambiar(nuevas.join('\n'))
+  return (
+    <div style={{ marginTop: 9 }}>
+      <div style={{ fontSize: 7, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4 }}>{campo.label}</div>
+      <div style={{ border: '1px solid var(--border-soft)', borderRadius: 7, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', gap: 6, padding: '4px 7px', background: 'var(--bg-secondary)', fontSize: 6, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+          <span style={{ width: 9 }}>#</span><span>{campo.columna}</span>
+        </div>
+        {filas.map((f, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 5px 3px 7px', borderTop: '1px solid var(--border-soft)' }}>
+            <span style={{ width: 9, fontSize: 7, color: 'var(--text-muted)' }}>{i + 1}</span>
+            <input value={f} placeholder={campo.ph} aria-label={`${campo.columna} ${i + 1}`}
+              onChange={e => guardar(filas.map((x, j) => (j === i ? e.target.value : x)))}
+              style={{ ...CAMPO, marginTop: 0, height: 20, flex: 1, border: 'none', padding: '0 2px', background: 'transparent' }} />
+            {filas.length > 1 && (
+              <button onClick={() => guardar(filas.filter((_, j) => j !== i))} aria-label={`Quitar ${campo.columna.toLowerCase()} ${i + 1}`}
+                style={{ width: 16, height: 16, border: 'none', background: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, cursor: 'pointer' }}>
+                <Trash2 size={8} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      <button onClick={() => guardar([...filas, ''])} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, width: '100%', marginTop: 5, height: 22, borderRadius: 7, border: '1px dashed var(--mf-verde-txt)', background: 'none', color: 'var(--mf-verde-txt)', fontSize: 7, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+        <Plus size={8} /> {campo.agregar}
+      </button>
+    </div>
+  )
+}
+
+// La misma sección «Preferencias» que llena RR.HH., con su cuenta como en la web.
+function PreferenciasEditables({ ed }) {
+  const [abierta, setAbierta] = useState(true)
+  const t = tarjetasDe('quien', ed.vivo, {}).find(x => x.id === 'preferencias')
+  if (!t) return null
+  const llenos = t.campos.filter(c => lineas(ed.vivo[c.key]).length).length
+  return (
+    <div style={{ ...TARJETA, overflow: 'visible' }}>
+      <button onClick={() => setAbierta(a => !a)} aria-expanded={abierta} className={`mf-sec-cab${abierta ? ' on' : ''}`} style={{
+        display: 'flex', alignItems: 'center', gap: 5, width: '100%', padding: '8px 9px', border: 'none',
+        fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', borderRadius: abierta ? '11px 11px 0 0' : 11,
+      }}>
+        <ChevronDown size={10} style={{ flexShrink: 0, opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+        <span style={{ flex: 1, fontSize: 8, fontWeight: 600 }}>{t.titulo}</span>
+        <span style={{ fontSize: 6.5, fontWeight: 600, padding: '2px 6px', borderRadius: 99, background: llenos === t.campos.length ? 'var(--green)' : 'var(--bg-secondary)', color: llenos === t.campos.length ? '#0C2D40' : 'var(--text-muted)' }}>
+          {llenos} de {t.campos.length}
+        </span>
+      </button>
+      {abierta && (
+        <div style={{ padding: '8px 9px 10px' }}>
+          <div style={{ fontSize: 6.5, color: 'var(--text-muted)', lineHeight: 1.45 }}>{t.desc}</div>
+          {t.campos.map(c => <TablaPhone key={c.key} campo={c} valor={ed.vivo[c.key]} onCambiar={v => ed.set(c.key, v)} />)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const ICONOS_ED = { quien: User, entorno: User }
+const PISTAS_ED = {
+  quien: 'Nombre, CI, contacto, residencia, salud',
+  entorno: 'Hijos y contactos de emergencia',
+}
+
+function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
+  const ed = useEdicionPerfil(form, onGuardar)
+  const [parte, setParte] = useState(null)
+  const [guardado, avisar] = useAvisoGuardado()
+  const [abiertas, setAbiertas] = useState(() => new Set([0]))
+  const [sinFoto, setSinFoto] = useState(false)
+  const [docViendo, setDocViendo] = useState(null)
+  const arriba = () => document.querySelector('.phone-scroll')?.scrollTo(0, 0)
+  const entrar = i => { setParte(i); setAbiertas(new Set([0])); arriba() }
+  const alternar = i => setAbiertas(a => { const n = new Set(a); n.has(i) ? n.delete(i) : n.add(i); return n })
+
+  const categorias = [...ed.partes.map((p, i) => ({ titulo: p.titulo, pista: PISTAS_ED[p.key], I: ICONOS_ED[p.key] || User, idx: i })),
+    { titulo: 'Preferencias', pista: 'Regalos y experiencias que le gustaría', I: Gift, idx: ed.partes.length }]
+
+  const barraGuardar = (ed.hayCambios || guardado) && (
+    <div style={{ position: 'sticky', bottom: 0, margin: '10px -2px 0', padding: '7px 8px', borderRadius: 10, background: 'var(--surface-card)', border: '1px solid var(--border-soft)', boxShadow: '0 -2px 10px rgba(12,45,64,.12)', display: 'flex', alignItems: 'center', gap: 6 }}>
+      {ed.hayCambios ? (
+        <>
+          <span style={{ flex: 1, fontSize: 6.5, color: ed.faltan.length ? 'var(--mf-ven-txt)' : 'var(--text-muted)', lineHeight: 1.35 }}>
+            {ed.faltan.length
+              ? `Complete ${ed.faltan.length === 1 ? 'el dato obligatorio' : `los ${ed.faltan.length} datos obligatorios`}`
+              : ed.cuantos === 1 ? '1 cambio sin guardar' : ed.cuantos ? `${ed.cuantos} cambios sin guardar` : 'Cambios sin guardar'}
+          </span>
+          <GuardarCancelar textoGuardar="Guardar cambios" desactivado={ed.faltan.length > 0}
+            onCancelar={ed.descartar} onGuardar={() => { if (ed.guardar()) avisar() }} />
+        </>
+      ) : <Guardado />}
+    </div>
+  )
+
+  if (docViendo) {
+    const doc = docViendo
+    return (
+      <VisorPhone doc={doc} titular={currentUser?.name} onVolver={() => setDocViendo(null)} />
+    )
+  }
+
+  if (parte !== null) {
+    const actual = ed.partes[parte]
+    const cat = categorias.find(c => c.idx === parte)
+    const verDoc = d => { setDocViendo(d); arriba() }
+    return (
+      <div style={{ padding: '2px 2px' }}>
+        <BarraVolver conTema texto="Editar perfil" onVolver={() => { setParte(null); arriba() }} />
+        <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Editar perfil de usuario</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>{cat?.titulo}</div>
+
+        {parte === 0 && currentUser && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, padding: '8px 9px', background: 'var(--surface-card)', borderRadius: 11, border: '1px solid var(--border-soft)' }}>
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%', border: '2px solid #19D992', overflow: 'hidden',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {sinFoto ? (
+                  <span style={{ width: '100%', height: '100%', background: currentUser.color, color: '#fff', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {currentUser.initials}
+                  </span>
+                ) : (
+                  <img src={avatarUrl(currentUser.name, 80)} alt={currentUser.name} onError={() => setSinFoto(true)}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                )}
+              </div>
+              <label style={{
+                position: 'absolute', bottom: -2, right: -2, width: 14, height: 14, borderRadius: '50%',
+                background: 'var(--phone-green, #00E091)', border: '1.5px solid var(--surface-card)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              }}>
+                <Pencil size={7} style={{ color: '#0C2D40' }} />
+                <input type="file" accept=".jpg,.jpeg,.png,.webp" hidden onChange={e => {
+                  const a = e.target.files?.[0]; if (a) ed.set('1.9', { nombre: a.name }); e.target.value = ''
+                }} />
+              </label>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 8.5, fontWeight: 700, color: 'var(--text-heading)' }}>{currentUser.name}</div>
+              <div style={{ fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1 }}>{currentUser.cargo}</div>
+            </div>
+          </div>
+        )}
+
+        {actual
+          ? actual.secciones.map((s, i) => {
+              // En una columna no hay mapa ni calculados que enseñar: se escribe lo que se puede escribir.
+              const sec = { ...s, campos: s.campos.filter(c => c.key !== '1.9' && c.tipo !== 'mapa' && c.deducido === undefined) }
+              return <SeccionEditable key={s.id} s={sec} ed={ed} abierta={abiertas.has(i)} onAlternar={() => alternar(i)} onVerDoc={verDoc} />
+            })
+          : <PreferenciasEditables ed={ed} />}
+        {barraGuardar}
       </div>
     )
   }
 
-  const rotulo = t => <div style={{ fontSize: 6.5, color: 'var(--text-muted)', marginTop: 8 }}>{t}</div>
   return (
-    <>
-      <p style={{ fontSize: 7, color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 4px' }}>
-        Indique qué dato está mal y cuál es el correcto. RR.HH. lo revisará y lo actualizará.
-      </p>
-      <label>
-        {rotulo('Sección')}
-        <select value={seccionId} onChange={e => { setSeccionId(e.target.value); setDatoKey('') }} style={CAMPO}>
-          <option value="">Elija la sección…</option>
-          {secciones.map(s => <option key={s.id} value={s.id}>{s.titulo}</option>)}
-        </select>
-      </label>
-      <label>
-        {rotulo('Dato a corregir')}
-        <select value={datoKey} onChange={e => setDatoKey(e.target.value)} disabled={!seccion} style={{ ...CAMPO, opacity: seccion ? 1 : .5 }}>
-          <option value="">Elija el dato…</option>
-          {datos.map(d => <option key={d.key} value={d.key}>{d.nombre}</option>)}
-        </select>
-      </label>
-      {dato && (
-        <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 7, background: 'var(--bg-secondary)' }}>
-          <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Registrado actualmente</div>
-          <div style={{ fontSize: 8, fontWeight: 600, color: 'var(--text-heading)', marginTop: 1 }}>{dato.reservado ? '••••••' : dato.valor}</div>
-        </div>
-      )}
-      <label>
-        {rotulo('¿Cuál es el dato correcto?')}
-        <input value={correcto} onChange={e => setCorrecto(e.target.value)} placeholder="Escriba el dato correcto" style={CAMPO} />
-      </label>
-      <label>
-        {rotulo('Comentario (opcional)')}
-        <textarea value={comentario} onChange={e => setComentario(e.target.value)} rows={3}
-          placeholder="Ej.: Adjuntaré la copia del documento en Zona HR"
-          style={{ ...CAMPO, height: 'auto', padding: '5px 7px', resize: 'none' }} />
-      </label>
-      <div style={{ marginTop: 12 }}>
-        <GuardarCancelar
-          textoGuardar={<><Send size={8} style={{ marginRight: 3, verticalAlign: '-1px' }} />Enviar a RR.HH.</>}
-          desactivado={!listo}
-          onCancelar={onVolver}
-          onGuardar={() => {
-            if (!listo) return
-            onEnviar({ seccion: seccion.titulo, dato: dato.nombre, registrado: dato.valor, correcto: correcto.trim(), comentario: comentario.trim() })
-            setEnviada(true)
-          }} />
-      </div>
-    </>
-  )
-}
+    <div style={{ padding: '2px 2px' }}>
+      <BarraVolver conTema texto="Configuración" onVolver={() => ed.salir(onVolver)} />
+      <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Configuración</div>
+      <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>Editar perfil de usuario</div>
 
-/* ── CONFIGURACIÓN › PERFIL DE USUARIO ─────────────────────────────────────
-   Lo único que el colaborador cambia por su cuenta: su contacto, sus contactos de emergencia y
-   sus preferencias. Se guarda al momento y Mi ficha lo muestra en seguida. */
-function MisDatos({ form, onGuardar }) {
-  return (
-    <>
       <div style={{ display: 'flex', gap: 5, padding: '6px 8px', borderRadius: 8, background: 'var(--mf-info-bg)', color: 'var(--mf-info-txt)', fontSize: 6.5, lineHeight: 1.45 }}>
         <Info size={9} style={{ flexShrink: 0, marginTop: 1 }} />
-        <span>Mantenga al día estos datos. El resto de su ficha lo registra RR.HH.; si algo no es correcto, solicite su corrección desde Mi ficha.</span>
+        <span>Mantenga al día su información personal y sus documentos. Lo laboral lo registra RR.HH.</span>
       </div>
-      {seccionesEditables(form).map(s => (
-        <Seccion key={s.id} s={s} form={form} abierta onAlternar={() => {}} onGuardar={onGuardar} />
-      ))}
-      <PreferenciasEditables form={form} onGuardar={onGuardar} />
-    </>
+
+      <div style={{ marginTop: 6, background: 'var(--surface-card)', borderRadius: 12, border: '1px solid var(--border-soft)' }}>
+        {categorias.map((cat, i) => (
+          <button key={cat.idx} onClick={() => entrar(cat.idx)} style={{
+            display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 9px',
+            border: 'none', borderTop: i ? '1px solid var(--border)' : 'none', background: 'none',
+            fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+          }}>
+            <span style={{ width: 22, height: 22, borderRadius: 7, background: 'var(--green-bg)', color: 'var(--mf-verde-txt)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <cat.I size={11} />
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 8, fontWeight: 600, color: 'var(--text-heading)' }}>{cat.titulo}</span>
+              <span style={{ display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1 }}>{cat.pista}</span>
+            </span>
+            <ChevronRight size={10} style={{ color: 'var(--icon-muted)' }} />
+          </button>
+        ))}
+      </div>
+      {barraGuardar}
+    </div>
   )
 }
 
 export default function PerfilPhone({ currentUser }) {
-  const { ficha, guardar, solicitudes, solicitar } = useMiFicha(currentUser.name)
+  const { ficha, guardar } = useMiFicha(currentUser.name)
   const [vista, setVista] = useState('portada')
-  const [corrigiendo, setCorrigiendo] = useState(false)
-  /* Cada pantalla nueva arranca arriba: sin esto, abrir la corrección desde el pie de la ficha
-     dejaba el formulario fuera de la vista. */
   const arriba = () => document.querySelector('.phone-scroll')?.scrollTo(0, 0)
-  const abrir = v => { setCorrigiendo(false); setVista(v); arriba() }
-  const corregir = si => { setCorrigiendo(si); arriba() }
+  const abrir = v => { setVista(v); arriba() }
 
   if (vista === 'config') {
     return <ConfiguracionPhone onVolver={() => abrir('portada')} onPerfilUsuario={ficha ? () => abrir('misdatos') : undefined} />
   }
   if (vista === 'misdatos' && ficha) {
-    return (
-      <div style={{ padding: '2px 2px' }}>
-        <BarraVolver conTema texto="Configuración" onVolver={() => abrir('config')} />
-        <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Configuración</div>
-        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>Perfil de usuario</div>
-        <MisDatos form={ficha.form} onGuardar={guardar} />
-      </div>
-    )
+    return <EditarPerfil form={ficha.form} onGuardar={guardar} onVolver={() => abrir('config')} currentUser={currentUser} />
   }
   if (vista === 'portada' || !ficha) {
     return <Portada currentUser={currentUser} ficha={ficha} onAbrir={abrir} onConfiguracion={() => abrir('config')} />
@@ -648,14 +728,12 @@ export default function PerfilPhone({ currentUser }) {
   const p = pestanasCon(ficha.form).find(x => x.key === vista)
   return (
     <div style={{ padding: '2px 2px' }}>
-      <BarraVolver conTema texto={corrigiendo ? p?.titulo : 'Mi perfil'} onVolver={() => (corrigiendo ? corregir(false) : abrir('portada'))} />
-      <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>{corrigiendo ? 'Mi ficha · ' + p?.titulo : 'Mi ficha'}</div>
-      <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>{corrigiendo ? 'Solicitar corrección' : p?.titulo}</div>
-      {corrigiendo
-        ? <Correccion pestana={vista} form={ficha.form} onEnviar={solicitar} onVolver={() => corregir(false)} />
-        : vista === 'documentos'
-          ? <Documentos form={ficha.form} />
-          : <Datos key={vista} pestana={vista} form={ficha.form} solicitudes={solicitudes} onCorregir={() => corregir(true)} />}
+      <BarraVolver conTema texto="Mi perfil" onVolver={() => abrir('portada')} />
+      <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Mi ficha</div>
+      <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>{p?.titulo}</div>
+      {vista === 'documentos'
+        ? <Documentos form={ficha.form} />
+        : <Datos key={vista} pestana={vista} form={ficha.form} />}
     </div>
   )
 }

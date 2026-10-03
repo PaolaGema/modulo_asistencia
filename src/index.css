@@ -6641,6 +6641,7 @@ select.pl-input:focus {
   background: var(--surface-card);
   border: 1px solid var(--border-soft);
 }
+.emp-papel.desnudo { padding: 0; border: 0; border-radius: 0; background: none; }
 .emp-papel-tit {
   margin: 0 0 10px;
   font-size: 16px;
@@ -8717,6 +8718,19 @@ a.emp-valor-enlace:hover { color: var(--green); border-bottom-color: var(--green
   transition: border-color .15s;
 }
 .sa-hoja.con-archivo { border-style: solid; border-color: var(--border-soft); }
+.sa-hoja-acciones { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
+.sa-flota {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0;
+  border: 1px solid var(--border-soft); border-radius: 8px;
+  background: var(--surface-card); color: var(--text-heading);
+  box-shadow: 0 1px 3px rgba(12, 45, 64, .12);
+  cursor: pointer; text-decoration: none; transition: background .15s, color .15s, border-color .15s;
+}
+.sa-flota:hover { background: var(--surface-hover); border-color: var(--border-dark); }
+.sa-flota-texto { width: auto; gap: 5px; padding: 0 10px; font: 600 11.5px 'Poppins', sans-serif; }
+.sa-flota:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.sa-flota-quitar:hover { background: var(--red-bg); color: var(--red); border-color: transparent; }
 
 /* `contain` Y NO `cover`, al revés que el retrato: de un documento interesa el documento
    entero. Recortarlo se lleva el número, la firma o el sello — que es lo único que había que
@@ -9641,6 +9655,8 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   .cn-miga button:hover svg { transform: none; }
 }
 .cn-miga-sep { color: var(--border-dark); font-weight: 400; }
+/* Un tramo que nombra dónde se está pero no lleva a ninguna pantalla —«Mi ficha»—. */
+.cn-miga-tramo { color: var(--text-muted); }
 /* Es el <h1> de la página, pero se ve como lo que es en esta fila: el último tramo del camino.
    Sin el tope de margen se lleva el del agente de usuario y parte la fila en dos. */
 .cn-miga-fin {
@@ -10951,12 +10967,14 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-fila-txt span { font-size: 12.5px; color: var(--text-muted); }
 .mf-fila-flecha { color: var(--icon-muted); flex-shrink: 0; transition: transform .15s; }
 .mf-fila:hover .mf-fila-flecha { transform: translateX(2px); color: var(--text-heading); }
-.mf-volver { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; font: 700 14px 'Poppins', sans-serif; color: var(--text-heading); cursor: pointer; }
-.mf-volver > span { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-soft); background: var(--surface-card); display: flex; align-items: center; justify-content: center; }
-.mf-volver:hover > span { border-color: var(--green); }
-.mf-pantalla-cab { display: flex; flex-direction: column; gap: 2px; }
-.mf-pantalla-cab small { font-size: 12px; color: var(--text-muted); }
-.mf-pantalla-cab h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.02em; color: var(--text-heading); }
+.mf-config-tit { display: flex; align-items: center; gap: 7px; }
+.mf-switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; padding: 0; border: 0; border-radius: 99px; background: var(--border-soft); cursor: pointer; transition: background .2s; }
+.mf-switch span { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .2s; }
+.mf-switch.on { background: var(--green); }
+.mf-switch.on span { left: 21px; }
+.mf-peligro { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 44px; border: 0; border-radius: 12px; background: #ef4444; color: #fff; font: 600 14px 'Poppins', sans-serif; cursor: pointer; }
+.mf-peligro:hover { background: #dc2626; }
+.mf-version { margin: 0; text-align: center; font-size: 12px; color: var(--text-muted); }
 .mf-punto { width: 7px; height: 7px; border-radius: 50%; background: #D9480F; }
 .mf-cuerpo { display: flex; flex-direction: column; gap: 18px; animation: cn-entrar .28s cubic-bezier(.22, 1, .36, 1) backwards; }
 .mf-parte h3 { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: var(--text-heading); }
@@ -10967,15 +10985,24 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-privada { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--text-muted); }
 .mf-mini { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; border-radius: 99px; border: 0; background: var(--green-bg); color: #00804F; font: 600 12px 'Poppins', sans-serif; cursor: pointer; }
 .mf-mini.gris { background: var(--input-bg); color: var(--text-heading); }
+.mf-ver-montos { margin-bottom: 6px; }
+/* La hoja de un documento de Mi ficha: el recuadro de «Nuevo colaborador», que acá se abre en vez
+   de subir. */
+.mf-doc-abrir {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; height: 100%; padding: 12px; border: 0; background: none; cursor: pointer;
+  color: var(--icon-muted); font: 600 12px 'Poppins', sans-serif; text-align: center;
+}
+.mf-doc-abrir span { color: var(--text-heading); overflow-wrap: anywhere; }
+.mf-doc-abrir:hover { color: var(--green-fuerte); }
+.mf-doc-abrir:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; border-radius: 10px; }
+.sa-hoja.con-archivo:has(.mf-doc-abrir:hover) { border-color: var(--green); }
 .mf-datos { margin: 0; display: flex; flex-direction: column; }
 .mf-datos > div { padding: 7px 0; border-top: 1px solid var(--border); }
 .mf-datos > div:first-child { border-top: 0; }
 .mf-datos dt { font-size: 11.5px; color: var(--text-muted); }
 .mf-datos dd { margin: 2px 0 0; font-size: 13.5px; font-weight: 500; color: var(--text-heading); }
 .mf-datos dd.vacio { font-style: italic; font-weight: 400; color: var(--icon-muted); }
-.mf-pie { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border-soft); font-size: 13px; color: var(--text-heading); }
-.mf-pie > span { flex: 1; }
-.mf-corregir { height: 36px; padding: 0 16px; border-radius: 10px; border: 1.5px solid var(--text-heading); background: transparent; color: var(--text-heading); font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
 .mf-aviso { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; border-radius: 12px; background: #FFF1E6; color: #7A2E05; font-size: 13px; }
 .mf-grupo-tit { margin: 0 0 8px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
 .mf-lista { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; }
@@ -10995,7 +11022,6 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-pref-tit { display: flex; align-items: center; gap: 9px; margin: 0 0 8px; font-size: 16px; font-weight: 700; color: var(--text-heading); }
 .mf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .mf-chips span { padding: 6px 13px; border-radius: 99px; background: var(--surface-card); border: 1px solid var(--border-soft); font-size: 12.5px; color: var(--text-heading); }
-.mf-editar-pref { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px; border-radius: 10px; border: 1px dashed var(--green); background: transparent; color: #00804F; font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .mf-cuerpo { animation: none; } }
 .mf-tarjeta.editando, .mf-pref.editando { box-shadow: 0 0 0 2px var(--green); border-color: transparent; }
 .mf-pref.editando { background: var(--surface-card); border-radius: 14px; padding: 16px 18px; }
@@ -11003,7 +11029,6 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-form label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--text-muted); }
 .mf-form input, .mf-agregar input { height: 38px; padding: 0 11px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--input-bg); font: 400 13.5px 'Poppins', sans-serif; color: var(--text-heading); outline: none; }
 .mf-form input:focus, .mf-agregar input:focus { border-color: var(--green); }
-.mf-acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 .mf-btn { height: 36px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading); font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
 .mf-btn.primario { background: var(--green); border-color: var(--green); color: #0C2D40; }
 .mf-guardado { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #05603F; }
@@ -11028,11 +11053,12 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-modal h3 { margin: 0 0 4px; font-size: 18px; font-weight: 700; color: var(--text-heading); }
 .mf-cerrar { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 10px; border: 0; background: none; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .mf-cerrar:hover { background: var(--input-bg); }
-.mf-registrado { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--input-bg); font-size: 11.5px; color: var(--text-muted); }
-.mf-registrado strong { font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
-.mf-enviada { text-align: center; padding: 12px 8px 4px; }
-.mf-enviada p { margin: 8px auto 18px; max-width: 340px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-.mf-enviada-ico { width: 56px; height: 56px; border-radius: 50%; background: #E6FBF3; color: #05603F; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+
+/* ── BOTTOM SHEET DEL TELÉFONO (visor de documentos) ── */
+@keyframes mf-velo-in  { from { opacity: 0 } to { opacity: 1 } }
+@keyframes mf-sheet-up { from { transform: translateY(100%) } to { transform: translateY(0) } }
+.mf-sheet-velo  { animation: mf-velo-in .2s ease-out backwards; }
+.mf-sheet-panel { animation: mf-sheet-up .3s cubic-bezier(.22, 1, .36, 1) backwards; }
 
 /* ── MI FICHA: LOS COLORES QUE COMPARTEN LA WEB Y EL TELÉFONO ─────────────────
    El teléfono tenía sus colores escritos a mano y se quedaba claro aunque la app estuviera en
@@ -11045,7 +11071,6 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   --mf-vig-bg: #E6FBF3;    --mf-vig-txt: #05603F;
   --mf-por-bg: #FFF1E6;    --mf-por-txt: #A33B06;   --mf-por-aviso: #7A2E05;
   --mf-ven-bg: #FDE8E8;    --mf-ven-txt: #B42318;   --mf-ven-aviso: #7A1C12;
-  --mf-pend-bg: #FFF7E0;   --mf-pend-txt: #8A5A00;
   --mf-punto: #D9480F;
 }
 .dark {
@@ -11054,18 +11079,15 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
   --mf-vig-bg: rgba(0,224,145,.14);    --mf-vig-txt: #6EE7B7;
   --mf-por-bg: rgba(251,146,60,.14);   --mf-por-txt: #FDBA74;   --mf-por-aviso: #FED7AA;
   --mf-ven-bg: rgba(248,113,113,.14);  --mf-ven-txt: #FCA5A5;   --mf-ven-aviso: #FECACA;
-  --mf-pend-bg: rgba(250,204,21,.13);  --mf-pend-txt: #FDE68A;
   --mf-punto: #FB923C;
 }
-.mf-fecha, .mf-mini, .mf-guardado, .mf-bloque, .mf-editar-pref { color: var(--mf-verde-txt); }
+.mf-fecha, .mf-mini, .mf-guardado, .mf-bloque { color: var(--mf-verde-txt); }
 .mf-est.vig { background: var(--mf-vig-bg); color: var(--mf-vig-txt); }
 .mf-est.por { background: var(--mf-por-bg); color: var(--mf-por-txt); }
 .mf-est.ven { background: var(--mf-ven-bg); color: var(--mf-ven-txt); }
-.mf-est.pend { background: var(--mf-pend-bg); color: var(--mf-pend-txt); }
 .mf-aviso { background: var(--mf-por-bg); color: var(--mf-por-aviso); }
 .mf-aviso.rojo { background: var(--mf-ven-bg); color: var(--mf-ven-aviso); }
 .mf-punto { background: var(--mf-punto); }
-.mf-enviada-ico { background: var(--mf-vig-bg); color: var(--mf-vig-txt); }
 .mf-info { display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px; border-radius: 12px; background: var(--mf-info-bg); color: var(--mf-info-txt); font-size: 13px; line-height: 1.45; }
 .mf-info svg { flex-shrink: 0; margin-top: 2px; }
 
@@ -11098,3 +11120,26 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-visor-datos { padding: 28px 8px 8px 0; }
 .mf-visor-datos h3 { margin: 4px 0 12px; font-size: 17px; line-height: 1.3; }
 @media (max-width: 720px) { .mf-modal.mf-visor { grid-template-columns: 1fr; } .mf-visor-hoja { min-height: 0; } }
+
+/* ── CONFIGURACIÓN › EDITAR PERFIL DE USUARIO ───────────────────────────── */
+.mf-req { color: var(--mf-ven-txt); font-weight: 600; }
+.mf-falta { font-size: 11.5px; color: var(--mf-ven-txt); }
+.mf-form label.falta input, .mf-form label.falta select, .mf-form label.falta textarea { border-color: var(--mf-ven-txt); }
+.mf-bloque-cab { display: flex; align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
+.mf-bloque-cab span { flex: 1; }
+.mf-bloque-cab button { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: none; color: var(--text-muted); cursor: pointer; }
+.mf-bloque-cab button:hover { background: var(--mf-ven-bg); color: var(--mf-ven-txt); }
+.mf-mas { display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: 1px dashed var(--green); background: transparent; color: #00804F; font: 600 13px 'Poppins', sans-serif; cursor: pointer; }
+.mf-archivo { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; border: 1px dashed var(--border-soft); }
+.mf-archivo-ico { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--input-bg); color: var(--text-muted); flex-shrink: 0; }
+.mf-archivo-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mf-archivo-txt strong { font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.mf-archivo-txt span { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-archivo-txt span.falta { font-style: italic; }
+.mf-archivo .mf-mini { flex-shrink: 0; }
+.mf-archivo-abrir { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 0; border: none; background: none; font-family: inherit; text-align: left; cursor: pointer; }
+.mf-archivo-abrir:hover .mf-archivo-txt span { color: var(--green); }
+.mf-barra-guardar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 14px; background: var(--surface-card); border: 1px solid var(--border-soft); box-shadow: 0 -4px 18px rgba(12, 45, 64, .12); }
+.mf-barra-guardar > span:first-child { flex: 1; font-size: 13px; color: var(--text-muted); }
+.mf-barra-guardar > span.falta { color: var(--mf-ven-txt); }
+.mf-form label.mf-mini { flex-direction: row; font-size: 12px; color: #00804F; }

@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Building2, CalendarDays, Network, Settings, Gift, Sparkles, Plus, FileText, MapPin } from 'lucide-react'
+import { Building2, CalendarDays, Network, Settings, Gift, Sparkles, Plus, FileText, MapPin, ArrowLeft } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { colaboradoresData } from '../personas/colaboradoresData'
@@ -8,7 +8,9 @@ import { cargoDe, areaDe, sedesDe } from '../../data/organigramaData'
 import { HOY, avatarUrl } from '../../utils/calendarEvents'
 import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 import { useMiFicha } from '../../hooks/useMiFicha'
-import MiFichaWeb, { Preferencias, SeccionMiFicha, EditarMisDatos, Volver } from '../../components/personas/MiFichaWeb'
+import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
+import MiFichaWeb, { Preferencias, SeccionMiFicha, EditarPerfil } from '../../components/personas/MiFichaWeb'
+import ConfiguracionWeb from '../../components/personas/ConfiguracionWeb'
 import { pestanasCon } from '../../data/miFichaLectura'
 
 /* MI PERFIL — LA FICHA PROPIA, NO UN FORMULARIO.
@@ -70,12 +72,13 @@ export default function Perfil() {
   const { currentUser } = useUser()
   const { organigrama: org } = useOnboardingData()
   const navigate = useNavigate()
+  const { guardNavigate } = useUnsavedChanges()
   const [sinFoto, setSinFoto] = useState(false)
 
   /* El usuario de la demo y la ficha del directorio son dos cosas distintas —uno es con quién
      estás mirando, la otra es la persona— y no todos los perfiles de la demo existen en el
      directorio. Cuando no está, la pantalla se dibuja igual con lo que el usuario sí trae. */
-  const { ficha: miFicha, guardar, solicitudes, solicitar } = useMiFicha(currentUser.name)
+  const { ficha: miFicha, guardar } = useMiFicha(currentUser.name)
   const ficha = colaboradoresData.find(c => c.name === currentUser.name) || null
 
   /* El cargo sale del cuadro que la persona ocupa; si no está en el organigrama, del respaldo
@@ -92,30 +95,47 @@ export default function Perfil() {
   /* QUÉ PANTALLA SE VE: el perfil, una sección de Mi ficha o Configuración. Como en el teléfono,
      cada una ocupa la página entera y vuelve al perfil. Se recuerda por usuario: al cambiar de
      persona en la demo la página no se vuelve a montar, y la de antes no debe quedar abierta. */
-  const [abierta, setAbierta] = useState({ id: currentUser.id, vista: 'perfil' })
+  const [abierta, setAbierta] = useState({ id: currentUser.id, vista: 'inicio' })
   const scroll = useRef(null)
   const abrir = vista => { setAbierta({ id: currentUser.id, vista }); scroll.current?.scrollTo(0, 0) }
-  const vista = abierta.id === currentUser.id ? abierta.vista : 'perfil'
+  const vista = abierta.id === currentUser.id ? abierta.vista : 'inicio'
   const pestana = miFicha && pestanasCon(miFicha.form).find(p => p.key === vista)
 
-  if (vista === 'config' || pestana) {
+  if (vista === 'config' || vista === 'editar' || pestana) {
+    // Cada miga: [texto, vista a la que lleva]. La última es la pantalla actual y va como título.
+    const migas = pestana ? [['Mi perfil', 'inicio'], ['Mi ficha'], [pestana.titulo]]
+      : vista === 'config' ? [['Mi perfil', 'inicio'], ['Configuración']]
+        : [['Mi perfil', 'inicio'], ['Configuración', 'config'], ['Editar perfil de usuario']]
     return (
-      <div ref={scroll} className="content-scroll" style={{ maxWidth: 960, margin: '0 auto', width: '100%', gap: 20 }}>
-        <Volver texto="Mi perfil" onVolver={() => abrir('perfil')} />
-        <div className="mf-pantalla-cab">
-          <small>{pestana ? 'Mi ficha' : 'Mi perfil'}</small>
-          <h1>{pestana ? pestana.titulo : 'Configuración'}</h1>
+      <div ref={scroll} className="content-scroll" style={{ maxWidth: vista === 'config' ? 720 : vista === 'editar' ? 'none' : 960, margin: '0 auto', width: '100%', gap: 20 }}>
+        {/* La misma miga que «Nuevo colaborador»: una línea, la flecha en el primer tramo y el
+            último tramo es el <h1> de la página. */}
+        <div className="cn-miga">
+          <nav aria-label="Dónde estás">
+            {migas.slice(0, -1).map(([texto, destino], i) => (
+              <Fragment key={texto}>
+                {i > 0 && <span className="cn-miga-sep" aria-hidden="true">›</span>}
+                {destino
+                  ? <button type="button" onClick={() => guardNavigate(() => abrir(destino))}>
+                      {i === 0 && <ArrowLeft size={13} aria-hidden="true" />}
+                      {texto}
+                    </button>
+                  : <span className="cn-miga-tramo">{texto}</span>}
+              </Fragment>
+            ))}
+          </nav>
+          <span className="cn-miga-sep" aria-hidden="true">›</span>
+          <h1 className="cn-miga-fin">{migas[migas.length - 1][0]}</h1>
         </div>
-        {pestana
-          ? <SeccionMiFicha key={vista} ficha={miFicha} pestana={vista} solicitudes={solicitudes} onSolicitar={solicitar} />
-          : miFicha
-            ? (
-              <>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-heading)' }}>Mis datos personales</h2>
-                <EditarMisDatos ficha={miFicha} onGuardar={guardar} />
-              </>
-            )
-            : <p className="mf-nota" style={{ fontStyle: 'italic' }}>RR.HH. todavía no registró su ficha.</p>}
+        {pestana ? (
+          <SeccionMiFicha key={vista} ficha={miFicha} pestana={vista} />
+        ) : vista === 'config' ? (
+          <ConfiguracionWeb onPerfilUsuario={() => abrir('editar')} />
+        ) : miFicha ? (
+          <EditarPerfil key={currentUser.id} ficha={miFicha} onGuardar={guardar} />
+        ) : (
+          <p className="mf-nota" style={{ fontStyle: 'italic' }}>RR.HH. todavía no registró su ficha.</p>
+        )}
         <div style={{ height: 8 }} />
       </div>
     )
@@ -211,21 +231,17 @@ export default function Perfil() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 22, flexWrap: 'wrap' }}>
-            {/* Solo se ofrece lo que esta persona puede abrir: el organigrama vive detrás del
-                guardia de rutas, así que a un colaborador este botón lo mandaría a un rebote. */}
-            {gestiona && (
-              <button
-                onClick={() => navigate('/organizacion/organigrama')}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 9, padding: '12px 22px',
-                  borderRadius: 12, border: '1.5px solid var(--green)', background: 'transparent',
-                  color: 'var(--text-heading)', fontFamily: 'inherit', fontSize: 13.5, fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                <Network size={16} style={{ color: 'var(--green)' }} /> Organigrama
-              </button>
-            )}
+            <button
+              onClick={() => gestiona ? navigate('/organizacion/organigrama') : null}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 9, padding: '12px 22px',
+                borderRadius: 12, border: '1.5px solid var(--green)', background: 'transparent',
+                color: 'var(--text-heading)', fontFamily: 'inherit', fontSize: 13.5, fontWeight: 600,
+                cursor: gestiona ? 'pointer' : 'default',
+              }}
+            >
+              <Network size={16} style={{ color: 'var(--green)' }} /> Organigrama
+            </button>
             <button
               onClick={() => abrir('config')}
               style={{
@@ -248,7 +264,7 @@ export default function Perfil() {
       {miFicha ? (
         <>
           <MiFichaWeb ficha={miFicha} onAbrir={abrir} />
-          <Preferencias ficha={miFicha} onEditar={() => abrir('config')} />
+          <Preferencias ficha={miFicha} />
         </>
       ) : (
         <>
