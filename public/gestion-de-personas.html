@@ -945,6 +945,15 @@ td.rg{color:var(--tinta-3);font-weight:700}
 .gp-anillo.a4 { fill: color-mix(in srgb, var(--outsourcing) 16%, var(--hoja)); stroke: var(--outsourcing); }
 .gp-tachado { stroke: var(--outsourcing); stroke-width: 1.2; }
 .gp-verde { fill: var(--funcional); } .gp-gris { fill: var(--tinta-3); } .gp-naranja { fill: var(--outsourcing); } .gp-azul { fill: var(--estructural); }
+/* ── PARA QUIÉN ES CADA PARTE ── Recursos Humanos, el colaborador o todo el módulo: una franja de la
+   marca por encima de los temas, en Funcionalidades, Reglas, Flujos, Pantallas e Historias. */
+.rol-h{display:flex;align-items:baseline;gap:12px;margin:64px 0 0;padding:16px 22px;border-radius:var(--r);
+  background:var(--marca);color:#fff;font-family:var(--display);font-size:24px;font-weight:600;font-stretch:87.5%;max-width:none}
+.rol-h::before{display:none}
+.rol-h .rol-k{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--marca-2)}
+.rol-d{margin:10px 0 0;color:var(--tinta-2)}
+.rail #toc .rail-sub .rail-rol a{color:var(--marca);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+:root[data-tema="oscuro"] .rail #toc .rail-sub .rail-rol a{color:var(--marca-2)}
 </style>
 <script>(function(){try{var t=localStorage.getItem('org-doc-tema');if(t==='oscuro'||t==='claro')document.documentElement.setAttribute('data-tema',t);}catch(e){}})();</script>
 <noscript><style>.sec-h{opacity:1!important;transform:none!important}</style></noscript>
@@ -963,8 +972,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </figure>
     </div>
     <dl class="ficha">
-      <div><dt>Versión</dt><dd>1.103</dd></div>
-      <div><dt>Fecha</dt><dd>30 de septiembre de 2026</dd></div>
+      <div><dt>Versión</dt><dd>1.104</dd></div>
+      <div><dt>Fecha</dt><dd>6 de octubre de 2026</dd></div>
       <div><dt>Autoría</dt><dd>Paola Gema — Diseñadora UX</dd></div>
       <div><dt>Revisa y aprueba</dt><dd>Por definir</dd></div>
       <div><dt>Estado</dt><dd>Borrador</dd></div>
@@ -978,11 +987,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>240</b><span>datos distintos en la ficha</span></div>
     <div><b>32</b><span>datos del mínimo legal</span></div>
     <div><b>3</b><span>datos que impiden el alta</span></div>
-    <div><b>34</b><span>reglas de negocio</span></div>
-    <div><b>52</b><span>requisitos funcionales</span></div>
-    <div><b>13</b><span>historias de usuario</span></div>
+    <div><b>42</b><span>reglas de negocio</span></div>
+    <div><b>74</b><span>requisitos funcionales</span></div>
+    <div><b>18</b><span>historias de usuario</span></div>
     <div><b>5</b><span>diagramas</span></div>
-    <div><b>15</b><span>decisiones abiertas</span></div>
+    <div><b>17</b><span>decisiones abiertas</span></div>
   </div>
 </div>
 
@@ -1121,8 +1130,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
         </div>
         <div class="rail-s" data-sec="s3">
           <a href="#s3"><span>03</span>Funcionalidades</a>
-          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s3"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 11 subtítulos de Funcionalidades</span></button>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s3"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 14 subtítulos de Funcionalidades</span></button>
           <ul class="rail-sub" id="sub-s3" hidden>
+            <li class="rail-g rail-rol"><a href="#f-rol-rrhh">Para Recursos Humanos</a></li>
             <li><a href="#p3-1">3.1 Lista de colaboradores</a></li>
             <li><a href="#p3-2">3.2 Nuevo colaborador: la ficha</a></li>
             <li><a href="#p3-3">3.3 Los campos</a></li>
@@ -1131,15 +1141,21 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#p3-6">3.6 Editar un colaborador</a></li>
             <li><a href="#p3-7">3.7 Eliminar y desvincular</a></li>
             <li><a href="#p3-8">3.8 Clientes externos</a></li>
-            <li><a href="#p3-9">3.9 Requisitos no funcionales</a></li>
-            <li><a href="#p3-10">3.10 Cómo se escriben los textos</a></li>
-            <li><a href="#p3-11">3.11 Fuera de alcance</a></li>
+            <li><a href="#p3-9">3.9 Configuración de la ficha</a></li>
+            <li class="rail-g rail-rol"><a href="#f-rol-colab">Para el colaborador</a></li>
+            <li><a href="#p3-10">3.10 Mi ficha del colaborador</a></li>
+            <li><a href="#p3-11">3.11 Editar perfil de usuario</a></li>
+            <li class="rail-g rail-rol"><a href="#f-rol-todos">Para todo el módulo</a></li>
+            <li><a href="#p3-12">3.12 Requisitos no funcionales</a></li>
+            <li><a href="#p3-13">3.13 Cómo se escriben los textos</a></li>
+            <li><a href="#p3-14">3.14 Fuera de alcance</a></li>
           </ul>
         </div>
         <div class="rail-s" data-sec="s4">
           <a href="#s4"><span>04</span>Reglas de negocio</a>
-          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s4"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver las 34 reglas</span></button>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s4"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver las 42 reglas</span></button>
           <ul class="rail-sub" id="sub-s4" hidden>
+            <li class="rail-g rail-rol"><a href="#r-rol-rrhh">Para Recursos Humanos</a></li>
             <li class="rail-g"><a href="#br-g-borrador">El alta como borrador</a></li>
             <li><a href="#BR-GP-001">001 · No existe hasta el alta</a></li>
             <li><a href="#BR-GP-002">002 · Se guarda sola</a></li>
@@ -1184,6 +1200,17 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#BR-GP-032">032 · Se desactiva, no se borra</a></li>
             <li class="rail-g"><a href="#br-g-anticipo">El anticipo de quincena</a></li>
             <li><a href="#BR-GP-033">033 · Una boleta, y con tope</a></li>
+            <li class="rail-g"><a href="#br-g-medida">La ficha a la medida de la empresa</a></li>
+            <li><a href="#BR-GP-035">035 · Las legales no se apagan</a></li>
+            <li><a href="#BR-GP-036">036 · Desactivar no borra</a></li>
+            <li><a href="#BR-GP-037">037 · Lo laboral, solo lectura</a></li>
+            <li><a href="#BR-GP-038">038 · Secciones propias</a></li>
+            <li><a href="#BR-GP-039">039 · Eliminar pide la palabra</a></li>
+            <li class="rail-g rail-rol"><a href="#r-rol-colab">Para el colaborador</a></li>
+            <li class="rail-g"><a href="#br-g-colaborador">Mi ficha y Editar perfil</a></li>
+            <li><a href="#BR-GP-040">040 · Mi ficha solo se lee</a></li>
+            <li><a href="#BR-GP-041">041 · Solo edita lo Editable</a></li>
+            <li><a href="#BR-GP-042">042 · Se guarda todo junto</a></li>
           </ul>
         </div>
         <div class="rail-s" data-sec="s5">
@@ -1213,8 +1240,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
         </div>
         <div class="rail-s" data-sec="s7">
           <a href="#s7"><span>07</span>Flujos de usuario</a>
-          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s7"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 9 flujos</span></button>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s7"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 12 flujos</span></button>
           <ul class="rail-sub" id="sub-s7" hidden>
+            <li class="rail-g rail-rol"><a href="#fl-rol-rrhh">Para Recursos Humanos</a></li>
             <li><a href="#F-GP-01">F-GP-01 · Dar de alta a alguien nuevo</a></li>
             <li><a href="#F-GP-02">F-GP-02 · Un alta en varias sesiones</a></li>
             <li><a href="#F-GP-03">F-GP-03 · Recontratar a alguien</a></li>
@@ -1224,6 +1252,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#F-GP-07">F-GP-07 · Corregir una ficha</a></li>
             <li><a href="#F-GP-08">F-GP-08 · Dar de baja a una persona</a></li>
             <li><a href="#F-GP-09">F-GP-09 · Registrar un cliente externo</a></li>
+            <li><a href="#F-GP-10">F-GP-10 · Ajustar la ficha a la empresa</a></li>
+            <li><a href="#F-GP-11">F-GP-11 · Crear una sección propia</a></li>
+            <li class="rail-g rail-rol"><a href="#fl-rol-colab">Para el colaborador</a></li>
+            <li><a href="#F-GP-12">F-GP-12 · El colaborador corrige su teléfono</a></li>
           </ul>
         </div>
         <div class="rail-s" data-sec="s8">
@@ -1241,7 +1273,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
           <a href="#s9"><span>09</span>Historias de usuario</a>
           <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s9"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 2 subtítulos de Historias de usuario</span></button>
           <ul class="rail-sub" id="sub-s9" hidden>
-            <li><a href="#p9-1">9.1 Las trece historias</a></li>
+            <li><a href="#p9-1">9.1 Las dieciocho historias</a></li>
             <li><a href="#p9-2">9.2 Plan de prototipado</a></li>
           </ul>
         </div>
@@ -1250,7 +1282,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
         </div>
         <div class="rail-s" data-sec="sa">
           <a href="#sa"><span>—</span>Por qué decidimos así</a>
-          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-sa"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 12 subtítulos del anexo</span></button>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-sa"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los 17 subtítulos del anexo</span></button>
           <ul class="rail-sub" id="sub-sa" hidden>
             <li><a href="#ax-0">Por qué una pantalla y no un modal</a></li>
             <li><a href="#ax-1">Por qué un borrador y no un colaborador a medias</a></li>
@@ -1264,6 +1296,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
             <li><a href="#ax-9">Por qué pestañas y no once pasos</a></li>
             <li><a href="#ax-10">Por qué las partes cuelgan del riel</a></li>
             <li><a href="#ax-11">Por qué Preferencias se escribe a mano</a></li>
+            <li><a href="#ax-12">Por qué la configuración se ve como «Nuevo colaborador»</a></li>
+            <li><a href="#ax-13">Por qué «Editable, Solo lectura, Oculta»</a></li>
+            <li><a href="#ax-14">Por qué la sección nueva se arma en un modal</a></li>
+            <li><a href="#ax-15">Por qué el menú «⋯» en las secciones propias</a></li>
+            <li><a href="#ax-16">Por qué las listas del teléfono se abren debajo del campo</a></li>
           </ul>
         </div>
       </nav>
@@ -1639,7 +1676,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 
     <h3 id="p1-7">1.7 Alcance y límites</h3>
     <p><strong>Entra en esta versión:</strong> la lista de colaboradores, el alta en cinco pestañas con su borrador, el reingreso, la vista previa como expediente, el alta que sienta a la persona en su puesto y los clientes externos.</p>
-    <p><strong>Especificado pero sin construir:</strong> ver y editar la ficha de alguien dado de alta —<span class="id">3.6</span>— y eliminar o desvincular —<span class="id">3.7</span>—. <strong>No entra:</strong> la liquidación de una desvinculación y los exportadores a cada entidad. Están contados en <span class="id">3.11</span>.</p>
+    <p><strong>Especificado pero sin construir:</strong> ver y editar la ficha de alguien dado de alta —<span class="id">3.6</span>— y eliminar o desvincular —<span class="id">3.7</span>—. <strong>No entra:</strong> la liquidación de una desvinculación y los exportadores a cada entidad. Están contados en <span class="id">3.14</span>.</p>
     <p><strong>Prioridades.</strong> Cada requisito lleva una: <span class="p p-m">Oblig.</span> sin esto no se entrega; <span class="p p-s">Import.</span> se entrega en la etapa que le toca; <span class="p p-c">Deseable</span> si hay tiempo.</p>
   </section>
 
@@ -1721,10 +1758,13 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <header class="sec-h">
       <span class="sec-n" aria-hidden="true">03</span>
       <h2>Funcionalidades</h2>
-      <p class="sec-d">Cincuenta y dos requisitos funcionales y cinco no funcionales, pantalla por pantalla: la lista, la ficha, editar, eliminar y los clientes externos, cada uno con su condición de comprobación.</p>
+      <p class="sec-d">Setenta y cuatro requisitos funcionales y cinco no funcionales, pantalla por pantalla: la lista, la ficha, editar, eliminar, los clientes externos, Mi ficha, Editar perfil y la configuración de la ficha, cada uno con su condición de comprobación.</p>
     </header>
 
     <p>Cada requisito lleva prioridad —según la escala de <span class="id">1.7</span>—, y una condición de comprobación, que es lo que QA va a verificar. <strong>Los números son estables</strong> y los bloques saltan de diez en diez para poder crecer sin mover a nadie.</p>
+
+    <h3 class="rol-h" id="f-rol-rrhh"><span class="rol-k">Para</span>Recursos Humanos</h3>
+    <p class="rol-d">Las pantallas con las que Recursos Humanos registra, mantiene y configura la ficha de cada persona.</p>
 
     <h3 id="p3-1">3.1 Lista de colaboradores</h3>
     <p>La puerta del módulo, en <span class="mono">/personas/colaboradores</span>. Responde una sola pregunta —<strong>quién trabaja en la empresa y en qué situación está</strong>— y es desde donde se da de alta, se asigna el onboarding y se cambia el estado de una persona. Lista a todos los dados de alta, vigentes y desvinculados; nunca un borrador —<span class="id">BR‑GP‑001</span>—.</p>
@@ -1998,7 +2038,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </tbody>
     </table></div>
 
-        <h3 id="p3-6">3.6 Editar un colaborador</h3>
+    <h3 id="p3-6">3.6 Editar un colaborador</h3>
     <p>Se llega desde <b>«Editar»</b> o <b>«Ver perfil»</b> en el menú de la fila, a <span class="mono">/personas/colaboradores/:id</span>. <strong>Está especificado pero todavía no está construido en el prototipo.</strong></p>
     <p><strong>Es la misma ficha, no otra pantalla.</strong> Las mismas cinco pestañas, el mismo riel y las mismas secciones que en el alta: quien aprendió a dar de alta ya sabe editar. Lo que cambia es el comportamiento, porque ahora cada dato es real: <b>está en planilla y declarado a las entidades</b>.</p>
     <div class="tbl"><table>
@@ -2096,7 +2136,120 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </tbody>
     </table></div>
 
-    <h3 id="p3-9">3.9 Requisitos no funcionales</h3>
+    <h3 id="p3-9">3.9 Configuración de la ficha</h3>
+    <p>En <b>Gestión de Personas › Configuración › Ficha del colaborador</b> (<span class="mono">/personas/configuracion/ficha</span>). La ficha trae todo lo que pide el estudio y no toda empresa lo usa: aquí cada empresa la <b>ajusta a su medida</b>. Decide, sección por sección, si la usa y qué puede hacer el colaborador con ella, y <b>crea sus propias secciones</b> con sus campos.</p>
+    <p>Se ve como <b>«Nuevo colaborador»</b>: el mismo riel con sus pestañas y partes, y cada sección en su acordeón, para que RR.HH. encuentre cada sección donde ya sabe que está. El aro de cada pestaña dice cuántas de sus secciones están en uso.</p>
+
+    <h4 class="br-h"><em>A</em>La pantalla</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Elemento</th><th>Qué muestra</th><th>Por qué</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cabecera</strong></td><td>«Ficha del colaborador» · «Elija qué secciones usa su empresa y qué puede hacer el colaborador con cada una», y debajo «45 de 45 secciones en uso · 15 las edita el colaborador». <b>Restablecer</b> aparece solo si algo cambió</td><td>El estado de la ficha de un vistazo</td></tr>
+        <tr><td><strong>Títulos de columna</strong></td><td>«Sección · En la ficha · Para el colaborador». En pantallas angostas, «Para el colaborador» va encima de los botones de cada sección</td><td>Dice que la segunda decisión es sobre el colaborador, no sobre RR.HH.</td></tr>
+        <tr><td><strong>En la ficha</strong></td><td>Un interruptor con su estado: <b>Activa</b>, <b>Inactiva</b> u <b>Obligatoria</b> —encendido y con candado—</td><td>Todas las filas con interruptor: la columna se lee pareja</td></tr>
+        <tr><td><strong>Para el colaborador</strong></td><td>Tres botones juntos: <b>✎ Editable · 👁 Solo lectura · ⊘ Oculta</b></td><td>Tres opciones fijas se eligen mejor viéndolas todas</td></tr>
+        <tr><td><strong>Al abrir una sección</strong></td><td>Su instrucción, cuántos campos tiene y cuántas fichas ya tienen datos, y sus campos tal como salen en la ficha, sin poder escribir</td><td>Se sabe qué se activa o se desactiva</td></tr>
+        <tr><td><strong>Sección inactiva</strong></td><td>Su fila más tenue y sus botones apagados, para poder activarla otra vez</td><td>No desaparece de aquí: es el único lugar donde se vuelve a encender</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4 class="br-h"><em>B</em>Las secciones propias</h4>
+    <p><b>«+ Nueva sección en «…»»</b>, al pie de cada parte, abre un modal en dos columnas: a la izquierda se arma la sección —nombre, instrucción opcional, dónde va y sus campos— y a la derecha se ve <b>en vivo</b>, como saldrá en la ficha, y se puede probar escribiendo. Abajo se dice lo primero que falta; <b>Crear sección</b> se habilita cuando no falta nada. Cada campo lleva nombre, tipo, la casilla <b>Obligatorio</b>, flechas para ordenarlo y su papelera.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Tipo de campo</th><th>Cómo sale en la ficha</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Texto corto</strong></td><td>Una caja de una línea</td></tr>
+        <tr><td><strong>Texto largo</strong></td><td>Una caja de varias líneas, a todo el ancho</td></tr>
+        <tr><td><strong>Número</strong></td><td>Una caja que solo admite cifras</td></tr>
+        <tr><td><strong>Fecha</strong></td><td>El calendario de la ficha</td></tr>
+        <tr><td><strong>Lista de opciones</strong></td><td>Un desplegable con las opciones que se escriban, una por línea —al menos dos—</td></tr>
+        <tr><td><strong>Sí / No</strong></td><td>Dos botones</td></tr>
+        <tr><td><strong>Celular</strong></td><td>El número con su código de país, que arranca en Bolivia</td></tr>
+        <tr><td><strong>Correo electrónico</strong></td><td>Una caja de correo</td></tr>
+        <tr><td><strong>Archivo</strong></td><td>El recuadro para subir un PDF o una imagen; además aparece en Archivos y en Documentación</td></tr>
+      </tbody>
+    </table></div>
+    <p>La sección nueva queda al final de su parte con la etiqueta <b>Propia</b>, el mismo interruptor y los mismos botones que las demás, y al final de su cabecera un menú <b>«⋯»</b> con <b>Editar sección</b> y, separado y en rojo, <b>Eliminar</b>. Sale en «Nuevo colaborador», en la ficha de RR.HH., en Mi ficha y, si es Editable, en Editar perfil.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
+      <tbody>
+        <tr><td class="id" id="RF-GP-100">RF‑GP‑100</td><td>La pantalla usa <b>el riel y los acordeones</b> de «Nuevo colaborador» y lista todas las secciones, también las inactivas</td><td><span class="p p-m">Oblig.</span></td><td>Una sección desactivada sigue en su parte, más tenue</td></tr>
+        <tr><td class="id" id="RF-GP-101">RF‑GP‑101</td><td>Cada sección tiene su interruptor; las <b>obligatorias</b> lo muestran encendido y con candado</td><td><span class="p p-m">Oblig.</span></td><td>«Datos de contacto» no se puede apagar. <em>BR‑GP‑035</em></td></tr>
+        <tr><td class="id" id="RF-GP-102">RF‑GP‑102</td><td><b>Activar y desactivar</b> piden confirmación en un modal que dice qué cambia en Nuevo colaborador, en Mi ficha y con lo ya registrado</td><td><span class="p p-m">Oblig.</span></td><td>Apagar una sección con datos dice cuántos colaboradores los tienen. <em>BR‑GP‑036</em></td></tr>
+        <tr><td class="id" id="RF-GP-103">RF‑GP‑103</td><td><b>Para el colaborador</b>: Editable, Solo lectura u Oculta; Editable está apagado en lo laboral</td><td><span class="p p-m">Oblig.</span></td><td>En «Datos de pago» no se puede elegir Editable. <em>BR‑GP‑037</em></td></tr>
+        <tr><td class="id" id="RF-GP-104">RF‑GP‑104</td><td>Una sección <b>inactiva</b> desaparece de Nuevo colaborador, de la ficha de RR.HH., de Mi ficha, de Editar perfil y, con sus archivos, de Documentación</td><td><span class="p p-m">Oblig.</span></td><td>Sin «Garantes», sus dos documentos salen de Archivos</td></tr>
+        <tr><td class="id" id="RF-GP-105">RF‑GP‑105</td><td><b>Restablecer</b> vuelve a la ficha estándar y conserva las secciones propias</td><td><span class="p p-s">Import.</span></td><td>Después de restablecer, «Tallas de uniforme» sigue ahí y activa</td></tr>
+        <tr><td class="id" id="RF-GP-106">RF‑GP‑106</td><td><b>«Nueva sección»</b> al pie de cada parte abre un modal con el formulario y la vista previa en vivo</td><td><span class="p p-m">Oblig.</span></td><td>Escribir el nombre de un campo lo muestra al instante en la vista previa. <em>BR‑GP‑038</em></td></tr>
+        <tr><td class="id" id="RF-GP-107">RF‑GP‑107</td><td>Una sección propia ofrece <b>nueve tipos de campo</b>, los mismos controles de la ficha</td><td><span class="p p-m">Oblig.</span></td><td>Un campo Celular sale con «BO +591»</td></tr>
+        <tr><td class="id" id="RF-GP-108">RF‑GP‑108</td><td><b>Crear sección</b> se habilita con un nombre, al menos un campo con nombre y cada lista con dos opciones; abajo se dice lo que falta</td><td><span class="p p-m">Oblig.</span></td><td>Una lista con una sola opción dice «La lista «Talla» necesita al menos dos opciones»</td></tr>
+        <tr><td class="id" id="RF-GP-109">RF‑GP‑109</td><td>Las secciones propias llevan la etiqueta <b>Propia</b> y el menú <b>«⋯»</b> con Editar sección y Eliminar</td><td><span class="p p-m">Oblig.</span></td><td>Las secciones del estudio no tienen menú «⋯». <em>BR‑GP‑039</em></td></tr>
+        <tr><td class="id" id="RF-GP-110">RF‑GP‑110</td><td>Una sección propia sale <b>en todas las pantallas de la ficha</b>, al final de su parte, y sus archivos en Documentación</td><td><span class="p p-m">Oblig.</span></td><td>Creada en Información Familiar, aparece en «Nuevo colaborador» como «0 de 3»</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="rol-h" id="f-rol-colab"><span class="rol-k">Para</span>El colaborador</h3>
+    <p class="rol-d">Lo que el propio colaborador ve y cambia de su ficha, en la web y en el teléfono.</p>
+
+    <h3 id="p3-10">3.10 Mi ficha del colaborador</h3>
+    <p>En <b>Mi espacio › Mi perfil</b> (<span class="mono">/mi-espacio/perfil</span>) y en la pestaña <b>Perfil</b> del teléfono. Es la misma ficha que registra Recursos Humanos, <b>vista por su dueño y solo para leer</b>: las mismas secciones, los mismos rótulos y los mismos datos, porque se dibuja con las mismas funciones que la ficha de RR.HH. Lo que la empresa le deja cambiar se edita en <b>Configuración › Editar perfil de usuario</b> —3.11—.</p>
+    <p>La web y el teléfono muestran lo mismo: leen la ficha del mismo lugar y deciden qué se enseña con las mismas reglas.</p>
+
+    <h4 class="br-h"><em>A</em>Lo que se ve</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Elemento</th><th>Qué muestra</th><th>Por qué</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cabecera del perfil</strong></td><td>Foto, nombre, cargo, área, sucursal y antigüedad</td><td>Quién es, como lo ve la empresa</td></tr>
+        <tr><td><strong>Mi ficha</strong></td><td>Una fila por pestaña de la ficha —menos Configuración de Colaborador— con su pista o su cuenta: «12 documentos · 2 por renovar», «4 asignados». Cada fila abre su pantalla</td><td>Se lee, no se llena: una lista y no el riel numerado de la ficha de alta</td></tr>
+        <tr><td><strong>Una sección</strong></td><td>Un acordeón con renglones de expediente —rótulo, línea de puntos, dato—. Solo lo que tiene valor; las secciones vacías no salen, salvo en Recursos y Activos, donde «no tiene vehículo asignado» también es un dato</td><td>Veinte «Sin registrar» taparían lo que sí está</td></tr>
+        <tr><td><strong>El aviso de arriba</strong></td><td>«Estos datos los mantiene usted al día…» si en la pestaña hay algo que él edita; «Estos datos los registró RR.HH.» si no; «Lo que la empresa le entregó» en Recursos y Activos</td><td>Dice de entrada quién mantiene cada dato y dónde se cambia</td></tr>
+        <tr><td><strong>Montos reservados</strong></td><td>El haber básico y el anticipo de quincena se ven como «••••••» hasta pulsar «Mostrar montos»</td><td>El sueldo no tiene por qué quedar a la vista de quien pase detrás de la pantalla</td></tr>
+        <tr><td><strong>Documentación</strong></td><td>Todos los archivos juntos, agrupados por pestaña, con fecha de emisión y de vencimiento y su estado: Vigente, Por vencer —60 días o menos— o Vencido. Tocarlo abre la vista previa</td><td>Sus papeles en un solo lugar, y lo que hay que renovar a la vista</td></tr>
+        <tr><td><strong>Preferencias</strong></td><td>Los regalos y las experiencias que le gustarían, en la portada del perfil</td><td>Es lo más personal de la ficha y lo que más se mira</td></tr>
+      </tbody>
+    </table></div>
+    <div class="nota"><p><b>En la maqueta:</b> Mi ficha muestra fichas de ejemplo para tres usuarios —Carlos, María y Juan—: todavía no lee la ficha que registró RR.HH. al dar de alta. Ver FUERA‑08.</p></div>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
+      <tbody>
+        <tr><td class="id" id="RF-GP-080">RF‑GP‑080</td><td><b>Mi ficha</b> muestra una fila por pestaña de la ficha, menos Configuración de Colaborador, y cada fila abre su pantalla</td><td><span class="p p-m">Oblig.</span></td><td>Abrir Información Laboral muestra sus partes una debajo de otra</td></tr>
+        <tr><td class="id" id="RF-GP-081">RF‑GP‑081</td><td>Solo se enseñan los datos <b>con valor</b>; una sección vacía no sale, salvo en Recursos y Activos</td><td><span class="p p-s">Import.</span></td><td>Una ficha sin cónyuge no muestra «Datos del cónyuge»</td></tr>
+        <tr><td class="id" id="RF-GP-082">RF‑GP‑082</td><td>El haber básico y el anticipo se <b>tapan</b> hasta pulsar «Mostrar montos»</td><td><span class="p p-s">Import.</span></td><td>Al abrir Compensación el haber dice «••••••»</td></tr>
+        <tr><td class="id" id="RF-GP-083">RF‑GP‑083</td><td><b>Documentación</b> reúne los archivos con su estado medido contra hoy: Vigente, Por vencer (60 días o menos) o Vencido</td><td><span class="p p-m">Oblig.</span></td><td>Un carnet que vence en 40 días se ve «Por vencer»</td></tr>
+        <tr><td class="id" id="RF-GP-084">RF‑GP‑084</td><td>La web y el teléfono muestran <b>lo mismo</b></td><td><span class="p p-m">Oblig.</span></td><td>Un dato cambiado en el teléfono se lee igual en la web</td></tr>
+        <tr><td class="id" id="RF-GP-085">RF‑GP‑085</td><td>Lo que la empresa <b>ocultó o desactivó</b> no aparece</td><td><span class="p p-m">Oblig.</span></td><td>Con «Datos patrimoniales» en Oculta, no sale en Mi ficha. <em>BR‑GP‑036, BR‑GP‑037</em></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="p3-11">3.11 Editar perfil de usuario</h3>
+    <p>En <b>Mi perfil › Configuración › Editar perfil de usuario</b>, en la web y en el teléfono. Es donde el colaborador <b>cambia por su cuenta</b> las secciones que la empresa le deja en <b>Editable</b> —de fábrica, su Información Personal y su Información Familiar, con los documentos que van en ellas— y sus preferencias. Se guarda al momento, sin pasar por RR.HH.</p>
+
+    <h4 class="br-h"><em>A</em>Cómo se edita</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Elemento</th><th>Qué hace</th><th>Por qué</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Las categorías</strong></td><td>Una por parte de la ficha que tenga algo editable, y Preferencias al final si también se puede editar. En la web van en el riel, como en «Nuevo colaborador»; en el teléfono, en una lista</td><td>Se edita por partes, como se registra</td></tr>
+        <tr><td><strong>Los campos</strong></td><td>Abiertos desde que se entra, con <b>todos sus campos aunque estén vacíos</b>, y con los controles y las reglas de la ficha de RR.HH.: el celular con su código de país, las listas con buscador desde ocho opciones, Sí/No en dos botones, las fechas con su calendario, solo cifras donde el dato es un número, y «Otro» abre su caja para escribir cuál</td><td>Quien todavía no tiene teléfono fijo tiene que poder agregarlo; y un dato tiene que verse y portarse igual lo escriba quien lo escriba</td></tr>
+        <tr><td><strong>Las listas en el teléfono</strong></td><td>Se abren pegadas debajo de su campo —o encima, si abajo no caben antes de la barra—, con la opción elegida en verde y su tilde</td><td>Una lista del sistema se abría enorme y fuera del teléfono</td></tr>
+        <tr><td><strong>Foto y documentos</strong></td><td>Se cambian ahí mismo, en su sección</td><td>Son parte de los datos que él mantiene</td></tr>
+        <tr><td><strong>Guardar</strong></td><td>Los cambios se juntan; abajo aparece una barra con «N cambios sin guardar», <b>Descartar</b> y <b>Guardar cambios</b></td><td>Una sola vez para todo, y se sabe cuánto falta guardar</td></tr>
+        <tr><td><strong>Sin nada que editar</strong></td><td>«Su empresa no tiene datos de la ficha para que usted los edite. Si algo no está bien, pida la corrección a RR.HH.»</td><td>No se muestra un formulario vacío</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>Requisito</th><th>Prior.</th><th>Cómo se comprueba</th></tr></thead>
+      <tbody>
+        <tr><td class="id" id="RF-GP-090">RF‑GP‑090</td><td>Muestra <b>solo las secciones en Editable</b>, con todos sus campos aunque estén vacíos</td><td><span class="p p-m">Oblig.</span></td><td>Quien no tiene teléfono fijo puede agregarlo. <em>BR‑GP‑037</em></td></tr>
+        <tr><td class="id" id="RF-GP-091">RF‑GP‑091</td><td>Los campos usan <b>los controles de la ficha de RR.HH.</b>, en la web y en el teléfono</td><td><span class="p p-m">Oblig.</span></td><td>En el teléfono el celular trae «BO +591» y la lista de países se puede buscar</td></tr>
+        <tr><td class="id" id="RF-GP-092">RF‑GP‑092</td><td>Los cambios se guardan <b>juntos</b> con «Guardar cambios», y la barra los cuenta</td><td><span class="p p-m">Oblig.</span></td><td>Cambiar dos datos muestra «2 cambios sin guardar». <em>BR‑GP‑042</em></td></tr>
+        <tr><td class="id" id="RF-GP-093">RF‑GP‑093</td><td>Un dato <b>obligatorio</b> que el colaborador vacía impide guardar, y lo dice</td><td><span class="p p-m">Oblig.</span></td><td>Borrar el número de celular muestra «Este dato es obligatorio». <em>BR‑GP‑041</em></td></tr>
+        <tr><td class="id" id="RF-GP-094">RF‑GP‑094</td><td>Salir con cambios sin guardar <b>pregunta antes</b></td><td><span class="p p-s">Import.</span></td><td>Tocar «Inicio» con un cambio pendiente abre el aviso. <em>BR‑GP‑034</em></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="rol-h" id="f-rol-todos"><span class="rol-k">Para</span>Todo el módulo</h3>
+    <p class="rol-d">Lo que vale para todas las pantallas: calidad, textos y lo que queda fuera de esta versión.</p>
+
+    <h3 id="p3-12">3.12 Requisitos no funcionales</h3>
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Requisito</th><th>Cómo se comprueba</th></tr></thead>
       <tbody>
@@ -2108,7 +2261,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </tbody>
     </table></div>
 
-    <h3 id="p3-10">3.10 Cómo se escriben los textos</h3>
+    <h3 id="p3-13">3.13 Cómo se escriben los textos</h3>
     <ul>
       <li><strong>Las ayudas van en usted.</strong> La ficha la llena Recursos Humanos o el propio colaborador: «¿Cuál es su fecha de ingreso?», no «¿Cuál es tu…?».</li>
       <li><strong>«Dar de alta», no «crear».</strong> A una persona no se la crea.</li>
@@ -2117,7 +2270,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <li><strong>Un aviso dice el dato y el motivo</strong>: «Falta la fecha de ingreso: sin ella no hay desde cuándo contar su antigüedad».</li>
     </ul>
 
-    <h3 id="p3-11">3.11 Fuera de alcance de esta versión</h3>
+    <h3 id="p3-14">3.14 Fuera de alcance de esta versión</h3>
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Qué</th><th>Por qué queda fuera</th></tr></thead>
       <tbody>
@@ -2126,18 +2279,26 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td class="id">FUERA‑03</td><td><b>Los exportadores</b> a cada entidad —F20, Gestora, Caja, RC‑IVA—</td><td>La ficha guarda los datos en la forma que cada uno necesita; armar los archivos es otra entrega</td></tr>
         <tr><td class="id">FUERA‑04</td><td><b>El historial del haber básico</b>, versionado con vigencia</td><td>Hoy se guarda el valor vigente</td></tr>
         <tr><td class="id">FUERA‑05</td><td><b>Editar los permisos por rol</b></td><td>El directorio los muestra en una tabla fija</td></tr>
-        <tr><td class="id">FUERA‑06</td><td><b>Que el colaborador llene su propia ficha</b></td><td>Esta versión la llena Recursos Humanos</td></tr>
+        <tr><td class="id">FUERA‑06</td><td><b>Que el colaborador llene su ficha completa</b></td><td>Desde 3.11 edita lo que la empresa le deja en Editable; el resto lo sigue registrando Recursos Humanos</td></tr>
+        <tr><td class="id">FUERA‑07</td><td><b>Pedir una corrección a RR.HH. desde Mi ficha</b></td><td>Mi ficha dice que lo que no puede editar se corrige con RR.HH., pero todavía no hay un botón para pedirlo</td></tr>
+        <tr><td class="id">FUERA‑08</td><td><b>Mi ficha conectada a la ficha que registró RR.HH.</b></td><td>En la maqueta muestra fichas de ejemplo; lo que el colaborador edita se guarda aparte</td></tr>
+        <tr><td class="id">FUERA‑09</td><td><b>Permisos campo por campo y «Editar con aprobación»</b></td><td>Es la tercera fase de la configuración: hoy el permiso es por sección</td></tr>
+        <tr><td class="id">FUERA‑10</td><td><b>Bloques que se repiten en una sección propia</b></td><td>Como «Agregar otro hijo». Hoy una sección propia tiene una sola copia de sus campos</td></tr>
       </tbody>
     </table></div>
+
   </section>
 
   <section id="s4">
     <header class="sec-h">
       <span class="sec-n" aria-hidden="true">04</span>
       <h2>Reglas de negocio</h2>
-      <p class="sec-d">Treinta y cuatro condiciones que el sistema cumple siempre, en el orden en que se vive una persona en el sistema: el borrador, los datos, el reingreso, el puesto, las entidades, la revisión, el directorio, la edición y la baja, y los clientes externos. Todas se leen igual, en cuatro apartados: información básica, escenarios ágiles de ejecución, condiciones y excepciones, y trazabilidad.</p>
+      <p class="sec-d">Cuarenta y dos condiciones que el sistema cumple siempre. Primero las de Recursos Humanos, en el orden en que se vive una persona en el sistema: el borrador, los datos, el reingreso, el puesto, las entidades, la revisión, el directorio, la edición y la baja, los clientes externos y la ficha a la medida de la empresa; después las del colaborador. Todas se leen igual, en cuatro apartados: información básica, escenarios ágiles de ejecución, condiciones y excepciones, y trazabilidad.</p>
     </header>
 
+
+        <h3 class="rol-h" id="r-rol-rrhh"><span class="rol-k">Para</span>Recursos Humanos</h3>
+        <p class="rol-d">Las condiciones de las pantallas de Recursos Humanos, por tema, en el orden en que se vive una persona en el sistema.</p>
         <h3 class="br-grupo" id="br-g-borrador">El alta como borrador<em>Lo que pasa con una ficha mientras todavía no es un colaborador</em></h3>
         <ol class="reglas">
           <li class="br">
@@ -3773,6 +3934,395 @@ td.rg{color:var(--tinta-3);font-weight:700}
           </li>
         </ol>
 
+        <h3 class="br-grupo" id="br-g-medida">La ficha a la medida de la empresa<em>Qué secciones usa cada empresa, qué hace el colaborador con ellas y las que crea la empresa</em></h3>
+        <ol class="reglas">
+          <li class="br">
+            <span class="br-n">4.35</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-035</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-035">Las secciones con datos que exige la ley no se desactivan</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-035</dd></div>
+                <div><dt>Grupo</dt><dd>La ficha a la medida de la empresa</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Configuración de la ficha · En la ficha</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Una sección es <b>obligatoria</b> si tiene algún dato del <b>mínimo legal</b> —los que el Ministerio, la Gestora o la Caja exigen para declarar a la persona, BR‑GP‑006— o si <b>sostiene a las demás</b>: <b>Archivos</b>, que reúne los documentos, y el <b>acceso al sistema</b>, sin el que el colaborador no entra a ver su ficha.</p>
+              <p>Hoy son <b>trece</b>: Reingreso o alta nueva, Datos personales, Documento de identidad, Datos de nacionalidad y nacimiento, Datos de contacto, Datos médicos, Datos de contactos de emergencia, Información organizacional, Dependencia organizacional y funcional, Datos del contrato, Datos de haber básico, Archivos y Acceso al sistema. Su interruptor se ve <b>encendido, quieto y con candado</b>, con la palabra «Obligatoria».</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>No se puede apagar</div>
+                  <ul>
+                    <li><b>Dado que</b>«Datos de contacto» tiene el teléfono del mínimo legal</li>
+                    <li><b>Cuando</b>se intenta tocar su interruptor</li>
+                    <li><b>Entonces</b>no se mueve, y al pasar el cursor dice «Tiene datos que exige la ley o que sostienen a otras secciones: no se puede desactivar»</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Se calcula de los niveles del estudio, no de una lista escrita a mano: si un dato pasa al mínimo legal, su sección pasa a ser obligatoria.</li>
+                <li>Ser obligatoria no impide elegir qué hace el colaborador con ella.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-101">RF‑GP‑101</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-14">HU‑GP‑14</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Configuración de la ficha</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="br">
+            <span class="br-n">4.36</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-036</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-036">Desactivar una sección la oculta en todas las pantallas, sin borrar lo registrado</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-036</dd></div>
+                <div><dt>Grupo</dt><dd>La ficha a la medida de la empresa</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Configuración de la ficha · En la ficha</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Una sección <b>inactiva</b> no sale en «Nuevo colaborador», ni en la ficha de RR.HH., ni en Mi ficha, ni en Editar perfil, y sus archivos salen de Archivos y de Documentación. <b>No se borra nada</b>: lo que ya estaba escrito se queda en la ficha de cada persona y vuelve a verse al activarla.</p>
+              <p>Activar y desactivar <b>piden confirmación</b> en un modal: «¿Está seguro de desactivar «Datos de residencia»?», con un renglón por cada cosa que cambia —Nuevo colaborador, Mi ficha del colaborador y lo ya registrado— y los botones <b>Cancelar</b> y <b>Desactivar sección</b> o <b>Activar sección</b>.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Desactivar una sección con datos</div>
+                  <ul>
+                    <li><b>Dado que</b>un colaborador tiene escrita su dirección en «Datos de residencia»</li>
+                    <li><b>Cuando</b>se la desactiva</li>
+                    <li><b>Entonces</b>el modal dice «1 colaborador tiene datos aquí. No se borran. Vuelven a verse si la activa otra vez»</li>
+                    <li><b>Y</b>al confirmar, la sección deja de verse en todas las pantallas de la ficha</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Volver a activarla</div>
+                  <ul>
+                    <li><b>Dado que</b>«Datos de residencia» está inactiva</li>
+                    <li><b>Cuando</b>se la activa</li>
+                    <li><b>Entonces</b>el modal dice qué hará el colaborador con ella y que los datos vuelven a verse tal como estaban</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Una sección obligatoria no se desactiva —BR‑GP‑035—.</li>
+                <li>Las secciones propias se activan y se desactivan igual que las del estudio.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-102">RF‑GP‑102</a> · <a class="id" href="#RF-GP-104">RF‑GP‑104</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-14">HU‑GP‑14</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Configuración de la ficha</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="br">
+            <span class="br-n">4.37</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-037</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-037">El colaborador hace con cada sección lo que elige la empresa, y lo laboral tiene tope de solo lectura</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-037</dd></div>
+                <div><dt>Grupo</dt><dd>La ficha a la medida de la empresa</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Configuración de la ficha · Para el colaborador</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Para cada sección la empresa elige qué puede hacer el colaborador: <b>Editable</b> —la cambia él mismo en Editar perfil—, <b>Solo lectura</b> —la ve en Mi ficha— u <b>Oculta</b> —no la ve—. <b>RR.HH. siempre ve y edita toda la ficha.</b></p>
+              <p>De fábrica, la ficha se comporta como antes de esta pantalla: <b>Información Personal e Información Familiar son Editable</b>, lo demás es Solo lectura y <b>Reingreso o alta nueva es Oculta</b>, porque es un dato del trámite de RR.HH.</p>
+              <p><b>Lo laboral tiene tope de Solo lectura</b>: toda la Información Laboral —puesto, contrato, pago, afiliaciones y asistencia—, Documentación y Recursos y Activos. De esos datos dependen la planilla y las declaraciones, y un colaborador no se cambia el haber, la fecha de su contrato ni el equipo que firmó.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>El tope de lo laboral</div>
+                  <ul>
+                    <li><b>Dado que</b>se mira «Datos de pago»</li>
+                    <li><b>Cuando</b>se intenta elegir Editable</li>
+                    <li><b>Entonces</b>el botón está apagado y dice «Este dato lo registra RR.HH.: el colaborador solo puede verlo»</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Ocultar una sección</div>
+                  <ul>
+                    <li><b>Dado que</b>«Datos patrimoniales» está en Oculta</li>
+                    <li><b>Cuando</b>el colaborador abre Mi ficha</li>
+                    <li><b>Entonces</b>la sección no aparece, ni en Mi ficha ni en Editar perfil</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Configuración de Colaborador no se le muestra nunca, y Archivos no tiene nivel propio: cada documento sigue a la sección de donde viene.</li>
+                <li>Solo se guarda lo que difiere de fábrica: una empresa que nunca entra a esta pantalla no nota ningún cambio.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-103">RF‑GP‑103</a> · <a class="id" href="#RF-GP-085">RF‑GP‑085</a> · <a class="id" href="#RF-GP-090">RF‑GP‑090</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-15">HU‑GP‑15</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Configuración de la ficha · Mi ficha · Editar perfil</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="br">
+            <span class="br-n">4.38</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-038</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-038">Una sección propia usa los campos de la ficha, y las claves de sus campos no se reutilizan</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-038</dd></div>
+                <div><dt>Grupo</dt><dd>La ficha a la medida de la empresa</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Configuración de la ficha · Secciones propias</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>La empresa crea una sección en <b>cualquier parte de la ficha</b>, menos Configuración de Colaborador, con campos de los <b>nueve tipos</b> que ya existen en la ficha. Sale al final de su parte, en todas las pantallas, con los mismos controles que cualquier otro campo.</p>
+              <p>Cada campo tiene su <b>clave para siempre</b>: el identificador de la sección y un número que solo sube. Borrar un campo y crear otro nunca le hereda los datos del anterior.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Crear una sección</div>
+                  <ul>
+                    <li><b>Dado que</b>la empresa entrega uniformes</li>
+                    <li><b>Cuando</b>crea «Tallas de uniforme» en Información Familiar con «Talla de polera» (lista S, M, L, XL), «Talla de calzado» (número) y «Constancia de entrega» (archivo)</li>
+                    <li><b>Entonces</b>la sección aparece en «Nuevo colaborador» como «0 de 3» y la constancia aparece en Archivos</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li><b>Obligatorio</b> pone el asterisco y se avisa como cualquier otro dato, pero <b>no impide el alta</b>: solo tres datos la impiden —BR‑GP‑007—.</li>
+                <li>Sus campos no son del mínimo legal ni encienden el punto rojo de la pestaña.</li>
+                <li>Todavía no puede tener bloques que se repiten —FUERA‑10—.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-106">RF‑GP‑106</a> · <a class="id" href="#RF-GP-107">RF‑GP‑107</a> · <a class="id" href="#RF-GP-108">RF‑GP‑108</a> · <a class="id" href="#RF-GP-110">RF‑GP‑110</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-16">HU‑GP‑16</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Configuración de la ficha · Nueva sección</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="br">
+            <span class="br-n">4.39</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-039</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-039">Solo se eliminan las secciones propias, y si ya tienen datos hay que escribir la palabra</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-039</dd></div>
+                <div><dt>Grupo</dt><dd>La ficha a la medida de la empresa</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Configuración de la ficha · Secciones propias</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Las secciones del estudio se activan o se desactivan; <b>solo las propias se editan y se eliminan</b>, desde su menú «⋯».</p>
+              <p>Eliminar pide confirmación: «¿Está seguro de eliminar «Tallas de uniforme»?». Si <b>algún colaborador ya tiene datos</b> en ella, además hay que escribir <b>eliminar</b> para confirmar, y el modal sugiere desactivarla si solo se quiere ocultar: lo escrito queda en la ficha de cada persona, pero sin ninguna pantalla que lo muestre.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Eliminar una sección sin datos</div>
+                  <ul>
+                    <li><b>Dado que</b>nadie llenó «Tallas de uniforme»</li>
+                    <li><b>Cuando</b>se elige Eliminar en su menú «⋯»</li>
+                    <li><b>Entonces</b>el modal dice «Ningún colaborador tiene datos en ella» y se confirma con un clic</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Eliminar una sección con datos</div>
+                  <ul>
+                    <li><b>Dado que</b>tres colaboradores tienen su talla escrita</li>
+                    <li><b>Cuando</b>se elige Eliminar</li>
+                    <li><b>Entonces</b>«Eliminar sección» se habilita solo después de escribir «eliminar»</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Al eliminarla, se va también lo que la configuración decía de ella: si estaba activa y qué hacía el colaborador.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-109">RF‑GP‑109</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-16">HU‑GP‑16</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Configuración de la ficha</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+        </ol>
+
+        <h3 class="rol-h" id="r-rol-colab"><span class="rol-k">Para</span>El colaborador</h3>
+        <p class="rol-d">Las condiciones de lo que el colaborador ve y edita de su ficha.</p>
+        <h3 class="br-grupo" id="br-g-colaborador">Mi ficha y Editar perfil<em>Lo que el colaborador ve de su ficha y lo que cambia él mismo</em></h3>
+        <ol class="reglas">
+          <li class="br">
+            <span class="br-n">4.40</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-040</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-040">Mi ficha solo se lee, y enseña solo lo que tiene valor</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-040</dd></div>
+                <div><dt>Grupo</dt><dd>Mi ficha y Editar perfil</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Mi ficha · web y teléfono</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Mi ficha es la ficha de RR.HH. vista por su dueño: <b>las mismas secciones, los mismos rótulos y los mismos datos</b>, sin poder escribir. Muestra solo lo que tiene valor —una sección vacía no sale, salvo en Recursos y Activos— y reúne los archivos en <b>Documentación</b>.</p>
+              <p>El <b>haber básico</b> y el <b>anticipo de quincena</b> se tapan hasta pulsar «Mostrar montos». Lo que el colaborador no puede editar se lo pide a RR.HH.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Una sección vacía no sale</div>
+                  <ul>
+                    <li><b>Dado que</b>el colaborador no tiene cónyuge registrado</li>
+                    <li><b>Cuando</b>abre Información Personal en Mi ficha</li>
+                    <li><b>Entonces</b>«Datos del cónyuge» no aparece</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>El sueldo, tapado</div>
+                  <ul>
+                    <li><b>Dado que</b>el colaborador abre Compensación, Nómina y Afiliaciones</li>
+                    <li><b>Cuando</b>mira su haber básico</li>
+                    <li><b>Entonces</b>ve «••••••» hasta pulsar «Mostrar montos»</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Un documento está <b>por vencer</b> a los 60 días de su vencimiento, y no a los 30 que usa Archivos en la ficha de RR.HH.; ABIERTA‑06 decide si se unifica.</li>
+                <li>Las secciones que la empresa puso en Oculta o desactivó no salen —BR‑GP‑036 y 037—.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-080">RF‑GP‑080</a> · <a class="id" href="#RF-GP-081">RF‑GP‑081</a> · <a class="id" href="#RF-GP-082">RF‑GP‑082</a> · <a class="id" href="#RF-GP-083">RF‑GP‑083</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-17">HU‑GP‑17</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Mi ficha</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="br">
+            <span class="br-n">4.41</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-041</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-041">El colaborador edita solo lo que está en Editable, y no deja vacío un dato obligatorio</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-041</dd></div>
+                <div><dt>Grupo</dt><dd>Mi ficha y Editar perfil</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Editar perfil de usuario</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Editar perfil muestra <b>solo las secciones que la empresa dejó en Editable</b> —BR‑GP‑037—, con todos sus campos aunque estén vacíos, y lo que el colaborador cambia se guarda <b>sin pasar por RR.HH.</b></p>
+              <p>Un dato <b>obligatorio</b> que el colaborador vacía impide guardar y lo dice debajo del campo: «Este dato es obligatorio». Solo se miran los datos que él tocó: si RR.HH. dejó uno sin llenar, eso no le impide guardar su teléfono nuevo.</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Borrar un obligatorio</div>
+                  <ul>
+                    <li><b>Dado que</b>el número de celular es obligatorio</li>
+                    <li><b>Cuando</b>el colaborador lo borra</li>
+                    <li><b>Entonces</b>el campo dice «Este dato es obligatorio» y la barra «Complete el dato obligatorio»</li>
+                    <li><b>Y</b>«Guardar cambios» queda apagado hasta que lo vuelva a escribir</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Un dato que dejó RR.HH. sin llenar</div>
+                  <ul>
+                    <li><b>Dado que</b>RR.HH. no registró el segundo apellido</li>
+                    <li><b>Cuando</b>el colaborador cambia solo su correo</li>
+                    <li><b>Entonces</b>puede guardar</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Lo laboral nunca aparece aquí: tiene tope de Solo lectura.</li>
+                <li>Si la empresa no le deja editar nada, la pantalla lo dice en vez de mostrar un formulario vacío.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-090">RF‑GP‑090</a> · <a class="id" href="#RF-GP-091">RF‑GP‑091</a> · <a class="id" href="#RF-GP-093">RF‑GP‑093</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-18">HU‑GP‑18</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Editar perfil de usuario</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+          <li class="br">
+            <span class="br-n">4.42</span>
+            <div>
+              <div class="br-cab"><span class="br-id">BR-GP-042</span><span class="br-estado">Borrador</span></div>
+              <h3 id="BR-GP-042">Los cambios del colaborador se guardan juntos, y salir sin guardar pregunta</h3>
+              <h4 class="br-h"><em>1</em>Información básica</h4>
+              <dl class="br-meta">
+                <div><dt>Código</dt><dd>BR-GP-042</dd></div>
+                <div><dt>Grupo</dt><dd>Mi ficha y Editar perfil</dd></div>
+                <div><dt>Qué gobierna</dt><dd>Editar perfil de usuario</dd></div>
+                <div><dt>Estado</dt><dd>Borrador</dd></div>
+              </dl>
+              <p class="br-dg-t">Descripción general</p>
+              <p>Los campos están <b>abiertos desde que se entra</b>: no hay «Editar» por sección. Los cambios se juntan y abajo aparece una barra con «N cambios sin guardar», <b>Descartar</b> y <b>Guardar cambios</b>: se guarda <b>una sola vez para todo</b>.</p>
+              <p>Irse a otra pantalla con cambios sin guardar <b>pregunta antes</b>, con el mismo aviso de la aplicación —BR‑GP‑034—: «Hizo cambios en su perfil que todavía no guardó. ¿Qué desea hacer?».</p>
+              <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+              <div class="escenarios">
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Guardar dos cambios</div>
+                  <ul>
+                    <li><b>Dado que</b>el colaborador cambió su teléfono y su correo</li>
+                    <li><b>Cuando</b>mira la barra de abajo</li>
+                    <li><b>Entonces</b>dice «2 cambios sin guardar»</li>
+                    <li><b>Y</b>al pulsar «Guardar cambios» se ve «Cambios guardados» un momento</li>
+                  </ul>
+                </div>
+                <div class="esc ok">
+                  <div class="esc-t"><i></i>Salir sin guardar</div>
+                  <ul>
+                    <li><b>Dado que</b>hay un cambio pendiente</li>
+                    <li><b>Cuando</b>el colaborador toca «Inicio»</li>
+                    <li><b>Entonces</b>el aviso pregunta si guarda o sale sin guardar</li>
+                  </ul>
+                </div>
+              </div>
+              <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+              <ul class="br-cond">
+                <li>Descartar vuelve a lo que estaba guardado, sin preguntar.</li>
+              </ul>
+              <h4 class="br-h"><em>4</em>Trazabilidad</h4>
+              <dl class="br-traza">
+                <div><dt>Ticket</dt><dd>Pendiente</dd></div>
+                <div><dt>Requisitos</dt><dd><a class="id" href="#RF-GP-092">RF‑GP‑092</a> · <a class="id" href="#RF-GP-094">RF‑GP‑094</a></dd></div>
+                <div><dt>Historia de usuario</dt><dd><a class="id" href="#HU-GP-18">HU‑GP‑18</a></dd></div>
+                <div><dt>Pantalla</dt><dd>Editar perfil de usuario</dd></div>
+                <div><dt>Diseño</dt><dd>Prototipado</dd></div>
+              </dl>
+            </div>
+          </li>
+        </ol>
+
     <h3 id="p4-1">4.1 Quién hace qué</h3>
     <div class="tbl"><table>
       <thead><tr><th>Acción</th><th>Recursos Humanos</th><th>Líder de área</th><th>Colaborador</th></tr></thead>
@@ -3784,6 +4334,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td>Editar la ficha de un colaborador</td><td>Sí</td><td>No</td><td>No</td></tr>
         <tr><td>Eliminar un alta por error</td><td>Sí</td><td>No</td><td>No</td></tr>
         <tr><td>Registrar, editar y desactivar clientes externos</td><td>Sí</td><td>No</td><td>No</td></tr>
+        <tr><td>Configurar la ficha: secciones, permisos del colaborador y secciones propias</td><td>Sí</td><td>No</td><td>No</td></tr>
+        <tr><td>Ver su propia ficha en Mi ficha</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+        <tr><td>Editar sus propios datos en Editable</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
         <tr><td>Ver sueldo, salud e historial disciplinario</td><td colspan="3">Por definir — <span class="id">ABIERTA‑04</span></td></tr>
       </tbody>
     </table></div>
@@ -3960,6 +4513,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td class="id">ABIERTA‑16</td><td>¿«Aportes patronales» se muda al bloque de la Gestora, y qué regla impide que contradiga «¿aporta a la Gestora?»?</td><td>RR.HH. y Producto</td></tr>
         <tr><td class="id">ABIERTA‑17</td><td>Subsidio de frontera: ¿qué norma, qué porcentaje y quién califica? ¿Se deriva de la sucursal? ¿El monto se calcula o se digita?</td><td>RR.HH.</td></tr>
         <tr><td class="id">ABIERTA‑10</td><td>La miga «← Colaboradores › Nuevo colaborador» reemplazó al botón de volver. ¿Pasa a las demás pantallas de detalle?</td><td>Diseño UX</td></tr>
+        <tr><td class="id">ABIERTA‑18</td><td>¿Qué datos que el colaborador edita —el carnet, la cuenta bancaria— deberían pasar por aprobación de RR.HH. antes de guardarse?</td><td>RR.HH. y Producto</td></tr>
+        <tr><td class="id">ABIERTA‑19</td><td>¿Puede un campo de una sección propia impedir el alta, como los tres datos de BR‑GP‑007?</td><td>RR.HH. y Producto</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -3968,9 +4523,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <header class="sec-h">
       <span class="sec-n" aria-hidden="true">07</span>
       <h2>Flujos de usuario</h2>
-      <p class="sec-d">Los nueve recorridos que de verdad se hacen en este módulo, con su camino feliz y sus desvíos.</p>
+      <p class="sec-d">Los doce recorridos que de verdad se hacen en este módulo, con su camino feliz y sus desvíos.</p>
     </header>
 
+    <h3 class="rol-h" id="fl-rol-rrhh"><span class="rol-k">Para</span>Recursos Humanos</h3>
+    <p class="rol-d">Los recorridos de quien registra y administra la ficha.</p>
     <div class="flujo">
       <div class="flujo-cab"><span class="flujo-id">F-GP-01</span><h3 id="F-GP-01">Dar de alta a alguien nuevo</h3></div>
       <div class="flujo-meta">
@@ -4131,6 +4688,65 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <div class="desvio"><b>Si el cliente deja de trabajar con la empresa:</b> se lo desactiva desde su fila; no se lo borra.</div>
       </div>
     </div>
+
+    <div class="flujo">
+      <div class="flujo-cab"><span class="flujo-id">F-GP-10</span><h3 id="F-GP-10">Ajustar la ficha a la empresa</h3></div>
+      <div class="flujo-meta">
+        <div><b>Quién</b><span>Recursos Humanos</span></div>
+        <div><b>Desde dónde</b><span>Gestión de Personas › Configuración › Ficha del colaborador</span></div>
+        <div><b>Termina en</b><span>La ficha con las secciones que usa la empresa</span></div>
+      </div>
+      <ol class="pasos">
+        <li>Recorre las pestañas en el riel y abre las secciones para ver sus campos.</li>
+        <li>Apaga el interruptor de lo que la empresa no usa y confirma en el modal, que dice qué cambia.</li>
+        <li>En cada sección elige <b>Para el colaborador</b>: Editable, Solo lectura u Oculta.</li>
+      </ol>
+      <div class="desvios">
+        <div class="desvio"><b>Si la sección es obligatoria:</b> el interruptor no se mueve y el candado dice por qué.</div>
+        <div class="desvio"><b>Si se equivocó:</b> vuelve a encender la sección: los datos vuelven tal como estaban. O pulsa <b>Restablecer</b> para volver a la ficha estándar.</div>
+      </div>
+    </div>
+
+    <div class="flujo">
+      <div class="flujo-cab"><span class="flujo-id">F-GP-11</span><h3 id="F-GP-11">Crear una sección propia</h3></div>
+      <div class="flujo-meta">
+        <div><b>Quién</b><span>Recursos Humanos</span></div>
+        <div><b>Desde dónde</b><span>Configuración de la ficha, la parte donde va</span></div>
+        <div><b>Termina en</b><span>La sección en todas las pantallas de la ficha</span></div>
+      </div>
+      <ol class="pasos">
+        <li>Pulsa <b>«+ Nueva sección en «…»»</b> al pie de la parte.</li>
+        <li>Escribe el nombre y, si quiere, la instrucción; elige dónde va.</li>
+        <li>Agrega los campos con su nombre y su tipo, y marca los obligatorios. Mira la vista previa.</li>
+        <li>Pulsa <b>Crear sección</b>.</li>
+      </ol>
+      <div class="desvios">
+        <div class="desvio"><b>Si falta algo:</b> el aviso de abajo dice qué, y Crear sección espera.</div>
+        <div class="desvio"><b>Si hay que cambiarla:</b> menú «⋯» › <b>Editar sección</b>.</div>
+        <div class="desvio"><b>Si ya no se usa:</b> se la desactiva, o menú «⋯» › <b>Eliminar</b>.</div>
+      </div>
+    </div>
+
+    <h3 class="rol-h" id="fl-rol-colab"><span class="rol-k">Para</span>El colaborador</h3>
+    <p class="rol-d">Los recorridos del propio colaborador, en la web o en el teléfono.</p>
+    <div class="flujo">
+      <div class="flujo-cab"><span class="flujo-id">F-GP-12</span><h3 id="F-GP-12">El colaborador corrige su teléfono</h3></div>
+      <div class="flujo-meta">
+        <div><b>Quién</b><span>El colaborador</span></div>
+        <div><b>Desde dónde</b><span>Perfil, en el teléfono o en la web</span></div>
+        <div><b>Termina en</b><span>El teléfono nuevo en Mi ficha</span></div>
+      </div>
+      <ol class="pasos">
+        <li>Entra a <b>Configuración › Editar perfil de usuario › Información Personal</b>.</li>
+        <li>En <b>Datos de contacto</b> elige el código de país y escribe el número.</li>
+        <li>Pulsa <b>Guardar cambios</b>.</li>
+      </ol>
+      <div class="desvios">
+        <div class="desvio"><b>Si borra un dato obligatorio:</b> la barra dice «Complete el dato obligatorio» y no deja guardar.</div>
+        <div class="desvio"><b>Si sale sin guardar:</b> el aviso pregunta antes de irse.</div>
+        <div class="desvio"><b>Si el dato no está en Editable:</b> lo ve en Mi ficha y pide la corrección a RR.HH.</div>
+      </div>
+    </div>
   </section>
 
   <section id="s8">
@@ -4143,6 +4759,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="nota"><p><strong>Los wireframes no son maquetas.</strong> Dibujan qué hay en cada pantalla, en qué orden y por qué; no dicen de qué color es nada. No reemplazan al prototipo.</p></div>
 
     <h3 id="p8-1">8.1 Las pantallas del módulo</h3>
+    <h4 class="br-h"><em>A</em>Para Recursos Humanos</h4>
+    <p class="rol-d">Las pantallas de Gestión de Personas.</p>
     <div class="tbl"><table>
       <thead><tr><th>Pantalla</th><th>Ruta</th><th>Para qué se entra</th><th>Requisitos</th><th>Wireframe</th></tr></thead>
       <tbody>
@@ -4151,7 +4769,17 @@ td.rg{color:var(--tinta-3);font-weight:700}
         <tr><td><strong>Vista previa</strong></td><td><span class="mono">…/nuevo?paso=previa</span></td><td>Revisar la ficha como expediente y dar de alta</td><td class="id">RF‑GP‑040 a 046</td><td><a href="#W-GP-03">W‑GP‑03</a></td></tr>
         <tr><td><strong>Ficha del colaborador</strong></td><td><span class="mono">/personas/colaboradores/:id</span></td><td>Ver y editar la ficha de alguien dado de alta. Especificada, sin construir</td><td class="id">RF‑GP‑050 a 055</td><td>—</td></tr>
         <tr><td><strong>Clientes externos</strong></td><td><span class="mono">/personas/clientes-externos</span></td><td>Registrar a las personas de afuera que participan en las evaluaciones</td><td class="id">RF‑GP‑070 a 076</td><td><a href="#W-GP-04">W‑GP‑04</a></td></tr>
+        <tr><td><strong>Configuración de la ficha</strong></td><td><span class="mono">/personas/configuracion/ficha</span></td><td>Elegir qué secciones usa la empresa, qué hace el colaborador con cada una, y crear secciones propias</td><td class="id">RF‑GP‑100 a 110</td><td>—</td></tr>
         <tr><td><strong>Organigrama</strong></td><td><span class="mono">/organizacion/organigrama</span></td><td>Vive en Organización; la antigua ruta de personas redirige ahí</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <h4 class="br-h"><em>B</em>Para el colaborador</h4>
+    <p class="rol-d">Las pantallas de Mi espacio, en la web y en el teléfono.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Pantalla</th><th>Ruta</th><th>Para qué se entra</th><th>Requisitos</th><th>Wireframe</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Mi ficha</strong></td><td><span class="mono">/mi-espacio/perfil</span> y Perfil del teléfono</td><td>El colaborador lee su ficha y sus documentos</td><td class="id">RF‑GP‑080 a 085</td><td>—</td></tr>
+        <tr><td><strong>Editar perfil de usuario</strong></td><td>Mi perfil › Configuración</td><td>El colaborador cambia lo que la empresa le deja editar</td><td class="id">RF‑GP‑090 a 094</td><td>—</td></tr>
       </tbody>
     </table></div>
 
@@ -4318,12 +4946,15 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <header class="sec-h">
       <span class="sec-n" aria-hidden="true">09</span>
       <h2>Historias de usuario</h2>
-      <p class="sec-d">Trece historias con sus criterios de aceptación, y el plan de prototipado. Es contra esto que se acepta o se devuelve lo construido.</p>
+      <p class="sec-d">Dieciocho historias con sus criterios de aceptación, y el plan de prototipado. Es contra esto que se acepta o se devuelve lo construido.</p>
     </header>
 
     <div class="nota"><p><strong>Un criterio de aceptación se marca hecho o no hecho delante de la pantalla, sin discutir.</strong> Por eso están escritos como afirmaciones comprobables y no como intenciones.</p></div>
 
-    <h3 id="p9-1">9.1 Las trece historias y sus criterios de aceptación</h3>
+    <h3 id="p9-1">9.1 Las dieciocho historias y sus criterios de aceptación</h3>
+
+    <h3 class="rol-h" id="h-rol-rrhh"><span class="rol-k">Para</span>Recursos Humanos</h3>
+    <p class="rol-d">Lo que necesita quien registra y administra la ficha.</p>
 
     <div class="hu">
       <div class="hu-h"><b id="HU-GP-01">HU-GP-01 · Empezar un alta y terminarla otro día</b></div>
@@ -4512,6 +5143,80 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div class="hu-r">Se apoya en <b>BR‑GP‑030 a 032 · RF‑GP‑070 a 076</b> · Pantalla: Clientes externos</div>
     </div>
 
+    <div class="hu">
+      <div class="hu-h"><b id="HU-GP-14">HU-GP-14 · Usar solo las secciones que necesito</b></div>
+      <div class="hu-b">
+        <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> apagar las secciones de la ficha que mi empresa no usa <b>para</b> que el alta pida solo lo necesario.</p>
+        <h6>Criterios de aceptación</h6>
+        <ul>
+          <li>Cada sección tiene un interruptor; las obligatorias no se apagan.</li>
+          <li>Apagar y encender piden confirmación y dicen qué cambia.</li>
+          <li>Una sección apagada no sale en ninguna pantalla de la ficha, y sus datos no se borran.</li>
+        </ul>
+      </div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑035 · BR‑GP‑036 · RF‑GP‑100 a 102, 104 y 105</b> · Pantalla: Configuración de la ficha</div>
+    </div>
+
+    <div class="hu">
+      <div class="hu-h"><b id="HU-GP-15">HU-GP-15 · Decidir qué ve y qué edita el colaborador</b></div>
+      <div class="hu-b">
+        <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> elegir, sección por sección, si el colaborador la edita, solo la ve o no la ve <b>para</b> que mantenga al día lo suyo sin tocar lo laboral.</p>
+        <h6>Criterios de aceptación</h6>
+        <ul>
+          <li>Cada sección ofrece Editable, Solo lectura y Oculta.</li>
+          <li>En lo laboral, Editable está apagado y dice por qué.</li>
+          <li>Lo elegido se ve al instante en Mi ficha y en Editar perfil.</li>
+        </ul>
+      </div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑037 · RF‑GP‑103, 085 y 090</b> · Pantalla: Configuración de la ficha</div>
+    </div>
+
+    <div class="hu">
+      <div class="hu-h"><b id="HU-GP-16">HU-GP-16 · Registrar datos que la ficha no trae</b></div>
+      <div class="hu-b">
+        <p class="hu-q"><b>Como</b> responsable de Recursos Humanos, <b>quiero</b> crear secciones propias con sus campos <b>para</b> registrar lo que mi empresa necesita, como las tallas de uniforme.</p>
+        <h6>Criterios de aceptación</h6>
+        <ul>
+          <li>«Nueva sección» abre un modal con el formulario y la vista previa en vivo.</li>
+          <li>Hay nueve tipos de campo, los mismos de la ficha.</li>
+          <li>La sección sale en todas las pantallas de la ficha, al final de su parte.</li>
+          <li>Se edita y se elimina desde su menú «⋯»; si tiene datos, eliminar pide escribir la palabra.</li>
+        </ul>
+      </div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑038 · BR‑GP‑039 · RF‑GP‑106 a 110</b> · Pantalla: Configuración de la ficha</div>
+    </div>
+
+    <h3 class="rol-h" id="h-rol-colab"><span class="rol-k">Para</span>El colaborador</h3>
+    <p class="rol-d">Lo que necesita el colaborador de su propia ficha.</p>
+
+    <div class="hu">
+      <div class="hu-h"><b id="HU-GP-17">HU-GP-17 · Ver mi ficha desde el celular</b></div>
+      <div class="hu-b">
+        <p class="hu-q"><b>Como</b> colaborador, <b>quiero</b> ver mi ficha y mis documentos <b>para</b> saber qué tiene registrado la empresa y qué tengo que renovar.</p>
+        <h6>Criterios de aceptación</h6>
+        <ul>
+          <li>Mi ficha muestra una fila por pestaña y cada una abre su pantalla.</li>
+          <li>Solo se ven los datos con valor; el sueldo se tapa hasta pedir verlo.</li>
+          <li>Documentación dice qué documentos vencen o ya vencieron.</li>
+        </ul>
+      </div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑040 · RF‑GP‑080 a 085</b> · Pantalla: Mi ficha</div>
+    </div>
+
+    <div class="hu">
+      <div class="hu-h"><b id="HU-GP-18">HU-GP-18 · Mantener al día mis datos</b></div>
+      <div class="hu-b">
+        <p class="hu-q"><b>Como</b> colaborador, <b>quiero</b> cambiar yo mismo mis datos personales y familiares <b>para</b> no tener que pedírselo a Recursos Humanos.</p>
+        <h6>Criterios de aceptación</h6>
+        <ul>
+          <li>Editar perfil muestra solo lo que la empresa dejó en Editable.</li>
+          <li>Los campos son los de la ficha: el celular con su código de país, las listas con buscador.</li>
+          <li>Los cambios se guardan juntos, y un obligatorio no se puede dejar vacío.</li>
+        </ul>
+      </div>
+      <div class="hu-r">Se apoya en <b>BR‑GP‑037 · BR‑GP‑041 · BR‑GP‑042 · RF‑GP‑090 a 094</b> · Pantalla: Editar perfil de usuario</div>
+    </div>
+
     <h3 id="p9-2">9.2 Plan de prototipado</h3>
     <div class="tbl"><table>
       <thead><tr><th>Etapa</th><th>Qué se prototipa</th><th>La pregunta que contesta</th><th>Estado</th></tr></thead>
@@ -4545,6 +5250,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div class="tbl"><table>
       <thead><tr><th>Versión</th><th>Fecha</th><th>Qué cambió</th></tr></thead>
       <tbody>
+        <tr><td class="rg"><strong>1.104</strong></td><td>6 oct 2026</td><td><strong>El documento se pone al día con lo que se construyó del 1 al 6 de octubre.</strong> Tres pantallas nuevas en Funcionalidades: <b>3.12 Mi ficha del colaborador</b>, la ficha vista por su dueño en la web y en el teléfono, solo para leer; <b>3.13 Editar perfil de usuario</b>, donde el colaborador cambia lo que la empresa le deja, con los controles de la ficha de RR.HH. —el celular con su código de país, las listas que se abren debajo del campo—; y <b>3.14 Configuración de la ficha</b>, donde la empresa activa o desactiva secciones, elige qué hace el colaborador con cada una —Editable, Solo lectura u Oculta— y crea secciones propias con sus campos. Un grupo nuevo de reglas, «La ficha a la medida de la empresa», con <b>BR‑GP‑035 a 039</b>; los requisitos <b>RF‑GP‑080 a 110</b>; los flujos <b>F‑GP‑10 a 12</b>; las historias <b>HU‑GP‑14 a 18</b>; <b>ABIERTA‑18 y 19</b>; cinco porqués en el anexo; y FUERA‑06 a 10. «Otro» vuelve a Parentesco del contacto de emergencia, con su caja «¿Qué parentesco?». Y <b>el documento se ordena por quién usa cada cosa</b>, a pedido del equipo: Funcionalidades, Reglas de negocio, Flujos, Pantallas e Historias separan lo de <b>Recursos Humanos</b> de lo del <b>colaborador</b>. Funcionalidades se renumera —3.9 Configuración de la ficha, 3.10 Mi ficha, 3.11 Editar perfil y 3.12 a 3.14 lo de todo el módulo— y entran <b>BR‑GP‑040 a 042</b>, las reglas del colaborador: Mi ficha solo se lee, solo edita lo Editable y se guarda todo junto. Los códigos no cambian.</td></tr>
         <tr><td class="rg"><strong>1.103</strong></td><td>30 sep 2026</td><td><strong>El filtro Tipo de Archivos agrupa por pestaña</strong>, a pedido del equipo: Información Personal —identidad, nacimiento, croquis, licencias y los papeles del garante—, Recursos y Activos —las entregas firmadas— y Documentos agregados. Y se corrige que los menús desplegables de la ficha se abrieran fuera de la pantalla después del fundido al cambiar de parte</td></tr>
         <tr><td class="rg"><strong>1.102</strong></td><td>30 sep 2026</td><td><strong>En Archivos cada documento se nombra solo</strong>, a pedido del equipo: llega sin la sección que lo explicaba. «Documento escaneado» pasa a <b>Documento de identidad (anverso y reverso)</b>, el secundario a <b>Documento de identidad secundario</b>, «Croquis» a <b>Croquis del domicilio</b>, «Licencia o certificado» a <b>Licencia o certificación</b> —que suma el tipo al elegirlo— y «Documento de garantía» a <b>Documento de respaldo de la garantía</b>. En su sección de origen se quedan los nombres cortos</td></tr>
         <tr><td class="rg"><strong>1.101</strong></td><td>30 sep 2026</td><td><strong>La ficha se mueve</strong>, a pedido del equipo, con medida: las partes del riel y las secciones se abren y se cierran creciendo y encogiéndose, el contenido de una parte entra con un fundido al cambiar, y la pastilla de una sección brilla una vez al completarse. Todo dura menos de 0,3 segundos y se apaga con «reducir movimiento». Cerrar una sección no borra lo escrito</td></tr>
@@ -4672,6 +5378,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <div><h5 id="ax-9">Por qué pestañas y no once pasos</h5><p>Once pasos en una columna eran once decisiones antes de empezar, y el equipo los ordenó como se piensan los datos de una persona: quién es, dónde trabaja y cómo se le paga, sus papeles, lo que se le entrega y cómo entra al sistema. Se agrupó sin quitar nada —cada parte conserva las secciones y los campos del paso que era— y sin cambiar las claves, así que los enlaces, los avisos y las cuentas siguieron funcionando.</p></div>
       <div><h5 id="ax-10">Por qué las partes cuelgan del riel</h5><p>Se probaron las partes como pestañas arriba del contenido, como subtítulos dentro de la vista y como un índice. Colgadas de su pestaña, numeradas como un índice —1.1, 1.2—, dicen a la vez dónde se está y qué queda en esa pestaña, sin un segundo menú que mirar. La parte activa se pinta del mismo verde que su pestaña: un recuadro con borde se leía como un campo de formulario. En el celular, donde no hay dónde colgarlas, vuelven a ser píldoras arriba.</p></div>
       <div><h5 id="ax-11">Por qué Preferencias se escribe a mano</h5><p>Se ofrecieron categorías, rangos de precio, prioridades y etiquetas para los regalos y las experiencias. El equipo prefirió que cada persona escriba lo que quiera, una fila por deseo: nadie tiene que decidir en qué categoría va un curso de fotografía, y lo que se lee es exactamente lo que la persona pidió.</p></div>
+      <div><h5 id="ax-12">Por qué la configuración se ve como «Nuevo colaborador»</h5><p>La primera versión fue una lista con pestañas propias, y funcionaba, pero era otro mapa de la misma ficha. Con el riel, las partes y los acordeones de «Nuevo colaborador», RR.HH. encuentra cada sección donde ya sabe que está, y al abrirla ve los campos tal como salen en la ficha: decide mirando lo que va a cambiar.</p></div>
+      <div><h5 id="ax-13">Por qué «Editable, Solo lectura, Oculta»</h5><p>Primero fue «Oculto · Solo ver · Puede editar», y se leía como permisos de RR.HH., que es quien mira la pantalla. Después «El colaborador puede: Editar · Solo ver · No ver», donde «puede no ver» dice «quizás no la vea». Quedaron tres adjetivos que describen la sección bajo el título «Para el colaborador», con un ícono cada uno —lápiz, ojo, ojo tachado—: son los términos de siempre en los sistemas de RR.HH. y se repasan cuarenta y cinco filas sin leer cada palabra. «En la ficha» siguió el mismo camino: Activa, Inactiva u Obligatoria.</p></div>
+      <div><h5 id="ax-14">Por qué la sección nueva se arma en un modal</h5><p>Se armó primero en un panel lateral. En toda la plataforma crear y editar se hace en modales, y un panel solo conviene cuando hace falta seguir viendo la página de atrás; aquí la vista previa va dentro del propio modal, así que el modal grande, con el formulario y la vista previa lado a lado, no pierde nada y no enseña una forma nueva.</p></div>
+      <div><h5 id="ax-15">Por qué el menú «⋯» en las secciones propias</h5><p>Editar y Eliminar estuvieron dentro del acordeón: solo se veían al abrirlo, flotaban sobre la descripción y Eliminar pesaba igual que Editar. En un menú «⋯» al final de la cabecera se ven con la sección cerrada, en la fila donde están sus otras decisiones, y Eliminar queda un paso más lejos, separado y en rojo. Todas las filas reservan su hueco para que las columnas no se corran.</p></div>
+      <div><h5 id="ax-16">Por qué las listas del teléfono se abren debajo del campo</h5><p>La lista del sistema se abría enorme y fuera del teléfono. Se probó una hoja que sube desde abajo, como en muchas apps, y el equipo prefirió la forma de «Nuevo colaborador»: la lista pegada a su campo, con la opción elegida en verde y su tilde, y un buscador cuando hay más de ocho. Es la misma lista en la web y en el teléfono, a otra escala.</p></div>
     </div>
   </section>
 
@@ -4679,7 +5390,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 
 <footer class="pie">
-  <div>Documentación del módulo de gestión de personas — versión 1.103, 30 de septiembre de 2026. Souly HR. Documenta la ficha del colaborador tal como está en el prototipo, con los mismos capítulos que el documento de <a href="reglas-de-negocio.html">Organización</a>. <strong>Las treinta y cuatro reglas están en estado borrador.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
+  <div>Documentación del módulo de gestión de personas — versión 1.104, 6 de octubre de 2026. Souly HR. Documenta la ficha del colaborador tal como está en el prototipo, con los mismos capítulos que el documento de <a href="reglas-de-negocio.html">Organización</a>. <strong>Las cuarenta y dos reglas están en estado borrador.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
 </footer>
 
 

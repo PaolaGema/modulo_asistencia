@@ -2,7 +2,7 @@ Souly HR · Módulo de personas · Documentación de producto
 
 # Documentación de la ficha del colaborador
 
-> **Documentación de la ficha del colaborador — versión en Markdown.** Es el documento del módulo de gestión de personas. Reúne completo el documento de producto `public/gestion-de-personas.html` (versión 1.103, 30 de septiembre de 2026): glosario, contexto, integraciones, funcionalidades, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Describe la ficha tal como se ve en la versión publicada. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que muestran.
+> **Documentación de la ficha del colaborador — versión en Markdown.** Es el documento del módulo de gestión de personas. Reúne completo el documento de producto `public/gestion-de-personas.html` (versión 1.104, 6 de octubre de 2026): glosario, contexto, integraciones, funcionalidades, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Describe la ficha tal como se ve en la versión publicada. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que muestran.
 
 ## Índice
 
@@ -23,8 +23,8 @@ La ficha del colaborador deja de ser un formulario de doscientos campos y pasa a
 
 ![Tres VIA juntos: uno con planilla y traje, otro con planos y chaleco de obra, y otro con una tableta de indicadores](public/assets/imagenes/via_rrhh_proyectos.png)
 
-- **Versión:** 1.103
-- **Fecha:** 30 de septiembre de 2026
+- **Versión:** 1.104
+- **Fecha:** 6 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
 - **Estado:** Borrador
@@ -35,11 +35,11 @@ La ficha del colaborador deja de ser un formulario de doscientos campos y pasa a
 | datos distintos en la ficha | 240 |
 | datos del mínimo legal | 32 |
 | datos que impiden el alta | 3 |
-| reglas de negocio | 34 |
-| requisitos funcionales | 52 |
-| historias de usuario | 13 |
+| reglas de negocio | 42 |
+| requisitos funcionales | 74 |
+| historias de usuario | 18 |
 | diagramas | 5 |
-| decisiones abiertas | 15 |
+| decisiones abiertas | 17 |
 
 ### La ficha, de un vistazo
 
@@ -262,7 +262,7 @@ Dar de alta a alguien hoy es juntar papeles que llegan de manos distintas y en d
 
 **Entra en esta versión:** la lista de colaboradores, el alta en cinco pestañas con su borrador, el reingreso, la vista previa como expediente, el alta que sienta a la persona en su puesto y los clientes externos.
 
-**Especificado pero sin construir:** ver y editar la ficha de alguien dado de alta —3.6— y eliminar o desvincular —3.7—. **No entra:** la liquidación de una desvinculación y los exportadores a cada entidad. Están contados en 3.11.
+**Especificado pero sin construir:** ver y editar la ficha de alguien dado de alta —3.6— y eliminar o desvincular —3.7—. **No entra:** la liquidación de una desvinculación y los exportadores a cada entidad. Están contados en 3.14.
 
 **Prioridades.** Cada requisito lleva una: Oblig. sin esto no se entrega; Import. se entrega en la etapa que le toca; Deseable si hay tiempo.
 
@@ -352,9 +352,13 @@ PLANILLAS · ERP
 
 ## 03 · Funcionalidades
 
-*Cincuenta y dos requisitos funcionales y cinco no funcionales, pantalla por pantalla: la lista, la ficha, editar, eliminar y los clientes externos, cada uno con su condición de comprobación.*
+*Setenta y cuatro requisitos funcionales y cinco no funcionales, pantalla por pantalla: la lista, la ficha, editar, eliminar, los clientes externos, Mi ficha, Editar perfil y la configuración de la ficha, cada uno con su condición de comprobación.*
 
 Cada requisito lleva prioridad —según la escala de 1.7—, y una condición de comprobación, que es lo que QA va a verificar. **Los números son estables** y los bloques saltan de diez en diez para poder crecer sin mover a nadie.
+
+### Para Recursos Humanos
+
+*Las pantallas con las que Recursos Humanos registra, mantiene y configura la ficha de cada persona.*
 
 ### 3.1 Lista de colaboradores
 
@@ -665,7 +669,116 @@ Si falta un obligatorio, el aviso aparece debajo del campo y dice el motivo: **�
 | RF‑GP‑075 | Cada fila se puede **activar o desactivar**; no se puede eliminar | Oblig. | Un cliente desactivado se ve atenuado y con la insignia «Inactivo». *BR‑GP‑032* |
 | RF‑GP‑076 | El rol del cliente se elige de una lista; **Evaluador** viene elegido | Import. | Un cliente nuevo se guarda como Evaluador sin tocar el campo |
 
-### 3.9 Requisitos no funcionales
+### 3.9 Configuración de la ficha
+
+En **Gestión de Personas › Configuración › Ficha del colaborador** (`/personas/configuracion/ficha`). La ficha trae todo lo que pide el estudio y no toda empresa lo usa: aquí cada empresa la **ajusta a su medida**. Decide, sección por sección, si la usa y qué puede hacer el colaborador con ella, y **crea sus propias secciones** con sus campos.
+
+Se ve como **«Nuevo colaborador»**: el mismo riel con sus pestañas y partes, y cada sección en su acordeón, para que RR.HH. encuentre cada sección donde ya sabe que está. El aro de cada pestaña dice cuántas de sus secciones están en uso.
+
+#### A · La pantalla
+
+| Elemento | Qué muestra | Por qué |
+| --- | --- | --- |
+| **Cabecera** | «Ficha del colaborador» · «Elija qué secciones usa su empresa y qué puede hacer el colaborador con cada una», y debajo «45 de 45 secciones en uso · 15 las edita el colaborador». **Restablecer** aparece solo si algo cambió | El estado de la ficha de un vistazo |
+| **Títulos de columna** | «Sección · En la ficha · Para el colaborador». En pantallas angostas, «Para el colaborador» va encima de los botones de cada sección | Dice que la segunda decisión es sobre el colaborador, no sobre RR.HH. |
+| **En la ficha** | Un interruptor con su estado: **Activa**, **Inactiva** u **Obligatoria** —encendido y con candado— | Todas las filas con interruptor: la columna se lee pareja |
+| **Para el colaborador** | Tres botones juntos: **✎ Editable · 👁 Solo lectura · ⊘ Oculta** | Tres opciones fijas se eligen mejor viéndolas todas |
+| **Al abrir una sección** | Su instrucción, cuántos campos tiene y cuántas fichas ya tienen datos, y sus campos tal como salen en la ficha, sin poder escribir | Se sabe qué se activa o se desactiva |
+| **Sección inactiva** | Su fila más tenue y sus botones apagados, para poder activarla otra vez | No desaparece de aquí: es el único lugar donde se vuelve a encender |
+
+#### B · Las secciones propias
+
+**«+ Nueva sección en «…»»**, al pie de cada parte, abre un modal en dos columnas: a la izquierda se arma la sección —nombre, instrucción opcional, dónde va y sus campos— y a la derecha se ve **en vivo**, como saldrá en la ficha, y se puede probar escribiendo. Abajo se dice lo primero que falta; **Crear sección** se habilita cuando no falta nada. Cada campo lleva nombre, tipo, la casilla **Obligatorio**, flechas para ordenarlo y su papelera.
+
+| Tipo de campo | Cómo sale en la ficha |
+| --- | --- |
+| **Texto corto** | Una caja de una línea |
+| **Texto largo** | Una caja de varias líneas, a todo el ancho |
+| **Número** | Una caja que solo admite cifras |
+| **Fecha** | El calendario de la ficha |
+| **Lista de opciones** | Un desplegable con las opciones que se escriban, una por línea —al menos dos— |
+| **Sí / No** | Dos botones |
+| **Celular** | El número con su código de país, que arranca en Bolivia |
+| **Correo electrónico** | Una caja de correo |
+| **Archivo** | El recuadro para subir un PDF o una imagen; además aparece en Archivos y en Documentación |
+
+La sección nueva queda al final de su parte con la etiqueta **Propia**, el mismo interruptor y los mismos botones que las demás, y al final de su cabecera un menú **«⋯»** con **Editar sección** y, separado y en rojo, **Eliminar**. Sale en «Nuevo colaborador», en la ficha de RR.HH., en Mi ficha y, si es Editable, en Editar perfil.
+
+| # | Requisito | Prior. | Cómo se comprueba |
+| --- | --- | --- | --- |
+| RF‑GP‑100 | La pantalla usa **el riel y los acordeones** de «Nuevo colaborador» y lista todas las secciones, también las inactivas | Oblig. | Una sección desactivada sigue en su parte, más tenue |
+| RF‑GP‑101 | Cada sección tiene su interruptor; las **obligatorias** lo muestran encendido y con candado | Oblig. | «Datos de contacto» no se puede apagar. *BR‑GP‑035* |
+| RF‑GP‑102 | **Activar y desactivar** piden confirmación en un modal que dice qué cambia en Nuevo colaborador, en Mi ficha y con lo ya registrado | Oblig. | Apagar una sección con datos dice cuántos colaboradores los tienen. *BR‑GP‑036* |
+| RF‑GP‑103 | **Para el colaborador**: Editable, Solo lectura u Oculta; Editable está apagado en lo laboral | Oblig. | En «Datos de pago» no se puede elegir Editable. *BR‑GP‑037* |
+| RF‑GP‑104 | Una sección **inactiva** desaparece de Nuevo colaborador, de la ficha de RR.HH., de Mi ficha, de Editar perfil y, con sus archivos, de Documentación | Oblig. | Sin «Garantes», sus dos documentos salen de Archivos |
+| RF‑GP‑105 | **Restablecer** vuelve a la ficha estándar y conserva las secciones propias | Import. | Después de restablecer, «Tallas de uniforme» sigue ahí y activa |
+| RF‑GP‑106 | **«Nueva sección»** al pie de cada parte abre un modal con el formulario y la vista previa en vivo | Oblig. | Escribir el nombre de un campo lo muestra al instante en la vista previa. *BR‑GP‑038* |
+| RF‑GP‑107 | Una sección propia ofrece **nueve tipos de campo**, los mismos controles de la ficha | Oblig. | Un campo Celular sale con «BO +591» |
+| RF‑GP‑108 | **Crear sección** se habilita con un nombre, al menos un campo con nombre y cada lista con dos opciones; abajo se dice lo que falta | Oblig. | Una lista con una sola opción dice «La lista «Talla» necesita al menos dos opciones» |
+| RF‑GP‑109 | Las secciones propias llevan la etiqueta **Propia** y el menú **«⋯»** con Editar sección y Eliminar | Oblig. | Las secciones del estudio no tienen menú «⋯». *BR‑GP‑039* |
+| RF‑GP‑110 | Una sección propia sale **en todas las pantallas de la ficha**, al final de su parte, y sus archivos en Documentación | Oblig. | Creada en Información Familiar, aparece en «Nuevo colaborador» como «0 de 3» |
+
+### Para el colaborador
+
+*Lo que el propio colaborador ve y cambia de su ficha, en la web y en el teléfono.*
+
+### 3.10 Mi ficha del colaborador
+
+En **Mi espacio › Mi perfil** (`/mi-espacio/perfil`) y en la pestaña **Perfil** del teléfono. Es la misma ficha que registra Recursos Humanos, **vista por su dueño y solo para leer**: las mismas secciones, los mismos rótulos y los mismos datos, porque se dibuja con las mismas funciones que la ficha de RR.HH. Lo que la empresa le deja cambiar se edita en **Configuración › Editar perfil de usuario** —3.11—.
+
+La web y el teléfono muestran lo mismo: leen la ficha del mismo lugar y deciden qué se enseña con las mismas reglas.
+
+#### A · Lo que se ve
+
+| Elemento | Qué muestra | Por qué |
+| --- | --- | --- |
+| **Cabecera del perfil** | Foto, nombre, cargo, área, sucursal y antigüedad | Quién es, como lo ve la empresa |
+| **Mi ficha** | Una fila por pestaña de la ficha —menos Configuración de Colaborador— con su pista o su cuenta: «12 documentos · 2 por renovar», «4 asignados». Cada fila abre su pantalla | Se lee, no se llena: una lista y no el riel numerado de la ficha de alta |
+| **Una sección** | Un acordeón con renglones de expediente —rótulo, línea de puntos, dato—. Solo lo que tiene valor; las secciones vacías no salen, salvo en Recursos y Activos, donde «no tiene vehículo asignado» también es un dato | Veinte «Sin registrar» taparían lo que sí está |
+| **El aviso de arriba** | «Estos datos los mantiene usted al día…» si en la pestaña hay algo que él edita; «Estos datos los registró RR.HH.» si no; «Lo que la empresa le entregó» en Recursos y Activos | Dice de entrada quién mantiene cada dato y dónde se cambia |
+| **Montos reservados** | El haber básico y el anticipo de quincena se ven como «••••••» hasta pulsar «Mostrar montos» | El sueldo no tiene por qué quedar a la vista de quien pase detrás de la pantalla |
+| **Documentación** | Todos los archivos juntos, agrupados por pestaña, con fecha de emisión y de vencimiento y su estado: Vigente, Por vencer —60 días o menos— o Vencido. Tocarlo abre la vista previa | Sus papeles en un solo lugar, y lo que hay que renovar a la vista |
+| **Preferencias** | Los regalos y las experiencias que le gustarían, en la portada del perfil | Es lo más personal de la ficha y lo que más se mira |
+
+> **En la maqueta:** Mi ficha muestra fichas de ejemplo para tres usuarios —Carlos, María y Juan—: todavía no lee la ficha que registró RR.HH. al dar de alta. Ver FUERA‑08.
+
+| # | Requisito | Prior. | Cómo se comprueba |
+| --- | --- | --- | --- |
+| RF‑GP‑080 | **Mi ficha** muestra una fila por pestaña de la ficha, menos Configuración de Colaborador, y cada fila abre su pantalla | Oblig. | Abrir Información Laboral muestra sus partes una debajo de otra |
+| RF‑GP‑081 | Solo se enseñan los datos **con valor**; una sección vacía no sale, salvo en Recursos y Activos | Import. | Una ficha sin cónyuge no muestra «Datos del cónyuge» |
+| RF‑GP‑082 | El haber básico y el anticipo se **tapan** hasta pulsar «Mostrar montos» | Import. | Al abrir Compensación el haber dice «••••••» |
+| RF‑GP‑083 | **Documentación** reúne los archivos con su estado medido contra hoy: Vigente, Por vencer (60 días o menos) o Vencido | Oblig. | Un carnet que vence en 40 días se ve «Por vencer» |
+| RF‑GP‑084 | La web y el teléfono muestran **lo mismo** | Oblig. | Un dato cambiado en el teléfono se lee igual en la web |
+| RF‑GP‑085 | Lo que la empresa **ocultó o desactivó** no aparece | Oblig. | Con «Datos patrimoniales» en Oculta, no sale en Mi ficha. *BR‑GP‑036, BR‑GP‑037* |
+
+### 3.11 Editar perfil de usuario
+
+En **Mi perfil › Configuración › Editar perfil de usuario**, en la web y en el teléfono. Es donde el colaborador **cambia por su cuenta** las secciones que la empresa le deja en **Editable** —de fábrica, su Información Personal y su Información Familiar, con los documentos que van en ellas— y sus preferencias. Se guarda al momento, sin pasar por RR.HH.
+
+#### A · Cómo se edita
+
+| Elemento | Qué hace | Por qué |
+| --- | --- | --- |
+| **Las categorías** | Una por parte de la ficha que tenga algo editable, y Preferencias al final si también se puede editar. En la web van en el riel, como en «Nuevo colaborador»; en el teléfono, en una lista | Se edita por partes, como se registra |
+| **Los campos** | Abiertos desde que se entra, con **todos sus campos aunque estén vacíos**, y con los controles y las reglas de la ficha de RR.HH.: el celular con su código de país, las listas con buscador desde ocho opciones, Sí/No en dos botones, las fechas con su calendario, solo cifras donde el dato es un número, y «Otro» abre su caja para escribir cuál | Quien todavía no tiene teléfono fijo tiene que poder agregarlo; y un dato tiene que verse y portarse igual lo escriba quien lo escriba |
+| **Las listas en el teléfono** | Se abren pegadas debajo de su campo —o encima, si abajo no caben antes de la barra—, con la opción elegida en verde y su tilde | Una lista del sistema se abría enorme y fuera del teléfono |
+| **Foto y documentos** | Se cambian ahí mismo, en su sección | Son parte de los datos que él mantiene |
+| **Guardar** | Los cambios se juntan; abajo aparece una barra con «N cambios sin guardar», **Descartar** y **Guardar cambios** | Una sola vez para todo, y se sabe cuánto falta guardar |
+| **Sin nada que editar** | «Su empresa no tiene datos de la ficha para que usted los edite. Si algo no está bien, pida la corrección a RR.HH.» | No se muestra un formulario vacío |
+
+| # | Requisito | Prior. | Cómo se comprueba |
+| --- | --- | --- | --- |
+| RF‑GP‑090 | Muestra **solo las secciones en Editable**, con todos sus campos aunque estén vacíos | Oblig. | Quien no tiene teléfono fijo puede agregarlo. *BR‑GP‑037* |
+| RF‑GP‑091 | Los campos usan **los controles de la ficha de RR.HH.**, en la web y en el teléfono | Oblig. | En el teléfono el celular trae «BO +591» y la lista de países se puede buscar |
+| RF‑GP‑092 | Los cambios se guardan **juntos** con «Guardar cambios», y la barra los cuenta | Oblig. | Cambiar dos datos muestra «2 cambios sin guardar». *BR‑GP‑042* |
+| RF‑GP‑093 | Un dato **obligatorio** que el colaborador vacía impide guardar, y lo dice | Oblig. | Borrar el número de celular muestra «Este dato es obligatorio». *BR‑GP‑041* |
+| RF‑GP‑094 | Salir con cambios sin guardar **pregunta antes** | Import. | Tocar «Inicio» con un cambio pendiente abre el aviso. *BR‑GP‑034* |
+
+### Para todo el módulo
+
+*Lo que vale para todas las pantallas: calidad, textos y lo que queda fuera de esta versión.*
+
+### 3.12 Requisitos no funcionales
 
 | # | Requisito | Cómo se comprueba |
 | --- | --- | --- |
@@ -675,7 +788,7 @@ Si falta un obligatorio, el aviso aparece debajo del campo y dice el motivo: **�
 | RNF‑GP‑04 | Respeta **«reducir movimiento»**: las animaciones de condicionales, resaltado, barra, el despliegue de las partes del riel y de las secciones, el fundido al cambiar de parte y el brillo de una sección completa se apagan | Con la preferencia activa, cambiar de paso no anima nada |
 | RNF‑GP‑05 | Los **datos sensibles** —salud, historial disciplinario, sueldo— se muestran solo a quien corresponde | Pendiente de definir quién es quien corresponde. *ABIERTA‑04* |
 
-### 3.10 Cómo se escriben los textos
+### 3.13 Cómo se escriben los textos
 
 - **Las ayudas van en usted.** La ficha la llena Recursos Humanos o el propio colaborador: «¿Cuál es su fecha de ingreso?», no «¿Cuál es tu…?».
 - **«Dar de alta», no «crear».** A una persona no se la crea.
@@ -683,7 +796,7 @@ Si falta un obligatorio, el aviso aparece debajo del campo y dice el motivo: **�
 - **Los títulos de sección dicen qué contienen**, en tono de documento: «Datos de haber básico», «Datos de pago», «Jornada laboral». No «Cuánto gana» ni «Dónde se le deposita».
 - **Un aviso dice el dato y el motivo**: «Falta la fecha de ingreso: sin ella no hay desde cuándo contar su antigüedad».
 
-### 3.11 Fuera de alcance de esta versión
+### 3.14 Fuera de alcance de esta versión
 
 | # | Qué | Por qué queda fuera |
 | --- | --- | --- |
@@ -692,11 +805,19 @@ Si falta un obligatorio, el aviso aparece debajo del campo y dice el motivo: **�
 | FUERA‑03 | **Los exportadores** a cada entidad —F20, Gestora, Caja, RC‑IVA— | La ficha guarda los datos en la forma que cada uno necesita; armar los archivos es otra entrega |
 | FUERA‑04 | **El historial del haber básico**, versionado con vigencia | Hoy se guarda el valor vigente |
 | FUERA‑05 | **Editar los permisos por rol** | El directorio los muestra en una tabla fija |
-| FUERA‑06 | **Que el colaborador llene su propia ficha** | Esta versión la llena Recursos Humanos |
+| FUERA‑06 | **Que el colaborador llene su ficha completa** | Desde 3.11 edita lo que la empresa le deja en Editable; el resto lo sigue registrando Recursos Humanos |
+| FUERA‑07 | **Pedir una corrección a RR.HH. desde Mi ficha** | Mi ficha dice que lo que no puede editar se corrige con RR.HH., pero todavía no hay un botón para pedirlo |
+| FUERA‑08 | **Mi ficha conectada a la ficha que registró RR.HH.** | En la maqueta muestra fichas de ejemplo; lo que el colaborador edita se guarda aparte |
+| FUERA‑09 | **Permisos campo por campo y «Editar con aprobación»** | Es la tercera fase de la configuración: hoy el permiso es por sección |
+| FUERA‑10 | **Bloques que se repiten en una sección propia** | Como «Agregar otro hijo». Hoy una sección propia tiene una sola copia de sus campos |
 
 ## 04 · Reglas de negocio
 
-*Treinta y cuatro condiciones que el sistema cumple siempre, en el orden en que se vive una persona en el sistema: el borrador, los datos, el reingreso, el puesto, las entidades, la revisión, el directorio, la edición y la baja, y los clientes externos. Todas se leen igual, en cuatro apartados: información básica, escenarios ágiles de ejecución, condiciones y excepciones, y trazabilidad.*
+*Cuarenta y dos condiciones que el sistema cumple siempre. Primero las de Recursos Humanos, en el orden en que se vive una persona en el sistema: el borrador, los datos, el reingreso, el puesto, las entidades, la revisión, el directorio, la edición y la baja, los clientes externos y la ficha a la medida de la empresa; después las del colaborador. Todas se leen igual, en cuatro apartados: información básica, escenarios ágiles de ejecución, condiciones y excepciones, y trazabilidad.*
+
+### Para Recursos Humanos
+
+*Las condiciones de las pantallas de Recursos Humanos, por tema, en el orden en que se vive una persona en el sistema.*
 
 ### El alta como borrador
 
@@ -2213,6 +2334,378 @@ El adelanto se calcula así: si el tipo es porcentaje, `haber básico × valor �
 
 ---
 
+### La ficha a la medida de la empresa
+
+**Qué secciones usa cada empresa, qué hace el colaborador con ellas y las que crea la empresa**
+
+#### 4.35 · BR-GP-035 · Las secciones con datos que exige la ley no se desactivan
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-035
+- **Grupo:** La ficha a la medida de la empresa
+- **Qué gobierna:** Configuración de la ficha · En la ficha
+- **Estado:** Borrador
+
+*Descripción general*
+
+Una sección es **obligatoria** si tiene algún dato del **mínimo legal** —los que el Ministerio, la Gestora o la Caja exigen para declarar a la persona, BR‑GP‑006— o si **sostiene a las demás**: **Archivos**, que reúne los documentos, y el **acceso al sistema**, sin el que el colaborador no entra a ver su ficha.
+
+Hoy son **trece**: Reingreso o alta nueva, Datos personales, Documento de identidad, Datos de nacionalidad y nacimiento, Datos de contacto, Datos médicos, Datos de contactos de emergencia, Información organizacional, Dependencia organizacional y funcional, Datos del contrato, Datos de haber básico, Archivos y Acceso al sistema. Su interruptor se ve **encendido, quieto y con candado**, con la palabra «Obligatoria».
+
+**2. Escenarios ágiles de ejecución**
+
+*No se puede apagar*
+
+- **Dado que** «Datos de contacto» tiene el teléfono del mínimo legal
+- **Cuando** se intenta tocar su interruptor
+- **Entonces** no se mueve, y al pasar el cursor dice «Tiene datos que exige la ley o que sostienen a otras secciones: no se puede desactivar»
+
+**3. Condiciones y excepciones**
+
+- Se calcula de los niveles del estudio, no de una lista escrita a mano: si un dato pasa al mínimo legal, su sección pasa a ser obligatoria.
+- Ser obligatoria no impide elegir qué hace el colaborador con ella.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑101
+- **Historia de usuario:** HU‑GP‑14
+- **Pantalla:** Configuración de la ficha
+- **Diseño:** Prototipado
+
+---
+
+#### 4.36 · BR-GP-036 · Desactivar una sección la oculta en todas las pantallas, sin borrar lo registrado
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-036
+- **Grupo:** La ficha a la medida de la empresa
+- **Qué gobierna:** Configuración de la ficha · En la ficha
+- **Estado:** Borrador
+
+*Descripción general*
+
+Una sección **inactiva** no sale en «Nuevo colaborador», ni en la ficha de RR.HH., ni en Mi ficha, ni en Editar perfil, y sus archivos salen de Archivos y de Documentación. **No se borra nada**: lo que ya estaba escrito se queda en la ficha de cada persona y vuelve a verse al activarla.
+
+Activar y desactivar **piden confirmación** en un modal: «¿Está seguro de desactivar «Datos de residencia»?», con un renglón por cada cosa que cambia —Nuevo colaborador, Mi ficha del colaborador y lo ya registrado— y los botones **Cancelar** y **Desactivar sección** o **Activar sección**.
+
+**2. Escenarios ágiles de ejecución**
+
+*Desactivar una sección con datos*
+
+- **Dado que** un colaborador tiene escrita su dirección en «Datos de residencia»
+- **Cuando** se la desactiva
+- **Entonces** el modal dice «1 colaborador tiene datos aquí. No se borran. Vuelven a verse si la activa otra vez»
+- **Y** al confirmar, la sección deja de verse en todas las pantallas de la ficha
+
+*Volver a activarla*
+
+- **Dado que** «Datos de residencia» está inactiva
+- **Cuando** se la activa
+- **Entonces** el modal dice qué hará el colaborador con ella y que los datos vuelven a verse tal como estaban
+
+**3. Condiciones y excepciones**
+
+- Una sección obligatoria no se desactiva —BR‑GP‑035—.
+- Las secciones propias se activan y se desactivan igual que las del estudio.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑102 · RF‑GP‑104
+- **Historia de usuario:** HU‑GP‑14
+- **Pantalla:** Configuración de la ficha
+- **Diseño:** Prototipado
+
+---
+
+#### 4.37 · BR-GP-037 · El colaborador hace con cada sección lo que elige la empresa, y lo laboral tiene tope de solo lectura
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-037
+- **Grupo:** La ficha a la medida de la empresa
+- **Qué gobierna:** Configuración de la ficha · Para el colaborador
+- **Estado:** Borrador
+
+*Descripción general*
+
+Para cada sección la empresa elige qué puede hacer el colaborador: **Editable** —la cambia él mismo en Editar perfil—, **Solo lectura** —la ve en Mi ficha— u **Oculta** —no la ve—. **RR.HH. siempre ve y edita toda la ficha.**
+
+De fábrica, la ficha se comporta como antes de esta pantalla: **Información Personal e Información Familiar son Editable**, lo demás es Solo lectura y **Reingreso o alta nueva es Oculta**, porque es un dato del trámite de RR.HH.
+
+**Lo laboral tiene tope de Solo lectura**: toda la Información Laboral —puesto, contrato, pago, afiliaciones y asistencia—, Documentación y Recursos y Activos. De esos datos dependen la planilla y las declaraciones, y un colaborador no se cambia el haber, la fecha de su contrato ni el equipo que firmó.
+
+**2. Escenarios ágiles de ejecución**
+
+*El tope de lo laboral*
+
+- **Dado que** se mira «Datos de pago»
+- **Cuando** se intenta elegir Editable
+- **Entonces** el botón está apagado y dice «Este dato lo registra RR.HH.: el colaborador solo puede verlo»
+
+*Ocultar una sección*
+
+- **Dado que** «Datos patrimoniales» está en Oculta
+- **Cuando** el colaborador abre Mi ficha
+- **Entonces** la sección no aparece, ni en Mi ficha ni en Editar perfil
+
+**3. Condiciones y excepciones**
+
+- Configuración de Colaborador no se le muestra nunca, y Archivos no tiene nivel propio: cada documento sigue a la sección de donde viene.
+- Solo se guarda lo que difiere de fábrica: una empresa que nunca entra a esta pantalla no nota ningún cambio.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑103 · RF‑GP‑085 · RF‑GP‑090
+- **Historia de usuario:** HU‑GP‑15
+- **Pantalla:** Configuración de la ficha · Mi ficha · Editar perfil
+- **Diseño:** Prototipado
+
+---
+
+#### 4.38 · BR-GP-038 · Una sección propia usa los campos de la ficha, y las claves de sus campos no se reutilizan
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-038
+- **Grupo:** La ficha a la medida de la empresa
+- **Qué gobierna:** Configuración de la ficha · Secciones propias
+- **Estado:** Borrador
+
+*Descripción general*
+
+La empresa crea una sección en **cualquier parte de la ficha**, menos Configuración de Colaborador, con campos de los **nueve tipos** que ya existen en la ficha. Sale al final de su parte, en todas las pantallas, con los mismos controles que cualquier otro campo.
+
+Cada campo tiene su **clave para siempre**: el identificador de la sección y un número que solo sube. Borrar un campo y crear otro nunca le hereda los datos del anterior.
+
+**2. Escenarios ágiles de ejecución**
+
+*Crear una sección*
+
+- **Dado que** la empresa entrega uniformes
+- **Cuando** crea «Tallas de uniforme» en Información Familiar con «Talla de polera» (lista S, M, L, XL), «Talla de calzado» (número) y «Constancia de entrega» (archivo)
+- **Entonces** la sección aparece en «Nuevo colaborador» como «0 de 3» y la constancia aparece en Archivos
+
+**3. Condiciones y excepciones**
+
+- **Obligatorio** pone el asterisco y se avisa como cualquier otro dato, pero **no impide el alta**: solo tres datos la impiden —BR‑GP‑007—.
+- Sus campos no son del mínimo legal ni encienden el punto rojo de la pestaña.
+- Todavía no puede tener bloques que se repiten —FUERA‑10—.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑106 · RF‑GP‑107 · RF‑GP‑108 · RF‑GP‑110
+- **Historia de usuario:** HU‑GP‑16
+- **Pantalla:** Configuración de la ficha · Nueva sección
+- **Diseño:** Prototipado
+
+---
+
+#### 4.39 · BR-GP-039 · Solo se eliminan las secciones propias, y si ya tienen datos hay que escribir la palabra
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-039
+- **Grupo:** La ficha a la medida de la empresa
+- **Qué gobierna:** Configuración de la ficha · Secciones propias
+- **Estado:** Borrador
+
+*Descripción general*
+
+Las secciones del estudio se activan o se desactivan; **solo las propias se editan y se eliminan**, desde su menú «⋯».
+
+Eliminar pide confirmación: «¿Está seguro de eliminar «Tallas de uniforme»?». Si **algún colaborador ya tiene datos** en ella, además hay que escribir **eliminar** para confirmar, y el modal sugiere desactivarla si solo se quiere ocultar: lo escrito queda en la ficha de cada persona, pero sin ninguna pantalla que lo muestre.
+
+**2. Escenarios ágiles de ejecución**
+
+*Eliminar una sección sin datos*
+
+- **Dado que** nadie llenó «Tallas de uniforme»
+- **Cuando** se elige Eliminar en su menú «⋯»
+- **Entonces** el modal dice «Ningún colaborador tiene datos en ella» y se confirma con un clic
+
+*Eliminar una sección con datos*
+
+- **Dado que** tres colaboradores tienen su talla escrita
+- **Cuando** se elige Eliminar
+- **Entonces** «Eliminar sección» se habilita solo después de escribir «eliminar»
+
+**3. Condiciones y excepciones**
+
+- Al eliminarla, se va también lo que la configuración decía de ella: si estaba activa y qué hacía el colaborador.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑109
+- **Historia de usuario:** HU‑GP‑16
+- **Pantalla:** Configuración de la ficha
+- **Diseño:** Prototipado
+
+---
+
+### Para el colaborador
+
+*Las condiciones de lo que el colaborador ve y edita de su ficha.*
+
+### Mi ficha y Editar perfil
+
+**Lo que el colaborador ve de su ficha y lo que cambia él mismo**
+
+#### 4.40 · BR-GP-040 · Mi ficha solo se lee, y enseña solo lo que tiene valor
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-040
+- **Grupo:** Mi ficha y Editar perfil
+- **Qué gobierna:** Mi ficha · web y teléfono
+- **Estado:** Borrador
+
+*Descripción general*
+
+Mi ficha es la ficha de RR.HH. vista por su dueño: **las mismas secciones, los mismos rótulos y los mismos datos**, sin poder escribir. Muestra solo lo que tiene valor —una sección vacía no sale, salvo en Recursos y Activos— y reúne los archivos en **Documentación**.
+
+El **haber básico** y el **anticipo de quincena** se tapan hasta pulsar «Mostrar montos». Lo que el colaborador no puede editar se lo pide a RR.HH.
+
+**2. Escenarios ágiles de ejecución**
+
+*Una sección vacía no sale*
+
+- **Dado que** el colaborador no tiene cónyuge registrado
+- **Cuando** abre Información Personal en Mi ficha
+- **Entonces** «Datos del cónyuge» no aparece
+
+*El sueldo, tapado*
+
+- **Dado que** el colaborador abre Compensación, Nómina y Afiliaciones
+- **Cuando** mira su haber básico
+- **Entonces** ve «••••••» hasta pulsar «Mostrar montos»
+
+**3. Condiciones y excepciones**
+
+- Un documento está **por vencer** a los 60 días de su vencimiento, y no a los 30 que usa Archivos en la ficha de RR.HH.; ABIERTA‑06 decide si se unifica.
+- Las secciones que la empresa puso en Oculta o desactivó no salen —BR‑GP‑036 y 037—.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑080 · RF‑GP‑081 · RF‑GP‑082 · RF‑GP‑083
+- **Historia de usuario:** HU‑GP‑17
+- **Pantalla:** Mi ficha
+- **Diseño:** Prototipado
+
+---
+
+#### 4.41 · BR-GP-041 · El colaborador edita solo lo que está en Editable, y no deja vacío un dato obligatorio
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-041
+- **Grupo:** Mi ficha y Editar perfil
+- **Qué gobierna:** Editar perfil de usuario
+- **Estado:** Borrador
+
+*Descripción general*
+
+Editar perfil muestra **solo las secciones que la empresa dejó en Editable** —BR‑GP‑037—, con todos sus campos aunque estén vacíos, y lo que el colaborador cambia se guarda **sin pasar por RR.HH.**
+
+Un dato **obligatorio** que el colaborador vacía impide guardar y lo dice debajo del campo: «Este dato es obligatorio». Solo se miran los datos que él tocó: si RR.HH. dejó uno sin llenar, eso no le impide guardar su teléfono nuevo.
+
+**2. Escenarios ágiles de ejecución**
+
+*Borrar un obligatorio*
+
+- **Dado que** el número de celular es obligatorio
+- **Cuando** el colaborador lo borra
+- **Entonces** el campo dice «Este dato es obligatorio» y la barra «Complete el dato obligatorio»
+- **Y** «Guardar cambios» queda apagado hasta que lo vuelva a escribir
+
+*Un dato que dejó RR.HH. sin llenar*
+
+- **Dado que** RR.HH. no registró el segundo apellido
+- **Cuando** el colaborador cambia solo su correo
+- **Entonces** puede guardar
+
+**3. Condiciones y excepciones**
+
+- Lo laboral nunca aparece aquí: tiene tope de Solo lectura.
+- Si la empresa no le deja editar nada, la pantalla lo dice en vez de mostrar un formulario vacío.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑090 · RF‑GP‑091 · RF‑GP‑093
+- **Historia de usuario:** HU‑GP‑18
+- **Pantalla:** Editar perfil de usuario
+- **Diseño:** Prototipado
+
+---
+
+#### 4.42 · BR-GP-042 · Los cambios del colaborador se guardan juntos, y salir sin guardar pregunta
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-GP-042
+- **Grupo:** Mi ficha y Editar perfil
+- **Qué gobierna:** Editar perfil de usuario
+- **Estado:** Borrador
+
+*Descripción general*
+
+Los campos están **abiertos desde que se entra**: no hay «Editar» por sección. Los cambios se juntan y abajo aparece una barra con «N cambios sin guardar», **Descartar** y **Guardar cambios**: se guarda **una sola vez para todo**.
+
+Irse a otra pantalla con cambios sin guardar **pregunta antes**, con el mismo aviso de la aplicación —BR‑GP‑034—: «Hizo cambios en su perfil que todavía no guardó. ¿Qué desea hacer?».
+
+**2. Escenarios ágiles de ejecución**
+
+*Guardar dos cambios*
+
+- **Dado que** el colaborador cambió su teléfono y su correo
+- **Cuando** mira la barra de abajo
+- **Entonces** dice «2 cambios sin guardar»
+- **Y** al pulsar «Guardar cambios» se ve «Cambios guardados» un momento
+
+*Salir sin guardar*
+
+- **Dado que** hay un cambio pendiente
+- **Cuando** el colaborador toca «Inicio»
+- **Entonces** el aviso pregunta si guarda o sale sin guardar
+
+**3. Condiciones y excepciones**
+
+- Descartar vuelve a lo que estaba guardado, sin preguntar.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑GP‑092 · RF‑GP‑094
+- **Historia de usuario:** HU‑GP‑18
+- **Pantalla:** Editar perfil de usuario
+- **Diseño:** Prototipado
+
+---
+
 ### 4.1 Quién hace qué
 
 | Acción | Recursos Humanos | Líder de área | Colaborador |
@@ -2224,6 +2717,9 @@ El adelanto se calcula así: si el tipo es porcentaje, `haber básico × valor �
 | Editar la ficha de un colaborador | Sí | No | No |
 | Eliminar un alta por error | Sí | No | No |
 | Registrar, editar y desactivar clientes externos | Sí | No | No |
+| Configurar la ficha: secciones, permisos del colaborador y secciones propias | Sí | No | No |
+| Ver su propia ficha en Mi ficha | Sí | Sí | Sí |
+| Editar sus propios datos en Editable | Sí | Sí | Sí |
 | Ver sueldo, salud e historial disciplinario | Por definir — ABIERTA‑04 |
 
 ## 05 · Modelo de datos
@@ -2388,10 +2884,16 @@ Al dar de alta se escriben dos cosas: el colaborador —con **la ficha entera** 
 | ABIERTA‑16 | ¿«Aportes patronales» se muda al bloque de la Gestora, y qué regla impide que contradiga «¿aporta a la Gestora?»? | RR.HH. y Producto |
 | ABIERTA‑17 | Subsidio de frontera: ¿qué norma, qué porcentaje y quién califica? ¿Se deriva de la sucursal? ¿El monto se calcula o se digita? | RR.HH. |
 | ABIERTA‑10 | La miga «← Colaboradores › Nuevo colaborador» reemplazó al botón de volver. ¿Pasa a las demás pantallas de detalle? | Diseño UX |
+| ABIERTA‑18 | ¿Qué datos que el colaborador edita —el carnet, la cuenta bancaria— deberían pasar por aprobación de RR.HH. antes de guardarse? | RR.HH. y Producto |
+| ABIERTA‑19 | ¿Puede un campo de una sección propia impedir el alta, como los tres datos de BR‑GP‑007? | RR.HH. y Producto |
 
 ## 07 · Flujos de usuario
 
-*Los nueve recorridos que de verdad se hacen en este módulo, con su camino feliz y sus desvíos.*
+*Los doce recorridos que de verdad se hacen en este módulo, con su camino feliz y sus desvíos.*
+
+### Para Recursos Humanos
+
+*Los recorridos de quien registra y administra la ficha.*
 
 ### F-GP-01 · Dar de alta a alguien nuevo
 
@@ -2516,6 +3018,57 @@ Al dar de alta se escriben dos cosas: el colaborador —con **la ficha entera** 
 
 > **Si el cliente deja de trabajar con la empresa:** se lo desactiva desde su fila; no se lo borra.
 
+### F-GP-10 · Ajustar la ficha a la empresa
+
+**Quién** Recursos Humanos  
+**Desde dónde** Gestión de Personas › Configuración › Ficha del colaborador  
+**Termina en** La ficha con las secciones que usa la empresa
+
+1. Recorre las pestañas en el riel y abre las secciones para ver sus campos.
+2. Apaga el interruptor de lo que la empresa no usa y confirma en el modal, que dice qué cambia.
+3. En cada sección elige **Para el colaborador**: Editable, Solo lectura u Oculta.
+
+> **Si la sección es obligatoria:** el interruptor no se mueve y el candado dice por qué.
+
+> **Si se equivocó:** vuelve a encender la sección: los datos vuelven tal como estaban. O pulsa **Restablecer** para volver a la ficha estándar.
+
+### F-GP-11 · Crear una sección propia
+
+**Quién** Recursos Humanos  
+**Desde dónde** Configuración de la ficha, la parte donde va  
+**Termina en** La sección en todas las pantallas de la ficha
+
+1. Pulsa **«+ Nueva sección en «…»»** al pie de la parte.
+2. Escribe el nombre y, si quiere, la instrucción; elige dónde va.
+3. Agrega los campos con su nombre y su tipo, y marca los obligatorios. Mira la vista previa.
+4. Pulsa **Crear sección**.
+
+> **Si falta algo:** el aviso de abajo dice qué, y Crear sección espera.
+
+> **Si hay que cambiarla:** menú «⋯» › **Editar sección**.
+
+> **Si ya no se usa:** se la desactiva, o menú «⋯» › **Eliminar**.
+
+### Para el colaborador
+
+*Los recorridos del propio colaborador, en la web o en el teléfono.*
+
+### F-GP-12 · El colaborador corrige su teléfono
+
+**Quién** El colaborador  
+**Desde dónde** Perfil, en el teléfono o en la web  
+**Termina en** El teléfono nuevo en Mi ficha
+
+1. Entra a **Configuración › Editar perfil de usuario › Información Personal**.
+2. En **Datos de contacto** elige el código de país y escribe el número.
+3. Pulsa **Guardar cambios**.
+
+> **Si borra un dato obligatorio:** la barra dice «Complete el dato obligatorio» y no deja guardar.
+
+> **Si sale sin guardar:** el aviso pregunta antes de irse.
+
+> **Si el dato no está en Editable:** lo ve en Mi ficha y pide la corrección a RR.HH.
+
 ## 08 · Recursos visuales
 
 *Las pantallas del módulo y cuatro wireframes. Sirven para discutir la estructura sin discutir el estilo.*
@@ -2524,6 +3077,10 @@ Al dar de alta se escriben dos cosas: el colaborador —con **la ficha entera** 
 
 ### 8.1 Las pantallas del módulo
 
+#### A · Para Recursos Humanos
+
+*Las pantallas de Gestión de Personas.*
+
 | Pantalla | Ruta | Para qué se entra | Requisitos | Wireframe |
 | --- | --- | --- | --- | --- |
 | **Directorio** | `/personas/colaboradores` | Encontrar a una persona, ver su estado y su avance, y asignarle su ruta | RF‑GP‑001 a 007 | W‑GP‑01 |
@@ -2531,7 +3088,17 @@ Al dar de alta se escriben dos cosas: el colaborador —con **la ficha entera** 
 | **Vista previa** | `…/nuevo?paso=previa` | Revisar la ficha como expediente y dar de alta | RF‑GP‑040 a 046 | W‑GP‑03 |
 | **Ficha del colaborador** | `/personas/colaboradores/:id` | Ver y editar la ficha de alguien dado de alta. Especificada, sin construir | RF‑GP‑050 a 055 | — |
 | **Clientes externos** | `/personas/clientes-externos` | Registrar a las personas de afuera que participan en las evaluaciones | RF‑GP‑070 a 076 | W‑GP‑04 |
+| **Configuración de la ficha** | `/personas/configuracion/ficha` | Elegir qué secciones usa la empresa, qué hace el colaborador con cada una, y crear secciones propias | RF‑GP‑100 a 110 | — |
 | **Organigrama** | `/organizacion/organigrama` | Vive en Organización; la antigua ruta de personas redirige ahí | — | — |
+
+#### B · Para el colaborador
+
+*Las pantallas de Mi espacio, en la web y en el teléfono.*
+
+| Pantalla | Ruta | Para qué se entra | Requisitos | Wireframe |
+| --- | --- | --- | --- | --- |
+| **Mi ficha** | `/mi-espacio/perfil` y Perfil del teléfono | El colaborador lee su ficha y sus documentos | RF‑GP‑080 a 085 | — |
+| **Editar perfil de usuario** | Mi perfil › Configuración | El colaborador cambia lo que la empresa le deja editar | RF‑GP‑090 a 094 | — |
 
 ### W-GP-01 · Directorio
 
@@ -2581,11 +3148,15 @@ La lista está siempre, aunque vacía, con el botón de registrar arriba. El for
 
 ## 09 · Historias de usuario
 
-*Trece historias con sus criterios de aceptación, y el plan de prototipado. Es contra esto que se acepta o se devuelve lo construido.*
+*Dieciocho historias con sus criterios de aceptación, y el plan de prototipado. Es contra esto que se acepta o se devuelve lo construido.*
 
 > **Un criterio de aceptación se marca hecho o no hecho delante de la pantalla, sin discutir.** Por eso están escritos como afirmaciones comprobables y no como intenciones.
 
-### 9.1 Las trece historias y sus criterios de aceptación
+### 9.1 Las dieciocho historias y sus criterios de aceptación
+
+### Para Recursos Humanos
+
+*Lo que necesita quien registra y administra la ficha.*
 
 #### HU-GP-01 · Empezar un alta y terminarla otro día
 
@@ -2748,6 +3319,71 @@ La lista está siempre, aunque vacía, con el botón de registrar arriba. El for
 
 *Se apoya en **BR‑GP‑030 a 032 · RF‑GP‑070 a 076** · Pantalla: Clientes externos*
 
+#### HU-GP-14 · Usar solo las secciones que necesito
+
+**Como** responsable de Recursos Humanos, **quiero** apagar las secciones de la ficha que mi empresa no usa **para** que el alta pida solo lo necesario.
+
+**Criterios de aceptación**
+
+- Cada sección tiene un interruptor; las obligatorias no se apagan.
+- Apagar y encender piden confirmación y dicen qué cambia.
+- Una sección apagada no sale en ninguna pantalla de la ficha, y sus datos no se borran.
+
+*Se apoya en **BR‑GP‑035 · BR‑GP‑036 · RF‑GP‑100 a 102, 104 y 105** · Pantalla: Configuración de la ficha*
+
+#### HU-GP-15 · Decidir qué ve y qué edita el colaborador
+
+**Como** responsable de Recursos Humanos, **quiero** elegir, sección por sección, si el colaborador la edita, solo la ve o no la ve **para** que mantenga al día lo suyo sin tocar lo laboral.
+
+**Criterios de aceptación**
+
+- Cada sección ofrece Editable, Solo lectura y Oculta.
+- En lo laboral, Editable está apagado y dice por qué.
+- Lo elegido se ve al instante en Mi ficha y en Editar perfil.
+
+*Se apoya en **BR‑GP‑037 · RF‑GP‑103, 085 y 090** · Pantalla: Configuración de la ficha*
+
+#### HU-GP-16 · Registrar datos que la ficha no trae
+
+**Como** responsable de Recursos Humanos, **quiero** crear secciones propias con sus campos **para** registrar lo que mi empresa necesita, como las tallas de uniforme.
+
+**Criterios de aceptación**
+
+- «Nueva sección» abre un modal con el formulario y la vista previa en vivo.
+- Hay nueve tipos de campo, los mismos de la ficha.
+- La sección sale en todas las pantallas de la ficha, al final de su parte.
+- Se edita y se elimina desde su menú «⋯»; si tiene datos, eliminar pide escribir la palabra.
+
+*Se apoya en **BR‑GP‑038 · BR‑GP‑039 · RF‑GP‑106 a 110** · Pantalla: Configuración de la ficha*
+
+### Para el colaborador
+
+*Lo que necesita el colaborador de su propia ficha.*
+
+#### HU-GP-17 · Ver mi ficha desde el celular
+
+**Como** colaborador, **quiero** ver mi ficha y mis documentos **para** saber qué tiene registrado la empresa y qué tengo que renovar.
+
+**Criterios de aceptación**
+
+- Mi ficha muestra una fila por pestaña y cada una abre su pantalla.
+- Solo se ven los datos con valor; el sueldo se tapa hasta pedir verlo.
+- Documentación dice qué documentos vencen o ya vencieron.
+
+*Se apoya en **BR‑GP‑040 · RF‑GP‑080 a 085** · Pantalla: Mi ficha*
+
+#### HU-GP-18 · Mantener al día mis datos
+
+**Como** colaborador, **quiero** cambiar yo mismo mis datos personales y familiares **para** no tener que pedírselo a Recursos Humanos.
+
+**Criterios de aceptación**
+
+- Editar perfil muestra solo lo que la empresa dejó en Editable.
+- Los campos son los de la ficha: el celular con su código de país, las listas con buscador.
+- Los cambios se guardan juntos, y un obligatorio no se puede dejar vacío.
+
+*Se apoya en **BR‑GP‑037 · BR‑GP‑041 · BR‑GP‑042 · RF‑GP‑090 a 094** · Pantalla: Editar perfil de usuario*
+
 ### 9.2 Plan de prototipado
 
 | Etapa | Qué se prototipa | La pregunta que contesta | Estado |
@@ -2774,6 +3410,7 @@ La lista está siempre, aunque vacía, con el botón de registrar arriba. El for
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
+| **1.104** | 6 oct 2026 | **El documento se pone al día con lo que se construyó del 1 al 6 de octubre.** Tres pantallas nuevas en Funcionalidades: **3.12 Mi ficha del colaborador**, la ficha vista por su dueño en la web y en el teléfono, solo para leer; **3.13 Editar perfil de usuario**, donde el colaborador cambia lo que la empresa le deja, con los controles de la ficha de RR.HH. —el celular con su código de país, las listas que se abren debajo del campo—; y **3.14 Configuración de la ficha**, donde la empresa activa o desactiva secciones, elige qué hace el colaborador con cada una —Editable, Solo lectura u Oculta— y crea secciones propias con sus campos. Un grupo nuevo de reglas, «La ficha a la medida de la empresa», con **BR‑GP‑035 a 039**; los requisitos **RF‑GP‑080 a 110**; los flujos **F‑GP‑10 a 12**; las historias **HU‑GP‑14 a 18**; **ABIERTA‑18 y 19**; cinco porqués en el anexo; y FUERA‑06 a 10. «Otro» vuelve a Parentesco del contacto de emergencia, con su caja «¿Qué parentesco?». Y **el documento se ordena por quién usa cada cosa**, a pedido del equipo: Funcionalidades, Reglas de negocio, Flujos, Pantallas e Historias separan lo de **Recursos Humanos** de lo del **colaborador**. Funcionalidades se renumera —3.9 Configuración de la ficha, 3.10 Mi ficha, 3.11 Editar perfil y 3.12 a 3.14 lo de todo el módulo— y entran **BR‑GP‑040 a 042**, las reglas del colaborador: Mi ficha solo se lee, solo edita lo Editable y se guarda todo junto. Los códigos no cambian. |
 | **1.103** | 30 sep 2026 | **El filtro Tipo de Archivos agrupa por pestaña**, a pedido del equipo: Información Personal —identidad, nacimiento, croquis, licencias y los papeles del garante—, Recursos y Activos —las entregas firmadas— y Documentos agregados. Y se corrige que los menús desplegables de la ficha se abrieran fuera de la pantalla después del fundido al cambiar de parte |
 | **1.102** | 30 sep 2026 | **En Archivos cada documento se nombra solo**, a pedido del equipo: llega sin la sección que lo explicaba. «Documento escaneado» pasa a **Documento de identidad (anverso y reverso)**, el secundario a **Documento de identidad secundario**, «Croquis» a **Croquis del domicilio**, «Licencia o certificado» a **Licencia o certificación** —que suma el tipo al elegirlo— y «Documento de garantía» a **Documento de respaldo de la garantía**. En su sección de origen se quedan los nombres cortos |
 | **1.101** | 30 sep 2026 | **La ficha se mueve**, a pedido del equipo, con medida: las partes del riel y las secciones se abren y se cierran creciendo y encogiéndose, el contenido de una parte entra con un fundido al cambiar, y la pastilla de una sección brilla una vez al completarse. Todo dura menos de 0,3 segundos y se apaga con «reducir movimiento». Cerrar una sección no borra lo escrito |
@@ -2930,3 +3567,23 @@ Se probaron las partes como pestañas arriba del contenido, como subtítulos den
 #### Por qué Preferencias se escribe a mano
 
 Se ofrecieron categorías, rangos de precio, prioridades y etiquetas para los regalos y las experiencias. El equipo prefirió que cada persona escriba lo que quiera, una fila por deseo: nadie tiene que decidir en qué categoría va un curso de fotografía, y lo que se lee es exactamente lo que la persona pidió.
+
+#### Por qué la configuración se ve como «Nuevo colaborador»
+
+La primera versión fue una lista con pestañas propias, y funcionaba, pero era otro mapa de la misma ficha. Con el riel, las partes y los acordeones de «Nuevo colaborador», RR.HH. encuentra cada sección donde ya sabe que está, y al abrirla ve los campos tal como salen en la ficha: decide mirando lo que va a cambiar.
+
+#### Por qué «Editable, Solo lectura, Oculta»
+
+Primero fue «Oculto · Solo ver · Puede editar», y se leía como permisos de RR.HH., que es quien mira la pantalla. Después «El colaborador puede: Editar · Solo ver · No ver», donde «puede no ver» dice «quizás no la vea». Quedaron tres adjetivos que describen la sección bajo el título «Para el colaborador», con un ícono cada uno —lápiz, ojo, ojo tachado—: son los términos de siempre en los sistemas de RR.HH. y se repasan cuarenta y cinco filas sin leer cada palabra. «En la ficha» siguió el mismo camino: Activa, Inactiva u Obligatoria.
+
+#### Por qué la sección nueva se arma en un modal
+
+Se armó primero en un panel lateral. En toda la plataforma crear y editar se hace en modales, y un panel solo conviene cuando hace falta seguir viendo la página de atrás; aquí la vista previa va dentro del propio modal, así que el modal grande, con el formulario y la vista previa lado a lado, no pierde nada y no enseña una forma nueva.
+
+#### Por qué el menú «⋯» en las secciones propias
+
+Editar y Eliminar estuvieron dentro del acordeón: solo se veían al abrirlo, flotaban sobre la descripción y Eliminar pesaba igual que Editar. En un menú «⋯» al final de la cabecera se ven con la sección cerrada, en la fila donde están sus otras decisiones, y Eliminar queda un paso más lejos, separado y en rojo. Todas las filas reservan su hueco para que las columnas no se corran.
+
+#### Por qué las listas del teléfono se abren debajo del campo
+
+La lista del sistema se abría enorme y fuera del teléfono. Se probó una hoja que sube desde abajo, como en muchas apps, y el equipo prefirió la forma de «Nuevo colaborador»: la lista pegada a su campo, con la opción elegida en verde y su tilde, y un buscador cuando hay más de ocho. Es la misma lista en la web y en el teléfono, a otra escala.
