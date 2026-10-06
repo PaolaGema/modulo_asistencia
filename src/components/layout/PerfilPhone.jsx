@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   HelpCircle, LogOut, Network, Settings, User, Briefcase, FileText, Monitor, ChevronRight,
   ChevronDown, Gift, Sparkles, Plus, Info, Download, AlertTriangle, Pencil, Eye, EyeOff, Check, X,
-  GraduationCap, Image as ImageIcon, Trash2, Upload,
+  GraduationCap, Image as ImageIcon, Trash2, Upload, Search,
 } from 'lucide-react'
 import BarraVolver from './BarraVolver'
 import ConfiguracionPhone from './ConfiguracionPhone'
@@ -11,8 +11,10 @@ import { useMiFicha } from '../../hooks/useMiFicha'
 import { useEdicionPerfil } from '../../hooks/useEdicionPerfil'
 import {
   pestanasCon, partesDe, documentosDe, agrupar, lineas, titularDe, resumenDe, porRenovar,
+  pestanaConEditables, preferenciasVisibles, preferenciasEditables,
 } from '../../data/miFichaLectura'
 import { cuantosHay, tarjetasDe } from '../../data/fichaColaborador'
+import { CODIGOS_PAIS, paisPorSigla, partirTelefono } from '../../data/codigosPais'
 import { avatarUrl } from '../../utils/calendarEvents'
 import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 
@@ -180,7 +182,7 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
             })}
           </div>
 
-          <PreferenciasPhone form={form} />
+          {preferenciasVisibles() && <PreferenciasPhone form={form} />}
         </>
       ) : (
         <div style={{ margin: '14px 2px 0', padding: 10, borderRadius: 10, background: 'var(--surface-card)', fontSize: 7.5, color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center' }}>
@@ -242,7 +244,8 @@ function Seccion({ s, abierta, onAlternar }) {
 }
 
 function Datos({ pestana, form }) {
-  const suya = pestana === 'personal'
+  // Lo que la empresa le deja editar (`configFicha`): el aviso le dice dónde cambiarlo.
+  const suya = pestanaConEditables(pestana)
   const partes = partesDe(pestana, form)
   const recursos = pestana === 'recursos'
   const [abiertas, setAbiertas] = useState(() => new Set([0]))
@@ -396,25 +399,193 @@ function Documentos({ form }) {
    es lo mismo que usa la web. */
 const ROTULO_CAMPO = { display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 6 }
 
-/* Un campo abierto: lista y sí/no con sus opciones, fecha con su calendario, descripción en
-   varias líneas y el resto a texto libre. */
-function Entrada({ campo, valor, onCambiar }) {
-  if (campo.tipo === 'siNo' || campo.tipo === 'lista') {
-    const ops = campo.tipo === 'siNo'
-      ? [{ v: 'si', t: 'Sí' }, { v: 'no', t: 'No' }]
-      : (campo.opciones || []).map(o => (typeof o === 'string' ? { v: o, t: o } : { v: o.valor, t: o.etiqueta ?? o.valor }))
-    return (
-      <select value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO}>
-        <option value="">Elegir…</option>
-        {ops.map(o => <option key={o.v} value={o.v}>{o.t}</option>)}
-      </select>
-    )
+/* ── LAS LISTAS DEL TELÉFONO ─────────────────────────────────────────────────
+   El desplegable de «Nuevo colaborador» (`Desplegable`) a la escala del teléfono: la lista se abre
+   pegada debajo de su caja —o encima, si abajo no cabe—, con la elegida resaltada y su ✓, y un
+   buscador arriba cuando las opciones ya no caben de un vistazo —el mismo umbral, ocho—. Se cierra
+   eligiendo, tocando fuera o con Escape. Un `<select>` nativo aquí abría la lista de Windows,
+   enorme y fuera del teléfono. */
+const CON_BUSCADOR = 8
+const ALTO_MENU = 150
+const sinTildes = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+
+/* Abierto, cerrado y hacia dónde: abajo si cabe antes de lo que tapa el fondo del teléfono —la
+   barra de «Guardar cambios» cuando está, si no la de pestañas—; si no cabe, arriba. */
+function useMenuPhone(caja) {
+  const [abierto, setAbierto] = useState(false)
+  const [arriba, setArriba] = useState(false)
+  useEffect(() => {
+    if (!abierto) return
+    const fuera = e => { if (!caja.current?.contains(e.target)) setAbierto(false) }
+    const tecla = e => { if (e.key === 'Escape') setAbierto(false) }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', tecla)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla) }
+  }, [abierto, caja])
+  const alternar = () => {
+    if (!abierto) {
+      const r = caja.current?.getBoundingClientRect()
+      const marco = document.getElementById('marco-telefono')
+      const m = marco?.getBoundingClientRect()
+      // 70: la barra de pestañas de abajo, que tapa lo que cae detrás.
+      const suelo = marco?.querySelector('[data-barra-guardar]')?.getBoundingClientRect().top ?? (m && m.bottom - 70)
+      setArriba(!!(r && m && suelo - r.bottom < ALTO_MENU && r.top - m.top > ALTO_MENU))
+    }
+    setAbierto(a => !a)
   }
+  return { abierto, arriba, alternar, cerrar: () => setAbierto(false) }
+}
+
+function MenuPhone({ opciones, valor, onElegir, arriba, quitable, buscaPh = 'Buscar…' }) {
+  const [busca, setBusca] = useState('')
+  const lista = useRef(null)
+  // La elegida a la vista al abrir: entre doscientos países, Bolivia no está arriba.
+  useEffect(() => {
+    const l = lista.current, o = l?.querySelector('[aria-selected="true"]')
+    if (o) l.scrollTop = o.offsetTop - l.clientHeight / 2 + o.offsetHeight / 2
+  }, [])
+  const q = sinTildes(busca.trim())
+  const vistas = q ? opciones.filter(o => sinTildes(`${o.t} ${o.lateral || ''}`).includes(q)) : opciones
+  return (
+    <div className={`mf-dd-menu${arriba ? ' arriba' : ''}`}>
+      {opciones.length > CON_BUSCADOR && (
+        <label className="mf-dd-busca">
+          <Search size={8} />
+          <input autoFocus value={busca} onChange={e => setBusca(e.target.value)} placeholder={buscaPh} />
+        </label>
+      )}
+      <div ref={lista} role="listbox" className="mf-dd-lista">
+        {quitable && valor && !q && (
+          <button type="button" className="mf-dd-op vacia" onClick={() => onElegir('')}>Sin elegir</button>
+        )}
+        {vistas.map(o => {
+          const on = o.v === valor
+          return (
+            <button key={o.v} type="button" role="option" aria-selected={on} className={`mf-dd-op${on ? ' on' : ''}`} onClick={() => onElegir(o.v)}>
+              {o.sigla && <span className="mf-dd-sigla">{o.sigla}</span>}
+              <span className="mf-dd-txt">{o.t}</span>
+              {o.lateral && <span className="mf-dd-lateral">{o.lateral}</span>}
+              {on && <Check size={9} className="mf-dd-check" />}
+            </button>
+          )
+        })}
+        {!vistas.length && <p className="mf-dd-nada">Sin resultados para «{busca.trim()}».</p>}
+      </div>
+    </div>
+  )
+}
+
+/* El disparador de una lista: se ve como las demás cajas, con lo elegido o «Elegir…» en gris. */
+function ListaPhone({ campo, valor, onCambiar }) {
+  const caja = useRef(null)
+  const m = useMenuPhone(caja)
+  const ops = (campo.opciones || []).map(o => (typeof o === 'string' ? { v: o, t: o } : { v: o.valor, t: o.etiqueta ?? o.valor }))
+  const elegida = ops.find(o => o.v === valor)
+  return (
+    <div ref={caja} style={{ position: 'relative' }}>
+      <button type="button" onClick={m.alternar} aria-haspopup="listbox" aria-expanded={m.abierto} aria-label={`${campo.label}: ${elegida ? elegida.t : 'sin elegir'}`}
+        className={`mf-dd-caja${m.abierto ? ' abierta' : ''}`} style={{
+          ...CAMPO, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', cursor: 'pointer',
+          color: elegida || valor ? 'var(--text-heading)' : 'var(--icon-muted)',
+        }}>
+        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{elegida ? elegida.t : (valor || 'Elegir…')}</span>
+        <ChevronDown size={9} style={{ flexShrink: 0, opacity: .6, transform: m.abierto ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
+      </button>
+      {m.abierto && <MenuPhone opciones={ops} valor={valor} arriba={m.arriba} quitable={!campo.requerido} onElegir={v => { onCambiar(v); m.cerrar() }} />}
+    </div>
+  )
+}
+
+/* Sí / No en dos botones, como en la ficha de RR.HH.: ninguno marcado es «todavía no contestó». */
+function SiNoPhone({ campo, valor, onCambiar }) {
+  return (
+    <div role="group" aria-label={campo.label} style={{ display: 'flex', gap: 4, marginTop: 2 }}>
+      {[{ v: 'si', t: 'Sí' }, { v: 'no', t: 'No' }].map(o => {
+        const on = valor === o.v
+        return (
+          <button key={o.v} type="button" aria-pressed={on} onClick={() => onCambiar(o.v)} style={{
+            flex: 1, height: 24, borderRadius: 6, fontFamily: 'inherit', fontSize: 8, fontWeight: on ? 600 : 500, cursor: 'pointer',
+            border: `1px solid ${on ? 'var(--mf-verde-txt)' : 'var(--border-dark)'}`,
+            background: on ? 'var(--green-bg)' : 'var(--surface-card)', color: on ? 'var(--mf-verde-txt)' : 'var(--text-heading)',
+          }}>{o.t}</button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* EL CELULAR, COMO EN LA FICHA DE RR.HH.: el código de país a la izquierda —«BO +591 ▾»— y el
+   número a la derecha, en la misma caja. Se guarda igual que allá —«+591 71244890» y el país en
+   `<clave>pais`— con las mismas funciones (`partirTelefono`), así que lo que se escribe aquí se lee
+   bien en la web y en RR.HH. Ver `CampoTelefono`. El código abre la lista de países debajo. */
+const PAISES = CODIGOS_PAIS.map(p => ({ v: p.sigla, t: p.pais, sigla: p.sigla, lateral: p.codigo }))
+function TelefonoPhone({ campo, form, set }) {
+  const caja = useRef(null)
+  const m = useMenuPhone(caja)
+  const porDefecto = paisPorSigla(campo.paisPorDefecto) || paisPorSigla('BO')
+  const { pais, numero } = partirTelefono(form[campo.key], form[`${campo.key}pais`], porDefecto)
+  const guardar = (p, n) => set(campo.key, n ? `${p.codigo} ${n}` : '')
+  return (
+    <div ref={caja} style={{ position: 'relative' }}>
+      <span className={`mf-dd-caja${m.abierto ? ' abierta' : ''}`} style={{ ...CAMPO, display: 'flex', alignItems: 'center', padding: 0, overflow: 'hidden' }}>
+        <button type="button" onClick={m.alternar} aria-haspopup="listbox" aria-expanded={m.abierto} aria-label={`Código de país: ${pais.pais}, ${pais.codigo}`} style={{
+          display: 'flex', alignItems: 'center', gap: 3, height: '100%', padding: '0 5px 0 6px', flexShrink: 0,
+          border: 'none', borderRight: '1px solid var(--border-dark)', background: 'none', fontFamily: 'inherit', fontSize: 8, color: 'var(--text-heading)', cursor: 'pointer',
+        }}>
+          <span className="mf-dd-sigla">{pais.sigla}</span>
+          <span>{pais.codigo}</span>
+          <ChevronDown size={8} style={{ opacity: .6, transform: m.abierto ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
+        </button>
+        <input
+          type="tel"
+          inputMode="tel"
+          aria-label={campo.label}
+          value={numero}
+          placeholder={campo.ph || 'Número'}
+          onChange={e => {
+            let v = e.target.value
+            if (v.trim().startsWith(pais.codigo)) v = v.trim().slice(pais.codigo.length)
+            guardar(pais, v.replace(/[^\d ]/g, '').replace(/^ +/, '').slice(0, 20))
+          }}
+          style={{ flex: 1, minWidth: 0, height: '100%', padding: '0 7px', border: 'none', background: 'none', fontFamily: 'inherit', fontSize: 8, color: 'var(--text-heading)', outline: 'none' }}
+        />
+      </span>
+      {m.abierto && (
+        <MenuPhone opciones={PAISES} valor={pais.sigla} arriba={m.arriba} buscaPh="Buscar país o código…" onElegir={sigla => {
+          const nuevo = paisPorSigla(sigla)
+          set(`${campo.key}pais`, nuevo.sigla)
+          guardar(nuevo, numero)
+          m.cerrar()
+        }} />
+      )}
+    </div>
+  )
+}
+
+/* Un campo abierto, con las reglas de la ficha de RR.HH. (`CampoFicha`): lista desplegable, sí/no
+   en dos botones, fecha con su calendario, el celular con su código de país, descripción en
+   varias líneas, cifras solas donde el campo es un número, y el resto a texto libre. */
+function Entrada({ campo, valor, onCambiar, form, set }) {
+  if (campo.telefono) return <TelefonoPhone campo={campo} form={form} set={set} />
+  if (campo.tipo === 'siNo') return <SiNoPhone campo={campo} valor={valor} onCambiar={onCambiar} />
+  if (campo.tipo === 'lista') return <ListaPhone campo={campo} valor={valor} onCambiar={onCambiar} />
   if (campo.tipo === 'texto') {
     return <textarea value={valor} rows={2} onChange={e => onCambiar(e.target.value)} placeholder={campo.ph} style={{ ...CAMPO, height: 'auto', padding: '5px 7px', resize: 'none' }} />
   }
   if (campo.html === 'date') return <input type="date" value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO} />
-  return <input value={valor} onChange={e => onCambiar(e.target.value)} placeholder={campo.ph} style={CAMPO} />
+  const cifras = campo.max != null || campo.numero
+  return (
+    <input
+      type={campo.html === 'email' || campo.html === 'tel' ? campo.html : 'text'}
+      inputMode={cifras ? 'numeric' : campo.html === 'tel' ? 'tel' : undefined}
+      value={valor}
+      onChange={e => onCambiar(cifras
+        ? (v => (v === '' || campo.max == null ? v : String(Math.min(Number(v), campo.max))))(e.target.value.replace(/\D/g, '').replace(/^0+/, ''))
+        : e.target.value)}
+      placeholder={campo.ph}
+      style={CAMPO}
+    />
+  )
 }
 
 /* Un documento de la sección: el archivo que hay, o que falta, y el botón para subir otro. En la
@@ -499,12 +670,15 @@ function SeccionEditable({ s, ed, abierta, onAlternar, onVerDoc }) {
             }
             if (c.tipo === 'archivo') return <EntradaArchivo key={c.key} campo={c} valor={ed.vivo[c.key]} onCambiar={v => ed.set(c.key, v)} onVer={onVerDoc} />
             const falta = ed.faltan.some(x => x.key === c.key)
+            /* Con botones dentro —lista, sí/no, celular— el rótulo no puede ser `<label>`: tocar
+               su texto pulsaría el primer botón, y «¿Tiene alergias?» quedaría en «Sí». */
+            const Rotulo = c.tipo === 'siNo' || c.tipo === 'lista' || c.telefono ? 'div' : 'label'
             return (
-              <label key={c.key} style={ROTULO_CAMPO}>
+              <Rotulo key={c.key} style={ROTULO_CAMPO}>
                 {c.label}{c.requerido && <span style={{ color: 'var(--mf-ven-txt)' }}> *</span>}
-                <Entrada campo={c} valor={ed.vivo[c.key] ?? ''} onCambiar={v => ed.set(c.key, v)} />
+                <Entrada campo={c} valor={ed.vivo[c.key] ?? ''} onCambiar={v => ed.set(c.key, v)} form={ed.vivo} set={ed.set} />
                 {falta && <span style={{ display: 'block', fontSize: 6, color: 'var(--mf-ven-txt)', marginTop: 2 }}>Este dato es obligatorio.</span>}
-              </label>
+              </Rotulo>
             )
           })}
         </div>
@@ -576,10 +750,11 @@ function PreferenciasEditables({ ed }) {
   )
 }
 
-const ICONOS_ED = { quien: User, entorno: User }
+const ICONOS_ED = { quien: User, entorno: User, perfil: GraduationCap }
 const PISTAS_ED = {
   quien: 'Nombre, CI, contacto, residencia, salud',
   entorno: 'Hijos y contactos de emergencia',
+  perfil: 'Su formación y trayectoria',
 }
 
 function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
@@ -593,11 +768,12 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
   const entrar = i => { setParte(i); setAbiertas(new Set([0])); arriba() }
   const alternar = i => setAbiertas(a => { const n = new Set(a); n.has(i) ? n.delete(i) : n.add(i); return n })
 
+  // Las partes que la empresa le deja editar (`configFicha`), y las preferencias si también.
   const categorias = [...ed.partes.map((p, i) => ({ titulo: p.titulo, pista: PISTAS_ED[p.key], I: ICONOS_ED[p.key] || User, idx: i })),
-    { titulo: 'Preferencias', pista: 'Regalos y experiencias que le gustaría', I: Gift, idx: ed.partes.length }]
+    ...(preferenciasEditables() ? [{ titulo: 'Preferencias', pista: 'Regalos y experiencias que le gustaría', I: Gift, idx: ed.partes.length }] : [])]
 
   const barraGuardar = (ed.hayCambios || guardado) && (
-    <div style={{ position: 'sticky', bottom: 0, margin: '10px -2px 0', padding: '7px 8px', borderRadius: 10, background: 'var(--surface-card)', border: '1px solid var(--border-soft)', boxShadow: '0 -2px 10px rgba(12,45,64,.12)', display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div data-barra-guardar style={{ position: 'sticky', bottom: 0, margin: '10px -2px 0', padding: '7px 8px', borderRadius: 10, background: 'var(--surface-card)', border: '1px solid var(--border-soft)', boxShadow: '0 -2px 10px rgba(12,45,64,.12)', display: 'flex', alignItems: 'center', gap: 6 }}>
       {ed.hayCambios ? (
         <>
           <span style={{ flex: 1, fontSize: 6.5, color: ed.faltan.length ? 'var(--mf-ven-txt)' : 'var(--text-muted)', lineHeight: 1.35 }}>
@@ -629,7 +805,7 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
         <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Editar perfil de usuario</div>
         <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>{cat?.titulo}</div>
 
-        {parte === 0 && currentUser && (
+        {actual?.secciones.some(s => s.id === 'nombre') && currentUser && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, padding: '8px 9px', background: 'var(--surface-card)', borderRadius: 11, border: '1px solid var(--border-soft)' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{

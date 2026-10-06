@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import {
   pestanasCon, partesDe, documentosDe, agrupar, lineas, titularDe, resumenDe, porRenovar, FORMATO_PROPIO,
+  PESTANAS_COLABORADOR, pestanaConEditables, preferenciasEditables,
 } from '../../data/miFichaLectura'
 import { tarjetasDe } from '../../data/fichaColaborador'
 import { useEdicionPerfil } from '../../hooks/useEdicionPerfil'
@@ -201,7 +202,7 @@ export function SeccionMiFicha({ ficha, pestana }) {
     <div className="mf-cuerpo">
       <div className="mf-info">
         <Info size={15} />
-        <span>{pestana === 'personal'
+        <span>{pestanaConEditables(pestana)
           ? 'Estos datos los mantiene usted al día. Para cambiarlos, entre a Configuración › Editar perfil de usuario.'
           : pestana === 'recursos'
             ? 'Lo que la empresa le entregó para trabajar.'
@@ -257,17 +258,23 @@ function CamposSeccion({ s, ed }) {
   )
 }
 
-const PESTANAS_PERFIL = [
-  { key: 'personal', titulo: 'Información Personal', pista: 'Sus datos y los de su familia', partes: ['quien', 'entorno'] },
-  { key: 'preferencias', titulo: 'Preferencias', pista: 'Regalos y experiencias que le gustarían', partes: ['preferencias'] },
+/* Las pestañas del riel son las de la ficha que tienen algo que él pueda editar —lo decide la
+   empresa en `configFicha`— y Preferencias al final, si también la puede editar. */
+const PREFERENCIAS = { key: 'preferencias', titulo: 'Preferencias', pista: 'Regalos y experiencias que le gustarían', partes: ['preferencias'] }
+const pestanasPerfil = partes => [
+  ...PESTANAS_COLABORADOR
+    .map(p => ({ key: p.key, titulo: p.titulo, pista: p.pista, partes: p.partes.filter(k => partes.some(x => x.key === k)) }))
+    .filter(p => p.partes.length),
+  ...(preferenciasEditables() ? [PREFERENCIAS] : []),
 ]
-const TITULO_PARTE = { quien: 'Información Personal', entorno: 'Información Familiar', preferencias: 'Preferencias' }
 
 export function EditarPerfil({ ficha, onGuardar }) {
   const ed = useEdicionPerfil(ficha.form, onGuardar)
   const [guardado, avisar] = useAvisoGuardado()
   const [docViendo, setDocViendo] = useState(null)
-  const [paso, setPaso] = useState('quien')
+  const PESTANAS_PERFIL = useMemo(() => pestanasPerfil(ed.partes), [ed.partes])
+  const TITULO_PARTE = Object.fromEntries([...ed.partes.map(p => [p.key, p.titulo]), ['preferencias', 'Preferencias']])
+  const [paso, setPaso] = useState(() => PESTANAS_PERFIL[0]?.partes[0] || 'quien')
 
   const pestana = PESTANAS_PERFIL.find(t => t.partes.includes(paso)) || PESTANAS_PERFIL[0]
   const parteActual = ed.partes.find(p => p.key === paso)
@@ -294,7 +301,7 @@ export function EditarPerfil({ ficha, onGuardar }) {
       m[t.key] = { puestos, total, pct: total ? Math.round(puestos * 100 / total) : 0 }
     }
     return m
-  }, [avance])
+  }, [avance, PESTANAS_PERFIL])
 
   const itemsRiel = PESTANAS_PERFIL.map((t, i) => ({ key: t.key, n: i + 1, titulo: t.titulo, pista: t.pista }))
   const irAPestana = clave => setPaso(PESTANAS_PERFIL.find(t => t.key === clave)?.partes[0] || 'quien')
@@ -305,6 +312,18 @@ export function EditarPerfil({ ficha, onGuardar }) {
     return first ? [first.titulo] : []
   })
   const alternar = t => setAbiertos(a => a.includes(t) ? a.filter(x => x !== t) : [...a, t])
+
+  // Si la empresa no le deja editar nada, lo dice en vez de enseñar un formulario vacío.
+  if (!pestana) {
+    return (
+      <div className="mf-cuerpo">
+        <div className="mf-info">
+          <Info size={15} />
+          <span>Su empresa no tiene datos de la ficha para que usted los edite. Si algo no está bien, pida la corrección a RR.HH.</span>
+        </div>
+      </div>
+    )
+  }
 
   const contenido = paso === 'preferencias' ? (
     <PreferenciasEditables ed={ed} />

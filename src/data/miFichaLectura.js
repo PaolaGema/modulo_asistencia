@@ -1,4 +1,5 @@
 import { PESTANAS, tarjetasDe } from './fichaColaborador'
+import { nivelColaborador } from './configFicha'
 
 /* CÓMO SE LEE LA FICHA DESDE EL LADO DEL COLABORADOR.
    Las secciones, los campos, las condiciones y las copias repetidas salen de `tarjetasDe`, lo
@@ -10,9 +11,11 @@ import { PESTANAS, tarjetasDe } from './fichaColaborador'
    - UN CAMPO VACÍO NO SE ENSEÑA. El colaborador no llena su ficha: la mira, y veinte
      «Sin registrar» taparían lo que sí está.
    - LOS ARCHIVOS VAN A «DOCUMENTACIÓN», juntos, y no desperdigados entre los datos.
-   - MI FICHA SÓLO SE LEE. Su Información Personal, con sus documentos, y sus preferencias las
-     edita desde Configuración › Editar perfil de usuario, en web y en el teléfono. Todo lo
-     demás se corrige pidiéndoselo a RR.HH. */
+   - MI FICHA SÓLO SE LEE. Lo que la empresa le deja editar —de fábrica, su Información Personal
+     y Familiar, con sus documentos, y sus preferencias— lo cambia desde Configuración › Editar
+     perfil de usuario, en web y en el teléfono. Todo lo demás se corrige pidiéndoselo a RR.HH.
+   - QUÉ VE Y QUÉ EDITA LO DECIDE LA EMPRESA, sección por sección, en Gestión de Personas ›
+     Configuración › Ficha del colaborador. Aquí sólo se pregunta `nivelColaborador`. */
 
 export const PESTANAS_COLABORADOR = PESTANAS.filter(p => p.key !== 'configuracion')
 
@@ -25,10 +28,17 @@ const PISTAS = {
 }
 export const pistaDe = key => PISTAS[key] || ''
 
-/* Secciones que no se le enseñan: si es reingreso es un dato del trámite de RR.HH.; los
-   exámenes aún no guardan un dato legible; los archivos van a Documentación; las preferencias
-   viven en la portada del perfil. */
-const OCULTAS = new Set(['reingreso', 'examenes', 'archivos', 'preferencias'])
+/* Secciones que no se leen aquí, decida lo que decida la empresa: los exámenes aún no guardan un
+   dato legible; los archivos van a Documentación; las preferencias viven en la portada del perfil.
+   Las que la empresa pone en «Oculto» —de fábrica, si es reingreso— se quitan con `seVeAqui`. */
+const OCULTAS = new Set(['examenes', 'archivos', 'preferencias'])
+const seVeAqui = (t, parte) => !OCULTAS.has(t.id) && nivelColaborador(t.id, parte) !== 'oculto'
+/* Las preferencias, en la portada y en Editar perfil, siguen la misma regla que cualquier sección. */
+export const preferenciasVisibles = () => nivelColaborador('preferencias', 'quien') !== 'oculto'
+export const preferenciasEditables = () => nivelColaborador('preferencias', 'quien') === 'editar'
+/* Si en una pestaña de Mi ficha hay algo que él mismo mantiene: cambia el aviso de arriba. */
+export const pestanaConEditables = pestanaKey => (PESTANAS_COLABORADOR.find(p => p.key === pestanaKey)?.partes || [])
+  .some(parte => tarjetasDe(parte, {}, {}).some(t => t.id !== 'preferencias' && nivelColaborador(t.id, parte) === 'editar'))
 const PRIVADAS = new Set(['medica'])
 const SIN_VALOR = new Set(['archivo', 'repetir', 'agregarDoc', 'mapa', 'tutela', 'aprobadores', 'apoyoFuncional', 'rotulo'])
 /* Montos que se tapan hasta que la persona pide verlos: el sueldo no tiene por qué quedar a la
@@ -89,7 +99,7 @@ export function partesDe(pestanaKey, form) {
     key: parte,
     titulo: tituloDeParte(parte),
     secciones: tarjetasDe(parte, form, {})
-      .filter(t => !OCULTAS.has(t.id))
+      .filter(t => seVeAqui(t, parte))
       .map(t => leer(t, form))
       .filter(s => pestanaKey === 'recursos' || !s.vacia),
   })).filter(p => p.secciones.length)
@@ -123,28 +133,27 @@ export function resumenDe(form, key) {
 }
 
 /* ── CONFIGURACIÓN › EDITAR PERFIL DE USUARIO ─────────────────────────────
-   Lo que el colaborador cambia por su cuenta es su Información Personal entera —la suya y la de
-   su familia— con los documentos que van en ella: el carnet escaneado, el certificado de
-   nacimiento, el croquis, las licencias. Se guarda al momento, sin pasar por RR.HH. Lo demás
-   —puesto, contrato, pago, recursos— ni se ve ahí: no lo puede cambiar.
+   Lo que el colaborador cambia por su cuenta son las secciones que la empresa le deja editar
+   (`nivelColaborador`). De fábrica es su Información Personal entera —la suya y la de su
+   familia— con los documentos que van en ella: el carnet escaneado, el certificado de nacimiento,
+   el croquis, las licencias. Se guarda al momento, sin pasar por RR.HH. Lo laboral —puesto,
+   contrato, pago, recursos— ni se ve ahí: tiene tope «Solo ver» y no lo puede cambiar.
 
    LAS SECCIONES SALEN AUNQUE ESTÉN VACÍAS y con todos sus campos: quien todavía no tiene teléfono
    fijo tiene que poder agregarlo. Se leen con `tarjetasDe` sobre lo que se está escribiendo, así
    que lo condicional aparece al contestar: «Sí» a las alergias abre su descripción.
-   Queda fuera lo que no es un dato suyo: si es reingreso lo decide el trámite de RR.HH. Las
-   preferencias van aparte, en su pestaña. */
-const PARTES_EDITABLES = ['quien', 'entorno']
-const NO_SE_EDITAN = new Set(['reingreso', 'preferencias'])
+   Las preferencias van aparte, en su pestaña. UNA PARTE SIN NADA QUE EDITAR NO SALE. */
+const NO_SE_EDITAN = new Set(['preferencias'])
 /* El mapa y los calculados se quedan: en la web se dibujan con la rejilla de RR.HH., y el mapa
    ancla la columna izquierda de «Datos de residencia» —sin él, el croquis cae suelto—. Los
    calculados no se escriben, se enseñan, igual que allá. El teléfono, de una columna, los salta. */
 const SE_ESCRIBEN = new Set(['texto', 'lista', 'siNo', 'archivo', 'rotulo', 'repetir', 'mapa', undefined])
 export function perfilEditable(form) {
-  return PARTES_EDITABLES.map(parte => ({
+  return PESTANAS_COLABORADOR.flatMap(p => p.partes).map(parte => ({
     key: parte,
-    titulo: tituloDeParte(parte),
+    titulo: tituloDeParte(parte) || PESTANAS_COLABORADOR.find(p => p.partes.includes(parte))?.titulo,
     secciones: tarjetasDe(parte, form, {})
-      .filter(t => !NO_SE_EDITAN.has(t.id))
+      .filter(t => !NO_SE_EDITAN.has(t.id) && nivelColaborador(t.id, parte) === 'editar')
       .map(t => ({
         id: t.id,
         titulo: t.titulo,
@@ -152,7 +161,7 @@ export function perfilEditable(form) {
         campos: t.campos.filter(c => SE_ESCRIBEN.has(c.tipo) && !c.oculto),
       }))
       .filter(s => s.campos.some(c => c.tipo !== 'rotulo' && c.tipo !== 'repetir')),
-  }))
+  })).filter(p => p.secciones.length)
 }
 
 /* ── DOCUMENTACIÓN ─────────────────────────────────────────────────────────

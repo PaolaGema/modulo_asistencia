@@ -1937,7 +1937,8 @@ export const PASOS_PROPUESTA = [
               'Conviviente',
               'Hijo(a)',
               'Hermano(a)',
-              'Abuelo(a)'
+              'Abuelo(a)',
+              'Otro'
             ],
             col: 'c-tercio',
             insignia: 'legal',

@@ -2,6 +2,7 @@ import { PASOS_PROPUESTA } from './camposPropuesta'
 import { provinciasDe } from './divisionPolitica'
 import { nivelesDe, tieneCatalogo } from './territorios'
 import { paisPorNombre } from './codigosPais'
+import { seccionActiva } from './configFicha'
 
 /* LA FICHA DEL COLABORADOR.
    Ocho pasos y una vista previa, con los 249 campos del estudio de la propuesta v1.2. Los campos
@@ -1237,14 +1238,26 @@ const sinRotulosHuerfanos = campos => campos.filter((c, i) => {
   return false
 })
 
-export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
+/* LA SECCIÓN DE DONDE VIENE CADA ARCHIVO DE «ARCHIVOS». Ahí se repiten, con la misma clave, los
+   adjuntos que se suben en su propia sección —el carnet, el croquis—; si la empresa apaga esa
+   sección (`configFicha`), su archivo tampoco se ofrece en Archivos. */
+const SECCION_DEL_CAMPO = new Map(PASOS_PROPUESTA.flatMap(p => p.tarjetas)
+  .filter(t => t.id !== 'archivos')
+  .flatMap(t => t.campos.map(c => [c.key, t.id])))
+
+/* `conInactivas`: sólo para la configuración de la ficha, que enseña también las secciones que
+   la empresa apagó para poder volver a encenderlas. Todas las demás pantallas las omiten. */
+export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo', { conInactivas = false } = {}) {
   // Una parte hecha de varios pasos del estudio junta sus secciones, en orden. Ver `JUNTA`.
   const fuentes = (JUNTA[paso] || [paso]).map(pasoDelEstudio).filter(Boolean)
   if (!fuentes.length) return []
 
-  return fuentes.flatMap(p => p.tarjetas).map(t => ({
+  // Las secciones que la empresa no usa no existen para ninguna pantalla. Ver `configFicha`.
+  const usa = id => conInactivas || seccionActiva(id)
+  return fuentes.flatMap(p => p.tarjetas).filter(t => usa(t.id)).map(t => ({
     ...t,
     campos: t.campos
+      .filter(c => !SECCION_DEL_CAMPO.has(c.key) || t.id !== 'archivos' || usa(SECCION_DEL_CAMPO.get(c.key)))
       /* LA CONDICIÓN DE UN CAMPO REPETIBLE NO SE MIRA TODAVÍA. Acá cada descriptor es uno
          solo —las copias las hace `expandirRepetibles` al final— así que preguntarle a un campo
          del bloque si se ve sólo puede contestarse con los valores de la PRIMERA copia, y la
@@ -1542,6 +1555,35 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo') {
    2026): la descripción de cada sección ya dice qué registrar. Los apuntes siguen en el estudio
    —camposPropuesta.js— y en la documentación; lo que se quita es sólo su dibujo en la ficha. */
 const sinMarcas = ({ nota, insignia, ...campo }) => (void nota, void insignia, campo)
+
+/* ── LAS SECCIONES QUE LA EMPRESA PUEDE CONFIGURAR ──────────────────────────
+   Todas las de la ficha, encendidas o no, en el orden de sus pestañas y partes — lo que lista
+   Gestión de Personas › Configuración › Ficha del colaborador (`configFicha`). Se leen del estudio
+   y no de `tarjetasDe`, que ya no devuelve las apagadas y cuenta los bloques repetidos según las
+   copias de una ficha: aquí cada campo se cuenta una vez.
+
+   OBLIGATORIA = no se puede apagar. Lo es la que tiene un campo de nivel «Mínimo» —sin él no se
+   puede declarar a nadie— y lo son dos que sostienen a las demás: Archivos, que reúne los
+   documentos, y el acceso al sistema, sin el que el colaborador no entra a ver su ficha. */
+const SIEMPRE = new Set(['archivos', 'acceso'])
+const NO_ES_DATO = new Set(['rotulo', 'repetir', 'agregarDoc'])
+export function seccionesConfigurables() {
+  return PESTANAS.flatMap(pestana => pestana.partes.flatMap(parte => {
+    const titulo = PASOS.find(p => p.key === parte)?.titulo
+    return (JUNTA[parte] || [parte]).map(pasoDelEstudio).filter(Boolean).flatMap(p => p.tarjetas)
+      .filter(t => t.campos.some(c => c.tipo !== 'rotulo'))
+      .map(t => {
+        const campos = t.campos.filter(c => !NO_ES_DATO.has(c.tipo))
+        return {
+          id: t.id, titulo: t.titulo, desc: t.desc,
+          pestana: pestana.key, parte, tituloParte: titulo,
+          campos: campos.length,
+          claves: campos.map(c => c.key),
+          obligatoria: SIEMPRE.has(t.id) || campos.some(c => c.nivel === 'Mínimo'),
+        }
+      })
+  }))
+}
 
 /* TODAS LAS TARJETAS DE LA FICHA, en orden. Es lo que lee la vista previa —que no es un paso más
    sino los ocho leídos de corrido— y de donde salen las cuentas. */

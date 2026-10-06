@@ -211,8 +211,8 @@ export default function Layout() {
           Vista Mobile — Prototipo UX
         </div>
 
-        {/* Phone frame */}
-        <div style={{
+        {/* Phone frame. Su `id` lo mide la lista del teléfono para abrirse hacia arriba si abajo no cabe (`useMenuPhone`). */}
+        <div id="marco-telefono" style={{
           width: 280, height: 560, zoom: zoomCel,
           borderRadius: 36,
           border: '5px solid #334155',

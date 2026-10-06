@@ -17,8 +17,12 @@ import { ChevronDown } from 'lucide-react'
 
    SE ABRE Y SE CIERRA CON MOVIMIENTO (30 sep 2026, a pedido del equipo), el mismo del riel: el
    cuerpo crece o se encoge y su contenido aparece con un fundido. Cerrada queda `inert`, así que
-   ni se ve ni la recorre el teclado — lo mismo que hacía `hidden`, pero dejando animar. */
-export default function Acordeon({ titulo, desc, abierto, onAlternar, llenos, total, children }) {
+   ni se ve ni la recorre el teclado — lo mismo que hacía `hidden`, pero dejando animar.
+
+   `acciones`: controles que viven en la cabecera, a la derecha —en la configuración de la ficha,
+   el interruptor y qué puede hacer el colaborador—. Van AL LADO del botón que pliega y no dentro:
+   un botón no puede llevar otros botones. `clase` suma una clase a la caja. */
+export default function Acordeon({ titulo, desc, abierto, onAlternar, llenos, total, acciones, clase = '', children }) {
   const llena = total > 0 && llenos >= total
 
   /* LA PASTILLA BRILLA UNA VEZ AL COMPLETARSE, y sólo al pasar de incompleta a completa: una
@@ -36,7 +40,16 @@ export default function Acordeon({ titulo, desc, abierto, onAlternar, llenos, to
   }, [llena])
 
   return (
-    <section className={`ac-caja${abierto ? ' on' : ''}`}>
+    <section className={`ac-caja${abierto ? ' on' : ''}${clase ? ' ' + clase : ''}`}>
+      {acciones ? (
+        <div className="ac-cab ac-cab-fila">
+          <button type="button" className="ac-cab-boton" onClick={onAlternar} aria-expanded={abierto}>
+            <ChevronDown size={14} className="ac-flecha" />
+            <span className="ac-tit">{titulo}</span>
+          </button>
+          <div className="ac-acciones">{acciones}</div>
+        </div>
+      ) : (
       <button type="button" className="ac-cab" onClick={onAlternar} aria-expanded={abierto}>
         <ChevronDown size={14} className="ac-flecha" />
         <span className="ac-tit">{titulo}</span>
@@ -52,6 +65,7 @@ export default function Acordeon({ titulo, desc, abierto, onAlternar, llenos, to
           </span>
         )}
       </button>
+      )}
       <div className={`ac-anim${abierto ? ' on' : ''}`} inert={!abierto}>
         <div className="ac-anim-dentro">
           <div className="ac-cuerpo">

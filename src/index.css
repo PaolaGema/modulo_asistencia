@@ -11143,3 +11143,146 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-barra-guardar > span:first-child { flex: 1; font-size: 13px; color: var(--text-muted); }
 .mf-barra-guardar > span.falta { color: var(--mf-ven-txt); }
 .mf-form label.mf-mini { flex-direction: row; font-size: 12px; color: #00804F; }
+
+/* ── GESTIÓN DE PERSONAS › CONFIGURACIÓN › FICHA DEL COLABORADOR ──────────────
+   Se ve como «Nuevo colaborador»: su riel y sus acordeones. Las dos decisiones de cada sección van
+   en la cabecera del acordeón (`.ac-acciones`); qué puede hacer el colaborador, en tres botones
+   juntos: tres opciones fijas se eligen mejor viéndolas todas que abriendo una lista. */
+.cf-resumen { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+.cf-resumen b { color: var(--text-heading); font-weight: 700; }
+
+/* La cabecera con controles: la banda es la misma; el botón que pliega se lleva el título. */
+.ac-cab-fila { cursor: default; flex-wrap: wrap; row-gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+.ac-cab-fila:hover { filter: none; }
+.ac-cab-boton {
+  display: flex; align-items: center; gap: 11px; flex: 1; min-width: 180px; align-self: stretch;
+  padding: 4px 0; border: none; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.ac-cab-boton:hover .ac-tit { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-dark); }
+.ac-acciones { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+
+/* Apagada: la cabecera se queda, más tenue, para poder volver a encenderla. */
+.cf-apagada .ac-tit { opacity: .55; }
+.cf-apagada .ac-cab-fila { background: var(--surface-card); }
+
+.cf-interruptor { display: inline-flex; align-items: center; gap: 7px; min-width: 128px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.cf-sw { margin-top: 0; }
+.cf-sw.on { background: var(--green); }
+.cf-sw.on::after { left: 16px; }
+.cf-interruptor:has(.cf-sw.on) { color: var(--text-heading); }
+/* Obligatoria: encendida y quieta. El interruptor no se apaga a medias —sigue verde— y el candado
+   al lado dice por qué no se mueve. */
+.cf-interruptor.fija { cursor: not-allowed; }
+.cf-interruptor.fija .cf-sw:disabled { opacity: .55; cursor: not-allowed; }
+.cf-estado-fija { display: inline-flex; align-items: center; gap: 4px; color: var(--mf-verde-txt); }
+.cf-sin-nivel { width: 340px; font-size: 11px; color: var(--text-muted); font-style: italic; text-align: center; }
+
+.cf-seg { display: flex; width: 340px; padding: 2px; border-radius: 9px; background: var(--surface-card); border: 1px solid var(--border-soft); }
+.cf-seg-op {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  flex: 1; height: 28px; padding: 0 8px; border: none; border-radius: 7px; background: none;
+  font: 500 11.5px 'Poppins', sans-serif; color: var(--text-muted); cursor: pointer; white-space: nowrap;
+  transition: background .12s, color .12s;
+}
+.cf-seg-op:hover:not(:disabled) { color: var(--text-heading); background: var(--surface-hover); }
+.cf-seg-op.on { background: var(--green-tint); color: var(--navy-txt); font-weight: 600; box-shadow: inset 0 0 0 1px var(--green); }
+.cf-seg-op:disabled { cursor: not-allowed; }
+.cf-seg-op:disabled:not(.on) { opacity: .4; }
+.cf-apagada .cf-seg { opacity: .5; }
+
+.cf-desc { display: flex; flex-direction: column; gap: 4px; }
+.cf-meta { font-size: 11px; font-weight: 600; color: var(--text-heading); opacity: .75; }
+/* Los títulos de las dos columnas de la cabecera, alineados con `.ac-acciones`: el ancho del
+   interruptor —128—, 14 de hueco, 340 de los botones y los 20 del relleno. */
+.cf-columnas {
+  display: flex; align-items: center; gap: 14px; padding: 0 20px 8px 20px;
+  font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted);
+}
+.cf-columnas > span:first-child { flex: 1; padding-left: 25px; }
+.cf-col-ficha { width: 128px; }
+.cf-col-colab { width: 340px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+/* El modal de activar o desactivar una sección: la propuesta A. Alineado a la izquierda, ícono de
+   la acción arriba, un renglón con ícono por cada cosa que cambia y los botones en una franja. */
+.cf-modal {
+  width: min(460px, calc(100vw - 32px)); background: var(--surface-card); color: var(--text-heading);
+  border-radius: 16px; box-shadow: 0 24px 60px rgba(12,45,64,.3); overflow: hidden;
+  animation: plSlideUp .2s ease-out;
+}
+.cf-modal-cuerpo { padding: 24px 24px 20px; display: flex; flex-direction: column; gap: 18px; }
+.cf-modal-cab { display: flex; align-items: flex-start; gap: 14px; }
+.cf-modal-cab h2 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.35; }
+.cf-modal-cab p { margin: 4px 0 0; font-size: 12.5px; color: var(--text-muted); }
+.cf-modal-ico {
+  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--mf-ven-bg); color: var(--mf-ven-txt);
+}
+.cf-modal-ico.activar { background: var(--mf-vig-bg); color: var(--mf-vig-txt); }
+.cf-modal-cerrar {
+  width: 32px; height: 32px; flex-shrink: 0; border: none; border-radius: 8px; background: none; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.cf-modal-cerrar:hover { background: var(--surface-hover); color: var(--text-heading); }
+.cf-modal-renglones { display: flex; flex-direction: column; gap: 12px; }
+.cf-modal-renglon { display: flex; align-items: flex-start; gap: 12px; }
+.cf-modal-ico-chico {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-secondary); color: var(--text-heading);
+}
+.cf-modal-ico-chico.verde { background: var(--mf-vig-bg); color: var(--mf-vig-txt); }
+.cf-modal-renglon-tit { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13.5px; font-weight: 600; }
+.cf-modal-renglon-txt { font-size: 12.5px; color: var(--text-muted); line-height: 1.45; }
+.cf-modal-etiqueta {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px;
+  background: var(--mf-vig-bg); color: var(--mf-vig-txt); font-size: 11px; font-weight: 600;
+}
+.cf-modal-pie { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-soft); background: var(--bg-secondary); }
+.cf-modal-btn {
+  height: 40px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--border-dark); background: var(--surface-card);
+  color: var(--text-heading); font: 600 13.5px 'Poppins', sans-serif; cursor: pointer;
+}
+.cf-modal-btn:hover { background: var(--surface-hover); }
+.cf-modal-btn.desactivar { border: none; background: #C62828; color: #fff; }
+.cf-modal-btn.desactivar:hover { background: #A61F1F; }
+.cf-modal-btn.activar { border: none; background: var(--green); color: #0C2D40; }
+.cf-modal-btn.activar:hover { filter: brightness(.95); }
+/* Los campos de muestra: los de la ficha, para mirar. */
+.cf-muestra { pointer-events: none; user-select: none; }
+
+.cf-puede { display: none; }
+@media (max-width: 900px) {
+  .cf-columnas { display: none; }
+  .cf-puede { display: block; width: 100%; margin-bottom: -4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+  .ac-acciones { width: 100%; flex-wrap: wrap; justify-content: space-between; }
+  .cf-seg, .cf-sin-nivel { width: 100%; }
+}
+
+/* ── LAS LISTAS DEL TELÉFONO (Mi ficha › Editar perfil) ─────────────────────────
+   El desplegable de «Nuevo colaborador» (`.pl-dropdown-*`) a la escala del teléfono: mismo borde,
+   misma sombra flotante, misma opción elegida en verde claro con su tilde. */
+.mf-dd-caja.abierta { border-color: var(--focus) !important; box-shadow: 0 0 0 2px rgba(12,45,64,.08); }
+.mf-dd-menu {
+  position: absolute; top: calc(100% + 3px); left: 0; right: 0; z-index: 40;
+  display: flex; flex-direction: column; max-height: 150px; padding: 3px;
+  background: var(--surface-card); border: 1px solid var(--border-dark); border-radius: 8px;
+  box-shadow: var(--sh-flotante);
+  animation: plDropIn .15s ease-out;
+}
+.mf-dd-menu.arriba { top: auto; bottom: calc(100% + 3px); animation-name: plDropInUp; }
+.mf-dd-busca {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0; height: 20px; margin-bottom: 3px; padding: 0 6px;
+  border-radius: 6px; background: var(--bg-secondary); color: var(--text-muted);
+}
+.mf-dd-busca input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: 400 7.5px 'Poppins', sans-serif; color: var(--text-heading); }
+.mf-dd-lista { overflow-y: auto; scrollbar-width: thin; position: relative; }
+.mf-dd-op {
+  display: flex; align-items: center; gap: 5px; width: 100%; padding: 5px 6px; border: none; border-radius: 5px;
+  background: transparent; font: 500 7.5px 'Poppins', sans-serif; color: var(--text-heading); text-align: left; cursor: pointer;
+}
+.mf-dd-op:hover { background: var(--surface-hover); }
+.mf-dd-op.on { background: var(--green-tint); color: var(--navy-txt); font-weight: 600; }
+.mf-dd-op.vacia { color: var(--text-muted); font-style: italic; }
+.mf-dd-txt { flex: 1; min-width: 0; }
+.mf-dd-lateral { color: var(--text-muted); font-weight: 500; }
+.mf-dd-check { flex-shrink: 0; color: var(--green); }
+.mf-dd-sigla { flex-shrink: 0; font-size: 6px; font-weight: 700; padding: 1px 3px; border-radius: 3px; background: var(--navy); color: #fff; }
+.mf-dd-nada { margin: 8px 0; text-align: center; font-size: 7px; color: var(--text-muted); }

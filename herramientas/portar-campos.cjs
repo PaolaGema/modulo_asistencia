@@ -655,13 +655,14 @@ const CAMPOS_AJUSTADOS = {
   /* El sexo de cada hijo pasa a selector, con las mismas opciones que el del colaborador (29 sep 2026). */
   '2.23': { tipo: 'lista', opciones: ['F · Femenino', 'M · Masculino'] },
   /* El parentesco del contacto de emergencia se cierra a los familiares directos (29 sep 2026), a
-     pedido del equipo: salen tío, primo, amigo, vecino y «Otro». */
+     pedido del equipo: salen tío, primo, amigo y vecino. «Otro» vuelve en el contacto de
+     emergencia (6 oct 2026), también a pedido: abre «¿Qué parentesco?» para escribir cuál. */
   '2.32': {
     opciones: ['Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)', 'Abuelo(a)'],
     nota: 'El familiar que se declara como beneficiario o heredero.',
   },
   '2.2': {
-    opciones: ['Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)', 'Abuelo(a)'],
+    opciones: ['Madre', 'Padre', 'Cónyuge', 'Conviviente', 'Hijo(a)', 'Hermano(a)', 'Abuelo(a)', 'Otro'],
     nota: 'El familiar a quien avisar en una emergencia.',
   },
   /* Tipos de licencia o certificación (29 sep 2026), a pedido del equipo: se suman los certificados

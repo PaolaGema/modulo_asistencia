@@ -11,7 +11,7 @@ import { useMiFicha } from '../../hooks/useMiFicha'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
 import MiFichaWeb, { Preferencias, SeccionMiFicha, EditarPerfil } from '../../components/personas/MiFichaWeb'
 import ConfiguracionWeb from '../../components/personas/ConfiguracionWeb'
-import { pestanasCon } from '../../data/miFichaLectura'
+import { pestanasCon, preferenciasVisibles } from '../../data/miFichaLectura'
 
 /* MI PERFIL — LA FICHA PROPIA, NO UN FORMULARIO.
    Es la misma pantalla que el colaborador tiene en el teléfono: se entra a mirarse, no a
@@ -264,7 +264,7 @@ export default function Perfil() {
       {miFicha ? (
         <>
           <MiFichaWeb ficha={miFicha} onAbrir={abrir} />
-          <Preferencias ficha={miFicha} />
+          {preferenciasVisibles() && <Preferencias ficha={miFicha} />}
         </>
       ) : (
         <>

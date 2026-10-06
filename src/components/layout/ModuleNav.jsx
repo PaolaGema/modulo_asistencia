@@ -199,6 +199,11 @@ const personasNav = [
     { label: 'Colaboradores', path: '/personas/colaboradores', icon: UserRound, end: true },
     { label: 'Clientes externos', path: '/personas/clientes-externos', icon: Handshake },
   ]},
+  /* La ficha a la medida de la empresa: qué secciones usa y qué edita el colaborador. Aparte y
+     abajo, como en los demás módulos: se entra a decidir y se sale. */
+  { section: 'Configuración', items: [
+    { label: 'Ficha del colaborador', path: '/personas/configuracion/ficha', icon: SlidersHorizontal },
+  ]},
 ]
 
 /* ── DOCUMENTACIÓN: POR TAREA, NO POR TIPO DE DOCUMENTO (PRD 11.2) ──

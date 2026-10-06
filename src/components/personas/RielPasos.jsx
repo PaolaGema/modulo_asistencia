@@ -51,7 +51,9 @@ import { ChevronRight, Eye } from 'lucide-react'
    partes lleva una flechita, y tocarla estando abierta pliega o despliega sus partes sin moverse de
    la parte en la que se está. Tocar otra pestaña la abre, como siempre. `conPartes` dice qué
    pestañas tienen más de una parte, para dibujarles la flecha aunque no estén abiertas. */
-export default function RielPasos({ pasos, actual, onIr, avance, pendientes, partes, onParte, conPartes }) {
+/* `unidad`: qué cuenta el aro, para el título al pasar el ratón —campos en la ficha, secciones en
+   su configuración—. */
+export default function RielPasos({ pasos, actual, onIr, avance, pendientes, partes, onParte, conPartes, unidad = 'campos' }) {
   // Plegada es de la pestaña abierta: al cambiar de pestaña vuelve a verse desplegada.
   const [plegadaEn, setPlegadaEn] = useState(null)
   const plegada = plegadaEn === actual
@@ -104,7 +106,7 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes, par
             onClick={() => (puesto && tienePartes ? setPlegadaEn(plegada ? null : actual) : onIr(p.key))}
             /* El aro no lleva cifra —no cabe—, así que el número exacto vive acá, que es
                donde se lo busca en cuanto un paso llama la atención. */
-            title={t ? `${t.puestos} de ${t.total} campos` + (pendientes?.has(p.key) ? ' · falta un dato del mínimo legal' : '') : undefined}
+            title={t ? `${t.puestos} de ${t.total} ${unidad}` + (pendientes?.has(p.key) ? ' · falta un dato del mínimo legal' : '') : undefined}
           >
             {/* La vista previa no lleva número porque no es un paso más que llenar: es los ocho
                 leídos de corrido. El ojo lo dice sin tener que explicarlo. */}
@@ -146,7 +148,7 @@ export default function RielPasos({ pasos, actual, onIr, avance, pendientes, par
                   style={{ '--i': j }}
                   aria-current={x.on ? 'step' : undefined}
                   onClick={() => onParte(x.key)}
-                  title={x.total ? `${x.puestos} de ${x.total} campos · ${x.pct}%` : undefined}
+                  title={x.total ? `${x.puestos} de ${x.total} ${unidad} · ${x.pct}%` : undefined}
                 >
                   <span className="rp-sub-num">{p.n}.{j + 1}</span>
                   <span className="rp-sub-nom">
