@@ -9,6 +9,9 @@ import { useSyncExternalStore } from 'react'
      del estudio— no se apagan (ver `seccionesConfigurables`).
    - QUÉ PUEDE HACER EL COLABORADOR con ella: no verla, sólo verla o editarla él mismo.
 
+   - SECCIONES PROPIAS (fase 2): las que la empresa crea, con sus campos, en cualquier parte de
+     la ficha. Son las únicas que se editan y se eliminan. Ver `tarjetaPropia`.
+
    SE APLICA EN UN SOLO LUGAR. `tarjetasDe` pregunta `seccionActiva` y `miFichaLectura` pregunta
    `nivelColaborador`; todas las pantallas de la ficha pasan por esos dos, así que ninguna se
    entera de que existe esta configuración y ninguna puede quedarse desfasada.
@@ -23,7 +26,7 @@ import { useSyncExternalStore } from 'react'
 
 const CLAVE = 'onb_demo_config_ficha' // con el prefijo de la demo: «Borrar datos de la demo» la limpia
 const AVISO = 'config-ficha'
-const VACIA = { inactivas: [], colaborador: {} }
+const VACIA = { inactivas: [], colaborador: {}, propias: [] }
 
 let cache = { crudo: undefined, valor: VACIA }
 export function configFicha() {
@@ -52,6 +55,52 @@ const suscribir = fn => {
 export const useConfigFicha = () => useSyncExternalStore(suscribir, configFicha, () => VACIA)
 
 export const seccionActiva = id => !configFicha().inactivas.includes(id)
+
+/* ── LAS SECCIONES PROPIAS ──────────────────────────────────────────────────
+   Se guardan con lo mínimo —nombre, instrucción, la parte de la ficha donde van y sus campos— y
+   `tarjetaPropia` las convierte en una tarjeta como las del estudio: `tarjetasDe` las suma al
+   final de su parte y desde ahí las dibujan Nuevo colaborador, la ficha de RR.HH., Mi ficha y
+   Editar perfil, con los mismos controles que cualquier otro campo.
+
+   CADA CAMPO TIENE SU CLAVE PARA SIEMPRE: «<id de la sección>.<n>», con un contador que sólo
+   sube. Borrar un campo y crear otro nunca le hereda los datos del anterior.
+
+   LOS TIPOS SON LOS QUE YA EXISTEN EN LA FICHA, con su nombre de todos los días: el celular trae
+   su código de país, la fecha su calendario, el archivo su recuadro. */
+export const TIPOS_CAMPO = [
+  { valor: 'texto', etiqueta: 'Texto corto' },
+  { valor: 'textoLargo', etiqueta: 'Texto largo' },
+  { valor: 'numero', etiqueta: 'Número' },
+  { valor: 'fecha', etiqueta: 'Fecha' },
+  { valor: 'lista', etiqueta: 'Lista de opciones' },
+  { valor: 'siNo', etiqueta: 'Sí / No' },
+  { valor: 'celular', etiqueta: 'Celular' },
+  { valor: 'correo', etiqueta: 'Correo electrónico' },
+  { valor: 'archivo', etiqueta: 'Archivo' },
+]
+export const opcionesDe = texto => String(texto || '').split('\n').map(s => s.trim()).filter(Boolean)
+
+/* «Operativo» y no «Mínimo»: el mínimo es el legal, y una sección propia no lo es. */
+export function descriptorDe(c) {
+  const base = { key: c.key, label: c.label || 'Campo sin nombre', col: 'c-tercio', nivel: 'Operativo', requerido: !!c.requerido }
+  switch (c.tipo) {
+    case 'textoLargo': return { ...base, tipo: 'texto', col: 'c-todo' }
+    case 'numero': return { ...base, numero: true }
+    case 'fecha': return { ...base, html: 'date' }
+    case 'lista': return { ...base, tipo: 'lista', opciones: opcionesDe(c.opciones) }
+    case 'siNo': return { ...base, tipo: 'siNo' }
+    case 'celular': return { ...base, html: 'tel', telefono: true, paisPorDefecto: 'BO' }
+    case 'correo': return { ...base, html: 'email' }
+    case 'archivo': return { ...base, tipo: 'archivo', acepta: 'application/pdf,image/*', pista: 'PDF o imagen · arrastrar o hacer clic' }
+    default: return base
+  }
+}
+
+export const tarjetaPropia = p => ({
+  id: p.id, titulo: p.titulo, desc: p.desc || '', propia: true, campos: (p.campos || []).map(descriptorDe),
+})
+export const propiasDe = parte => configFicha().propias.filter(p => p.parte === parte)
+export const todasLasPropias = () => configFicha().propias
 
 /* ── LO QUE PUEDE HACER EL COLABORADOR ────────────────────────────────────
    SE LEEN CON SU TÍTULO DE COLUMNA: «Para el colaborador: Editable · Solo lectura · Oculta».

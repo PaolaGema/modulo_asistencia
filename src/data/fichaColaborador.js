@@ -2,7 +2,7 @@ import { PASOS_PROPUESTA } from './camposPropuesta'
 import { provinciasDe } from './divisionPolitica'
 import { nivelesDe, tieneCatalogo } from './territorios'
 import { paisPorNombre } from './codigosPais'
-import { seccionActiva } from './configFicha'
+import { seccionActiva, propiasDe, todasLasPropias, tarjetaPropia } from './configFicha'
 
 /* LA FICHA DEL COLABORADOR.
    Ocho pasos y una vista previa, con los 249 campos del estudio de la propuesta v1.2. Los campos
@@ -1241,6 +1241,18 @@ const sinRotulosHuerfanos = campos => campos.filter((c, i) => {
 /* LA SECCIÓN DE DONDE VIENE CADA ARCHIVO DE «ARCHIVOS». Ahí se repiten, con la misma clave, los
    adjuntos que se suben en su propia sección —el carnet, el croquis—; si la empresa apaga esa
    sección (`configFicha`), su archivo tampoco se ofrece en Archivos. */
+/* Los archivos de las secciones propias, en «Archivos», antes de «Agregar documento». Su categoría
+   es la de la pestaña donde vive su sección, la misma que usa el filtro de Documentación. */
+const CATEGORIA_DE_PESTANA = { personal: 'Información Personal', laboral: 'Información Laboral', perfil: 'Perfil Profesional', recursos: 'Recursos y Activos' }
+function conArchivosPropios(campos, usa) {
+  const propios = todasLasPropias().filter(p => usa(p.id)).flatMap(p => tarjetaPropia(p).campos
+    .filter(c => c.tipo === 'archivo')
+    .map(c => ({ ...c, label: `${c.label} · ${p.titulo}`, categoria: CATEGORIA_DE_PESTANA[pestanaDe(p.parte)?.key] || 'Documentos agregados' })))
+  if (!propios.length) return campos
+  const i = campos.findIndex(c => c.tipo === 'agregarDoc')
+  return i < 0 ? [...campos, ...propios] : [...campos.slice(0, i), ...propios, ...campos.slice(i)]
+}
+
 const SECCION_DEL_CAMPO = new Map(PASOS_PROPUESTA.flatMap(p => p.tarjetas)
   .filter(t => t.id !== 'archivos')
   .flatMap(t => t.campos.map(c => [c.key, t.id])))
@@ -1254,7 +1266,11 @@ export function tarjetasDe(paso, form, ctx = {}, nivel = 'Completo', { conInacti
 
   // Las secciones que la empresa no usa no existen para ninguna pantalla. Ver `configFicha`.
   const usa = id => conInactivas || seccionActiva(id)
-  return fuentes.flatMap(p => p.tarjetas).filter(t => usa(t.id)).map(t => ({
+  /* LAS PROPIAS VAN AL FINAL DE SU PARTE, y sus archivos se repiten en «Archivos», como los de
+     las secciones del estudio, para que Documentación los reúna. */
+  const delEstudio = fuentes.flatMap(p => p.tarjetas)
+    .map(t => (t.id === 'archivos' ? { ...t, campos: conArchivosPropios(t.campos, usa) } : t))
+  return [...delEstudio, ...propiasDe(paso).map(tarjetaPropia)].filter(t => usa(t.id)).map(t => ({
     ...t,
     campos: t.campos
       .filter(c => !SECCION_DEL_CAMPO.has(c.key) || t.id !== 'archivos' || usa(SECCION_DEL_CAMPO.get(c.key)))
@@ -1582,6 +1598,16 @@ export function seccionesConfigurables() {
           obligatoria: SIEMPRE.has(t.id) || campos.some(c => c.nivel === 'Mínimo'),
         }
       })
+      // Y al final de cada parte, las que creó la empresa.
+      .concat(propiasDe(parte).map(p => {
+        const t = tarjetaPropia(p)
+        return {
+          id: t.id, titulo: t.titulo, desc: t.desc,
+          pestana: pestana.key, parte, tituloParte: titulo,
+          campos: t.campos.length, claves: t.campos.map(c => c.key),
+          obligatoria: false, propia: true,
+        }
+      }))
   }))
 }
 

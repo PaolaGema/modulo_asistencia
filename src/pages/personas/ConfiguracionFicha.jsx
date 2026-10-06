@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Eye, EyeOff, Info, Lock, Pencil, RotateCcw, ShieldCheck, Smartphone, User, UserPlus, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Eye, EyeOff, Info, Lock, MoreHorizontal, Pencil, Plus, RotateCcw, ShieldCheck, Smartphone, Trash2, User, UserPlus, X } from 'lucide-react'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { PASOS, PESTANAS, pestanaDe, seccionesConfigurables, tarjetasDe } from '../../data/fichaColaborador'
 import {
@@ -9,6 +9,7 @@ import RielPasos from '../../components/personas/RielPasos'
 import Acordeon from '../../components/personas/Acordeon'
 import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
 import ConfirmarAccionModal from '../../components/layout/ConfirmarAccionModal'
+import ArmadorSeccion from '../../components/personas/ArmadorSeccion'
 
 /* GESTIÓN DE PERSONAS › CONFIGURACIÓN › FICHA DEL COLABORADOR.
    La ficha trae todo lo que el estudio pide, y no toda empresa lo usa: una que no pide garantes
@@ -29,7 +30,12 @@ import ConfirmarAccionModal from '../../components/layout/ConfirmarAccionModal'
    SE APLICA AL CONFIRMAR, sin «Guardar» al final. Activar y desactivar piden confirmación (6 oct
    2026, a pedido del equipo) con `ModalSeccion` —la propuesta A que eligió el equipo—: un
    renglón con ícono por cada cosa que cambia: Nuevo colaborador, Mi ficha y lo ya registrado.
-   Los botones del colaborador se aplican al tocar: se ven y se deshacen ahí mismo. */
+   Los botones del colaborador se aplican al tocar: se ven y se deshacen ahí mismo.
+
+   SECCIONES PROPIAS (fase 2): «Nueva sección» al pie de cada parte abre el armador
+   (`ArmadorSeccion`). Las propias llevan la etiqueta «Propia» y, al final de su cabecera, el menú
+   «⋯» con Editar sección y Eliminar: son las únicas que se borran. Eliminar pide escribir la
+   palabra si ya hay datos. */
 
 const ICONO_NIVEL = { editar: Pencil, ver: Eye, oculto: EyeOff }
 const vacio = v => v === null || v === undefined || String(v).trim() === ''
@@ -39,22 +45,41 @@ const nada = () => {}
 export default function ConfiguracionFicha() {
   const config = useConfigFicha()
   const { colaboradores = [] } = useOnboardingData()
-  const secciones = useMemo(() => seccionesConfigurables(), [])
-  const porId = useMemo(() => Object.fromEntries(secciones.map(s => [s.id, s])), [secciones])
+  /* Se leen en cada dibujo, sin memo: `seccionesConfigurables` lee la configuración guardada, y
+     `useConfigFicha` repinta la pantalla cuando cambia —las propias entran y salen de la lista—. */
+  const secciones = seccionesConfigurables()
+  const porId = Object.fromEntries(secciones.map(s => [s.id, s]))
   const [paso, setPaso] = useState(PESTANAS[0].partes[0])
   const [abiertos, setAbiertos] = useState([])
   const [cambiando, setCambiando] = useState(null)
   const [restableciendo, setRestableciendo] = useState(false)
+  const [armando, setArmando] = useState(null) // { inicial } — null: cerrado
+  const [eliminando, setEliminando] = useState(null)
+
+  const propiaDe = id => config.propias.find(p => p.id === id)
+  const guardarPropia = p => {
+    guardarConfigFicha(c => ({
+      ...c,
+      propias: c.propias.some(x => x.id === p.id) ? c.propias.map(x => (x.id === p.id ? p : x)) : [...c.propias, p],
+    }))
+    setArmando(null)
+    setPaso(p.parte)
+    setAbiertos([p.id])
+  }
+  // Se va con ella lo que la configuración decía de ella: si estaba activa y qué veía el colaborador.
+  const eliminarPropia = id => guardarConfigFicha(c => {
+    const colaborador = { ...c.colaborador }
+    delete colaborador[id]
+    return { ...c, propias: c.propias.filter(x => x.id !== id), inactivas: c.inactivas.filter(x => x !== id), colaborador }
+  })
 
   /* Cuántas fichas tienen algo en cada sección: es lo que se deja de ver al apagarla. Las copias
      de un bloque repetido guardan su dato en «clave#n», así que se mira la clave y sus copias. */
-  const conDatos = useMemo(() => {
-    const fichas = colaboradores.map(c => c.ficha).filter(Boolean)
-    return Object.fromEntries(secciones.map(s => [s.id, fichas.filter(f => Object.keys(f).some(k => {
-      const base = k.split('#')[0]
-      return s.claves.includes(base) && !vacio(typeof f[k] === 'object' ? f[k]?.nombre : f[k])
-    })).length]))
-  }, [colaboradores, secciones])
+  const fichas = colaboradores.map(c => c.ficha).filter(Boolean)
+  const conDatos = Object.fromEntries(secciones.map(s => [s.id, fichas.filter(f => Object.keys(f).some(k => {
+    const base = k.split('#')[0]
+    return s.claves.includes(base) && !vacio(typeof f[k] === 'object' ? f[k]?.nombre : f[k])
+  })).length]))
 
   const activa = id => !config.inactivas.includes(id)
   const nivel = s => {
@@ -167,6 +192,7 @@ export default function ConfiguracionFicha() {
               <span>Sección</span>
               <span className="cf-col-ficha">En la ficha</span>
               <span className="cf-col-colab"><User size={11} /> Para el colaborador</span>
+              <span className="cf-col-mas" />
             </div>
             <div className="cn-acordeones">
               {tarjetas.map(t => {
@@ -175,11 +201,11 @@ export default function ConfiguracionFicha() {
                 return (
                   <Acordeon
                     key={s.id}
-                    titulo={s.titulo}
+                    titulo={s.propia ? <>{s.titulo}<span className="cf-propia">Propia</span></> : s.titulo}
                     clase={on ? '' : 'cf-apagada'}
                     abierto={abiertos.includes(s.id)}
                     onAlternar={() => alternar(s.id)}
-                    acciones={<Controles s={s} on={on} nivel={nivel(s)} onAlternar={() => alternarActiva(s)} onNivel={n => elegirNivel(s, n)} />}
+                    acciones={<Controles s={s} on={on} nivel={nivel(s)} onAlternar={() => alternarActiva(s)} onNivel={n => elegirNivel(s, n)} onEditar={() => setArmando({ inicial: propiaDe(s.id) })} onEliminar={() => setEliminando(s)} />}
                   >
                     <p className="ac-desc cf-desc">
                       {s.desc}
@@ -196,6 +222,9 @@ export default function ConfiguracionFicha() {
                   </Acordeon>
                 )
               })}
+              <button type="button" className="cf-nueva" onClick={() => setArmando({ inicial: null })}>
+                <Plus size={16} /> Nueva sección en «{pasoActual.titulo}»
+              </button>
             </div>
 
             <div className="cfg-nota" style={{ marginTop: 16 }}>
@@ -210,6 +239,10 @@ export default function ConfiguracionFicha() {
                   <strong>Las secciones obligatorias no se desactivan.</strong> Tienen datos que exige la
                   ley para declarar al colaborador, o sostienen a las demás, como Archivos y el acceso al
                   sistema.
+                </p>
+                <p>
+                  <strong>Puede crear sus propias secciones</strong> en cualquier parte de la ficha, con
+                  sus campos. Son las únicas que se pueden editar y eliminar.
                 </p>
                 <p style={{ marginBottom: 0 }}>
                   <strong>Lo laboral el colaborador solo lo ve.</strong> El puesto, el contrato, el
@@ -236,10 +269,30 @@ export default function ConfiguracionFicha() {
         <ConfirmarAccionModal
           icono={RotateCcw}
           titulo="¿Restablecer la ficha estándar?"
-          descripcion="Todas las secciones vuelven a estar activas y el colaborador vuelve a ver y editar lo que trae la ficha de fábrica. No se borra ningún dato."
+          descripcion="Todas las secciones vuelven a estar activas y el colaborador vuelve a ver y editar lo que trae la ficha de fábrica. Sus secciones propias se mantienen y no se borra ningún dato."
           textoConfirmar="Restablecer"
           onCancelar={() => setRestableciendo(false)}
-          onConfirmar={() => { guardarConfigFicha({ inactivas: [], colaborador: {} }); setRestableciendo(false) }}
+          onConfirmar={() => { guardarConfigFicha(c => ({ inactivas: [], colaborador: {}, propias: c.propias })); setRestableciendo(false) }}
+        />
+      )}
+      {armando && (
+        <ArmadorSeccion
+          inicial={armando.inicial}
+          parteInicial={paso}
+          onGuardar={guardarPropia}
+          onCerrar={() => setArmando(null)}
+        />
+      )}
+      {eliminando && (
+        <ConfirmarAccionModal
+          titulo={`¿Está seguro de eliminar «${eliminando.titulo}»?`}
+          descripcion={conDatos[eliminando.id]
+            ? `Se quita de la ficha con sus ${eliminando.campos} campos. ${conDatos[eliminando.id] === 1 ? '1 colaborador tiene' : `${conDatos[eliminando.id]} colaboradores tienen`} datos en ella y dejarán de verse. Si solo quiere ocultarla, desactívela.`
+            : `Se quita de la ficha con sus ${eliminando.campos} campos. Ningún colaborador tiene datos en ella.`}
+          palabra={conDatos[eliminando.id] ? 'eliminar' : undefined}
+          textoConfirmar="Eliminar sección"
+          onCancelar={() => setEliminando(null)}
+          onConfirmar={() => { eliminarPropia(eliminando.id); setEliminando(null) }}
         />
       )}
     </div>
@@ -322,7 +375,7 @@ function Renglon({ icono: Icono, titulo, etiqueta, verde, children }) {
 }
 
 /* LO QUE VA EN LA CABECERA DEL ACORDEÓN: si la sección está en la ficha y qué hace el colaborador. */
-function Controles({ s, on, nivel, onAlternar, onNivel }) {
+function Controles({ s, on, nivel, onAlternar, onNivel, onEditar, onEliminar }) {
   /* Dos que no se le muestran por lo que son, no por lo que decida la empresa: el acceso al
      sistema no es un dato suyo, y los archivos se ven con la sección de cada documento. */
   const sinNivel = s.pestana === 'configuracion' ? 'Lo administra RR.HH.'
@@ -376,6 +429,40 @@ function Controles({ s, on, nivel, onAlternar, onNivel }) {
         </div>
         </>
       )}
+      {/* El hueco del menú está en todas las filas, para que las columnas no se corran; sólo las
+          propias lo llenan. */}
+      <span className="cf-mas-hueco">{s.propia && <MenuMas titulo={s.titulo} onEditar={onEditar} onEliminar={onEliminar} />}</span>
     </>
+  )
+}
+
+/* ── EL MENÚ «⋯» DE UNA SECCIÓN PROPIA ──────────────────────────────────────
+   Editar primero; Eliminar abajo, separado por una línea y en rojo: un paso más lejos y difícil
+   de tocar por error. Se cierra eligiendo, tocando fuera o con Escape. */
+function MenuMas({ titulo, onEditar, onEliminar }) {
+  const caja = useRef(null)
+  const [abierto, setAbierto] = useState(false)
+  useEffect(() => {
+    if (!abierto) return
+    const fuera = e => { if (!caja.current?.contains(e.target)) setAbierto(false) }
+    const tecla = e => { if (e.key === 'Escape') setAbierto(false) }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', tecla)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla) }
+  }, [abierto])
+  const elegir = accion => { setAbierto(false); accion() }
+  return (
+    <span ref={caja} className="cf-mas">
+      <button type="button" className={`cf-mas-btn${abierto ? ' on' : ''}`} aria-label={`Más acciones de ${titulo}`} aria-haspopup="menu" aria-expanded={abierto} onClick={() => setAbierto(a => !a)}>
+        <MoreHorizontal size={18} />
+      </button>
+      {abierto && (
+        <div className="cf-mas-menu" role="menu">
+          <button type="button" role="menuitem" onClick={() => elegir(onEditar)}><Pencil size={14} /> Editar sección</button>
+          <hr />
+          <button type="button" role="menuitem" className="borrar" onClick={() => elegir(onEliminar)}><Trash2 size={14} /> Eliminar</button>
+        </div>
+      )}
+    </span>
   )
 }

@@ -11193,7 +11193,7 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .cf-desc { display: flex; flex-direction: column; gap: 4px; }
 .cf-meta { font-size: 11px; font-weight: 600; color: var(--text-heading); opacity: .75; }
 /* Los títulos de las dos columnas de la cabecera, alineados con `.ac-acciones`: el ancho del
-   interruptor —128—, 14 de hueco, 340 de los botones y los 20 del relleno. */
+   interruptor —128—, 14 de hueco, 340 de los botones, el hueco del menú «⋯» —32— y los 20 del relleno. */
 .cf-columnas {
   display: flex; align-items: center; gap: 14px; padding: 0 20px 8px 20px;
   font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted);
@@ -11245,6 +11245,91 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .cf-modal-btn.desactivar:hover { background: #A61F1F; }
 .cf-modal-btn.activar { border: none; background: var(--green); color: #0C2D40; }
 .cf-modal-btn.activar:hover { filter: brightness(.95); }
+/* ── SECCIONES PROPIAS ── la etiqueta, sus acciones y el botón para crear otra al pie de la parte. */
+.cf-propia {
+  margin-left: 9px; padding: 2px 8px; border-radius: 99px; vertical-align: 2px;
+  background: rgba(37,99,235,.12); color: #1D4ED8; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+}
+.dark .cf-propia { background: rgba(96,165,250,.16); color: #BFDBFE; }
+/* El menú «⋯»: su hueco va en todas las filas (32 px) para que las columnas no se corran. */
+.cf-mas-hueco, .cf-col-mas { width: 32px; flex-shrink: 0; display: inline-flex; justify-content: center; }
+.cf-mas { position: relative; display: inline-flex; }
+.cf-mas-btn {
+  width: 32px; height: 32px; border: none; border-radius: 8px; background: none; color: var(--text-heading);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.cf-mas-btn:hover, .cf-mas-btn.on { background: var(--surface-card); box-shadow: inset 0 0 0 1px var(--border-dark); }
+.cf-mas-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; min-width: 190px; padding: 5px;
+  background: var(--surface-card); border: 1px solid var(--border-dark); border-radius: 12px; box-shadow: var(--sh-flotante);
+  animation: plDropIn .15s ease-out;
+}
+.cf-mas-menu button {
+  display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 12px; border: none; border-radius: 8px;
+  background: none; font: 500 13px 'Poppins', sans-serif; color: var(--text-heading); text-align: left; cursor: pointer;
+}
+.cf-mas-menu button:hover { background: var(--surface-hover); }
+.cf-mas-menu button.borrar { color: var(--mf-ven-txt); }
+.cf-mas-menu button.borrar:hover { background: var(--mf-ven-bg); }
+.cf-mas-menu hr { margin: 4px 6px; border: none; border-top: 1px solid var(--border-soft); }
+.cf-nueva {
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px;
+  border: 1.5px dashed var(--border-dark); border-radius: 12px; background: transparent;
+  font: 600 13.5px 'Poppins', sans-serif; color: var(--text-heading); cursor: pointer; transition: border-color .12s, background .12s;
+}
+.cf-nueva:hover { border-color: var(--green); background: var(--green-tint); }
+
+/* El armador: un modal grande y centrado, como los demás de la plataforma (`.pl-modal`), con el
+   formulario y la vista previa lado a lado, cada uno con su desplazamiento, y el pie fijo. */
+.cf-armador {
+  width: min(1040px, calc(100vw - 32px)); height: min(860px, calc(100vh - 48px)); display: flex; flex-direction: column;
+  background: var(--surface-card); color: var(--text-heading); border-radius: 16px; overflow: hidden;
+  box-shadow: var(--sh-modal); animation: plSlideUp .25s;
+}
+.cf-armador-cab { display: flex; align-items: flex-start; gap: 16px; padding: 22px 28px 16px; border-bottom: 1px solid var(--border-soft); }
+.cf-armador-cab > div { flex: 1; }
+.cf-armador-cab h2 { margin: 0; font-size: 19px; font-weight: 700; }
+.cf-armador-cab p { margin: 4px 0 0; font-size: 12.5px; color: var(--text-muted); }
+.cf-armador-cuerpo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+.cf-armador-form { overflow-y: auto; padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 14px; border-right: 1px solid var(--border-soft); }
+.cf-armador-rotulo { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; font-weight: 600; }
+.cf-req { color: var(--red); }
+.cf-opc { font-weight: 500; color: var(--text-muted); }
+.cf-armador-sub { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13.5px; font-weight: 700; }
+.cf-armador-sub span { padding: 1px 8px; border-radius: 99px; background: var(--bg-secondary); font-size: 11px; color: var(--text-muted); }
+.cf-armador-campos { display: flex; flex-direction: column; gap: 10px; }
+.cf-campo { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--bg-app); }
+.cf-campo-fila { display: grid; grid-template-columns: minmax(0, 1fr) 170px; gap: 8px; }
+.cf-campo-opciones { resize: vertical; min-height: 72px; font-family: inherit; }
+.cf-campo-pie { display: flex; align-items: center; gap: 4px; }
+.cf-campo-check { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; cursor: pointer; }
+.cf-campo-check input { width: 15px; height: 15px; accent-color: var(--green); }
+.cf-ico-btn {
+  width: 30px; height: 30px; border: none; border-radius: 8px; background: none; color: var(--text-muted);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.cf-ico-btn:hover:not(:disabled) { background: var(--surface-hover); color: var(--text-heading); }
+.cf-ico-btn.borrar:hover { color: var(--red); }
+.cf-ico-btn:disabled { opacity: .3; cursor: default; }
+.cf-agregar-campo {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px;
+  border: 1.5px dashed var(--border-dark); border-radius: 10px; background: none;
+  font: 600 13px 'Poppins', sans-serif; color: var(--text-heading); cursor: pointer;
+}
+.cf-agregar-campo:hover { border-color: var(--green); background: var(--green-tint); }
+.cf-armador-vista { overflow-y: auto; padding: 20px 28px 28px; background: var(--bg-app); display: flex; flex-direction: column; gap: 10px; }
+.cf-armador-vista-tit { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+.cf-armador-vacia { margin: 0; font-size: 12.5px; color: var(--text-muted); font-style: italic; }
+.cf-armador-pie { display: flex; align-items: center; gap: 10px; padding: 14px 28px; border-top: 1px solid var(--border-soft); background: var(--bg-secondary); }
+.cf-armador-falta { flex: 1; font-size: 12.5px; color: var(--text-muted); }
+.cf-armador-falta.listo { color: var(--mf-verde-txt); font-weight: 600; }
+@media (max-width: 860px) {
+  .cf-armador-cuerpo { grid-template-columns: minmax(0, 1fr); overflow-y: auto; }
+  .cf-armador-form { overflow: visible; border-right: none; }
+  .cf-armador-vista { overflow: visible; }
+  .cf-campo-fila { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Los campos de muestra: los de la ficha, para mirar. */
 .cf-muestra { pointer-events: none; user-select: none; }
 
