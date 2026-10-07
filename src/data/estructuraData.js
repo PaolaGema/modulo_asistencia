@@ -2184,9 +2184,9 @@ export function estructuraEjemplo(sucursales, unidades, cargos = []) {
        Dirección General y por lo tanto NO es de primer nivel—, así que esa rama nunca se ejecutó y
        Operaciones heredaba la casa matriz como todas las demás.
 
-       Sacada de la condición, la demo enseña de una vez las dos cosas que más cuesta explicar sin
-       verlas: una unidad que AFINA la sede que heredaba, y una unidad que saca su LÍNEA DE NEGOCIO
-       de dónde opera —Distribución, del depósito— sin haberla declarado. */
+       Sacada de la condición, la demo enseña una unidad que AFINA la sede que heredaba. Ya no saca
+       de ahí su línea de negocio: los depósitos dejaron de declarar Distribución —ver DEPOSITOS—,
+       así que Operaciones es transversal como el resto de la casa matriz. */
     ...(u.id === 'operaciones'
       ? { ubicacion: 'dep-central' }
       : u.padreId ? {} : { ubicacion: 'central' }),

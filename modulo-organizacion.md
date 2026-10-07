@@ -2,7 +2,7 @@ Souly HR · Módulo base · Documentación de producto
 
 # Módulo de organización
 
-> **Módulo de organización — versión en Markdown.** Reúne completo el documento de producto `public/reglas-de-negocio.html` (versión 3.4, 10 de septiembre de 2026): glosario, contexto, integraciones, funcionalidades, las 47 reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Al final suma un anexo nuevo, **«El módulo en el prototipo, hoy»**, con cómo está construido al 29 de septiembre de 2026 y en qué se aparta del documento. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que señalan.
+> **Módulo de organización — versión en Markdown.** Reúne completo el documento de producto `public/reglas-de-negocio.html` (versión 3.5, 7 de octubre de 2026): glosario, contexto, integraciones, funcionalidades, las 47 reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Al final suma un anexo nuevo, **«El módulo en el prototipo, hoy»**, con cómo está construido al 7 de octubre de 2026 y en qué se aparta del documento. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que señalan.
 
 ## Índice
 
@@ -24,8 +24,8 @@ La estructura de la empresa deja de vivir en un Excel y pasa a ser *la fuente de
 
 ![Mascota de VIA sosteniendo una hoja impresa con un organigrama](public/assets/imagenes/via_organigrama.png)
 
-- **Versión:** 3.4
-- **Fecha:** 10 de septiembre de 2026
+- **Versión:** 3.5
+- **Fecha:** 7 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Naihara Rocha — reglas y uso de RR.HH.
 - **Revisa y aprueba:** Israel Chávez — viabilidad y plazos
@@ -570,7 +570,7 @@ El mismo árbol, dibujado. No es una copia: es la otra manera de mirar el mismo 
 | # | Requisito | Prior. | Cómo se comprueba |
 | --- | --- | --- | --- |
 | RF‑ORG‑030 | Tres vistas del mismo dato: **gráfico, cards y tabla**. Cambiar de vista no cambia lo que hay, cambia cómo se mira | Oblig. | Lo creado en una pantalla está en la otra al instante, sin sincronizar. *BR‑ORG‑017* |
-| RF‑ORG‑031 | Los filtros —sucursal, unidad, tipo de cargo— **recortan la vista, no el sistema**, y la pantalla dice en una frase qué se está mirando | Oblig. | Filtrar por una sede conserva la dependencia estructural completa hasta arriba. *BR‑ORG‑018* |
+| RF‑ORG‑031 | Los filtros —cargos, unidad organizacional, unidad de negocio y lugar— **recortan la vista, no el sistema**, y cada uno muestra con su nombre lo que está recortando | Oblig. | Filtrar por una sede conserva la dependencia estructural completa hasta arriba. *BR‑ORG‑018* |
 | RF‑ORG‑032 | **Los cargos de staff y los externos se dibujan al costado** de la línea, no debajo, porque no mandan | Oblig. | Un puesto de staff nunca aparece como subordinado de quien asiste. *BR‑ORG‑014* |
 | RF‑ORG‑033 | La dependencia funcional —«también trabaja en»— se dibuja como **línea secundaria**, distinguible de la estructural | Import. | En escala de grises las dos líneas se siguen distinguiendo. *BR‑ORG‑013* |
 | RF‑ORG‑034 | Se exporta a **PNG, SVG e impresión o PDF**, y siempre **el organigrama entero a tamaño natural**, no el pedazo que se ve en pantalla | Oblig. | La exportación de una estructura de 200 puestos sale completa y legible |
@@ -2691,7 +2691,7 @@ No hay una copia para dibujar y otra para editar. Lo que se carga por una puerta
 
 *Descripción general*
 
-Filtrar por unidad, por sede, por tipo de cargo o por estado cambia **lo que se está mirando** y nada más: no cambia lo que se crea ni lo que existe. Cada recorte queda escrito en la frase de arriba y se quita tocándolo.
+Filtrar por unidad organizacional, por unidad de negocio, por lugar, por tipo de cargo o por estado cambia **lo que se está mirando** y nada más: no cambia lo que se crea ni lo que existe. Cada recorte se ve en su desplegable, pintado, y se quita desde ahí.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2706,7 +2706,7 @@ Filtrar por unidad, por sede, por tipo de cargo o por estado cambia **lo que se 
 
 - **Dado que** hay un filtro puesto
 - **Cuando** se mira la pantalla
-- **Entonces** el filtro está escrito en la frase: «Viendo … de … en …»
+- **Entonces** el desplegable de ese filtro dice lo elegido y está pintado
 - **Y** ningún recorte se aplica sin que quien mira sepa que lo puso
 
 *El recorte no corta la línea de mando*
@@ -2719,7 +2719,7 @@ Filtrar por unidad, por sede, por tipo de cargo o por estado cambia **lo que se 
 **3. Condiciones y excepciones**
 
 - Filtrar cambia lo que se está mirando; no cambia lo que existe ni lo que se crea.
-- Cada recorte queda escrito en la frase de arriba y se quita desde ahí —BR‑ORG‑033—.
+- Cada recorte se ve en su desplegable y se quita desde ahí —BR‑ORG‑033—.
 - Un filtro se queda con las ramas que llegan al nodo elegido, jefes incluidos.
 - Los filtros no se aplican solos: ninguno queda puesto sin que se lea en pantalla.
 
@@ -2733,7 +2733,7 @@ Filtrar por unidad, por sede, por tipo de cargo o por estado cambia **lo que se 
 
 ---
 
-#### 4.37 · BR-ORG-033 · Los filtros se leen como una frase, no como un panel
+#### 4.37 · BR-ORG-033 · Los filtros tienen nombre, y lo que recortan se ve en el dibujo
 
 *Estado: Borrador*
 
@@ -2746,41 +2746,44 @@ Filtrar por unidad, por sede, por tipo de cargo o por estado cambia **lo que se 
 
 *Descripción general*
 
-Lo que se está mirando se dice en una línea que se lee entera: **«Viendo todos los cargos de toda la empresa en todas las sucursales»**. Cada trozo subrayado es un desplegable, y el texto que muestra es **la respuesta**, no el nombre del campo: dice «solo los vacantes», no «Estado».
+Lo que se está mirando se elige en **cuatro desplegables con su nombre encima**: **Cargos**, **Unidad organizacional**, **Unidad de negocio** y **Lugar**. Lo que muestra cada uno es **la respuesta** —«Staff · Vacantes», «Toda la empresa», «Farmacias»—, y el que está recortando algo **se pinta**, así que se sabe qué se está mirando sin abrir nada. Sin nada elegido, los cuatro dicen «Todos», «Toda la empresa» o «Todas», y no hace falta un aviso de «sin filtros».
 
-Sin nada elegido la frase **sigue siendo verdad**, así que no hace falta un estado especial para «sin filtros» ni un aviso de que no hay ninguno puesto. Y como se lee sin abrir nada, saber qué se está recortando no cuesta un clic —con un panel de casillas o con un modal hay que abrirlos para saberlo—.
+**Cargos** junta lo que hace a un cargo lo que es —**tipo, nivel de mando y si está vacante**—, porque las tres arman una sola idea. **Lugar** ofrece las **regionales, las sucursales y los centros de trabajo** en árbol: elegir una regional trae sus sucursales y sus centros; una sucursal, sus centros. **Unidad de negocio** ofrece las de la empresa y **Transversal**, que son los puestos que no pertenecen a ninguna; solo aparece si la empresa tiene encendido ese nivel.
 
-Se recorta por **sucursal, unidad y estado**, y por lo que hace a un cargo lo que es —**tipo, nivel de mando y si está vacante**—. Esos tres últimos comparten un solo hueco: en tres desplegables la frase tendría cinco huecos y dejaría de leerse como frase, y juntos arman una sola idea —«los cargos de staff con mando medio vacantes»—.
+**Dónde está un puesto y de qué unidad de negocio es** se lee, no se declara dos veces. Un puesto está donde dice él y, si no dice nada, donde está su unidad organizacional. Es de la unidad de negocio de su unidad y, si su unidad es transversal, de la del lugar donde trabaja: un vendedor de Ventas en Sopocachi es de Farmacias porque Sopocachi lo es. Al filtrar por unidad de negocio, lo transversal **no** entra en cada una —si entrara, en una empresa donde casi todo es transversal el filtro no recortaría nada—; sí se quedan los jefes transversales que hacen falta para no cortar la línea de mando.
+
+**Lo que recortan los filtros también se ve en el dibujo.** Encima de la unidad donde **cambia el lugar** va una tarjeta de lugar, y encima de los puestos donde **empieza una unidad de negocio**, una de unidad de negocio; los puestos hermanos de la misma unidad de negocio comparten una sola tarjeta. Lo que hereda el lugar o la unidad de negocio de arriba no la repite, y lo que vale para toda la empresa o es transversal no lleva ninguna. Con un lugar o una unidad de negocio elegidos en el filtro, su tarjeta va **arriba de todo**, debajo de la empresa. Las dos tarjetas son un marcador con el ícono arriba —un pin para el lugar, un maletín para la unidad de negocio— y no se parecen ni a una unidad ni a un puesto.
 
 **2. Escenarios ágiles de ejecución**
 
-*La frase dice lo que recorta*
+*Los filtros dicen lo que recortan*
 
-- **Dado que** se filtra por la sucursal «Casa Matriz» y por los vacantes
+- **Dado que** se elige «Casa Matriz» en Lugar y «Vacantes» en Cargos
 - **Cuando** se mira la barra de arriba
-- **Entonces** dice «Viendo los cargos vacantes de toda la empresa en Casa Matriz»
-- **Y** ningún recorte queda aplicado sin estar escrito ahí
+- **Entonces** Lugar dice «Casa Matriz» y Cargos dice «Vacantes», y los dos están pintados
+- **Y** ningún recorte queda aplicado sin que se vea en su desplegable
 
-*Sin filtros no hay estado especial*
+*Un vendedor en otra sucursal*
 
-- **Dado que** se entra al organigrama sin tocar nada
-- **Cuando** se lee la frase
-- **Entonces** dice «todos los cargos de toda la empresa» y es verdad
-- **Y** no hace falta un cartel que diga que no hay filtros puestos
+- **Dado que** Ventas es transversal y uno de sus vendedores trabaja en Sopocachi, que es de Farmacias
+- **Cuando** se elige «Farmacias» en Unidad de negocio
+- **Entonces** el vendedor aparece, con su jefe y los de arriba hasta la empresa
+- **Y** en el dibujo, una tarjeta «Farmacias» va arriba de todo
 
-*El recorte no corta la línea de mando*
+*Lo que se hereda no se repite*
 
-- **Dado que** se filtra por una sucursal
-- **Cuando** se mira un puesto de ahí
-- **Entonces** su dependencia sube completa hasta arriba, aunque sus jefes sean de otra sede
-- **Y** sin eso la rama quedaría colgando de la nada, que es dibujar una mentira
+- **Dado que** Dirección General está en Casa Matriz y sus áreas no declaran lugar
+- **Cuando** se mira el organigrama sin filtros
+- **Entonces** hay una sola tarjeta «Casa Matriz», encima de Dirección General
+- **Y** Operaciones, que está en el Depósito Central, lleva la suya
 
 **3. Condiciones y excepciones**
 
-- La frase se lee entera sin abrir nada, y cada trozo subrayado es un desplegable.
-- El texto que muestra un desplegable es la respuesta, no el nombre del campo.
-- Sin nada elegido la frase sigue siendo verdad: no hay estado especial para «sin filtros».
-- Se recorta por sucursal, unidad y estado, y por tipo, nivel de mando y vacante, que comparten un solo hueco.
+- Cuatro desplegables con nombre: Cargos, Unidad organizacional, Unidad de negocio y Lugar. El que recorta se pinta.
+- Unidad de negocio solo aparece si la empresa usa ese nivel, y ofrece también «Transversal».
+- Lo transversal no entra al filtrar por una unidad de negocio, salvo como jefe que sostiene la línea de mando.
+- La tarjeta de lugar o de unidad de negocio va donde empieza, no se repite en lo que hereda, y no se dibuja para «toda la empresa» ni para lo transversal.
+- Con un lugar o una unidad de negocio elegidos, su tarjeta va arriba de todo.
 
 **4. Trazabilidad**
 
@@ -2805,9 +2808,11 @@ Se recorta por **sucursal, unidad y estado**, y por lo que hace a un cargo lo qu
 
 *Descripción general*
 
-Elegir entre **áreas y cargos**, **solo cargos** o **solo áreas** no deja a nadie afuera: cambia qué está dibujando el organigrama. Un organigrama de áreas y uno de puestos son dos documentos distintos, y los dos son el mismo dato.
+Elegir entre **unidades y cargos**, **solo los cargos**, **solo las unidades**, **por lugar** o **por unidad de negocio** no deja a nadie afuera: cambia qué está dibujando el organigrama. Un organigrama de unidades y uno de puestos son dos documentos distintos, y los dos son el mismo dato.
 
-Por eso **no entra en la frase de los filtros** y no vive en la misma barra: está abierto sobre el lienzo, arriba a la izquierda, que es donde se ve lo que hace. Meterlo entre los recortes haría creer que hay gente escondida cuando no la hay.
+Los tres primeros dibujan **quién manda a quién**. Los dos últimos contestan otra pregunta —**dónde está cada cosa**— y por eso cuelgan las unidades de un sitio y no de un jefe. **Por lugar:** la empresa, sus regionales, sucursales y centros de trabajo, y debajo de cada uno las unidades que están ahí; una unidad que solo tiene puestos en una sucursal sale también ahí, marcada con cuántos. Una unidad que está en otro lugar que su madre lleva escrito de quién depende, porque esa línea no se dibuja. **Por unidad de negocio:** lo mismo, una vez por cada unidad de negocio y otra para lo transversal. Los lugares y las unidades de negocio sin nada debajo no se dibujan.
+
+Por eso **no entra entre los filtros** y no vive en su barra: está abierto sobre el lienzo, abajo, que es donde se ve lo que hace. Meterlo entre los recortes haría creer que hay gente escondida cuando no la hay.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2818,11 +2823,11 @@ Por eso **no entra en la frase de los filtros** y no vive en la misma barra: est
 - **Entonces** se dibujan las unidades con su jerarquía y sin los cargos adentro
 - **Y** no falta nadie: los cargos siguen existiendo, este documento no los muestra
 
-*No entra en la frase*
+*No entra entre los filtros*
 
 - **Dado que** se cambió a «solo cargos»
-- **Cuando** se lee la frase de los filtros
-- **Entonces** no lo menciona
+- **Cuando** se mira la barra de los filtros
+- **Entonces** no está ahí
 - **Y** el control está a la vista sobre el lienzo, que es donde se ve el efecto
 
 *Se combina con los recortes*
@@ -2834,8 +2839,10 @@ Por eso **no entra en la frase de los filtros** y no vive en la misma barra: est
 
 **3. Condiciones y excepciones**
 
-- Elegir entre áreas y cargos, solo cargos o solo áreas no deja a nadie afuera.
-- El control no entra en la frase de los filtros ni vive en su barra: está sobre el lienzo.
+- Elegir entre unidades y cargos, solo los cargos, solo las unidades, por lugar o por unidad de negocio no deja a nadie afuera.
+- «Por lugar» y «por unidad de negocio» cuelgan las unidades de un sitio, no de un jefe, y escriben de quién depende la que queda separada de su madre.
+- «Por unidad de negocio» solo se ofrece si la empresa usa ese nivel.
+- El control no entra entre los filtros ni vive en su barra: está sobre el lienzo.
 - Un organigrama de áreas y uno de puestos son dos documentos del mismo dato.
 - Cambiar qué se dibuja no cambia qué se exporta —RF‑ORG‑034—.
 
@@ -3818,7 +3825,7 @@ Un flujo se lee para saber **cuántas pantallas cuesta una tarea**; los desvíos
 **Termina en** Un archivo para pegar en una presentación
 
 1. Abre el **Organigrama** y elige la vista: **gráfico** para ver la forma, **cards** para recorrer, **tabla** para comparar.
-2. **Recorta** lo que quiere mirar: una sucursal, una unidad, un tipo de cargo. Una frase arriba dice qué se está viendo.
+2. **Recorta** lo que quiere mirar: un lugar, una unidad organizacional, una unidad de negocio, un tipo de cargo. Cada filtro dice con su nombre lo que está recortando.
 3. Abre un cuadro para **leer la ficha** de ese nodo —de quién depende, cuánta gente cuelga, qué está sin cubrir—.
 4. **Exporta**: PNG para pegar, SVG para escalar, imprimir o PDF con texto buscable.
 
@@ -3895,14 +3902,14 @@ Una sola pantalla para los siete tipos que se crean. No cambia de forma: cambia 
 
 ### W-03 · Organigrama
 
-El mismo árbol que las tablas, dibujado. Tres vistas del mismo dato, una barra que dice qué se está mirando y un lienzo que se arrastra.
+El mismo árbol que las tablas, dibujado. Tres vistas del mismo dato, una barra de filtros que dice qué se está mirando y un lienzo que se arrastra.
 
 > **Wireframe · Organigrama · vista gráfico** — `/organizacion/organigrama`. El dibujo en cajas está en la versión HTML de este documento; abajo, lo que señala cada número.
 
 1. **Los filtros recortan la vista, no el sistema.** Filtrar por sucursal es quedarse con las ramas que llegan a esa sucursal —incluidos los nodos de arriba que las sostienen—, no borrar lo demás.
 2. **Importar y exportar viven aquí** y no en una pantalla aparte, porque es donde se ve el resultado. Se exporta el organigrama entero a tamaño natural, no el pedazo que se ve.
 3. **Tres vistas del mismo dato:** gráfico para ver la forma, cards para recorrer, tabla para comparar. Cambiar de vista no cambia lo que hay.
-4. **La frase dice qué se está mirando** y va como segunda fila de la barra, no en una tarjeta propia: leer «128 puestos» creyendo que es toda la empresa cuando son los de una sucursal lleva a decidir con la mitad del dato.
+4. **Los filtros dicen qué se está mirando**, cada uno con su nombre, y van como segunda fila de la barra, no en una tarjeta propia: leer «128 puestos» creyendo que es toda la empresa cuando son los de una sucursal lleva a decidir con la mitad del dato.
 5. **Staff y outsourcing se dibujan al costado de la línea**, con una marca propia, porque no tienen nivel de mando. Un puesto vacante se dibuja con borde punteado: existe, y no lo ocupa nadie.
 
 ### W-04 · Configuración de la organización
@@ -4132,18 +4139,19 @@ Se apoya en **BR‑ORG‑017 · BR‑ORG‑014 · BR‑ORG‑030 · RF‑ORG‑0
 
 **HU-ORG-10 · Mirar solo el pedazo que me importa**
 
-**Como** líder de una unidad, **quiero** recortar el organigrama por sede, por área o por lo que hace a un cargo lo que es **para** poder revisar mi parte sin perderme en la empresa entera.
+**Como** líder de una unidad, **quiero** recortar el organigrama por lugar, por unidad organizacional, por unidad de negocio o por lo que hace a un cargo lo que es **para** poder revisar mi parte sin perderme en la empresa entera.
 
 ###### Criterios de aceptación
 
-- Lo que se está mirando se dice en **una frase legible** arriba del lienzo.
-- Cada trozo filtrable de la frase es un desplegable, y el texto que muestra es **la respuesta**, no el nombre del campo.
-- Sin ningún filtro puesto, la frase **sigue siendo verdad** y no hace falta ningún cartel de «sin filtros».
-- Se puede recortar por **sucursal**, por **unidad** y por **estado**.
-- Se puede recortar por lo que hace a un cargo lo que es —**tipo, nivel de mando y si está vacante**— y los tres comparten un solo hueco de la frase.
+- Los filtros son **cuatro desplegables con su nombre**: Cargos, Unidad organizacional, Unidad de negocio y Lugar.
+- Lo que muestra cada uno es **la respuesta**, y el que recorta algo **se pinta**.
+- Sin ningún filtro puesto, los cuatro dicen «Todos», «Toda la empresa» o «Todas», y no hace falta ningún cartel de «sin filtros».
+- Lugar ofrece **regionales, sucursales y centros de trabajo** en árbol; Unidad de negocio, las de la empresa y **Transversal**.
+- Se puede recortar por lo que hace a un cargo lo que es —**tipo, nivel de mando y si está vacante**— y los tres van juntos en Cargos.
+- Con un lugar o una unidad de negocio elegidos, su tarjeta va **arriba de todo** en el dibujo.
 - Filtrar **no borra ni oculta datos del sistema**: solo cambia lo que se dibuja.
 - Al filtrar por una sede, la **línea de mando sube completa** hasta arriba, aunque los jefes sean de otra sede.
-- El control de **«qué se dibuja»** —áreas y cargos, solo cargos, solo áreas— está a la vista sobre el lienzo y **no** entra en la frase de los filtros.
+- El control de **«qué se dibuja»** —unidades y cargos, solo los cargos, solo las unidades, por lugar y por unidad de negocio— está a la vista sobre el lienzo y **no** entra entre los filtros.
 - Cambiar «qué se dibuja» no deja a nadie afuera: cambia qué documento es.
 - «Qué se dibuja» y los recortes se pueden combinar.
 
@@ -4264,6 +4272,7 @@ Este documento es la única fuente de verdad del módulo mientras dure el proyec
 | 1.0 | 7 sep 2026 | La documentación del módulo en formato BR: veinte reglas con escenarios, treinta y un requisitos funcionales con código estable, ocho flujos y cinco wireframes. **Cambia el modelo:** un solo árbol de nodos, el esquema de niveles como dato de la empresa, y el cargo separado del puesto |
 | **2.0** | 7 sep 2026 | **Los dos documentos se unen en uno.** El contenido del módulo —reglas, requisitos, flujos y wireframes— entra en la estructura de nueve secciones del PRD, que es la que se sostiene: glosario al frente, contexto, integraciones módulo por módulo, modelo de datos y roadmap. **Se rescata del PRD de agosto** todo lo que seguía valiendo y se reescribe sobre el modelo nuevo: qué es un organigrama, los principios de diseño, las integraciones, el camino hasta desarrollo, los riesgos y el anexo de decisiones. **Se anota lo que falta** en vez de disimularlo: registro de actividad, estados vacíos y permisos verificados en el servidor quedan como ABIERTA‑07 a ABIERTA‑09. **Sin revisar todavía** |
 | **2.1** | 9 sep 2026 | Entra BR‑ORG‑021: **el cargo y la plaza llevan códigos distintos**, también cuando el cargo tiene una sola plaza. Es como lo maneja Recursos Humanos —el manual de cargos y la plantilla de personal son dos documentos— y no estaba escrito en ninguna parte, así que el formulario mostraba dos campos «Código» sin decir por qué eran dos |
+| **3.5** | 7 oct 2026 | **Los filtros del organigrama dejan de ser una frase y el dibujo dice dónde está cada cosa.** BR‑ORG‑033 se reescribe: los filtros son **cuatro desplegables con su nombre** —Cargos, Unidad organizacional, Unidad de negocio y Lugar—, el que recorta se pinta, Lugar ofrece regionales, sucursales y centros de trabajo en árbol, y Unidad de negocio ofrece las de la empresa y Transversal. Se escribe **cómo se lee dónde está un puesto y de qué unidad de negocio es** —lo suyo o, si no dice, lo de su unidad; y la unidad de negocio de su unidad o, si es transversal, la del lugar donde trabaja— y que **lo transversal no entra al filtrar por una unidad de negocio**. Y entra que **lo que recortan los filtros se ve en el dibujo**: una tarjeta de lugar donde cambia el lugar y una de unidad de negocio donde empieza, que no se repiten en lo que hereda, y la del elegido arriba de todo. BR‑ORG‑034 suma los modos **por lugar** y **por unidad de negocio**, que cuelgan las unidades de un sitio y no de un jefe. Se actualizan RF‑ORG‑031, F‑ORG‑07, W‑03 y HU‑ORG‑10, y el anexo suma por qué los filtros dejaron de ser una frase y por qué las tarjetas van donde empiezan |
 | **3.4** | 10 sep 2026 | **Cuatro reglas que el módulo daba por sabidas y nadie había escrito.** BR‑ORG‑043: **ni los códigos ni los nombres se repiten** —el código, único en toda la empresa; el nombre, único entre hermanos del mismo tipo, porque un «Almacén» en La Paz y otro en Santa Cruz son dos sitios distintos—, y la comprobación ignora mayúsculas, tildes y espacios de más. BR‑ORG‑044: **un puesto ocupado no se elimina**, y el intento abre un aviso que nombra a la persona, explica que quedaría fuera de la estructura y ofrece los dos caminos que sí resuelven. BR‑ORG‑045: **una persona ocupa un solo puesto**; trabajar para otra área es dependencia funcional, no una segunda silla. BR‑ORG‑046: **desactivar arrastra la rama entera**, contando antes cuántos nodos caen y cuántos de esos puestos están ocupados, y reactivar ofrece devolver a los que cayeron. Esta última contesta ABIERTA‑02, que **sale de las decisiones abiertas**. Y entra BR‑ORG‑047: **cerrar una sede ofrece mudar a su gente a otra activa** antes de cerrarla, cambiando el sitio de trabajo de sus puestos y nada más —ni unidad, ni cargo, ni jefe—, y permite cerrar sin destino cuando la operación termina y esas personas se desvinculan. Y BR‑ORG‑048: **ningún nodo cuelga de sí mismo ni de los que cuelgan de él**. La regla de jerarquía no lo cubría —compara niveles, y «una unidad dentro de otra unidad» le parece válido en las dos direcciones—, y un bucle desprende esa rama del árbol: el organigrama, que se dibuja desde la empresa hacia abajo, deja de mostrarla. El tercer nivel de mando pasa a llamarse **mando inferior** en todo el documento |
 | **3.3** | 10 sep 2026 | **Las cuarenta y una reglas pasan a un formato único de cuatro apartados**, por observación de QA: **1 Información básica** —código, grupo, alcance, estado y una descripción general—, **2 Escenarios ágiles de ejecución**, **3 Condiciones y excepciones** y **4 Trazabilidad**. **El «Ticket: pendiente» suelto al pie de cada regla desaparece** y pasa a ser el apartado 4, con ticket, requisitos, historia de usuario, pantalla y estado del diseño declarados uno por uno. **Las descripciones se reescriben en tono descriptivo**: lo narrativo —«es la cima del eje físico», «es la ficha más corta»— se enuncia como lo que el sistema hace, sin perder el motivo. Y BR‑ORG‑004 decía tres niveles fijos donde son cuatro: el puesto faltaba |
 | **3.2** | 10 sep 2026 | **Dos diagramas y dos wireframes.** Se dibujan los dos casos que más cuesta contar por escrito: **los nueve vendedores** —un cargo, nueve sillas, dos líneas de mando— en el 0.4, y **las tres empresas** que pegan la unidad de negocio en tres escalones distintos, dentro de BR‑ORG‑022. Entran W‑06 Niveles de mando y W‑07 El cargo y sus plazas —las dos pantallas sin dibujar, y W‑07 es donde vive lo más difícil del módulo—. Y W‑05 marcaba como obligatorios la razón social, el NIT y el país, que no lo son: el único obligatorio de la empresa es el nombre comercial |
@@ -4330,17 +4339,25 @@ Una sucursal que cerró tiene historia, gente y planillas detrás. Borrarla deja
 
 ##### Por qué filtrar recorta la vista y no el sistema
 
-Un filtro que ocultara los cargos de otras sedes rompería el árbol: se irían los jefes y los subordinados quedarían colgando de la nada. Por eso filtrar por una sucursal se queda con las ramas que llegan a ella, jefes incluidos, y por eso el recorte está escrito arriba en una frase: ningún filtro se aplica sin que quien mira sepa que lo puso.
+Un filtro que ocultara los cargos de otras sedes rompería el árbol: se irían los jefes y los subordinados quedarían colgando de la nada. Por eso filtrar por una sucursal se queda con las ramas que llegan a ella, jefes incluidos, y por eso cada recorte se ve en su desplegable, pintado: ningún filtro se aplica sin que quien mira sepa que lo puso.
+
+##### Por qué los filtros dejaron de ser una frase
+
+Fueron una frase —«Viendo todos los cargos de toda la empresa en todas las sucursales»— y se leía bien con tres huecos. Con la unidad de negocio eran cuatro, y la frase ya no se leía como frase: «de toda la empresa, de Farmacias, en Occidente» hay que releerlo para saber qué es cada trozo. Con el nombre encima, cada filtro se encuentra sin leer los demás, y se conserva lo que la frase tenía de bueno: lo que se ve es la respuesta, y no hace falta abrir nada para saber qué está recortando.
+
+##### Por qué el lugar y la unidad de negocio se dibujan donde empiezan
+
+Una etiqueta en cada unidad repetiría «Casa Matriz» en veinte cuadros, y lo que se repite en todos no distingue a ninguno. Una tarjeta donde el lugar **cambia** dice lo mismo una sola vez, y además marca dónde empieza cada lugar, que es lo que se viene a mirar. La unidad de negocio va en los puestos y no en las unidades porque en la práctica casi todas las unidades son transversales: la unidad de negocio llega por la sucursal donde se trabaja, y es ahí donde hay que mostrarla.
 
 ##### Por qué el glosario va primero y no en un anexo
 
 Casi todos los desacuerdos de este módulo fueron de vocabulario, no de criterio: «cargo» y «puesto», «sucursal» como nivel del árbol o como filtro, «jefe» como clase o como consecuencia. Un glosario al final es un diccionario que se consulta cuando ya hubo un malentendido. Al principio es un acuerdo que lo previene.
 
-Documentación del módulo de organización — versión 3.4, 10 de septiembre de 2026. Souly HR. Reúne el PRD del organigrama de agosto de 2026 y la documentación del módulo de septiembre, sobre el modelo vigente: un solo árbol de nodos, el esquema de niveles como dato de la empresa y el cargo separado del puesto. **Las cuarenta y siete reglas están en estado borrador.**
+Documentación del módulo de organización — versión 3.5, 7 de octubre de 2026. Souly HR. Reúne el PRD del organigrama de agosto de 2026 y la documentación del módulo de septiembre, sobre el modelo vigente: un solo árbol de nodos, el esquema de niveles como dato de la empresa y el cargo separado del puesto. **Las cuarenta y siete reglas están en estado borrador.**
 
 ## Anexo · El módulo en el prototipo, hoy
 
-*Cómo está construido el módulo de organización en el prototipo al 29 de septiembre de 2026. Todo lo de este anexo sale del código de `ficha_colaborador`, no del documento de arriba: sirve para saber qué de lo escrito ya existe, dónde vive y en qué se aparta.*
+*Cómo está construido el módulo de organización en el prototipo al 7 de octubre de 2026. Todo lo de este anexo sale del código de `ficha_colaborador`, no del documento de arriba: sirve para saber qué de lo escrito ya existe, dónde vive y en qué se aparta.*
 
 ### Rutas y pantallas
 
@@ -4352,7 +4369,7 @@ Las rutas están declaradas en `src/App.jsx`. `/organizacion` redirige a `/organ
 | `/organizacion/distribucion` | `Estructura` con el eje físico | Tabla con pestañas Regionales · Sucursales · Centros de trabajo (`?ver=`). Buscador, paginación, botón «Nueva…» y menú por fila: Editar · Cambiar estado · Eliminar | Sí · Estructura física |
 | `/organizacion/estructura` | `Estructura` con el eje organizacional | La misma tabla con Unidades de negocio · Unidades organizacionales · Cargos. Los cargos despliegan sus puestos. Enlace al catálogo de niveles de mando | Sí · Estructura organizacional |
 | `/organizacion/nodo/nuevo` · `/organizacion/nodo/:id` | `NodoDetalle` | Una sola ficha para cualquier tipo de nodo; los grupos de campos salen de `gruposDe`. También elimina un puesto | — (se llega desde las listas) |
-| `/organizacion/organigrama` | `Organigrama` (`src/pages/personas/Organigrama.jsx`) | Vistas Gráfico · Cards · Tabla. En el gráfico, tres modos —unidades y cargos, solo cargos, solo unidades— y los apoyos funcionales sin / con / solo. Filtros por sede, unidad, tipo, nivel y estado. Exporta PNG, SVG e «Imprimir o PDF». Menú para configurar mandos y colores | Sí · Organigrama |
+| `/organizacion/organigrama` | `Organigrama` (`src/pages/personas/Organigrama.jsx`) | Vistas Gráfico · Cards · Tabla. En el gráfico, cinco modos —unidades y cargos, solo los cargos, solo las unidades, por lugar y por unidad de negocio— y los apoyos funcionales sin / con / solo. Tarjetas de lugar (lima, con pin) y de unidad de negocio (azul acero, con maletín) donde cada uno empieza. Filtros con nombre: Cargos (tipo, nivel y estado), Unidad organizacional, Unidad de negocio y Lugar. Exporta PNG, SVG e «Imprimir o PDF». Menú para configurar mandos y colores | Sí · Organigrama |
 | `/organizacion/configuracion` | `ConfiguracionOrg` | Los peldaños de la estructura: encender, apagar, renombrar, reordenar y agregar peldaños propios, con la cadena resultante arriba | Sí · Configuración |
 | `/organizacion/mandos` | `Mandos` | Los niveles de mando en orden; se editan con `ConfigMandos`: reordenar arrastrando, renombrar y borrar avisando a cuántos cargos afecta | No · se llega desde «Niveles de mando» en Estructura organizacional |
 | `/organizacion/negocio` | — | Redirige a `/organizacion/estructura?ver=negocios` | — |
@@ -4403,7 +4420,9 @@ En `src/data/organigramaData.js`:
 - `nivelesDe(org)` y `gradoDe(cargo, org)`: el catálogo de mandos de la empresa y el nivel de un cargo con su orden.
 - `funcionalesDe`, `areasQueApoya` y `apoyosDeUnidad`: la dependencia funcional.
 - `cuadroDe`, `cargoDe`, `areaDe` y `sedesDe(persona, org)`: dónde está sentada una persona.
-- `buildOrgTree`, `filasTabla`, `cabezaDe`, `esVacante`, `filtrarPorSucursal`, `filtrarPorUnidad`, `descendientesDe`, `eliminarCargo` y `bloqueoUnidad`.
+- `buildOrgTree`, `filasTabla`, `cabezaDe`, `esVacante`, `filtrarPorSucursal`, `filtrarPorUnidad`, `filtrarPorNegocio`, `descendientesDe`, `eliminarCargo` y `bloqueoUnidad`.
+- `lugarDeUnidad(unidadId, org)` y `lugaresDeCargo(cargo, org)`: dónde está una unidad —su `ubicacion` o la de la primera madre que la declare— y dónde trabaja un puesto —lo suyo o, si no dice, lo de su unidad—.
+- `negociosDeCargo(cargo, org, lineaDe)`: la unidad de negocio de un puesto, la de su unidad o, si es transversal, la del lugar donde trabaja.
 
 En `src/data/estructuraData.js`:
 
