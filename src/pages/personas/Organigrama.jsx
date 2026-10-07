@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowDownToLine, ArrowUpFromLine, Network, LayoutGrid, Table2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
+  ArrowDownToLine, ArrowUpFromLine, Network, LayoutGrid, Table2, ChevronLeft, ChevronRight,
   X, Building2, UploadCloud, FileSpreadsheet, Check, User, Search, Pencil, Star, Users,
   Minus, Plus, ArrowUp, Briefcase, MapPin, Trash2, FolderPlus, Printer, Image, FileCode2,
   Settings, Layers, Palette, GitBranch,
@@ -2101,15 +2101,31 @@ function VistaTabla({ org, busca, setBusca, onAbrir, onEliminarVarios, donde }) 
                       />
                     </td>
                     <td colSpan={donde?.hayNegocios ? 10 : 9}>
-                      <div className="og-grupo-in">
-                        <Building2 size={13} />
-                        <span className="og-grupo-nom">{g.unidad?.nombre || 'Sin unidad'}</span>
+                      {/* LA FILA ENTERA PLIEGA, con la flecha a la izquierda del nombre. Era un
+                          «Colapsar» al extremo derecho, y con las columnas de lugar y unidad de
+                          negocio quedaba fuera de la pantalla: la flecha junto al nombre se ve
+                          siempre y es como pliega cualquier tabla con grupos.
+
+                          El botón es solo la flecha con el nombre y no la fila: una fila de botón
+                          es más ancha que la pantalla, y al tomar el foco el navegador corría la
+                          tabla hacia los lados. El resto de la fila pliega igual con el clic. */}
+                      <div
+                        className="og-grupo-in og-grupo-plegable"
+                        onClick={() => setColapsados(p => ({ ...p, [g.id]: !cerrado }))}
+                        title={cerrado ? 'Mostrar los cargos' : 'Ocultar los cargos'}
+                      >
+                        <button
+                          type="button"
+                          className="og-grupo-btn"
+                          aria-expanded={!cerrado}
+                          onClick={e => { e.stopPropagation(); setColapsados(p => ({ ...p, [g.id]: !cerrado })) }}
+                        >
+                          <ChevronRight size={14} className={`og-grupo-flecha${cerrado ? '' : ' on'}`} />
+                          <Building2 size={13} />
+                          <span className="og-grupo-nom">{g.unidad?.nombre || 'Sin unidad'}</span>
+                        </button>
                         {g.unidad && <ChipLugar lugar={donde?.unidad(g.unidad.id)} />}
                         <span className="og-tabla-cuenta">{g.filas.length} {g.filas.length === 1 ? 'Cargo' : 'Cargos'}</span>
-                        <button onClick={() => setColapsados(p => ({ ...p, [g.id]: !cerrado }))}>
-                          {cerrado ? 'Expandir' : 'Colapsar'}
-                          {cerrado ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
-                        </button>
                       </div>
                     </td>
                   </tr>

@@ -5819,8 +5819,16 @@ select.pl-input:focus {
 /* La cuenta de la fila de grupo. Tuvo la clase del renglón de los cargos apilados del dibujo, que es
    de ancho completo y con borde, y se estiraba como una barra a lo largo de toda la fila. */
 .og-tabla-cuenta { background: rgba(255,255,255,.2); font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
-.og-grupo-in button { margin-left: auto; display: flex; align-items: center; gap: 3px; border: none; background: none; color: rgba(255,255,255,.75); font-size: 10.5px; font-weight: 600; font-family: inherit; cursor: pointer; }
-.og-grupo-in button:hover { color: #fff; }
+/* La fila de grupo pliega al clic; el botón de adentro —flecha y nombre— es el que toma el foco. */
+.og-grupo-plegable { cursor: pointer; }
+.og-grupo-plegable:hover { filter: brightness(1.08); }
+.og-grupo-btn {
+  display: inline-flex; align-items: center; gap: 9px; padding: 0; border: none; background: none;
+  color: inherit; font-family: inherit; cursor: pointer;
+}
+.og-grupo-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 4px; }
+.og-grupo-flecha { flex-shrink: 0; opacity: .85; transition: transform .15s; }
+.og-grupo-flecha.on { transform: rotate(90deg); }
 
 /* Por variable y no por hex: el verde claro escrito a mano no invertia, asi que en oscuro la
    fila destacada quedaba con letras claras sobre un fondo casi blanco. */
