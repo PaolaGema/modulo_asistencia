@@ -169,6 +169,9 @@ export default function SelectorLista({
         ))}
         <span className="og-sede-tick">{marcada && <Check size={11} />}</span>
         <span className="og-sede-txt">
+          {/* El tipo delante cuando la lista mezcla niveles: «Sucursal», «Centro»… distinguen
+              dos sitios que se llaman igual y dicen qué se está eligiendo. */}
+          {o.tipo && <span className="og-sede-tipo">{o.tipo}</span>}
           <span className="og-sede-nom">{o.nombre}</span>
           {detalle && <em>{detalle}</em>}
         </span>
@@ -180,7 +183,7 @@ export default function SelectorLista({
   }
 
   const filtradas = todas.filter(o => !texto
-    || `${o.nombre} ${o.detalle || ''} ${arbol ? caminoDe(o) : ''}`.toLowerCase().includes(texto))
+    || `${o.tipo || ''} ${o.nombre} ${o.detalle || ''} ${arbol ? caminoDe(o) : ''}`.toLowerCase().includes(texto))
   const filas = arbol && !texto
     ? [...(vacia ? [fila(todas[0])] : []), ...enOrden().map(({ o, nivel }) => fila(o, { nivel }))]
     : filtradas.map(o => fila(o, { camino: arbol && !o.vacia ? caminoDe(o) : '' }))

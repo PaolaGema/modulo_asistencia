@@ -1606,8 +1606,8 @@ export function gruposDe(tipo, { personas, padres, ciudades, nivel, niveles, val
           opciones: [{ valor: RAIZ, etiqueta: vacioLugar }, ...opcionesLugar],
           ph: vacioLugar, vacio: vacioLugar,
           ayuda: primerNivel
-            ? 'Es la sucursal de la unidad, no la de su gente: cada puesto puede declarar otra si trabaja en otro sitio.'
-            : 'Es la sucursal de la unidad, no la de su gente. Declarar una propia no contradice a la de arriba: la afina para esta rama —«Almacén La Paz» dentro de «Logística», que está en Casa Matriz—.',
+            ? 'Es el lugar de la unidad, no el de su gente: cada puesto puede declarar otro si trabaja en otro sitio.'
+            : 'Es el lugar de la unidad, no el de su gente. Declarar uno propio no contradice al de arriba: lo afina para esta rama —«Almacén La Paz» dentro de «Logística», que está en Casa Matriz—.',
         },
         /* DE DÓNDE SALE EL DATO, AL LADO Y NO DENTRO. El desplegable ya no tiene que explicarse a
            sí mismo: enseña el sitio y ya. Que sea heredado o propio es OTRA pregunta, y tenía la

@@ -882,6 +882,8 @@ export function buildOrgTree(modo = 'completo', org = orgSeed, opciones = {}) {
   }
 
   const conFuncionales = modoFunc === 'con'
+  if (modo === 'lugares') return arbolPorLugar(org, opciones)
+  if (modo === 'negocios') return arbolPorNegocio(org, opciones)
   if (modo === 'unidades') {
     /* SIN APOYOS, aunque el interruptor esté encendido. Esta vista es la estructura de áreas y
        nada más: no dibuja un solo cargo, así que un cuadro de apoyo sería el único cargo del
@@ -892,7 +894,7 @@ export function buildOrgTree(modo = 'completo', org = orgSeed, opciones = {}) {
       ...nodoUnidad(u, org, undefined, false),
       hijos: org.unidades.filter(x => x.padreId === u.id).map(rama),
     })
-    return apilarArbol({ tipo: 'empresa', id: 'empresa', empresa, staff: [], hijos: unidadesRaiz(org).map(rama) })
+    return conNegocios(conLugares(apilarArbol({ tipo: 'empresa', id: 'empresa', empresa, staff: [], hijos: unidadesRaiz(org).map(rama) }), org, opciones), org, opciones)
   }
 
   /* RAÍCES, en plural. Antes se tomaba solo la primera y cualquier otro cargo sin jefe —con
@@ -935,7 +937,213 @@ export function buildOrgTree(modo = 'completo', org = orgSeed, opciones = {}) {
      cosa: dibujaba "Finanzas" en El Alto, donde Finanzas no tiene un solo puesto. Un filtro
      contesta qué hay ACÁ, y un área sin cargos acá no está. */
   const hijos = conVacias ? colgarUnidadesVacias(cimas, org, conFuncionales) : cimas
-  return apilarArbol({ tipo: 'empresa', id: 'empresa', empresa, staff: [], hijos })
+  return conNegocios(conLugares(apilarArbol({ tipo: 'empresa', id: 'empresa', empresa, staff: [], hijos }), org, opciones), org, opciones)
+}
+
+/* EL LUGAR DENTRO DEL DIBUJO POR MANDO. Una tarjeta de lugar justo encima de la unidad donde el
+   lugar CAMBIA: Dirección General en Casa Matriz lleva la tarjeta, sus áreas que heredan Casa
+   Matriz no, y Operaciones —que está en el Depósito Central— vuelve a llevarla. Así se ve a qué
+   lugar pertenece cada rama sin tocar la línea de mando: la tarjeta se mete en el camino, no lo
+   cambia.
+
+   Las de primer nivel sin lugar no llevan nada: colgar de la empresa ya dice «toda la empresa». */
+/* CON UN LUGAR ELEGIDO, su tarjeta va arriba de todo y el dibujo entero cuelga de ella: es lo que
+   se está mirando. Adentro solo se marcan los lugares que quedan dentro del elegido —una sucursal
+   de la regional—; las unidades de otro sitio que siguen en el dibujo están solo para no cortar la
+   línea de mando, y una tarjeta «Casa Matriz» colgando de «Occidente» diría que está adentro. */
+function conLugares(arbol, org, { lugares, lugarVisible, dentro = null, lugarElegido = null } = {}) {
+  if (!lugares?.length || !lugarVisible) return arbol
+  const porId = new Map(lugares.map(l => [l.id, l]))
+  const elegido = lugarElegido && porId.get(lugarElegido)
+  const bajar = (nodo, arriba) => {
+    if (!nodo || nodo.tipo === 'pila') return nodo
+    let aqui = arriba
+    let salida = nodo
+    if (nodo.tipo === 'unidad' && nodo.unidad) {
+      aqui = lugarVisible(lugarDeUnidad(nodo.unidad.id, org)) || ''
+      if (elegido && !dentro?.has(aqui)) aqui = arriba
+      if (aqui && aqui !== arriba && porId.has(aqui)) {
+        salida = { tipo: 'lugar', id: `l-${aqui}-${nodo.id}`, lugar: porId.get(aqui), staff: [], hijos: [nodo] }
+      }
+    }
+    if (nodo.hijos?.length) nodo.hijos = nodo.hijos.map(h => bajar(h, aqui))
+    if (nodo.staff?.length) nodo.staff = nodo.staff.map(h => bajar(h, aqui))
+    return salida
+  }
+  if (!elegido) return bajar(arbol, '')
+  const raiz = bajar(arbol, elegido.id)
+  return raiz.hijos?.length
+    ? { ...raiz, hijos: [{ tipo: 'lugar', id: `l-${elegido.id}-raiz`, lugar: elegido, staff: [], hijos: raiz.hijos }] }
+    : raiz
+}
+
+/* LA UNIDAD DE NEGOCIO DENTRO DEL DIBUJO POR MANDO. Lo mismo que el lugar, una tarjeta donde la
+   unidad de negocio EMPIEZA, pero se mira también en los puestos y no solo en las unidades: en la
+   práctica casi todas las unidades son transversales y la unidad de negocio llega por la sucursal
+   donde se trabaja. Así «Farmacias» sale encima del Supervisor Comercial La Paz, y su equipo, que
+   también es de Farmacias, no la repite.
+
+   Lo transversal no lleva tarjeta: es lo que hay por defecto, igual que «toda la empresa». Con una
+   unidad de negocio elegida en el filtro, su tarjeta va arriba de todo y nada debajo la repite. */
+function conNegocios(arbol, org, { negocios = [], lineaDe, negocioElegido = null } = {}) {
+  if (!negocios.length || !lineaDe) return arbol
+  const porId = new Map(negocios.map(n => [n.id, { ...n, tipo: 'negocio', tipoLabel: 'Unidad de negocio' }]))
+  const deNodo = nodo => {
+    if (nodo.tipo === 'unidad' && nodo.unidad) return lineaDe(nodo.unidad.id) || null
+    if ((nodo.tipo === 'cargo' || nodo.tipo === 'pila') && nodo.cargo && !nodo.funcional) {
+      return negociosDeCargo(nodo.cargo, org, lineaDe)[0] || null
+    }
+    return undefined
+  }
+  /* LOS HERMANOS DE UNA MISMA UNIDAD DE NEGOCIO COMPARTEN TARJETA. Tres vendedores de Farmacias
+     bajo el mismo jefe eran tres tarjetas «Farmacias» seguidas; ahora es una, con los tres debajo,
+     en el sitio del primero. */
+  const agrupar = (hijos, arriba, padreId) => {
+    const salida = []
+    const grupos = new Map()
+    for (const h of hijos) {
+      const p = deNodo(h)
+      if (!p || p === arriba || !porId.has(p)) { salida.push(h); continue }
+      if (!grupos.has(p)) {
+        const g = { tipo: 'lugar', id: `n-${p}-${padreId}`, lugar: porId.get(p), staff: [], hijos: [] }
+        grupos.set(p, g)
+        salida.push(g)
+      }
+      grupos.get(p).hijos.push(h)
+    }
+    return salida
+  }
+  const bajar = (nodo, arriba) => {
+    if (!nodo) return nodo
+    const propia = deNodo(nodo)
+    const aqui = propia === undefined || propia === null ? arriba : propia
+    if (nodo.hijos?.length && nodo.tipo !== 'pila') {
+      nodo.hijos = agrupar(nodo.hijos.map(h => bajar(h, aqui)), aqui, nodo.id)
+    }
+    return nodo
+  }
+  const elegido = negocioElegido && porId.get(negocioElegido)
+  const raiz = bajar(arbol, elegido ? elegido.id : null)
+  return elegido && raiz.hijos?.length
+    ? { ...raiz, hijos: [{ tipo: 'lugar', id: `n-${elegido.id}-raiz`, lugar: elegido, staff: [], hijos: raiz.hijos }] }
+    : raiz
+}
+
+/* POR LUGAR: dónde está cada cosa, no quién manda a quién.
+
+   Cada regional, sucursal y centro de trabajo es una tarjeta, y de ella cuelgan las unidades que
+   están ahí. Los lugares conservan su propio árbol —el centro dentro de su sucursal, la sucursal
+   dentro de su regional—, que es lo que hace ver a qué pertenece cada uno.
+
+   Una unidad se queda dentro de su madre mientras esté en el mismo lugar; si declara otro, se va a
+   la tarjeta de ese lugar y lleva escrito de quién depende, porque la línea que la unía a su madre
+   no se dibuja. Las que no están en ningún lugar van a «Toda la empresa».
+
+   Los lugares sin unidades no se dibujan: ocho sucursales vacías serían ocho tarjetas que no dicen
+   nada.
+
+   `lugares` ya viene con los niveles apagados resueltos —cada uno apunta a un padre que se ve—, y
+   `lugarVisible` lleva un sitio cualquiera al que sí se dibuja. `dentro` es el recorte del filtro:
+   con un lugar elegido solo se dibuja esa parte del árbol. */
+function arbolPorLugar(org, opciones) {
+  return { tipo: 'empresa', id: 'empresa', empresa, staff: [], hijos: lugaresConUnidades(org, opciones) }
+}
+
+/* POR UNIDAD DE NEGOCIO: el mismo árbol de lugares, una vez por cada unidad de negocio y otra para
+   lo transversal. Cada unidad de negocio es una tarjeta, y debajo van los lugares donde tiene algo
+   —sus sucursales, con la regional encima para ubicarlas— y las unidades que trabajan ahí.
+
+   Una unidad entra en la de su unidad de negocio, que puede ser propia o la del lugar donde está;
+   un puesto suelto en otra sucursal entra en la de esa sucursal. Así Ventas sale en Transversal
+   (está en Casa Matriz) y también en Farmacias, bajo Sopocachi, donde tiene vendedores.
+
+   Las unidades de negocio sin nada debajo no se dibujan: Distribución, sin un solo lugar asignado,
+   sería una tarjeta vacía que no explica nada. */
+function arbolPorNegocio(org, opciones) {
+  const { negocios = [], lineaDe = () => null, negocioElegido = null } = opciones
+  const se = id => !negocioElegido || negocioElegido === id
+  const grupo = (id, lugar, linea) => {
+    const hijos = lugaresConUnidades(org, { ...opciones, linea, lineaDe })
+    return hijos.length ? { tipo: 'lugar', id, lugar, staff: [], hijos } : null
+  }
+  const transversal = se(SIN_NEGOCIO) && grupo('n-transversal', {
+    id: null, tipo: 'negocio', nombre: 'Transversal', tipoLabel: 'Sin unidad de negocio', global: true,
+  }, null)
+  return {
+    tipo: 'empresa', id: 'empresa', empresa, staff: [],
+    hijos: [
+      transversal,
+      ...negocios.filter(n => se(n.id)).map(n => grupo(`n-${n.id}`, { ...n, tipo: 'negocio', tipoLabel: 'Unidad de negocio' }, n.id)),
+    ].filter(Boolean),
+  }
+}
+
+/* `linea` acota a una unidad de negocio —null es lo transversal— y `undefined` no acota nada,
+   que es la vista por lugar. */
+function lugaresConUnidades(org, { lugares = [], lugarVisible = id => id, dentro = null, linea, lineaDe = () => null }) {
+  const sitioDe = u => lugarVisible(lugarDeUnidad(u.id, org)) || ''
+  const acota = linea !== undefined
+  const lineaU = u => lineaDe(u.id) || null
+  const entra = u => !acota || lineaU(u) === linea
+  const madre = u => (u.padreId ? getUnidad(u.padreId, org) : null)
+  const juntas = (a, b) => sitioDe(a) === sitioDe(b) && (!acota || lineaU(a) === lineaU(b))
+  const rama = u => ({
+    ...nodoUnidad(u, org, `u-${u.id}`, false),
+    hijos: org.unidades.filter(x => x.padreId === u.id && juntas(x, u)).map(rama),
+  })
+  const cimas = new Map()
+  for (const u of org.unidades) {
+    if (!entra(u)) continue
+    const m = madre(u)
+    if (m && juntas(m, u)) continue
+    const k = sitioDe(u)
+    if (!cimas.has(k)) cimas.set(k, [])
+    cimas.get(k).push({ ...rama(u), dependeDe: m?.nombre || null })
+  }
+
+  /* LAS UNIDADES DE VISITA. Ventas está en Casa Matriz, pero tiene vendedores en La Paz y en El
+     Alto: sin esto esas sucursales no saldrían nunca, porque ninguna unidad «está» en ellas. Se
+     dibujan bajo cada lugar donde tienen puestos y su unidad no está, con cuántos hay ahí. */
+  const visitas = new Map()
+  for (const c of org.cargos) {
+    const u = getUnidad(c.unidadId, org)
+    if (!u) continue
+    for (const sitio of new Set((c.sucursalIds || []).map(lugarVisible).filter(Boolean))) {
+      if (sitio === sitioDe(u)) continue
+      if (acota && (lineaDe(sitio) || null) !== linea) continue
+      if (!visitas.has(sitio)) visitas.set(sitio, new Map())
+      const porUnidad = visitas.get(sitio)
+      porUnidad.set(u.id, (porUnidad.get(u.id) || 0) + 1)
+    }
+  }
+  const deVisita = sitio => [...(visitas.get(sitio) || new Map())].map(([uid, n]) => ({
+    ...nodoUnidad(getUnidad(uid, org), org, `u-${uid}-en-${sitio}`, false),
+    puestosAca: n,
+  }))
+
+  const armar = l => {
+    const hijos = [
+      ...(cimas.get(l.id) || []),
+      ...deVisita(l.id),
+      ...lugares.filter(x => x.padreId === l.id).map(armar).filter(Boolean),
+    ]
+    return hijos.length ? { tipo: 'lugar', id: `l-${l.id}`, lugar: l, staff: [], hijos } : null
+  }
+  const visto = new Set(lugares.map(l => l.id))
+  const raices = dentro
+    ? lugares.filter(l => dentro.has(l.id) && !(l.padreId && dentro.has(l.padreId)))
+    : lugares.filter(l => !l.padreId || !visto.has(l.padreId))
+  const sinLugar = !dentro && cimas.get('')?.length
+    ? [{
+      tipo: 'lugar', id: `l-empresa-${linea ?? ''}`, staff: [], hijos: cimas.get(''),
+      lugar: { id: null, nombre: 'Toda la empresa', tipoLabel: 'Sin lugar fijo', global: true },
+    }]
+    : []
+  /* Con una unidad de negocio, los ids llevan su llave: la misma sucursal puede salir en dos
+     grupos —Transversal y Farmacias— y el plegado se guarda por id. */
+  const sufijo = acota ? `-${linea ?? 't'}` : ''
+  const conSufijo = n => (n && sufijo ? { ...n, id: n.id + sufijo, hijos: n.hijos.map(h => (h.tipo === 'lugar' ? conSufijo(h) : { ...h, id: h.id + sufijo })) } : n)
+  return [...sinLugar, ...raices.map(armar).filter(Boolean)].map(conSufijo)
 }
 
 /* CADA PÍLDORA DENTRO DE LA DE SU ÁREA MADRE, TAMBIÉN EN LA RAÍZ.
@@ -1261,6 +1469,26 @@ export const estaEnSucursal = (cargo, sucursalId) => {
   return ids.length === 0 || ids.includes(sucursalId)
 }
 
+/* DÓNDE ESTÁ UNA UNIDAD: la primera `ubicacion` declarada subiendo por sus madres. Null es
+   «toda la empresa», que es lo que contesta una rama donde nadie declaró sitio. Es la misma
+   deducción que hace la ficha de la unidad al decir «lo hereda de…». */
+export function lugarDeUnidad(unidadId, org = orgSeed) {
+  let u = getUnidad(unidadId, org)
+  for (let i = 0; u && i < 30; i += 1) {
+    if (u.ubicacion) return u.ubicacion
+    u = u.padreId ? getUnidad(u.padreId, org) : null
+  }
+  return null
+}
+
+/* DÓNDE SE TRABAJA EN UN PUESTO. Lo que declara el puesto manda; sin nada declarado, el de su
+   unidad. Lista vacía sigue siendo «toda la empresa»: ni el puesto ni su rama dijeron dónde. */
+export function lugaresDeCargo(cargo, org = orgSeed) {
+  if ((cargo.sucursalIds || []).length) return cargo.sucursalIds
+  const propio = lugarDeUnidad(cargo.unidadId, org)
+  return propio ? [propio] : []
+}
+
 /* Recorta la estructura a una sede. Un cargo también se queda si alguien debajo suyo está en
    la sede aunque él no lo esté: sacar a un jefe intermedio dejaría a su gente sin de quién
    colgar y partiría el árbol en pedazos sueltos. Filtrar un organigrama es quedarse con las
@@ -1270,12 +1498,42 @@ export const estaEnSucursal = (cargo, sucursalId) => {
 export function filtrarPorSucursal(org, sucursalId, lugares = null) {
   if (!sucursalId || sucursalId === TODAS_SUCURSALES) return org
   const acepta = lugares || new Set([sucursalId])
-  /* Sin sitio declarado, el puesto vale para toda la empresa: entra en cualquier sede. */
-  const estaAca = cargo => {
-    const ids = cargo.sucursalIds || []
+  /* Sin sitio declarado, ni en el puesto ni en su unidad, vale para toda la empresa: entra en
+     cualquier lugar. Antes se miraba solo el puesto, y Operaciones —que está en el Depósito
+     Central— no salía al elegir el depósito porque sus puestos no lo repetían. */
+  return recortarConCostura(org, cargo => {
+    const ids = lugaresDeCargo(cargo, org)
     return ids.length === 0 || ids.some(x => acepta.has(x))
-  }
+  })
+}
 
+export const TODOS_NEGOCIOS = 'todas'
+/* La opción «Transversal» del filtro: los puestos que no pertenecen a ninguna unidad de negocio. */
+export const SIN_NEGOCIO = '__transversal'
+
+/* DE QUÉ UNIDAD DE NEGOCIO ES UN PUESTO. Primero la de su unidad organizacional —lo que uno hace
+   pesa más que dónde lo hace, la misma regla que `lineaConOrigen`— y si su unidad es transversal,
+   la del lugar donde trabaja: un vendedor de Ventas en Sopocachi es de Farmacias porque Sopocachi
+   lo es. Lista vacía es transversal. `lineaDe` lo resuelve la pantalla, que tiene los nodos. */
+export function negociosDeCargo(cargo, org, lineaDe) {
+  const propia = lineaDe(cargo.unidadId)
+  if (propia) return [propia]
+  return [...new Set(lugaresDeCargo(cargo, org).map(lineaDe).filter(Boolean))]
+}
+
+/* Recorta a una unidad de negocio con la misma costura que el lugar. A diferencia del lugar, lo
+   transversal NO entra en cualquiera: en una empresa donde casi todo es transversal, entrar en
+   todas dejaría el filtro sin recortar nada. Los jefes transversales igual quedan, por la costura. */
+export function filtrarPorNegocio(org, negocioId, lineaDe) {
+  if (!negocioId || negocioId === TODOS_NEGOCIOS) return org
+  return recortarConCostura(org, cargo => {
+    const ids = negociosDeCargo(cargo, org, lineaDe)
+    return negocioId === SIN_NEGOCIO ? ids.length === 0 : ids.includes(negocioId)
+  })
+}
+
+/* Se queda con los cargos que pasan y con los jefes que hacen falta para llegar a ellos. */
+function recortarConCostura(org, estaAca) {
   const hijosDe = new Map()
   org.cargos.forEach(c => {
     const lista = hijosDe.get(c.reportaA) || []

@@ -22,7 +22,7 @@ import PreviaLugar from '../../components/personas/PreviaLugar'
 import FraseFiltro from '../../components/personas/FraseFiltro'
 import Avatar from '../../components/personas/Avatar'
 import { exportarPNG, exportarSVG, imprimir } from '../../components/personas/exportarOrganigrama'
-import { TIPOS_UNIDAD, estadosDe, lugaresPosibles, tipoDe as peldanoDe } from '../../data/estructuraData'
+import { TIPOS_UNIDAD, estadosDe, lugaresPosibles, tipoDe as peldanoDe, lineaDe, estaEncendido } from '../../data/estructuraData'
 import { colaboradoresData } from './colaboradoresData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { lugaresDeSucursal } from '../../data/estructuraData'
@@ -34,7 +34,8 @@ import {
   eliminarCargo, ramaDe, podarConCostura, codigosDeSerie, eliminarUnidad, bloqueoUnidad, unidadesPadrePosibles, cabezaDe,
   filtrarPorUnidad, cargosEnRama, TODAS_UNIDADES,
   ocupantesDe, funcionalesDe, areasQueApoya, apoyosDeUnidad, getPersona,
-  coincideCargo, estiloColores,
+  coincideCargo, estiloColores, lugaresDeCargo,
+  filtrarPorNegocio, negociosDeCargo, TODOS_NEGOCIOS, SIN_NEGOCIO,
   filaDeCargo,
   coordinacionesDe,
 } from '../../data/organigramaData'
@@ -1463,8 +1464,8 @@ function UnidadModal({ unidad, base, org, onGuardar, onEliminar, onCerrar, onAbr
                 <AyudaCampo>
                   La región, la sucursal o el centro de trabajo al que pertenece esta unidad y
                   todo lo que cuelgue de ella.<br /><br />
-                  Es la sucursal de la unidad, <strong>no la de su gente</strong>: cada puesto puede
-                  declarar otra si trabaja en otro sitio.
+                  Es el lugar de la unidad, <strong>no el de su gente</strong>: cada puesto puede
+                  declarar otro si trabaja en otro sitio.
                 </AyudaCampo>
               </span>
               <SelectorLista
@@ -2259,7 +2260,7 @@ export default function Organigrama() {
      que esperan todas las funciones de `organigramaData`. */
   /* `nodos` vuelve: el filtro de sede necesita el árbol para saber qué centros hay dentro de cada
      sucursal, y las sedes que ofrece salen de ahí y no de la lista vieja. */
-  const { organigrama: org, setOrganigrama: setOrg, empresa, nodos } = useOnboardingData()
+  const { organigrama: org, setOrganigrama: setOrg, empresa, nodos, nivelesEstructura } = useOnboardingData()
   const [vista, setVista] = useState('grafico')
   const [pestana, setPestana] = useState('completo')
   /* LA SEDE YA NO ES ESTADO DE ESTA PANTALLA: es el ámbito, y vive en el riel. Era el más
@@ -2335,6 +2336,8 @@ export default function Organigrama() {
      fábrica, cambiaba lo que veías Y lo que creabas en seis pantallas, y recortaba el organigrama
      sin decir que lo estaba haciendo. La diferencia no es el filtro, es quién lo puso y si se ve. */
   const [sedeId, setSedeId] = useState(TODAS_SUCURSALES)
+  /* La unidad de negocio que se está mirando. Mismo trato que el lugar: filtro de esta vista. */
+  const [negocioId, setNegocioId] = useState(TODOS_NEGOCIOS)
 
   const [ranuraBuscador, setRanuraBuscador] = useState(null)
   const [editando, setEditando] = useState(null)      // { cargo } | { cargo: null } para alta
@@ -2343,18 +2346,62 @@ export default function Organigrama() {
      jefe o unidad hay que poder apuntar a algo que el filtro dejó fuera de pantalla. */
   /* Primero el área y después la sede: los dos recortan y se aplican uno sobre el otro, así que
      "Marketing en La Paz" es una vista posible y no dos filtros que se pisan. */
+  /* LOS LUGARES QUE SE VEN: regionales, sucursales y centros de los niveles encendidos, sin los
+     cerrados. Cada uno apunta al padre más cercano que también se ve: con las regionales apagadas,
+     la sucursal queda en el primer nivel en vez de colgar de algo que no está. */
+  const lugares = useMemo(() => {
+    const vivos = lugaresPosibles(nodos, nivelesEstructura).filter(n => n.estado !== 'cerrada')
+    const ids = new Set(vivos.map(n => n.id))
+    const subir = id => {
+      let n = nodos.find(x => x.id === id)
+      for (let i = 0; n && i < 30; i += 1) {
+        if (ids.has(n.id)) return n.id
+        n = n.padreId ? nodos.find(x => x.id === n.padreId) : null
+      }
+      return null
+    }
+    return {
+      lista: vivos.map(n => ({
+        id: n.id,
+        tipo: n.tipo,
+        nombre: n.nombre,
+        tipoLabel: peldanoDe(n.tipo, nivelesEstructura)?.label || '',
+        detalle: n.ciudad || n.direccion || '',
+        padreId: n.padreId ? subir(n.padreId) : null,
+      })),
+      visible: id => (id ? subir(id) : null),
+    }
+  }, [nodos, nivelesEstructura])
+
+  /* LAS UNIDADES DE NEGOCIO, para la vista que agrupa por ellas. Vacía si el nivel está apagado en
+     Estructura: ahí la empresa no reparte por negocio y la vista no se ofrece. */
+  const negocios = useMemo(() => (estaEncendido('negocio', nivelesEstructura)
+    ? nodos.filter(n => n.tipo === 'negocio' && n.estado !== 'cerrada').map(n => ({ id: n.id, nombre: n.nombre }))
+    : []), [nodos, nivelesEstructura])
+  /* La unidad de negocio de cada nodo, resuelta una vez: el árbol la pregunta por cada unidad y
+     cada lugar, y `lineaDe` sube por los padres en cada llamada. */
+  const lineaDeNodo = useMemo(() => {
+    const lineas = new Map(nodos.map(n => [n.id, lineaDe(n.id, nodos)]))
+    return id => lineas.get(id) ?? null
+  }, [nodos])
+
+  /* Los sitios que valen por el lugar elegido: él y todo lo que tiene dentro. Elegir Occidente
+     trae La Paz y El Alto; elegir Casa Matriz trae el Depósito Central. */
+  const dentroDelLugar = useMemo(
+    () => (sedeId === TODAS_SUCURSALES ? null : lugaresDeSucursal(nodos, sedeId)),
+    [nodos, sedeId],
+  )
+
   const orgVisible = useMemo(
     /* SIN ÁMBITO YA NO SE RECORTA POR SEDE. Quedaba `filtrarPorSucursal(..., sedeId)` envolviendo
        esto, con `sedeId` clavado en «todas»: una llamada que ya no podía hacer nada y que había
        que leer entera para descubrirlo. */
-    () => filtrarPorSucursal(
-      filtrarPorUnidad(org, unidadId),
-      sedeId,
-      /* Los sitios que valen por esa sede: ella y sus centros de trabajo. Un puesto que declara
-         «Depósito Central» trabaja en Casa Matriz, aunque su id sea otro. */
-      sedeId === TODAS_SUCURSALES ? null : lugaresDeSucursal(nodos, sedeId),
+    () => filtrarPorNegocio(
+      filtrarPorSucursal(filtrarPorUnidad(org, unidadId), sedeId, dentroDelLugar),
+      negocioId,
+      lineaDeNodo,
     ),
-    [org, unidadId, sedeId, nodos],
+    [org, unidadId, sedeId, dentroDelLugar, negocioId, lineaDeNodo],
   )
   /* Clase, nivel y estado no recortan la ESTRUCTURA: sacan cargos. El gráfico los poda con
      costura y las listas simplemente se quedan con los que pasan. */
@@ -2384,9 +2431,16 @@ export default function Organigrama() {
       /* Con una sede elegida tampoco: ahí una unidad sin puestos no existe. A diferencia del
          ámbito global de antes, esto ya no sorprende a nadie —la sede está escrita en la frase de
          arriba y la puso quien mira—. */
-      vacias: !recorteBlando && sedeId === TODAS_SUCURSALES,
+      vacias: !recorteBlando && sedeId === TODAS_SUCURSALES && negocioId === TODOS_NEGOCIOS,
+      lugares: lugares.lista,
+      lugarVisible: lugares.visible,
+      dentro: dentroDelLugar,
+      lugarElegido: sedeId === TODAS_SUCURSALES ? null : sedeId,
+      negocios,
+      lineaDe: lineaDeNodo,
+      negocioElegido: negocioId === TODOS_NEGOCIOS ? null : negocioId,
     }),
-    [pestana, orgPodado, verFuncionales, recorteBlando, sedeId],
+    [pestana, orgPodado, verFuncionales, recorteBlando, sedeId, lugares, dentroDelLugar, negocios, lineaDeNodo, negocioId],
   )
   /* HUBO UN AVISO ACÁ —«N unidades quedaron fuera de la pantalla porque todavía no tienen
      puestos»— y se fue por donde nació mal: trataba como anomalía algo que es normal. Una unidad
@@ -2416,27 +2470,45 @@ export default function Organigrama() {
 
      LA CUENTA VA CON CADA UNA porque es la única pista que ayuda a elegir: «Sopocachi · 4» avisa
      antes de pulsar de que ese recorte deja cuatro cuadros. Se cuenta sobre el organigrama COMPLETO
-     y no sobre lo ya filtrado, para que el número no cambie según por dónde se venga. */
-  const sedes = useMemo(() => nodos
-    .filter(n => n.tipo === 'sucursal' && n.estado !== 'cerrada')
-    .map(s => {
-      const dentro = lugaresDeSucursal(nodos, s.id)
+     y no sobre lo ya filtrado, para que el número no cambie según por dónde se venga.
+
+     YA NO SON SOLO SUCURSALES: regionales, sucursales y centros, con la forma del árbol, igual que
+     «Está en» en la ficha de la unidad. Y la cuenta mira dónde está el puesto o, si no lo dice, su
+     unidad: los de Operaciones están en el depósito aunque ninguno lo repita. */
+  const sedes = useMemo(() => {
+    const sitios = org.cargos.map(c => lugaresDeCargo(c, org))
+    return lugares.lista.map(l => {
+      const dentro = lugaresDeSucursal(nodos, l.id)
       return {
-        id: s.id,
-        nombre: s.nombre,
-        detalle: s.ciudad || undefined,
-        n: org.cargos.filter(c => (c.sucursalIds || []).some(x => dentro.has(x))).length,
+        id: l.id,
+        nombre: l.nombre,
+        tipo: l.tipoLabel,
+        padreId: l.padreId,
+        n: sitios.filter(ids => ids.some(x => dentro.has(x))).length,
       }
-    }), [nodos, org.cargos])
+    })
+  }, [lugares, nodos, org])
+
+  /* Las opciones del filtro de unidad de negocio, con cuántos puestos tiene cada una. Transversal
+     va al final: es la que no pertenece a ninguna. */
+  const opcionesNegocio = useMemo(() => {
+    if (!negocios.length) return []
+    const de = org.cargos.map(c => negociosDeCargo(c, org, lineaDeNodo))
+    return [
+      ...negocios.map(n => ({ id: n.id, nombre: n.nombre, n: de.filter(ids => ids.includes(n.id)).length })),
+      { id: SIN_NEGOCIO, nombre: 'Transversal', detalle: 'Sin unidad de negocio', n: de.filter(ids => !ids.length).length },
+    ]
+  }, [negocios, org, lineaDeNodo])
 
   const unidadVista = org.unidades.find(u => u.id === unidadId) || null
 
   /* Los cuatro recortes en un objeto: el panel los lee juntos y los devuelve en parches, así
      agregar uno nuevo no obliga a pasarle cuatro pares de props más. */
-  const filtros = { sedeId, unidadId, tipos, grados, estado: estadoFiltro }
+  const filtros = { sedeId, unidadId, negocioId, tipos, grados, estado: estadoFiltro }
   const cambiarFiltro = parche => {
     if ('sedeId' in parche) setSedeId(parche.sedeId ?? TODAS_SUCURSALES)
     if ('unidadId' in parche) setUnidadId(parche.unidadId)
+    if ('negocioId' in parche) setNegocioId(parche.negocioId ?? TODOS_NEGOCIOS)
     if ('tipos' in parche) setTipos(parche.tipos)
     if ('grados' in parche) setGrados(parche.grados)
     if ('estado' in parche) setEstadoFiltro(parche.estado)
@@ -2865,6 +2937,7 @@ export default function Organigrama() {
         /* La ranura donde el gráfico dibuja su buscador: el buscador y los filtros son la misma
            familia —las dos formas de acotar lo que estás mirando— y tienen que leerse juntos. */
         sedes={sedes}
+        negocios={opcionesNegocio}
         ranuraBuscador={setRanuraBuscador}
       />
 
@@ -2895,13 +2968,15 @@ export default function Organigrama() {
                   porque es lo que ya hace el filtro con el atenuado, y una función que devuelve
                   falso siempre es más barata que repartir un Set vacío por todo el árbol. */
               condenado={borrando?.tipo === 'rama' ? c => borrando.ids.includes(c.id) : undefined}
-              vista={{ pestana, setPestana, verFuncionales, setVerFuncionales, cuantosFuncionales }}
+              vista={{ pestana, setPestana, verFuncionales, setVerFuncionales, cuantosFuncionales, hayNegocios: negocios.length > 0 }}
               ranuraBuscador={ranuraBuscador}
               onAbrirCargo={nodo => setEditando({ cargo: nodo.cargo })}
               onAbrirUnidad={unidad => setEditandoUnidad({ unidad })}
               crear={crearEnNodo}
               desplazamientos={org.desplazamientos}
-              onMover={mover}
+              /* Por lugar no se acomoda a mano: el corrimiento se guarda por unidad y movería
+                 también la píldora en el dibujo por mando, donde está en otro sitio. */
+              onMover={pestana === 'lugares' || pestana === 'negocios' ? undefined : mover}
               onAcomodar={acomodar}
             />
           )}

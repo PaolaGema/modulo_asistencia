@@ -3,33 +3,28 @@ import { createPortal } from 'react-dom'
 import { ChevronDown } from 'lucide-react'
 import SelectorLista from './SelectorLista'
 import {
-  getUnidad, TODAS_UNIDADES, TODAS_SUCURSALES, TIPOS_CARGO, nivelesDe, esVacante,
+  getUnidad, TODAS_UNIDADES, TODAS_SUCURSALES, TODOS_NEGOCIOS, TIPOS_CARGO, nivelesDe, esVacante,
 } from '../../data/organigramaData'
 /* Las sedes salen del contexto y ya no del módulo de datos: el catálogo se edita en
    Organización › Sucursales, así que la lista sembrada se quedaba vieja en cuanto alguien
    agregaba una. Y son solo las del ALCANCE de quien mira: a un jefe de sucursal ofrecerle las
    ocho es ofrecerle siete que no puede ver. */
 
-/* LOS FILTROS ESCRITOS COMO UNA FRASE.
+/* LOS FILTROS, CADA UNO CON SU NOMBRE: Cargos · Unidad organizacional · Unidad de negocio · Lugar.
 
-   «Viendo todos los cargos de toda la empresa en todas las sucursales.»
+   Fueron una frase —«Viendo todos los cargos de toda la empresa en todos los lugares»— y se
+   leía bien con tres huecos; con la unidad de negocio eran cuatro y la frase ya no se leía como
+   frase. Con el nombre encima cada filtro se encuentra sin leer los demás.
 
-   Antes eran un panel de 292 px con diez casillas apiladas, y después un modal con previa. Los
-   dos tenían el mismo defecto de fondo: para saber qué estaba recortando había que ABRIR algo.
-   Una frase no se abre —se lee— y ocupa una línea.
+   Sigue valiendo lo de antes: lo que muestra cada uno es la respuesta actual —«Staff · Vacantes»,
+   «Toda la empresa»— y no hace falta abrir nada para saber qué está recortando. El que recorta
+   algo se pinta, y los que siguen en su valor de fábrica no.
 
-   LO QUE FILTRA VA EN LOS HUECOS. Cada trozo subrayado es un desplegable, y el texto que muestra
-   es la respuesta actual, no el nombre del campo: dice «solo los vacantes», no «Estado». Sin
-   nada elegido la frase se lee entera y sigue siendo verdad —«todos los cargos de toda la
-   empresa»—, así que no hace falta un estado especial para «sin filtros».
+   LO QUE NO FILTRA NO VA ACÁ. «Qué se dibuja» no deja a nadie afuera: cambia el papel, y vive en
+   el lienzo, que es donde se ve lo que hace.
 
-   LO QUE NO FILTRA NO ENTRA EN LA FRASE. «Qué se dibuja» —áreas y cargos, solo cargos, solo
-   áreas— no deja a nadie afuera: cambia el papel. Vive abierto en el lienzo, arriba a la
-   izquierda, que es donde se ve lo que hace.
-
-   LOS TRES RECORTES DE PUESTO COMPARTEN UN HUECO. Clase, nivel y estado en tres desplegables
-   dejarían una frase de cinco huecos que ya no se lee como frase. Juntos arman una sola idea
-   —qué cargos— y el texto los enhebra: «los cargos de staff con mando medio vacantes». */
+   LOS TRES RECORTES DE PUESTO COMPARTEN UNO. Clase, nivel y estado arman una sola idea —qué
+   cargos— y van juntos en «Cargos». */
 
 /* Cuánto aire dejar contra el borde de la ventana. */
 const MARGEN = 12
@@ -98,30 +93,30 @@ const COLOR_TIPO = {
   outsourcing: 'var(--og-ext)',
 }
 
-/* CÓMO SE ESCRIBE «QUÉ CARGOS». En este orden y con estas preposiciones porque es el único
-   reparto que aguanta las ocho combinaciones sin sonar a robot: la clase con «de», el nivel con
-   «con», y el estado suelto al final, que es donde cae natural en español.
-
-   Elegir las tres clases es lo mismo que no elegir ninguna —no deja a nadie afuera— así que ahí
-   la frase vuelve a decir «todos». */
-function texto({ tipos, grados, estado }, org) {
+/* LO MISMO, CORTO, para el desplegable con nombre —antes era una frase, «Viendo los cargos de staff…»—: el rótulo «Cargos» ya dice de qué se habla, así
+   que el valor es solo lo elegido —«Staff · Vacantes»— o «Todos». */
+function resumen({ tipos, grados, estado }, org) {
   const partes = []
   if (tipos.length > 0 && tipos.length < TIPOS_CARGO.length) {
-    partes.push('de ' + lista(tipos.map(k => TIPOS_CARGO.find(t => t.key === k)?.label.toLowerCase())))
+    partes.push(tipos.map(k => TIPOS_CARGO.find(t => t.key === k)?.label).join(', '))
   }
-  if (grados.length > 0) {
-    partes.push('con ' + lista(grados.map(g => nivelesDe(org).find(n => n.id === g)?.nombre.toLowerCase())))
-  }
-  if (estado !== 'todos') partes.push(estado === 'vacantes' ? 'vacantes' : 'ya cubiertos')
-  return partes.length ? `los cargos ${partes.join(' ')}` : 'todos los cargos'
+  if (grados.length > 0) partes.push(grados.map(g => nivelesDe(org).find(n => n.id === g)?.nombre).join(', '))
+  if (estado !== 'todos') partes.push(estado === 'vacantes' ? 'Vacantes' : 'Cubiertos')
+  return partes.length ? partes.join(' · ') : 'Todos'
 }
 
-/* «staff y outsourcing», no «staff, outsourcing». La lista con "y" antes del último es lo que
-   la hace sonar a frase; con comas suena a etiqueta. */
-const lista = xs => (xs.length <= 1 ? xs[0] || '' : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`)
+/* Cada filtro con su nombre encima. `puesto` lo pinta cuando está recortando algo, para ver de un
+   vistazo cuáles dejan gente afuera. */
+const Filtro = ({ rotulo, puesto, children }) => (
+  <div className={`og-filtro${puesto ? ' og-filtro-puesto' : ''}`}>
+    <span className="og-filtro-rot">{rotulo}</span>
+    {children}
+  </div>
+)
 
-export default function FraseFiltro({ org, filtros, onCambio, sedes = [], ranuraBuscador }) {
-  const { tipos, grados, estado, unidadId, sedeId } = filtros
+
+export default function FraseFiltro({ org, filtros, onCambio, sedes = [], negocios = [], ranuraBuscador }) {
+  const { tipos, grados, estado, unidadId, sedeId, negocioId } = filtros
   const hayPuesto = tipos.length > 0 || grados.length > 0 || estado !== 'todos'
 
   const alternarEnLista = (campo, valor) => onCambio({
@@ -161,9 +156,8 @@ export default function FraseFiltro({ org, filtros, onCambio, sedes = [], ranura
   return (
     <div className="og-frase">
       <div className="og-frase-linea">
-        <span>Viendo</span>
-
-        <Menu etiqueta={texto(filtros, org)} activo={hayPuesto} ancho={264}>
+        <Filtro rotulo="Cargos" puesto={hayPuesto}>
+        <Menu etiqueta={resumen(filtros, org)} activo={hayPuesto} ancho={264}>
           {/* CADA GRUPO CON LA FORMA DE LO QUE PREGUNTA. Eran nueve píldoras idénticas en tres
               bloques, y como nada las distinguía se leían como una sola sopa: no había manera de
               ver que «Colaborador» y «Mando medio» son cosas de distinta naturaleza.
@@ -250,13 +244,14 @@ export default function FraseFiltro({ org, filtros, onCambio, sedes = [], ranura
             </button>
           )}
         </Menu>
+        </Filtro>
 
-        <span>de</span>
+        <Filtro rotulo="Unidad organizacional" puesto={unidadId !== TODAS_UNIDADES}>
         <SelectorLista
           comoHueco
           valor={unidadId === TODAS_UNIDADES ? null : unidadId}
           onCambio={v => onCambio({ unidadId: v ?? TODAS_UNIDADES })}
-          vacia="toda la empresa"
+          vacia="Toda la empresa"
           arbol
           vaciaN={org.cargos.length}
           opciones={org.unidades.map(u => ({
@@ -265,6 +260,22 @@ export default function FraseFiltro({ org, filtros, onCambio, sedes = [], ranura
             n: cuentas.unidad[u.id] || 0,
           }))}
         />
+        </Filtro>
+
+        {/* LA UNIDAD DE NEGOCIO, solo si la empresa las usa. «Transversal» es una opción más: son
+            los puestos que no pertenecen a ninguna, y también se quieren poder mirar solos. */}
+        {negocios.length > 0 && (
+          <Filtro rotulo="Unidad de negocio" puesto={negocioId !== TODOS_NEGOCIOS}>
+            <SelectorLista
+              comoHueco
+              valor={negocioId === TODOS_NEGOCIOS ? null : negocioId}
+              onCambio={v => onCambio({ negocioId: v ?? TODOS_NEGOCIOS })}
+              vacia="Todas"
+              vaciaN={org.cargos.length}
+              opciones={negocios}
+            />
+          </Filtro>
+        )}
 
         {/* «EN [SUCURSAL]» VOLVIÓ, PERO NO ES LO MISMO QUE ANTES. Aquella era la otra cara de un
             selector del encabezado que cambiaba la aplicación entera; esta es un recorte de ESTA
@@ -273,17 +284,17 @@ export default function FraseFiltro({ org, filtros, onCambio, sedes = [], ranura
             Solo aparece si hay más de una sede: con una sola no es un filtro, es la misma empresa
             escrita de otra forma. */}
         {sedes.length > 1 && (
-          <>
-            <span>en</span>
+          <Filtro rotulo="Lugar" puesto={sedeId !== TODAS_SUCURSALES}>
             <SelectorLista
               comoHueco
               valor={sedeId === TODAS_SUCURSALES ? null : sedeId}
               onCambio={v => onCambio({ sedeId: v ?? TODAS_SUCURSALES })}
-              vacia="todas las sucursales"
+              vacia="Todos"
               vaciaN={org.cargos.length}
+              arbol
               opciones={sedes}
             />
-          </>
+          </Filtro>
         )}
         {/* AL OTRO EXTREMO, el buscador. Vivía flotando sobre el
             organigrama y tapaba una esquina para siempre; acá queda al lado de los filtros, que

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Plus, Minus, Home, Maximize2, X, Wand2, Check, Search, Network, Users, Building2, Layers } from 'lucide-react'
+import { Plus, Minus, Home, Maximize2, X, Wand2, Check, Search, Network, Users, Building2, Layers, MapPin, Briefcase } from 'lucide-react'
 import { Rama } from './OrgNodos'
 import { buscarCargos } from '../../data/organigramaData'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
@@ -78,6 +78,11 @@ const MODOS = [
   { key: 'completo', label: 'unidades y cargos', Icon: Network },
   { key: 'cargos', label: 'solo los cargos', Icon: Users },
   { key: 'unidades', label: 'solo las unidades', Icon: Building2 },
+  /* No es un recorte del mando sino otra pregunta —dónde está cada unidad—, por eso las
+     unidades cuelgan de su regional, sucursal o centro y no de su jefe. */
+  { key: 'lugares', label: 'por lugar', Icon: MapPin },
+  /* La misma idea con la unidad de negocio arriba de los lugares. Solo si la empresa las usa. */
+  { key: 'negocios', label: 'por unidad de negocio', Icon: Briefcase, siHay: 'hayNegocios' },
 ]
 
 /* Las tres posiciones del interruptor de apoyos. El rótulo va en una palabra porque se lee como
@@ -189,7 +194,7 @@ export default function OrgGrafico({
 
     /* Todo cuelga de `.og-nodo-fila`, también la píldora y la empresa: la fila existe siempre,
        tenga o no cabezas al costado, para que este selector no dependa de eso. */
-    const propio = li => li.querySelector(':scope > .og-nodo > .og-nodo-fila > .og-card-col > .og-card, :scope > .og-nodo > .og-nodo-fila > .og-unidad, :scope > .og-nodo > .og-nodo-fila > .og-empresa')
+    const propio = li => li.querySelector(':scope > .og-nodo > .og-nodo-fila > .og-card-col > .og-card, :scope > .og-nodo > .og-nodo-fila > .og-unidad, :scope > .og-nodo > .og-nodo-fila > .og-lugar, :scope > .og-nodo > .og-nodo-fila > .og-empresa')
     /* Las otras cabezas viven dentro del `li` del tronco, así que el recorrido no las ve como
        nodos propios. Cuelgan de lo mismo que él —la píldora de su área— y por eso reciben una
        línea desde el MISMO padre: comparten fila, comparten barra, y entre ellas no hay ninguna. */
@@ -441,7 +446,7 @@ export default function OrgGrafico({
         {abierto ? (
           <div className="og-capas">
             <div className="og-capas-fila">
-              {MODOS.map(m => (
+              {MODOS.filter(m => !m.siHay || vista[m.siHay]).map(m => (
                 <button
                   key={m.key}
                   type="button"
@@ -461,7 +466,7 @@ export default function OrgGrafico({
                 obligaría a explicar en qué se diferencian.
 
                 En «solo áreas» no aparece: ahí no hay ni un cargo que prestar. */}
-            {vista.pestana !== 'unidades' && vista.cuantosFuncionales > 0 && (
+            {!['unidades', 'lugares', 'negocios'].includes(vista.pestana) && vista.cuantosFuncionales > 0 && (
               <>
                 <span className="og-capas-linea" aria-hidden="true" />
                 <span className="og-capas-rot">Funcionales <em>{vista.cuantosFuncionales}</em></span>

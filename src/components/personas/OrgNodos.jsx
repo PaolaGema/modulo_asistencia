@@ -1,4 +1,4 @@
-import { User, Star, Briefcase, ChevronUp, ChevronDown, Layers } from 'lucide-react'
+import { User, Star, Briefcase, ChevronUp, ChevronDown, Layers, MapPin } from 'lucide-react'
 import Avatar from './Avatar'
 import { sucursales } from '../../data/organigramaData'
 import { MasEnNodo } from './MenuCrear'
@@ -212,6 +212,21 @@ function Nodo({ nodo, onAbrir, onAbrirUnidad, plegable, acomodo, desglose, halla
       </div>
     )
   }
+  /* EL LUGAR: un marcador de mapa, tarjeta blanca con el pin montado arriba. El color del pin dice
+     el nivel y el tipo va escrito —regional, sucursal, centro— porque dos sitios pueden llamarse
+     igual. */
+  if (nodo.tipo === 'lugar') {
+    const { lugar } = nodo
+    return (
+      <div className={`og-lugar og-lugar-${lugar.global ? 'global' : lugar.tipo}${lugar.tipo === 'negocio' ? ' og-lugar-de-negocio' : ''}`}>
+        <span className="og-lugar-pin" aria-hidden="true">{lugar.tipo === 'negocio' ? <Briefcase size={11} /> : <MapPin size={12} />}</span>
+        <span className="og-lugar-tipo">{lugar.tipoLabel}</span>
+        <span className="og-lugar-nom">{lugar.nombre}</span>
+        {lugar.detalle && <span className="og-lugar-dir">{lugar.detalle}</span>}
+        {plegable}
+      </div>
+    )
+  }
   if (nodo.tipo === 'unidad') {
     /* La píldora se agarra igual que un cuadro, pero lo que se mueve es su RAMA entera: un
        rótulo movido solo se despega de los cargos que encabeza. Por eso el corrimiento se
@@ -219,7 +234,7 @@ function Nodo({ nodo, onAbrir, onAbrirUnidad, plegable, acomodo, desglose, halla
     const clave = `u:${nodo.unidad.id}`
     return (
       <div
-        className={`og-unidad${acomodo?.enMano === clave ? ' og-unidad-arrastrando' : ''}${onAbrirUnidad ? ' og-unidad-abrible' : ''}`}
+        className={`og-unidad${acomodo?.enMano === clave ? ' og-unidad-arrastrando' : ''}${onAbrirUnidad ? ' og-unidad-abrible' : ''}${nodo.puestosAca ? ' og-unidad-visita' : ''}`}
         data-no-pan={acomodo ? '' : undefined}
         title={onAbrirUnidad
           ? (acomodo ? 'Doble clic para editar la unidad · arrastra para acomodarla' : 'Doble clic para editar la unidad')
@@ -228,6 +243,12 @@ function Nodo({ nodo, onAbrir, onAbrirUnidad, plegable, acomodo, desglose, halla
         onDoubleClick={() => onAbrirUnidad?.(nodo.unidad)}
       >
         <span className="og-unidad-nom">{nodo.unidad.nombre}</span>
+        {/* Por lugar, la línea hasta su madre no se dibuja cuando están en sitios distintos:
+            queda escrita, o la unidad parecería no depender de nadie. */}
+        {nodo.dependeDe && <span className="og-unidad-rep">Depende de {nodo.dependeDe}</span>}
+        {nodo.puestosAca > 0 && (
+          <span className="og-unidad-rep">{nodo.puestosAca === 1 ? '1 puesto aquí' : `${nodo.puestosAca} puestos aquí`}</span>
+        )}
         {crear && (
           <MasEnNodo
             titulo="Agregar en esta unidad"
@@ -465,9 +486,15 @@ export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose,
 
      Solo se reparte cuando hay de las dos: un jefe que solo manda áreas —el caso corriente— se
      dibuja exactamente como antes. */
-  const cargosHijos = hijos.filter(h => h.tipo !== 'unidad')
-  const areasHijas = hijos.filter(h => h.tipo === 'unidad')
-  const partido = cargosHijos.length > 0 && areasHijas.length > 0
+  /* La tarjeta de lugar va con las áreas cuando lo que lleva encima es una unidad, y con los cargos
+     cuando es un puesto —la de unidad de negocio encima del Supervisor Comercial—: se dibuja en la
+     fila de lo que envuelve. */
+  const esArea = h => h.tipo === 'unidad'
+    || (h.tipo === 'lugar' && !['cargo', 'pila'].includes(h.hijos?.[0]?.tipo))
+  const cargosHijos = hijos.filter(h => !esArea(h))
+  const areasHijas = hijos.filter(esArea)
+  /* Bajo un lugar no se parte: lo que cuelga son unidades y otros lugares, no puestos. */
+  const partido = nodo.tipo !== 'lugar' && cargosHijos.length > 0 && areasHijas.length > 0
   /* El techo de cada renglón, que es el respaldo cuando el jefe no declaró nivel. Se mide por
      renglón y no entre los dos: partida la fila, cada uno tiene sus propios hermanos. */
   const techoCargos = partido ? techoDe(cargosHijos) : techoDe(hijos)
