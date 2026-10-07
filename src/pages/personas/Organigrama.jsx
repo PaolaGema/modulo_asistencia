@@ -1774,8 +1774,28 @@ function CargoCard({ fila, onAbrir, funcional, elegido, onElegir }) {
   )
 }
 
-function UnidadCard({ datos, onEntrar, onEditar }) {
+/* EL LUGAR Y LA UNIDAD DE NEGOCIO, EN CHIP. Los mismos colores que las tarjetas del dibujo —lima
+   con pin, azul acero con maletín— para que las tres vistas digan lo mismo de la misma forma. Lo
+   heredado va punteado y dice de quién lo saca al pasar el mouse. */
+function ChipLugar({ lugar }) {
+  if (!lugar) return null
+  return (
+    <span
+      className={`og-chip-lugar${lugar.heredadoDe ? ' og-chip-her' : ''}`}
+      title={lugar.heredadoDe ? `Heredado de ${lugar.heredadoDe}` : undefined}
+    >
+      <MapPin size={10} /> {lugar.nombre}
+    </span>
+  )
+}
+
+function ChipNegocio({ nombre }) {
+  return <span className="og-chip-neg"><Briefcase size={10} /> {nombre}</span>
+}
+
+function UnidadCard({ datos, onEntrar, onEditar, donde }) {
   const { unidad, cabeza, totalCargos, totalSub } = datos
+  const lugar = donde?.unidad(unidad.id)
   return (
     <div className="og-un" onClick={() => onEntrar(unidad.id)}>
       <button
@@ -1789,6 +1809,7 @@ function UnidadCard({ datos, onEntrar, onEditar }) {
         <span className="og-un-ico"><Building2 size={16} /></span>
         <strong>{unidad.nombre}</strong>
         {cabeza && <span className="og-un-jefe"><Star size={11} /> {cabeza.nombre}</span>}
+        {lugar && <span className="og-un-lugar"><ChipLugar lugar={lugar} /></span>}
       </div>
       <div className="og-un-ft">
         <div className="og-un-stat"><b>{totalCargos}</b><span>{totalCargos === 1 ? 'cargo' : 'cargos'}</span></div>
@@ -1799,7 +1820,7 @@ function UnidadCard({ datos, onEntrar, onEditar }) {
   )
 }
 
-function VistaCards({ org, busca, setBusca, onAbrir, onEditarUnidad, onEliminarVarios }) {
+function VistaCards({ org, busca, setBusca, onAbrir, onEditarUnidad, onEliminarVarios, donde }) {
   const [ruta, setRuta] = useState([])
 
   const actual = ruta.length ? ruta[ruta.length - 1] : null
@@ -1893,7 +1914,7 @@ function VistaCards({ org, busca, setBusca, onAbrir, onEditarUnidad, onEliminarV
         ) : !actual ? (
           <>
             <Seccion titulo="Unidades organizacionales" conteo="Haz clic en una unidad para ver sus cargos y sub-unidades." />
-            <div className="og-grid">{raices.map(d => <UnidadCard key={d.unidad.id} datos={d} onEntrar={entrar} onEditar={onEditarUnidad} />)}</div>
+            <div className="og-grid">{raices.map(d => <UnidadCard key={d.unidad.id} datos={d} onEntrar={entrar} onEditar={onEditarUnidad} donde={donde} />)}</div>
           </>
         ) : (
           <>
@@ -1921,7 +1942,7 @@ function VistaCards({ org, busca, setBusca, onAbrir, onEditarUnidad, onEliminarV
             {subsAqui.length > 0 && (
               <>
                 <Seccion titulo={`Sub-unidades de ${nombreActual}`} conteo={`${subsAqui.length} ${subsAqui.length === 1 ? 'unidad' : 'unidades'}`} />
-                <div className="og-grid">{subsAqui.map(d => <UnidadCard key={d.unidad.id} datos={d} onEntrar={entrar} onEditar={onEditarUnidad} />)}</div>
+                <div className="og-grid">{subsAqui.map(d => <UnidadCard key={d.unidad.id} datos={d} onEntrar={entrar} onEditar={onEditarUnidad} donde={donde} />)}</div>
               </>
             )}
           </>
@@ -1961,7 +1982,7 @@ function TipoPill({ tipo }) {
   return <span className={`og-tipo og-tipo-${t.clase}`} title={t.desc}><t.Icon size={10} /> {t.label}</span>
 }
 
-function VistaTabla({ org, busca, setBusca, onAbrir, onEliminarVarios }) {
+function VistaTabla({ org, busca, setBusca, onAbrir, onEliminarVarios, donde }) {
   const [colapsados, setColapsados] = useState({})
   const grupos = useMemo(() => filasTabla(org), [org])
 
@@ -2048,6 +2069,10 @@ function VistaTabla({ org, busca, setBusca, onAbrir, onEliminarVarios }) {
                   código. Vacío se muestra con una raya, que dice "no tiene" sin ocupar lugar. */}
               <th className="og-th-codigo">Código</th>
               <th>Pertenece a</th>
+              {/* Dónde está el puesto y de qué unidad de negocio es, cada uno en su columna para
+                  poder leerlos de corrido; en una sola no se distingue cuál es cuál a simple vista. */}
+              <th>Lugar</th>
+              {donde?.hayNegocios && <th>Unidad de negocio</th>}
               <th>Tipo</th>
               {/* Al lado del tipo porque contestan lo mismo sobre el puesto: de qué clase es y
                   cuánto pesa. Es la única vista donde los niveles se comparan de corrido. */}
@@ -2075,11 +2100,12 @@ function VistaTabla({ org, busca, setBusca, onAbrir, onEliminarVarios }) {
                         etiqueta={`Marcar los cargos de ${g.unidad?.nombre || 'sin unidad'}`}
                       />
                     </td>
-                    <td colSpan={8}>
+                    <td colSpan={donde?.hayNegocios ? 10 : 9}>
                       <div className="og-grupo-in">
                         <Building2 size={13} />
                         <span className="og-grupo-nom">{g.unidad?.nombre || 'Sin unidad'}</span>
-                        <span className="og-grupo-chip">{g.filas.length} {g.filas.length === 1 ? 'Cargo' : 'Cargos'}</span>
+                        {g.unidad && <ChipLugar lugar={donde?.unidad(g.unidad.id)} />}
+                        <span className="og-tabla-cuenta">{g.filas.length} {g.filas.length === 1 ? 'Cargo' : 'Cargos'}</span>
                         <button onClick={() => setColapsados(p => ({ ...p, [g.id]: !cerrado }))}>
                           {cerrado ? 'Expandir' : 'Colapsar'}
                           {cerrado ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
@@ -2125,6 +2151,28 @@ function VistaTabla({ org, busca, setBusca, onAbrir, onEliminarVarios }) {
                           </span>
                         ))}
                       </td>
+                      <td className="og-td-donde">
+                        {(() => {
+                          const lugares = donde?.cargo(f.cargo).lugares || []
+                          if (!lugares.length) return <span className="og-td-tenue">Toda la empresa</span>
+                          return lugares.map(l => (
+                            <span key={l.id} className="og-donde-fila">
+                              <ChipLugar lugar={l} />
+                              {l.heredadoDe && <small>de {l.heredadoDe}</small>}
+                            </span>
+                          ))
+                        })()}
+                      </td>
+                      {donde?.hayNegocios && (
+                        <td className="og-td-donde">
+                          {(() => {
+                            const negocios = donde.cargo(f.cargo).negocios
+                            return negocios.length
+                              ? negocios.map(n => <ChipNegocio key={n} nombre={n} />)
+                              : <span className="og-td-tenue">Transversal</span>
+                          })()}
+                        </td>
+                      )}
                       <td><TipoPill tipo={f.tipo} /></td>
                       {/* Los que no declararon nivel no se esconden ni se les inventa uno: en
                           gris dicen que falta, y esta columna es la lista de lo que falta. */}
@@ -2499,6 +2547,39 @@ export default function Organigrama() {
       { id: SIN_NEGOCIO, nombre: 'Transversal', detalle: 'Sin unidad de negocio', n: de.filter(ids => !ids.length).length },
     ]
   }, [negocios, org, lineaDeNodo])
+
+  /* DÓNDE ESTÁ CADA COSA, para las tarjetas y la tabla: el lugar de una unidad —propio o el de la
+     primera madre que lo declare— y el de un puesto —lo suyo o, si no dice, el de su unidad—, con
+     de quién lo hereda; y la unidad de negocio de un puesto. Las mismas reglas que el dibujo. */
+  const donde = useMemo(() => {
+    const nombreLugar = id => lugares.lista.find(l => l.id === id)?.nombre
+    const unidad = uid => {
+      let u = org.unidades.find(x => x.id === uid)
+      const propia = u
+      for (let i = 0; u && i < 30; i += 1) {
+        if (u.ubicacion) {
+          const id = lugares.visible(u.ubicacion)
+          if (!id) return null
+          return { id, nombre: nombreLugar(id), heredadoDe: u === propia ? null : u.nombre }
+        }
+        u = u.padreId ? org.unidades.find(x => x.id === u.padreId) : null
+      }
+      return null
+    }
+    const negocioNombre = id => negocios.find(n => n.id === id)?.nombre
+    const cargo = c => {
+      const propios = [...new Set((c.sucursalIds || []).map(lugares.visible).filter(Boolean))]
+      const deUnidad = propios.length ? null : unidad(c.unidadId)
+      const enUnidad = org.unidades.find(x => x.id === c.unidadId)
+      return {
+        lugares: propios.length
+          ? propios.map(id => ({ id, nombre: nombreLugar(id), heredadoDe: null }))
+          : deUnidad ? [{ ...deUnidad, heredadoDe: enUnidad?.nombre || deUnidad.heredadoDe }] : [],
+        negocios: negocios.length ? negociosDeCargo(c, org, lineaDeNodo).map(negocioNombre).filter(Boolean) : [],
+      }
+    }
+    return { unidad, cargo, hayNegocios: negocios.length > 0 }
+  }, [org, lugares, negocios, lineaDeNodo])
 
   const unidadVista = org.unidades.find(u => u.id === unidadId) || null
 
@@ -2988,6 +3069,7 @@ export default function Organigrama() {
               onAbrir={(c, aEditar) => setEditando({ cargo: c, editar: aEditar })}
               onEditarUnidad={u => setEditandoUnidad({ unidad: u, editar: true })}
               onEliminarVarios={ids => setBorrando({ tipo: 'cargos', ids })}
+              donde={donde}
             />
           )}
           {vista === 'tabla' && !vacio && (
@@ -2998,6 +3080,7 @@ export default function Organigrama() {
                 setBusca={setBusca}
                 onAbrir={(c, aEditar) => setEditando({ cargo: c, editar: aEditar })}
                 onEliminarVarios={ids => setBorrando({ tipo: 'cargos', ids })}
+                donde={donde}
               />
             </div>
           )}
