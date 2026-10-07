@@ -2,7 +2,7 @@ Souly HR · Módulo base · Documentación de producto
 
 # Módulo de organización
 
-> **Módulo de organización — versión en Markdown.** Reúne completo el documento de producto `public/reglas-de-negocio.html` (versión 3.5, 7 de octubre de 2026): glosario, contexto, integraciones, funcionalidades, las 47 reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Al final suma un anexo nuevo, **«El módulo en el prototipo, hoy»**, con cómo está construido al 7 de octubre de 2026 y en qué se aparta del documento. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que señalan.
+> **Módulo de organización — versión en Markdown.** Reúne completo el documento de producto `public/reglas-de-negocio.html` (versión 3.6, 7 de octubre de 2026): glosario, contexto, integraciones, funcionalidades, las 47 reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Al final suma un anexo nuevo, **«El módulo en el prototipo, hoy»**, con cómo está construido al 7 de octubre de 2026 y en qué se aparta del documento. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que señalan.
 
 ## Índice
 
@@ -24,7 +24,7 @@ La estructura de la empresa deja de vivir en un Excel y pasa a ser *la fuente de
 
 ![Mascota de VIA sosteniendo una hoja impresa con un organigrama](public/assets/imagenes/via_organigrama.png)
 
-- **Versión:** 3.5
+- **Versión:** 3.6
 - **Fecha:** 7 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Naihara Rocha — reglas y uso de RR.HH.
@@ -2754,6 +2754,8 @@ Lo que se está mirando se elige en **cuatro desplegables con su nombre encima**
 
 **Lo que recortan los filtros también se ve en el dibujo.** Encima de la unidad donde **cambia el lugar** va una tarjeta de lugar, y encima de los puestos donde **empieza una unidad de negocio**, una de unidad de negocio; los puestos hermanos de la misma unidad de negocio comparten una sola tarjeta. Lo que hereda el lugar o la unidad de negocio de arriba no la repite, y lo que vale para toda la empresa o es transversal no lleva ninguna. Con un lugar o una unidad de negocio elegidos en el filtro, su tarjeta va **arriba de todo**, debajo de la empresa. Las dos tarjetas son un marcador con el ícono arriba —un pin para el lugar, un maletín para la unidad de negocio— y no se parecen ni a una unidad ni a un puesto.
 
+**Y en las otras dos vistas, con los mismos colores.** En **cards**, la tarjeta de cada unidad lleva su lugar debajo del jefe. En la **tabla**, cada puesto suma las columnas **Lugar** y **Unidad de negocio** después de «Pertenece a», y la fila de cada unidad lleva su lugar al lado del nombre. Lo heredado va punteado y dice de quién viene —«de Dirección General»—, y lo transversal se escribe «Transversal». La columna de unidad de negocio solo está si la empresa usa ese nivel.
+
 **2. Escenarios ágiles de ejecución**
 
 *Los filtros dicen lo que recortan*
@@ -2784,6 +2786,7 @@ Lo que se está mirando se elige en **cuatro desplegables con su nombre encima**
 - Lo transversal no entra al filtrar por una unidad de negocio, salvo como jefe que sostiene la línea de mando.
 - La tarjeta de lugar o de unidad de negocio va donde empieza, no se repite en lo que hereda, y no se dibuja para «toda la empresa» ni para lo transversal.
 - Con un lugar o una unidad de negocio elegidos, su tarjeta va arriba de todo.
+- Cards y tabla muestran el lugar y la unidad de negocio con los mismos colores que el dibujo, y lo heredado se distingue de lo declarado.
 
 **4. Trazabilidad**
 
@@ -4130,12 +4133,14 @@ Se apoya en **BR‑ORG‑013 · BR‑ORG‑031 · BR‑ORG‑032** · Pantalla: 
 - **Gráfico:** la altura de cada cuadro se mide contra el peldaño de su jefe; sin peldaño declarado, el cuadro no se mueve.
 - **Gráfico:** un cargo con varias plazas se dibuja como **un cuadro** que se abre para mostrarlas.
 - **Cards:** muestra cada nodo como una tarjeta recorrible, con su ocupante y su estado.
+- **Cards:** la tarjeta de cada unidad lleva su **lugar** debajo del jefe, punteado si lo hereda de su madre.
 - **Tabla:** muestra las mismas columnas que la lista, para comparar y ordenar.
+- **Tabla:** suma las columnas **Lugar** y **Unidad de negocio**; lo heredado dice de quién viene y lo transversal lo dice. Si no entra en la pantalla, se desplaza hacia los lados.
 - En cualquiera de las tres, un cuadro **se abre a la ficha** del nodo.
 - Crear o editar desde el dibujo pregunta lo mismo que la ficha y guarda los mismos datos.
 - Lo creado o cambiado en una vista está en las otras **al instante**, sin sincronizar nada.
 
-Se apoya en **BR‑ORG‑017 · BR‑ORG‑014 · BR‑ORG‑030 · RF‑ORG‑030, 037, 039** · Pantalla: Organigrama
+Se apoya en **BR‑ORG‑017 · BR‑ORG‑014 · BR‑ORG‑030 · BR‑ORG‑033 · RF‑ORG‑030, 037, 039** · Pantalla: Organigrama
 
 **HU-ORG-10 · Mirar solo el pedazo que me importa**
 
@@ -4272,6 +4277,7 @@ Este documento es la única fuente de verdad del módulo mientras dure el proyec
 | 1.0 | 7 sep 2026 | La documentación del módulo en formato BR: veinte reglas con escenarios, treinta y un requisitos funcionales con código estable, ocho flujos y cinco wireframes. **Cambia el modelo:** un solo árbol de nodos, el esquema de niveles como dato de la empresa, y el cargo separado del puesto |
 | **2.0** | 7 sep 2026 | **Los dos documentos se unen en uno.** El contenido del módulo —reglas, requisitos, flujos y wireframes— entra en la estructura de nueve secciones del PRD, que es la que se sostiene: glosario al frente, contexto, integraciones módulo por módulo, modelo de datos y roadmap. **Se rescata del PRD de agosto** todo lo que seguía valiendo y se reescribe sobre el modelo nuevo: qué es un organigrama, los principios de diseño, las integraciones, el camino hasta desarrollo, los riesgos y el anexo de decisiones. **Se anota lo que falta** en vez de disimularlo: registro de actividad, estados vacíos y permisos verificados en el servidor quedan como ABIERTA‑07 a ABIERTA‑09. **Sin revisar todavía** |
 | **2.1** | 9 sep 2026 | Entra BR‑ORG‑021: **el cargo y la plaza llevan códigos distintos**, también cuando el cargo tiene una sola plaza. Es como lo maneja Recursos Humanos —el manual de cargos y la plantilla de personal son dos documentos— y no estaba escrito en ninguna parte, así que el formulario mostraba dos campos «Código» sin decir por qué eran dos |
+| **3.6** | 7 oct 2026 | **El lugar y la unidad de negocio llegan a cards y tabla.** BR‑ORG‑033 suma que las otras dos vistas los muestran con los mismos colores que el dibujo: en cards, la tarjeta de cada unidad lleva su lugar debajo del jefe; en la tabla, cada puesto suma las columnas **Lugar** y **Unidad de negocio**, y la fila de cada unidad su lugar. Lo heredado va punteado y dice de quién viene. HU‑ORG‑09 gana sus criterios. El anexo del prototipo anota que la tarjeta de puesto todavía muestra el lugar viejo |
 | **3.5** | 7 oct 2026 | **Los filtros del organigrama dejan de ser una frase y el dibujo dice dónde está cada cosa.** BR‑ORG‑033 se reescribe: los filtros son **cuatro desplegables con su nombre** —Cargos, Unidad organizacional, Unidad de negocio y Lugar—, el que recorta se pinta, Lugar ofrece regionales, sucursales y centros de trabajo en árbol, y Unidad de negocio ofrece las de la empresa y Transversal. Se escribe **cómo se lee dónde está un puesto y de qué unidad de negocio es** —lo suyo o, si no dice, lo de su unidad; y la unidad de negocio de su unidad o, si es transversal, la del lugar donde trabaja— y que **lo transversal no entra al filtrar por una unidad de negocio**. Y entra que **lo que recortan los filtros se ve en el dibujo**: una tarjeta de lugar donde cambia el lugar y una de unidad de negocio donde empieza, que no se repiten en lo que hereda, y la del elegido arriba de todo. BR‑ORG‑034 suma los modos **por lugar** y **por unidad de negocio**, que cuelgan las unidades de un sitio y no de un jefe. Se actualizan RF‑ORG‑031, F‑ORG‑07, W‑03 y HU‑ORG‑10, y el anexo suma por qué los filtros dejaron de ser una frase y por qué las tarjetas van donde empiezan |
 | **3.4** | 10 sep 2026 | **Cuatro reglas que el módulo daba por sabidas y nadie había escrito.** BR‑ORG‑043: **ni los códigos ni los nombres se repiten** —el código, único en toda la empresa; el nombre, único entre hermanos del mismo tipo, porque un «Almacén» en La Paz y otro en Santa Cruz son dos sitios distintos—, y la comprobación ignora mayúsculas, tildes y espacios de más. BR‑ORG‑044: **un puesto ocupado no se elimina**, y el intento abre un aviso que nombra a la persona, explica que quedaría fuera de la estructura y ofrece los dos caminos que sí resuelven. BR‑ORG‑045: **una persona ocupa un solo puesto**; trabajar para otra área es dependencia funcional, no una segunda silla. BR‑ORG‑046: **desactivar arrastra la rama entera**, contando antes cuántos nodos caen y cuántos de esos puestos están ocupados, y reactivar ofrece devolver a los que cayeron. Esta última contesta ABIERTA‑02, que **sale de las decisiones abiertas**. Y entra BR‑ORG‑047: **cerrar una sede ofrece mudar a su gente a otra activa** antes de cerrarla, cambiando el sitio de trabajo de sus puestos y nada más —ni unidad, ni cargo, ni jefe—, y permite cerrar sin destino cuando la operación termina y esas personas se desvinculan. Y BR‑ORG‑048: **ningún nodo cuelga de sí mismo ni de los que cuelgan de él**. La regla de jerarquía no lo cubría —compara niveles, y «una unidad dentro de otra unidad» le parece válido en las dos direcciones—, y un bucle desprende esa rama del árbol: el organigrama, que se dibuja desde la empresa hacia abajo, deja de mostrarla. El tercer nivel de mando pasa a llamarse **mando inferior** en todo el documento |
 | **3.3** | 10 sep 2026 | **Las cuarenta y una reglas pasan a un formato único de cuatro apartados**, por observación de QA: **1 Información básica** —código, grupo, alcance, estado y una descripción general—, **2 Escenarios ágiles de ejecución**, **3 Condiciones y excepciones** y **4 Trazabilidad**. **El «Ticket: pendiente» suelto al pie de cada regla desaparece** y pasa a ser el apartado 4, con ticket, requisitos, historia de usuario, pantalla y estado del diseño declarados uno por uno. **Las descripciones se reescriben en tono descriptivo**: lo narrativo —«es la cima del eje físico», «es la ficha más corta»— se enuncia como lo que el sistema hace, sin perder el motivo. Y BR‑ORG‑004 decía tres niveles fijos donde son cuatro: el puesto faltaba |
@@ -4353,7 +4359,7 @@ Una etiqueta en cada unidad repetiría «Casa Matriz» en veinte cuadros, y lo q
 
 Casi todos los desacuerdos de este módulo fueron de vocabulario, no de criterio: «cargo» y «puesto», «sucursal» como nivel del árbol o como filtro, «jefe» como clase o como consecuencia. Un glosario al final es un diccionario que se consulta cuando ya hubo un malentendido. Al principio es un acuerdo que lo previene.
 
-Documentación del módulo de organización — versión 3.5, 7 de octubre de 2026. Souly HR. Reúne el PRD del organigrama de agosto de 2026 y la documentación del módulo de septiembre, sobre el modelo vigente: un solo árbol de nodos, el esquema de niveles como dato de la empresa y el cargo separado del puesto. **Las cuarenta y siete reglas están en estado borrador.**
+Documentación del módulo de organización — versión 3.6, 7 de octubre de 2026. Souly HR. Reúne el PRD del organigrama de agosto de 2026 y la documentación del módulo de septiembre, sobre el modelo vigente: un solo árbol de nodos, el esquema de niveles como dato de la empresa y el cargo separado del puesto. **Las cuarenta y siete reglas están en estado borrador.**
 
 ## Anexo · El módulo en el prototipo, hoy
 
@@ -4369,7 +4375,7 @@ Las rutas están declaradas en `src/App.jsx`. `/organizacion` redirige a `/organ
 | `/organizacion/distribucion` | `Estructura` con el eje físico | Tabla con pestañas Regionales · Sucursales · Centros de trabajo (`?ver=`). Buscador, paginación, botón «Nueva…» y menú por fila: Editar · Cambiar estado · Eliminar | Sí · Estructura física |
 | `/organizacion/estructura` | `Estructura` con el eje organizacional | La misma tabla con Unidades de negocio · Unidades organizacionales · Cargos. Los cargos despliegan sus puestos. Enlace al catálogo de niveles de mando | Sí · Estructura organizacional |
 | `/organizacion/nodo/nuevo` · `/organizacion/nodo/:id` | `NodoDetalle` | Una sola ficha para cualquier tipo de nodo; los grupos de campos salen de `gruposDe`. También elimina un puesto | — (se llega desde las listas) |
-| `/organizacion/organigrama` | `Organigrama` (`src/pages/personas/Organigrama.jsx`) | Vistas Gráfico · Cards · Tabla. En el gráfico, cinco modos —unidades y cargos, solo los cargos, solo las unidades, por lugar y por unidad de negocio— y los apoyos funcionales sin / con / solo. Tarjetas de lugar (lima, con pin) y de unidad de negocio (azul acero, con maletín) donde cada uno empieza. Filtros con nombre: Cargos (tipo, nivel y estado), Unidad organizacional, Unidad de negocio y Lugar. Exporta PNG, SVG e «Imprimir o PDF». Menú para configurar mandos y colores | Sí · Organigrama |
+| `/organizacion/organigrama` | `Organigrama` (`src/pages/personas/Organigrama.jsx`) | Vistas Gráfico · Cards · Tabla. En el gráfico, cinco modos —unidades y cargos, solo los cargos, solo las unidades, por lugar y por unidad de negocio— y los apoyos funcionales sin / con / solo. Tarjetas de lugar (lima, con pin) y de unidad de negocio (azul acero, con maletín) donde cada uno empieza. En cards, la tarjeta de unidad lleva su lugar; en tabla, las columnas Lugar y Unidad de negocio. Filtros con nombre: Cargos (tipo, nivel y estado), Unidad organizacional, Unidad de negocio y Lugar. Exporta PNG, SVG e «Imprimir o PDF». Menú para configurar mandos y colores | Sí · Organigrama |
 | `/organizacion/configuracion` | `ConfiguracionOrg` | Los peldaños de la estructura: encender, apagar, renombrar, reordenar y agregar peldaños propios, con la cadena resultante arriba | Sí · Configuración |
 | `/organizacion/mandos` | `Mandos` | Los niveles de mando en orden; se editan con `ConfigMandos`: reordenar arrastrando, renombrar y borrar avisando a cuántos cargos afecta | No · se llega desde «Niveles de mando» en Estructura organizacional |
 | `/organizacion/negocio` | — | Redirige a `/organizacion/estructura?ver=negocios` | — |
@@ -4463,4 +4469,5 @@ Es la integración de 2.3 funcionando. La ficha (`src/pages/personas/Colaborador
 | El tercer nivel de mando | Nace como «Mando inferior» | Nace como **«Mando bajo»** (llave `bajo`). La empresa lo puede renombrar |
 | La importación desde planilla (F‑ORG‑08) | Carga la estructura desde un Excel o CSV | El modal existe, sin lógica: todavía no procesa archivos |
 | Pantallas fuera del menú | Siete pantallas (8.1) | Además de las siete, siguen vivas `sucursales`, `areas`, `cargos` y `puestos`, de una versión anterior y sin entrada en el menú |
+| El lugar en la tarjeta de puesto (vista cards) | El lugar real del puesto, con los mismos colores que la tabla y el dibujo (BR‑ORG‑033) | Todavía muestra el chip anterior: la ciudad de la lista antigua de sucursales, o «Toda la empresa» si el puesto no declara sede, sin heredarla de su unidad. La tabla y la tarjeta de unidad ya dicen el lugar real |
 | Títulos de la barra superior | — | `Header.jsx` tiene título para datos, sucursales, áreas, cargos, puestos y organigrama, pero no para Estructura física, Estructura organizacional, Mandos ni Configuración |
