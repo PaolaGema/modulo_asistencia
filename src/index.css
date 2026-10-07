@@ -4919,6 +4919,17 @@ select.pl-input:focus {
 .og-lugar-global { border-style: dashed; }
 .og-lugar-global .og-lugar-pin { background: var(--surface-card); color: var(--text-muted); border: 1.5px dashed var(--border-dark); }
 
+/* EL CARRIL: las tarjetas de lugar y de unidad de negocio van en un renglón propio encima de la
+   fila, no dentro de ella. Sin franja de fondo: se probó y sobraba, el renglón ya separa. Las medidas tienen que sumar `PASO_CARRIL` (OrgNodos): 84 de caja de
+   tarjeta + 36 hasta lo que envuelve. Todas las hermanas arrancan a la misma altura —también la
+   que va sola, que si no se subiría—, y bajo una tarjeta lo de adentro no suma aire propio. */
+.og-tree .og-carril-fila > li,
+.og-tree .og-carril-fila > .og-lado > li { padding-top: 26px; }
+.og-tree .og-carril-bajo { padding-top: 36px; }
+.og-tree .og-carril-bajo > li { padding-top: 0; }
+.og-tree .og-en-carril > .og-nodo { height: 84px; }
+.og-carril-hueco { flex: none; }
+
 /* APOYO FUNCIONAL: quién trabaja en esta área sin pertenecer a ella. Fichas chicas y punteadas
    dentro de la píldora, nunca cuadros: el puesto vive en su propia área y acá solo se nombra.
    La forma es la que hace entender la diferencia sin tener que explicarla —igual que las

@@ -308,6 +308,17 @@ function BotonPlegar({ nodo, ocultos, pliegue }) {
    y eso es lo que dice que son hermanos y no uno el jefe del otro. */
 const PASO_ESCALON = 72
 
+/* EL CARRIL DE LUGARES. La tarjeta de lugar o de unidad de negocio no se dibuja en la fila de las
+   unidades, como si fuera una más: va en un renglón propio, encima, y TODAS las hermanas —cambien
+   o no de lugar— quedan en una misma línea debajo. Cada peldaño del carril es la caja de la
+   tarjeta (84) más el aire hasta lo que envuelve (36, `.og-carril-bajo`); la hermana que no
+   cambia de lugar baja esa misma altura con un hueco, y su línea cruza el carril vacía. Si
+   región y sucursal cambian en el mismo punto, el carril tiene dos peldaños. */
+const PASO_CARRIL = 120
+
+/* Cuántas tarjetas de lugar se encadenan desde este nodo antes de llegar a lo que envuelven. */
+const hondura = n => (n.tipo === 'lugar' ? 1 + Math.max(0, ...(n.hijos || []).map(hondura)) : 0)
+
 /* El nivel más ALTO de una fila de hermanos. Ya solo lo usan las cabezas sin jefe, que se miden
    entre ellas porque no tienen contra quién más medirse. */
 const techoDe = hermanos => {
@@ -424,12 +435,19 @@ function Pila({ nodo, onAbrir, acomodo, desglose, hallado, atenuado, condenado }
   )
 }
 
-export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose, hallado, crear, atenuado, condenado, nivelJefe = 0, techo = 0 }) {
+export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose, hallado, crear, atenuado, condenado, nivelJefe = 0, techo = 0, carril = true, pozo = 0 }) {
+  /* `pozo` son los peldaños de carril que este nodo tiene que bajar antes de su cuadro. La
+     tarjeta de lugar gasta uno siendo ella misma; cualquier otra cosa los salta con un hueco. */
+  const enCarril = nodo.tipo === 'lugar' && pozo > 0
+  const hueco = !enCarril && pozo > 0
+    ? <div className="og-carril-hueco" style={{ height: pozo * PASO_CARRIL }} aria-hidden="true" />
+    : null
   /* La pila entra por acá como cualquier hijo, pero no es un nodo del árbol: no tiene rama ni
      escalón de mando que medir. Se dibuja y se sale. */
   if (nodo.tipo === 'pila') {
     return (
       <li>
+        {hueco}
         <Pila
           nodo={nodo}
           onAbrir={onAbrir}
@@ -550,7 +568,7 @@ export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose,
 
   /* Una rama hija, con el nivel de mando de quien la manda: es contra ese nivel que va a medir
      su escalón, esté sola en la fila o acompañada. */
-  const sub = (h, techoFila = 0) => (
+  const sub = (h, techoFila = 0, pozoFila = 0) => (
     <Rama
       key={h.id}
       nodo={h}
@@ -564,8 +582,20 @@ export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose,
       atenuado={atenuado} condenado={condenado}
       nivelJefe={nivelParaHijos}
       techo={techoFila}
+      carril={carril}
+      pozo={pozoFila}
     />
   )
+
+  /* El carril de una fila de hijos. Debajo de una tarjeta que ya está en el carril se sigue
+     bajando lo que falte —es el mismo carril—; en cualquier otra fila, si alguna
+     hija trae tarjeta de lugar, se abre un carril con tantos peldaños como la cadena más larga.
+     En «por lugar» y «por unidad de negocio» no hay carril: ahí los lugares son el árbol. */
+  const filaCarril = lista => {
+    if (enCarril) return { pozo: pozo - 1, clase: ' og-carril-bajo' }
+    const n = carril ? Math.max(0, ...lista.map(hondura)) : 0
+    return n ? { pozo: n, clase: ' og-carril-fila' } : { pozo: 0, clase: '' }
+  }
 
   const ocultos = pliegue ? contarCargos(hijos) : 0
   const plegado = pliegue?.plegados.has(nodo.id)
@@ -586,7 +616,8 @@ export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose,
     : undefined
 
   return (
-    <li style={estilo}>
+    <li style={estilo} className={enCarril ? 'og-en-carril' : undefined}>
+      {hueco}
       <div className="og-nodo">
         <div className="og-nodo-fila">
           {/* LAS OTRAS CABEZAS, flanqueando a esta. No son sus reportes —de hecho no le reportan
@@ -628,20 +659,27 @@ export function Rama({ nodo, onAbrir, onAbrirUnidad, pliegue, acomodo, desglose,
         )}
       </div>
       {hijos.length > 0 && !plegado && (partido
-        ? (
-          <>
-            {/* Dos listas y no una partida por dentro: cada mitad sigue siendo un `ul` con sus
-                `li`, que es lo que el trazado de líneas recorre para saber quién cuelga de quién
-                —desde un `li` de adentro, el `li` padre sigue siendo el de siempre—. */}
-            <div className="og-fila-cargos">
-              <ul className="og-lado og-lado-izq">{cargosHijos.slice(0, corte).map(h => sub(h, techoCargos))}</ul>
-              <ul className="og-lado og-lado-der">{cargosHijos.slice(corte).map(h => sub(h, techoCargos))}</ul>
-            </div>
-            {/* Las áreas no llevan escalón: el nivel de mando es del puesto, no del área. */}
-            <ul className="og-fila-areas">{areasHijas.map(h => sub(h))}</ul>
-          </>
-        )
-        : <ul>{hijos.map(h => sub(h, techoCargos))}</ul>
+        ? (() => {
+          const fc = filaCarril(cargosHijos)
+          const fa = filaCarril(areasHijas)
+          return (
+            <>
+              {/* Dos listas y no una partida por dentro: cada mitad sigue siendo un `ul` con sus
+                  `li`, que es lo que el trazado de líneas recorre para saber quién cuelga de quién
+                  —desde un `li` de adentro, el `li` padre sigue siendo el de siempre—. */}
+              <div className={`og-fila-cargos${fc.clase}`}>
+                <ul className="og-lado og-lado-izq">{cargosHijos.slice(0, corte).map(h => sub(h, techoCargos, fc.pozo))}</ul>
+                <ul className="og-lado og-lado-der">{cargosHijos.slice(corte).map(h => sub(h, techoCargos, fc.pozo))}</ul>
+              </div>
+              {/* Las áreas no llevan escalón: el nivel de mando es del puesto, no del área. */}
+              <ul className={`og-fila-areas${fa.clase}`}>{areasHijas.map(h => sub(h, 0, fa.pozo))}</ul>
+            </>
+          )
+        })()
+        : (() => {
+          const f = filaCarril(hijos)
+          return <ul className={f.clase.trim() || undefined}>{hijos.map(h => sub(h, techoCargos, f.pozo))}</ul>
+        })()
       )}
     </li>
   )

@@ -397,7 +397,7 @@ export default function OrgGrafico({
         </svg>
 
         <ul className="og-tree og-tree-libre">
-          <Rama nodo={tree} onAbrir={onAbrirCargo} onAbrirUnidad={onAbrirUnidad} pliegue={pliegue} acomodo={acomodo} desglose={desglose} hallado={hallado} crear={crear} atenuado={atenuado} condenado={condenado} />
+          <Rama nodo={tree} onAbrir={onAbrirCargo} onAbrirUnidad={onAbrirUnidad} pliegue={pliegue} acomodo={acomodo} desglose={desglose} hallado={hallado} crear={crear} atenuado={atenuado} condenado={condenado} carril={!['lugares', 'negocios'].includes(vista?.pestana)} />
         </ul>
       </div>
 
