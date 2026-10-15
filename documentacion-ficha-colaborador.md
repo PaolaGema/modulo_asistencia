@@ -2,7 +2,7 @@ Souly HR · Módulo de personas · Documentación de producto
 
 # Documentación de la ficha del colaborador
 
-> **Documentación de la ficha del colaborador — versión en Markdown.** Es el documento del módulo de gestión de personas. Reúne completo el documento de producto `public/gestion-de-personas.html` (versión 1.104, 6 de octubre de 2026): glosario, contexto, integraciones, funcionalidades, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Describe la ficha tal como se ve en la versión publicada. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que muestran.
+> **Documentación de la ficha del colaborador — versión en Markdown.** Es el documento del módulo de gestión de personas. Reúne completo el documento de producto `public/gestion-de-personas.html` (versión 1.105, 15 de octubre de 2026): glosario, contexto, integraciones, funcionalidades, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, wireframes, historias de usuario y el anexo de decisiones. Describe la ficha tal como se ve en la versión publicada. Los wireframes y diagramas dibujados se conservan en el HTML; acá quedan nombrados, con todo lo que muestran.
 
 ## Índice
 
@@ -23,8 +23,8 @@ La ficha del colaborador deja de ser un formulario de doscientos campos y pasa a
 
 ![Tres VIA juntos: uno con planilla y traje, otro con planos y chaleco de obra, y otro con una tableta de indicadores](public/assets/imagenes/via_rrhh_proyectos.png)
 
-- **Versión:** 1.104
-- **Fecha:** 6 de octubre de 2026
+- **Versión:** 1.105
+- **Fecha:** 15 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
 - **Estado:** Borrador
@@ -301,9 +301,9 @@ Evaluación va a sacar de la estructura quién evalúa a quién, y de la ficha l
 
 ### 2.5 Documentación
 
-El expediente digital cuelga del colaborador: **un expediente es una persona**, y lleva su mismo identificador. La pestaña 3 de la ficha, Documentación y Expediente Digital, reúne los archivos que se cargaron en las demás —foto, carnet escaneado, certificado de nacimiento, croquis— para que el expediente arranque con ellos.
+El expediente digital cuelga del colaborador: **un expediente es una persona**, y lleva su mismo identificador. Los archivos que se cargan en la ficha —foto, documento de identidad, certificado de nacimiento, croquis, licencias, papeles del garante, actas de entrega y documentos agregados— aparecen solos en su expediente de Documentación, cada uno en su carpeta.
 
-> **Hoy la integración es de intención, no de código.** El módulo de Documentación todavía no lee la ficha guardada de la persona: lo va a hacer, y por eso la ficha entera viaja con ella al dar de alta —5.6—.
+> **La integración ya es de código.** Documentación lee los archivos de la ficha guardada de cada persona y no los copia: la ficha sigue siendo su dueña, y si un archivo cambia allá, cambia en el expediente. Si el mismo documento está en la ficha y además se cargó en Documentación, se muestra el más nuevo. El colaborador ve esos documentos en su perfil —Mi ficha, pestaña de documentos— y, junto con lo que le falta entregar y lo que la empresa le envió, en Zona HR › Mis documentos.
 
 ### 2.6 Asistencia, planillas y ERP
 
@@ -3410,6 +3410,7 @@ La lista está siempre, aunque vacía, con el botón de registrar arriba. El for
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
+| **1.105** | 15 oct 2026 | **La ficha y Documentación quedan conectadas.** La sección 2.5 decía que la integración era «de intención, no de código» y que Documentación todavía no leía la ficha guardada. Ya la lee: los archivos de la ficha aparecen solos en el expediente de la persona, sin copiarse, y si el mismo documento está en los dos lados se muestra el más nuevo. Se suma que el colaborador ve sus documentos también en Zona HR › Mis documentos |
 | **1.104** | 6 oct 2026 | **El documento se pone al día con lo que se construyó del 1 al 6 de octubre.** Tres pantallas nuevas en Funcionalidades: **3.12 Mi ficha del colaborador**, la ficha vista por su dueño en la web y en el teléfono, solo para leer; **3.13 Editar perfil de usuario**, donde el colaborador cambia lo que la empresa le deja, con los controles de la ficha de RR.HH. —el celular con su código de país, las listas que se abren debajo del campo—; y **3.14 Configuración de la ficha**, donde la empresa activa o desactiva secciones, elige qué hace el colaborador con cada una —Editable, Solo lectura u Oculta— y crea secciones propias con sus campos. Un grupo nuevo de reglas, «La ficha a la medida de la empresa», con **BR‑GP‑035 a 039**; los requisitos **RF‑GP‑080 a 110**; los flujos **F‑GP‑10 a 12**; las historias **HU‑GP‑14 a 18**; **ABIERTA‑18 y 19**; cinco porqués en el anexo; y FUERA‑06 a 10. «Otro» vuelve a Parentesco del contacto de emergencia, con su caja «¿Qué parentesco?». Y **el documento se ordena por quién usa cada cosa**, a pedido del equipo: Funcionalidades, Reglas de negocio, Flujos, Pantallas e Historias separan lo de **Recursos Humanos** de lo del **colaborador**. Funcionalidades se renumera —3.9 Configuración de la ficha, 3.10 Mi ficha, 3.11 Editar perfil y 3.12 a 3.14 lo de todo el módulo— y entran **BR‑GP‑040 a 042**, las reglas del colaborador: Mi ficha solo se lee, solo edita lo Editable y se guarda todo junto. Los códigos no cambian. |
 | **1.103** | 30 sep 2026 | **El filtro Tipo de Archivos agrupa por pestaña**, a pedido del equipo: Información Personal —identidad, nacimiento, croquis, licencias y los papeles del garante—, Recursos y Activos —las entregas firmadas— y Documentos agregados. Y se corrige que los menús desplegables de la ficha se abrieran fuera de la pantalla después del fundido al cambiar de parte |
 | **1.102** | 30 sep 2026 | **En Archivos cada documento se nombra solo**, a pedido del equipo: llega sin la sección que lo explicaba. «Documento escaneado» pasa a **Documento de identidad (anverso y reverso)**, el secundario a **Documento de identidad secundario**, «Croquis» a **Croquis del domicilio**, «Licencia o certificado» a **Licencia o certificación** —que suma el tipo al elegirlo— y «Documento de garantía» a **Documento de respaldo de la garantía**. En su sección de origen se quedan los nombres cortos |

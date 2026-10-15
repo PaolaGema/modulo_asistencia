@@ -1,0 +1,1945 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="description" content="Propuesta de estructura del módulo de Documentación de Souly HR. Uso interno.">
+<title>Documentación · Módulo de documentación — Souly HR</title>
+<style>
+:root{
+  /* ── Marca Souly HR ─────────────────────────────────────────── */
+  --marca:#0C2D40;        /* Azul uniform — principal */
+  --marca-2:#00E091;      /* Verde primavera — acento, solo sobre oscuro */
+  --marca-3:#9FFFD8;      /* Neo Mint — apoyo */
+
+  /* ── Superficies ────────────────────────────────────────────── */
+  --papel:#EDF1F3;
+  --hoja:#FFFFFF;
+  --hoja-2:#F4F8F9;
+  --tinta:#0F1A20; --tinta-2:#465862; --tinta-3:#64737C;
+  --regla:#E4EAED; --regla-2:#CDD6DB;
+  --trazo:#7F8F99;        /* la línea del árbol lleva significado: tiene que verse en los dos temas */
+
+  /* ── Los siete colores del sistema visual (§3.11) ───────────── */
+  --estructural:#23408E; --funcional:#0F6E6C; --aprobacion:#6B3FA0;
+  --staff:#5A6B7C; --outsourcing:#B8501B; --vacante:#8E969C; --alerta:#B0740A;
+
+  /* ── Forma ──────────────────────────────────────────────────── */
+  --r:14px; --r-s:9px; --r-xs:6px; --r-full:999px;
+  --sobre-acento:#FFFFFF;   /* texto sobre superficies de color: cambia con el tema */
+  --sombra:0 1px 2px rgba(12,45,64,.04), 0 3px 10px rgba(12,45,64,.05);
+  --sombra-2:0 2px 5px rgba(12,45,64,.05), 0 10px 28px rgba(12,45,64,.07);
+
+  /* ── Tipografía: tres papeles ───────────────────────────────── */
+  --display:Bahnschrift,"DIN Alternate","Avenir Next Condensed","Arial Narrow","Helvetica Neue",sans-serif;
+  --texto:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,Inter,system-ui,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code",Consolas,"SF Mono",Menlo,ui-monospace,monospace;
+
+  /* ── Retícula ───────────────────────────────────────────────── */
+  --hoja-w:920px; --medida:82ch; --troncal:64px; --espina:23px;
+}
+/* Oscuro: si el sistema lo pide y nadie eligió claro… */
+@media (prefers-color-scheme:dark){
+  :root:not([data-tema="claro"]){
+    --papel:#0B1014; --hoja:#151B21; --hoja-2:#1D242B;
+    --tinta:#EAEEF1; --tinta-2:#A6B1B9; --tinta-3:#76828A;
+    --regla:#262E35; --regla-2:#38424A; --trazo:#68767F;
+    --estructural:#7FA0EC; --funcional:#4FB4B1; --aprobacion:#B08BE0;
+    --staff:#94A5B5; --outsourcing:#E4934F; --vacante:#8E969C; --alerta:#D9A441;
+    --sobre-acento:#0F1A20;
+    --sombra:0 1px 2px rgba(0,0,0,.4), 0 3px 12px rgba(0,0,0,.32);
+    --sombra-2:0 2px 6px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.38);
+  }
+}
+/* …o si se eligió oscuro a propósito */
+:root[data-tema="oscuro"]{
+  --papel:#0B1014; --hoja:#151B21; --hoja-2:#1D242B;
+    --tinta:#EAEEF1; --tinta-2:#A6B1B9; --tinta-3:#76828A;
+    --regla:#262E35; --regla-2:#38424A; --trazo:#68767F;
+    --estructural:#7FA0EC; --funcional:#4FB4B1; --aprobacion:#B08BE0;
+    --staff:#94A5B5; --outsourcing:#E4934F; --vacante:#8E969C; --alerta:#D9A441;
+    --sobre-acento:#0F1A20;
+    --sombra:0 1px 2px rgba(0,0,0,.4), 0 3px 12px rgba(0,0,0,.32);
+    --sombra-2:0 2px 6px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.38);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:28px}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--texto);
+  font-size:16.5px;line-height:1.68;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+p{margin:0 0 1.1em;max-width:var(--medida)}
+a{color:var(--estructural)}
+a:focus-visible,summary:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--estructural);outline-offset:3px;border-radius:var(--r-xs)}
+strong{font-weight:640}
+code{font-family:var(--mono);font-size:.85em;background:var(--hoja-2);border:1px solid var(--regla);
+  padding:.12em .42em;border-radius:var(--r-xs);white-space:nowrap;color:var(--tinta)}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+[hidden]{display:none!important}
+
+/* ══ Portada ═══════════════════════════════════════════════════ */
+.masthead{background:linear-gradient(158deg,#0E3448 0%,#0C2D40 46%,#082334 100%);color:#EEF1F4;
+  padding:60px 32px 44px;border-bottom:3px solid var(--marca-2)}
+@media (prefers-color-scheme:dark){:root:not([data-tema="claro"]) .masthead{background:linear-gradient(158deg,#0A2635 0%,#071B27 100%)}}
+:root[data-tema="oscuro"] .masthead{background:linear-gradient(158deg,#0A2635 0%,#071B27 100%)}
+.mh-in{max-width:1240px;margin:0 auto}
+.rail-acc{display:flex;align-items:center;gap:9px;flex:none}
+.tema{width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex:none;
+  padding:0;border-radius:var(--r-full);cursor:pointer;color:var(--tinta-3);
+  background:none;border:1px solid var(--regla-2);transition:color .15s,border-color .15s,background .15s}
+.tema:hover{color:var(--estructural);border-color:var(--estructural);background:var(--hoja-2)}
+.tema svg{display:block;width:14px;height:14px}
+@media print{.tema{display:none}}
+.mh-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,240px);gap:14px 56px;align-items:center;margin-bottom:38px}
+@media(max-width:900px){.mh-grid{grid-template-columns:1fr;gap:26px;align-items:start;margin-bottom:28px}}
+.eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--marca-2);margin:0 0 18px;max-width:none}
+.mh-title{font-family:var(--display);font-size:clamp(40px,7.5vw,78px);font-weight:700;font-stretch:87.5%;
+  line-height:.96;letter-spacing:.005em;text-transform:uppercase;margin:0 0 16px}
+.mh-sub{font-size:clamp(16px,2vw,19.5px);color:#B6C0C8;max-width:50ch;margin:0;line-height:1.6}
+.mh-sub em{color:#EEF1F4;font-style:normal;font-weight:640}
+.mh-fig{margin:0;display:flex;justify-content:center;align-items:flex-end}
+.mh-fig img{display:block;width:100%;max-width:230px;height:auto}
+@media(max-width:900px){.mh-fig{justify-content:flex-start}.mh-fig img{max-width:170px}}
+.ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:2px;
+  background:rgba(255,255,255,.07);border-radius:var(--r);padding:2px}
+@media(max-width:520px){.ficha{grid-template-columns:1fr}}
+.ficha div{padding:14px 18px;background:rgba(255,255,255,.03);border-radius:var(--r-s)}
+.ficha dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--marca-2);opacity:.85;margin:0 0 6px}
+.ficha dd{margin:0;font-size:14px;color:#DDE3E8;line-height:1.45}
+
+/* ══ Cifras ════════════════════════════════════════════════════ */
+.cifras-w{max-width:1240px;margin:0 auto;padding:34px 32px 0}
+.cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:12px}
+.cifras>div{background:var(--hoja);border:1px solid var(--regla);border-radius:var(--r);
+  padding:18px 20px;box-shadow:var(--sombra)}
+.cifras b{display:block;font-family:var(--display);font-size:38px;font-weight:700;font-stretch:87.5%;
+  line-height:1;color:var(--marca);font-variant-numeric:lining-nums tabular-nums}
+@media (prefers-color-scheme:dark){:root:not([data-tema="claro"]) .cifras b{color:var(--tinta)}}
+:root[data-tema="oscuro"] .cifras b{color:var(--tinta)}
+.cifras span{display:block;margin-top:7px;font-family:var(--mono);font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--tinta-3);line-height:1.4}
+
+/* ══ El sistema visual, de un vistazo ══════════════════════════ */
+.taxo{max-width:1240px;margin:0 auto;padding:40px 32px 4px}
+.taxo-head{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:20px 56px;align-items:start;margin:0 0 24px}
+@media(max-width:860px){.taxo-head{grid-template-columns:1fr;gap:22px}}
+.taxo-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-3);margin:0 0 8px;max-width:none}
+.taxo-sub{font-size:15.5px;color:var(--tinta-2);margin:0;max-width:56ch}
+.lienzo{background:var(--hoja);border:1px solid var(--regla);border-radius:var(--r);padding:22px;overflow-x:auto;
+  box-shadow:var(--sombra);
+  background-image:linear-gradient(to right,color-mix(in srgb,var(--regla) 70%,transparent) 1px,transparent 1px),
+                   linear-gradient(to bottom,color-mix(in srgb,var(--regla) 70%,transparent) 1px,transparent 1px);
+  background-size:22px 22px}
+.lienzo svg{display:block;min-width:900px;width:100%;height:auto}
+.nd-t{font-family:var(--texto);font-size:11px;font-weight:700;letter-spacing:-.01em;fill:var(--tinta)}
+.nd-o{font-family:var(--texto);font-size:9.5px;fill:var(--tinta-2)}
+.nd-e{font-family:var(--mono);font-size:7.5px;font-weight:700;letter-spacing:.09em}
+.nd-i{font-size:11px}
+.nd-bg{fill:var(--hoja)}
+svg .draw{animation:fade 1s cubic-bezier(.22,1,.36,1) both}
+svg .pop{animation:pop .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+svg g.pop:nth-of-type(1){animation-delay:.10s} svg g.pop:nth-of-type(2){animation-delay:.16s}
+svg g.pop:nth-of-type(3){animation-delay:.22s} svg g.pop:nth-of-type(4){animation-delay:.28s}
+svg g.pop:nth-of-type(5){animation-delay:.34s} svg g.pop:nth-of-type(6){animation-delay:.40s}
+svg g.pop:nth-of-type(7){animation-delay:.46s}
+.leyenda{display:grid;gap:16px;margin:0;padding:18px 20px;background:var(--hoja);border:1px solid var(--regla);
+  border-radius:var(--r);box-shadow:var(--sombra);font-size:12.5px;color:var(--tinta-2)}
+.ley-t{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-3);margin:0 0 10px;max-width:none}
+.ley-i{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px 18px}
+@media(max-width:520px){.ley-i{grid-template-columns:1fr}}
+.ly{display:flex;align-items:center;gap:9px}
+.ty{display:flex;align-items:center;gap:9px}
+.ty b{display:inline-flex;align-items:center;justify-content:center;width:28px;height:19px;
+  background:var(--papel);font-size:9px;font-weight:400;flex:none;border-radius:var(--r-xs)}
+.t-co{border:1px solid var(--estructural)}
+.t-je{border:2px solid var(--estructural);border-top-width:4px}
+.t-ap{border:1.5px solid var(--staff);border-top-left-radius:0}
+.t-ou{border:2px dotted var(--outsourcing)}
+.t-va{border:2px dashed var(--vacante);background:none}
+.ly i{width:26px;height:0;flex:none}
+.l-es{border-top:2px solid var(--estructural)}
+.l-fu{border-top:2px dotted var(--funcional)}
+.l-ap{border-top:1.5px solid var(--aprobacion)}
+.l-st{border-top:2px dotted var(--staff)}
+.l-ou{border-top:2px dashed var(--outsourcing)}
+.l-va{border-top:2px dashed var(--vacante)}
+
+/* ══ Retícula del documento ════════════════════════════════════ */
+.doc{max-width:1240px;margin:0 auto;padding:52px 32px 100px;display:grid;
+  grid-template-columns:262px minmax(0,1fr);gap:0 60px;align-items:start}
+@media(max-width:1000px){.doc{grid-template-columns:1fr;gap:0;padding-top:28px}}
+
+/* ── Índice lateral: misma tarjeta que el resto del documento ──── */
+.rail{position:sticky;top:26px}
+.rail details{background:var(--hoja);border:1px solid var(--regla);border-radius:var(--r);
+  box-shadow:var(--sombra);padding:16px 12px 14px;
+  max-height:calc(100vh - 52px);overflow-y:auto;overscroll-behavior:contain}
+.rail-cab{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:0 4px 14px;padding-bottom:12px;border-bottom:1px solid var(--regla)}
+.rail-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--tinta-3);margin:0;max-width:none}
+.rail-todo{padding:0;background:none;border:0;cursor:pointer;white-space:nowrap;
+  font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-3)}
+.rail-todo:hover{color:var(--estructural)}
+
+/* Cada entrada: número y nombre. Sin viñeta: el número ya ordena */
+.rail a{position:relative;display:grid;grid-template-columns:24px 1fr;gap:9px;align-items:baseline;
+  padding:8px 10px;border-radius:var(--r-s);
+  font-size:13.5px;line-height:1.4;color:var(--tinta-2);text-decoration:none;
+  transition:color .15s,background .15s}
+.rail a span{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.02em;
+  color:var(--tinta-3);font-variant-numeric:lining-nums tabular-nums;transition:color .15s}
+.rail a:hover{color:var(--tinta);background:var(--hoja-2)}
+.rail a.on{color:var(--estructural);font-weight:640;background:color-mix(in srgb,var(--estructural) 9%,transparent)}
+.rail a.on span{color:var(--estructural)}
+.rail-g{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-3);
+  margin:16px 0 6px;padding:14px 0 0 10px;border-top:1px solid var(--regla);max-width:none}
+
+/* Desplegable: el chevron solo se enciende cuando hace falta */
+.rail-s{position:relative}
+.rail-s>a{padding-right:30px}
+.rail-x{position:absolute;right:2px;top:7px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  padding:0;background:none;border:0;border-radius:var(--r-xs);cursor:pointer;color:var(--tinta-3);
+  opacity:.45;transition:opacity .15s,color .15s,background .15s}
+.rail-s:hover .rail-x,.rail-x:focus-visible,.rail-x[aria-expanded="true"]{opacity:1}
+.rail-x:hover{color:var(--tinta);background:var(--hoja-2)}
+.rail-x>svg{display:block;width:9px;height:9px;transition:transform .18s ease}
+.rail-x[aria-expanded="true"]>svg{transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){.rail-x>svg{transition:none}}
+.rail-sub{position:relative;list-style:none;margin:0 0 8px;padding:0}
+.rail-sub::before{content:'';position:absolute;left:20px;top:0;bottom:9px;width:1px;background:var(--regla)}
+.rail-sub li{margin:0}
+.rail #toc .rail-sub a{display:block;padding:6px 10px 6px 34px;font-size:12.5px;line-height:1.45;color:var(--tinta-3)}
+.rail #toc .rail-sub a::before{content:'';position:absolute;left:20px;top:15px;width:9px;height:1px;
+  background:var(--regla-2);border:0;border-radius:0}
+.rail #toc .rail-sub a:hover{color:var(--tinta);background:var(--hoja-2)}
+.rail #toc .rail-sub .rail-g a{padding-left:22px;font-size:12px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--tinta-2)}
+.rail #toc .rail-sub .rail-g a::before{display:none}
+.rail #toc .rail-sub .rail-g + li a{padding-top:7px}
+.rail-sub .rail-g{margin-top:10px}
+.rail-sub .rail-g:first-child{margin-top:0}
+
+@media(max-width:1000px){
+  .rail{position:static;margin-bottom:32px}
+  .rail details{max-height:none;padding:0}
+  .rail summary{padding:15px 18px;cursor:pointer;font-weight:640;font-size:14.5px;list-style:none}
+  .rail summary::-webkit-details-marker{display:none}
+  .rail summary::after{content:" ▾";color:var(--tinta-3)}
+  .rail nav{padding:0 12px 14px}
+  .rail-cab{margin:14px 14px 12px}
+  .rail-cab .rail-t{display:none}
+  .rail .bus,.rail #bus-r,.rail .bus-n{margin-left:12px;margin-right:12px}
+}
+@media(min-width:1001px){.rail summary{display:none}}
+
+/* ── Buscador ─────────────────────────────────────────────────── */
+.bus{position:relative;margin:0 0 14px}
+.bus input{width:100%;font-family:var(--texto);font-size:13.5px;color:var(--tinta);background:var(--hoja);
+  border:1px solid var(--regla-2);border-radius:var(--r-full);padding:10px 34px 10px 34px;box-shadow:var(--sombra)}
+.bus input::placeholder{color:var(--tinta-3)}
+.bus input:focus{border-color:var(--estructural)}
+.bus-i{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--tinta-3);pointer-events:none}
+.bus input:focus~.bus-i,.bus:focus-within .bus-i{color:var(--estructural)}
+.bus kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:10px;
+  color:var(--tinta-3);border:1px solid var(--regla-2);border-radius:var(--r-xs);padding:1px 5px;background:var(--hoja-2);pointer-events:none}
+.bus input:focus~kbd,.bus input:not(:placeholder-shown)~kbd{display:none}
+#bus-r{list-style:none;margin:0;padding:0}
+#bus-r li{margin:0}
+.rail #bus-r a{display:block;padding:8px 10px;border-radius:var(--r-s);font-size:12.5px;line-height:1.45}
+#bus-r .bus-s{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--tinta-3);margin-bottom:2px}
+#bus-r .bus-c{font-family:var(--mono);font-size:11.5px;font-weight:650;color:var(--estructural)}
+#bus-r mark{background:var(--marca-3);color:#0F1A20;border-radius:3px;padding:0 2px}
+.bus-n{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tinta-3);margin:0 0 6px;padding-left:10px;max-width:none}
+.hit{outline:2px solid var(--estructural);outline-offset:6px;border-radius:var(--r-s)}
+
+
+/* ══ El cuerpo: la línea troncal y sus nodos ═══════════════════ */
+.cuerpo{position:relative;max-width:var(--hoja-w);min-width:0;padding-left:var(--troncal);overflow-x:clip}
+.cuerpo::before{content:'';position:absolute;left:var(--espina);top:18px;bottom:120px;width:1px;background:var(--trazo)}
+section{position:relative;margin-bottom:80px;padding-top:48px}
+/* Los párrafos sueltos de una sección ocupan la columna entera: la medida de lectura se
+   guarda para lo que va dentro de una caja —reglas, notas, flujos—, donde el renglón es corto. */
+section > p{max-width:none}
+section::before{content:'';position:absolute;top:0;left:calc(var(--troncal) * -1);right:0;height:1px;background:var(--regla-2)}
+section.first{padding-top:0}
+section.first::before{display:none}
+/* El cierre —cómo se mantiene, el anexo— se separa con una línea más tenue */
+section.anx-s::before{background:var(--regla)}
+.sec-h{position:relative;margin-bottom:36px}
+/* El nodo de sección: pastilla llena, en el azul de marca con el número en verde primavera */
+.sec-n{position:absolute;left:calc(var(--troncal) * -1);top:0;width:48px;height:46px;
+  display:flex;align-items:center;justify-content:center;border-radius:var(--r);
+  background:var(--marca);color:var(--marca-2);box-shadow:var(--sombra-2);
+  font-family:var(--display);font-size:20px;font-weight:700;font-stretch:87.5%;
+  font-variant-numeric:lining-nums tabular-nums}
+.sec-n::after{content:'';position:absolute;left:100%;top:50%;width:16px;height:1px;background:var(--trazo)}
+.sec-n.x{background:var(--hoja-2);color:var(--tinta-3);box-shadow:var(--sombra);font-size:22px}
+h2{font-family:var(--display);font-size:clamp(30px,4.6vw,47px);font-weight:700;font-stretch:87.5%;
+  text-transform:uppercase;letter-spacing:.015em;line-height:1.02;margin:0;color:var(--tinta)}
+.sec-d{font-size:18.5px;line-height:1.6;color:var(--tinta-2);margin:14px 0 0;max-width:none}
+h3{position:relative;font-family:var(--display);font-size:22px;font-weight:600;font-stretch:87.5%;
+  letter-spacing:.01em;line-height:1.28;margin:48px 0 16px;color:var(--tinta);max-width:var(--medida)}
+h3::before{content:'';position:absolute;left:calc(var(--espina) - var(--troncal));top:.62em;
+  width:calc(var(--troncal) - var(--espina) - 16px);height:1px;background:var(--regla-2)}
+h4{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--tinta-3);margin:34px 0 12px;max-width:none}
+ul,ol{margin:0 0 1.1em;padding-left:1.3em;max-width:var(--medida)}
+li{margin-bottom:.45em}
+li::marker{color:var(--tinta-3)}
+
+/* ══ Tablas ════════════════════════════════════════════════════ */
+.tbl{overflow:auto;margin:0 0 26px;background:var(--hoja);border:1px solid var(--regla);
+  border-radius:var(--r);box-shadow:var(--sombra)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px;
+  font-variant-numeric:lining-nums tabular-nums}
+th{text-align:left;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tinta-3);padding:13px 18px;background:var(--hoja-2);border-bottom:1px solid var(--regla);
+  white-space:nowrap;vertical-align:bottom}
+td{padding:14px 18px;border-bottom:1px solid var(--regla);vertical-align:top;line-height:1.55;color:var(--tinta-2)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--hoja-2)}
+td:first-child{color:var(--tinta);font-weight:600}
+td strong{color:var(--tinta)}
+.id{font-family:var(--mono);font-size:11.5px;font-weight:650;color:var(--estructural);white-space:nowrap}
+td.id{background:color-mix(in srgb,var(--estructural) 7%,transparent);color:var(--estructural)}
+td.rg{color:var(--tinta-3);font-weight:700}
+.no{font-family:var(--mono);font-size:11.5px;font-weight:650;color:var(--outsourcing);white-space:nowrap}
+.rg{font-family:var(--display);font-size:15px;font-weight:700;font-stretch:87.5%;color:var(--tinta-3);white-space:nowrap}
+.p{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:650;letter-spacing:.08em;
+  text-transform:uppercase;padding:4px 10px;white-space:nowrap;border:1px solid transparent;border-radius:var(--r-full)}
+.p-m{background:var(--estructural);color:var(--sobre-acento)}
+.p-s{border-color:var(--estructural);color:var(--estructural)}
+.p-c{color:var(--tinta-3);padding-left:0}
+.p-w{color:var(--tinta-3);padding-left:0;opacity:.7}
+.p-x{background:var(--outsourcing);color:var(--sobre-acento)}
+
+/* ══ Historias de usuario ══════════════════════════════════════ */
+.hu{background:var(--hoja);border:1px solid var(--regla);border-radius:var(--r);
+  box-shadow:var(--sombra);margin:0 0 20px;overflow:hidden}
+.hu-h{padding:16px 24px;border-bottom:1px solid var(--regla);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--estructural) 6%,transparent),transparent)}
+.hu-h b{display:block;font-family:var(--display);font-size:21px;font-weight:600;font-stretch:87.5%;letter-spacing:.01em;color:var(--tinta)}
+.hu-b{padding:22px 24px 24px}
+.hu-q{font-size:18px;line-height:1.6;color:var(--tinta);border-left:3px solid var(--estructural);
+  border-radius:0 var(--r-s) var(--r-s) 0;background:var(--hoja-2);padding:14px 18px;margin:0 0 20px;max-width:60ch}
+.hu-b h6{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--tinta-3);margin:0 0 10px}
+.hu-b ul{margin:0 0 18px;padding-left:1.2em;font-size:16px;color:var(--tinta-2)}
+.hu-b ul li::marker{color:var(--estructural)}
+.hu-r{font-family:var(--mono);font-size:11px;color:var(--tinta-3);border-top:1px solid var(--regla);
+  padding-top:14px;margin:0;max-width:none}
+.hu-r b{color:var(--estructural);font-weight:650}
+
+/* ══ Notas ═════════════════════════════════════════════════════ */
+.nota{background:var(--hoja);border:1px solid var(--regla);border-left:4px solid var(--estructural);
+  border-radius:var(--r);box-shadow:var(--sombra);padding:20px 24px;margin:0 0 26px;
+  font-size:16px;line-height:1.65;color:var(--tinta-2);max-width:none}
+.nota p{max-width:76ch}
+.nota b,.nota strong{color:var(--tinta)}
+.nota p:last-child{margin-bottom:0}
+.nota.al{border-left-color:var(--alerta)}
+.nota.ou{border-left-color:var(--outsourcing)}
+
+/* ══ Diagramas ═════════════════════════════════════════════════ */
+.dia{font-family:var(--mono);font-size:12.5px;line-height:1.6;background:var(--hoja);
+  border:1px solid var(--regla);border-radius:var(--r);box-shadow:var(--sombra);
+  padding:26px;margin:0 0 26px;overflow-x:auto;white-space:pre;color:var(--tinta-2);max-width:none;
+  background-image:linear-gradient(to right,color-mix(in srgb,var(--regla) 60%,transparent) 1px,transparent 1px),
+                   linear-gradient(to bottom,color-mix(in srgb,var(--regla) 60%,transparent) 1px,transparent 1px);
+  background-size:22px 22px}
+.dia b{color:var(--estructural);font-weight:600}
+
+/* ══ Anexo ═════════════════════════════════════════════════════ */
+.anx{display:grid;gap:12px;margin-bottom:24px}
+.anx>div{background:var(--hoja);border:1px solid var(--regla);border-radius:var(--r);
+  box-shadow:var(--sombra);padding:20px 24px}
+.anx h5{margin:0 0 8px;font-family:var(--display);font-size:19px;font-weight:600;font-stretch:87.5%;letter-spacing:.01em;color:var(--tinta)}
+.anx p{margin:0;font-size:16px;color:var(--tinta-2);line-height:1.62;max-width:66ch}
+
+.sw{display:inline-block;width:14px;height:14px;border-radius:var(--r-xs);vertical-align:-2px;margin-right:8px;
+  border:1px solid rgba(0,0,0,.18)}
+
+.pie{max-width:1240px;margin:0 auto;padding:0 32px 24px;font-size:13px;color:var(--tinta-3);line-height:1.6}
+.pie div{border-top:1px solid var(--regla-2);padding-top:24px;max-width:var(--hoja-w)}
+
+/* ── Aparición de cada sección ────────────────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .sec-h{opacity:0;transform:translateY(10px)}
+  .sec-h.ver{opacity:1;transform:none;transition:opacity .55s ease,transform .55s cubic-bezier(.22,1,.36,1)}
+}
+
+/* ── Pantallas chicas ─────────────────────────────────────────── */
+@media(max-width:760px){
+  :root{--troncal:0px}
+  body{font-size:16px}
+  .cuerpo::before,h3::before,.sec-n::after{display:none}
+  section::before{left:0}
+  .sec-n{position:static;margin-bottom:16px}
+  h2{font-size:clamp(27px,8vw,36px)}
+  .sec-d{font-size:17px}
+  td,th{padding-left:14px;padding-right:14px}
+}
+
+/* ══ Impresión ═════════════════════════════════════════════════ */
+@media print{
+  :root{--papel:#fff;--hoja:#fff;--hoja-2:#f5f5f3;--tinta:#000;--tinta-2:#2a2a2a;--tinta-3:#555;
+        --regla:#c4c4c4;--regla-2:#8a8a8a;--troncal:0px;--sombra:none;--sombra-2:none}
+  body{font-size:10.5pt;background:#fff}
+  .rail,.mh-fig,.bus{display:none}
+  .masthead{background:#fff;color:#000;border-bottom:2pt solid #000;padding:0 0 18pt}
+  .masthead .eyebrow{color:#333}
+  .mh-title,.mh-sub em{color:#000}
+  .mh-sub{color:#333}
+  .mh-grid{display:block;margin-bottom:16pt}
+  .ficha{background:none;padding:0;gap:0;border-top:1pt solid #000}
+  .ficha div{background:none;border-bottom:1pt solid #ccc;border-radius:0}
+  .ficha dt{color:#555}.ficha dd{color:#000}
+  .cifras>div,.tbl,.nota,.dia,.hu,.anx>div,.lienzo,.leyenda{box-shadow:none}
+  .doc{display:block;padding:0}
+  .cuerpo{max-width:none;padding-left:0}
+  .cuerpo::before,h3::before,.sec-n::after{display:none}
+  .sec-n{position:static;margin-bottom:10pt;background:#000;color:#fff;box-shadow:none}
+  .sec-h{opacity:1;transform:none}
+  .lienzo,.dia{background-image:none}
+  .p-m,.p-x{background:#000;color:#fff}
+  .p-s{border-color:#000;color:#000}
+  td.id{background:none}
+  section{page-break-before:always;padding-top:0}
+  section.first{page-break-before:auto}
+  section::before{display:none}
+  h2,h3{page-break-after:avoid}
+  .tbl,.dia,.nota,.anx,.hu,.lienzo{page-break-inside:avoid}
+  svg .draw,svg .pop{animation:none;opacity:1;transform:none}
+  a{color:#000;text-decoration:none}
+}
+/* El dibujo del glosario: siete palabras señaladas sobre un árbol de ejemplo. Las llamadas
+   van dentro del dibujo y se repiten en la lista de abajo, igual que en los wireframes. */
+.dgm { margin: 22px 0 0; }
+.dgm-cap { margin: 0 0 12px; font-size: 14.5px; line-height: 1.55; color: var(--tinta-3); max-width: 78ch; }
+.dgm-cap b { color: var(--tinta-2); font-weight: 640; }
+.dgm .lienzo { padding: 18px; }
+.dgm-n circle { fill: var(--estructural); }
+.dgm-n text {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; text-anchor: middle;
+  fill: var(--sobre-acento);
+}
+.dgm-esc .nd-t { font-size: 11.5px; font-weight: 500; }
+.dgm-rot {
+  font-family: var(--mono); font-size: 10px; font-weight: 650; letter-spacing: .1em;
+  text-transform: uppercase; fill: var(--estructural);
+}
+.dgm-ord {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+/* Verde la dimensión física, azul la organizacional, gris la raíz: el mismo par de colores
+   en el esquema de la izquierda y en las cajas de la derecha. */
+.dgm-ord.fis, .dgm-dim.fis { fill: var(--funcional); }
+.dgm-ord.org, .dgm-dim.org { fill: var(--estructural); }
+.dgm-ord.raiz { fill: var(--tinta-3); }
+.mrc.fis { fill: var(--funcional); }
+.mrc.org { fill: var(--estructural); }
+.mrc.raiz { fill: var(--tinta-3); }
+.zona.fis { fill: color-mix(in srgb, var(--funcional) 7%, transparent); }
+.zona.org { fill: color-mix(in srgb, var(--estructural) 7%, transparent); }
+.lin.fis path { fill: none; stroke: var(--funcional); stroke-width: 1.5; }
+.lin.org path { fill: none; stroke: var(--estructural); stroke-width: 1.5; }
+.dgm-fis rect { fill: var(--hoja); stroke: var(--funcional); stroke-width: 1.5; }
+.dgm-fis .nd-e { fill: var(--funcional); }
+.dgm-org rect { fill: var(--hoja); stroke: var(--estructural); stroke-width: 1.5; }
+.dgm-org .nd-e { fill: var(--estructural); }
+.dgm-raiz rect { fill: var(--estructural); stroke: var(--estructural); stroke-width: 1.5; }
+.dgm-raiz .nd-e, .dgm-raiz .nd-o { fill: var(--sobre-acento); }
+.dgm-dim { font-family: var(--mono); font-size: 8.5px; font-weight: 700; letter-spacing: .12em; }
+.dgm-rot.mal { fill: var(--outsourcing); }
+/* El cruce entre las dos dimensiones lleva su propio color: no es una línea de la
+   estructura, es el puesto diciendo dónde se trabaja. */
+.lin.cruce path { fill: none; stroke: var(--aprobacion); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.dgm-cruce {
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; fill: var(--aprobacion);
+}
+.dgm-vac rect { fill: none; stroke: var(--vacante); stroke-width: 1.5; stroke-dasharray: 6 4; }
+/* El nivel de mando y el cupo van dentro de la caja del cargo: son del cargo, no del puesto */
+.dgm-mando {
+  font-family: var(--mono); font-size: 7.5px; font-weight: 700; letter-spacing: .1em;
+  fill: var(--tinta-3);
+}
+.dgm-vac .nd-e, .dgm-vac .nd-t { fill: var(--vacante); }
+.dgm-lista { margin: 16px 0 0; display: grid; gap: 10px; }
+.dgm-lista > div { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 18px; align-items: baseline; }
+.dgm-lista dt {
+  font-family: var(--mono); font-size: 10px; font-weight: 650; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--estructural);
+}
+.dgm-lista dd { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--tinta-2); }
+.dgm-lista b { color: var(--tinta); font-weight: 640; }
+@media (max-width: 760px) { .dgm-lista > div { grid-template-columns: 1fr; gap: 3px; } }
+.dgm-guia path { fill: none; stroke: var(--tinta-3); stroke-width: 1.2; }
+.dgm-guia circle { fill: var(--tinta-3); }
+/* El único trazo con punta del dibujo: el hijo apunta a su nodo superior */
+.dgm-sup path { fill: none; stroke: var(--estructural); stroke-width: 1.5; }
+.dgm-sup .punta { fill: var(--estructural); stroke: none; }
+.dgm-mal circle { fill: var(--hoja); stroke: var(--outsourcing); stroke-width: 1.4; }
+
+/* Las bandas de grupo dentro de una tabla larga: el glosario se lee de corrido y necesita
+   respiraderos, o son cuarenta filas iguales. */
+/* Viñetas chicas para las definiciones que enumeran, dentro de una celda */
+.mini { list-style: none; margin: 9px 0 2px; padding: 0; display: grid; gap: 5px; max-width: none; }
+.mini li { position: relative; margin: 0; padding-left: 15px; line-height: 1.5; }
+.mini li::before {
+  content: ''; position: absolute; left: 1px; top: .6em; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--regla-2);
+}
+.mini li.fis::before { background: var(--funcional); }
+.mini li.org::before { background: var(--estructural); }
+.mini b { color: var(--tinta); font-weight: 640; }
+
+.tbl tbody th[colspan] {
+  color: var(--estructural); background: var(--hoja-2);
+  border-top: 1px solid var(--regla-2); padding-top: 15px; padding-bottom: 11px;
+}
+.tbl tbody tr:first-child th[colspan] { border-top: 0; }
+
+/* ══ Por dónde empezar, según a qué vienes ═════════════════════
+   Eran tres filas de una tabla y se leían como tres filas de una tabla: nadie se reconoce en
+   una celda. Con pestañas, cada quien abre la suya y lee tres renglones escritos para esa
+   persona, con VIA vestido de lo que hace. */
+.perfiles { margin: 0 0 36px; }
+.perf-cap {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--tinta-3); margin: 0 0 12px; max-width: none;
+}
+.perf-tabs { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 12px; }
+.perf-tab {
+  padding: 8px 17px; cursor: pointer; border-radius: var(--r-full);
+  border: 1px solid var(--regla-2); background: var(--hoja); color: var(--tinta-2);
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.perf-tab:hover { color: var(--tinta); border-color: var(--tinta-3); }
+.perf-tab.on { background: var(--estructural); border-color: var(--estructural); color: var(--sobre-acento); }
+.perf-panel {
+  display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 26px; align-items: center;
+  background: var(--hoja); border: 1px solid var(--regla); border-radius: var(--r);
+  box-shadow: var(--sombra); padding: 22px 28px 24px;
+}
+.perf-fig { margin: 0; display: flex; align-items: center; justify-content: center; }
+.perf-fig img { display: block; width: auto; height: auto; max-width: 100%; max-height: 176px; }
+.perf-mision { font-size: 19px; line-height: 1.48; color: var(--tinta); margin: 0 0 13px; max-width: 52ch; }
+.perf-mision b {
+  display: block; margin-bottom: 7px; font-family: var(--mono); font-size: 9px; font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--estructural);
+}
+.perf-lead { font-size: 15.5px; line-height: 1.62; color: var(--tinta-2); margin: 0 0 17px; max-width: 60ch; }
+.perf-lead strong { color: var(--tinta); font-weight: 640; }
+.perf-l { margin: 0; display: grid; gap: 11px; }
+.perf-l > div { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 16px; align-items: baseline; }
+.perf-l dt {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--tinta-3);
+}
+.perf-l dd { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--tinta-2); }
+.perf-l a { font-weight: 600; text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--estructural) 32%, transparent); }
+.perf-l a:hover { border-bottom-color: var(--estructural); }
+@media (max-width: 760px) {
+  .perf-panel { grid-template-columns: 1fr; gap: 16px; }
+  .perf-fig img { max-height: 140px; }
+  .perf-l > div { grid-template-columns: 1fr; gap: 2px; }
+}
+@media print {
+  .perf-tabs { display: none; }
+  .perf-panel[hidden] { display: grid !important; }
+  .perf-panel + .perf-panel { margin-top: 12px; }
+}
+
+/* ══ Las dos vistas del organigrama de muestra ═════════════════
+   Una capa por vez: la funcional se enciende sobre la de mando en vez de dibujarse siempre,
+   porque las dos juntas son el camino más corto a un diagrama que nadie termina de leer. */
+/* El conmutador vive DENTRO del cuadro, encima del dibujo: es parte de lo que se está
+   mirando, no un control del documento. Por eso el lienzo deja de desplazarse él mismo y
+   el que se desplaza pasa a ser el envoltorio del dibujo. */
+.lienzo { overflow: hidden; }
+.lienzo-svg { overflow-x: auto; max-width: 100%; }
+.vistas { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; }
+.conmuta {
+  position: relative; display: inline-flex; flex: none; padding: 3px; gap: 0;
+  border: 1px solid var(--regla-2); border-radius: var(--r-full); background: var(--hoja-2);
+}
+.conmuta .tapa {
+  position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px);
+  border-radius: var(--r-full); background: var(--estructural); box-shadow: var(--sombra);
+  transition: transform .26s cubic-bezier(.22, 1, .36, 1);
+}
+.conmuta[data-vista="funcional"] .tapa { transform: translateX(100%); background: var(--funcional); }
+.vista {
+  position: relative; z-index: 1; flex: 1 1 0; padding: 7px 18px; cursor: pointer;
+  border: 0; background: none; color: var(--tinta-2); white-space: nowrap;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  transition: color .2s ease;
+}
+.vista:hover { color: var(--tinta); }
+.vista.on { color: var(--sobre-acento); }
+.vistas-n { font-size: 12.5px; color: var(--tinta-3); }
+@media (prefers-reduced-motion: reduce) { .conmuta .tapa { transition: none; } }
+#tx-svg .capa-fun { opacity: 0; transition: opacity .28s ease; pointer-events: none; }
+#tx-svg[data-vista="funcional"] .capa-fun { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #tx-svg .capa-fun { transition: none; } }
+@media print { .vistas { display: none; } #tx-svg .capa-fun { opacity: 1; } .lienzo-svg { overflow: visible; } }
+
+/* ══ Reglas de negocio en formato BR ═══════════════════════════
+   Cada regla es una ficha: su código, su estado, qué dice, por qué, y los dos escenarios
+   —el que tiene que funcionar y el que tiene que estar cerrado—. El código va al margen
+   izquierdo, en la misma columna que el número de sección, para poder recorrer la lista
+   leyendo solo códigos cuando uno viene a buscar uno en particular. */
+.reglas { list-style: none; margin: 30px 0 0; padding: 0; max-width: none; }
+.br-grupo:first-of-type { margin-top: 34px; }
+.br-grupo {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px;
+  margin: 54px 0 0; padding: 0 0 14px; border-bottom: 2px solid var(--tinta);
+  font-size: 25px; max-width: none;
+}
+.br-grupo::before { display: none; }
+.br-grupo em {
+  font-style: normal; font-size: 14px; font-weight: 500; line-height: 1.45; color: var(--tinta-3);
+}
+.reglas + .br-grupo { margin-top: 62px; }
+.br { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 0 28px; padding-top: 34px; }
+.br + .br { margin-top: 44px; border-top: 1px solid var(--regla); }
+.br-n {
+  font-family: var(--mono); font-size: 11px; font-weight: 650; letter-spacing: .06em;
+  color: var(--tinta-3); padding-top: 6px; font-variant-numeric: lining-nums tabular-nums;
+}
+.br > div { min-width: 0; }
+.br-cab { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.br-id {
+  font-family: var(--mono); font-size: 11.5px; font-weight: 650; color: var(--estructural);
+  background: color-mix(in srgb, var(--estructural) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--estructural) 26%, transparent);
+  padding: 2px 9px; border-radius: var(--r-full);
+}
+.br-estado {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--alerta); background: color-mix(in srgb, var(--alerta) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--alerta) 34%, transparent);
+  padding: 3px 9px; border-radius: var(--r-full);
+}
+.br h3 { margin: 0 0 10px; font-size: 21px; max-width: none; }
+.br h3::before, .flujo h3::before, .hu h3::before { display: none; }
+.br > div > p { font-size: 15.5px; color: var(--tinta-2); margin: 0; max-width: 82ch; }
+/* Los escenarios ──────────────────────────────────────────────
+   Dado que · Cuando · Entonces · Y no es una tabla: es una secuencia, y los 123 escenarios
+   tienen los cuatro pasos en ese orden. Por eso se dibujan como un hilo con cuatro nudos,
+   y el nudo del ENTONCES —el resultado, lo único que de verdad se verifica— va relleno y en
+   color. Ahí vive la señal que antes daba el ✅: verde cuando el camino tiene que funcionar,
+   ámbar quemado cuando tiene que estar cerrado. */
+.escenarios {
+  display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 16px; counter-reset: esc;
+  background: var(--hoja); border: 1px solid var(--regla); border-radius: var(--r-s);
+  box-shadow: var(--sombra); padding: 0 22px;
+}
+.esc {
+  counter-increment: esc; position: relative;
+  background: none; border: 0; padding: 20px 0 18px;
+}
+.esc + .esc { margin: 0 -22px; padding: 20px 22px 18px; border-top: 1px solid var(--regla); }
+.esc::before {
+  content: 'Escenario ' counter(esc);
+  display: block; margin-bottom: 5px;
+  font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--tinta-3);
+}
+.esc-t {
+  display: block; margin: 0; padding: 0 0 12px; background: none; border: 0;
+  font-size: 14.5px; font-weight: 650; line-height: 1.35; color: var(--tinta);
+}
+.esc-t i { display: none; }
+.esc ul {
+  position: relative; margin: 0; padding: 0; list-style: none;
+  display: grid; gap: 0; max-width: none;
+}
+.esc li::after {          /* el hilo va de nudo a nudo, no de borde a borde */
+  content: ''; position: absolute; left: 3.5px; top: 15px; bottom: -15px;
+  width: 1px; background: var(--regla-2);
+}
+.esc li:last-child::after { display: none; }
+.esc li {
+  position: relative; margin: 0; padding: 6px 0 6px 96px;
+  font-size: 13.5px; line-height: 1.55; color: var(--tinta-2);
+}
+.esc li::before {
+  content: ''; position: absolute; left: 0; top: 11px; box-sizing: border-box;
+  width: 8px; height: 8px; border-radius: var(--r-full);
+  background: var(--hoja); border: 1.5px solid var(--regla-2);
+}
+.esc li:nth-child(3)::before { background: var(--funcional); border-color: var(--funcional); }
+.esc.no li:nth-child(3)::before { background: var(--outsourcing); border-color: var(--outsourcing); }
+.esc li > b:first-child {
+  position: absolute; left: 24px; top: 8.5px; width: 66px; margin: 0;
+  font-family: var(--mono); font-size: 9px; font-weight: 650; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--tinta-3);
+}
+.esc li:nth-child(3) > b:first-child { color: var(--funcional); }
+.esc.no li:nth-child(3) > b:first-child { color: var(--outsourcing); }
+.esc li b { font-weight: 640; color: var(--tinta); }
+
+/* Los cuatro apartados de cada regla ─────────────────────────
+   Siempre los mismos y en el mismo orden: qué dice, cómo se prueba, qué la acota y con qué
+   se enlaza. El número del apartado va en un chip al margen del título, y la línea que lo
+   sigue hace de separador sin cortar la columna de texto. Los metadatos —el 1 y el 4— son
+   la misma rejilla: celdas separadas por el fondo, que es lo que dibuja las líneas. */
+.br-h {
+  display: flex; align-items: center; gap: 9px;
+  margin: 32px 0 14px; padding: 0; border: 0;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 650;
+  letter-spacing: .15em; text-transform: uppercase; color: var(--tinta-2);
+}
+.br-h::after { content: ''; flex: 1; height: 1px; background: var(--regla); }
+.br-h em {
+  flex: none; width: 19px; height: 19px; display: grid; place-items: center;
+  font-style: normal; font-family: var(--mono); font-size: 10px; font-weight: 650;
+  letter-spacing: 0; color: var(--estructural);
+  background: color-mix(in srgb, var(--estructural) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--estructural) 24%, transparent);
+  border-radius: var(--r-xs);
+}
+.br-meta, .br-traza {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0 0 18px; padding: 0;
+  background: var(--regla); border: 1px solid var(--regla);
+  border-radius: var(--r-s); overflow: hidden;
+}
+.br-traza { margin-bottom: 0; }
+.br-meta > div, .br-traza > div { background: var(--hoja-2); padding: 11px 15px; min-width: 0; }
+.br-traza > div:last-child { grid-column: 1 / -1; }
+.br-meta dt, .br-traza dt {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--tinta-3); margin: 0 0 5px;
+}
+.br-traza a.id { text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--estructural) 35%, transparent); }
+.br-traza a.id:hover { border-bottom-color: var(--estructural); background: color-mix(in srgb, var(--estructural) 8%, transparent); }
+.br-meta dd, .br-traza dd {
+  margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--tinta); font-weight: 500;
+}
+.br > div > p.br-dg-t {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--tinta-3); margin: 0 0 7px;
+}
+.br-cond { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; max-width: 82ch; }
+.br-cond li {
+  position: relative; margin: 0; padding-left: 21px;
+  font-size: 14.5px; line-height: 1.62; color: var(--tinta-2);
+}
+.br-cond li::before {
+  content: ''; position: absolute; left: 2px; top: .68em;
+  width: 10px; height: 1px; background: var(--estructural); opacity: .5;
+}
+.br .escenarios { margin-top: 0; }
+.br > div > p + p { margin-top: 11px; }
+
+/* ══ Flujos de usuario ═════════════════════════════════════════ */
+.flujo {
+  background: var(--hoja); border: 1px solid var(--regla); border-radius: var(--r);
+  box-shadow: var(--sombra); padding: 22px 26px 24px; margin: 0 0 20px;
+}
+.flujo-cab { display: flex; align-items: baseline; gap: 13px; flex-wrap: wrap; }
+.flujo-id {
+  font-family: var(--mono); font-size: 11px; font-weight: 650; color: var(--estructural);
+  background: color-mix(in srgb, var(--estructural) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--estructural) 26%, transparent);
+  padding: 2px 9px; border-radius: var(--r-full); white-space: nowrap;
+}
+.flujo-cab h3 { margin: 0; font-size: 21px; max-width: none; }
+.flujo-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px;
+  margin: 17px 0 19px; padding: 14px 0;
+  border-top: 1px solid var(--regla); border-bottom: 1px solid var(--regla);
+}
+.flujo-meta b {
+  display: block; margin-bottom: 4px; font-family: var(--mono); font-size: 9px;
+  font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--tinta-3);
+}
+.flujo-meta span { font-size: 13.5px; color: var(--tinta-2); }
+.pasos { margin: 0; padding-left: 1.3em; font-size: 16px; color: var(--tinta-2); max-width: 78ch; }
+.pasos li { margin-bottom: .5em; }
+.pasos li::marker { color: var(--estructural); font-weight: 600; }
+.pasos b { color: var(--tinta); font-weight: 640; }
+.desvios { display: grid; gap: 9px; margin-top: 19px; }
+.desvio {
+  font-size: 14px; line-height: 1.6; color: var(--tinta-2);
+  background: var(--hoja-2); border-left: 3px solid var(--alerta);
+  border-radius: 0 var(--r-s) var(--r-s) 0; padding: 11px 15px; max-width: none;
+}
+.desvio b { color: var(--tinta); font-weight: 640; }
+.desvio em { color: var(--tinta-3); font-style: normal; }
+
+/* ══ Wireframes ════════════════════════════════════════════════
+   Cajas, no maquetas: dicen qué hay en cada pantalla y en qué orden, sin decir de qué color
+   es nada. Las llamadas numeradas van pegadas a la pieza que nombran y se repiten en la lista
+   de abajo: leer el dibujo y leer la explicación son dos momentos distintos. */
+.wf-lead { font-size: 15.5px; color: var(--tinta-2); margin: 0 0 4px; max-width: 78ch; }
+.wf {
+  margin-top: 18px; margin-bottom: 8px; border: 1px solid var(--regla-2); border-radius: var(--r);
+  background: var(--hoja); overflow: hidden; box-shadow: var(--sombra);
+}
+.wf-tit {
+  display: flex; gap: 12px; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; padding: 11px 16px; background: var(--hoja-2);
+  border-bottom: 1px solid var(--regla);
+}
+.wf-tit strong { font-size: 13.5px; font-weight: 640; }
+.wf-ruta { font-family: var(--mono); font-size: 10.5px; color: var(--tinta-3); }
+.wf-app { display: grid; grid-template-columns: 176px 1fr; }
+.wf-rail {
+  border-right: 1px solid var(--regla); background: var(--hoja-2);
+  padding: 13px 11px; display: grid; gap: 3px; align-content: start;
+}
+.wf-rail-t {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--tinta-3); padding: 8px 9px 3px;
+}
+.wf-nav { font-size: 12px; color: var(--tinta-2); padding: 6px 9px; border-radius: 7px; }
+.wf-nav.on { background: color-mix(in srgb, var(--estructural) 12%, transparent); color: var(--estructural); font-weight: 640; }
+.wf-cuerpo { padding: 15px 18px 19px; display: grid; gap: 11px; align-content: start; min-width: 0; }
+.wf-h1 { font-size: 15px; font-weight: 640; }
+.wf-sub { font-size: 12px; color: var(--tinta-3); margin-top: -6px; }
+.wf-barra { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.wf-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+.wf-tab {
+  font-size: 11.5px; padding: 5px 11px; border-radius: var(--r-full);
+  border: 1px solid var(--regla-2); color: var(--tinta-3);
+}
+.wf-tab.on { background: var(--tinta); color: var(--hoja); border-color: var(--tinta); font-weight: 640; }
+.wf-tab.off { border-style: dashed; opacity: .6; }
+.wf-input {
+  flex: 1; min-width: 130px; font-size: 11.5px; color: var(--tinta-3);
+  border: 1px solid var(--regla-2); border-radius: 8px; padding: 6px 11px;
+}
+.wf-btn {
+  font-size: 11.5px; font-weight: 640; padding: 6px 13px; border-radius: 8px;
+  background: var(--estructural); color: var(--sobre-acento); white-space: nowrap;
+}
+.wf-btn.ghost { background: none; border: 1px solid var(--regla-2); color: var(--tinta-2); font-weight: 500; }
+.wf-tabla { border: 1px solid var(--regla); border-radius: 10px; overflow: hidden; }
+.wf-th, .wf-tr {
+  display: grid; grid-template-columns: 1.7fr 1fr .85fr .75fr 46px;
+  gap: 12px; padding: 8px 13px; align-items: center;
+}
+.wf-tr > i { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.wf-tr > i .wf-n { margin-right: 0; }
+.wf-th {
+  background: var(--hoja-2); border-bottom: 1px solid var(--regla);
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--tinta-3);
+}
+.wf-tr + .wf-tr { border-top: 1px solid var(--regla); }
+.wf-tr b { font-size: 12px; font-weight: 640; color: var(--tinta); }
+.wf-tr > span, .wf-tr > i { font-size: 11.5px; color: var(--tinta-3); font-style: normal; }
+.wf-tr .s1 { padding-left: 15px; }
+.wf-tr .s2 { padding-left: 30px; }
+.wf-tr .s3 { padding-left: 45px; }
+.wf-tr .ram { color: var(--regla-2); margin-right: 4px; }
+.wf-caja { border: 1px solid var(--regla); border-radius: 10px; padding: 12px 14px 14px; display: grid; gap: 9px; }
+.wf-caja-t {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--estructural);
+}
+.wf-campos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.wf-campos.dos { grid-template-columns: repeat(2, 1fr); }
+.wf-campo { border: 1px solid var(--regla-2); border-radius: 7px; padding: 6px 9px 7px; }
+.wf-campo b {
+  display: block; font-size: 9px; font-weight: 500; color: var(--tinta-3);
+  font-family: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+}
+.wf-campo span { font-size: 11.5px; color: var(--tinta-2); }
+.wf-campo.oblig b::after { content: ' *'; color: var(--estructural); }
+.wf-campo.hered { background: var(--hoja-2); }
+.wf-campo.hered span { color: var(--tinta-3); }
+.wf-org { display: grid; justify-items: center; gap: 0; padding: 8px 0 4px; }
+.wf-org-fila { display: flex; gap: 9px; justify-content: center; flex-wrap: wrap; }
+.wf-conector { width: 1px; height: 13px; background: var(--regla-2); }
+.wf-nodo {
+  border: 1px solid var(--regla-2); border-radius: 8px; padding: 7px 11px 8px;
+  min-width: 108px; text-align: center; background: var(--hoja);
+}
+.wf-nodo b { display: block; font-size: 11px; font-weight: 640; color: var(--tinta); }
+.wf-nodo span { font-size: 10px; color: var(--tinta-3); }
+.wf-nodo.vac { border-style: dashed; }
+.wf-nodo.vac b { color: var(--tinta-3); font-weight: 500; }
+.wf-nodo.staff { border-left: 3px solid var(--staff); }
+.wf-n {
+  display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%;
+  background: var(--estructural); color: var(--sobre-acento); font-family: var(--mono);
+  font-size: 9.5px; font-weight: 700; line-height: 1; vertical-align: 1px;
+  margin-right: 5px; flex: 0 0 auto;
+}
+.wf-llaves { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 7px; max-width: none; }
+.wf-llaves li { display: flex; gap: 2px; margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--tinta-2); }
+.wf-llaves b { color: var(--tinta); font-weight: 640; }
+
+.mono { font-family: var(--mono); font-size: .88em; }
+
+/* ── Lo adaptativo de estos bloques, al final: una media query solo pisa lo que ya existe ── */
+@media (max-width: 1100px) {
+  .br { grid-template-columns: 1fr; gap: 0; }
+  .br-n { padding: 0 0 8px; }
+  .br-meta, .br-traza { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .escenarios { grid-template-columns: 1fr; }
+}
+@media (max-width: 860px) {
+  .wf-app { grid-template-columns: 1fr; }
+  .wf-rail { border-right: 0; border-bottom: 1px solid var(--regla); }
+  .wf-th, .wf-tr { grid-template-columns: 1.4fr 1fr 24px; }
+  .wf-th span:nth-child(3), .wf-th span:nth-child(4),
+  .wf-tr > *:nth-child(3), .wf-tr > *:nth-child(4) { display: none; }
+  .wf-campos, .wf-campos.dos { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .esc li { padding: 5px 0 5px 22px; }
+  .esc li > b:first-child { position: static; display: block; width: auto; margin-bottom: 3px; }
+}
+@media print {
+  .br, .flujo, .wf, .esc { break-inside: avoid; box-shadow: none; }
+}
+
+
+/* ── Diagramas de la ficha ─────────────────────────────────────── */
+.dgm .lienzo-svg svg.gp-dgm, .taxo .lienzo svg.gp-dgm { min-width: 0; }
+.gp-txt { font-family: var(--texto); fill: var(--tinta); }
+.gp-tach { text-decoration: line-through; text-decoration-color: var(--outsourcing); }
+.gp-t { font-family: var(--texto); font-size: 13px; font-weight: 700; fill: var(--tinta); }
+.gp-s { font-family: var(--texto); font-size: 11.5px; fill: var(--tinta-2); }
+.gp-e { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .1em; }
+.gp-n { font-family: var(--mono); font-size: 11px; font-weight: 700; }
+.gp-caja { fill: var(--hoja); stroke: var(--regla-2); stroke-width: 1.2; }
+.gp-caja.p1 { stroke: var(--estructural); }
+.gp-caja.p2 { stroke: var(--funcional); }
+.gp-caja.p3 { stroke: var(--aprobacion); }
+.gp-banda.p1 { fill: var(--estructural); } .gp-banda.p2 { fill: var(--funcional); } .gp-banda.p3 { fill: var(--aprobacion); }
+.gp-num.p1 { fill: var(--estructural); } .gp-num.p2 { fill: var(--funcional); } .gp-num.p3 { fill: var(--aprobacion); }
+.gp-chip-ext rect { fill: color-mix(in srgb, var(--outsourcing) 11%, var(--hoja)); stroke: color-mix(in srgb, var(--outsourcing) 45%, transparent); }
+.gp-chip-ext text { fill: color-mix(in srgb, var(--outsourcing) 80%, var(--tinta)); }
+.gp-chip-int rect { fill: color-mix(in srgb, var(--estructural) 9%, var(--hoja)); stroke: color-mix(in srgb, var(--estructural) 40%, transparent); }
+.gp-chip-int text { fill: var(--estructural); }
+.gp-chip text { font-family: var(--texto); font-size: 11px; font-weight: 600; }
+.gp-min circle { fill: color-mix(in srgb, var(--alerta) 15%, var(--hoja)); stroke: var(--alerta); stroke-width: 1.2; }
+.gp-min text { font-family: var(--mono); font-size: 10.5px; font-weight: 700; fill: color-mix(in srgb, var(--alerta) 85%, var(--tinta)); }
+.gp-lin { fill: none; stroke: var(--regla-2); stroke-width: 1.2; }
+.gp-flecha { fill: none; stroke: var(--trazo); stroke-width: 1.6; }
+.gp-flecha.fuerte { stroke: var(--estructural); stroke-width: 2; }
+.gp-flecha.vuelta { stroke-dasharray: 5 4; }
+.gp-punta { fill: var(--trazo); } .gp-punta.fuerte { fill: var(--estructural); }
+.gp-lleno { fill: var(--estructural); } .gp-lleno-t { fill: var(--sobre-acento); }
+.gp-alerta { fill: color-mix(in srgb, var(--alerta) 12%, var(--hoja)); stroke: var(--alerta); stroke-width: 1.4; }
+.gp-malo { fill: color-mix(in srgb, var(--outsourcing) 9%, var(--hoja)); stroke: var(--outsourcing); stroke-width: 1.3; }
+.gp-bueno { fill: color-mix(in srgb, var(--funcional) 9%, var(--hoja)); stroke: var(--funcional); stroke-width: 1.3; }
+.gp-anillo { stroke-width: 1.5; }
+.gp-anillo.a1 { fill: color-mix(in srgb, var(--estructural) 5%, var(--hoja)); stroke: color-mix(in srgb, var(--estructural) 45%, transparent); }
+.gp-anillo.a2 { fill: color-mix(in srgb, var(--estructural) 11%, var(--hoja)); stroke: color-mix(in srgb, var(--estructural) 60%, transparent); }
+.gp-anillo.a3 { fill: color-mix(in srgb, var(--alerta) 13%, var(--hoja)); stroke: var(--alerta); }
+.gp-anillo.a4 { fill: color-mix(in srgb, var(--outsourcing) 16%, var(--hoja)); stroke: var(--outsourcing); }
+.gp-tachado { stroke: var(--outsourcing); stroke-width: 1.2; }
+.gp-verde { fill: var(--funcional); } .gp-gris { fill: var(--tinta-3); } .gp-naranja { fill: var(--outsourcing); } .gp-azul { fill: var(--estructural); }
+/* ── PARA QUIÉN ES CADA PARTE ── Recursos Humanos, el colaborador o todo el módulo: una franja de la
+   marca por encima de los temas, en Funcionalidades, Reglas, Flujos, Pantallas e Historias. */
+.rol-h{display:flex;align-items:baseline;gap:12px;margin:64px 0 0;padding:16px 22px;border-radius:var(--r);
+  background:var(--marca);color:#fff;font-family:var(--display);font-size:24px;font-weight:600;font-stretch:87.5%;max-width:none}
+.rol-h::before{display:none}
+.rol-h .rol-k{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--marca-2)}
+.rol-d{margin:10px 0 0;color:var(--tinta-2)}
+.rail #toc .rail-sub .rail-rol a{color:var(--marca);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+:root[data-tema="oscuro"] .rail #toc .rail-sub .rail-rol a{color:var(--marca-2)}
+</style>
+<script>(function(){try{var t=localStorage.getItem('org-doc-tema');if(t==='oscuro'||t==='claro')document.documentElement.setAttribute('data-tema',t);}catch(e){}})();</script>
+<noscript><style>.sec-h{opacity:1!important;transform:none!important}</style></noscript>
+<body>
+
+<header class="masthead">
+  <div class="mh-in">
+    <div class="mh-grid">
+      <div>
+        <p class="eyebrow">Souly HR · Módulo de documentación · Propuesta de estructura</p>
+        <h1 class="mh-title">Módulo de documentación</h1>
+        <p class="mh-sub">Documentación deja de ser una lista de pantallas y pasa a ser <em>dos espacios con un solo dato debajo</em>: el <strong>Repositorio</strong>, que guarda todo lo de cada persona y su historia, y la <strong>Emisión</strong>, donde RR.HH. genera y entrega lo que la empresa firma —uno por uno, a muchos o a pedido—. Este documento define la estructura antes de construirla.</p>
+      </div>
+      <figure class="mh-fig">
+        <img src="assets/imagenes/via_rrhh_proyectos.png" width="460" height="374" alt="Tres VIA juntos: uno con planilla y traje, otro con planos y chaleco de obra, y otro con una tableta de indicadores">
+      </figure>
+    </div>
+    <dl class="ficha">
+      <div><dt>Versión</dt><dd>0.2 · Construida en el prototipo</dd></div>
+      <div><dt>Fecha</dt><dd>14 de octubre de 2026</dd></div>
+      <div><dt>Autoría</dt><dd>Paola Gema — Diseñadora UX</dd></div>
+      <div><dt>Revisa y aprueba</dt><dd>Por definir</dd></div>
+      <div><dt>Estado</dt><dd>En revisión</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="cifras-w">
+  <div class="cifras">
+    <div><b>2</b><span>espacios de trabajo</span></div>
+    <div><b>1</b><span>ciclo de vida para todo lo emitido</span></div>
+    <div><b>3</b><span>puertas para emitir</span></div>
+    <div><b>8</b><span>carpetas en el expediente</span></div>
+    <div><b>9</b><span>pantallas de RR.HH.</span></div>
+    <div><b>4</b><span>pestañas del colaborador</span></div>
+    <div><b>5</b><span>fases de trabajo</span></div>
+    <div><b>6</b><span>decisiones abiertas</span></div>
+  </div>
+</div>
+
+<div class="taxo">
+  <div class="taxo-head">
+    <div>
+      <p class="taxo-cap">El módulo, de un vistazo</p>
+      <p class="taxo-sub">Arriba lo que todo el módulo comparte. En el medio, los <strong>dos espacios</strong> de RR.HH., cada uno con sus tres pantallas. Debajo, la configuración que alimenta a cada espacio. Y abajo de todo, lo que ve el colaborador: sus cuatro pestañas salen de los mismos dos espacios.</p>
+    </div>
+    <div class="leyenda">
+      <div>
+        <p class="ley-t">Colores</p>
+        <div class="ley-i">
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--estructural)" stroke-width="2"/></svg> Repositorio</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--funcional)" stroke-width="2"/></svg> Emisión</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--aprobacion)" stroke-width="2"/></svg> Colaborador</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="lienzo">
+    <svg class="gp-dgm" viewBox="0 0 900 560" role="img" aria-labelledby="dc-d0-t dc-d0-d">
+      <title id="dc-d0-t">Mapa del módulo de documentación: dos espacios, su configuración y lo que ve el colaborador</title>
+      <desc id="dc-d0-d">Arriba, el módulo Documentación con un solo dato debajo, la bitácora que registra todo a la izquierda y los reportes que leen de los dos espacios a la derecha. En el medio, el Repositorio con Colaboradores, Por revisar y Carga masiva, y la Emisión con Emitidos, Nueva emisión y Solicitudes. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente. Debajo, la configuración: Tipos de documento alimenta al Repositorio y Modelos y plantillas a la Emisión. Abajo, el colaborador en Zona HR, Mis documentos: Pendientes y Mi expediente salen del Repositorio; Recibidos y Solicitudes, de la Emisión.</desc>
+      <defs><marker id="dc-m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="gp-punta" d="M0 0L10 5L0 10z"/></marker></defs>
+
+      <rect class="gp-caja" x="20" y="20" width="220" height="48" rx="10"/>
+      <text class="gp-t" x="36" y="41">Bitácora</text><text class="gp-s" x="36" y="58">Registra todo; solo crece</text>
+      <rect x="330" y="16" width="240" height="56" rx="12" class="gp-lleno"/>
+      <text class="gp-t gp-lleno-t" x="450" y="41" text-anchor="middle" style="fill:var(--sobre-acento)">DOCUMENTACIÓN</text>
+      <text class="gp-s" x="450" y="59" text-anchor="middle" style="fill:var(--sobre-acento)">Un solo dato debajo</text>
+      <rect class="gp-caja" x="660" y="20" width="220" height="48" rx="10"/>
+      <text class="gp-t" x="676" y="41">Reportes</text><text class="gp-s" x="676" y="58">Leen de los dos espacios</text>
+      <path class="gp-lin" d="M240 44 H330 M570 44 H660"/>
+      <path class="gp-lin" d="M450 72 V88 H225 V100 M450 88 H675 V100"/>
+
+      <rect class="gp-caja p1" x="20" y="100" width="410" height="230" rx="14"/>
+      <rect class="gp-banda p1" x="20" y="100" width="410" height="6" rx="3"/>
+      <text class="gp-e gp-azul" x="40" y="128">ESPACIO 1</text>
+      <text class="gp-t" x="40" y="146" font-size="15">Repositorio</text>
+      <text class="gp-s" x="140" y="146">Lo que hay de cada persona y su historia</text>
+      <rect class="gp-caja" x="40" y="160" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="56" y="181">Colaboradores</text><text class="gp-s" x="56" y="198">Lista y expediente de cada persona, con su historial</text>
+      <rect class="gp-caja" x="40" y="218" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="56" y="239">Por revisar</text><text class="gp-s" x="56" y="256">Lo que subieron los colaboradores y lo sin clasificar</text>
+      <rect class="gp-caja" x="40" y="276" width="370" height="44" rx="9"/>
+      <text class="gp-t" x="56" y="295">Carga masiva</text><text class="gp-s" x="56" y="311">Muchos documentos de una vez, con planilla</text>
+
+      <rect class="gp-caja p2" x="470" y="100" width="410" height="230" rx="14"/>
+      <rect class="gp-banda p2" x="470" y="100" width="410" height="6" rx="3"/>
+      <text class="gp-e gp-verde" x="490" y="128">ESPACIO 2</text>
+      <text class="gp-t" x="490" y="146" font-size="15">Emisión</text>
+      <text class="gp-s" x="566" y="146">Lo que la empresa genera y entrega</text>
+      <rect class="gp-caja" x="490" y="160" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="506" y="181">Emitidos</text><text class="gp-s" x="506" y="198">Todo lo emitido: entregar, recordar, anular, acuse</text>
+      <rect class="gp-caja" x="490" y="218" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="506" y="239">Nueva emisión</text><text class="gp-s" x="506" y="256">A una persona o a un grupo (lote)</text>
+      <rect class="gp-caja" x="490" y="276" width="370" height="44" rx="9"/>
+      <text class="gp-t" x="506" y="295">Solicitudes</text><text class="gp-s" x="506" y="311">Lo que piden los colaboradores; se atiende emitiendo</text>
+
+      <path class="gp-flecha fuerte" d="M675 330 V354 H225 V334" marker-end="url(#dc-m0)"/>
+      <text class="gp-s" x="450" y="347" text-anchor="middle" font-weight="700" fill="var(--estructural)">Todo lo emitido queda en el expediente</text>
+
+      <path class="gp-lin" d="M120 390 V330 M780 390 V330"/>
+      <rect class="gp-caja" x="20" y="390" width="410" height="54" rx="10"/>
+      <text class="gp-e gp-gris" x="36" y="410">CONFIGURACIÓN</text>
+      <text class="gp-t" x="36" y="430">Tipos de documento</text><text class="gp-s" x="176" y="430">qué se guarda, vence y exige</text>
+      <rect class="gp-caja" x="470" y="390" width="410" height="54" rx="10"/>
+      <text class="gp-e gp-gris" x="486" y="410">CONFIGURACIÓN</text>
+      <text class="gp-t" x="486" y="430">Modelos y plantillas</text><text class="gp-s" x="636" y="430">textos, numeración, aprobación</text>
+
+      <rect class="gp-caja p3" x="20" y="470" width="860" height="74" rx="14"/>
+      <text class="gp-e" x="40" y="492" fill="var(--aprobacion)">COLABORADOR · ZONA HR › MIS DOCUMENTOS</text>
+      <rect class="gp-caja" x="40" y="502" width="180" height="30" rx="8"/><text class="gp-s" x="130" y="522" text-anchor="middle" font-weight="700">Pendientes</text>
+      <rect class="gp-caja" x="230" y="502" width="180" height="30" rx="8"/><text class="gp-s" x="320" y="522" text-anchor="middle" font-weight="700">Mi expediente</text>
+      <rect class="gp-caja" x="490" y="502" width="180" height="30" rx="8"/><text class="gp-s" x="580" y="522" text-anchor="middle" font-weight="700">Recibidos</text>
+      <rect class="gp-caja" x="680" y="502" width="180" height="30" rx="8"/><text class="gp-s" x="770" y="522" text-anchor="middle" font-weight="700">Solicitudes</text>
+      <text class="gp-s" x="450" y="492" text-anchor="middle" fill="var(--tinta-3)">del Repositorio ← · → de la Emisión</text>
+    </svg>
+  </div>
+  <dl class="dgm-lista">
+    <div><dt>Repositorio</dt><dd>Responde «¿qué tiene esta persona, qué le falta y qué pasó con sus documentos?». Es su archivo y su historia.</dd></div>
+    <div><dt>Emisión</dt><dd>Responde «¿qué le entregó la empresa, a quién, cuándo y lo confirmó?». Es la fábrica de certificados, memorándums y otros.</dd></div>
+    <div><dt>La flecha</dt><dd>Lo que se emite no vive solo en la Emisión: se archiva en el expediente de la persona, en «Recibidos de la empresa».</dd></div>
+    <div><dt>Configuración</dt><dd>Cada espacio tiene la suya: los tipos de documento definen el Repositorio; los modelos, la Emisión.</dd></div>
+  </dl>
+</div>
+
+<div class="doc">
+  <aside class="rail">
+    <details open>
+      <summary>Contenido del documento</summary>
+      <div class="rail-cab">
+        <p class="rail-t">Contenido</p>
+        <div class="rail-acc">
+          <button type="button" class="rail-todo" id="rail-todo" aria-expanded="false">Desplegar</button>
+          <button type="button" class="tema" id="tema"></button>
+        </div>
+      </div>
+      <div class="bus">
+        <svg class="bus-i" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="6.8" cy="6.8" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.3 10.3 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="search" id="bus" placeholder="Buscar en el documento…" aria-label="Buscar en el documento" autocomplete="off" spellcheck="false" aria-controls="bus-r">
+        <kbd>/</kbd>
+      </div>
+      <p class="bus-n" id="bus-n" hidden></p>
+      <ul id="bus-r" hidden></ul>
+      <nav id="toc">
+        <div class="rail-s" data-sec="s0">
+          <a href="#s0"><span>00</span>La propuesta</a>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s0"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los subtítulos</span></button>
+          <ul class="rail-sub" id="sub-s0" hidden>
+            <li><a href="#p0-1">0.1 En una frase</a></li>
+            <li><a href="#p0-2">0.2 Refactorizar, no copiar</a></li>
+            <li><a href="#p0-3">0.3 Lo que se conserva</a></li>
+          </ul>
+        </div>
+        <div class="rail-s" data-sec="s1">
+          <a href="#s1"><span>01</span>Diagnóstico</a>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s1"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los subtítulos</span></button>
+          <ul class="rail-sub" id="sub-s1" hidden>
+            <li><a href="#p1-1">1.1 Cómo está hoy</a></li>
+            <li><a href="#p1-2">1.2 Qué está mezclado</a></li>
+          </ul>
+        </div>
+        <div class="rail-s" data-sec="s2">
+          <a href="#s2"><span>02</span>La nueva estructura</a>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s2"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los subtítulos</span></button>
+          <ul class="rail-sub" id="sub-s2" hidden>
+            <li><a href="#p2-1">2.1 El menú nuevo</a></li>
+            <li><a href="#p2-2">2.2 De dónde a dónde</a></li>
+            <li><a href="#p2-3">2.3 Principios</a></li>
+          </ul>
+        </div>
+        <div class="rail-s" data-sec="s3">
+          <a href="#s3"><span>03</span>Repositorio</a>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s3"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los subtítulos</span></button>
+          <ul class="rail-sub" id="sub-s3" hidden>
+            <li><a href="#p3-1">3.1 Qué entra al expediente</a></li>
+            <li><a href="#p3-2">3.2 Las carpetas</a></li>
+            <li><a href="#p3-3">3.3 El historial</a></li>
+            <li><a href="#p3-4">3.4 Por revisar</a></li>
+            <li><a href="#p3-5">3.5 Reglas del repositorio</a></li>
+          </ul>
+        </div>
+        <div class="rail-s" data-sec="s4">
+          <a href="#s4"><span>04</span>Emisión</a>
+          <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s4"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los subtítulos</span></button>
+          <ul class="rail-sub" id="sub-s4" hidden>
+            <li><a href="#p4-1">4.1 Un solo ciclo de vida</a></li>
+            <li><a href="#p4-2">4.2 Los estados</a></li>
+            <li><a href="#p4-3">4.3 Emisión masiva: el lote</a></li>
+            <li><a href="#p4-4">4.4 Solicitudes</a></li>
+            <li><a href="#p4-5">4.5 Emitidos: el registro</a></li>
+            <li><a href="#p4-6">4.6 Y los contratos</a></li>
+          </ul>
+        </div>
+        <div class="rail-s" data-sec="s5">
+          <a href="#s5"><span>05</span>El colaborador</a>
+        </div>
+        <div class="rail-s" data-sec="s6">
+          <a href="#s6"><span>06</span>Pantallas y rutas</a>
+        </div>
+        <div class="rail-s" data-sec="s7">
+          <a href="#s7"><span>07</span>Plan por fases</a>
+        </div>
+        <div class="rail-s" data-sec="s8">
+          <a href="#s8"><span>08</span>Decisiones abiertas</a>
+        </div>
+      </nav>
+    </details>
+  </aside>
+
+  <main class="cuerpo">
+
+  <section id="s0" class="first">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">00</span>
+      <h2>La propuesta</h2>
+      <p class="sec-d">Qué cambia, por qué conviene hacerlo sobre el código actual y qué no se toca.</p>
+    </header>
+
+    <h3 id="p0-1">0.1 En una frase</h3>
+    <p><strong>Documentación se ordena por las dos tareas reales de RR.HH.</strong>: guardar lo de cada persona (Repositorio) y entregarle lo que la empresa genera (Emisión). Hoy el menú se ordena por tipo de pantalla —Gestión y Configuración— y por eso partes de una misma tarea quedan en lugares distintos.</p>
+    <p>La regla que une los dos espacios: <strong>todo lo que se emite a una persona queda en su expediente</strong>. Un certificado entregado en 2026 se encuentra en su expediente en 2030, con quién lo emitió, cuándo se entregó y si lo confirmó.</p>
+
+    <h3 id="p0-2">0.2 Refactorizar, no copiar</h3>
+    <p>Se recomienda <strong>reorganizar por fases sobre el código actual</strong>, no armar una segunda versión aparte:</p>
+    <ul>
+      <li><strong>Lo que está mal es el orden de las pantallas, no los datos.</strong> Las reglas —estados, requisitos, numeración, bitácora— ya funcionan y se reutilizan tal cual.</li>
+      <li><strong>Una copia paralela se separa sola.</strong> Dos versiones sobre los mismos datos obligan a arreglar todo dos veces, y a la tercera semana dicen cosas distintas.</li>
+      <li><strong>Cada fase deja el módulo funcionando.</strong> Las direcciones viejas redirigen a las nuevas, como ya se hace con Seguimiento y Panel.</li>
+    </ul>
+    <div class="nota al"><p><strong>Antes de la fase 1 conviene guardar el estado actual en git.</strong> Hoy hay muchos archivos del módulo modificados sin commit; si una fase sale mal, ese commit es el punto al que se vuelve.</p></div>
+
+    <h3 id="p0-3">0.3 Lo que se conserva</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Pieza</th><th>Por qué se queda</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Estados deducidos</strong></td><td>Vigente, por vencer, vencido, faltante, en revisión, rechazado, exonerado: se calculan siempre de la fecha y la revisión, nunca mienten.</td></tr>
+        <tr><td><strong>Requisitos y porcentaje</strong></td><td>Saber qué le falta a cada persona es el corazón del Repositorio.</td></tr>
+        <tr><td><strong>Numeración y datos congelados</strong></td><td>Un número nunca se repite y un certificado dice el cargo del día en que se emitió.</td></tr>
+        <tr><td><strong>Bitácora</strong></td><td>Todo cambio deja su evento en la misma operación. Pasa a alimentar el historial de cada persona.</td></tr>
+        <tr><td><strong>Mis documentos</strong></td><td>El lado del colaborador ya está dividido igual: dos pestañas de Repositorio y dos de Emisión.</td></tr>
+        <tr><td><strong>Panel de emisión</strong></td><td>La vista de qué emitir, a quién y la hoja con vista previa se reutiliza en las tres puertas.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s1">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">01</span>
+      <h2>Diagnóstico</h2>
+      <p class="sec-d">Cómo está hoy el menú y qué efecto tiene en el trabajo diario de RR.HH.</p>
+    </header>
+
+    <h3 id="p1-1">1.1 Cómo está hoy</h3>
+    <div class="dia">Gestión        Colaboradores · Solicitudes · Emitir · Reportes
+Configuración  Tipos de documento · Modelos y plantillas · Carga masiva
+Colaborador    Zona HR › Mis documentos (Pendientes · Mi expediente · Recibidos · Solicitudes)</div>
+
+    <h3 id="p1-2">1.2 Qué está mezclado</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Hoy</th><th>Dónde está</th><th>Efecto</th></tr></thead>
+      <tbody>
+        <tr><td>El registro de todo lo emitido: entregar, anular, ver el acuse</td><td>Reportes › Emisiones</td><td>Para entregar un certificado hay que ir a «Reportes», que suena a consulta y no a trabajo.</td></tr>
+        <tr><td>La emisión masiva</td><td>Emitir, eligiendo varias personas</td><td>Se emite a muchos, pero no queda un lote al que volver: no se ve de un vistazo quién de los 40 confirmó.</td></tr>
+        <tr><td>Las solicitudes</td><td>Una bandeja aparte</td><td>Terminan en una emisión, pero la solicitud guarda solo una nota, no qué documento la resolvió.</td></tr>
+        <tr><td>Lo que suben los colaboradores</td><td>Un filtro dentro de Colaboradores</td><td>Revisar es tarea de todos los días y no tiene puerta propia en el menú.</td></tr>
+        <tr><td>La carga masiva</td><td>Configuración</td><td>Es trabajo del día —subir documentos—, no configuración.</td></tr>
+        <tr><td>El historial de una persona</td><td>Un botón en el expediente y la Auditoría global</td><td>No se lee como «la historia documental de esta persona».</td></tr>
+        <tr><td>Los contratos</td><td>Dentro del expediente, con lógica propia</td><td>Son a la vez documento del repositorio y documento emitido; no queda claro dónde se crean.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s2">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">02</span>
+      <h2>La nueva estructura</h2>
+      <p class="sec-d">El menú de RR.HH. en dos espacios, y adónde se muda cada cosa que hoy existe.</p>
+    </header>
+
+    <h3 id="p2-1">2.1 El menú nuevo</h3>
+    <div class="dia"><b>Repositorio</b>    Colaboradores · Por revisar · Carga masiva
+<b>Emisión</b>        Emitidos · Nueva emisión · Solicitudes
+<b>Seguimiento</b>    Reportes
+<b>Configuración</b>  Tipos de documento · Modelos y plantillas · Avisos y numeración</div>
+    <p>Cada espacio lleva <strong>un contador</strong> en la entrada que pide trabajo: «Por revisar 4», «Solicitudes 3». Así RR.HH. sabe desde el menú dónde tiene algo pendiente.</p>
+
+    <h3 id="p2-2">2.2 De dónde a dónde</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Hoy</th><th>Pasa a</th><th>Cambio</th></tr></thead>
+      <tbody>
+        <tr><td>Colaboradores</td><td>Repositorio › Colaboradores</td><td>Igual. El expediente suma la carpeta «Recibidos de la empresa» y la pestaña Historial.</td></tr>
+        <tr><td>Filtro «por revisar»</td><td>Repositorio › Por revisar</td><td>Pantalla propia: lo que subieron los colaboradores y lo sin clasificar, para aprobar o rechazar en fila.</td></tr>
+        <tr><td>Configuración › Carga masiva</td><td>Repositorio › Carga masiva</td><td>Se muda: es trabajo del día.</td></tr>
+        <tr><td>Reportes › Emisiones</td><td>Emisión › Emitidos</td><td>Pantalla propia con estados, lotes, recordatorios y anular.</td></tr>
+        <tr><td>Emitir</td><td>Emisión › Nueva emisión</td><td>Igual en lo individual; a varios crea un lote con nombre.</td></tr>
+        <tr><td>Solicitudes</td><td>Emisión › Solicitudes</td><td>Atender abre la emisión ya llenada y la solicitud guarda el documento que la resolvió.</td></tr>
+        <tr><td>Reportes</td><td>Seguimiento › Reportes</td><td>Queda solo para consultar y exportar: matriz, vencimientos, auditoría, descarga por lote.</td></tr>
+        <tr><td>Tipos de documento › avisos</td><td>Configuración › Avisos y numeración</td><td>Los parámetros generales salen de Tipos y se juntan con la numeración de los modelos.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="p2-3">2.3 Principios</h3>
+    <ol>
+      <li><strong>Un menú por tarea, no por tipo de pantalla.</strong> Quien entra a guardar no pasa por Emisión, y al revés.</li>
+      <li><strong>Lo emitido se archiva solo.</strong> Nadie tiene que «subir» un certificado que el sistema generó.</li>
+      <li><strong>Tres puertas, un solo camino.</strong> Emitir a uno, a muchos o a pedido usa la misma pantalla y deja el mismo rastro.</li>
+      <li><strong>Lo pendiente tiene puerta.</strong> Revisar y responder solicitudes son tareas diarias y van con contador en el menú.</li>
+      <li><strong>El colaborador ve el mismo dato.</strong> Sus cuatro pestañas salen de los dos espacios; no hay una copia para él.</li>
+    </ol>
+  </section>
+
+  <section id="s3">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">03</span>
+      <h2>Repositorio</h2>
+      <p class="sec-d">El expediente como archivo completo de la persona: lo que tiene, lo que le falta, lo que recibió y todo lo que pasó con eso.</p>
+    </header>
+
+    <h3 id="p3-1">3.1 Qué entra al expediente</h3>
+    <p>Cinco fuentes y un solo destino. Solo lo que sube el colaborador pasa antes por una revisión.</p>
+    <figure class="dgm">
+      <figcaption class="dgm-cap"><b>Todo desemboca en el expediente.</b> Cuatro fuentes entran directo; lo que sube el colaborador espera en «Por revisar» hasta que RR.HH. lo aprueba.</figcaption>
+      <div class="lienzo">
+        <div class="lienzo-svg">
+          <svg class="gp-dgm" viewBox="0 0 900 420" role="img" aria-labelledby="dc-d1-t dc-d1-d">
+            <title id="dc-d1-t">Las cinco fuentes del expediente</title>
+            <desc id="dc-d1-d">A la izquierda, cinco fuentes: la ficha del colaborador, la carga de RR.HH., lo que sube el colaborador, lo que emite RR.HH. y los contratos y adendas. Cada una entra con una flecha al expediente, a la derecha; la del colaborador pasa antes por Por revisar. El expediente tiene ocho carpetas: Información personal, Perfil profesional, Recursos y activos, Documentos agregados, Contratos, Recibidos de la empresa, Historial y Papelera.</desc>
+            <defs><marker id="dc-m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="gp-punta" d="M0 0L10 5L0 10z"/></marker></defs>
+            <rect class="gp-caja" x="20" y="24" width="290" height="58" rx="10"/>
+            <text class="gp-t" x="36" y="47">Ficha del colaborador</text><text class="gp-s" x="36" y="66">Se lee, no se copia: la ficha es la dueña</text>
+            <rect class="gp-caja" x="20" y="100" width="290" height="58" rx="10"/>
+            <text class="gp-t" x="36" y="123">Carga de RR.HH.</text><text class="gp-s" x="36" y="142">Uno por uno o masiva; entra aprobada</text>
+            <rect class="gp-caja p3" x="20" y="176" width="290" height="58" rx="10"/>
+            <text class="gp-t" x="36" y="199">Lo que sube el colaborador</text><text class="gp-s" x="36" y="218">Desde Mis documentos, web o celular</text>
+            <rect class="gp-caja p2" x="20" y="252" width="290" height="58" rx="10"/>
+            <text class="gp-t" x="36" y="275">Lo que emite RR.HH.</text><text class="gp-s" x="36" y="294">Certificados, memorándums y otros</text>
+            <rect class="gp-caja" x="20" y="328" width="290" height="58" rx="10"/>
+            <text class="gp-t" x="36" y="351">Contratos y adendas</text><text class="gp-s" x="36" y="370">Generados o cargados firmados</text>
+
+            <rect class="gp-alerta" x="356" y="180" width="170" height="50" rx="10"/>
+            <text class="gp-t" x="441" y="201" text-anchor="middle">Por revisar</text><text class="gp-s" x="441" y="219" text-anchor="middle">RR.HH. aprueba o rechaza</text>
+
+            <path class="gp-flecha" d="M310 53 H576" marker-end="url(#dc-m1)"/>
+            <path class="gp-flecha" d="M310 129 H576" marker-end="url(#dc-m1)"/>
+            <path class="gp-flecha" d="M310 205 H354" marker-end="url(#dc-m1)"/>
+            <path class="gp-flecha" d="M526 205 H576" marker-end="url(#dc-m1)"/>
+            <path class="gp-flecha fuerte" d="M310 281 H576" marker-end="url(#dc-m1)"/>
+            <path class="gp-flecha" d="M310 357 H576" marker-end="url(#dc-m1)"/>
+            <text class="gp-s" x="443" y="274" text-anchor="middle" font-weight="700" fill="var(--estructural)">se archiva solo</text>
+
+            <rect class="gp-caja p1" x="580" y="20" width="300" height="380" rx="14"/>
+            <rect class="gp-banda p1" x="580" y="20" width="300" height="6" rx="3"/>
+            <text class="gp-e gp-azul" x="600" y="50">EXPEDIENTE DE LA PERSONA</text>
+            <text class="gp-s" x="600" y="80">Lo suyo</text>
+            <text class="gp-t" x="616" y="102">Información personal</text>
+            <text class="gp-t" x="616" y="124">Perfil profesional</text>
+            <text class="gp-t" x="616" y="146">Recursos y activos</text>
+            <text class="gp-t" x="616" y="168">Documentos agregados</text>
+            <path class="gp-lin" d="M600 186 H860"/>
+            <text class="gp-s" x="600" y="208">Lo de la relación con la empresa</text>
+            <text class="gp-t" x="616" y="230">Contratos</text>
+            <text class="gp-t" x="616" y="252" fill="var(--funcional)">Recibidos de la empresa</text>
+            <path class="gp-lin" d="M600 270 H860"/>
+            <text class="gp-s" x="600" y="292">Lo que pasó</text>
+            <text class="gp-t" x="616" y="314">Historial</text>
+            <text class="gp-t" x="616" y="336">Papelera</text>
+            <text class="gp-s" x="600" y="372">Nada se borra: se versiona, se anula</text>
+            <text class="gp-s" x="600" y="388">o va a la papelera con motivo.</text>
+          </svg>
+        </div>
+      </div>
+    </figure>
+
+    <h3 id="p3-2">3.2 Las carpetas</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Carpeta</th><th>Qué guarda</th><th>Quién la llena</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Información personal</strong></td><td>Documento de identidad, certificado de nacimiento, croquis, licencias, foto, garante</td><td>Ficha, RR.HH. y colaborador</td></tr>
+        <tr><td><strong>Perfil profesional</strong></td><td>Títulos, certificaciones profesionales</td><td>Ficha, RR.HH. y colaborador</td></tr>
+        <tr><td><strong>Recursos y activos</strong></td><td>Actas de entrega de equipo, uniforme, EPP</td><td>RR.HH.</td></tr>
+        <tr><td><strong>Documentos agregados</strong></td><td>Lo que no encaja en otra carpeta, con el nombre que le ponga RR.HH.</td><td>RR.HH.</td></tr>
+        <tr><td><strong>Contratos</strong></td><td>Contratos y adendas con sus versiones: generado, firmado, reemplazado</td><td>RR.HH.</td></tr>
+        <tr><td><strong>Recibidos de la empresa</strong> <span class="p p-s">Nuevo nombre</span></td><td>Todo lo emitido a esta persona, con su número, su estado y su acuse. Hoy se llama «Emitidos».</td><td>El sistema, al emitir</td></tr>
+        <tr><td><strong>Historial</strong> <span class="p p-s">Nuevo</span></td><td>La línea de tiempo de la persona (ver 3.3)</td><td>El sistema, desde la bitácora</td></tr>
+        <tr><td><strong>Papelera</strong></td><td>Lo eliminado, con motivo; se puede recuperar</td><td>RR.HH.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="p3-3">3.3 El historial</h3>
+    <p>Hoy el historial de una persona está repartido entre un botón del expediente y la Auditoría global. Se propone una <strong>pestaña Historial en el expediente</strong>: la bitácora de esa persona, leída como una línea de tiempo y no como un registro técnico.</p>
+    <div class="dia">14 oct 2026  <b>Recibió</b> CERT-0004/2026 · Certificado de trabajo · lo confirmó desde el celular
+12 oct 2026  <b>Subió</b> su título · quedó en revisión
+11 oct 2026  <b>Pedido</b> RR.HH. le pidió el título
+08 oct 2026  <b>Rechazado</b> Certificación profesional · «la foto está cortada»
+02 feb 2025  <b>Contrato</b> CTR-00071/2025 · indefinido · firmado</div>
+    <p>Se filtra por tipo de evento (documentos, emisiones, contratos, solicitudes) y se descarga junto con el expediente.</p>
+
+    <h3 id="p3-4">3.4 Por revisar</h3>
+    <p>Una pantalla con una sola tarea: <strong>revisar en fila</strong>. A la izquierda la lista —lo que subieron los colaboradores y lo sin clasificar—, a la derecha el documento abierto con <strong>Aprobar</strong>, <strong>Rechazar con motivo</strong> y <strong>Corregir fechas</strong>. Al resolver uno, se abre el siguiente. El contador del menú baja con cada uno.</p>
+
+    <h3 id="p3-5">3.5 Reglas del repositorio</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Regla</th><th>Qué significa</th></tr></thead>
+      <tbody>
+        <tr><td class="id">REP‑01</td><td><strong>Nada se borra.</strong> Reemplazar crea una versión; eliminar manda a la papelera con motivo; un emitido se anula, no se borra.</td></tr>
+        <tr><td class="id">REP‑02</td><td><strong>El estado se deduce.</strong> Nunca se guarda «vigente»: se calcula con la fecha de hoy.</td></tr>
+        <tr><td class="id">REP‑03</td><td><strong>La ficha es la dueña de sus archivos.</strong> Se leen, no se copian; si dos fuentes traen el mismo documento, se ve el más nuevo.</td></tr>
+        <tr><td class="id">REP‑04</td><td><strong>Lo del colaborador no cuenta hasta aprobarse.</strong> Mientras tanto está «en revisión».</td></tr>
+        <tr><td class="id">REP‑05</td><td><strong>Lo emitido se archiva solo</strong> en «Recibidos de la empresa», en el mismo momento en que se emite.</td></tr>
+        <tr><td class="id">REP‑06</td><td><strong>Cada acción deja rastro</strong> en la bitácora, y el historial de la persona la muestra.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s4">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">04</span>
+      <h2>Emisión</h2>
+      <p class="sec-d">Memorándums, certificados y otros: tres maneras de empezar, un solo camino hasta las manos del colaborador.</p>
+    </header>
+
+    <h3 id="p4-1">4.1 Un solo ciclo de vida</h3>
+    <p>Da igual cómo empiece —a una persona, a un grupo o porque alguien lo pidió—: <strong>todo emitido recorre los mismos estados</strong> y queda en el mismo registro. Lo único que cambia es su origen, que queda anotado.</p>
+    <figure class="dgm">
+      <figcaption class="dgm-cap"><b>Tres puertas, un camino.</b> Las tres entradas llegan a la misma pantalla de emisión. Desde ahí, cada documento pasa por los mismos estados y se archiva en el expediente.</figcaption>
+      <div class="lienzo">
+        <div class="lienzo-svg">
+          <svg class="gp-dgm" viewBox="0 0 900 400" role="img" aria-labelledby="dc-d2-t dc-d2-d">
+            <title id="dc-d2-t">El ciclo de vida de un documento emitido</title>
+            <desc id="dc-d2-d">A la izquierda, tres puertas: individual, masiva y por solicitud. Las tres llegan a Nueva emisión, donde se elige el modelo, los destinatarios y se ve la hoja. Si el modelo lo pide, pasa por aprobación. Luego queda Emitido, con número propio. De ahí puede anularse, con motivo, o entregarse por la app, correo o impreso. Entregado pasa a Acusado cuando el colaborador confirma. Abajo: cada emitido queda en el expediente de la persona; la emisión masiva deja un lote con su avance, y la solicitud se marca atendida con el documento vinculado.</desc>
+            <defs><marker id="dc-m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="gp-punta" d="M0 0L10 5L0 10z"/></marker></defs>
+            <text class="gp-e gp-gris" x="20" y="22">TRES PUERTAS</text>
+            <rect class="gp-caja" x="20" y="34" width="200" height="60" rx="10"/>
+            <text class="gp-t" x="36" y="57">Individual</text><text class="gp-s" x="36" y="76">A una persona, desde el menú</text>
+            <rect class="gp-caja" x="20" y="124" width="200" height="60" rx="10"/>
+            <text class="gp-t" x="36" y="147">Masiva</text><text class="gp-s" x="36" y="166">A un grupo: crea un lote</text>
+            <rect class="gp-caja p3" x="20" y="214" width="200" height="60" rx="10"/>
+            <text class="gp-t" x="36" y="237">Por solicitud</text><text class="gp-s" x="36" y="256">La pidió el colaborador</text>
+            <path class="gp-lin" d="M220 64 H244 V154 M220 244 H244 V154" style="stroke:var(--trazo);stroke-width:1.6"/>
+            <path class="gp-flecha" d="M220 154 H266" marker-end="url(#dc-m2)"/>
+
+            <rect class="gp-caja p2" x="270" y="118" width="160" height="72" rx="10"/>
+            <text class="gp-t" x="286" y="141">Nueva emisión</text><text class="gp-s" x="286" y="159">Modelo, destinatarios</text><text class="gp-s" x="286" y="175">y vista previa</text>
+            <path class="gp-flecha" d="M430 154 H466" marker-end="url(#dc-m2)"/>
+            <rect class="gp-caja" x="470" y="124" width="140" height="60" rx="10" stroke-dasharray="5 4"/>
+            <text class="gp-t" x="486" y="147">Aprobación</text><text class="gp-s" x="486" y="166">si el modelo la pide</text>
+            <path class="gp-flecha" d="M610 154 H646" marker-end="url(#dc-m2)"/>
+            <rect class="gp-bueno" x="650" y="124" width="100" height="60" rx="10"/>
+            <text class="gp-t" x="666" y="147">Emitido</text><text class="gp-s" x="666" y="166">con número</text>
+            <path class="gp-flecha" d="M750 154 H776" marker-end="url(#dc-m2)"/>
+            <rect class="gp-malo" x="780" y="124" width="100" height="60" rx="10"/>
+            <text class="gp-t" x="796" y="147">Anulado</text><text class="gp-s" x="796" y="166">con motivo</text>
+            <path class="gp-flecha" d="M700 184 V236" marker-end="url(#dc-m2)"/>
+            <rect class="gp-bueno" x="620" y="240" width="160" height="60" rx="10"/>
+            <text class="gp-t" x="636" y="263">Entregado</text><text class="gp-s" x="636" y="282">app, correo o impreso</text>
+            <path class="gp-flecha" d="M780 270 H806" marker-end="url(#dc-m2)"/>
+            <rect class="gp-bueno" x="810" y="240" width="70" height="60" rx="10"/>
+            <text class="gp-t" x="822" y="263">Acusado</text><text class="gp-s" x="822" y="282">confirmó</text>
+            <text class="gp-s" x="620" y="322">Sin confirmar a los X días → recordatorio</text>
+
+            <path class="gp-lin" d="M20 340 H880"/>
+            <text class="gp-e gp-azul" x="20" y="364">SIEMPRE</text>
+            <text class="gp-s" x="20" y="384">Cada emitido queda en el expediente › Recibidos de la empresa.</text>
+            <text class="gp-e gp-verde" x="470" y="364">SEGÚN LA PUERTA</text>
+            <text class="gp-s" x="470" y="384">Masiva: deja un lote con su avance · Solicitud: se cierra con el documento</text>
+          </svg>
+        </div>
+      </div>
+    </figure>
+
+    <h3 id="p4-2">4.2 Los estados</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Estado</th><th>Cuándo</th><th>Qué se puede hacer</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pendiente de aprobación</strong></td><td>El modelo pide visto bueno (por ejemplo, certificado con sueldo)</td><td>Aprobar o devolver</td></tr>
+        <tr><td><strong>Emitido</strong></td><td>Tiene número y texto congelado; todavía no se entregó</td><td>Entregar, descargar, anular</td></tr>
+        <tr><td><strong>Entregado</strong></td><td>Se envió por la app, correo o se entregó impreso</td><td>Recordar, descargar, anular</td></tr>
+        <tr><td><strong>Acusado</strong></td><td>El colaborador confirmó que lo recibió</td><td>Descargar</td></tr>
+        <tr><td><strong>Anulado</strong></td><td>Se anuló con motivo; el número queda quemado</td><td>Ver por qué</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="p4-3">4.3 Emisión masiva: el lote</h3>
+    <p>Emitir a un grupo crea un <strong>lote</strong>: una entidad con nombre, modelo, fecha, quién lo emitió y la lista de destinatarios. Cada persona recibe su propio documento con su número; el lote los junta para poder seguirlos.</p>
+    <div class="dia"><b>Memorándum de felicitación · Meta Q3 Ventas</b>       40 personas · 14 oct 2026 · Paola Arce
+Entregados 40 de 40   ·   Confirmados 31 de 40   ·   Sin confirmar 9   →  [Recordar a los 9]</div>
+    <ul>
+      <li><strong>Se elige a quién</strong> con los mismos filtros de siempre: sucursal, unidad organizacional, cargo, o a mano.</li>
+      <li><strong>Antes de emitir</strong> se ve una hoja de ejemplo y la lista de quiénes no se puede emitir y por qué (por ejemplo, sin contrato vigente).</li>
+      <li><strong>Después</strong>, el lote se abre desde Emitidos y muestra el avance de entrega y de acuse, con un botón para recordar a los que faltan.</li>
+    </ul>
+
+    <h3 id="p4-4">4.4 Solicitudes</h3>
+    <p>Una solicitud no es otro trámite: es <strong>una puerta de entrada a la emisión</strong>. Atenderla abre «Nueva emisión» con la persona y el modelo ya puestos; al emitir, la solicitud se marca atendida y <strong>guarda el número del documento</strong> que la resolvió.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Tipo de solicitud</th><th>Se atiende con</th><th>Queda vinculado</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Certificado</strong></td><td>Nueva emisión con el modelo pedido</td><td>El emitido nuevo</td></tr>
+        <tr><td><strong>Copia</strong></td><td>Elegir el documento del repositorio y enviarlo</td><td>El documento enviado y la entrega</td></tr>
+        <tr><td><strong>Corrección</strong></td><td>Anular el emitido con error y emitir el corregido</td><td>El anulado y el nuevo</td></tr>
+        <tr><td><strong>Rechazo</strong></td><td>Un motivo escrito que el colaborador lee</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p>Plazo de respuesta: 2 días hábiles, con aviso de lo atrasado.</p>
+
+    <h3 id="p4-5">4.5 Emitidos: el registro</h3>
+    <p>La pantalla de trabajo de la Emisión. Una tabla con todo lo emitido y dos vistas:</p>
+    <ul>
+      <li><strong>Por documento:</strong> cada emitido con número, persona, modelo, origen (individual, lote, solicitud), estado y acuse.</li>
+      <li><strong>Por lote:</strong> cada emisión masiva con su avance.</li>
+    </ul>
+    <p>Filtros por estado, modelo, origen, fecha, sucursal y unidad organizacional. Acciones en fila: entregar, recordar, descargar, anular. Lo que hoy está en Reportes › Emisiones se muda aquí.</p>
+
+    <h3 id="p4-6">4.6 Y los contratos</h3>
+    <p>Los contratos son las dos cosas a la vez: se <strong>generan</strong> como un emitido (desde plantilla, con número) y se <strong>guardan</strong> en el repositorio con sus versiones. Se propone que <strong>se creen desde Emisión</strong> —«Nueva emisión › Contrato»— y que <strong>vivan en el expediente</strong>, carpeta Contratos, donde se renuevan con adenda y se finalizan. Queda como decisión abierta (ver <span class="id">ABIERTA‑03</span>).</p>
+  </section>
+
+  <section id="s5">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">05</span>
+      <h2>El colaborador</h2>
+      <p class="sec-d">Mis documentos ya está dividido igual que la propuesta. Solo se suman detalles.</p>
+    </header>
+    <div class="tbl"><table>
+      <thead><tr><th>Pestaña</th><th>Espacio</th><th>Qué ve y hace</th><th>Cambio propuesto</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pendientes</strong></td><td>Repositorio</td><td>Lo que tiene que entregar y por qué; sube el archivo o una foto</td><td>—</td></tr>
+        <tr><td><strong>Mi expediente</strong></td><td>Repositorio</td><td>Sus contratos y documentos por carpeta</td><td>Sumar su historial resumido</td></tr>
+        <tr><td><strong>Recibidos</strong></td><td>Emisión</td><td>Lo que RR.HH. le entregó; lo lee y confirma</td><td>Avisar en Inicio lo que está sin confirmar</td></tr>
+        <tr><td><strong>Solicitudes</strong></td><td>Emisión</td><td>Pide certificado, copia o corrección; ve la respuesta</td><td>Ver el documento que resolvió su pedido</td></tr>
+      </tbody>
+    </table></div>
+    <p>Sin firma desde la app: el contrato se firma en RR.HH. y el colaborador solo lo consulta.</p>
+  </section>
+
+  <section id="s6">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">06</span>
+      <h2>Pantallas y rutas</h2>
+      <p class="sec-d">Cada pantalla de RR.HH. con su dirección. Cada una tiene la suya, una al lado de la otra y no una dentro de otra, para que el menú encienda una sola entrada. Las direcciones viejas redirigen.</p>
+    </header>
+    <div class="tbl"><table>
+      <thead><tr><th>Espacio</th><th>Pantalla</th><th>Ruta</th><th>Ruta de antes</th></tr></thead>
+      <tbody>
+        <tr><td>Repositorio</td><td>Colaboradores</td><td><code>/documentos/colaboradores</code></td><td><code>/documentos/expedientes</code></td></tr>
+        <tr><td>Repositorio</td><td>Expediente y sus carpetas</td><td><code>/documentos/colaboradores/:id/:carpeta</code></td><td><code>/documentos/expedientes/:id/:carpeta</code></td></tr>
+        <tr><td>Repositorio</td><td>Historial de la persona</td><td><code>/documentos/colaboradores/:id/historial</code></td><td>una ventana del expediente</td></tr>
+        <tr><td>Repositorio</td><td>Por revisar</td><td><code>/documentos/por-revisar</code></td><td>filtro <code>?pend=revision</code></td></tr>
+        <tr><td>Repositorio</td><td>Carga masiva</td><td><code>/documentos/carga-masiva</code></td><td><code>/documentos/lote</code></td></tr>
+        <tr><td>Emisión</td><td>Emitidos (por documento y por lote)</td><td><code>/documentos/emitidos</code></td><td>Reportes › Emisiones</td></tr>
+        <tr><td>Emisión</td><td>Un lote</td><td><code>/documentos/emitidos/lotes/:id</code></td><td>—</td></tr>
+        <tr><td>Emisión</td><td>Nueva emisión</td><td><code>/documentos/emitir</code></td><td>igual</td></tr>
+        <tr><td>Emisión</td><td>Solicitudes</td><td><code>/documentos/solicitudes</code></td><td><code>/documentos/bandeja</code></td></tr>
+        <tr><td>Seguimiento</td><td>Reportes</td><td><code>/documentos/reportes</code></td><td>igual, sin Emisiones</td></tr>
+        <tr><td>Configuración</td><td>Avisos y numeración</td><td><code>/documentos/configuracion/avisos</code></td><td>pestañas de Tipos y de Modelos</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s7">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">07</span>
+      <h2>Plan por fases</h2>
+      <p class="sec-d">Cinco fases, cada una se puede probar sola y deja el módulo funcionando.</p>
+    </header>
+    <div class="tbl"><table>
+      <thead><tr><th>Fase</th><th>Qué se hace</th><th>Qué se ve al terminar</th></tr></thead>
+      <tbody>
+        <tr><td class="id">0</td><td>Commit del estado actual. Sin cambios de pantalla.</td><td>Un punto seguro al que volver.</td></tr>
+        <tr><td class="id">1</td><td>Menú en dos espacios, rutas nuevas con redirecciones, Carga masiva al Repositorio, contadores en el menú.</td><td>El mismo módulo, ordenado por tarea.</td></tr>
+        <tr><td class="id">2</td><td>Pantalla Emitidos: se muda desde Reportes, con origen y filtros. «Emitidos» del expediente pasa a llamarse «Recibidos de la empresa».</td><td>Entregar y anular se hace en Emisión, no en Reportes.</td></tr>
+        <tr><td class="id">3</td><td>Lotes: la emisión masiva crea un lote con nombre, avance de entrega y acuse, y botón de recordar.</td><td>Se sabe quién de los 40 confirmó.</td></tr>
+        <tr><td class="id">4</td><td>Solicitudes integradas: atender abre la emisión llenada y la solicitud guarda el documento que la resolvió; el colaborador lo ve.</td><td>Pedido y documento quedan unidos.</td></tr>
+        <tr><td class="id">5</td><td>Repositorio: pantalla Por revisar en fila y pestaña Historial en el expediente.</td><td>Revisar y consultar la historia de una persona tienen su lugar.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="nota"><p><strong>Por qué en este orden.</strong> La fase 1 es la que más cambia la sensación del módulo y la que menos riesgo tiene: mueve entradas, no lógica. Las fases 2 a 4 ordenan la Emisión, que es donde hoy está la mayor confusión. La 5 completa el Repositorio.</p></div>
+  </section>
+
+  <section id="s8">
+    <header class="sec-h">
+      <span class="sec-n" aria-hidden="true">08</span>
+      <h2>Decisiones abiertas</h2>
+      <p class="sec-d">Lo que hay que decidir antes o durante la construcción.</p>
+    </header>
+    <div class="tbl"><table>
+      <thead><tr><th>Código</th><th>Pregunta</th><th>Propuesta</th></tr></thead>
+      <tbody>
+        <tr><td class="id">ABIERTA‑01</td><td>¿El jefe de área ve el Repositorio de su gente, la Emisión o los dos?</td><td>Solo el Repositorio de su unidad organizacional, en lectura.</td></tr>
+        <tr><td class="id">ABIERTA‑02</td><td>¿Cuántos días sin confirmar antes de recordar?</td><td>3 días hábiles, configurable en Avisos y numeración.</td></tr>
+        <tr><td class="id">ABIERTA‑03</td><td>¿Los contratos se crean desde Emisión o desde el expediente?</td><td>Se crean en Emisión y viven en el expediente (4.6).</td></tr>
+        <tr><td class="id">ABIERTA‑04</td><td>¿Se mantiene la aprobación previa de algunos modelos?</td><td>Sí, solo para los que lo piden (certificado con sueldo).</td></tr>
+        <tr><td class="id">ABIERTA‑05</td><td>¿Carlos y María se dan de alta en el directorio de Colaboradores?</td><td>Sí, para que la demo no tenga personas que solo existen en Documentación.</td></tr>
+        <tr><td class="id">ABIERTA‑06</td><td>¿Las boletas de pago entran al Repositorio?</td><td>Cuando exista Planillas, como una carpeta más que llena el sistema.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  </main>
+</div>
+
+<footer class="pie">
+  <div>Módulo de documentación — propuesta de estructura, versión 0.2, 14 de octubre de 2026. Souly HR. Describe cómo se reorganiza el módulo antes de construirlo, con los mismos capítulos que el documento de <a href="gestion-de-personas.html">Gestión de personas</a>. <strong>La estructura ya está construida en el prototipo; las decisiones abiertas siguen pendientes.</strong> <a href="documentacion.html">Volver al índice de la documentación</a>.</div>
+</footer>
+
+<script>
+(function(){
+  var toc   = document.getElementById('toc');
+  var links = Array.prototype.slice.call(toc.querySelectorAll('.rail-s > a'));
+  var secs  = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var map   = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+
+  /* ---------- Índice desplegable ---------- */
+  var grupos = Array.prototype.slice.call(toc.querySelectorAll('.rail-s'));
+  var todo   = document.getElementById('rail-todo');
+
+  function abrir(g, si){
+    var b = g.querySelector('.rail-x');
+    var u = g.querySelector('.rail-sub');
+    if (!b || !u) return;
+    b.setAttribute('aria-expanded', si ? 'true' : 'false');
+    u.hidden = !si;
+  }
+
+  grupos.forEach(function(g){
+    var b = g.querySelector('.rail-x');
+    if (!b) return;
+    b.addEventListener('click', function(){
+      var abierto = b.getAttribute('aria-expanded') === 'true';
+      abrir(g, !abierto);
+      /* Lo que se abre a mano se queda abierto aunque el scroll pase a otra sección */
+      g.setAttribute('data-fijo', abierto ? '' : '1');
+    });
+  });
+
+  if (todo) {
+    todo.addEventListener('click', function(){
+      var expandir = todo.getAttribute('aria-expanded') !== 'true';
+      grupos.forEach(function(g){ abrir(g, expandir); g.setAttribute('data-fijo', expandir ? '1' : ''); });
+      todo.setAttribute('aria-expanded', expandir ? 'true' : 'false');
+      todo.textContent = expandir ? 'Plegar' : 'Desplegar';
+    });
+  }
+
+  /* ---------- Resaltar y abrir la sección que se está leyendo ---------- */
+  if ('IntersectionObserver' in window) {
+    var visible = {};
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) visible[e.target.id] = 1; else delete visible[e.target.id];
+      });
+      var first = secs.filter(function(s){ return visible[s.id]; })[0];
+      if (!first) return;
+      links.forEach(function(a){ a.classList.remove('on'); });
+      if (map[first.id]) map[first.id].classList.add('on');
+      grupos.forEach(function(g){
+        if (g.getAttribute('data-fijo') === '1') return;
+        abrir(g, g.getAttribute('data-sec') === first.id);
+      });
+    }, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+    secs.forEach(function(s){ obs.observe(s); });
+  }
+
+  /* ---------- Cada sección aparece al llegar a ella ---------- */
+  var cabeceras = Array.prototype.slice.call(document.querySelectorAll('.sec-h'));
+  var quieto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!('IntersectionObserver' in window) || quieto) {
+    cabeceras.forEach(function(c){ c.classList.add('ver'); });
+  } else {
+    var rev = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        e.target.classList.add('ver');
+        rev.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.01 });
+    cabeceras.forEach(function(c){ rev.observe(c); });
+  }
+
+  /* ---------- Buscador ---------- */
+  var input = document.getElementById('bus');
+  var caja  = document.getElementById('bus-r');
+  var nota  = document.getElementById('bus-n');
+  if (!input || !caja || !nota) return;
+
+  /* Normaliza sin cambiar la longitud del texto, para poder resaltar por posición.
+     El guion de RF‑ORG‑001 es U+2011: se iguala al normal para que "BR-ORG-007" encuentre "BR‑ORG‑007". */
+  function norm(s){
+    return s.toLowerCase()
+      .replace(/[áàäâã]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i')
+      .replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/ñ/g,'n')
+      .replace(/[‐‑‒–—]/g,'-');
+  }
+
+  /* Índice de texto completo. Recorre el documento en orden y guarda cada bloque
+     —títulos, párrafos, viñetas, filas de tabla y diagramas— junto al subtítulo bajo
+     el que vive, para poder decir de dónde salió cada resultado.
+     El peso ordena: 0 títulos, 1 requisitos, 2 el resto del texto. */
+  var idx = [], auto = 0;
+
+  function alta(el, texto, contexto, peso, codigo){
+    texto = texto.replace(/\s+/g, ' ').trim();
+    if (texto.length < 3) return;
+    if (!el.id) el.id = 'd' + (auto++);
+    idx.push({
+      t: texto,
+      n: norm((codigo ? codigo + ' ' : '') + texto + ' ' + contexto),
+      s: contexto,
+      h: '#' + el.id,
+      w: peso,
+      c: codigo || null
+    });
+  }
+
+  secs.forEach(function(sec){
+    var h2 = sec.querySelector('h2');
+    var nombre = sec.id;
+    if (h2) {
+      var sp = h2.querySelector('span');
+      nombre = sp ? h2.textContent.replace(sp.textContent, '').trim() : h2.textContent.trim();
+    }
+    /* El número entra en el texto buscable: alguien puede escribir "06" en vez de "roadmap" */
+    var num = sec.querySelector('.sec-n');
+    var rotulo = (num && num.textContent.trim() !== '—') ? num.textContent.trim() + ' · ' + nombre : nombre;
+    alta(sec, rotulo, 'Sección', 0);
+
+    var ctx = nombre;
+    Array.prototype.slice.call(sec.querySelectorAll('h3,h4,p,li,tr,.dia')).forEach(function(el){
+      var tag = el.nodeName;
+
+      if (tag === 'H3' || tag === 'H4') {
+        ctx = el.textContent.replace(/\s+/g, ' ').trim();
+        alta(el, ctx, nombre, 0);
+        return;
+      }
+
+      if (tag === 'TR') {
+        if (el.parentNode && el.parentNode.nodeName === 'THEAD') return;   /* la cabecera no es contenido */
+        var pri = el.querySelector('td.id');
+        var cod = null;
+        /* Es la definición de un requisito solo si el código abre la fila.
+           En 8.1 el código va en la segunda celda: ahí es una referencia, no una definición. */
+        if (pri && !pri.previousElementSibling && /^(RF|RNF|BR|F)[\u2010-\u2015-]ORG[\u2010-\u2015-]\d+$|^(FUERA|ABIERTA)[\u2010-\u2015-]\d+$/.test(pri.textContent.trim())) {
+          cod = pri.textContent.trim();
+          if (!el.id) el.id = 'r-' + cod.replace(/[^A-Za-z0-9]/g, '');
+        }
+        var celdas = Array.prototype.slice.call(el.children).map(function(c){ return c.textContent.trim(); });
+        if (cod) celdas.shift();
+        alta(el, celdas.filter(Boolean).join(' · '), ctx, cod ? 1 : 2, cod);
+        return;
+      }
+
+      alta(el, el.textContent, ctx, 2);
+    });
+  });
+
+  /* Devuelve una ventana de texto alrededor de la coincidencia: en un párrafo largo,
+     mostrar el principio no sirve de nada si lo que se buscó está en el medio. */
+  function recortar(txt, q){
+    if (txt.length <= 120) return txt;
+    var i = q ? norm(txt).indexOf(q) : -1;
+    if (i < 70) return txt.slice(0, 120) + '…';
+    var ini = i - 45;
+    return '…' + txt.slice(ini, ini + 120) + (ini + 120 < txt.length ? '…' : '');
+  }
+
+  function pintar(txt, q){
+    var frag = document.createDocumentFragment();
+    var i = q ? norm(txt).indexOf(q) : -1;
+    if (i < 0) { frag.appendChild(document.createTextNode(txt)); return frag; }
+    frag.appendChild(document.createTextNode(txt.slice(0, i)));
+    var m = document.createElement('mark');
+    m.textContent = txt.slice(i, i + q.length);
+    frag.appendChild(m);
+    frag.appendChild(document.createTextNode(txt.slice(i + q.length)));
+    return frag;
+  }
+
+  function limpiar(){
+    caja.innerHTML = '';
+    caja.hidden = true;
+    nota.hidden = true;
+    toc.hidden = false;
+    if (todo) todo.hidden = false;
+  }
+
+  function buscar(){
+    var crudo = input.value.trim();
+    if (crudo.length < 2) { limpiar(); return; }
+    var q = norm(crudo);
+
+    var hits = idx.filter(function(e){ return e.n.indexOf(q) >= 0; });
+    hits.sort(function(a, b){ return a.w - b.w; });   /* títulos, después requisitos, después el cuerpo */
+
+    toc.hidden = true;
+    if (todo) todo.hidden = true;
+    caja.innerHTML = '';
+
+    if (!hits.length) {
+      nota.textContent = 'Nada coincide con «' + crudo + '».';
+      nota.hidden = false;
+      caja.hidden = true;
+      return;
+    }
+
+    var tope = hits.slice(0, 30);
+    nota.textContent = (hits.length === 1 ? '1 resultado' : hits.length + ' resultados')
+      + (hits.length > tope.length ? ' — se muestran los primeros 30' : '');
+    nota.hidden = false;
+
+    tope.forEach(function(e){
+      var li = document.createElement('li');
+      var a  = document.createElement('a');
+      a.href = e.h;
+
+      var s = document.createElement('span');
+      s.className = 'bus-s';
+      s.textContent = e.s;
+      a.appendChild(s);
+
+      if (e.c) {
+        var b = document.createElement('span');
+        b.className = 'bus-c';
+        b.appendChild(pintar(e.c, q));
+        a.appendChild(b);
+        a.appendChild(document.createTextNode(' '));
+      }
+      a.appendChild(pintar(recortar(e.t, q), q));
+
+      a.addEventListener('click', function(){
+        var destino = document.getElementById(e.h.slice(1));
+        input.value = '';
+        limpiar();
+        if (!destino) return;
+        /* El resultado puede ser un párrafo en medio de una sección larga:
+           se lo marca un momento para que el ojo lo encuentre al llegar. */
+        destino.classList.add('hit');
+        setTimeout(function(){ destino.classList.remove('hit'); }, 2400);
+      });
+
+      li.appendChild(a);
+      caja.appendChild(li);
+    });
+  }
+
+  input.addEventListener('input', buscar);
+  input.addEventListener('search', buscar);
+
+  input.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape') { input.value = ''; limpiar(); input.blur(); }
+    if (ev.key === 'Enter') {
+      var primero = caja.querySelector('a');
+      if (primero) { ev.preventDefault(); primero.click(); }
+    }
+  });
+
+  /* "/" abre el buscador desde cualquier parte del documento */
+  document.addEventListener('keydown', function(ev){
+    if (ev.key !== '/' || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    var t = ev.target, n = t && t.nodeName;
+    if (n === 'INPUT' || n === 'TEXTAREA' || n === 'SELECT' || (t && t.isContentEditable)) return;
+    ev.preventDefault();
+    var det = input.closest('details');
+    if (det) det.open = true;
+    input.focus();
+  });
+})();
+</script>
+
+
+
+
+
+
+
+<script>
+/* ══ Por dónde empezar ════════════════════════════════════════════════════════════════
+   Tres pestañas de verdad: se recorren con las flechas y solo la activa entra con el
+   tabulador, que es lo que espera cualquiera que navegue sin ratón. */
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.perf-tab'));
+  if (!tabs.length) return;
+  function abrir(t, foco){
+    tabs.forEach(function(o){
+      var activo = o === t;
+      o.classList.toggle('on', activo);
+      o.setAttribute('aria-selected', activo ? 'true' : 'false');
+      o.tabIndex = activo ? 0 : -1;
+      var panel = document.getElementById(o.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !activo;
+    });
+    if (foco) t.focus();
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ abrir(t); });
+    t.addEventListener('keydown', function(ev){
+      var salto = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (salto) { ev.preventDefault(); abrir(tabs[(i + salto + tabs.length) % tabs.length], true); }
+      if (ev.key === 'Home') { ev.preventDefault(); abrir(tabs[0], true); }
+      if (ev.key === 'End') { ev.preventDefault(); abrir(tabs[tabs.length - 1], true); }
+    });
+  });
+})();
+</script>
+
+<script>
+/* ══ Las dos vistas del organigrama de muestra ═════════════════════════════════════════
+   El dibujo de la portada es el único sitio del documento donde se puede enseñar la
+   diferencia entre depender de alguien y trabajar también en otra unidad. Encender la capa
+   en vez de dibujarla siempre es lo que evita que el ejemplo mienta sobre cómo se ve de
+   verdad un organigrama con las dos cosas encima. */
+(function(){
+  var svg = document.getElementById('tx-svg');
+  var nota = document.getElementById('vistas-n');
+  if (!svg || !nota) return;
+  var conmuta = document.getElementById('conmuta');
+  var botones = Array.prototype.slice.call(document.querySelectorAll('.vista'));
+  var textos = {
+    mando: 'De quién depende cada puesto. En la base es su jefeId.',
+    funcional: 'Los puestos que además trabajan en otra unidad, sin depender de ella.'
+  };
+  botones.forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.vista;
+      svg.setAttribute('data-vista', v);
+      if (conmuta) conmuta.setAttribute('data-vista', v);
+      nota.textContent = textos[v] || '';
+      botones.forEach(function(o){
+        var activo = o === b;
+        o.classList.toggle('on', activo);
+        o.setAttribute('aria-pressed', activo ? 'true' : 'false');
+      });
+    });
+  });
+})();
+</script>
+
+<script>
+/* ══ Tema ══════════════════════════════════════════════════════════════════
+   El documento arranca siguiendo la preferencia del sistema. Si alguien elige,
+   su elección manda y se recuerda. Claro es la base a propósito: este PRD se
+   imprime y se proyecta (principio 8 de 1.4). */
+(function(){
+  var K = 'org-doc-tema';
+  var raiz = document.documentElement;
+  var b = document.getElementById('tema');
+  if (!b) return;
+
+  var SOL = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' +
+            '<circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>' +
+            '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+            '<path d="M10 1.7v2.1M10 16.2v2.1M1.7 10h2.1M16.2 10h2.1M4.2 4.2l1.5 1.5M14.3 14.3l1.5 1.5M15.8 4.2l-1.5 1.5M5.7 14.3l-1.5 1.5"/>' +
+            '</g></svg>';
+  var LUNA = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' +
+             '<path d="M16.6 12.5A7.1 7.1 0 0 1 7.5 3.4a7.1 7.1 0 1 0 9.1 9.1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+             '</svg>';
+
+  function oscuro(){
+    var t = raiz.getAttribute('data-tema');
+    if (t === 'oscuro') return true;
+    if (t === 'claro') return false;
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  function pintar(){
+    var o = oscuro();
+    b.innerHTML = o ? SOL : LUNA;
+    b.setAttribute('aria-label', o ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    b.title = o ? 'Modo claro' : 'Modo oscuro';
+    b.setAttribute('aria-pressed', o ? 'true' : 'false');
+  }
+  b.addEventListener('click', function(){
+    var nuevo = oscuro() ? 'claro' : 'oscuro';
+    raiz.setAttribute('data-tema', nuevo);
+    try { localStorage.setItem(K, nuevo); } catch (e) {}
+    pintar();
+  });
+  /* Si nadie eligió, seguir al sistema cuando cambie */
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var alCambiar = function(){ if (!raiz.getAttribute('data-tema')) pintar(); };
+    if (mq.addEventListener) mq.addEventListener('change', alCambiar);
+    else if (mq.addListener) mq.addListener(alCambiar);
+  }
+  pintar();
+})();
+</script>
+</body>
+</html>
