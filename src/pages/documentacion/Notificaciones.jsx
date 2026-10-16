@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CheckCircle2, Plus, Save, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
-import { COLORES_TIPO, DESTINATARIOS, numeracionDe, siguienteNumero, tiposDoc } from '../../data/documentacionData'
+import { COLORES_TIPO, DESTINATARIOS, numeracionDe, plazoSolicitudDe, siguienteNumero, tiposDoc } from '../../data/documentacionData'
 import './notificaciones.css'
 
 /* ── NOTIFICACIONES Y NUMERACIÓN (propuesta CS · 16 oct 2026) ─────────────
@@ -46,6 +46,7 @@ export default function Notificaciones({ titulo, sub }) {
     canales: { ...parametros.canales },
     resumen: parametros.resumen,
     avisoContratoDias: String(parametros.avisoContratoDias),
+    plazoSolicitudDias: String(plazoSolicitudDe(parametros)),
     papeleraDias: String(parametros.papeleraDias),
     numeracion: Object.fromEntries(Object.keys(tipos).map(k => [k, { ...numeracionDe(parametros, k), digitos: String(numeracionDe(parametros, k).digitos) }])),
   })
@@ -61,11 +62,13 @@ export default function Notificaciones({ titulo, sub }) {
   const normal = {
     notificarVencimiento: p.notificarVencimiento, hitos, destinatarios: p.destinatarios, canales: p.canales, resumen: p.resumen,
     avisoContratoDias: Number(p.avisoContratoDias) || 45, papeleraDias: Number(p.papeleraDias) || 30,
+    plazoSolicitudDias: Math.min(30, Math.max(1, Number(p.plazoSolicitudDias) || 2)),
     numeracion: { ...parametros.numeracion, ...numeracion },
   }
   const actual = {
     notificarVencimiento: parametros.notificarVencimiento, hitos: parametros.hitos, destinatarios: parametros.destinatarios, canales: parametros.canales, resumen: parametros.resumen,
     avisoContratoDias: parametros.avisoContratoDias, papeleraDias: parametros.papeleraDias,
+    plazoSolicitudDias: plazoSolicitudDe(parametros),
     numeracion: { ...parametros.numeracion, ...Object.fromEntries(Object.keys(tipos).map(k => [k, numeracionDe(parametros, k)])) },
   }
   /* Cuántos ajustes cambiaron, como en «Configuración avanzada» de Onboarding: cada campo cuenta
@@ -185,6 +188,15 @@ export default function Notificaciones({ titulo, sub }) {
           <div className="nt-cab"><h2>Contratos</h2></div>
           <Fila titulo="Fin de contrato a plazo fijo" ayuda="Aviso al responsable, con tiempo para renovar o finalizar.">
             <div className="nt-linea"><input className="pl-input nt-num" inputMode="numeric" aria-label="Días antes del fin de contrato" value={p.avisoContratoDias} onChange={e => set('avisoContratoDias', soloNumero(e.target.value))} /><span className="nt-sufijo">días antes</span></div>
+          </Fila>
+        </section>
+
+        {/* ── SOLICITUDES (16 oct 2026): cuántos días hábiles tiene RR.HH. para responder un pedido. Al
+            colaborador se le dice al pedir; cada pedido guarda el plazo con que se hizo. ── */}
+        <section className="nt-sec">
+          <div className="nt-cab"><h2>Solicitudes</h2></div>
+          <Fila titulo="Plazo para responder" ayuda="Lo que el colaborador pide desde la app: un certificado, una copia, una corrección. Al pedir, se le dice hasta qué día le responden.">
+            <div className="nt-linea"><input className="pl-input nt-num" inputMode="numeric" aria-label="Días hábiles para responder una solicitud" value={p.plazoSolicitudDias} onChange={e => set('plazoSolicitudDias', soloNumero(e.target.value).slice(0, 2))} /><span className="nt-sufijo">días hábiles</span></div>
           </Fila>
         </section>
 

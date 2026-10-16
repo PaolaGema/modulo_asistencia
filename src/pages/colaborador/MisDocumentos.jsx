@@ -12,7 +12,7 @@ import { Cabecera, EstadoChip, Etiqueta, EstadoContratoChip, Modal, Vacio } from
 import { PreviaDocumento, Miniatura } from '../../components/layout/MisDocumentosPhone'
 import Desplegable from '../../components/layout/Desplegable'
 import {
-  fechaCorta, MODALIDADES, TIPOS_SOLICITUD, ESTADOS_SOLICITUD, PLAZO_SOLICITUD_DIAS, responderAntes,
+  fechaCorta, MODALIDADES, TIPOS_SOLICITUD, ESTADOS_SOLICITUD, limiteSolicitud, responderAntes, iso,
 } from '../../data/documentacionData'
 import HojaEmitido from '../../components/documentacion/HojaEmitido'
 import './misDocumentos.css'
@@ -603,7 +603,7 @@ export function NuevaSolicitud({ md, inicial, fijo, onCerrar, onEnviada }) {
           ))}
         </div>
       )}
-      <p className="md-modal-txt">RR.HH. responde dentro de {PLAZO_SOLICITUD_DIAS} días hábiles. Su avance se sigue en Zona HR › Mis solicitudes.</p>
+      <p className="md-modal-txt">RR.HH. le responde dentro de {md.plazoSolicitud} {md.plazoSolicitud === 1 ? 'día hábil' : 'días hábiles'}: a más tardar el {fechaCorta(responderAntes(iso(new Date()), md.plazoSolicitud))}. Su avance se sigue en Zona HR › Mis solicitudes.</p>
       <label className="pl-label">{q.pregunta}</label>
       {opciones.length
         ? <Desplegable valor={clave} onCambio={setClave} ariaLabel={q.pregunta} placeholder="Elija una opción" opciones={opciones.map(o => ({ valor: o.clave, etiqueta: o.nombre }))} />
@@ -695,7 +695,7 @@ function TarjetaSolicitud({ q, md, onLeer }) {
   const rechazada = q.estado === 'rechazada'
   const pasos = [
     ['Enviada', fechaCorta(q.fecha), true],
-    ['En RR.HH.', resuelta ? 'Revisada' : `Responde hasta el ${fechaCorta(responderAntes(q.fecha))}`, true],
+    ['En RR.HH.', resuelta ? 'Revisada' : `Responde hasta el ${fechaCorta(limiteSolicitud(q))}`, true],
     [rechazada ? 'Rechazada' : 'Atendida', resuelta ? fechaCorta(q.resuelto?.fecha) : '—', resuelta],
   ]
   const r = md.recibidos.find(x => x.emitido.id === q.resuelto?.emitidoId)

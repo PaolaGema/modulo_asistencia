@@ -208,6 +208,7 @@ export const PARAMETROS_SEED = {
   canales: { correo: true, app: true },
   resumen: 'semanal', // 'semanal' | 'mensual' | 'nunca' (RF-41)
   avisoContratoDias: 45, // RF-40
+  plazoSolicitudDias: 2, // días hábiles para responder una solicitud; se configura (16 oct 2026)
   papeleraDias: 30, // RF-89
   numeracion: {
     certificado: { prefijo: 'CERT', formato: '{prefijo}-{n}/{gestion}', reinicioAnual: true, digitos: 4 },
@@ -868,6 +869,11 @@ export const ESTADOS_SOLICITUD = {
 }
 /* EL PLAZO PARA RESPONDER, en días hábiles desde que llegó el pedido. */
 export const PLAZO_SOLICITUD_DIAS = 2
+/* EL PLAZO SE CONFIGURA (16 oct 2026) en Notificaciones y tipos de documento, y CADA PEDIDO GUARDA
+   EL SUYO al hacerse (`plazoDias`): si después RR.HH. cambia el plazo, no cambia lo que ya se le
+   prometió a quien pidió. Los pedidos viejos, sin plazo guardado, usan los 2 de siempre. */
+export const plazoSolicitudDe = parametros => Number(parametros?.plazoSolicitudDias) || PLAZO_SOLICITUD_DIAS
+export const limiteSolicitud = q => responderAntes(q.fecha, q.plazoDias || PLAZO_SOLICITUD_DIAS)
 export function responderAntes(fecha, habiles = PLAZO_SOLICITUD_DIAS) {
   const d = aFecha(fecha)
   let n = habiles

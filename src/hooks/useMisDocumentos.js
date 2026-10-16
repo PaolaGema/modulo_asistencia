@@ -3,6 +3,7 @@ import { useDocumentacion } from '../context/DocumentacionContext'
 import {
   ESTADOS, CATEGORIAS, MODALIDADES, carpetasRecibidas, carpetaRecibida, versionActual, estadoVersion, estadoContrato, normalizarNombre,
   sumarMeses, iso, hoy, rellenar, fechaCorta, completitud,
+  plazoSolicitudDe,
 } from '../data/documentacionData'
 import { extensionDe } from '../components/documentacion/deducir'
 import { seEnsena } from '../data/fichaColaborador'
@@ -205,5 +206,5 @@ export function useMisDocumentos(nombre, canal = 'web') {
     return true
   }, [registrarDescarga, persona, canal])
 
-  return { persona, ...(datos || {}), subir, acusar, solicitar, abrir, ESTADOS }
+  return { persona, ...(datos || {}), subir, acusar, solicitar, abrir, ESTADOS, plazoSolicitud: plazoSolicitudDe(parametros) }
 }

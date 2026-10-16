@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Award, Check, CheckCircle2, Copy, FolderOpen, PenLine, Send, X } from 'lucide-react'
+import { ArrowLeft, Award, Check, CheckCircle2, Copy, Download, FileText, FolderOpen, PenLine, Send, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, PersonaCelda } from '../../components/documentacion/comunes'
+import { descargarParaImprimir } from '../../components/documentacion/utilidades'
 import Desplegable from '../../components/layout/Desplegable'
 import {
-  MODALIDADES, TIPOS_SOLICITUD, aFecha, datosPara, fechaCorta, hoy, rellenar, responderAntes, versionActual,
+  MODALIDADES, TIPOS_SOLICITUD, aFecha, datosPara, fechaCorta, hoy, rellenar, limiteSolicitud, versionActual,
 } from '../../data/documentacionData'
 import { versionPublicada } from './emisionUtil'
 import HojaDocumento from './HojaDocumento'
@@ -16,8 +17,11 @@ import './revisar.css'
 /* ── ATENDER UNA SOLICITUD (15 oct 2026) ──────────────────────────────────
    Se llega desde la tabla de Solicitudes tocando un pedido: la tabla es la lista, así que acá no
    se repite. Al centro, el documento que va a recibir la persona, tal como le va a llegar; a la
-   derecha, qué pidió, el plazo y la acción. Atender y entregar es un solo paso: al emitir, el
-   documento le llega por la app y el pedido queda unido a él.
+   derecha, qué pidió, el plazo y la acción.
+   UN CERTIFICADO O UNA CORRECCIÓN NO SE ENVÍAN (16 oct 2026): se generan, RR.HH. los descarga, los
+   hace firmar a mano y se los entrega en persona; el firmado se sube después, si se quiere, desde
+   Documentos emitidos. El pedido queda atendido al generarlo y unido al documento. Una copia de
+   algo que ya tiene sí se le envía por la app.
 
    CADA PEDIDO SE ATIENDE CON LO QUE PIDE: un certificado se emite, una corrección se vuelve a emitir
    (y el anterior se anula), una copia se elige de su expediente y se envía. Rechazar pide motivo:
@@ -33,7 +37,7 @@ const MOTIVOS = [
 ]
 
 function plazoDe(q) {
-  const d = Math.round((aFecha(responderAntes(q.fecha)) - hoy()) / 864e5)
+  const d = Math.round((aFecha(limiteSolicitud(q)) - hoy()) / 864e5)
   if (d < 0) return { texto: `Atrasada ${-d} ${d === -1 ? 'día' : 'días'}`, clase: 'rv-rojo' }
   if (d === 0) return { texto: 'Vence hoy', clase: 'rv-rojo' }
   if (d === 1) return { texto: 'Mañana', clase: 'rv-ambar' }
@@ -50,7 +54,7 @@ export default function Atender() {
   const [hecho, setHecho] = useState(null)
   const siguiente = solicitudes
     .filter(x => x.estado === 'pendiente' && x.id !== id && TIPOS_SOLICITUD[x.tipo])
-    .sort((a, b) => (responderAntes(a.fecha) < responderAntes(b.fecha) ? -1 : 1))[0] || null
+    .sort((a, b) => (limiteSolicitud(a) < limiteSolicitud(b) ? -1 : 1))[0] || null
 
   if (!q || !persona) {
     return (
@@ -64,7 +68,7 @@ export default function Atender() {
   return (
     <div className="content-scroll rv-pagina">
       <Link to="/documentos/solicitudes" className="xc-volver"><ArrowLeft size={13} aria-hidden="true" /> Solicitudes</Link>
-      <Cabecera titulo={q.asunto} sub={`Pedido de ${persona.name}. Al atenderlo, el documento le llega por la app.`} />
+      <Cabecera titulo={q.asunto} sub={q.tipo === 'copia' ? `Pedido de ${persona.name}. Al atenderlo, la copia le llega por la app.` : `Pedido de ${persona.name}. Al atenderlo se genera el documento para imprimir, hacerlo firmar y entregárselo en persona.`} />
       <div className="rv-bandeja rv-dos">
         <Pedido key={q.id} q={q} persona={persona}
           decision={hecho?.ok === true || (yaResuelto && q.estado === 'atendida') ? 'ok' : hecho?.ok === false || (yaResuelto && q.estado === 'rechazada') ? 'no' : null}
@@ -119,11 +123,17 @@ function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVol
   const contratoVigente = contratos.find(c => c.colaboradorId === q.colaboradorId && c.tipo === 'contrato' && !c.finalizado && !c.reemplazado)
   const textoNuevo = modelo ? rellenar(versionPublicada(modelo)?.texto || '', datosPara(persona, { empresa, contrato: contratoVigente, numero: '(se numera al emitir)' })) : ''
 
-  const emitirYEnviar = () => {
-    const r = emitir({ modeloId, colaboradorId: q.colaboradorId, enviar: true })
+  // Se genera sin enviar: queda «Sin firmar» en su expediente hasta que se suba el firmado.
+  const generar = () => {
+    const r = emitir({ modeloId, colaboradorId: q.colaboradorId })
     if (q.tipo === 'correccion' && anularAnterior && anterior) anular(anterior.id, `Reemplazado por ${r.numero}: ${q.detalle}`)
-    resolverSolicitud(q.id, 'atendida', q.tipo === 'correccion' ? `Se reemitió como ${r.numero}${anularAnterior && anterior ? ` y se anuló ${anterior.numero}` : ''}` : `Se emitió ${r.numero}`, { emitidoId: r.id, ...(anularAnterior && anterior ? { anuladoId: anterior.id } : null) })
-    onListo(true, `${r.numero} emitido: a ${nombre} le llegó por la app.`)
+    resolverSolicitud(q.id, 'atendida', `${q.tipo === 'correccion' ? `Se corrigió como ${r.numero}${anularAnterior && anterior ? ` y se anuló ${anterior.numero}` : ''}` : `Se generó ${r.numero}`}. Lo recibe firmado en RR.HH.`, { emitidoId: r.id, ...(anularAnterior && anterior ? { anuladoId: anterior.id } : null) })
+    onListo(true, `${r.numero} generado. Descárguelo, imprímalo, hágalo firmar y entrégueselo a ${nombre} en persona.`)
+  }
+  const generado = q.resuelto?.emitidoId ? emitidos.find(e => e.id === q.resuelto.emitidoId) : null
+  const descargar = () => {
+    descargarParaImprimir(`${generado.numero.replace(/\//g, '-')}_${persona.codigo || ''}_para-firmar`, generado.texto)
+    registrarDescarga('emitido', generado.id, q.colaboradorId, `Descargó ${generado.numero} para imprimir y firmar`)
   }
   const enviarCopia = () => {
     if (!elegida) return
@@ -158,7 +168,7 @@ function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVol
         {q.detalle && <p className="rv-cita">«{q.detalle}»</p>}
         <dl className="rv-datos">
           <div><dt>Pidió</dt><dd>{fechaCorta(q.fecha)}</dd></div>
-          <div><dt>Responder antes</dt><dd className={plazo.clase}>{fechaCorta(responderAntes(q.fecha))} · {plazo.texto.toLowerCase()}</dd></div>
+          <div><dt>Responder antes</dt><dd className={plazo.clase}>{fechaCorta(limiteSolicitud(q))} · {plazo.texto.toLowerCase()}</dd></div>
         </dl>
 
         {(q.tipo === 'certificacion' || q.tipo === 'correccion') && (
@@ -195,6 +205,9 @@ function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVol
             <>
               <p className={`rv-hecho rv-hecho-${decision}`}>{decision === 'ok' ? <><Check size={15} /> Atendida</> : <><X size={15} /> Rechazada</>}</p>
               {resultado && <p className="rv-resultado">{resultado}</p>}
+              {decision === 'ok' && generado && !generado.firmado && generado.estado !== 'anulado' && (
+                <button type="button" className="rv-btn-aprobar" onClick={descargar}><Download size={15} aria-hidden="true" /> Descargar para imprimir</button>
+              )}
               {siguiente
                 ? <button type="button" className="rv-btn-aprobar" onClick={onSiguiente}>Siguiente pendiente →</button>
                 : <button type="button" className="rv-btn-aprobar" onClick={onVolver}>Volver a Solicitudes</button>}
@@ -216,7 +229,7 @@ function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVol
             <>
               {q.tipo === 'copia'
                 ? <button type="button" className="rv-btn-aprobar" disabled={!elegida} onClick={enviarCopia}><Send size={15} aria-hidden="true" /> Enviar copia a {nombre}</button>
-                : <button type="button" className="rv-btn-aprobar" disabled={!modelo} onClick={emitirYEnviar}><Send size={15} aria-hidden="true" /> {q.tipo === 'correccion' ? 'Reemitir y enviar' : 'Emitir y enviar'}</button>}
+                : <button type="button" className="rv-btn-aprobar" disabled={!modelo} onClick={generar}><FileText size={15} aria-hidden="true" /> {q.tipo === 'correccion' ? 'Generar el corregido' : 'Generar certificado'}</button>}
               <button type="button" className="rv-btn-rechazar" onClick={() => setRechazando(true)}><X size={15} aria-hidden="true" /> Rechazar…</button>
             </>
           )}

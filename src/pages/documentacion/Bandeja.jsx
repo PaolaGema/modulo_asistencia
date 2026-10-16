@@ -4,7 +4,7 @@ import { Award, CheckCircle2, Copy, Inbox, PenLine, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, Etiqueta, Filtros, PersonaCelda, Vacio } from '../../components/documentacion/comunes'
 import { FILTROS_VACIOS, pasaFiltros } from '../../components/documentacion/utilidades'
-import { PLAZO_SOLICITUD_DIAS, TIPOS_SOLICITUD, aFecha, fechaCorta, hoy, responderAntes } from '../../data/documentacionData'
+import { TIPOS_SOLICITUD, aFecha, fechaCorta, hoy, limiteSolicitud, plazoSolicitudDe } from '../../data/documentacionData'
 import { activos } from './seguimientoDatos'
 import Desplegable from '../../components/layout/Desplegable'
 import './seguimiento.css'
@@ -30,7 +30,7 @@ const VISTAS = [
 
 /* Cuánto falta para responder, en palabras y con su color. */
 function plazoDe(q) {
-  const limite = responderAntes(q.fecha)
+  const limite = limiteSolicitud(q)
   const d = Math.round((aFecha(limite) - hoy()) / 864e5)
   if (d < 0) return { d, texto: `Atrasada ${-d} ${d === -1 ? 'día' : 'días'}`, tono: 'rojo', limite }
   if (d === 0) return { d, texto: 'Vence hoy', tono: 'rojo', limite }
@@ -61,7 +61,7 @@ export default function Bandeja() {
   const filas = enVista
     .filter(q => !tipo || q.tipo === tipo)
     .sort((a, b) => (vista === 'pendiente'
-      ? (responderAntes(a.fecha) < responderAntes(b.fecha) ? -1 : 1)
+      ? (limiteSolicitud(a) < limiteSolicitud(b) ? -1 : 1)
       : ((a.resuelto?.fecha || '') < (b.resuelto?.fecha || '') ? 1 : -1)))
 
   /* ATENDER ES OTRA PANTALLA (15 oct 2026): «Atender solicitudes», de tres columnas, como «Revisar
@@ -72,7 +72,7 @@ export default function Bandeja() {
       {/* PENDIENTES / ATENDIDAS / RECHAZADAS, en la cabecera y con sus números, como «Activos /
           Desvinculados / Todos» en Expedientes: elige qué pedidos se miran; los filtros trabajan
           dentro de eso. */}
-      <Cabecera titulo="Solicitudes" sub={`Lo que los colaboradores le piden a RR.HH. Respóndalas dentro de ${PLAZO_SOLICITUD_DIAS} días hábiles.`}>
+      <Cabecera titulo="Solicitudes" sub={`Lo que los colaboradores le piden a RR.HH. Respóndalas dentro de ${plazoSolicitudDe(ctx.parametros)} días hábiles.`}>
         <div className="xa-vinculo" role="group" aria-label="Qué pedidos ver">
           {VISTAS.map(v => (
             <button key={v.key} type="button" aria-pressed={vista === v.key} className={vista === v.key ? 'on' : ''} onClick={() => setVista(v.key)}>

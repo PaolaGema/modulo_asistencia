@@ -8,7 +8,7 @@ import {
   TIPOS_SEED, SUBTIPOS_SEED, PARAMETROS_SEED, MODELOS_SEED,
   documentosSeed, contratosSeed, emitidosSeed, bitacoraSeed, historialSeed, requisitosSeed, solicitudesSeed, documentosDeFicha,
   sedeDemoDe, ingresoISO, iso, hoy, fechaLarga, checklistDe, completitud, siguienteNumero, datosPara, rellenar,
-  estadoContrato, normalizarNombre, sumarMeses, COLABORADORES_APP, semillaColaboradoresApp, semillaLoteDemo, fechaCorta,
+  estadoContrato, normalizarNombre, sumarMeses, plazoSolicitudDe, COLABORADORES_APP, semillaColaboradoresApp, semillaLoteDemo, fechaCorta,
 } from '../data/documentacionData'
 
 /* ── EL ESTADO DEL MÓDULO DE DOCUMENTACIÓN ────────────────────────────────
@@ -358,10 +358,10 @@ export function DocumentacionProvider({ children }) {
      para atenderse: el modelo del certificado, la carpeta de la copia, lo emitido a corregir. */
   const crearSolicitud = useCallback(({ colaboradorId, tipo, asunto, detalle = '', canal = 'app', ...extra }) => {
     const id = nuevoId('q')
-    setSolicitudes(prev => [{ id, tipo, colaboradorId, fecha: iso(hoy()), asunto, detalle, estado: 'pendiente', canal, ...extra }, ...prev])
+    setSolicitudes(prev => [{ id, tipo, colaboradorId, fecha: iso(hoy()), asunto, detalle, estado: 'pendiente', canal, plazoDias: plazoSolicitudDe(parametros), ...extra }, ...prev])
     anotar('solicitud', 'solicitud', id, colaboradorId, `Solicitó «${asunto}» (${canal})`)
     return id
-  }, [setSolicitudes, anotar])
+  }, [setSolicitudes, anotar, parametros])
 
   const registrarDescarga = useCallback((entidad, entidadId, colaboradorId, detalle, confidencial = false) => {
     anotar(confidencial ? 'lectura' : 'descarga', entidad, entidadId, colaboradorId, detalle)

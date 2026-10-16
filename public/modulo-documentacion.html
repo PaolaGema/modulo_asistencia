@@ -1231,7 +1231,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#BR-DOC-038">038 · El memorándum lleva el hecho, y avisa si ya ha…</a></li>
     <li><a href="#BR-DOC-061">061 · Editar un documento antes de emitirlo cambia s…</a></li>
     <li class="rail-g"><a href="#g-las-solicitudes">Las solicitudes</a></li>
-    <li><a href="#BR-DOC-039">039 · Una solicitud se responde en dos días hábiles</a></li>
+    <li><a href="#BR-DOC-039">039 · Una solicitud se responde dentro del plazo con…</a></li>
     <li><a href="#BR-DOC-040">040 · Cada pedido se atiende con lo que pide</a></li>
     <li><a href="#BR-DOC-041">041 · Una corrección anula el documento que estaba m…</a></li>
     <li><a href="#BR-DOC-042">042 · Rechazar un pedido exige un motivo</a></li>
@@ -1421,7 +1421,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p0-5">0.5 Plantilla, tipo de documento y emitido</h3>
 <p>Una <strong>plantilla</strong> es el texto con el que RR.HH. arma un documento para una persona: un certificado de trabajo, un memorándum, un contrato. Cada plantilla es de un <strong>tipo de documento</strong> —Certificado, Memorándum, Contrato o uno que cree la empresa, como «Carta de recomendación»— que le da su color y su <strong>sigla</strong> de numeración. Un <strong>emitido</strong> es el documento ya hecho para una persona, con su número, sus datos congelados y su estado: <strong>Sin firmar</strong>, <strong>Entregado</strong> o <strong>Anulado</strong>. El <strong>firmado</strong> es el escaneado del emitido ya firmado a mano, que RR.HH. sube y queda pegado a él, con el mismo número —BR‑DOC‑036—.</p>
 <h3 id="p0-6">0.6 Solicitud</h3>
-<p>Lo que un colaborador le pide a RR.HH. desde la app: <strong>un certificado</strong>, <strong>una copia</strong> de su contrato o <strong>una corrección</strong> de algo que recibió. Cada una tiene un plazo de respuesta de dos días hábiles.</p>
+<p>Lo que un colaborador le pide a RR.HH. desde la app: <strong>un certificado</strong>, <strong>una copia</strong> de su contrato o <strong>una corrección</strong> de algo que recibió. Cada una tiene un plazo de respuesta en días hábiles que RR.HH. configura —2 de fábrica—, y al pedir se le dice hasta qué día le responden.</p>
 <h3 id="p0-7">0.7 Quién es quién</h3>
 <div class="tbl"><table>
 <thead><tr><th>Rol</th><th>Qué hace en el módulo</th></tr></thead>
@@ -1471,7 +1471,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <thead><tr><th>Indicador</th><th>Meta</th></tr></thead>
 <tbody>
 <tr><td>Expedientes al día</td><td>Que el anillo de «Qué atender hoy» suba mes a mes</td></tr>
-<tr><td>Tiempo de respuesta a solicitudes</td><td>Todas dentro de los 2 días hábiles</td></tr>
+<tr><td>Tiempo de respuesta a solicitudes</td><td>Todas dentro del plazo configurado (2 días hábiles de fábrica)</td></tr>
 <tr><td>Documentos sin firmar</td><td>Que bajen a menos del 10 % de lo emitido</td></tr>
 <tr><td>Documentos subidos por el colaborador</td><td>Que la mayoría de las renovaciones las haga la persona, no RR.HH.</td></tr>
 </tbody>
@@ -1679,8 +1679,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p3-7">3.7 Atender un pedido</h3>
 <p>Un pedido a la vez, en dos columnas: lo que va a recibir la persona y el panel para responder.</p>
 <ul>
-<li><strong>Certificado</strong>: se elige la plantilla y <strong>Emitir y enviar</strong>.</li>
-<li><strong>Corrección</strong>: se elige la plantilla, se marca <strong>«Anular N al emitir el nuevo»</strong> y <strong>Reemitir y enviar</strong>. Si el error está en la ficha, se corrige en Gestión de personas.</li>
+<li><strong>Certificado</strong>: se elige la plantilla y <strong>Generar certificado</strong>. No se envía: queda «Sin firmar» y aparece <strong>Descargar para imprimir</strong>; RR.HH. lo hace firmar y se lo <strong>entrega en persona</strong>. El pedido queda Atendido con la nota «Se generó CERT‑… Lo recibe firmado en RR.HH.».</li>
+<li><strong>Corrección</strong>: se elige la plantilla, se marca <strong>«Anular N al emitir el nuevo»</strong> y <strong>Generar el corregido</strong>; igual que el certificado, se descarga, se firma y se entrega en persona. Si el error está en la ficha, se corrige en Gestión de personas.</li>
 <li><strong>Copia</strong>: se elige qué documento enviarle —sus contratos, lo que recibió, lo de su expediente— y <strong>Enviar copia</strong>.</li>
 <li><strong>Rechazar…</strong> con motivos rápidos —«Se entrega en persona», «Ya se le envió», «Falta información», «No corresponde»—.</li>
 <li>Al terminar: el resultado, <strong>Siguiente pendiente →</strong> y <strong>Volver a Solicitudes</strong>.</li>
@@ -1777,6 +1777,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <ul>
 <li><strong>Los avisos de vencimiento</strong>, sin título de sección: la primera fila es <strong>«Avisar antes de que venza un documento»</strong>, con su interruptor. Encendido: <strong>Cuándo avisar</strong> (hasta tres, en días antes); <strong>A quién</strong> (colaborador, jefe directo, responsable de RR.HH.); <strong>Por dónde</strong> (correo, notificación en la app); <strong>Resumen a RR.HH.</strong> (nunca, semanal, mensual).</li>
 <li><strong>Contratos</strong>: solo los días de aviso antes del fin de un plazo fijo. «Días en la papelera» se quitó: un documento ya no se borra, se anula.</li>
+<li><strong>Solicitudes</strong>: el <strong>plazo para responder</strong>, en días hábiles. Se le dice al colaborador al pedir y cada pedido guarda el suyo —BR‑DOC‑039—.</li>
 <li><strong>Tipos de documento</strong>: «Cada tipo con su sigla y su numeración. Un número no se usa dos veces, ni si el documento se anula.» Una tabla con cada tipo —también los creados—, su sigla, sus dígitos, si reinicia cada año y <strong>el próximo número</strong>, que cambia mientras se edita.</li>
 <li><strong>+ Nuevo tipo de documento</strong>, al final de la tabla: una fila con nombre, sigla (se propone sola), dígitos, si reinicia cada año y el próximo número en vivo. Valida que el nombre y la sigla no existan. Se crea al momento, con su carpeta en «De RR.HH.» —BR‑DOC‑044—.</li>
 </ul>
@@ -1837,7 +1838,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p3-16">3.16 Pedir y Mis solicitudes</h3>
 <ul>
 <li><strong>Pedir</strong>: Un certificado, Copia del contrato o Corregir algo que recibí. Desde un atajo, el tipo ya viene elegido. En una corrección hay que contar qué está mal.</li>
-<li><strong>Mis solicitudes</strong>: En curso y Resueltas; cada pedido con un recorrido de tres pasos —Enviada, En RR.HH. («Responde hasta el …»), Atendida o Rechazada—, la nota de RR.HH. y <strong>Ver el documento</strong> si se lo enviaron.</li>
+<li><strong>Mis solicitudes</strong>: En curso y Resueltas; cada pedido con un recorrido de tres pasos —Enviada, En RR.HH. («Responde hasta el …»), Atendida o Rechazada—, la nota de RR.HH. y <strong>Ver el documento</strong> si ya está disponible: una copia que se le envió, o un certificado cuando RR.HH. sube el firmado. Un certificado o una corrección se le entregan firmados en persona; la nota se lo dice.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
@@ -3241,7 +3242,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
-<li>Lo que nace de una <strong>solicitud</strong> sigue llegando al colaborador al atenderla —BR‑DOC‑040—.</li>
+<li>Lo que nace de una <strong>solicitud</strong> sigue la misma regla: un certificado o una corrección se generan sin enviar y se entregan firmados en persona; sólo una <strong>copia</strong> de algo que ya tiene le llega por la app —BR‑DOC‑040—.</li>
 <li><strong>Un archivo propio</strong> (reglamento, comunicado) sigue enviándose: le llega al emitirlo y va a «Otros», que aparece solo cuando tiene algo.</li>
 <li>Un contrato queda en Contratos, «Sin firma» hasta que se sube su firmado.</li>
 <li>Al abrir un emitido con firmado se ve el escaneado; «El que generó el sistema» muestra el texto original.</li>
@@ -3367,24 +3368,25 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <span class="br-n">4.39</span>
 <div>
 <div class="br-cab"><span class="br-id">BR-DOC-039</span><span class="br-estado">Borrador</span></div>
-<h3 id="BR-DOC-039">Una solicitud se responde en dos días hábiles</h3>
+<h3 id="BR-DOC-039">Una solicitud se responde dentro del plazo configurado, en días hábiles</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
 <div><dt>Código</dt><dd>BR-DOC-039</dd></div>
 <div><dt>Grupo</dt><dd>Las solicitudes</dd></div>
 <div><dt>Qué gobierna</dt><dd>Solicitud</dd></div>
-<div><dt>Antes</dt><dd>v0.2 · Solicitudes</dd></div>
+<div><dt>Antes</dt><dd>v0.2 · Solicitudes · 1.1 (cambia)</dd></div>
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Cada pedido tiene un <strong>plazo de dos días hábiles</strong> desde que se hizo: sin sábados ni domingos. Lo atrasado se ve primero y en rojo.</p>
+<p>Cada pedido tiene un <strong>plazo en días hábiles</strong> desde que se hizo, sin sábados ni domingos. El plazo lo configura RR.HH. en <strong>Notificaciones y tipos de documento › Solicitudes</strong> —de 1 a 30 días; 2 de fábrica—. <strong>Cada pedido guarda el plazo con que se hizo</strong>: si RR.HH. lo cambia después, no cambia lo que ya se le prometió a quien pidió. Lo atrasado se ve primero y en rojo.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>El fin de semana no cuenta</div><ul><li><b>Dado que</b>alguien pide un certificado el viernes</li><li><b>Cuando</b>se calcula el plazo</li><li><b>Entonces</b>vence el martes</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
-<li>El colaborador ve «Responde hasta el …».</li>
+<li>Al pedir, el colaborador lee «RR.HH. le responde dentro de N días hábiles: a más tardar el …»; después, en su pedido, «Responde hasta el …».</li>
+<li>Los pedidos de antes de la 1.2, sin plazo guardado, usan los 2 días de siempre.</li>
 <li>Las atendidas y rechazadas guardan quién y cuándo respondió.</li>
 </ul>
 <h4 class="br-h"><em>4</em>Trazabilidad</h4>
@@ -3411,10 +3413,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>No hay «Aprobar»: un <strong>certificado</strong> se emite y se envía, una <strong>copia</strong> se elige y se envía, una <strong>corrección</strong> se reemite. Lo que resuelve una solicitud le llega al colaborador al atenderla. Al atender, la solicitud guarda <strong>qué documento la resolvió</strong> y el colaborador lo abre desde su pedido.</p>
+<p>No hay «Aprobar»: un <strong>certificado</strong> se genera, una <strong>corrección</strong> se genera de nuevo y anula la anterior, una <strong>copia</strong> se elige y se envía. Desde la 1.2, un certificado o una corrección <strong>no se envían</strong>: quedan «Sin firmar», RR.HH. los descarga, los hace firmar y los <strong>entrega en persona</strong> —BR‑DOC‑036—; una copia de algo que ya tiene sí le llega por la app. Al atender, la solicitud guarda <strong>qué documento la resolvió</strong> y el colaborador lo abre desde su pedido.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>El pedido guarda su documento</div><ul><li><b>Dado que</b>se atiende el pedido de un certificado</li><li><b>Cuando</b>se emite y envía</li><li><b>Entonces</b>el pedido queda Atendido y el colaborador ve «Ver el documento»</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>El pedido guarda su documento</div><ul><li><b>Dado que</b>se atiende el pedido de un certificado</li><li><b>Cuando</b>RR.HH. pulsa «Generar certificado»</li><li><b>Entonces</b>el pedido queda Atendido, el certificado queda «Sin firmar» con «Descargar para imprimir», y la nota le dice al colaborador que lo recibe firmado en RR.HH.</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -3448,7 +3450,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Atender una corrección <strong>reemite</strong> el documento y, si se deja marcado, <strong>anula</strong> el anterior con «Reemplazado por» el nuevo. Si el error está en la ficha, se corrige allá antes de reemitir.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Reemitir un certificado con un apellido mal escrito</div><ul><li><b>Dado que</b>alguien reporta un error en su certificado</li><li><b>Cuando</b>RR.HH. corrige la ficha y pulsa «Reemitir y enviar»</li><li><b>Entonces</b>el nuevo le llega y el anterior queda Anulado</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Reemitir un certificado con un apellido mal escrito</div><ul><li><b>Dado que</b>alguien reporta un error en su certificado</li><li><b>Cuando</b>RR.HH. corrige la ficha y pulsa «Generar el corregido»</li><li><b>Entonces</b>el nuevo queda «Sin firmar» para imprimir y entregar en persona, y el anterior queda Anulado</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -4016,7 +4018,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>En «De RR.HH.» la persona ve lo que se le <strong>entregó</strong>, en una carpeta por tipo: Certificados, Memorándums y los tipos de la empresa. Entregado es lo emitido <strong>con el firmado subido</strong>, lo que resolvió una solicitud y los archivos propios que se le enviaron; lo <strong>sin firmar</strong> todavía no se ve. «Otros» aparece solo si tiene algo. Lo <strong>anulado</strong> ya no se ve.</p>
+<p>En «De RR.HH.» la persona ve lo que se le <strong>entregó</strong>, en una carpeta por tipo: Certificados, Memorándums y los tipos de la empresa. Entregado es lo emitido <strong>con el firmado subido</strong>, las copias que pidió y los archivos propios que se le enviaron; lo <strong>sin firmar</strong> todavía no se ve, tampoco si lo pidió en una solicitud. «Otros» aparece solo si tiene algo. Lo <strong>anulado</strong> ya no se ve.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Un anulado se va</div><ul><li><b>Dado que</b>a alguien le anularon un certificado</li><li><b>Cuando</b>abre Certificados</li><li><b>Entonces</b>ese certificado no está</li></ul></div>
@@ -4054,7 +4056,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Desde la app se pide <strong>un certificado</strong> (de las plantillas que el colaborador puede pedir), <strong>una copia de su contrato</strong> o <strong>una corrección</strong> de algo que recibió. En una corrección hay que contar qué está mal.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Reportar un error</div><ul><li><b>Dado que</b>alguien abre un certificado con su apellido mal escrito</li><li><b>Cuando</b>pulsa «Reportar un error» y lo cuenta</li><li><b>Entonces</b>se crea una corrección con ese certificado, y RR.HH. tiene 2 días hábiles</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Reportar un error</div><ul><li><b>Dado que</b>alguien abre un certificado con su apellido mal escrito</li><li><b>Cuando</b>pulsa «Reportar un error» y lo cuenta</li><li><b>Entonces</b>se crea una corrección con ese certificado, y RR.HH. tiene el plazo configurado para responder</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -4229,7 +4231,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tbody>
 <tr><td><strong>Primer expediente completo</strong></td><td>Una persona llega al 100 % con documentos aprobados</td></tr>
 <tr><td><strong>Primer documento firmado</strong></td><td>RR.HH. sube el firmado de un certificado emitido y el colaborador lo ve en su app</td></tr>
-<tr><td><strong>Primera solicitud atendida a tiempo</strong></td><td>Un pedido se resuelve dentro de los 2 días hábiles</td></tr>
+<tr><td><strong>Primera solicitud atendida a tiempo</strong></td><td>Un pedido se resuelve dentro del plazo configurado</td></tr>
 </tbody>
 </table></div>
 <h3 id="p6-4">6.4 Dependencias</h3>
@@ -4339,7 +4341,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p7-8">7.8 Atender una solicitud</h3>
 <ol>
 <li>En Solicitudes, la más atrasada está primero; «Ver detalle».</li>
-<li>Certificado: se elige la plantilla y «Emitir y enviar». Copia: se elige el documento y «Enviar copia». Corrección: «Reemitir y enviar», anulando el anterior.</li>
+<li>Certificado: se elige la plantilla y «Generar certificado»; se descarga para imprimir, se hace firmar y se entrega en persona. Corrección: «Generar el corregido», anulando el anterior, y lo mismo. Copia: se elige el documento y «Enviar copia».</li>
 <li>O «Rechazar…» con un motivo.</li>
 <li>«Siguiente pendiente →».</li>
 </ol>
@@ -4531,7 +4533,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="tbl"><table>
 <thead><tr><th>Versión</th><th>Fecha</th><th>Qué cambió</th></tr></thead>
 <tbody>
-<tr><td><strong>1.2</strong></td><td>16 oct 2026</td><td><strong>Emitir ya no envía:</strong> el documento queda en el expediente «Sin firmar»; RR.HH. lo descarga para imprimir (Word), lo hace firmar y sube el firmado, que queda con el mismo número y recién ahí lo ve el colaborador. Las solicitudes y los archivos propios se siguen enviando. <strong>Se quitó la confirmación de recepción</strong> en todo el módulo, web y celular; lo confirmado antes se ve como Entregado. Emitir: sin pestañas «Personas / Un grupo», siempre la lista con filtros, y «Editar documento» solo para esa emisión. <strong>Las adendas ya no se crean:</strong> «Renovar contrato» registra un contrato nuevo que reemplaza al anterior, con vista previa. Expedientes suma <strong>Exportar</strong> (ZIP de expedientes sin confidenciales y lista en Excel). En el expediente se quitaron Enviar documento, Agregar requisito y Exonerar; <strong>no se borra, se anula</strong>, y la Papelera pasa a Anulados; Subir documento pregunta la carpeta y el documento, y muestra el actual y el nuevo antes de reemplazar; en las carpetas, Lista primero con paginación de 10. Configuración: «Notificaciones y tipos de documento», con «+ Nuevo tipo de documento»; sin «Días en la papelera». Solicitudes: la columna «Pide» pasa a «Tipo». Estado «Sin enviar» pasa a «Sin firmar». <strong>Reglas:</strong> retiradas BR‑DOC‑005 (exonerar), 027 (adendas) y 037 (confirmar la recepción); cambian 001, 002, 003, 012, 013, 014, 015, 018, 019, 021, 024, 026, 028, 029, 032, 033, 035, 036, 040, 044, 052 y 057; nuevas BR‑DOC‑061 a 064. Requisitos retirados RF‑DOC‑008, 009, 032 y 055; nuevos RF‑DOC‑063 a 069. Nueva HU‑DOC‑19. Resueltas ABIERTA‑DOC‑06 y 10. Los flujos se renumeran: suman Anular, Subir el firmado y Exportar, y «Confirmar un documento recibido» pasa a «Ver un documento recibido»</td></tr>
+<tr><td><strong>1.2</strong></td><td>16 oct 2026</td><td><strong>Emitir ya no envía:</strong> el documento queda en el expediente «Sin firmar»; RR.HH. lo descarga para imprimir (Word), lo hace firmar y sube el firmado, que queda con el mismo número y recién ahí lo ve el colaborador. Las solicitudes de certificado o corrección también: se generan, se firman y se entregan en persona; sólo las copias y los archivos propios se siguen enviando. <strong>Se quitó la confirmación de recepción</strong> en todo el módulo, web y celular; lo confirmado antes se ve como Entregado. Emitir: sin pestañas «Personas / Un grupo», siempre la lista con filtros, y «Editar documento» solo para esa emisión. <strong>Las adendas ya no se crean:</strong> «Renovar contrato» registra un contrato nuevo que reemplaza al anterior, con vista previa. Expedientes suma <strong>Exportar</strong> (ZIP de expedientes sin confidenciales y lista en Excel). En el expediente se quitaron Enviar documento, Agregar requisito y Exonerar; <strong>no se borra, se anula</strong>, y la Papelera pasa a Anulados; Subir documento pregunta la carpeta y el documento, y muestra el actual y el nuevo antes de reemplazar; en las carpetas, Lista primero con paginación de 10. Configuración: «Notificaciones y tipos de documento», con «+ Nuevo tipo de documento»; sin «Días en la papelera». Solicitudes: la columna «Pide» pasa a «Tipo»; el <strong>plazo para responder</strong> se configura y el colaborador lo ve al pedir (cambia BR‑DOC‑039); un certificado o una corrección pedidos se generan sin enviar y se entregan firmados en persona. Estado «Sin enviar» pasa a «Sin firmar». <strong>Reglas:</strong> retiradas BR‑DOC‑005 (exonerar), 027 (adendas) y 037 (confirmar la recepción); cambian 001, 002, 003, 012, 013, 014, 015, 018, 019, 021, 024, 026, 028, 029, 032, 033, 035, 036, 040, 044, 052 y 057; nuevas BR‑DOC‑061 a 064. Requisitos retirados RF‑DOC‑008, 009, 032 y 055; nuevos RF‑DOC‑063 a 069. Nueva HU‑DOC‑19. Resueltas ABIERTA‑DOC‑06 y 10. Los flujos se renumeran: suman Anular, Subir el firmado y Exportar, y «Confirmar un documento recibido» pasa a «Ver un documento recibido»</td></tr>
 <tr><td><strong>1.1</strong></td><td>16 oct 2026</td><td>El expediente de RR.HH. se ve como Mis documentos: la franja de lo pendiente con su anillo y las carpetas amarillas en «Sus carpetas» y «De RR.HH.». «Recibidos» se divide en una carpeta por tipo —Certificados, Memorándums y los creados—, también para el colaborador en la web y en el celular; «Otros» solo aparece si tiene algo. Colaboradores, en Gestión de personas, suma «Ver expediente». En Zona HR de la web, el administrador también ve «Mis documentos» con su propio expediente, como en el celular</td></tr>
 <tr><td><strong>1.0</strong></td><td>16 oct 2026</td><td><strong>Primera versión con el formato de los demás módulos.</strong> Reúne lo construido en la maqueta hasta el 16 de octubre: Expedientes con «Qué atender hoy», el expediente por carpetas, Revisar documentos, contratos y adendas, Solicitudes y Atender, Documentos emitidos y Emitir con riel y grupos, el editor único de plantillas con tipos propios y vista previa en páginas, Notificaciones y numeración, y Mis documentos y Mis solicitudes del colaborador. 60 reglas BR‑DOC, 62 requisitos, 18 historias y 18 pantallas, por perfil</td></tr>
 <tr><td><strong>0.2</strong></td><td>14 oct 2026</td><td>Propuesta de estructura: Repositorio y Emisión sobre un solo dato, en fases. Queda como histórico</td></tr>

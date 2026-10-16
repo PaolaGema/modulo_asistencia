@@ -6,8 +6,8 @@ import {
 import BarraVolver from './BarraVolver'
 import { useMisDocumentos, textoMotivo } from '../../hooks/useMisDocumentos'
 import {
-  ESTADOS, ESTADOS_CONTRATO, ESTADOS_SOLICITUD, TIPOS_SOLICITUD, PLAZO_SOLICITUD_DIAS, MODALIDADES, fechaCorta,
-  responderAntes,
+  ESTADOS, ESTADOS_CONTRATO, ESTADOS_SOLICITUD, TIPOS_SOLICITUD, MODALIDADES, fechaCorta,
+  responderAntes, limiteSolicitud, iso,
 } from '../../data/documentacionData'
 import { leerArchivo } from '../../utils/archivosLocales'
 import { useMiFicha } from '../../hooks/useMiFicha'
@@ -794,7 +794,7 @@ function PedirPhone({ md, atras, inicial, fijo, onEnviada }) {
   return (
     <div>
       {atras}
-      <Cabecera titulo={fijo ? q.titulo : 'Nueva solicitud'} sub={`RR.HH. responde dentro de ${PLAZO_SOLICITUD_DIAS} días hábiles.`} />
+      <Cabecera titulo={fijo ? q.titulo : 'Nueva solicitud'} sub={`RR.HH. le responde dentro de ${md.plazoSolicitud} ${md.plazoSolicitud === 1 ? 'día hábil' : 'días hábiles'}: a más tardar el ${fechaCorta(responderAntes(iso(new Date()), md.plazoSolicitud))}.`} />
 
       {!fijo && <div style={{ display: 'flex', gap: 4, marginTop: 9 }}>
         {Object.entries(QUE_PIDE).map(([k, t]) => (
@@ -1157,7 +1157,7 @@ function TarjetaSolicitud({ q, md, onLeer }) {
   const fin = rechazada ? TONOS.rojo[0] : TONOS.verde[0]
   const pasos = [
     ['Enviada', fechaCorta(q.fecha), true],
-    ['En RR.HH.', resuelta ? 'Revisada' : `Responde hasta el ${fechaCorta(responderAntes(q.fecha))}`, true],
+    ['En RR.HH.', resuelta ? 'Revisada' : `Responde hasta el ${fechaCorta(limiteSolicitud(q))}`, true],
     [rechazada ? 'Rechazada' : 'Atendida', resuelta ? fechaCorta(q.resuelto?.fecha) : '—', resuelta],
   ]
   const recibido = md.recibidos.some(x => x.emitido.id === q.resuelto?.emitidoId)
