@@ -15,7 +15,8 @@ import {
 } from '../../data/miFichaLectura'
 import { cuantosHay, tarjetasDe } from '../../data/fichaColaborador'
 import { CODIGOS_PAIS, paisPorSigla, partirTelefono } from '../../data/codigosPais'
-import { avatarUrl } from '../../utils/calendarEvents'
+import { useFotoPerfil } from '../../hooks/useFotoPerfil'
+import { guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
 import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 
 /* LA PESTAÑA «PERFIL» DEL TELÉFONO: el perfil de siempre —banda, foto, nombre, cargo— con
@@ -94,6 +95,7 @@ function PreferenciasPhone({ form }) {
 function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
   const form = ficha?.form
   const [sinFoto, setSinFoto] = useState(false)
+  const foto = useFotoPerfil(currentUser.name, form?.['1.9'], 120)
   return (
     <div>
       <div style={{
@@ -126,7 +128,7 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
               {currentUser.initials}
             </span>
           ) : (
-            <img src={avatarUrl(currentUser.name, 120)} alt={currentUser.name} onError={() => setSinFoto(true)}
+            <img src={foto} alt={currentUser.name} onError={() => setSinFoto(true)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}
         </div>
@@ -763,6 +765,7 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
   const [guardado, avisar] = useAvisoGuardado()
   const [abiertas, setAbiertas] = useState(() => new Set([0]))
   const [sinFoto, setSinFoto] = useState(false)
+  const foto = useFotoPerfil(currentUser?.name, ed.vivo['1.9'], 80)
   const [docViendo, setDocViendo] = useState(null)
   const arriba = () => document.querySelector('.phone-scroll')?.scrollTo(0, 0)
   const entrar = i => { setParte(i); setAbiertas(new Set([0])); arriba() }
@@ -817,7 +820,7 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
                     {currentUser.initials}
                   </span>
                 ) : (
-                  <img src={avatarUrl(currentUser.name, 80)} alt={currentUser.name} onError={() => setSinFoto(true)}
+                  <img src={foto} alt={currentUser.name} onError={() => setSinFoto(true)}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 )}
               </div>
@@ -828,7 +831,11 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
               }}>
                 <Pencil size={7} style={{ color: '#0C2D40' }} />
                 <input type="file" accept=".jpg,.jpeg,.png,.webp" hidden onChange={e => {
-                  const a = e.target.files?.[0]; if (a) ed.set('1.9', { nombre: a.name }); e.target.value = ''
+                  const a = e.target.files?.[0]; e.target.value = ''
+                  if (!a) return
+                  // Se guarda el archivo de verdad, para que la foto nueva se vea aquí y en Mis documentos.
+                  const clave = nuevaClaveArchivo()
+                  guardarArchivo(clave, a).then(ok => { ed.set('1.9', { nombre: a.name, tipo: a.type, peso: a.size, clave: ok ? clave : null }); setSinFoto(false) })
                 }} />
               </label>
             </div>

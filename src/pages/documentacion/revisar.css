@@ -1,0 +1,129 @@
+/* ── REVISAR DOCUMENTOS: BANDEJA DE TRES COLUMNAS ─────────────────────────
+   Prefijo `rv-`. La cola a la izquierda, el documento al centro y la decisión a la derecha, las
+   tres a la altura de la ventana: lo que se mueve es cada columna, no la página. */
+
+.rv-pagina { display: flex; flex-direction: column; }
+.rv-resumen { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.rv-resumen b { color: var(--text-heading); }
+.rv-n-ok { color: #0F7A4F; font-weight: 600; }
+
+.rv-bandeja {
+  display: grid; grid-template-columns: 290px minmax(0, 1fr) 310px; gap: 14px;
+  height: calc(100vh - 230px); min-height: 480px; margin-top: 4px;
+}
+
+/* La cola */
+.rv-cola { display: flex; flex-direction: column; min-height: 0; background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; overflow: hidden; }
+.rv-buscar { display: flex; align-items: center; gap: 8px; margin: 10px; height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border-soft); color: var(--text-muted); }
+.rv-buscar input { flex: 1; min-width: 0; border: none; outline: none; background: none; font: inherit; font-size: 12.5px; color: var(--text-heading); }
+.rv-cola-lista { flex: 1; overflow: auto; }
+.rv-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; border-top: 1px solid var(--border-soft);
+  border-left: 3px solid transparent; background: none; font: inherit; text-align: left; cursor: pointer; color: var(--text-heading);
+}
+.rv-item:hover { background: var(--bg-canal); }
+.rv-item.on { background: #E8F0FC; border-left-color: #1D5FBF; }
+.rv-item.hecho { opacity: .6; }
+.rv-item.hecho.on { opacity: 1; }
+.rv-mini { width: 34px; height: 42px; border-radius: 5px; flex-shrink: 0; display: grid; place-items: center; background: var(--bg-canal); color: var(--text-muted); border: 1px solid var(--border-soft); }
+.rv-item-ok .rv-mini { background: #E6F7EF; color: #0F7A4F; border-color: #BFEBD5; }
+.rv-item-no .rv-mini { background: #FDECEA; color: #B42318; border-color: #F3C0BB; }
+.rv-item-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 12px; color: var(--text-muted); }
+.rv-item-txt b { font-size: 12.5px; font-weight: 600; color: var(--text-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-item-txt > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-rojo { color: #B42318; font-weight: 600; }
+.rv-ambar { color: #9A5B06; font-weight: 600; }
+.rv-nada { margin: 0; padding: 16px; font-size: 12.5px; color: var(--text-muted); }
+
+/* El documento */
+.rv-escena {
+  min-height: 0; border-radius: 14px; display: flex; justify-content: center; align-items: flex-start; padding: 20px; overflow: auto;
+  background: repeating-linear-gradient(45deg, #EEF2F6 0 8px, #E8EDF2 8px 16px);
+}
+.rv-papel { width: min(520px, 100%); background: #fff; border-radius: 6px; box-shadow: 0 10px 30px rgba(12,45,64,.2); animation: rv-entra .18s ease-out; }
+.rv-papel .xa-hoja { width: 100%; max-width: none; aspect-ratio: 1 / 1.3; padding: 40px 44px; box-sizing: border-box; box-shadow: none; }
+.rv-papel img { display: block; width: 100%; height: auto; border-radius: 6px; }
+@keyframes rv-entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* La decisión */
+.rv-panel { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: auto; padding: 16px; background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; }
+.rv-panel-tit { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--text-heading); }
+.rv-datos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.rv-datos div { display: flex; flex-direction: column; }
+.rv-datos dt { font-size: 11.5px; color: var(--text-muted); }
+.rv-datos dd { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--text-heading); }
+.rv-fechas { display: flex; flex-direction: column; gap: 8px; }
+.rv-fechas label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+.rv-fechas p { margin: 0; font-size: 11.5px; color: var(--text-muted); line-height: 1.45; }
+.rv-fechas .dc-btn { align-self: flex-start; }
+.rv-herr { display: flex; gap: 6px; }
+.rv-herr button {
+  display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 10px; border-radius: 8px;
+  border: 1px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading); font: inherit; font-size: 12px; cursor: pointer;
+}
+.rv-herr button:hover { background: var(--bg-canal); }
+.rv-decidir { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.rv-btn-aprobar {
+  height: 44px; border-radius: 10px; border: none; background: #00E091; color: #0C2D40; font: inherit; font-size: 14px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+}
+.rv-btn-aprobar:hover { filter: brightness(1.05); }
+.rv-btn-rechazar {
+  height: 40px; border-radius: 10px; border: 1px solid #F3C0BB; background: var(--surface-card); color: #B42318; font: inherit; font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+}
+.rv-btn-rechazar:hover { background: #FDECEA; }
+.rv-rot { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; color: var(--text-muted); text-transform: uppercase; }
+.rv-motivos { display: flex; flex-wrap: wrap; gap: 6px; }
+.rv-motivos button {
+  height: 30px; padding: 0 11px; border-radius: 99px; border: 1px solid #F3C0BB; background: #FFF7F6; color: #B42318;
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.rv-motivos button:hover { background: #FDECEA; border-color: #D92D20; }
+.rv-decidir textarea {
+  width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--border-soft);
+  font: inherit; font-size: 12.5px; color: var(--text-heading); background: var(--surface-card); resize: none; outline: none;
+}
+.rv-decidir textarea:focus { border-color: #D92D20; }
+.rv-botones { display: flex; gap: 8px; justify-content: flex-end; }
+.rv-btn-rechazar-ok { height: 38px; padding: 0 14px; border-radius: 9px; border: none; background: #D92D20; color: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.rv-btn-rechazar-ok:disabled { opacity: .45; cursor: default; }
+.rv-hecho { margin: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 10px; font-size: 14px; font-weight: 700; }
+.rv-hecho-ok { background: #E6F7EF; color: #0F7A4F; }
+.rv-hecho-no { background: #FDECEA; color: #B42318; }
+
+.rv-vacio { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; text-align: center; color: #00B876; }
+.rv-vacio h2 { margin: 0; font-size: 18px; color: var(--text-heading); }
+.rv-vacio p { margin: 0; max-width: 440px; font-size: 13px; color: var(--text-muted); }
+
+.rv-aviso {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 1300;
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px;
+  background: var(--navy, #0C2D40); color: #fff; font-size: 13px; font-weight: 600; box-shadow: var(--sh-md, 0 10px 30px rgba(0,0,0,.25));
+}
+.rv-aviso svg { color: #00E091; }
+
+@media (max-width: 1100px) {
+  .rv-bandeja { grid-template-columns: 240px minmax(0, 1fr); height: auto; }
+  .rv-panel { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .rv-bandeja { grid-template-columns: 1fr; }
+  .rv-cola { max-height: 260px; }
+}
+.rv-motivos button.on { background: #D92D20; border-color: #D92D20; color: #fff; }
+
+/* Atender solicitudes: lo que pidió, entre comillas, y la casilla de anular */
+.rv-cita { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--bg-canal); font-size: 12.5px; color: var(--text-heading); line-height: 1.5; font-style: italic; }
+.rv-check { display: flex !important; flex-direction: row !important; align-items: flex-start; gap: 8px; font-weight: 500 !important; color: var(--text-heading) !important; font-size: 12.5px !important; }
+.rv-check input { margin-top: 2px; accent-color: var(--text-heading); }
+.rv-btn-aprobar:disabled { opacity: .45; cursor: default; filter: none; }
+.rv-papel .xc-hoja { margin: 0; border: none; box-shadow: none; border-radius: 6px; min-height: 520px; }
+.rv-panel-tit-ico { display: flex; align-items: flex-start; gap: 8px; } .rv-panel-tit-ico svg { flex-shrink: 0; margin-top: 3px; color: var(--text-muted); }
+
+/* Un pedido solo: el documento y el panel, sin la cola (la tabla de Solicitudes es la lista). */
+.rv-bandeja.rv-dos { grid-template-columns: minmax(0, 1fr) 340px; }
+.rv-resultado { margin: 0; font-size: 12.5px; color: var(--text-muted); text-align: center; line-height: 1.45; }
+.rv-btn-neutro { border-color: var(--border-soft) !important; color: var(--text-heading) !important; }
+.rv-btn-neutro:hover { background: var(--bg-canal) !important; }
+@media (max-width: 1100px) { .rv-bandeja.rv-dos { grid-template-columns: 1fr; } }

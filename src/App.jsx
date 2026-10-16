@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom'
 import { UserProvider } from './context/UserContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { RutaActivaProvider } from './context/RutaActivaContext'
@@ -21,6 +21,7 @@ import Chats from './pages/comunicacion/Chats'
 import { Anuncios, Reconocimientos, Eventos, MensajesProgramados } from './pages/comunicacion/Proximamente'
 import ZonaHR from './pages/colaborador/ZonaHR'
 import Perfil from './pages/colaborador/Perfil'
+import MisDocumentos, { MisSolicitudes } from './pages/colaborador/MisDocumentos'
 import Colaboradores from './pages/personas/Colaboradores'
 import ColaboradorNuevo from './pages/personas/ColaboradorNuevo'
 import ClientesExternos from './pages/personas/ClientesExternos'
@@ -43,20 +44,38 @@ import RecursosComunicacion from './pages/archivos/RecursosComunicacion'
 import RecursosEvaluacion from './pages/archivos/RecursosEvaluacion'
 import RolesPermisos from './pages/configuracion/RolesPermisos'
 import { DocumentacionProvider } from './context/DocumentacionContext'
-import DocExpedientes from './pages/documentacion/Expedientes'
+import DocLegajos from './pages/documentacion/Legajos'
 import DocExpediente from './pages/documentacion/Expediente'
-import DocCargaLote from './pages/documentacion/CargaLote'
-import DocBandeja from './pages/documentacion/Bandeja'
-import DocPanel from './pages/documentacion/Panel'
-import DocReportes from './pages/documentacion/Reportes'
 import DocEmitir from './pages/documentacion/Emitir'
-import DocBiblioteca from './pages/documentacion/Biblioteca'
 import DocEditorPlantilla from './pages/documentacion/EditorPlantilla'
 import DocContrato from './pages/documentacion/Contrato'
-import DocPuestaEnMarcha from './pages/documentacion/PuestaEnMarcha'
-import DocTiposSubtipos from './pages/documentacion/TiposSubtipos'
-import DocRequisitos from './pages/documentacion/Requisitos'
-import DocParametros from './pages/documentacion/Parametros'
+import DocRevisar from './pages/documentacion/Revisar'
+import DocSolicitudes from './pages/documentacion/Solicitudes'
+import DocAtender from './pages/documentacion/Atender'
+import DocEnvios from './pages/documentacion/Envios'
+import DocEnvio from './pages/documentacion/Envio'
+import DocConfiguracion from './pages/documentacion/Configuracion'
+
+/* Lleva un enlace viejo de Seguimiento (?pila=…) a donde quedó: lo que espera revisión tiene su
+   pantalla; lo demás es Colaboradores visto por documento. */
+function SeguimientoAColaboradores() {
+  const [params] = useSearchParams()
+  const pila = params.get('pila') || 'revision'
+  return <Navigate to={pila === 'revision' ? '/documentos/expedientes/revisar' : `/documentos/expedientes?pend=${pila}&ver=documento`} replace />
+}
+
+/* Una dirección de antes, a la de ahora, con lo que traía detrás (el id, la carpeta, la consulta). */
+/* La vieja pantalla «Envíos» se partió en dos (15 oct 2026): sus solicitudes van a Solicitudes y lo
+   demás a Documentos emitidos. */
+function EnviosViejo() {
+  const { search } = useLocation()
+  return <Navigate to={new URLSearchParams(search).get('ver') === 'solicitudes' ? '/documentos/solicitudes' : '/documentos/emitidos'} replace />
+}
+
+function CambiarPrefijo({ de, a }) {
+  const { pathname, search } = useLocation()
+  return <Navigate to={`${a}${pathname.slice(de.length)}${search}`} replace />
+}
 
 export default function App() {
   return (
@@ -85,6 +104,9 @@ export default function App() {
                 Ahora las tres existen aquí con su propia pantalla. */}
             <Route path="chats" element={<Chats />} />
             <Route path="zona-hr" element={<ZonaHR />} />
+            {/* Cuelga de Zona HR, que es desde donde se abre: así el menú la deja encendida. */}
+            <Route path="zona-hr/documentos" element={<MisDocumentos />} />
+            <Route path="zona-hr/solicitudes" element={<MisSolicitudes />} />
             <Route path="perfil" element={<Perfil />} />
           </Route>
 
@@ -167,22 +189,51 @@ export default function App() {
           {/* DOCUMENTACIÓN (PRD v1.0), EN /documentos: /documentacion ya lo ocupa documentacion.html,
               la documentación de la maqueta, y el servidor de desarrollo la sirve primero. Las rutas siguen el menú por tarea de 11.2; el expediente
               lleva el id de la persona y no uno propio, porque un expediente ES una persona. */}
+          {/* DOCUMENTACIÓN v3: TRES PUERTAS, como BambooHR, Humand y Talana. LEGAJOS guarda lo de cada
+              persona —sus carpetas, lo que falta, lo que espera revisión—; ENVÍOS es todo lo que la
+              empresa le mandó a su gente y lo que su gente le pidió; CONFIGURACIÓN, las carpetas y las
+              plantillas. Lo demás —revisar, un contrato— cuelga de una de las
+              tres, para que el menú encienda siempre la puerta por la que se entró. */}
           <Route path="/documentos" element={<Layout />}>
             <Route index element={<Navigate to="/documentos/expedientes" replace />} />
-            <Route path="expedientes" element={<DocExpedientes />} />
+            <Route path="expedientes" element={<DocLegajos />} />
+            <Route path="expedientes/carga" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="expedientes/reportes" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="expedientes/contrato/:id" element={<DocContrato />} />
+            <Route path="expedientes/revisar" element={<DocRevisar />} />
             <Route path="expedientes/:id" element={<DocExpediente />} />
-            <Route path="bandeja" element={<DocBandeja />} />
-            <Route path="emitir" element={<DocEmitir />} />
-            <Route path="contratos/:id" element={<DocContrato />} />
-            <Route path="panel" element={<DocPanel />} />
-            <Route path="reportes" element={<DocReportes />} />
-            <Route path="lote" element={<DocCargaLote />} />
-            <Route path="configuracion" element={<DocPuestaEnMarcha />} />
-            <Route path="configuracion/tipos" element={<DocTiposSubtipos />} />
-            <Route path="configuracion/requisitos" element={<DocRequisitos />} />
-            <Route path="configuracion/modelos" element={<DocBiblioteca />} />
-            <Route path="configuracion/modelos/:id" element={<DocEditorPlantilla />} />
-            <Route path="configuracion/parametros" element={<DocParametros />} />
+            {/* Cada carpeta del legajo es una página: se enlaza y la flecha de atrás vuelve. */}
+            <Route path="expedientes/:id/:carpeta" element={<DocExpediente />} />
+            <Route path="solicitudes" element={<DocSolicitudes />} />
+            <Route path="solicitudes/atender" element={<Navigate to="/documentos/solicitudes" replace />} />
+            <Route path="solicitudes/:id" element={<DocAtender />} />
+            <Route path="emitidos" element={<DocEnvios />} />
+            <Route path="emitidos/nuevo" element={<DocEmitir />} />
+            <Route path="emitidos/:id" element={<DocEnvio />} />
+            <Route path="envios" element={<EnviosViejo />} />
+            <Route path="envios/*" element={<CambiarPrefijo de="/documentos/envios" a="/documentos/emitidos" />} />
+            <Route path="configuracion" element={<DocConfiguracion />} />
+            <Route path="configuracion/plantillas/:id" element={<DocEditorPlantilla />} />
+            {/* LAS DIRECCIONES DE ANTES siguen respondiendo y llevan a donde quedó lo suyo, con lo que
+                traían detrás: un enlace guardado a un expediente cae en ese mismo legajo. */}
+            <Route path="colaboradores/*" element={<CambiarPrefijo de="/documentos/colaboradores" a="/documentos/expedientes" />} />
+            <Route path="legajos/*" element={<CambiarPrefijo de="/documentos/legajos" a="/documentos/expedientes" />} />
+            <Route path="contratos/*" element={<CambiarPrefijo de="/documentos/contratos" a="/documentos/expedientes/contrato" />} />
+            <Route path="emitir" element={<CambiarPrefijo de="/documentos/emitir" a="/documentos/emitidos/nuevo" />} />
+            <Route path="emitidos/lotes/*" element={<CambiarPrefijo de="/documentos/emitidos/lotes" a="/documentos/emitidos" />} />
+            <Route path="bandeja" element={<Navigate to="/documentos/solicitudes" replace />} />
+            <Route path="por-revisar" element={<Navigate to="/documentos/expedientes/revisar" replace />} />
+            <Route path="carga-masiva" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="lote" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="reportes" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="seguimiento" element={<SeguimientoAColaboradores />} />
+            <Route path="panel" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="configuracion/tipos" element={<Navigate to="/documentos/configuracion" replace />} />
+            <Route path="configuracion/modelos/*" element={<CambiarPrefijo de="/documentos/configuracion/modelos" a="/documentos/configuracion/plantillas" />} />
+            <Route path="configuracion/modelos" element={<Navigate to="/documentos/configuracion?ver=plantillas" replace />} />
+            <Route path="configuracion/avisos" element={<Navigate to="/documentos/configuracion?ver=avisos" replace />} />
+            <Route path="configuracion/requisitos" element={<Navigate to="/documentos/expedientes" replace />} />
+            <Route path="configuracion/parametros" element={<Navigate to="/documentos/configuracion?ver=avisos" replace />} />
           </Route>
           <Route path="/archivos" element={<Layout />}>
             <Route index element={<MisArchivos />} />

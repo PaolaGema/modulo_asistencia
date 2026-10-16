@@ -1,11 +1,13 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, FolderTree, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, Inbox, FilePlus2, PieChart, FileBarChart, FileStack, ListChecks, Library, SlidersHorizontal, Upload, Flag } from 'lucide-react'
+import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
+import { useDocumentacion } from '../../context/DocumentacionContext'
+import { versionActual } from '../../data/documentacionData'
 
 const sectionInfo = {
   'Administración': 'Las pantallas con las que se administra este módulo.',
@@ -13,6 +15,7 @@ const sectionInfo = {
   'Empresa': 'Quién es la empresa, dónde está y cómo se organiza por dentro. Se define una vez y casi no se toca.',
   'Puestos y personas': 'Los cargos, las plazas y el dibujo. De aquí sacan Onboarding y Evaluación el área y el cargo de cada persona.',
   'Sistema': 'Cómo se comporta Souly para toda la empresa. Se decide una vez y afecta a todos los módulos.',
+  'Documentación': 'Expedientes: lo de cada persona. Solicitudes: lo que la gente pide a RR.HH. Documentos emitidos: lo que la empresa le envió. Configuración: carpetas y plantillas.',
 }
 const sectionInfoTitle = {
   'Administración': 'Administración',
@@ -20,6 +23,7 @@ const sectionInfoTitle = {
   'Empresa': 'Empresa',
   'Puestos y personas': 'Puestos y personas',
   'Sistema': 'Sistema',
+  'Documentación': 'Documentación',
 }
 
 /* El calendario de la empresa entra aquí y no en «Mi espacio»: lo que muestra son cumpleaños,
@@ -209,23 +213,32 @@ const personasNav = [
 /* ── DOCUMENTACIÓN: POR TAREA, NO POR TIPO DE DOCUMENTO (PRD 11.2) ──
    El Salar ordena el menú por familia —digitales, certificados, memorándums, contratos— y obliga
    a saber de antemano en cuál vive el finiquito. Acá se ordena por lo que la persona vino a
-   hacer: buscar a alguien, atender pendientes, emitir, mirar el cumplimiento. La configuración
-   va aparte y abajo, porque se entra a decidir y se sale. */
-const documentacionNav = [
-  { section: 'Trabajo diario', items: [
-    { label: 'Expedientes', path: '/documentos/expedientes', icon: FolderOpen },
-    { label: 'Bandeja', path: '/documentos/bandeja', icon: Inbox },
-    { label: 'Emitir', path: '/documentos/emitir', icon: FilePlus2 },
-    { label: 'Panel de cumplimiento', path: '/documentos/panel', icon: PieChart },
-    { label: 'Reportes', path: '/documentos/reportes', icon: FileBarChart },
-    { label: 'Carga por lote', path: '/documentos/lote', icon: Upload },
-  ]},
-  { section: 'Configuración', items: [
-    { label: 'Puesta en marcha', path: '/documentos/configuracion', icon: Flag, end: true },
-    { label: 'Tipos y subtipos', path: '/documentos/configuracion/tipos', icon: FileStack },
-    { label: 'Requisitos por perfil', path: '/documentos/configuracion/requisitos', icon: ListChecks },
-    { label: 'Biblioteca de modelos', path: '/documentos/configuracion/modelos', icon: Library },
-    { label: 'Parámetros y avisos', path: '/documentos/configuracion/parametros', icon: SlidersHorizontal },
+   hacer: buscar a un colaborador y ver sus documentos, atender solicitudes, emitir y sacar un
+   reporte. La configuración va aparte y abajo, porque se entra a decidir y se sale.
+
+   SIETE ENTRADAS Y NO ONCE (revisión del módulo). El panel de cumplimiento vive ahora arriba de
+   la lista de colaboradores; los requisitos, en el expediente de cada persona; los parámetros,
+   junto a los tipos de documento; y la puesta en marcha se fue: repetía, con enlaces, lo que
+   las demás pantallas ya dicen. Seguimiento también se fue: es Colaboradores visto por documento. */
+/* DOCUMENTACIÓN: CUATRO PUERTAS (15 oct 2026). Expedientes guarda lo de cada persona; Solicitudes,
+   lo que la gente le pide a RR.HH., con plazo; Documentos emitidos, lo que la empresa le mandó a su
+   gente; Configuración, las carpetas y las plantillas. Son las mismas palabras que ve el
+   colaborador (Mis solicitudes, De RR.HH.). El contador dice dónde hay trabajo: lo que espera
+   revisión en Expedientes y los pedidos sin responder en Solicitudes. */
+/* Las entradas que tienen subsecciones fijas (`subs`), para abrirlas al entrar. */
+const RUTAS_CON_SUBS = ['/documentos/configuracion']
+
+const documentacionNav = (cuentas = {}) => [
+  { section: 'Documentación', items: [
+    { label: 'Expedientes', path: '/documentos/expedientes', icon: FolderOpen, cuenta: cuentas.porRevisar },
+    { label: 'Solicitudes', path: '/documentos/solicitudes', icon: Inbox, cuenta: cuentas.solicitudes },
+    { label: 'Documentos emitidos', path: '/documentos/emitidos', icon: Send },
+    /* CONFIGURACIÓN SE DESPLIEGA (15 oct 2026): sus dos partes son subsecciones del menú, como los
+       ejes de Organización, en vez de pestañas dentro de la pantalla. */
+    { label: 'Configuración', path: '/documentos/configuracion', icon: Settings, subs: [
+      { label: 'Plantillas', ver: 'plantillas' },
+      { label: 'Notificaciones y numeración', ver: 'avisos' },
+    ] },
   ]},
 ]
 
@@ -286,6 +299,13 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
   const navigate = useNavigate()
   const { guardNavigate } = useUnsavedChanges()
   const donde = ruta ?? location.pathname
+  /* Los contadores de Documentación: lo que espera revisión (subido por colaboradores o sin
+     clasificar) y los pedidos sin responder. Salen del mismo estado que las pantallas. */
+  const doc = useDocumentacion()
+  const cuentasDoc = useMemo(() => (doc ? {
+    porRevisar: doc.documentos.filter(d => !d.eliminado && versionActual(d)?.revision === 'pendiente').length + doc.sinClasificar.length,
+    solicitudes: doc.solicitudes.filter(q => q.estado === 'pendiente').length,
+  } : {}), [doc])
 
   const isPersonas = donde.startsWith('/personas')
   const isOrganizacion = donde.startsWith('/organizacion')
@@ -302,7 +322,9 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
 
   useEffect(() => {
     const dentro = Object.values(EJES).find(e => e.ruta === location.pathname)
-    if (dentro) setEjesAbiertos(prev => (prev.has(dentro.key) ? prev : new Set(prev).add(dentro.key)))
+    /* Una entrada con subsecciones fijas se abre igual al entrar: su clave es su ruta. */
+    const clave = dentro?.key || (RUTAS_CON_SUBS.includes(location.pathname) ? location.pathname : null)
+    if (clave) setEjesAbiertos(prev => (prev.has(clave) ? prev : new Set(prev).add(clave)))
   }, [location.pathname])
 
   const alternarEje = key => setEjesAbiertos(prev => {
@@ -352,7 +374,7 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
   const config = moduleConfig[moduleKey]
 
   const sections = isDocumentacion
-    ? documentacionNav
+    ? documentacionNav(cuentasDoc)
     : isConfiguracion
     ? configuracionNav
     : isArchivos
@@ -449,13 +471,15 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
               </div>
             )}
             <div className="flex flex-col" style={{ gap: '0.3rem', alignItems: expanded ? undefined : 'center' }}>
-              {group.items.map(({ label, path, icon: Icon, end, eje }) => {
+              {group.items.map(({ label, path, icon: Icon, end, eje: ejeOrg, cuenta, subs }) => {
+                /* Unas subsecciones fijas se pliegan igual que un eje: su clave es la ruta. */
+                const eje = ejeOrg || (subs ? path : null)
                 /* DOS VERDES NO PUEDEN DECIR «ESTÁS AQUÍ» A LA VEZ. Estando dentro, el padre deja
                    de ser un destino y pasa a ser el nombre del sitio: se vuelve rótulo y le cede
                    el verde al hijo, que es donde uno está de verdad. */
                 const abierto = !!eje && expanded && ejesAbiertos.has(eje)
     /* La entrada se marca también cuando estás en la ficha de un nodo de su eje. */
-                const ejeActivo = !!eje && ejeDeFicha?.key === eje
+                const ejeActivo = !!ejeOrg && ejeDeFicha?.key === ejeOrg
                 return (
                 <Fragment key={path}>
                 <NavLink
@@ -489,6 +513,14 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
                   <>
                     <Icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} style={{ marginRight: expanded ? '0.65rem' : 0 }} />
                     {expanded && <span className="truncate">{label}</span>}
+                    {/* El contador de lo que espera: solo cuando hay algo, y en el borde derecho. */}
+                    {expanded && cuenta > 0 && (
+                      <span aria-label={`${cuenta} pendientes`} style={{
+                        marginLeft: 'auto', minWidth: 20, height: 18, padding: '0 6px', borderRadius: 999,
+                        background: '#0C2D40', color: '#fff', fontSize: 10.5, fontWeight: 700,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontVariantNumeric: 'tabular-nums',
+                      }}>{cuenta}</span>
+                    )}
                     {/* LA FLECHA ES LO QUE HACE QUE ALGUIEN PULSE LA PRIMERA VEZ. El efecto de
                         despliegue solo se ve DESPUÉS de abrir; cerrado —que es como está el 90 %
                         del tiempo— lo único que promete que ahí abajo hay algo es esto. */}
@@ -511,7 +543,12 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
                   <div className={`mn-caja${abierto ? ' abierto' : ''}`} aria-hidden={!abierto}>
                    <div className="mn-caja-dentro">
                     <div className="mn-sub">
-                    {opcionesDeEje(eje, nivelesNav, location.search, location.pathname === path, ejeActivo ? tipoEnFicha : null).map(op => (
+                    {(subs
+                      ? subs.map((sb, i) => {
+                          const ver = new URLSearchParams(location.search).get('ver')
+                          return { label: sb.label, path: `${path}?ver=${sb.ver}`, activa: location.pathname === path && (ver === sb.ver || (!subs.some(x => x.ver === ver) && i === 0)) }
+                        })
+                      : opcionesDeEje(eje, nivelesNav, location.search, location.pathname === path, ejeActivo ? tipoEnFicha : null)).map(op => (
                       <button
                         key={op.path}
                         className={`mn-sub-item${op.activa ? ' on' : ''}`}

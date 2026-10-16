@@ -1,42 +1,51 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AlertTriangle, Check, CheckCircle2, Clock, Eye, FileSignature, FileText, Inbox, Send, Upload, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Award, CheckCircle2, Copy, Inbox, PenLine, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
-import { useArchivoLocal } from '../../hooks/useArchivoLocal'
-import { Cabecera, EstadoChip, EstadoContratoChip, Etiqueta, Filtros, Modal, PersonaCelda, SensibilidadChip, Vacio } from '../../components/documentacion/comunes'
+import { Cabecera, Etiqueta, Filtros, PersonaCelda, Vacio } from '../../components/documentacion/comunes'
 import { FILTROS_VACIOS, pasaFiltros } from '../../components/documentacion/utilidades'
-import { MODALIDADES, fechaCorta, fechaLarga, iso, hoy } from '../../data/documentacionData'
-import { activos, pilas, proximoVencimiento, textoDias, ventanaMaxima } from './seguimientoDatos'
+import { PLAZO_SOLICITUD_DIAS, TIPOS_SOLICITUD, aFecha, fechaCorta, hoy, responderAntes } from '../../data/documentacionData'
+import { activos } from './seguimientoDatos'
+import Desplegable from '../../components/layout/Desplegable'
 import './seguimiento.css'
 
-/* ── LA BANDEJA DE RR.HH. (pantalla 8, RF-39) ──────────────────────────────
-   Cuatro pilas —vencidos, por vencer, faltantes y en revisión— y una quinta para los contratos
-   que terminan (RF-40). Es la pantalla que responde «¿qué tengo que hacer hoy?», y por eso se
-   ACTÚA SIN SALIR: lo que sube el colaborador se aprueba o se rechaza acá mismo, y lo que hay que
-   cargar lleva directo al expediente con el tipo ya puesto. */
+/* ── SOLICITUDES: LO QUE PIDIÓ UN COLABORADOR ──────────────────────────────
+   Sólo lo que una persona pidió desde la app y que termina en un documento en sus manos:
+   certificados, copias de su expediente y correcciones. Lo que el sistema detecta solo —revisar,
+   faltantes, vencidos, contratos que terminan— está en Colaboradores, visto por documento: mezclado acá, 66 pendientes
+   del sistema tapaban los 4 pedidos de la gente.
 
-const PILAS = [
-  { key: 'vencidos', label: 'Vencidos', Icono: AlertTriangle },
-  { key: 'por_vencer', label: 'Por vencer', Icono: Clock },
-  { key: 'faltantes', label: 'Faltantes', Icono: FileText },
-  { key: 'revision', label: 'En revisión', Icono: Eye },
-  { key: 'contratos', label: 'Contratos por vencer', Icono: FileSignature },
+   CADA PEDIDO SE ATIENDE CON LO QUE PIDE. No hay «Aprobar»: un certificado se emite, una copia se
+   elige y se envía, una corrección se vuelve a emitir. Rechazar sigue existiendo, con motivo.
+
+   Y CADA UNO TIENE PLAZO. Se responde dentro de los días hábiles fijados; lo atrasado se ve
+   primero y en rojo. */
+
+const ICONOS = { certificacion: Award, copia: Copy, correccion: PenLine }
+const VISTAS = [
+  { key: 'pendiente', label: 'Pendientes' },
+  { key: 'atendida', label: 'Atendidas' },
+  { key: 'rechazada', label: 'Rechazadas' },
 ]
 
+/* Cuánto falta para responder, en palabras y con su color. */
+function plazoDe(q) {
+  const limite = responderAntes(q.fecha)
+  const d = Math.round((aFecha(limite) - hoy()) / 864e5)
+  if (d < 0) return { d, texto: `Atrasada ${-d} ${d === -1 ? 'día' : 'días'}`, tono: 'rojo', limite }
+  if (d === 0) return { d, texto: 'Vence hoy', tono: 'rojo', limite }
+  if (d === 1) return { d, texto: 'Mañana', tono: 'ambar', limite }
+  return { d, texto: `En ${d} días`, tono: 'gris', limite }
+}
+
+/* Es la pantalla Solicitudes (su propia entrada del menú desde el 15 oct 2026): lo pedido suele terminar en un documento emitido. */
 export default function Bandeja() {
   const ctx = useDocumentacion()
-  const { personas, sucursales, tipos, subtipos, revisar } = ctx
+  const { personas, sucursales, tipos, subtipos, solicitudes } = ctx
   const navigate = useNavigate()
-  const [params, setParams] = useSearchParams()
-  const pila = PILAS.some(p => p.key === params.get('pila')) ? params.get('pila') : 'vencidos'
   const [filtros, setFiltros] = useState(FILTROS_VACIOS)
-  const [elegidos, setElegidos] = useState(() => new Set())
-  const [revisando, setRevisando] = useState(null)
-  const [pedir, setPedir] = useState(false)
-  /* LOS PEDIDOS QUEDAN GUARDADOS y en la bitácora. El envío es del motor de Comunicación (3.8),
-     que la demo no tiene, y el aviso lo dice. */
-  const { pedidos, pedirDocumentos } = ctx
-  const pedidoDe = it => it.subtipo && pedidos[`${it.persona.id}|${it.subtipo.id}`]
+  const [vista, setVista] = useState('pendiente')
+  const [tipo, setTipo] = useState('')
   const [aviso, setAviso] = useState(null)
 
   useEffect(() => {
@@ -46,153 +55,98 @@ export default function Bandeja() {
   }, [aviso])
 
   const gente = useMemo(() => activos(personas).filter(p => pasaFiltros(p, filtros)), [personas, filtros])
-  const todas = useMemo(() => pilas(ctx, gente), [ctx, gente])
-  /* TIPO Y SUBTIPO FILTRAN FILAS, NO PERSONAS: la sede y el área dicen de quién; el tipo, de qué. */
-  const deTipo = it => (!filtros.tipo || it.subtipo?.tipoId === filtros.tipo) && (!filtros.subtipo || it.subtipo?.id === filtros.subtipo)
-  const listas = useMemo(() => Object.fromEntries(Object.entries(todas).map(([k, v]) => [k, k === 'contratos' ? v : v.filter(deTipo)])), [todas, filtros]) // eslint-disable-line react-hooks/exhaustive-deps
-  const filas = listas[pila]
+  const porId = useMemo(() => new Map(gente.map(p => [p.id, p])), [gente])
+  const deLaGente = solicitudes.filter(q => TIPOS_SOLICITUD[q.tipo] && porId.has(q.colaboradorId))
+  const enVista = deLaGente.filter(q => q.estado === vista)
+  const filas = enVista
+    .filter(q => !tipo || q.tipo === tipo)
+    .sort((a, b) => (vista === 'pendiente'
+      ? (responderAntes(a.fecha) < responderAntes(b.fecha) ? -1 : 1)
+      : ((a.resuelto?.fecha || '') < (b.resuelto?.fecha || '') ? 1 : -1)))
 
-  const cambiarPila = k => { setParams(k === 'vencidos' ? {} : { pila: k }); setElegidos(new Set()) }
-  const alternar = clave => setElegidos(prev => { const n = new Set(prev); if (n.has(clave)) n.delete(clave); else n.add(clave); return n })
-  const seleccionables = ['vencidos', 'por_vencer', 'faltantes'].includes(pila)
-  const todosElegidos = seleccionables && filas.length > 0 && filas.every(f => elegidos.has(f.clave))
-
-  const cargar = it => navigate(`/documentos/expedientes/${it.persona.id}?cargar=${it.subtipo.id}`)
-
-  const confirmarPedido = () => {
-    pedirDocumentos(filas.filter(f => elegidos.has(f.clave)).map(f => ({ colaboradorId: f.persona.id, subtipoId: f.subtipo.id, nombre: f.subtipo.nombre })))
-    setAviso(`Se prepararon ${elegidos.size} pedidos. En producción saldrían por correo y por la app; esta demo no envía mensajes.`)
-    setElegidos(new Set())
-    setPedir(false)
-  }
-
-  const ventana = ventanaMaxima(ctx)
-  const proximo = proximoVencimiento(ctx, gente)
+  /* ATENDER ES OTRA PANTALLA (15 oct 2026): «Atender solicitudes», de tres columnas, como «Revisar
+     documentos». Desde la bandeja sólo se elige el pedido; rechazar sí se puede desde acá. */
 
   return (
-    <div className="content-scroll">
-      <Cabecera titulo="Bandeja" sub="Lo que necesita atención hoy: vencidos, por vencer, faltantes y lo que espera su revisión." />
-
-      <Filtros valor={filtros} onCambio={v => { setFiltros(v); setElegidos(new Set()) }} mostrar={pila === 'contratos' ? ['sede', 'area', 'cargo'] : ['sede', 'area', 'cargo', 'tipo', 'subtipo']} personas={activos(personas)} sucursales={sucursales} tipos={tipos} subtipos={subtipos} />
-
-      <div className="dc-tarjeta xb-bandeja">
-        <div className="dc-tabs" role="tablist" aria-label="Pilas de la bandeja">
-          {PILAS.map(({ key, label, Icono }) => (
-            <button key={key} type="button" role="tab" aria-selected={pila === key} className={`dc-tab${pila === key ? ' on' : ''}`} onClick={() => cambiarPila(key)}>
-              <Icono size={14} aria-hidden="true" /> {label} <span className="dc-tab-n">{listas[key].length}</span>
+    <div>
+      {/* PENDIENTES / ATENDIDAS / RECHAZADAS, en la cabecera y con sus números, como «Activos /
+          Desvinculados / Todos» en Expedientes: elige qué pedidos se miran; los filtros trabajan
+          dentro de eso. */}
+      <Cabecera titulo="Solicitudes" sub={`Lo que los colaboradores le piden a RR.HH. Respóndalas dentro de ${PLAZO_SOLICITUD_DIAS} días hábiles.`}>
+        <div className="xa-vinculo" role="group" aria-label="Qué pedidos ver">
+          {VISTAS.map(v => (
+            <button key={v.key} type="button" aria-pressed={vista === v.key} className={vista === v.key ? 'on' : ''} onClick={() => setVista(v.key)}>
+              {v.label} <span>{deLaGente.filter(q => q.estado === v.key).length}</span>
             </button>
           ))}
         </div>
+      </Cabecera>
 
-        {seleccionables && filas.length > 0 && (
-          <div className="xb-barra-sel">
-            <label className="xb-check">
-              <input type="checkbox" checked={todosElegidos} onChange={() => setElegidos(todosElegidos ? new Set() : new Set(filas.map(f => f.clave)))} />
-              <span>{elegidos.size ? `${elegidos.size} seleccionados` : 'Seleccionar todos'}</span>
-            </label>
-            <button type="button" className="dc-btn dc-btn-sm" disabled={!elegidos.size} onClick={() => setPedir(true)}>
-              <Send size={13} aria-hidden="true" /> Pedir a los seleccionados
-            </button>
-          </div>
-        )}
+      {/* El tipo de pedido es un filtro más, en la misma fila y con la misma forma que los demás. */}
+      <div className="xs-filtros">
+        <Filtros valor={filtros} onCambio={setFiltros} mostrar={['sede', 'area', 'cargo']} personas={activos(personas)} sucursales={sucursales} tipos={tipos} subtipos={subtipos} />
+        <div className={`dc-filtro${tipo ? ' on' : ''}`}>
+          {tipo && <button type="button" className="dc-filtro-quitar" aria-label="Quitar el filtro de tipo" title="Quitar este filtro" onClick={() => setTipo('')}><X size={13} aria-hidden="true" /></button>}
+          <Desplegable valor={tipo} onCambio={setTipo} ariaLabel="Tipo de pedido" placeholder="Todos los tipos"
+            opciones={[{ valor: '', etiqueta: 'Todos los tipos', lateral: String(enVista.length) }, ...Object.entries(TIPOS_SOLICITUD).map(([k, t]) => ({ valor: k, etiqueta: t.label, lateral: String(enVista.filter(q => q.tipo === k).length) }))]} />
+        </div>
+      </div>
 
-        {filas.length === 0 ? <PilaVacia pila={pila} ventana={ventana} proximo={proximo} /> : (
+      <div className="dc-tarjeta xb-bandeja">
+        {filas.length === 0 ? (
+          <Vacio
+            Icono={vista === 'pendiente' ? CheckCircle2 : Inbox}
+            titulo={vista === 'pendiente' ? 'No hay pedidos pendientes' : vista === 'atendida' ? 'Todavía no se atendió ningún pedido' : 'No se rechazó ningún pedido'}
+            texto={vista === 'pendiente' ? 'Lo que pidan los colaboradores desde la app aparecerá aquí.' : 'Quedan aquí con quién y cuándo respondió.'}
+          />
+        ) : (
           <div className="as-table-wrap xb-tabla-wrap">
             <table className="as-table xb-tabla">
               <thead>
                 <tr>
-                  {seleccionables && <th className="xb-col-check"><span className="sr-only">Seleccionar</span></th>}
                   <th>Colaborador</th>
-                  <th>{pila === 'contratos' ? 'Contrato' : 'Documento'}</th>
-                  <th>Estado</th>
-                  <th>{pila === 'revision' ? 'Subido' : pila === 'faltantes' ? 'Plazo' : pila === 'contratos' ? 'Fin' : 'Vencimiento'}</th>
-                  <th><span className="sr-only">Acciones</span></th>
+                  <th>Pide</th>
+                  <th>Detalle</th>
+                  <th>{vista === 'pendiente' ? 'Responder antes' : 'Respondida'}</th>
+                  <th className="xs-col-acc"><span className="sr-only">Acciones</span></th>
                 </tr>
               </thead>
               <tbody>
-                {filas.map(it => (
-                  <tr key={it.clave} className={elegidos.has(it.clave) ? 'xb-fila-sel' : undefined}>
-                    {seleccionables && (
-                      <td className="xb-col-check">
-                        <input type="checkbox" aria-label={`Seleccionar ${it.persona.name}, ${it.subtipo.nombre}`} checked={elegidos.has(it.clave)} onChange={() => alternar(it.clave)} />
+                {filas.map(q => {
+                  const p = porId.get(q.colaboradorId)
+                  const t = TIPOS_SOLICITUD[q.tipo]
+                  const Icono = ICONOS[q.tipo]
+                  const plazo = plazoDe(q)
+                  return (
+                    <tr key={q.id} className="xa-fila-link" tabIndex={0} onClick={() => navigate(`/documentos/solicitudes/${q.id}`)} onKeyDown={e => { if (e.key === 'Enter') navigate(`/documentos/solicitudes/${q.id}`) }} aria-label={`Abrir el pedido de ${p.name}: ${q.asunto}`}>
+                      <td><PersonaCelda persona={p} /></td>
+                      <td><Etiqueta tono={t.tono}><Icono size={11} aria-hidden="true" /> {t.singular}</Etiqueta></td>
+                      <td>
+                        <div className="xb-doc">
+                          <span className="xb-doc-nom">{q.asunto}</span>
+                          <span className="xb-doc-sub">{q.detalle}</span>
+                          {q.estado === 'rechazada' && q.resuelto?.nota && <span className="xb-motivo">Motivo: {q.resuelto.nota}</span>}
+                          {q.estado === 'atendida' && q.resuelto?.nota && <span className="xs-resuelto">{q.resuelto.nota}</span>}
+                          {q.estado === 'atendida' && q.resuelto?.emitidoId && <button type="button" className="xb-enlace" onClick={() => navigate(`/documentos/emitidos/${q.resuelto.emitidoId}`)}>Ver el envío</button>}
+                        </div>
                       </td>
-                    )}
-                    <td><PersonaCelda persona={it.persona} onClick={() => navigate(`/documentos/expedientes/${it.persona.id}`)} /></td>
-                    <td>
-                      {pila === 'contratos' ? (
-                        <div className="xb-doc">
-                          <span className="xb-doc-nom">{MODALIDADES[it.contrato.modalidad]} · {it.contrato.numero}</span>
-                          <span className="xb-doc-sub">{it.contrato.tipo === 'adenda' ? 'Adenda' : 'Contrato'} desde {fechaCorta(it.contrato.inicio)}</span>
-                        </div>
-                      ) : (
-                        <div className="xb-doc">
-                          <span className="xb-doc-nom">{it.subtipo.nombre} <SensibilidadChip nivel={it.subtipo.sensibilidad} /></span>
-                          <span className="xb-doc-sub">{tipos.find(t => t.id === it.subtipo.tipoId)?.nombre}</span>
-                          {it.estado === 'rechazado' && it.version?.motivoRechazo && <span className="xb-motivo">Rechazado: {it.version.motivoRechazo}</span>}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <div className="xb-estado">
-                        {pila === 'contratos' ? <EstadoContratoChip estado={it.estado} /> : <EstadoChip estado={it.estado} />}
-                        {pedidoDe(it) && <Etiqueta tono="azul" titulo={`Pedido el ${fechaCorta(pedidoDe(it))}`}>{pedidoDe(it) === iso(hoy()) ? 'Pedido hoy' : 'Pedido'}</Etiqueta>}
-                      </div>
-                    </td>
-                    <td className="xb-cuando">
-                      {pila === 'revision' ? (
-                        <><b>{fechaCorta(it.version.fecha)}</b><span>{it.dias === 0 ? 'Hoy' : `Espera hace ${it.dias} ${it.dias === 1 ? 'día' : 'días'}`} · {it.version.canal === 'app' ? 'desde la app' : it.version.canal}</span></>
-                      ) : pila === 'faltantes' ? (
-                        <><b>{it.limite ? fechaCorta(it.limite) : 'Desde el ingreso'}</b><span>{it.dias ? `Atrasado ${it.dias} ${it.dias === 1 ? 'día' : 'días'}` : it.estado === 'rechazado' ? 'Hay que volver a pedirlo' : 'Vence hoy'}</span></>
-                      ) : pila === 'contratos' ? (
-                        <><b>{fechaCorta(it.contrato.fin)}</b><span>{it.dias < 0 ? `Terminó hace ${-it.dias} días` : `Termina en ${it.dias} días`}</span></>
-                      ) : (
-                        <><b>{fechaCorta(it.version.vencimiento)}</b><span>{textoDias(it.estado, it.dias)}</span></>
-                      )}
-                    </td>
-                    <td className="xb-acc">
-                      {pila === 'revision' ? (
-                        <button type="button" className="dc-btn dc-btn-sm" onClick={() => setRevisando(it)}><Eye size={13} aria-hidden="true" /> Revisar</button>
-                      ) : pila === 'contratos' ? (
-                        <button type="button" className="dc-btn dc-btn-sm" onClick={() => navigate(`/documentos/contratos/${it.contrato.id}`)}>Ver contrato</button>
-                      ) : (
-                        <button type="button" className="dc-btn dc-btn-sm" onClick={() => cargar(it)}><Upload size={13} aria-hidden="true" /> {pila === 'faltantes' ? 'Cargar' : 'Cargar renovación'}</button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      <td className="xb-cuando">
+                        {vista === 'pendiente'
+                          ? <><Etiqueta tono={plazo.tono}>{plazo.texto}</Etiqueta><span>{fechaCorta(plazo.limite)} · pedido el {fechaCorta(q.fecha)}</span></>
+                          : <><b>{fechaCorta(q.resuelto?.fecha)}</b><span>{q.resuelto?.por}</span></>}
+                      </td>
+                      {/* Sólo «Ver detalle»: emitir o rechazar se decide dentro del pedido, con el documento a la vista. */}
+                      <td className="xs-col-acc">
+                        <button type="button" className="dc-btn dc-btn-sm" onClick={e => { e.stopPropagation(); navigate(`/documentos/solicitudes/${q.id}`) }}>Ver detalle</button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
-
-      {revisando && (
-        <RevisarModal
-          item={revisando}
-          tipo={tipos.find(t => t.id === revisando.subtipo.tipoId)}
-          onCerrar={() => setRevisando(null)}
-          onDecidir={(ok, motivo) => {
-            revisar(revisando.documento.id, ok, motivo)
-            setAviso(ok ? `Aprobado. ${revisando.subtipo.nombre} de ${revisando.persona.name} ya cuenta como cumplido.` : `Rechazado. ${revisando.persona.name} verá el motivo y podrá volver a subirlo.`)
-            setRevisando(null)
-          }}
-          onAbrirExpediente={() => navigate(`/documentos/expedientes/${revisando.persona.id}?doc=${revisando.documento.id}`)}
-        />
-      )}
-
-      {pedir && (
-        <Modal titulo="Pedir documentos" Icono={Send} onCerrar={() => setPedir(false)} ancho={480}
-          pie={<>
-            <button type="button" className="pl-btn-cancel" onClick={() => setPedir(false)}>Cancelar</button>
-            <button type="button" className="pl-btn-save" onClick={confirmarPedido}>Preparar {elegidos.size} pedidos</button>
-          </>}
-        >
-          <p className="xb-p">
-            Se avisará a {new Set(filas.filter(f => elegidos.has(f.clave)).map(f => f.persona.id)).size} personas qué documento tienen que traer, con el acceso directo para subirlo desde la app.
-          </p>
-          <p className="xb-nota">En esta demo no se envía ningún mensaje: el envío es del motor de notificaciones de Comunicación (PRD 3.8).</p>
-        </Modal>
-      )}
 
       {aviso && (
         <div className="xb-aviso" role="status">
@@ -201,84 +155,5 @@ export default function Bandeja() {
         </div>
       )}
     </div>
-  )
-}
-
-/* LOS VACÍOS DICEN QUÉ PASÓ Y QUÉ SIGUE (11.3). El de vencimientos da la fecha del próximo: «no
-   hay nada» sin decir cuándo lo habrá deja la pregunta abierta. */
-function PilaVacia({ pila, ventana, proximo }) {
-  if (pila === 'vencidos' || pila === 'por_vencer') {
-    return (
-      <Vacio Icono={CheckCircle2} titulo={`No hay nada vencido ni por vencer en los próximos ${ventana} días`}
-        texto={proximo ? `El próximo vencimiento es el ${fechaLarga(proximo)}.` : 'Ningún documento cargado tiene fecha de vencimiento.'} />
-    )
-  }
-  if (pila === 'faltantes') return <Vacio Icono={CheckCircle2} titulo="No falta ningún documento exigible" texto="Los plazos que todavía corren no aparecen acá: alguien que entró ayer no está en falta." />
-  if (pila === 'revision') return <Vacio Icono={Inbox} titulo="Nada espera su revisión" texto="Lo que suban los colaboradores desde la app aparecerá acá antes de contar como cumplido." />
-  return <Vacio Icono={CheckCircle2} titulo="Ningún contrato termina pronto" texto="Los contratos a plazo fijo aparecen acá con la anticipación configurada en Parámetros y avisos." />
-}
-
-/* ── REVISAR SIN SALIR DE LA BANDEJA (RF-31, RF-32) ────────────────────────
-   Ver y decidir en el mismo lugar. El rechazo EXIGE motivo: le llega al colaborador y queda en
-   la auditoría para siempre (5.4). Abrir un documento confidencial deja rastro aunque no se
-   apruebe ni se descargue (RF-90). */
-function RevisarModal({ item, tipo, onCerrar, onDecidir, onAbrirExpediente }) {
-  const { registrarDescarga } = useDocumentacion()
-  const [rechazando, setRechazando] = useState(false)
-  const [motivo, setMotivo] = useState('')
-  const v = item.version
-  const url = useArchivoLocal(v.archivo?.clave || null)
-  const confidencial = item.subtipo.sensibilidad === 'confidencial'
-
-  useEffect(() => {
-    if (confidencial) registrarDescarga('documento', item.documento.id, item.persona.id, `Abrió para revisar ${item.subtipo.nombre}`, true)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const esImagen = v.archivo?.formato && ['jpg', 'jpeg', 'png', 'webp'].includes(v.archivo.formato)
-  return (
-    <Modal titulo="Revisar documento" Icono={Eye} onCerrar={onCerrar} ancho={820}
-      pie={rechazando ? <>
-        <button type="button" className="pl-btn-cancel" onClick={() => setRechazando(false)}>Volver</button>
-        <button type="button" className="pl-btn-save xb-btn-rechazo" disabled={!motivo.trim()} onClick={() => onDecidir(false, motivo.trim())}>Rechazar con este motivo</button>
-      </> : <>
-        <button type="button" className="dc-btn dc-btn-texto xb-pie-izq" onClick={onAbrirExpediente}>Abrir en el expediente</button>
-        <button type="button" className="pl-btn-cancel xb-btn-rechazar" onClick={() => setRechazando(true)}><X size={14} aria-hidden="true" /> Rechazar</button>
-        <button type="button" className="pl-btn-save" onClick={() => onDecidir(true)}><Check size={14} aria-hidden="true" /> Aprobar</button>
-      </>}
-    >
-      <div className="xb-revisar">
-        <div className="xb-previa" aria-label="Vista previa del documento">
-          {url && esImagen ? <img src={url} alt={`${item.subtipo.nombre} de ${item.persona.name}`} />
-            : url ? <iframe src={url} title={`${item.subtipo.nombre} de ${item.persona.name}`} />
-              : (
-                <div className="xb-previa-sim">
-                  <FileText size={34} strokeWidth={1.4} aria-hidden="true" />
-                  <b>{v.archivo?.nombre}</b>
-                  <span>Vista previa simulada: los documentos de ejemplo no tienen archivo.</span>
-                </div>
-              )}
-        </div>
-        <div className="xb-ficha">
-          <PersonaCelda persona={item.persona} />
-          <dl className="xb-dl">
-            <div><dt>Documento</dt><dd>{item.subtipo.nombre} <SensibilidadChip nivel={item.subtipo.sensibilidad} /></dd></div>
-            <div><dt>Tipo</dt><dd>{tipo?.nombre}</dd></div>
-            <div><dt>Emisión</dt><dd>{fechaCorta(v.emision)}</dd></div>
-            <div><dt>Vencimiento</dt><dd>{v.vencimiento ? fechaCorta(v.vencimiento) : 'No vence'}</dd></div>
-            <div><dt>Subido</dt><dd>{fechaCorta(v.fecha)} por {v.subidoPor} · {v.canal === 'app' ? 'app' : v.canal}</dd></div>
-            <div><dt>Archivo</dt><dd className="xb-archivo">{v.archivo?.nombre}<span>Original: {v.archivo?.original || '—'}</span></dd></div>
-            {v.info && <div><dt>Información adicional</dt><dd>{v.info}</dd></div>}
-          </dl>
-          {rechazando && (
-            <label className="pl-label xb-motivo-campo">
-              Motivo del rechazo <span className="pl-req" aria-hidden="true">*</span>
-              <textarea className="pl-input" rows={3} autoFocus value={motivo} onChange={e => setMotivo(e.target.value)}
-                placeholder="Por ejemplo: la foto está cortada y no se lee el número de documento." />
-              <span className="xb-nota">El colaborador verá este motivo junto a la opción de volver a subirlo.</span>
-            </label>
-          )}
-        </div>
-      </div>
-    </Modal>
   )
 }

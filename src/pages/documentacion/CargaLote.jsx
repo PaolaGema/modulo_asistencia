@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
-import { Download, Upload, FileSpreadsheet, CheckCircle2, XCircle, AlertTriangle, History, Wand2 } from 'lucide-react'
+import { Download, Upload, FileSpreadsheet, CheckCircle2, XCircle, AlertTriangle, History, Wand2, Paperclip } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, Vacio } from '../../components/documentacion/comunes'
 import { descargarTexto } from '../../components/documentacion/utilidades'
+import { guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
 import { normalizarNombre, fechaCorta, iso, versionActual } from '../../data/documentacionData'
 import './expediente.css'
 
@@ -12,8 +13,10 @@ import './expediente.css'
    fila qué está mal. Las filas buenas se cargan aunque otras fallen; las malas quedan en el
    reporte del lote con su motivo, para corregirlas y volver a subir solo esas.
 
-   En la demo el archivo de cada fila no viaja —se cargaría junto al CSV en un ZIP—: se registra
-   el nombre y el documento queda como de los datos de ejemplo, sin vista previa real. */
+   LOS ARCHIVOS VIAJAN CON LA PLANILLA: se adjuntan los PDF o imágenes junto al CSV y cada fila se
+   empareja con el suyo por el nombre de la columna «archivo». Lo adjunto se guarda de verdad y se
+   ve en el expediente; una fila cuyo archivo no se adjuntó se carga igual, sólo con el nombre, y
+   lo avisa —no lo bloquea—, para que una migración grande no se frene por un escaneo pendiente. */
 
 const COLUMNAS = ['codigo_colaborador', 'subtipo', 'fecha_emision', 'fecha_vencimiento', 'archivo']
 
@@ -49,6 +52,16 @@ export default function CargaLote() {
   const [resultado, setResultado] = useState(null) // { id, ok, errores }
   const [abierto, setAbierto] = useState(null)
   const entrada = useRef(null)
+  const entradaArchivos = useRef(null)
+  /* Los archivos adjuntos, por su nombre en minúsculas: así «Carnet.PDF» empareja con «carnet.pdf». */
+  const [adjuntos, setAdjuntos] = useState(() => new Map())
+  const [cargando, setCargando] = useState(false)
+  /* La lista del navegador se copia ANTES de vaciar el campo: es «viva», y al limpiar el input
+     para poder volver a elegir los mismos archivos quedaba vacía antes de leerla. */
+  const adjuntar = lista => {
+    const copia = [...(lista || [])]
+    setAdjuntos(prev => { const m = new Map(prev); for (const f of copia) m.set(f.name.toLowerCase(), f); return m })
+  }
 
   /* LA VALIDACIÓN PREVIA, fila por fila. Cada fila sale con su lista de problemas; una fila sin
      problemas es una fila que se puede cargar. Los avisos —«ya existe, se versiona»— no bloquean. */
@@ -78,18 +91,22 @@ export default function CargaLote() {
       if (emision && vencimiento && vencimiento <= emision) errores.push('El vencimiento es anterior a la emisión')
       if (!archivo) errores.push('Falta el nombre del archivo')
       else if (subtipo && !subtipo.formatos.includes(extension(archivo))) errores.push(`El archivo es .${extension(archivo)} y «${subtipo.nombre}» acepta ${subtipo.formatos.join(', ')}`)
+      const file = archivo ? adjuntos.get(String(archivo).trim().toLowerCase()) : null
+      if (file && subtipo && file.size / 1024 / 1024 > subtipo.tamanoMaxMB) errores.push(`El archivo pesa ${(file.size / 1024 / 1024).toFixed(1)} MB y el máximo es ${subtipo.tamanoMaxMB} MB`)
+      if (archivo && !file) avisos.push('Sin el archivo adjunto: se registra sólo con el nombre')
 
       if (persona && subtipo) {
         const clave = `${persona.id}|${subtipo.id}`
         if (vistas.has(clave)) errores.push('Duplicado: la misma persona y el mismo subtipo ya aparecen más arriba en este lote')
         vistas.add(clave)
         const existe = documentos.find(d => d.colaboradorId === persona.id && d.subtipoId === subtipo.id && !d.eliminado)
-        if (existe && versionActual(existe)?.archivo?.original === archivo) errores.push('Duplicado: ese mismo archivo ya está en el expediente')
+        // El mismo archivo otra vez avisa y no bloquea, igual que al cargar uno por uno (RF-33).
+        if (existe && versionActual(existe)?.archivo?.original === archivo) avisos.push('Ese mismo archivo ya está en el expediente: se cargará igual')
         else if (existe) avisos.push(`Ya tiene «${subtipo.nombre}»: se guardará como versión ${existe.versiones.length + 1}`)
       }
-      return { n, celdas, persona, subtipo, emision, vencimiento, archivo, errores, avisos }
+      return { n, celdas, persona, subtipo, emision, vencimiento, archivo, file, errores, avisos }
     })
-  }, [texto, personas, subtipos, tipos, documentos])
+  }, [texto, personas, subtipos, tipos, documentos, adjuntos])
 
   const buenas = filas.filter(f => !f.errores.length)
   const malas = filas.filter(f => f.errores.length)
@@ -98,10 +115,10 @@ export default function CargaLote() {
     const ej = personas.filter(p => p.status !== 'desvinculado').slice(0, 2)
     descargarTexto('plantilla_carga_documentos.csv', [
       COLUMNAS.join(';'),
-      `${ej[0]?.codigo || '1007919'};DP-01;15/03/2022;15/03/2032;carnet_frente_reverso.pdf`,
-      `${ej[1]?.codigo || '1015838'};Carnet de sanidad;01/08/2026;01/08/2027;sanidad.jpg`,
+      `${ej[0]?.codigo || '1007919'};IP-01;15/03/2022;15/03/2032;documento_identidad.pdf`,
+      `${ej[1]?.codigo || '1015838'};Licencia o certificación;01/08/2026;01/08/2031;licencia.jpg`,
       '',
-      '# subtipo: su código ERP (DP-01) o su nombre (Carnet de identidad). Fechas en dd/mm/aaaa.',
+      '# subtipo: su código ERP (IP-01) o su nombre (Documento de identidad). Fechas en dd/mm/aaaa.',
       '# Códigos disponibles: ' + subtipos.filter(s => s.activo).map(s => `${s.codigoErp} ${s.nombre}`).join(' · '),
     ].join('\n'))
   }
@@ -113,13 +130,13 @@ export default function CargaLote() {
     setResultado(null)
     setTexto([
       COLUMNAS.join(';'),
-      `${a.codigo};DP-05;10/09/2026;10/03/2027;antecedentes_${a.codigo}.pdf`,
-      `${b.codigo};Carnet de sanidad;01/09/2026;01/09/2027;sanidad_${b.codigo}.jpg`,
-      `${c.codigo};Título profesional;20/12/2019;;titulo_${c.codigo}.pdf`,
-      `9999999;DP-01;01/01/2020;01/01/2030;carnet.pdf`,
-      `${d.codigo};Carnet de sanidad;01/09/2026;;sanidad.jpg`,
-      `${a.codigo};Diploma de bachiller;31/02/2010;;bachiller.docx`,
-      `${b.codigo};Carnet de sanidad;01/09/2026;01/09/2027;sanidad_otra.jpg`,
+      `${a.codigo};PP-02;10/09/2026;10/09/2028;certificacion_${a.codigo}.pdf`,
+      `${b.codigo};Licencia o certificación;01/09/2026;01/09/2031;licencia_${b.codigo}.jpg`,
+      `${c.codigo};Título o diploma;20/12/2019;;titulo_${c.codigo}.pdf`,
+      `9999999;IP-01;01/01/2020;01/01/2030;documento.pdf`,
+      `${d.codigo};Licencia o certificación;01/09/2026;;licencia.jpg`,
+      `${a.codigo};Título o diploma;31/02/2010;;diploma.docx`,
+      `${b.codigo};Licencia o certificación;01/09/2026;01/09/2031;licencia_otra.jpg`,
     ].join('\n'))
   }
 
@@ -130,7 +147,16 @@ export default function CargaLote() {
     r.readAsText(f, 'utf-8')
   }
 
-  const cargar = () => {
+  const cargar = async () => {
+    if (cargando) return
+    setCargando(true)
+    /* Primero se guardan los archivos adjuntos; después se registra el lote con sus claves. */
+    const claves = new Map()
+    for (const f of buenas) {
+      if (!f.file) continue
+      const clave = nuevaClaveArchivo()
+      if (await guardarArchivo(clave, f.file)) claves.set(f.n, clave)
+    }
     const aCargar = buenas.map(f => ({
       colaboradorId: f.persona.id,
       subtipoId: f.subtipo.id,
@@ -140,7 +166,9 @@ export default function CargaLote() {
           nombre: normalizarNombre(f.persona, f.subtipo, f.emision, extension(f.archivo)),
           original: f.archivo,
           formato: extension(f.archivo),
-          tamanoKB: 0,
+          tamanoKB: f.file ? Math.round(f.file.size / 1024) : 0,
+          clave: claves.get(f.n) || null,
+          tipoMime: f.file?.type,
         },
         emision: f.emision,
         vencimiento: f.vencimiento || null,
@@ -149,8 +177,10 @@ export default function CargaLote() {
     }))
     const errores = malas.map(f => ({ fila: f.n, texto: f.celdas.join(' · '), motivos: f.errores }))
     const id = registrarLote(aCargar, errores)
-    setResultado({ id, ok: aCargar.length, errores })
+    setResultado({ id, ok: aCargar.length, errores, conArchivo: claves.size })
     setTexto('')
+    setAdjuntos(new Map())
+    setCargando(false)
   }
 
   const reporteErrores = errs => descargarTexto('errores_del_lote.txt', errs.map(e => `Fila ${e.fila}: ${e.texto}\n  - ${e.motivos.join('\n  - ')}`).join('\n\n'))
@@ -163,7 +193,7 @@ export default function CargaLote() {
 
       <ol className="xa-pasos">
         <li><b>1.</b> Descargue la plantilla y llénela: una fila por documento.</li>
-        <li><b>2.</b> Súbala o pegue su contenido abajo.</li>
+        <li><b>2.</b> Súbala o pegue su contenido abajo, y adjunte los archivos que nombra (PDF o imagen).</li>
         <li><b>3.</b> Revise la validación y cargue las filas correctas.</li>
       </ol>
 
@@ -172,7 +202,7 @@ export default function CargaLote() {
           <CheckCircle2 size={20} aria-hidden="true" className="xa-verde" />
           <div>
             <p><b>{resultado.ok} {resultado.ok === 1 ? 'documento cargado' : 'documentos cargados'}.</b>{resultado.errores.length > 0 && ` ${resultado.errores.length} ${resultado.errores.length === 1 ? 'fila quedó' : 'filas quedaron'} sin cargar.`}</p>
-            <p className="dc-muted">Ya se ven en cada expediente y cuentan para los requisitos.</p>
+            <p className="dc-muted">Ya se ven en cada expediente y cuentan para los requisitos.{resultado.conArchivo ? ` ${resultado.conArchivo} con su archivo adjunto.` : ''}</p>
           </div>
           {resultado.errores.length > 0 && <button type="button" className="dc-btn" onClick={() => reporteErrores(resultado.errores)}><Download size={14} /> Reporte de errores</button>}
         </div>
@@ -185,6 +215,8 @@ export default function CargaLote() {
             <button type="button" className="dc-btn dc-btn-sm dc-btn-texto" onClick={ejemplo}><Wand2 size={13} /> Probar con un ejemplo</button>
             <button type="button" className="dc-btn dc-btn-sm" onClick={() => entrada.current?.click()}><Upload size={13} /> Subir CSV</button>
             <input ref={entrada} type="file" accept=".csv,.txt,text/csv" hidden onChange={e => { subir(e.target.files[0]); e.target.value = '' }} />
+            <button type="button" className="dc-btn dc-btn-sm" onClick={() => entradaArchivos.current?.click()}><Paperclip size={13} /> Adjuntar archivos{adjuntos.size ? ` (${adjuntos.size})` : ''}</button>
+            <input ref={entradaArchivos} type="file" multiple accept="application/pdf,image/*,.doc,.docx" hidden onChange={e => { adjuntar(e.target.files); e.target.value = '' }} />
           </div>
         </header>
         <div className="dc-tarjeta-cuerpo">
@@ -193,7 +225,7 @@ export default function CargaLote() {
             rows={7}
             value={texto}
             onChange={e => { setTexto(e.target.value); setResultado(null) }}
-            placeholder={`${COLUMNAS.join(';')}\n1007919;DP-01;15/03/2022;15/03/2032;carnet.pdf`}
+            placeholder={`${COLUMNAS.join(';')}\n1007919;IP-01;15/03/2022;15/03/2032;documento.pdf`}
             aria-label="Contenido del CSV"
             spellCheck={false}
           />
@@ -222,7 +254,7 @@ export default function CargaLote() {
                     <td>{f.subtipo ? f.subtipo.nombre : <span className="dc-muted">{f.celdas[1] || '—'}</span>}</td>
                     <td className="xa-nowrap">{f.emision ? fechaCorta(f.emision) : <span className="dc-muted">{f.celdas[2] || '—'}</span>}</td>
                     <td className="xa-nowrap">{f.vencimiento ? fechaCorta(f.vencimiento) : <span className="dc-muted">{f.celdas[3] || '—'}</span>}</td>
-                    <td className="xa-lote-arch">{f.archivo || '—'}</td>
+                    <td className="xa-lote-arch">{f.archivo || '—'}{f.file && <small className="xa-lote-adj"><Paperclip size={11} aria-hidden="true" /> adjunto</small>}</td>
                     <td>
                       {f.errores.length ? (
                         <ul className="xa-lote-err">{f.errores.map(e => <li key={e}><XCircle size={12} aria-hidden="true" /> {e}</li>)}</ul>
@@ -242,8 +274,8 @@ export default function CargaLote() {
             <span className="dc-muted">
               {malas.length ? `Las ${malas.length} filas con errores no se cargan; quedan en el reporte del lote.` : 'Todas las filas son correctas.'}
             </span>
-            <button type="button" className="pl-btn-new" disabled={!buenas.length} onClick={cargar}>
-              <Upload size={14} /> Cargar {buenas.length} {buenas.length === 1 ? 'documento' : 'documentos'}
+            <button type="button" className="pl-btn-new" disabled={!buenas.length || cargando} onClick={cargar}>
+              <Upload size={14} /> {cargando ? 'Guardando…' : `Subir ${buenas.length} ${buenas.length === 1 ? 'documento' : 'documentos'}`}
             </button>
           </div>
         </section>

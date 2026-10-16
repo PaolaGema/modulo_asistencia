@@ -1,14 +1,16 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Download, Eye, FileBarChart, History, ShieldCheck, XCircle, Grid3x3, CalendarRange, FileSignature, Lock } from 'lucide-react'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Download, Eye, FileArchive, History, Search, ShieldCheck, XCircle, Grid3x3, CalendarRange, Lock } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import Desplegable from '../../components/layout/Desplegable'
 import SelectorFecha from '../../components/layout/SelectorFecha'
-import { Cabecera, EstadoChip, EstadoContratoChip, EstadoEmitidoChip, Etiqueta, Filtros, PersonaCelda, SensibilidadChip, Vacio } from '../../components/documentacion/comunes'
+import { Cabecera, EstadoChip, Etiqueta, Filtros, PersonaCelda, SensibilidadChip, Vacio } from '../../components/documentacion/comunes'
 import { FILTROS_VACIOS, describirFiltros, exportarCSV, pasaFiltros } from '../../components/documentacion/utilidades'
+import { zipDeExpedientes } from '../../components/documentacion/expedienteZip'
+import { descargarBlob } from '../../components/documentacion/zip'
 import {
-  ACCIONES_BITACORA, CATEGORIAS, ESTADOS, ESTADOS_CONTRATO, ESTADOS_EMITIDO, MODALIDADES,
-  checklistDe, dias, diasHasta, estadoContrato, estadoVersion, fechaCorta, fechaNum, requisitosDe, versionActual,
+  ACCIONES_BITACORA, ESTADOS,
+  checklistDe, dias, diasHasta, estadoVersion, fechaCorta, fechaNum, requisitosDe, versionActual,
 } from '../../data/documentacionData'
 import { activos } from './seguimientoDatos'
 import './seguimiento.css'
@@ -24,12 +26,14 @@ import './seguimiento.css'
 const PESTANAS = [
   { key: 'matriz', label: 'Matriz por colaborador', Icono: Grid3x3 },
   { key: 'vencimientos', label: 'Vencimientos', Icono: CalendarRange },
-  { key: 'emision', label: 'Emisión', Icono: FileSignature },
   { key: 'auditoria', label: 'Auditoría', Icono: History },
+  { key: 'descarga', label: 'Descarga por lote', Icono: FileArchive },
 ]
 
 export default function Reportes() {
   const [params, setParams] = useSearchParams()
+  /* Lo emitido se mudó a su espacio, Emisión › Emitidos: el enlace viejo cae ahí. */
+  if (params.get('ver') === 'emision') return <Navigate to="/documentos/emitidos" replace />
   const tab = PESTANAS.some(p => p.key === params.get('ver')) ? params.get('ver') : 'matriz'
   return (
     <div className="content-scroll">
@@ -43,8 +47,8 @@ export default function Reportes() {
       </div>
       {tab === 'matriz' && <Matriz />}
       {tab === 'vencimientos' && <Vencimientos />}
-      {tab === 'emision' && <Emision />}
       {tab === 'auditoria' && <Auditoria />}
+      {tab === 'descarga' && <DescargaLote />}
     </div>
   )
 }
@@ -76,7 +80,7 @@ const ICONO_CELDA = { vigente: CheckCircle2, por_vencer: Clock, vencido: AlertTr
 
 function Matriz() {
   const ctx = useDocumentacion()
-  const { personas, sucursales, tipos, subtipos, conjuntos } = ctx
+  const { personas, sucursales, tipos, subtipos } = ctx
   const navigate = useNavigate()
   const [f, setF] = useState(FILTROS_VACIOS)
 
@@ -84,7 +88,7 @@ function Matriz() {
   const datos = useMemo(() => {
     /* Las columnas son los subtipos que alguien de la lista tiene que tener: un subtipo que nadie
        exige es una columna de guiones. Ordenadas por tipo, como en la configuración. */
-    const exigidos = new Set(gente.flatMap(p => requisitosDe(p, conjuntos).map(r => r.subtipoId)))
+    const exigidos = new Set(gente.flatMap(p => requisitosDe(p, ctx).map(r => r.subtipoId)))
     const cols = subtipos
       .filter(s => exigidos.has(s.id) && (!f.tipo || s.tipoId === f.tipo) && (!f.subtipo || s.id === f.subtipo))
       .sort((a, b) => tipos.findIndex(t => t.id === a.tipoId) - tipos.findIndex(t => t.id === b.tipoId))
@@ -93,7 +97,7 @@ function Matriz() {
       return { persona: p, celdas: Object.fromEntries(cl.map(i => [i.subtipo.id, i.estado])) }
     }).filter(r => !f.estado || cols.some(c => r.celdas[c.id] === f.estado))
     return { cols, filas }
-  }, [gente, ctx, conjuntos, subtipos, tipos, f])
+  }, [gente, ctx, subtipos, tipos, f])
 
   const confid = datos.cols.filter(c => c.sensibilidad === 'confidencial')
   const omitidas = datos.filas.reduce((a, r) => a + confid.filter(c => r.celdas[c.id]).length, 0)
@@ -102,7 +106,7 @@ function Matriz() {
     const cols = datos.cols.filter(c => c.sensibilidad !== 'confidencial')
     exportarCSV(
       `matriz-documentos_${dias(0)}.csv`,
-      ['Colaborador', 'Código', 'Sucursal', 'Área', 'Cargo', ...cols.map(c => c.nombre)],
+      ['Colaborador', 'Código', 'Sucursal', 'Unidad organizacional', 'Cargo', ...cols.map(c => c.nombre)],
       datos.filas.map(r => [r.persona.name, r.persona.codigo, r.persona.sedeNombre, r.persona.depto, r.persona.cargo, ...cols.map(c => (r.celdas[c.id] ? ESTADOS[r.celdas[c.id]].label : 'No exigido'))]),
       `${describirFiltros(f, { sucursales, tipos, subtipos })}${confid.length ? ` · Columnas confidenciales omitidas: ${confid.map(c => c.nombre).join(', ')}` : ''}`,
     )
@@ -199,7 +203,7 @@ function Vencimientos() {
 
   const exportar = () => exportarCSV(
     `vencimientos_${dias(0)}.csv`,
-    ['Colaborador', 'Código', 'Sucursal', 'Área', 'Documento', 'Tipo', 'Vencimiento', 'Días', 'Estado'],
+    ['Colaborador', 'Código', 'Sucursal', 'Unidad organizacional', 'Documento', 'Tipo', 'Vencimiento', 'Días', 'Estado'],
     filas.filter(r => r.subtipo.sensibilidad !== 'confidencial').map(r => [r.persona.name, r.persona.codigo, r.persona.sedeNombre, r.persona.depto, r.subtipo.nombre, tipos.find(t => t.id === r.subtipo.tipoId)?.nombre, fechaNum(r.version.vencimiento), r.dias, ESTADOS[r.estado].label]),
     `${describirFiltros(f, { sucursales, tipos, subtipos })} · Del ${fechaNum(rango.desde)} al ${fechaNum(rango.hasta)}${conVencidos && horizonte !== 'rango' ? ' · con los ya vencidos' : ''}${omitidos ? ` · ${omitidos} confidenciales omitidos` : ''}`,
   )
@@ -258,73 +262,92 @@ function Vencimientos() {
   )
 }
 
-/* ── (c) EMISIÓN DE LAS TRES FAMILIAS (RF-82) ──
-   El Salar sólo tenía el de memorándums. Certificados, memorándums y contratos en una lista,
-   con su número, su modelo y su estado. El memorándum de un modelo sensible —la llamada de
-   atención— es confidencial (RF-58) y no sale en la exportación. */
-function Emision() {
-  const { personas, sucursales, emitidos, contratos, modelos, parametros } = useDocumentacion()
-  const navigate = useNavigate()
+/* ── (e) DESCARGA POR LOTE ──
+   Los expedientes de varias personas en un solo ZIP, una carpeta por persona con su índice: lo
+   que se prepara para una auditoría sin abrir expediente por expediente.
+   LO CONFIDENCIAL QUEDA FUERA POR OMISIÓN (RNF-12). Incluirlo es una decisión explícita, y cada
+   descarga queda en la bitácora. */
+function DescargaLote() {
+  const ctx = useDocumentacion()
+  const { personas, sucursales, registrarDescarga } = ctx
   const [f, setF] = useState(FILTROS_VACIOS)
-  const [categoria, setCategoria] = useState('')
-  const [modeloId, setModeloId] = useState('')
-  const [estado, setEstado] = useState('')
-  const [desde, setDesde] = useState('')
-  const [hasta, setHasta] = useState('')
+  const [busca, setBusca] = useState('')
+  const [elegidos, setElegidos] = useState(() => new Set())
+  const [confidenciales, setConfidenciales] = useState(false)
+  const [trabajando, setTrabajando] = useState(false)
+  const [resultado, setResultado] = useState(null)
 
-  const porId = useMemo(() => new Map(personas.map(p => [p.id, p])), [personas])
-  const todas = useMemo(() => [
-    ...emitidos.map(e => {
-      const m = modelos.find(x => x.id === e.modeloId)
-      return { id: e.id, numero: e.numero, fecha: e.fecha, categoria: e.categoria, modelo: m, persona: porId.get(e.colaboradorId), estado: e.estado, tipoEstado: 'emitido', sensible: !!m?.sensible }
-    }),
-    ...contratos.map(c => ({
-      id: c.id, numero: c.numero, fecha: c.versiones?.[0]?.fecha || c.inicio, categoria: 'contrato', modelo: modelos.find(x => x.id === c.modeloId),
-      persona: porId.get(c.colaboradorId), estado: estadoContrato(c, parametros, contratos), tipoEstado: 'contrato', sensible: false, contrato: c,
-    })),
-  ].filter(r => r.persona), [emitidos, contratos, modelos, porId, parametros])
+  const texto = busca.trim().toLowerCase()
+  const lista = activos(personas).filter(p => pasaFiltros(p, f)
+    && (!texto || [p.name, p.codigo, p.cargo].some(v => String(v || '').toLowerCase().includes(texto))))
+  const todos = lista.length > 0 && lista.every(p => elegidos.has(p.id))
+  const alternar = id => setElegidos(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  const marcarTodos = () => setElegidos(prev => {
+    const n = new Set(prev)
+    if (todos) lista.forEach(p => n.delete(p.id)); else lista.forEach(p => n.add(p.id))
+    return n
+  })
+  const seleccion = personas.filter(p => elegidos.has(p.id))
 
-  const filas = todas.filter(r => pasaFiltros(r.persona, f)
-    && (!categoria || r.categoria === categoria) && (!modeloId || r.modelo?.id === modeloId)
-    && (!estado || r.estado === estado) && (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta))
-    .sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
-  const omitidos = filas.filter(r => r.sensible).length
-
-  const estadosOps = categoria === 'contrato' ? Object.entries(ESTADOS_CONTRATO) : categoria ? Object.entries(ESTADOS_EMITIDO) : [...Object.entries(ESTADOS_EMITIDO), ...Object.entries(ESTADOS_CONTRATO).filter(([k]) => !ESTADOS_EMITIDO[k])]
-  const extraFiltros = [categoria && CATEGORIAS[categoria].plural, modeloId && modelos.find(m => m.id === modeloId)?.nombre, estado && (ESTADOS_EMITIDO[estado] || ESTADOS_CONTRATO[estado])?.label, desde && `desde ${fechaNum(desde)}`, hasta && `hasta ${fechaNum(hasta)}`].filter(Boolean).join(' · ')
-
-  const exportar = () => exportarCSV(
-    `emision_${dias(0)}.csv`,
-    ['Número', 'Fecha', 'Categoría', 'Modelo', 'Colaborador', 'Código', 'Sucursal', 'Estado'],
-    filas.filter(r => !r.sensible).map(r => [r.numero, fechaNum(r.fecha), CATEGORIAS[r.categoria].label, r.modelo?.nombre, r.persona.name, r.persona.codigo, r.persona.sedeNombre, (r.tipoEstado === 'contrato' ? ESTADOS_CONTRATO : ESTADOS_EMITIDO)[r.estado]?.label]),
-    `${describirFiltros(f, { sucursales })}${extraFiltros ? ` · ${extraFiltros}` : ''}${omitidos ? ` · ${omitidos} confidenciales omitidos` : ''}`,
-  )
+  async function descargar() {
+    setTrabajando(true)
+    setResultado(null)
+    try {
+      const r = await zipDeExpedientes(seleccion, ctx, { confidenciales })
+      descargarBlob(`expedientes_${dias(0)}.zip`, r.blob)
+      registrarDescarga('expediente', null, null, `Descargó ${seleccion.length} expedientes en ZIP${confidenciales ? ' (con confidenciales)' : ''}`, confidenciales)
+      setResultado(r)
+    } finally {
+      setTrabajando(false)
+    }
+  }
 
   return (
     <section className="xb-reporte">
-      <Filtros valor={f} onCambio={setF} personas={personas} sucursales={sucursales} />
+      <p className="xb-nota">Propuesta en evaluación: todos los documentos de una o varias personas en un archivo ZIP, una carpeta por colaborador con su índice.</p>
+      <Filtros valor={f} onCambio={setF} personas={activos(personas)} sucursales={sucursales} />
       <div className="xb-rango">
-        <div className="xb-rango-campo"><Desplegable valor={categoria} onCambio={v => { setCategoria(v); setModeloId(''); setEstado('') }} ariaLabel="Categoría" opciones={[{ valor: '', etiqueta: 'Todas las categorías' }, ...Object.entries(CATEGORIAS).map(([k, c]) => ({ valor: k, etiqueta: c.plural }))]} /></div>
-        <div className="xb-rango-campo"><Desplegable valor={modeloId} onCambio={setModeloId} ariaLabel="Modelo" opciones={[{ valor: '', etiqueta: 'Todos los modelos' }, ...modelos.filter(m => !categoria || m.categoria === categoria).map(m => ({ valor: m.id, etiqueta: m.nombre }))]} /></div>
-        <div className="xb-rango-campo"><Desplegable valor={estado} onCambio={setEstado} ariaLabel="Estado" opciones={[{ valor: '', etiqueta: 'Todos los estados' }, ...estadosOps.map(([k, e]) => ({ valor: k, etiqueta: e.label }))]} /></div>
-        <div className="xb-rango-campo"><SelectorFecha valor={desde} onCambio={setDesde} ariaLabel="Emitidos desde" placeholder="Desde" /></div>
-        <div className="xb-rango-campo"><SelectorFecha valor={hasta} onCambio={setHasta} ariaLabel="Emitidos hasta" placeholder="Hasta" /></div>
+        <div className="pl-search-wrap xb-rango-ancho">
+          <Search size={13} className="pl-search-ico" />
+          <input type="search" className="pl-search" placeholder="Buscar por nombre, código o cargo…" value={busca} onChange={e => setBusca(e.target.value)} aria-label="Buscar colaborador" />
+        </div>
       </div>
-      <BarraExportar filas={filas.length} omitidos={omitidos} que={omitidos === 1 ? 'memorándum confidencial' : 'memorándums confidenciales'} onExportar={exportar} />
-      {!filas.length ? (
-        <div className="dc-tarjeta"><Vacio Icono={FileBarChart} titulo="No hay documentos emitidos con estos filtros" texto="Limpie algún filtro o amplíe el rango de fechas." /></div>
+
+      <div className="xb-exportar">
+        <span className="xb-cuenta"><b>{elegidos.size}</b> {elegidos.size === 1 ? 'expediente elegido' : 'expedientes elegidos'} · {lista.length} en la lista</span>
+        <label className="xb-check">
+          <input type="checkbox" checked={confidenciales} onChange={e => setConfidenciales(e.target.checked)} />
+          <span>Incluir documentos confidenciales</span>
+        </label>
+        <button type="button" className="pl-btn-new xb-btn-exportar" disabled={!elegidos.size || trabajando} onClick={descargar}>
+          <FileArchive size={14} aria-hidden="true" /> {trabajando ? 'Preparando…' : 'Descargar ZIP'}
+        </button>
+      </div>
+      {!confidenciales && <p className="xb-nota"><Lock size={11} aria-hidden="true" /> Las descargas masivas no incluyen documentos confidenciales salvo que lo marque (RNF-12). El índice de cada carpeta dice qué quedó fuera.</p>}
+      {resultado && (
+        <p className="xb-listo" role="status"><CheckCircle2 size={14} aria-hidden="true" /> Se descargaron {seleccion.length} expedientes con {resultado.archivos} archivos{resultado.omitidos ? ` · ${resultado.omitidos} confidenciales omitidos` : ''}.</p>
+      )}
+
+      {lista.length === 0 ? (
+        <div className="dc-tarjeta"><Vacio Icono={FileArchive} titulo="Nadie coincide con estos filtros" texto="Limpie algún filtro o pruebe con otra palabra." /></div>
       ) : (
         <div className="as-table-wrap xb-tabla-wrap">
           <table className="as-table xb-tabla">
-            <thead><tr><th>Número</th><th>Colaborador</th><th>Modelo</th><th>Fecha</th><th>Estado</th></tr></thead>
+            <thead>
+              <tr>
+                <th className="xb-col-check"><input type="checkbox" aria-label="Seleccionar todos los de la lista" checked={todos} onChange={marcarTodos} /></th>
+                <th>Colaborador</th>
+                <th>Unidad organizacional</th>
+                <th>Sucursal</th>
+              </tr>
+            </thead>
             <tbody>
-              {filas.map(r => (
-                <tr key={r.id} className={r.contrato ? 'xb-fila-link' : undefined} onClick={r.contrato ? () => navigate(`/documentos/contratos/${r.id}`) : undefined}>
-                  <td className="xb-num">{r.numero}</td>
-                  <td><PersonaCelda persona={r.persona} size={28} /></td>
-                  <td><div className="xb-doc"><span className="xb-doc-nom">{r.modelo?.nombre || '—'} {r.sensible && <SensibilidadChip nivel="confidencial" />}</span><span className="xb-doc-sub">{CATEGORIAS[r.categoria].label}{r.contrato ? ` · ${MODALIDADES[r.contrato.modalidad]}${r.contrato.tipo === 'adenda' ? ' · adenda' : ''}` : ''}</span></div></td>
-                  <td>{fechaCorta(r.fecha)}</td>
-                  <td>{r.tipoEstado === 'contrato' ? <EstadoContratoChip estado={r.estado} /> : <EstadoEmitidoChip estado={r.estado} />}</td>
+              {lista.map(p => (
+                <tr key={p.id} className={elegidos.has(p.id) ? 'xb-fila-sel xb-fila-link' : 'xb-fila-link'} onClick={() => alternar(p.id)}>
+                  <td className="xb-col-check"><input type="checkbox" aria-label={`Seleccionar a ${p.name}`} checked={elegidos.has(p.id)} onChange={() => alternar(p.id)} onClick={e => e.stopPropagation()} /></td>
+                  <td><PersonaCelda persona={p} size={28} sub={`${p.codigo} · ${p.cargo || 'Sin cargo'}`} /></td>
+                  <td>{p.depto || '—'}</td>
+                  <td>{p.sedeNombre || '—'}</td>
                 </tr>
               ))}
             </tbody>

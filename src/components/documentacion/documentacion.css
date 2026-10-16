@@ -39,6 +39,7 @@
 .dc-bg-verde { background: var(--dc-verde); }
 .dc-bg-ambar { background: var(--dc-ambar); }
 .dc-bg-rojo { background: var(--dc-rojo); }
+.dc-bg-azul { background: var(--dc-azul); }
 
 .dc-sens {
   display: inline-flex; align-items: center; gap: 3px;
@@ -77,6 +78,9 @@
 
 /* ── Cabecera, tarjetas y vacíos ── */
 .dc-cabecera { align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+/* Sin botones a la derecha, la descripción usa todo el ancho: el tope de 64 caracteres partía en dos
+   renglones una frase que entraba en uno. */
+.dc-cabecera:not(:has(.dc-cabecera-acc)) .pl-subtitle { max-width: none; }
 .dc-cabecera-acc { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
 .dc-tarjeta {
@@ -141,3 +145,44 @@
   .dc-filtro { width: 100%; }
   .dc-filtros { flex-direction: column; align-items: stretch; }
 }
+
+/* ── El menú de tres puntos ── */
+.dc-menu { position: relative; display: inline-flex; }
+.dc-menu-btn {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  border: 1px solid transparent; border-radius: 8px; background: none; cursor: pointer;
+  color: var(--text-muted);
+}
+.dc-menu-btn:hover, .dc-menu-btn[aria-expanded="true"] { background: var(--surface-hover); color: var(--text-heading); border-color: var(--border-soft); }
+.dc-menu-lista {
+  position: fixed; z-index: 1200; min-width: 190px;
+  display: flex; flex-direction: column; padding: 4px;
+  background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(12, 45, 64, .14);
+}
+.dc-menu-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 10px; border: none; background: none; border-radius: 7px; cursor: pointer;
+  font: inherit; font-size: 12.5px; color: var(--text-heading); text-align: left; white-space: nowrap;
+}
+.dc-menu-item:hover:not(:disabled) { background: var(--surface-hover); }
+.dc-menu-item.peligro { color: var(--dc-rojo); }
+.dc-menu-item:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── El PDF dibujado con pdf.js ── */
+.dc-pdf { position: relative; display: flex; flex-direction: column; gap: 8px; background: #FFFFFF; }
+.dc-pdf-paginas { display: flex; flex-direction: column; gap: 8px; }
+.dc-pdf-paginas canvas { display: block; box-shadow: 0 1px 3px rgba(12,45,64,.12); }
+.dc-pdf-primera .dc-pdf-paginas canvas { box-shadow: none; }
+.dc-pdf-nota { padding: 10px 12px; font-size: 12px; color: var(--text-muted); text-align: center; }
+.dc-pdf-primera .dc-pdf-nota { font-size: 10.5px; padding: 6px; }
+
+/* Un filtro en uso: borde oscuro y su propia × para quitarlo (reemplaza a «Limpiar filtros»). */
+.dc-filtro { position: relative; }
+.dc-filtro.on .pl-dropdown-trigger, .dc-filtro.on button[aria-haspopup] { border: 2px solid var(--text-heading); padding-right: 56px; font-weight: 600; }
+.dc-filtro-quitar {
+  position: absolute; top: 50%; right: 30px; z-index: 2; transform: translateY(-50%);
+  width: 20px; height: 20px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
+  display: grid; place-items: center; background: var(--bg-canal); color: var(--text-heading);
+}
+.dc-filtro-quitar:hover { background: var(--text-heading); color: #fff; }

@@ -65,7 +65,8 @@ export const PASO_PREVIA = 'previa'
    y ahí se enseña todo. */
 const SOLO_EN_LOCAL = ['perfil', 'asistencia']
 const EN_LOCAL = import.meta.env?.DEV ?? true
-const seEnsena = key => EN_LOCAL || !SOLO_EN_LOCAL.includes(key)
+// También lo usa Mis documentos: la carpeta «Perfil profesional» sigue la misma regla que el paso.
+export const seEnsena = key => EN_LOCAL || !SOLO_EN_LOCAL.includes(key)
 
 /* ── SEIS PESTAÑAS, CADA UNA CON SUS PARTES ──────────────────────────────────
    La organización que pidió el equipo (30 sep 2026): los once pasos del estudio se agrupan en

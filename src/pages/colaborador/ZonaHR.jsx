@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import {
   Users, Network, Route, ClipboardCheck, ClipboardList, TrendingUp,
-  CircleDollarSign, Bot, Folder, Calendar, Gift, Globe,
+  CircleDollarSign, Bot, Folder, Calendar, Gift, Globe, FileText, MessageSquarePlus,
 } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 
@@ -11,7 +11,7 @@ import { useUser } from '../../context/UserContext'
    porque los módulos de administración no le tocan. Pero SÍ le tocan las puertas de cada módulo:
    sus evaluaciones, sus recibos, sus beneficios. Zona HR es esa lista de puertas.
 
-   TODAS LAS DOCE SE DIBUJAN, TENGAN DESTINO O NO. Esconder las que faltan haría que la pantalla
+   TODAS SE DIBUJAN, TENGAN DESTINO O NO. Esconder las que faltan haría que la pantalla
    creciera de tres en tres a lo largo del proyecto y que nadie —ni el cliente ni quien programe—
    pudiera ver de un vistazo cuánto falta. Las que no existen no se apagan en gris hasta
    desaparecer: se dibujan enteras y avisan al pasar el mouse. Son el mapa del producto.
@@ -31,6 +31,11 @@ function modulos(rol) {
     /* Para quien administra, el módulo; para el resto, su propia ruta. Es la misma puerta con
        dos lados: nadie entra a "Onboarding" a ver el de otro si no le corresponde. */
     { icon: Route, label: 'Onboarding', destino: admin ? '/onboarding' : '/mi-espacio/mi-onboarding' },
+    /* La misma idea: quien administra Documentación entra al módulo; el resto, a sus documentos. */
+    gestiona
+      ? { icon: FileText, label: 'Documentación', destino: '/documentos' }
+      : { icon: FileText, label: 'Mis documentos', destino: '/mi-espacio/zona-hr/documentos' },
+    { icon: MessageSquarePlus, label: 'Mis solicitudes', destino: '/mi-espacio/zona-hr/solicitudes' },
     { icon: ClipboardCheck, label: 'Evaluaciones' },
     { icon: ClipboardList, label: 'Encuestas' },
     { icon: TrendingUp, label: 'PDI' },

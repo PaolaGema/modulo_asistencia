@@ -15,7 +15,7 @@ const exonerado = (exos, d) => exos.some(e => e.colaboradorId === d.colaboradorI
    VENCIDOS Y POR VENCER SALEN DE LOS DOCUMENTOS, NO DE LOS REQUISITOS: un curso con vencimiento
    que nadie exige igual vence, y quien tiene que renovarlo quiere enterarse.
    FALTANTES SÓLO LOS EXIGIBLES (RN-07): alguien que entró ayer y tiene treinta días para traer su
-   carnet de sanidad no está en falta. Un rechazado sí va, venza o no su plazo: ya hubo un intento
+   certificado de nacimiento no está en falta. Un rechazado sí va, venza o no su plazo: ya hubo un intento
    y hay que volver a pedirlo. */
 export function pilas(estado, personas) {
   const { documentos, subtipos, parametros, exoneraciones, contratos } = estado

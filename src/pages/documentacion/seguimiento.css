@@ -16,8 +16,9 @@
 
 /* `position: relative` ancla los textos ocultos de los encabezados (`sr-only` es absoluto): sin él
    se ubicaban respecto del <body> y estiraban la página a lo ancho de la tabla. */
-.xb-tabla-wrap { position: relative; border: none; border-radius: 0; overflow-x: auto; }
-.dc-tarjeta .xb-tabla-wrap { box-shadow: none; }
+/* Suelta, la tabla lleva el borde redondeado de todas (como Expedientes y Plantillas); dentro de una tarjeta, el borde lo pone la tarjeta. */
+.xb-tabla-wrap { position: relative; overflow-x: auto; }
+.dc-tarjeta .xb-tabla-wrap { border: none; border-radius: 0; box-shadow: none; }
 .xb-tabla { width: 100%; }
 .xb-tabla td { vertical-align: middle; }
 .xb-col-check { width: 40px; }
@@ -172,3 +173,93 @@
   .xb-grupo-barra .dc-avance-barra { width: 90px !important; }
   .xb-aviso { right: 16px; left: 16px; bottom: 16px; }
 }
+
+/* ── Solicitudes: el selector dentro de cada pestaña ── */
+.xb-subbarra { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--border-soft); }
+.xb-subbarra .xb-segmento { flex-wrap: wrap; }
+.xb-subbarra .xb-segmento button { padding: 6px 12px; }
+.xb-seg-n { margin-left: 4px; font-size: 11px; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.xb-acc-par { display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end; }
+.xb-listo { margin: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--dc-verde); }
+.xb-nota svg, .xb-motivo svg { display: inline; vertical-align: -1px; }
+/* El PDF dibujado con pdf.js en la revisión: con su propio desplazamiento si tiene varias páginas. */
+.xb-previa .dc-pdf { width: 100%; max-height: 520px; overflow-y: auto; }
+
+/* ── Solicitudes: sólo lo que pidió un colaborador (propuesta S1) ── */
+.xs-tipos { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.xs-tipos button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border-soft); background: var(--surface-card); font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.xs-tipos button.on { background: var(--navy, #0C2D40); border-color: var(--navy, #0C2D40); color: #fff; }
+.xs-tipos button.on .xb-seg-n { color: rgba(255,255,255,.75); }
+.xs-plazo-nota { margin-left: auto; }
+.xs-resuelto { font-size: 11.5px; color: var(--dc-verde); }
+.xb-cuando .dc-chip { display: inline-block; width: fit-content; margin-bottom: 3px; }
+.xb-tabla .dc-chip svg { vertical-align: -1px; }
+
+.xs-pidio { margin: 0 0 12px; font-size: 12.5px; }
+.xs-modal, .xs-correccion { display: flex; flex-direction: column; gap: 14px; }
+.xs-correccion { margin-bottom: 16px; }
+.xs-cita { margin: 0; padding: 11px 14px; border-radius: 10px; background: var(--bg-secondary); font-size: 13px; color: var(--text-heading); }
+.xs-cita span { color: var(--text-muted); }
+.xs-modal-tit { font-size: 13.5px; color: var(--text-heading); }
+.xs-docs { display: flex; flex-direction: column; gap: 12px; max-height: 340px; overflow-y: auto; padding-right: 4px; }
+.xs-docs-grupo { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.xs-docs-g { grid-column: 1 / -1; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.xs-doc { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border-soft); background: var(--surface-card); cursor: pointer; color: var(--text-muted); }
+.xs-doc input { position: absolute; opacity: 0; pointer-events: none; }
+.xs-doc span { display: flex; flex-direction: column; min-width: 0; }
+.xs-doc b { font-size: 12.5px; color: var(--text-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xs-doc small { font-size: 11px; }
+.xs-doc.on { border-color: var(--green, #00B377); background: var(--dc-verde-bg); color: var(--dc-verde); }
+.xs-doc:has(input:focus-visible) { outline: 2px solid var(--green, #00B377); outline-offset: 2px; }
+.xs-canal { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--text-muted); }
+.xs-anular { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: var(--text-heading); cursor: pointer; }
+.xs-anular input { margin-top: 3px; }
+.xs-col-acc { width: 96px; text-align: center !important; }
+
+/* ── Documentación v2: Emitidos, lotes y Por revisar ── */
+.xb-enlace { border: none; background: none; padding: 0; font: inherit; color: var(--blue, #1D5FBF); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.xb-enlace:hover { color: var(--text-heading); }
+.xl-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; padding: 16px 18px; }
+.xl-cab-dato { display: flex; flex-direction: column; gap: 6px; }
+.xl-cab-rot { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.xl-nombre { display: flex; align-items: center; gap: 8px; }
+.xl-nombre input { font: inherit; font-size: 15px; font-weight: 700; color: var(--text-heading); border: 1px solid var(--border-soft); border-radius: 8px; padding: 6px 10px; min-width: 320px; background: var(--surface-card); }
+.xl-acciones { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+
+.xr-cuerpo { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.xr-lista { display: flex; flex-direction: column; max-height: calc(100vh - 260px); overflow-y: auto; }
+.xr-item { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; padding: 12px 14px; border: none; border-top: 1px solid var(--border-soft); background: none; font: inherit; cursor: pointer; color: inherit; }
+.xr-item:first-child { border-top: none; }
+.xr-item:hover { background: var(--surface-hover); }
+.xr-item.on { background: color-mix(in srgb, var(--dc-azul) 10%, transparent); box-shadow: inset 3px 0 0 var(--dc-azul); }
+.xr-item-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.xr-item-nom { font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.xr-item-sub { font-size: 11.5px; color: var(--text-muted); }
+.xr-panel { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.xr-panel-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.xr-panel-cab h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-heading); }
+.xr-panel-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: start; }
+.xr-hoja { border: 1px solid var(--border-soft); border-radius: 10px; overflow: hidden; background: var(--bg-canal); min-height: 320px; display: flex; justify-content: center; }
+.xr-datos { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.xr-datos div { display: flex; flex-direction: column; gap: 2px; }
+.xr-datos dt { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); }
+.xr-datos dd { margin: 0; font-size: 13px; color: var(--text-heading); }
+.xr-fechas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.xr-pie { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; border-top: 1px solid var(--border-soft); padding-top: 14px; }
+.xr-rechazo { display: flex; flex-direction: column; gap: 8px; }
+.xr-rechazo textarea { resize: vertical; min-height: 64px; font: inherit; font-size: 13px; }
+@media (max-width: 1100px) {
+  .xr-cuerpo, .xr-panel-cuerpo { grid-template-columns: 1fr; }
+  .xr-lista { max-height: 320px; }
+}
+.xb-grupo { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.xs-filtros { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+
+/* El selector de la cabecera (Pendientes / Atendidas / Rechazadas), igual al de Expedientes. */
+.xa-vinculo { display: inline-flex; gap: 2px; padding: 3px; border-radius: 11px; background: var(--surface-card); border: 1px solid var(--border-soft); }
+.xa-vinculo button { height: 32px; padding: 0 14px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.xa-vinculo button span { margin-left: 4px; font-weight: 700; opacity: .75; }
+.xa-vinculo button:hover { color: var(--text-heading); }
+.xa-vinculo button.on { background: var(--navy, #0C2D40); color: #fff; }
+.xa-vinculo button.on span { opacity: 1; }
+.xs-filtros { margin-top: 18px; }

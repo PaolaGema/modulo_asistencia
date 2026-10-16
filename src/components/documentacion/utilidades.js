@@ -21,6 +21,20 @@ export function describirFiltros(f, { sucursales = [], tipos = [], subtipos = []
   return t.filter(Boolean).join(' · ') || 'Sin filtros'
 }
 
+/* LOS FILTROS APLICADOS, uno por uno y en palabras: lo que la fila de etiquetas dibuja sobre una
+   tabla («Unidad: Ventas ×»). Cada uno dice qué filtro es, qué valor tiene y su clave para quitarlo. */
+export const NOMBRE_FILTRO = { sede: 'Sucursal', area: 'Unidad', cargo: 'Cargo', tipo: 'Carpeta', subtipo: 'Documento', estado: 'Estado' }
+export function filtrosAplicados(f, mostrar, { sucursales = [], tipos = [], subtipos = [] } = {}) {
+  const texto = {
+    sede: v => sucursales.find(s => s.id === v)?.nombre,
+    area: v => v, cargo: v => v,
+    tipo: v => tipos.find(x => x.id === v)?.nombre,
+    subtipo: v => subtipos.find(x => x.id === v)?.nombre,
+    estado: v => ESTADOS[v]?.label,
+  }
+  return mostrar.filter(k => f[k]).map(k => ({ clave: k, nombre: NOMBRE_FILTRO[k], valor: texto[k](f[k]) || f[k] }))
+}
+
 /* Descarga simulada: la demo no tiene servidor de archivos, así que se baja un .txt que dice
    qué se habría bajado. Mejor eso que un botón que no hace nada. */
 export function descargarTexto(nombre, contenido) {

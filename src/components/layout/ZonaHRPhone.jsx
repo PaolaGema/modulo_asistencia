@@ -1,14 +1,17 @@
 import {
   Users, Network, Route, ClipboardCheck, ClipboardList, TrendingUp,
-  DollarSign, Bot, Folder, Calendar, Gift, Globe, Moon, Bell,
+  DollarSign, Bot, Folder, Calendar, Gift, Globe, Moon, Bell, FileText, MessageSquarePlus,
 } from 'lucide-react'
 
-/* Lanzador de módulos del colaborador. Solo Onboarding tiene destino dentro del prototipo;
-   el resto son accesos de los módulos que SoulyHR todavía no tiene construidos. */
+/* Lanzador de módulos del colaborador. Organigrama, Onboarding, Mis documentos y Mis solicitudes tienen destino
+   dentro del prototipo; el resto son accesos de los módulos que SoulyHR todavía no tiene
+   construidos. */
 const MODULOS = [
   { icon: Users, label: 'Personas' },
   { icon: Network, label: 'Organigrama', destino: 'organigrama' },
   { icon: Route, label: 'Onboarding', destino: 'onboarding' },
+  { icon: FileText, label: 'Mis documentos', destino: 'documentos' },
+  { icon: MessageSquarePlus, label: 'Mis solicitudes', destino: 'solicitudes' },
   { icon: ClipboardCheck, label: 'Evaluaciones' },
   { icon: ClipboardList, label: 'Encuestas' },
   { icon: TrendingUp, label: 'PDI' },

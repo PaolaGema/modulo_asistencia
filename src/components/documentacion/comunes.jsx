@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Eye, ShieldCheck, XCircle, X, Lock } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { AlertTriangle, CheckCircle2, CircleDashed, Clock, Eye, ShieldCheck, XCircle, X, Lock, MoreHorizontal } from 'lucide-react'
 import Avatar from '../personas/Avatar'
 import Desplegable from '../layout/Desplegable'
 import { ESTADOS, ESTADOS_CONTRATO, ESTADOS_EMITIDO, SENSIBILIDAD } from '../../data/documentacionData'
@@ -79,42 +79,49 @@ export function BarraAvance({ pct, detalle, ancho = 120 }) {
 
    `mostrar` elige cuáles aparecen; `valor` es un objeto con las claves que haya. */
 
-export function Filtros({ valor, onCambio, mostrar = ['sede', 'area', 'cargo'], personas = [], sucursales = [], tipos = [], subtipos = [], estados = Object.keys(ESTADOS) }) {
+export function Filtros({ valor, onCambio, mostrar = ['sede', 'area', 'cargo'], personas = [], sucursales = [], tipos = [], subtipos = [], estados = Object.keys(ESTADOS), compacto = false }) {
   const areas = [...new Set(personas.map(p => p.depto).filter(Boolean))].sort()
   const cargos = [...new Set(personas.filter(p => !valor.area || p.depto === valor.area).map(p => p.cargo).filter(Boolean))].sort()
   const conOpcion = (todas, opciones) => [{ valor: '', etiqueta: todas }, ...opciones]
   const defs = {
     sede: { ph: 'Todas las sucursales', ops: sucursales.map(s => ({ valor: s.id, etiqueta: `${s.nombre} · ${s.ciudad}` })) },
-    area: { ph: 'Todas las áreas', ops: areas.map(a => ({ valor: a, etiqueta: a })) },
+    area: { ph: 'Todas las unidades', ops: areas.map(a => ({ valor: a, etiqueta: a })) },
     cargo: { ph: 'Todos los cargos', ops: cargos.map(c => ({ valor: c, etiqueta: c })) },
     tipo: { ph: 'Todos los tipos', ops: tipos.map(t => ({ valor: t.id, etiqueta: t.nombre })) },
     subtipo: { ph: 'Todos los subtipos', ops: subtipos.filter(s => !valor.tipo || s.tipoId === valor.tipo).map(s => ({ valor: s.id, etiqueta: s.nombre })) },
     estado: { ph: 'Todos los estados', ops: estados.map(e => ({ valor: e, etiqueta: ESTADOS[e]?.label || e })) },
   }
-  const activos = mostrar.filter(k => valor[k])
+  /* SIN «LIMPIAR FILTROS» (15 oct 2026): era un enlace suelto al final de la fila. Ahora cada filtro
+     en uso se marca con borde oscuro y trae su propia ×, que lo vuelve a «Todos».
+
+     `compacto`: el desplegable dice lo elegido —«Ventas»— o «Todas las sucursales», y el que recorta
+     algo se pinta, como en el Organigrama. Sin × ni etiquetas debajo: se vuelve a «Todos» desde el
+     mismo desplegable. */
+  const cambiar = (k, v) => {
+    const next = { ...valor, [k]: v }
+    if (k === 'area') next.cargo = ''
+    if (k === 'tipo') next.subtipo = ''
+    onCambio(next)
+  }
   return (
     <div className="dc-filtros" role="group" aria-label="Filtros">
       {mostrar.map(k => (
-        <div key={k} className="dc-filtro">
+        <div key={k} className={`dc-filtro${compacto ? ' dc-filtro-compacto' : ''}${valor[k] ? ' on' : ''}`}>
+          {valor[k] && !compacto && (
+            <button type="button" className="dc-filtro-quitar" aria-label={`Quitar el filtro: ${defs[k].ph.toLowerCase()}`} title="Quitar este filtro" onClick={() => cambiar(k, '')}>
+              <X size={13} aria-hidden="true" />
+            </button>
+          )}
           <Desplegable
             valor={valor[k] || ''}
             opciones={conOpcion(defs[k].ph, defs[k].ops)}
             placeholder={defs[k].ph}
             ariaLabel={defs[k].ph}
-            onCambio={v => {
-              const next = { ...valor, [k]: v }
-              if (k === 'area') next.cargo = ''
-              if (k === 'tipo') next.subtipo = ''
-              onCambio(next)
-            }}
+            onCambio={v => cambiar(k, v)}
+            contenido={compacto ? elegida => <span className="dc-filtro-val">{valor[k] ? (elegida?.etiqueta || valor[k]) : defs[k].ph}</span> : undefined}
           />
         </div>
       ))}
-      {activos.length > 0 && (
-        <button type="button" className="dc-limpiar" onClick={() => { const n = { ...valor }; mostrar.forEach(k => { n[k] = '' }); onCambio(n) }}>
-          Limpiar filtros
-        </button>
-      )}
     </div>
   )
 }
@@ -123,13 +130,20 @@ export function Filtros({ valor, onCambio, mostrar = ['sede', 'area', 'cargo'], 
    Las clases de siempre (`pl-*`) con Escape para cerrar y el clic afuera. `ancho` porque cargar
    un documento no cabe en los 460 px de un aviso. */
 export function Modal({ titulo, Icono, onCerrar, children, pie, ancho = 520 }) {
+  /* CON DOS VENTANAS ABIERTAS —una carpeta y, encima, un documento suyo— Escape cierra sólo la
+     de arriba: la última en el documento. Sin esto se cerraban las dos de un golpe. */
+  const ref = useRef(null)
   useEffect(() => {
-    const tecla = e => { if (e.key === 'Escape') onCerrar() }
+    const tecla = e => {
+      if (e.key !== 'Escape') return
+      const todas = document.querySelectorAll('.pl-overlay')
+      if (todas[todas.length - 1] === ref.current) onCerrar()
+    }
     window.addEventListener('keydown', tecla)
     return () => window.removeEventListener('keydown', tecla)
   }, [onCerrar])
   return (
-    <div className="pl-overlay" onClick={onCerrar}>
+    <div className="pl-overlay" ref={ref} onClick={onCerrar}>
       <div className="pl-modal" role="dialog" aria-modal="true" aria-label={titulo} style={{ width: ancho }} onClick={e => e.stopPropagation()}>
         <div className="pl-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -143,6 +157,66 @@ export function Modal({ titulo, Icono, onCerrar, children, pie, ancho = 520 }) {
         <div className="pl-modal-body">{children}</div>
         {pie && <div className="pl-modal-footer">{pie}</div>}
       </div>
+    </div>
+  )
+}
+
+/* ── EL MENÚ DE TRES PUNTOS ───────────────────────────────────────────────
+   Las acciones de una fila que no son la principal —editar, desactivar, eliminar— van acá y no
+   como tres botones con texto: una tabla con una columna de botones se iba de ancho y pedía
+   desplazarse a los costados. Una acción apagada se queda en la lista con su motivo en `titulo`,
+   para que no desaparezca sin explicación. */
+export function MenuAcciones({ items, etiqueta = 'Más acciones' }) {
+  /* LA LISTA FLOTA EN COORDENADAS DE VENTANA, como la de `Desplegable`: dentro de una tabla
+     (`.as-table-wrap` recorta lo que se sale) el menú de la última fila quedaba cortado. Se mide
+     el botón al abrir y se cierra si la página se desplaza, en vez de perseguirlo. */
+  const [pos, setPos] = useState(null)
+  const abierto = !!pos
+  const ref = useRef(null)
+  const cerrar = () => setPos(null)
+  useEffect(() => {
+    if (!abierto) return
+    const fuera = e => { if (ref.current && !ref.current.contains(e.target)) cerrar() }
+    const tecla = e => { if (e.key === 'Escape') cerrar() }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', tecla)
+    window.addEventListener('scroll', cerrar, true)
+    window.addEventListener('resize', cerrar)
+    return () => {
+      document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla)
+      window.removeEventListener('scroll', cerrar, true); window.removeEventListener('resize', cerrar)
+    }
+  }, [abierto])
+  const alternar = e => {
+    e.stopPropagation()
+    if (abierto) return cerrar()
+    const r = e.currentTarget.getBoundingClientRect()
+    const alto = items.filter(Boolean).length * 34 + 10
+    const arriba = r.bottom + 4 + alto > window.innerHeight
+    setPos({ right: window.innerWidth - r.right, ...(arriba ? { bottom: window.innerHeight - r.top + 4 } : { top: r.bottom + 4 }) })
+  }
+  return (
+    <div className="dc-menu" ref={ref}>
+      <button type="button" className="dc-menu-btn" aria-haspopup="menu" aria-expanded={abierto} aria-label={etiqueta} title={etiqueta} onClick={alternar}>
+        <MoreHorizontal size={16} />
+      </button>
+      {abierto && (
+        <div className="dc-menu-lista" role="menu" style={pos}>
+          {items.filter(Boolean).map(it => (
+            <button
+              key={it.label}
+              type="button"
+              role="menuitem"
+              className={`dc-menu-item${it.peligro ? ' peligro' : ''}`}
+              disabled={it.disabled}
+              title={it.titulo}
+              onClick={e => { e.stopPropagation(); cerrar(); it.onClick() }}
+            >
+              {it.Icono && <it.Icono size={14} aria-hidden="true" />} {it.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

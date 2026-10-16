@@ -16,6 +16,7 @@ import SeguimientoPhone from './SeguimientoPhone'
 import AcompanadosPhone from './AcompanadosPhone'
 import OnboardingHubPhone from './OnboardingHubPhone'
 import PerfilPhone from './PerfilPhone'
+import MisDocumentosPhone, { MisSolicitudesPhone } from './MisDocumentosPhone'
 import BarraVolver from './BarraVolver'
 import RedDeSeguridad from './RedDeSeguridad'
 
@@ -143,6 +144,10 @@ export default function Layout() {
     // riel, así que llegar aquí es haber escrito la URL a mano o venir de un enlace viejo.
     if (sinAccesoAdmin && location.pathname.startsWith('/inicio')) {
       navigate('/mi-espacio/mi-dia', { replace: true })
+    } else if (sinAccesoAdmin && location.pathname.startsWith('/documentos')) {
+      /* Documentación entra al rebote como el resto: son los expedientes de todos. Lo suyo lo
+         tiene en Zona HR › Mis documentos, y ahí se lo lleva. */
+      navigate('/mi-espacio/zona-hr/documentos', { replace: true })
     } else if (sinAccesoAdmin && (isAdminRoute || isPersonas || isOrganizacion || isArchivos || isComunicacion || isConfiguracion)) {
       navigate('/mi-espacio/mi-onboarding', { replace: true })
     }
@@ -486,6 +491,10 @@ export default function Layout() {
               <PerfilPhone key={currentUser.id} currentUser={currentUser} />
             ) : mobileTab === 'organigrama' ? (
               <OrganigramaPhone onSalir={volverAHR} />
+            ) : mobileTab === 'documentos' ? (
+              <MisDocumentosPhone currentUser={currentUser} onVolver={volverAHR} />
+            ) : mobileTab === 'solicitudes' ? (
+              <MisSolicitudesPhone currentUser={currentUser} onVolver={volverAHR} />
             ) : mobileTab === 'seguimiento' ? (
               <SeguimientoPhone currentUser={currentUser} onVolver={() => setMobileTab('onboarding')} />
             ) : mobileTab === 'acompanados' ? (

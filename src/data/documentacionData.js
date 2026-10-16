@@ -12,6 +12,8 @@
    archivo que está; el requisito es una obligación que puede estar incumplida. Sin requisitos
    el sistema no sabe qué falta, y lo que falta es lo que busca una auditoría. */
 
+import { miFichaDe } from './miFicha'
+
 /* ── HOY ─────────────────────────────────────────────────────────────────
    Las fechas de ejemplo se escriben RELATIVAS a hoy (`dias(-40)`), no fijas: una demo con
    fechas fijas envejece sola, y dentro de tres meses todo saldría vencido. Así la mezcla de
@@ -67,9 +69,12 @@ export const ESTADOS = {
   exonerado:   { label: 'Exonerado',   icono: 'escudo',  tono: 'violeta', cumple: null,  desc: 'Alguien decidió que no aplica, con motivo (RN-09)' },
 }
 
+/* LA VISIBILIDAD: QUIÉN PUEDE CONSULTAR EL DOCUMENTO. Se llamó «sensibilidad» y se leía como un
+   atributo técnico; lo que de verdad responde es quién lo ve, y por eso se dice así en pantalla.
+   La clave interna (`sensibilidad`) se deja: la usan los datos guardados. */
 export const SENSIBILIDAD = {
   general:      { label: 'General',      desc: 'RR.HH. y el colaborador. El jefe, si la empresa lo habilita' },
-  restringido:  { label: 'Restringido',  desc: 'RR.HH. y el colaborador' },
+  restringido:  { label: 'Restringida',  desc: 'Solo RR.HH. y el colaborador' },
   confidencial: { label: 'Confidencial', desc: 'Solo con permiso explícito, y el colaborador sobre lo suyo. Cada acceso deja rastro (RF-90)' },
 }
 
@@ -79,23 +84,33 @@ export const DESTINATARIOS = {
   rrhh: 'Responsable de RR.HH.',
 }
 
-/* ── LA TAXONOMÍA (4.1) ───────────────────────────────────────────────────
-   Seis tipos y no los ocho del Salar: se van «Documento de prueba», que es basura de
-   instalación, y «Otros», que es el cajón donde termina lo que nadie clasificó. Si una empresa
-   necesita un cajón, que lo cree a sabiendas. */
+/* ── LA TAXONOMÍA (4.1): LA DE LA FICHA DEL COLABORADOR ───────────────────
+   DOCUMENTACIÓN NO INVENTA SUS PROPIAS CARPETAS. Los tipos son los grupos en que la ficha del
+   colaborador (Gestión de Personas) ya ordena sus archivos —su sección «Archivos»—, con los mismos
+   nombres y en el mismo orden. Tuvo seis tipos propios —educativos, Caja de Salud, vacunas,
+   certificaciones, baja— que no salían de ningún módulo de la plataforma y no había cómo
+   justificar: el módulo se adecua a los que ya están establecidos, no al revés.
+
+   Lo que es de Documentación y de nadie más —los contratos, lo emitido, la papelera— no va acá:
+   son carpetas que pone el expediente. Información Laboral no tiene adjuntos en la ficha; lo
+   laboral del expediente son los contratos. Planillas traerá los suyos cuando exista. */
 export const TIPOS_SEED = [
-  { id: 't-personales', nombre: 'Documentos personales', activo: true, retencionAnios: 5 },
-  { id: 't-educativos', nombre: 'Respaldos educativos', activo: true, retencionAnios: 5 },
-  { id: 't-caja', nombre: 'Requisitos Caja de Salud', activo: true, retencionAnios: 10 },
-  { id: 't-vacunas', nombre: 'Vacunas', activo: true, retencionAnios: 10 },
-  { id: 't-certificaciones', nombre: 'Certificaciones', activo: true, retencionAnios: 5 },
-  { id: 't-baja', nombre: 'Documentos de baja', activo: true, retencionAnios: 10, deBaja: true },
+  { id: 't-personal', nombre: 'Información personal', activo: true, retencionAnios: 5 },
+  { id: 't-perfil', nombre: 'Perfil profesional', activo: true, retencionAnios: 5 },
+  { id: 't-recursos', nombre: 'Recursos y activos', activo: true, retencionAnios: 5 },
+  { id: 't-agregados', nombre: 'Documentos agregados', activo: true, retencionAnios: 5 },
 ]
 
-/* EL SUBTIPO ES DONDE SE CONFIGURA TODO. Los cinco atributos del Salar —varios, visible,
-   editable, notifica al registrar, notifica al vencer— más los cuatro que le faltaban: si vence
-   y cuánto dura, qué formatos acepta, qué tan sensible es y sus propios hitos de aviso.
-   `persona` es el nombre en lenguaje de persona (propuesta 3): lo que ve el colaborador. */
+/* EL SUBTIPO ES DONDE SE CONFIGURA TODO: si admite varios, si el colaborador lo ve y lo sube, si
+   vence y cuánto dura, qué formatos acepta, quién puede consultarlo y sus propios hitos de aviso.
+   `persona` es el nombre en lenguaje de persona (propuesta 3): lo que ve el colaborador.
+
+   YA NO HAY «¿NOTIFICA AL REGISTRAR?»: RR.HH. se entera siempre de lo que se carga o se cambia,
+   y eso no se apaga (revisión del módulo, 2026).
+
+   EL REQUISITO GENERAL VIVE EN EL SUBTIPO. `exigidoATodos` dice que se le pide a todo el personal,
+   con `plazoDias` desde el ingreso. Lo que se le pide sólo a alguien se agrega en su expediente;
+   ya no hay conjuntos por perfil que mantener aparte. */
 const S = (id, tipoId, nombre, extra = {}) => ({
   id, tipoId, nombre,
   persona: extra.persona || nombre,
@@ -103,7 +118,6 @@ const S = (id, tipoId, nombre, extra = {}) => ({
   varios: false,
   visibleColab: true,
   editableColab: true,
-  notificaRegistro: false,
   notificaVencer: !!extra.vigenciaMeses,
   vence: !!extra.vigenciaMeses,
   vigenciaMeses: null,
@@ -112,32 +126,77 @@ const S = (id, tipoId, nombre, extra = {}) => ({
   sensibilidad: 'restringido',
   hitos: null, // null = usa los del parámetro general
   destinatarios: null,
+  exigidoATodos: false,
+  plazoDias: 30,
   activo: true,
   ...extra,
 })
 
+/* LOS SUBTIPOS SON LOS ARCHIVOS DE LA FICHA, uno por uno, con sus nombres. `campoFicha` dice de
+   qué campo de la ficha sale cada uno —el archivo y, si los tiene, sus campos de emisión y
+   vencimiento, que la ficha ya pide junto al adjunto—. Con eso el expediente LEE lo que se subió
+   en la ficha y lo muestra en su carpeta: el mismo carnet no se carga dos veces.
+   Las claves son las del estudio de la ficha (`camposPropuesta.js`, sección «Archivos»). */
+const F = (archivo, emite, vence, nombre) => ({ archivo, emite, vence, nombre })
 export const SUBTIPOS_SEED = [
-  S('s-ci', 't-personales', 'Carnet de identidad', { persona: 'Su carnet de identidad', codigoErp: 'DP-01', vigenciaMeses: 120, hitos: [60, 30] }),
-  S('s-pasaporte', 't-personales', 'Pasaporte', { persona: 'Su pasaporte', codigoErp: 'DP-02', vigenciaMeses: 120 }),
-  S('s-nacimiento', 't-personales', 'Certificado de nacimiento', { persona: 'Su certificado de nacimiento', codigoErp: 'DP-03' }),
-  S('s-licencia', 't-personales', 'Licencia de conducir', { persona: 'Su licencia de conducir', codigoErp: 'DP-04', vigenciaMeses: 60, hitos: [60, 30, 7], destinatarios: ['colaborador', 'jefe'] }),
-  S('s-antecedentes', 't-personales', 'Certificado de antecedentes (REJAP)', { persona: 'Su certificado de antecedentes', codigoErp: 'DP-05', vigenciaMeses: 6 }),
-  S('s-croquis', 't-personales', 'Croquis de domicilio', { persona: 'El croquis de su domicilio', codigoErp: 'DP-06', formatos: ['pdf', 'jpg', 'png'] }),
-  S('s-titulo', 't-educativos', 'Título profesional', { persona: 'Su título profesional', codigoErp: 'RE-01', sensibilidad: 'general' }),
-  S('s-provision', 't-educativos', 'Título en provisión nacional', { persona: 'Su título en provisión nacional', codigoErp: 'RE-02', sensibilidad: 'general' }),
-  S('s-bachiller', 't-educativos', 'Diploma de bachiller', { persona: 'Su diploma de bachiller', codigoErp: 'RE-03', sensibilidad: 'general' }),
-  S('s-avc04', 't-caja', 'Formulario AVC-04', { persona: 'Su formulario de afiliación a la Caja (AVC-04)', codigoErp: 'CS-01', editableColab: false }),
-  S('s-preocupacional', 't-caja', 'Examen médico preocupacional', { persona: 'Su examen médico de ingreso', codigoErp: 'CS-02', sensibilidad: 'confidencial', editableColab: false }),
-  S('s-sanidad', 't-caja', 'Carnet de sanidad', { persona: 'Su carnet de sanidad', codigoErp: 'CS-03', vigenciaMeses: 12, hitos: [60, 30, 7], destinatarios: ['colaborador', 'jefe', 'rrhh'] }),
-  S('s-fiebre', 't-vacunas', 'Fiebre amarilla', { persona: 'Su vacuna contra la fiebre amarilla', codigoErp: 'VA-01', sensibilidad: 'confidencial', varios: true }),
-  S('s-hepatitis', 't-vacunas', 'Hepatitis B', { persona: 'Su vacuna contra la hepatitis B', codigoErp: 'VA-02', sensibilidad: 'confidencial', varios: true }),
-  S('s-covid', 't-vacunas', 'COVID-19', { persona: 'Su vacuna contra el COVID-19', codigoErp: 'VA-03', sensibilidad: 'confidencial', varios: true }),
-  S('s-curso', 't-certificaciones', 'Certificado de curso', { persona: 'Un certificado de curso', codigoErp: 'CE-01', sensibilidad: 'general', varios: true }),
-  S('s-bpm', 't-certificaciones', 'Buenas Prácticas de Manufactura', { persona: 'Su certificado de BPM', codigoErp: 'CE-02', sensibilidad: 'general', vigenciaMeses: 24 }),
-  S('s-finiquito', 't-baja', 'Finiquito', { persona: 'Su finiquito', codigoErp: 'DB-01', editableColab: false, visibleColab: true }),
-  S('s-renuncia', 't-baja', 'Carta de renuncia', { persona: 'Su carta de renuncia', codigoErp: 'DB-02', editableColab: false }),
-  S('s-entrega-cargo', 't-baja', 'Acta de entrega de cargo', { persona: 'El acta de entrega de su cargo', codigoErp: 'DB-03', editableColab: false }),
+  S('s-ci', 't-personal', 'Documento de identidad', { persona: 'Su documento de identidad', codigoErp: 'IP-01', campoFicha: F('1.17', '1.15', '1.16'), vigenciaMeses: 120, hitos: [60, 30], exigidoATodos: true, plazoDias: 0 }),
+  S('s-ci2', 't-personal', 'Documento de identidad secundario', { persona: 'Su documento de identidad secundario', codigoErp: 'IP-02', campoFicha: F('1.20h', '1.20e', '1.20f'), vigenciaMeses: 120 }),
+  S('s-nacimiento', 't-personal', 'Certificado de nacimiento', { persona: 'Su certificado de nacimiento', codigoErp: 'IP-03', campoFicha: F('1.21b'), exigidoATodos: true, plazoDias: 15 }),
+  S('s-croquis', 't-personal', 'Croquis del domicilio', { persona: 'El croquis de su domicilio', codigoErp: 'IP-04', campoFicha: F('1.53'), exigidoATodos: true, plazoDias: 30 }),
+  S('s-licencia', 't-personal', 'Licencia o certificación', { persona: 'Su licencia o certificación', codigoErp: 'IP-05', campoFicha: F('1.79', '1.76', '1.77'), vigenciaMeses: 60, hitos: [60, 30, 7], destinatarios: ['colaborador', 'jefe'], varios: true }),
+  S('s-garante', 't-personal', 'Documento de identidad del garante', { persona: 'El documento de su garante', codigoErp: 'IP-06', campoFicha: F('2.40e'), editableColab: false }),
+  S('s-garantia', 't-personal', 'Respaldo de la garantía', { persona: 'El respaldo de su garantía', codigoErp: 'IP-07', campoFicha: F('2.46'), editableColab: false }),
+  S('s-foto', 't-personal', 'Fotografía del colaborador', { persona: 'Su fotografía', codigoErp: 'IP-08', campoFicha: F('1.9'), formatos: ['jpg', 'png'], sensibilidad: 'general' }),
+  S('s-titulo', 't-perfil', 'Título o diploma', { persona: 'Su título o diploma', codigoErp: 'PP-01', campoFicha: F('pf.11'), sensibilidad: 'general', varios: true }),
+  S('s-certprof', 't-perfil', 'Certificación profesional', { persona: 'Su certificación profesional', codigoErp: 'PP-02', campoFicha: F('pf.27', 'pf.24', 'pf.25'), sensibilidad: 'general', vigenciaMeses: 24, varios: true }),
+  S('s-acta-equipo', 't-recursos', 'Acta de entrega de equipo', { persona: 'El acta de entrega de su equipo', codigoErp: 'RA-01', campoFicha: F('ra.e12', 'ra.e8'), editableColab: false, varios: true }),
+  S('s-acta-uniforme', 't-recursos', 'Acta de entrega de uniforme', { persona: 'El acta de entrega de su uniforme', codigoErp: 'RA-02', campoFicha: F('ra.u9', 'ra.u4'), editableColab: false, varios: true }),
+  S('s-acta-epp', 't-recursos', 'Acta de entrega de EPP', { persona: 'El acta de entrega de su equipo de protección', codigoErp: 'RA-03', campoFicha: F('ra.p9', 'ra.p5', 'ra.p6'), editableColab: false, vigenciaMeses: 12, varios: true }),
+  S('s-agregado', 't-agregados', 'Documento agregado', { persona: 'Un documento agregado por RR.HH.', codigoErp: 'DA-01', campoFicha: F('ex.4', null, null, 'ex.2'), editableColab: false, varios: true }),
 ]
+
+/* ── LO QUE YA ESTÁ EN LA FICHA ───────────────────────────────────────────
+   Cada archivo de la ficha que corresponde a un subtipo, como un documento más del expediente:
+   aprobado —lo registró RR.HH. o el colaborador en su perfil—, con las fechas que la ficha
+   guardó junto a él. Se lee y no se copia: la ficha sigue siendo la dueña del archivo, y si allá
+   cambia, acá cambia. Un bloque repetido de la ficha (dos licencias, tres actas) trae sus
+   copias con `#n`, y cada una es un documento. `origen: 'ficha'` es lo que el expediente mira
+   para no ofrecer lo que sobre un archivo ajeno no se puede hacer, como mandarlo a la papelera. */
+const extension = nombre => (String(nombre || '').split('.').pop() || '').toLowerCase()
+export function documentosDeFicha(persona, subtipos) {
+  const f = persona?.ficha
+  if (!f) return []
+  const out = []
+  for (const s of subtipos) {
+    const c = s.campoFicha
+    if (!c?.archivo || !s.activo) continue
+    for (const k of Object.keys(f)) {
+      if (k.split('#')[0] !== c.archivo || !f[k]?.nombre) continue
+      const copia = k.includes('#') ? `#${k.split('#')[1]}` : ''
+      const a = f[k]
+      const emision = (c.emite && f[c.emite + copia]) || null
+      out.push({
+        id: `f-${persona.id}-${k}`,
+        colaboradorId: persona.id,
+        subtipoId: s.id,
+        origen: 'ficha',
+        versiones: [{
+          v: 1,
+          archivo: { nombre: a.nombre, original: a.nombre, clave: a.clave || null, formato: extension(a.nombre), tipoMime: a.tipo, tamanoKB: a.peso ? Math.round(a.peso / 1024) : null },
+          emision,
+          vencimiento: (c.vence && f[c.vence + copia]) || null,
+          subidoPor: a.origen || 'Ficha del colaborador',
+          canal: 'ficha',
+          fecha: emision || persona.ingreso || iso(hoy()),
+          revision: 'aprobado',
+          motivoRechazo: null,
+          info: (c.nombre && f[c.nombre + copia]) || '',
+        }],
+      })
+    }
+  }
+  return out
+}
 
 /* ── LOS PARÁMETROS GENERALES (4.1, 4.5, 4.13) ────────────────────────────
    El Salar tenía dos: si notifica y cuántos días antes (7, para todo). Acá el general es el
@@ -154,60 +213,9 @@ export const PARAMETROS_SEED = {
     certificado: { prefijo: 'CERT', formato: '{prefijo}-{n}/{gestion}', reinicioAnual: true, digitos: 4 },
     memorandum: { prefijo: 'MEM', formato: '{prefijo}-{n}/{gestion}', reinicioAnual: true, digitos: 4 },
     contrato: { prefijo: 'CTR', formato: '{prefijo}-{n}/{gestion}', reinicioAnual: false, digitos: 5 },
+    otro: { prefijo: 'DOC', formato: '{prefijo}-{n}/{gestion}', reinicioAnual: true, digitos: 4 },
   },
 }
-
-/* ── LOS CONJUNTOS DE REQUISITOS (4.2) ────────────────────────────────────
-   Lo que el Salar no tiene y lo que sostiene todo lo demás. Un conjunto dice a quién alcanza
-   —áreas, cargos, sedes; vacío es «a todos»— y qué exige, con obligatoriedad, plazo desde el
-   ingreso y si pide vigencia (RF-10, RF-11). */
-export const CONJUNTOS_SEED = [
-  {
-    id: 'c-todos', nombre: 'Todo el personal', activo: true,
-    desc: 'Lo mínimo que se pide a cualquier persona que entra, sin importar dónde.',
-    criterio: { areas: [], cargos: [], sedes: [] },
-    requisitos: [
-      { subtipoId: 's-ci', obligatorio: true, plazoDias: 0, exigeVigencia: true },
-      { subtipoId: 's-nacimiento', obligatorio: true, plazoDias: 15, exigeVigencia: false },
-      { subtipoId: 's-antecedentes', obligatorio: true, plazoDias: 15, exigeVigencia: true },
-      { subtipoId: 's-avc04', obligatorio: true, plazoDias: 10, exigeVigencia: false },
-      { subtipoId: 's-preocupacional', obligatorio: true, plazoDias: 30, exigeVigencia: false },
-      { subtipoId: 's-croquis', obligatorio: false, plazoDias: 30, exigeVigencia: false },
-    ],
-    creadoPor: 'Paola Arce', creado: dias(-300),
-  },
-  {
-    id: 'c-operaciones', nombre: 'Operaciones y logística', activo: true,
-    desc: 'Quien mueve mercadería o maneja: licencia y carnet de sanidad al día.',
-    criterio: { areas: ['Operaciones'], cargos: [], sedes: [] },
-    requisitos: [
-      { subtipoId: 's-sanidad', obligatorio: true, plazoDias: 30, exigeVigencia: true },
-      { subtipoId: 's-licencia', obligatorio: true, plazoDias: 30, exigeVigencia: true },
-      { subtipoId: 's-hepatitis', obligatorio: false, plazoDias: 60, exigeVigencia: false },
-    ],
-    creadoPor: 'Paola Arce', creado: dias(-280),
-  },
-  {
-    id: 'c-profesional', nombre: 'Personal profesional', activo: true,
-    desc: 'Cargos que exigen título: se pide el título y su provisión nacional.',
-    criterio: { areas: ['Tecnología', 'Finanzas', 'Recursos Humanos', 'Dirección General'], cargos: [], sedes: [] },
-    requisitos: [
-      { subtipoId: 's-titulo', obligatorio: true, plazoDias: 60, exigeVigencia: false },
-      { subtipoId: 's-provision', obligatorio: true, plazoDias: 90, exigeVigencia: false },
-    ],
-    creadoPor: 'Juan Pérez Gómez', creado: dias(-250),
-  },
-  {
-    id: 'c-comercial', nombre: 'Fuerza comercial', activo: true,
-    desc: 'Ventas y marketing: bachiller y licencia para quien visita clientes.',
-    criterio: { areas: ['Ventas', 'Marketing'], cargos: [], sedes: [] },
-    requisitos: [
-      { subtipoId: 's-bachiller', obligatorio: true, plazoDias: 30, exigeVigencia: false },
-      { subtipoId: 's-licencia', obligatorio: false, plazoDias: 60, exigeVigencia: true },
-    ],
-    creadoPor: 'Juan Pérez Gómez', creado: dias(-200),
-  },
-]
 
 /* ── LA SEDE DE UNA PERSONA ───────────────────────────────────────────────
    La sede sale del PUESTO que ocupa en el organigrama (`sedesDe`), no de un campo suyo. Pero el
@@ -215,7 +223,7 @@ export const CONJUNTOS_SEED = [
    una sola sucursal que filtrar no se puede mostrar. Esta tabla es el respaldo DE LA DEMO para
    quien no ocupa ningún cuadro, y se nota que lo es: el día que el organigrama esté dibujado,
    manda él y esta tabla no se lee. */
-const SEDE_DEMO = { 1: 'central', 2: 'lpz', 3: 'central', 4: 'central', 5: 'lpz', 6: 'central', 7: 'cbb', 8: 'mtr', 9: 'central', 10: 'central', 11: 'lpz', 12: 'lpz', 13: 'cbb', 14: 'central', 15: 'central', 16: 'mtr', 17: 'central', 18: 'cbb', 19: 'lpz', 20: 'central', 21: 'cbb', 22: 'mtr', 23: 'central', 24: 'lpz', 25: 'lpz', 26: 'cbb', 27: 'lpz', 28: 'central', 29: 'central' }
+const SEDE_DEMO = { 1002: 'central', 1004: 'lpz', 1: 'central', 2: 'lpz', 3: 'central', 4: 'central', 5: 'lpz', 6: 'central', 7: 'cbb', 8: 'mtr', 9: 'central', 10: 'central', 11: 'lpz', 12: 'lpz', 13: 'cbb', 14: 'central', 15: 'central', 16: 'mtr', 17: 'central', 18: 'cbb', 19: 'lpz', 20: 'central', 21: 'cbb', 22: 'mtr', 23: 'central', 24: 'lpz', 25: 'lpz', 26: 'cbb', 27: 'lpz', 28: 'central', 29: 'central' }
 /* Los que no están en la tabla —ex colaboradores, altas de la demo— se reparten por número y no
    caen todos en la casa matriz: una sede con cuarenta personas y las demás con cinco deja al
    panel sin nada que comparar. */
@@ -228,34 +236,49 @@ const SALARIO_DEMO = { 'Dirección General': 18500, Tecnología: 9800, Finanzas:
 export const salarioDemoDe = persona => SALARIO_DEMO[persona?.depto] || 5000
 
 /* ── ¿QUÉ LE EXIGE EL SISTEMA A ESTA PERSONA? (RF-10 a RF-13) ─────────────
-   Junta los conjuntos que la alcanzan y, si dos piden lo mismo, gana lo más exigente: basta que
-   uno lo haga obligatorio, manda el plazo más corto y basta que uno pida vigencia. Así una
-   persona en dos conjuntos no tiene el mismo carnet dos veces en su lista. */
-export function alcanza(conjunto, persona) {
-  if (!conjunto.activo) return false
-  const { areas = [], cargos = [], sedes = [] } = conjunto.criterio || {}
-  return (!areas.length || areas.includes(persona.depto))
-    && (!cargos.length || cargos.includes(persona.cargo))
-    && (!sedes.length || sedes.includes(persona.sede))
-}
-
-export function requisitosDe(persona, conjuntos) {
+   Dos fuentes y nada más: lo que el subtipo exige a todo el personal y lo que RR.HH. le agregó a
+   esta persona en su expediente. Ya no hay conjuntos por perfil: eran una segunda configuración
+   que había que mantener aparte para decir lo que el expediente ya puede decir solo.
+   Si las dos fuentes piden lo mismo, gana lo más exigente, y la persona no tiene el mismo carnet
+   dos veces en su lista. `origen` dice de dónde salió: el general no se quita desde un expediente
+   (se exonera); el personal, sí. */
+export function requisitosDe(persona, { subtipos = [], requisitos = [] } = {}) {
   const porSubtipo = new Map()
-  for (const c of conjuntos) {
-    if (!alcanza(c, persona)) continue
-    for (const r of c.requisitos) {
-      const ya = porSubtipo.get(r.subtipoId)
-      if (!ya) { porSubtipo.set(r.subtipoId, { ...r, conjuntos: [c.nombre] }); continue }
-      porSubtipo.set(r.subtipoId, {
-        ...ya,
-        obligatorio: ya.obligatorio || r.obligatorio,
-        plazoDias: Math.min(ya.plazoDias, r.plazoDias),
-        exigeVigencia: ya.exigeVigencia || r.exigeVigencia,
-        conjuntos: [...ya.conjuntos, c.nombre],
-      })
-    }
+  for (const s of subtipos) {
+    if (!s.activo || !s.exigidoATodos) continue
+    porSubtipo.set(s.id, { subtipoId: s.id, obligatorio: true, plazoDias: Number(s.plazoDias) || 0, exigeVigencia: !!s.vence, origen: 'general' })
+  }
+  for (const r of requisitos) {
+    if (r.colaboradorId !== persona.id) continue
+    const ya = porSubtipo.get(r.subtipoId)
+    porSubtipo.set(r.subtipoId, ya
+      ? { ...ya, obligatorio: ya.obligatorio || r.obligatorio, plazoDias: Math.min(ya.plazoDias, Number(r.plazoDias) || 0) }
+      : { subtipoId: r.subtipoId, obligatorio: r.obligatorio, plazoDias: Number(r.plazoDias) || 0, exigeVigencia: !!r.exigeVigencia, origen: 'personal', por: r.por, fecha: r.fecha })
   }
   return [...porSubtipo.values()]
+}
+
+/* LOS REQUISITOS PERSONALES DE LA DEMO. Antes salían de perfiles —operaciones pide licencia, los
+   profesionales su título—; ahora se escriben persona por persona, que es como se ven en el
+   expediente. Se siembran una vez desde esos mismos criterios para que la demo arranque con la
+   misma mezcla que tenía. */
+const PERFILES_DEMO = [
+  { areas: ['Operaciones'], requisitos: [['s-licencia', true, 30], ['s-acta-epp', true, 15]] },
+  { areas: ['Tecnología', 'Finanzas', 'Recursos Humanos', 'Dirección General'], requisitos: [['s-titulo', true, 60], ['s-certprof', false, 90], ['s-acta-equipo', true, 15]] },
+  { areas: ['Ventas', 'Marketing'], requisitos: [['s-titulo', true, 60], ['s-licencia', false, 60]] },
+]
+export function requisitosSeed(personas) {
+  const out = []
+  for (const p of personas) {
+    for (const perfil of PERFILES_DEMO) {
+      if (!perfil.areas.includes(p.depto)) continue
+      for (const [subtipoId, obligatorio, plazoDias] of perfil.requisitos) {
+        if (out.some(r => r.colaboradorId === p.id && r.subtipoId === subtipoId)) continue
+        out.push({ colaboradorId: p.id, subtipoId, obligatorio, plazoDias, exigeVigencia: false, por: 'Paola Arce', fecha: dias(-280) })
+      }
+    }
+  }
+  return out
 }
 
 /* ── EL ESTADO DE UN DOCUMENTO SE DEDUCE, NO SE GUARDA (6.2) ──────────────
@@ -285,8 +308,8 @@ export function estadoVersion(v, subtipo, parametros) {
    documento, como faltante. `exigible` es si ya pasó el plazo desde el ingreso: un faltante con
    plazo corriendo no descuenta (RN-07), porque alguien que entró ayer no puede salir en rojo. */
 export function checklistDe(persona, estado) {
-  const { conjuntos, subtipos, documentos, exoneraciones, parametros } = estado
-  const reqs = requisitosDe(persona, conjuntos)
+  const { subtipos, documentos, exoneraciones, parametros } = estado
+  const reqs = requisitosDe(persona, estado)
   return reqs.map(r => {
     const subtipo = subtipos.find(s => s.id === r.subtipoId)
     const doc = documentos.find(d => d.colaboradorId === persona.id && d.subtipoId === r.subtipoId && !d.eliminado)
@@ -321,7 +344,7 @@ export const VARIABLES = [
   ]},
   { grupo: 'Puesto', origen: 'Organigrama', items: [
     { clave: 'cargo.nombre', label: 'Cargo' },
-    { clave: 'unidad.nombre', label: 'Área o unidad' },
+    { clave: 'unidad.nombre', label: 'Unidad organizacional' },
     { clave: 'sucursal.nombre', label: 'Sucursal' },
     { clave: 'sucursal.ciudad', label: 'Ciudad de la sucursal' },
   ]},
@@ -341,7 +364,7 @@ export const VARIABLES = [
   { grupo: 'Documento', origen: 'Este módulo', items: [
     { clave: 'documento.numero', label: 'Número (CITE)' },
     { clave: 'documento.fecha', label: 'Fecha de emisión' },
-    { clave: 'memo.observaciones', label: 'Observaciones del memorándum' },
+    { clave: 'memo.observaciones', label: 'Texto que se escribe al enviar' },
   ]},
 ]
 export const CLAVES_VARIABLES = VARIABLES.flatMap(g => g.items.map(i => i.clave))
@@ -413,13 +436,34 @@ export function validarPlantilla(texto, datos) {
 }
 
 /* ── LA BIBLIOTECA DE MODELOS (4.6) ───────────────────────────────────────
-   Una sola, con tres categorías, en vez de las tres pantallas casi iguales del Salar. Los
-   modelos `base` son de fábrica: se clonan para adaptarlos y el original no se toca (RF-50). */
+   Una sola, en vez de las tres pantallas casi iguales del Salar. Los modelos `base` son de
+   fábrica: se clonan para adaptarlos y el original no se toca (RF-50).
+   «OTRO DOCUMENTO» es la puerta para lo que no es certificado, memorándum ni contrato —una carta
+   de recomendación, una constancia de vacaciones—: se emite igual que un certificado, con su
+   propia numeración. */
 export const CATEGORIAS = {
-  certificado: { label: 'Certificado', plural: 'Certificados' },
-  memorandum: { label: 'Memorándum', plural: 'Memorándums' },
-  contrato: { label: 'Contrato', plural: 'Contratos' },
+  certificado: { label: 'Certificado', plural: 'Certificados', color: '#00B876' },
+  memorandum: { label: 'Memorándum', plural: 'Memorándums', color: '#F59E0B' },
+  contrato: { label: 'Contrato', plural: 'Contratos', color: '#3B82F6' },
+  otro: { label: 'Otro documento', plural: 'Otros documentos', color: '#64748B' },
 }
+
+/* LOS TIPOS PROPIOS (15 oct 2026). En pantalla «Tipo», no «Categoría». Además de los cuatro de
+   fábrica, RR.HH. crea los suyos —«Carta de recomendación»— desde el editor de plantillas: se
+   guardan en `parametros.tiposPropios`, con su sigla en `parametros.numeracion`, y se emiten como
+   «otro documento» pero con su propia serie. Todo lo que lista tipos los lee de acá. */
+export const COLORES_TIPO = ['#EC4899', '#8B5CF6', '#14B8A6', '#EF4444', '#0EA5E9', '#A16207']
+/* Las carpetas «De RR.HH.» de la app del colaborador: una por tipo, sin contratos (tienen la suya). */
+export const carpetasRecibidas = parametros => [
+  ['certificado', 'Certificados'], ['memorandum', 'Memorándums'],
+  ...(parametros?.tiposPropios || []).map(t => [t.key, t.plural || t.label]),
+  ['otro', 'Otros'],
+]
+export const carpetaRecibida = (e, parametros) => (['certificado', 'memorandum'].includes(e.categoria) || (parametros?.tiposPropios || []).some(t => t.key === e.categoria) ? e.categoria : 'otro')
+export const tiposDoc = parametros => ({
+  ...CATEGORIAS,
+  ...Object.fromEntries((parametros?.tiposPropios || []).map(t => [t.key, t])),
+})
 
 const CERT_TRABAJO = `CERTIFICADO DE TRABAJO
 
@@ -517,6 +561,21 @@ const M = (id, nombre, categoria, texto, extra = {}) => ({
   ...extra,
 })
 
+/* TEXTOS FRECUENTES de cada memorándum: un clic los pone en la hoja y se completa lo que está entre
+   corchetes. Ahorran tiempo y hacen que dos personas de RR.HH. escriban lo mismo del mismo modo. */
+export const FRASES_DEFECTO = {
+  'm-memo-llamada': [
+    { titulo: 'Atrasos reiterados', texto: 'Registró [cantidad] atrasos injustificados los días [fechas], sin aviso previo a su jefe inmediato.' },
+    { titulo: 'Inasistencia sin justificar', texto: 'No se presentó a trabajar el día [fecha], sin aviso ni justificación posterior.' },
+    { titulo: 'Incumplimiento de funciones', texto: 'No cumplió con [tarea o función] asignada para el [fecha], lo que afectó [consecuencia].' },
+  ],
+  'm-memo-felicitacion': [
+    { titulo: 'Meta cumplida', texto: 'Por haber cumplido la meta de [meta] en [período], con un resultado de [resultado].' },
+    { titulo: 'Proyecto destacado', texto: 'Por su participación destacada en [proyecto], entregado el [fecha].' },
+    { titulo: 'Años de servicio', texto: 'Por sus [cantidad] años de servicio comprometido con la empresa.' },
+  ],
+}
+
 export const MODELOS_SEED = [
   M('m-cert-trabajo', 'Certificado de trabajo', 'certificado', CERT_TRABAJO, { disponibleSolicitud: true }),
   M('m-cert-sueldo', 'Certificado de trabajo con sueldo', 'certificado', CERT_SUELDO, { disponibleSolicitud: true, circuito: 'una' }),
@@ -529,8 +588,13 @@ export const MODELOS_SEED = [
 
 /* El número correlativo (RF-07, RF-53, RN-15): por categoría y gestión, y nunca se reutiliza,
    ni siquiera si el documento se anula. Se calcula contando los ya emitidos de esa serie. */
+const NUMERACION_DEFECTO = { prefijo: 'DOC', formato: '{prefijo}-{n}/{gestion}', reinicioAnual: true, digitos: 4 }
+/* Una categoría sin numeración guardada —«otro», en una demo que ya tenía sus parámetros— usa la
+   de fábrica en vez de romper la emisión. */
+export const numeracionDe = (parametros, categoria) => parametros.numeracion?.[categoria] || PARAMETROS_SEED.numeracion[categoria] || NUMERACION_DEFECTO
+
 export function siguienteNumero(categoria, emitidos, parametros, contratos = []) {
-  const cfg = parametros.numeracion[categoria]
+  const cfg = numeracionDe(parametros, categoria)
   const gestion = hoy().getFullYear()
   const deSerie = categoria === 'contrato'
     ? contratos.filter(c => c.numero)
@@ -580,9 +644,9 @@ export function estadoContrato(c, parametros, contratos = []) {
 
 export const ESTADOS_EMITIDO = {
   pendiente: { label: 'Pendiente de aprobación', tono: 'ambar' },
-  generado: { label: 'Generado', tono: 'azul' },
+  generado: { label: 'Sin enviar', tono: 'gris' },
   entregado: { label: 'Entregado', tono: 'verde' },
-  acusado: { label: 'Acusado', tono: 'verde' },
+  acusado: { label: 'Confirmado', tono: 'verde' },
   anulado: { label: 'Anulado', tono: 'gris' },
 }
 
@@ -605,13 +669,13 @@ export function normalizarNombre(persona, subtipo, fecha, formato) {
   return `${persona.codigo}_${slug(subtipo.nombre)}_${fecha}.${formato}`
 }
 
-export function documentosSeed(personas, conjuntos, subtipos) {
+export function documentosSeed(personas, subtipos, requisitos) {
   const docs = []
   let id = 1
   for (const p of personas) {
     if (p.status === 'desvinculado') continue
-    const reqs = requisitosDe(p, conjuntos)
-    const extras = semilla(p.id, 'curso') > 0.55 ? [{ subtipoId: 's-curso' }] : []
+    const reqs = requisitosDe(p, { subtipos, requisitos })
+    const extras = semilla(p.id, 'curso') > 0.55 ? [{ subtipoId: 's-certprof' }] : []
     for (const r of [...reqs, ...extras]) {
       const sub = subtipos.find(s => s.id === r.subtipoId)
       const x = semilla(p.id, r.subtipoId)
@@ -640,7 +704,6 @@ export function documentosSeed(personas, conjuntos, subtipos) {
             original: NOMBRES_RAROS[Math.floor(x * NOMBRES_RAROS.length)],
             formato,
             tamanoKB: Math.round(180 + x * 2400),
-            huella: Math.floor(x * 1e12).toString(16).padStart(10, '0'),
           },
           emision,
           vencimiento,
@@ -733,8 +796,211 @@ export function bitacoraSeed(documentos, emitidos) {
   return ev.sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
 }
 
+/* ── LAS SOLICITUDES DE LOS COLABORADORES ─────────────────────────────────
+   Lo que una persona pide desde la app y que termina en un documento en sus manos. Son tres, y cada
+   una se atiende con su propia acción, no con un «aprobar» que no entrega nada:
+   · un CERTIFICADO, que se emite desde su modelo;
+   · una COPIA de un documento de su expediente, que se elige y se le envía;
+   · la CORRECCIÓN de un documento que recibió con un error, que se vuelve a emitir.
+   Lo que el sistema detecta solo —revisar, faltantes, vencidos— no es una solicitud: va en
+   Seguimiento. Los permisos tampoco: no producen documento y son de asistencia. */
+export const TIPOS_SOLICITUD = {
+  certificacion: { label: 'Certificados', singular: 'Certificado', tono: 'azul', accion: 'Emitir' },
+  copia: { label: 'Copias', singular: 'Copia', tono: 'violeta', accion: 'Enviar copia' },
+  correccion: { label: 'Correcciones', singular: 'Corrección', tono: 'ambar', accion: 'Corregir y reemitir' },
+}
+export const ESTADOS_SOLICITUD = {
+  pendiente: { label: 'Pendiente', tono: 'ambar' },
+  atendida: { label: 'Atendida', tono: 'verde' },
+  rechazada: { label: 'Rechazada', tono: 'rojo' },
+}
+/* EL PLAZO PARA RESPONDER, en días hábiles desde que llegó el pedido. */
+export const PLAZO_SOLICITUD_DIAS = 2
+export function responderAntes(fecha, habiles = PLAZO_SOLICITUD_DIAS) {
+  const d = aFecha(fecha)
+  let n = habiles
+  while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) n -= 1 }
+  return iso(d)
+}
+
+export function solicitudesSeed(personas) {
+  const vivos = new Set(personas.filter(p => p.status !== 'desvinculado').map(p => p.id))
+  const Q = (id, tipo, colaboradorId, dia, asunto, detalle, extra = {}) => ({ id, tipo, colaboradorId, fecha: dias(dia), asunto, detalle, estado: 'pendiente', canal: 'app', ...extra })
+  return [
+    /* Pendientes: de cada tipo, una atrasada, una que vence hoy y otras con margen. */
+    Q('q-1', 'certificacion', 3, -1, 'Certificado de trabajo', 'Para la apertura de una cuenta en el banco.', { modeloId: 'm-cert-trabajo' }),
+    Q('q-2', 'certificacion', 9, 0, 'Certificado de trabajo con sueldo', 'Lo pide el consulado para el trámite de visa.', { modeloId: 'm-cert-sueldo' }),
+    Q('q-4', 'certificacion', 16, -5, 'Certificado de trabajo', 'Para alquilar un departamento: lo pide el propietario.', { modeloId: 'm-cert-trabajo' }),
+    Q('q-7', 'copia', 5, -3, 'Copia de su contrato firmado', 'Necesita una copia para un crédito de vivienda.', { carpeta: 'contratos' }),
+    Q('q-10', 'copia', 7, -1, 'Copia de su título registrado', 'Para postular a una maestría.', { carpeta: 't-perfil' }),
+    Q('q-8', 'correccion', 13, -2, 'Certificado de trabajo con un error', 'Su segundo apellido figura mal escrito.', { modeloId: 'm-cert-trabajo' }),
+    Q('q-11', 'correccion', 4, 0, 'Memorándum con la fecha equivocada', 'Dice 4 de agosto y el atraso fue el 11 de agosto.', { modeloId: 'm-memo-llamada' }),
+    /* Atendidas: una de cada tipo, con lo que se hizo. */
+    Q('q-3', 'certificacion', 14, -6, 'Certificado de trabajo', 'Para inscribir a su hijo en el colegio.', { modeloId: 'm-cert-trabajo', estado: 'atendida', resuelto: { fecha: dias(-5), por: 'Paola Arce', nota: 'Se emitió el certificado y se envió por la app' } }),
+    Q('q-9', 'copia', 11, -8, 'Copia de su memorándum de felicitación', 'Lo quiere guardar en su carpeta personal.', { carpeta: 'emitidos', estado: 'atendida', resuelto: { fecha: dias(-7), por: 'Paola Arce', nota: 'Se envió MEM-0003/2026 por la app' } }),
+    Q('q-12', 'correccion', 10, -15, 'Certificado con sueldo desactualizado', 'Figura el sueldo anterior al aumento de septiembre.', { modeloId: 'm-cert-sueldo', estado: 'atendida', resuelto: { fecha: dias(-14), por: 'Daniela Flores', nota: 'Se reemitió con el sueldo vigente y se anuló el anterior' } }),
+    /* Rechazadas: con el motivo que leyó el colaborador. */
+    Q('q-13', 'certificacion', 18, -10, 'Certificado de trabajo con sueldo', 'Para un préstamo en el banco.', { modeloId: 'm-cert-sueldo', estado: 'rechazada', resuelto: { fecha: dias(-9), por: 'Paola Arce', nota: 'Ya se le emitió uno la semana pasada y sigue vigente: puede descargarlo desde la app.' } }),
+    Q('q-14', 'copia', 2, -9, 'Copia de sus boletas de pago', 'Las de los últimos tres meses.', { estado: 'rechazada', resuelto: { fecha: dias(-8), por: 'Daniela Flores', nota: 'Las boletas de pago todavía no están en Documentación: pídalas a Contabilidad.' } }),
+    Q('q-15', 'correccion', 6, -12, 'Certificado con el cargo anterior', 'Dice Asistente y ahora es Analista.', { modeloId: 'm-cert-trabajo', estado: 'rechazada', resuelto: { fecha: dias(-11), por: 'Paola Arce', nota: 'Su cambio de cargo rige desde el 1 de noviembre; hasta entonces el certificado es correcto.' } }),
+  ].filter(q => vivos.has(q.colaboradorId))
+}
+
 export const ACCIONES_BITACORA = {
   alta: 'Carga', edicion: 'Edición', aprobacion: 'Aprobación', rechazo: 'Rechazo', emision: 'Emisión',
   entrega: 'Entrega', acuse: 'Acuse', descarga: 'Descarga', reemplazo: 'Reemplazo', baja: 'Baja',
   exoneracion: 'Exoneración', pedido: 'Pedido', anulacion: 'Anulación', configuracion: 'Configuración', lectura: 'Lectura confidencial',
+  requisito: 'Requisito', solicitud: 'Solicitud', recordatorio: 'Recordatorio',
+}
+
+/* ── DE DÓNDE SALIÓ UN EMITIDO (Documentación v2) ─────────────────────────
+   Tres puertas, un solo camino: a una persona, a un grupo —que deja un lote— o porque alguien lo
+   pidió. No se guarda en el emitido: se deduce del lote al que pertenece y de la solicitud que lo
+   tiene como respuesta, para que no haya dos lugares que puedan contradecirse. */
+export const ORIGENES_EMITIDO = {
+  individual: { label: 'Individual', tono: 'gris' },
+  lote: { label: 'Lote', tono: 'azul' },
+  solicitud: { label: 'Solicitud', tono: 'violeta' },
+}
+export function origenDe(e, solicitudes = []) {
+  if (e.loteId) return 'lote'
+  if (solicitudes.some(q => q.resuelto?.emitidoId === e.id)) return 'solicitud'
+  return 'individual'
+}
+
+/* EL AVANCE DE UN LOTE: cuántos se entregaron y cuántos confirmaron, sobre los que siguen en pie
+   (un anulado sale de la cuenta). Lo usan la lista de lotes y la ficha de cada uno. */
+/* ¿Espera que el colaborador confirme? Sólo lo entregado que pidió confirmación y no la tiene. */
+export const esperaAcuse = e => e.estado === 'entregado' && e.pideAcuse !== false
+
+/* El nombre de un emitido: el del archivo propio que se envió, o el de su modelo. */
+export const nombreEmitido = (e, modelos = []) => e.nombre || modelos.find(m => m.id === e.modeloId)?.nombre || CATEGORIAS[e.categoria]?.label || 'Documento'
+
+export function avanceLote(lote, emitidos) {
+  const suyos = emitidos.filter(e => e.loteId === lote.id && e.estado !== 'anulado')
+  const entregados = suyos.filter(e => ['entregado', 'acusado'].includes(e.estado)).length
+  const confirmados = suyos.filter(e => e.estado === 'acusado').length
+  return { total: suyos.length, entregados, confirmados, sinConfirmar: suyos.filter(esperaAcuse).length, pideAcuse: suyos.some(e => e.pideAcuse !== false), emitidos: suyos }
+}
+
+/* UN LOTE DE EJEMPLO, para que la vista por lote no arranque vacía: el memorándum de felicitación
+   a la unidad de Ventas por la meta del trimestre, entregado por la app hace ocho días y
+   confirmado por la mayoría. Se numera después de lo que la demo ya tenga (RN-15). */
+export function semillaLoteDemo(personas, { emitidos = [], parametros = PARAMETROS_SEED, modelos = MODELOS_SEED } = {}) {
+  const gente = personas.filter(p => p.depto === 'Ventas' && p.status !== 'desvinculado').slice(0, 8)
+  const m = modelos.find(x => x.id === 'm-memo-felicitacion')
+  if (gente.length < 3 || !m) return null
+  const version = [...m.versiones].reverse().find(v => v.estado === 'publicada')
+  const loteId = 'le-demo-ventas-q3'
+  const fecha = dias(-8)
+  const obs = 'Por superar la meta de ventas del tercer trimestre como equipo.'
+  const acumulado = [...emitidos]
+  const nuevos = gente.map((p, i) => {
+    const num = siguienteNumero('memorandum', acumulado, parametros)
+    const datos = { ...datosPara(p, { numero: num.texto, observaciones: obs }), 'documento.fecha': fechaLarga(fecha) }
+    const acusado = i % 4 !== 1
+    const e = {
+      id: `e-lote-${p.id}`, modeloId: m.id, categoria: 'memorandum', colaboradorId: p.id, versionPlantilla: version.v,
+      numero: num.texto, n: num.n, gestion: num.gestion, fecha, emitidoPor: 'Paola Arce', estado: acusado ? 'acusado' : 'entregado',
+      datos, texto: rellenar(version.texto, datos), observaciones: obs, loteId,
+      entregas: [{ canal: 'app', fecha, por: 'Paola Arce' }],
+      acuse: acusado ? { fecha: dias(-8 + 1 + (i % 3)), dispositivo: i % 2 ? 'Celular · app SoulyHR' : 'Navegador · SoulyHR web' } : null,
+    }
+    acumulado.unshift(e)
+    return e
+  })
+  const lote = { id: loteId, nombre: 'Felicitación por la meta del tercer trimestre · Ventas', modeloId: m.id, fecha, por: 'Paola Arce', ids: nuevos.map(e => e.id) }
+  return { lote, emitidos: nuevos }
+}
+
+/* ── LOS COLABORADORES QUE SE DEMUESTRAN DESDE SU LADO ────────────────────
+   Carlos (en el celular) y María (en la web) son los perfiles con que la demo muestra «Mis
+   documentos», pero no están en el directorio: entraron a la demo por el selector de usuario, con
+   su ficha de ejemplo (`miFicha.js`), y nunca se los dio de alta. Sin expediente no tendrían nada
+   que ver. Se suman a las personas del módulo —y sólo a las del módulo—, con un id fuera del
+   rango del directorio para no pisar a nadie, y con su ficha, que es de donde salen casi todos sus
+   documentos. Así RR.HH. también los ve en Colaboradores y revisa lo que suben. */
+export const COLABORADORES_APP = [
+  { id: 1004, name: 'Carlos Mendoza Ríos', email: 'carlos.mendoza@farmavida.com.bo', depto: 'Tecnología', cargo: 'Desarrollador Frontend', rol: 'Colaborador', ingreso: '02 Feb 2025', status: 'activo', registro: 100, onb: 'graduado', initials: 'CM', color: '#f59e0b' },
+  { id: 1002, name: 'María López Torres', email: 'maria.lopez@farmavida.com.bo', depto: 'Ventas', cargo: 'Ejecutiva Comercial', rol: 'Colaborador', ingreso: '15 Mar 2024', status: 'activo', registro: 100, onb: 'graduado', initials: 'ML', color: '#7c3aed' },
+].map(c => {
+  const f = miFichaDe(c.name)?.form || null
+  return { ...c, ficha: f, documento: f ? `${f['1.11']} ${f['1.12']}` : undefined }
+})
+
+/* LO QUE YA LES PASÓ, elegido a mano y no por semilla: cada uno tiene que llegar a «Mis documentos»
+   con algo de cada cosa —algo que subir, algo rechazado o en revisión, algo recibido sin confirmar
+   y una solicitud—, que es lo que la demo existe para enseñar.
+   Los números de lo emitido y de los contratos se toman DESPUÉS de los que ya hay (RN-15): esto se
+   agrega a una demo que puede llevar semanas abierta y con sus propias emisiones. */
+export function semillaColaboradoresApp(personas, { emitidos = [], contratos = [], parametros = PARAMETROS_SEED, modelos = MODELOS_SEED } = {}) {
+  const P = id => personas.find(p => p.id === id)
+  const carlos = P(1004), maria = P(1002)
+  const out = { documentos: [], emitidos: [], contratos: [], solicitudes: [], requisitos: [], pedidos: {}, bitacora: [] }
+  const sub = id => SUBTIPOS_SEED.find(s => s.id === id)
+  const doc = (p, subtipoId, { dia, revision, canal, original, motivo = null }) => {
+    const s = sub(subtipoId)
+    const emision = dias(dia)
+    const formato = extension(original)
+    out.documentos.push({
+      id: `d-app-${p.id}-${subtipoId}`, colaboradorId: p.id, subtipoId,
+      versiones: [{
+        v: 1, archivo: { nombre: normalizarNombre(p, s, emision, formato), original, formato, tamanoKB: 640 },
+        emision, vencimiento: s.vence ? sumarMeses(emision, s.vigenciaMeses) : null,
+        subidoPor: p.name, canal, fecha: emision, revision, motivoRechazo: motivo, info: '',
+        ...(revision === 'rechazado' ? { revisadoPor: 'Paola Arce', revisado: dias(dia + 1) } : {}),
+      }],
+    })
+    out.bitacora.push({ id: `b-app-${p.id}-${subtipoId}`, fecha: emision, hora: '09:40', usuario: p.name, accion: 'alta', entidad: 'documento', entidadId: `d-app-${p.id}-${subtipoId}`, colaboradorId: p.id, detalle: `Cargó ${original} (${canal})` })
+  }
+  const acumulado = [...emitidos]
+  const emitido = (p, clave, modeloId, dia, estado, observaciones = '') => {
+    const m = modelos.find(x => x.id === modeloId)
+    const num = siguienteNumero(m.categoria, acumulado, parametros)
+    const datos = { ...datosPara(p, { numero: num.texto, observaciones }), 'documento.fecha': fechaLarga(dias(dia)) }
+    const version = [...m.versiones].reverse().find(v => v.estado === 'publicada')
+    const e = {
+      id: `e-app-${p.id}-${clave}`, modeloId, categoria: m.categoria, colaboradorId: p.id, versionPlantilla: version.v,
+      numero: num.texto, n: num.n, gestion: num.gestion, fecha: dias(dia), emitidoPor: 'Paola Arce', estado,
+      datos, texto: rellenar(version.texto, datos), observaciones,
+      entregas: [{ canal: 'app', fecha: dias(dia), por: 'Paola Arce' }],
+      acuse: estado === 'acusado' ? { fecha: dias(dia + 1), dispositivo: 'Navegador · SoulyHR web' } : null,
+    }
+    acumulado.unshift(e)
+    out.emitidos.push(e)
+    out.bitacora.push({ id: `b-app-${e.id}`, fecha: e.fecha, hora: '11:15', usuario: 'Paola Arce', accion: 'emision', entidad: 'emitido', entidadId: e.id, colaboradorId: p.id, detalle: `Emitió ${e.numero} · ${m.nombre}` })
+  }
+
+  if (carlos) {
+    // Su certificación la mandó desde el celular y se la rechazaron; su título se lo pidieron hace días.
+    doc(carlos, 's-certprof', { dia: -6, revision: 'rechazado', canal: 'app', original: 'IMG_20261008_183015.jpg', motivo: 'La foto está cortada: no se lee la fecha de emisión.' })
+    out.pedidos[`${carlos.id}|s-titulo`] = dias(-3)
+    out.bitacora.push({ id: `b-app-${carlos.id}-pedido`, fecha: dias(-3), hora: '10:05', usuario: 'Paola Arce', accion: 'pedido', entidad: 'requisito', entidadId: 's-titulo', colaboradorId: carlos.id, detalle: 'Pidió Título o diploma' })
+    emitido(carlos, 'cert', 'm-cert-trabajo', -4, 'entregado')
+    out.solicitudes.push({ id: `q-app-${carlos.id}-1`, tipo: 'certificacion', colaboradorId: carlos.id, fecha: dias(-1), asunto: 'Certificado de trabajo con sueldo', detalle: 'Para tramitar un crédito de vivienda en el banco.', estado: 'pendiente', canal: 'app', modeloId: 'm-cert-sueldo' })
+  }
+  if (maria) {
+    // Su título lo subió desde la web y todavía nadie lo miró.
+    doc(maria, 's-titulo', { dia: -2, revision: 'pendiente', canal: 'web', original: 'Titulo_Licenciatura_Maria.pdf' })
+    emitido(maria, 'cert', 'm-cert-sueldo', -40, 'acusado')
+    emitido(maria, 'memo', 'm-memo-felicitacion', -9, 'entregado', 'Por superar la meta de ventas del tercer trimestre.')
+    out.solicitudes.push({ id: `q-app-${maria.id}-1`, tipo: 'copia', colaboradorId: maria.id, fecha: dias(-20), asunto: 'Copia de su contrato firmado', detalle: 'La pide el propietario del departamento que va a alquilar.', estado: 'atendida', canal: 'web', carpeta: 'contratos', resuelto: { fecha: dias(-19), por: 'Paola Arce', nota: 'Se le envió la copia de su contrato por la app' } })
+  }
+
+  const gente = [carlos, maria].filter(Boolean)
+  out.requisitos = requisitosSeed(gente)
+  /* Los contratos salen de la misma regla que los de todos; sólo se les da id y número propios para
+     no chocar con los sembrados, que empiezan los dos en 1. */
+  const sueltos = contratosSeed(gente)
+  const ids = new Map(sueltos.map(c => [c.id, `k-app-${c.colaboradorId}-${c.id}`]))
+  const conNumero = [...contratos]
+  for (const c of sueltos) {
+    // La gestión es la del contrato, como en los sembrados: uno firmado en 2024 no se numera en 2026.
+    const num = siguienteNumero('contrato', [], parametros, conNumero)
+    const gestion = c.gestion || num.gestion
+    const nuevo = { ...c, id: ids.get(c.id), origenId: c.origenId ? ids.get(c.origenId) : null, numero: num.texto.replace(`/${num.gestion}`, `/${gestion}`), gestion }
+    conNumero.push(nuevo)
+    out.contratos.push(nuevo)
+  }
+  return out
 }

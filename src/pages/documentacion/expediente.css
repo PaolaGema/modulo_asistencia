@@ -15,6 +15,10 @@
 .xa-segmento button.on { background: var(--surface-card); color: var(--text-heading); box-shadow: var(--sh-sm); }
 .xa-segmento button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .xa-filtro-estado { width: 220px; }
+/* Ver por colaborador o por documento: aparece cuando un indicador filtra. */
+.xa-ver { margin-top: 2px; }
+.xa-ver-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.xa-ver-n { margin-left: 4px; font-weight: 700; color: var(--text-muted); }
 
 /* ── La lista de expedientes ── */
 .xa-tabla-wrap { overflow-x: auto; }
@@ -120,7 +124,7 @@
   min-height: 420px; border-radius: 12px; background: var(--bg-canal);
   display: flex; align-items: center; justify-content: center; padding: 18px; overflow: hidden;
 }
-.xa-previa-pdf { width: 100%; height: 480px; border: none; border-radius: 6px; background: #fff; }
+.xa-previa-pdf { width: 100%; height: 480px; overflow-y: auto; border-radius: 6px; background: #fff; }
 .xa-previa-img { max-width: 100%; max-height: 480px; border-radius: 6px; box-shadow: var(--sh-md); }
 .xa-hoja {
   position: relative; width: min(100%, 330px); aspect-ratio: 1 / 1.3; padding: 30px 26px;
@@ -239,3 +243,558 @@
   .xa-resultado { flex-wrap: wrap; }
 }
 .xa-campo .pl-label > span { margin-left: 4px; }
+
+/* ── Revisión del módulo: indicadores que filtran, ficha en una franja, una sola lista ── */
+.xa-kpi { font: inherit; width: 100%; text-align: left; }
+.xa-kpi.on { box-shadow: 0 0 0 2px var(--kpi-accent); }
+.xa-ficha-compacta { grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; padding: 16px 20px; }
+.xa-ficha-compacta .xa-ficha-nombre { font-size: 19px; }
+.xa-ficha-compacta .xa-ficha-cargo { font-size: 12.5px; }
+.xa-ficha-avance-linea { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.xa-btn-icono { padding: 0 10px; }
+.xa-barra-der { margin-left: auto; }
+.xa-personal { color: var(--dc-azul); background: var(--dc-azul-bg); }
+.xa-menu-hueco { display: inline-block; width: 30px; }
+.xa-grupo-vacio { margin: 0; padding: 14px 18px; font-size: 12.5px; color: var(--text-muted); }
+.xa-linea-modal { padding: 8px 0 0 4px; }
+.xa-emitido-cab { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+@media (max-width: 1100px) {
+  .xa-ficha-compacta { grid-template-columns: auto minmax(0, 1fr); }
+  .xa-ficha-compacta .xa-ficha-acc { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media (max-width: 760px) {
+  .xa-barra-der { margin-left: 0; width: 100%; justify-content: center; }
+}
+
+/* ── LAS CARPETAS EN FILA (propuesta A3) ─────────────────────────────────
+   Compactas, para que quepan todas a la vista: una pestaña en el tono de la carpeta, y debajo
+   el cuerpo en su tono claro con el ícono, la insignia, el nombre y cuántos documentos tiene.
+   Los tonos llegan como variables (`--c-osc`, `--c-cla`, `--c-tin`) desde cada carpeta: el CSS
+   es uno solo. El cuerpo es claro también en modo oscuro, como una carpeta de papel, y por eso
+   su texto va siempre en azul marino. */
+.xa-rapidos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.xa-rapido {
+  display: flex; flex-direction: column; gap: 2px; text-align: left;
+  padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--border-soft);
+  background: var(--surface-card); font: inherit; color: var(--text-heading);
+}
+button.xa-rapido { cursor: pointer; transition: border-color .12s, background .12s; }
+button.xa-rapido:hover { border-color: var(--border-dark); }
+.xa-rapido.on { border-color: currentColor; background: var(--surface-hover); }
+.xa-rapido-tit { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.xa-rapido-val { font-size: 22px; font-weight: 700; color: var(--text-heading); line-height: 1.2; }
+.xa-rapido-navy .xa-rapido-tit { color: var(--text-muted); }
+.xa-rapido-rojo { color: var(--dc-rojo); }
+.xa-rapido-azul { color: var(--dc-azul); }
+.xa-rapido-ambar { color: var(--dc-ambar); }
+
+.xa-carpetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px 12px; }
+.xa-carpeta {
+  display: flex; flex-direction: column; padding: 0; border: none; background: none;
+  font: inherit; text-align: left; cursor: pointer; color: inherit; border-radius: 12px;
+  transition: transform .15s;
+}
+.xa-carpeta:hover { transform: translateY(-3px); }
+.xa-carpeta:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.xa-carpeta-pestana { display: block; width: 56px; height: 10px; border-radius: 8px 8px 0 0; background: var(--c-osc); }
+.xa-carpeta-cuerpo {
+  flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 104px; box-sizing: border-box;
+  padding: 12px; border-radius: 0 12px 12px 12px; background: var(--c-cla); border-top: 3px solid var(--c-osc);
+  transition: box-shadow .15s;
+}
+.xa-carpeta:hover .xa-carpeta-cuerpo { box-shadow: 0 8px 18px -10px rgba(12,45,64,.45); }
+.xa-carpeta-fila { display: flex; align-items: center; justify-content: space-between; color: var(--c-tin); }
+.xa-carpeta-nom { font-size: 13px; font-weight: 600; color: #0C2D40; line-height: 1.25; }
+.xa-carpeta-cuenta { margin-top: auto; font-size: 11.5px; color: var(--c-tin); }
+.xa-insignia {
+  min-width: 22px; height: 20px; padding: 0 7px; box-sizing: border-box; border-radius: 99px;
+  display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; background: #FFFFFF;
+}
+.xa-insignia-rojo { color: #B42318; background: #FDECEA; }
+.xa-insignia-verde { color: #0F7A4F; }
+.xa-insignia-gris { color: #4B5B6B; }
+.xa-tono-rojo { color: var(--dc-rojo); }
+.xa-tono-azul { color: var(--dc-azul); }
+.xa-tono-ambar { color: var(--dc-ambar); }
+.xa-tono-verde { color: var(--dc-verde); }
+.xa-tono-muted { color: var(--text-muted); }
+
+.xa-resultado-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--text-muted); }
+
+@media (max-width: 820px) {
+  .xa-rapidos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .xa-carpetas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ── LA CARPETA EN SU VENTANA: cada documento, una hoja ── */
+.xa-ventana { display: flex; flex-direction: column; gap: 16px; }
+.xa-ventana-filtros { display: flex; gap: 8px; flex-wrap: wrap; }
+.xa-ventana-filtros button {
+  height: 32px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading);
+  font: inherit; font-size: 12.5px;
+}
+.xa-ventana-filtros button.on { background: var(--navy, #0C2D40); border-color: transparent; color: #FFFFFF; font-weight: 600; }
+.dark .xa-ventana-filtros button.on { background: var(--green); color: var(--navy-dark, #0C2D40); }
+.xa-ventana-aviso { margin-right: auto; font-size: 12.5px; font-weight: 500; }
+
+.xa-hojas { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.xa-hoja-card {
+  display: flex; flex-direction: column; border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border-soft); background: var(--surface-card);
+}
+.xa-hoja-borrada { opacity: .75; }
+.xa-hoja-mini {
+  position: relative; height: 150px; display: grid; place-items: center;
+  background: var(--bg-secondary); border-bottom: 1px solid var(--border-soft);
+}
+.xa-hoja-chip { position: absolute; top: 10px; left: 10px; }
+.xa-mini-hoja {
+  width: 88px; height: 114px; box-sizing: border-box; padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 6px; position: relative;
+  background: #FFFFFF; border-radius: 5px; box-shadow: 0 5px 14px rgba(12,45,64,.14);
+}
+.xa-mini-hoja span { display: block; height: 4px; width: 92%; border-radius: 4px; background: #E2E8F0; }
+.xa-mini-hoja span:first-child { height: 6px; background: #CBD5E1; }
+.xa-mini-hoja em { position: absolute; bottom: 8px; right: 8px; font-style: normal; font-size: 8.5px; font-weight: 700; letter-spacing: .05em; color: #5B6B7B; }
+.xa-mini-falta {
+  display: grid; place-items: center; padding: 0; box-shadow: none;
+  border: 2px dashed color-mix(in srgb, var(--dc-rojo) 45%, transparent); background: var(--dc-rojo-bg);
+  color: var(--dc-rojo); font-size: 28px; font-weight: 300;
+}
+.xa-mini-img { width: 100%; height: 100%; object-fit: cover; }
+.xa-hoja-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 14px 14px; }
+.xa-hoja-nombre { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text-heading); }
+.xa-hoja-detalle { font-size: 11.5px; color: var(--text-muted); line-height: 1.4; }
+.xa-hoja-acc { margin-top: auto; padding-top: 10px; display: flex; gap: 6px; width: 100%; }
+.xa-hoja-btn {
+  flex: 1; height: 32px; border-radius: 8px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border-dark); background: var(--surface-card); color: var(--text-heading);
+  font: inherit; font-size: 12px; font-weight: 600;
+}
+.xa-hoja-btn:hover { background: var(--surface-hover); }
+.xa-hoja-btn.principal { background: var(--navy, #0C2D40); border-color: transparent; color: #FFFFFF; }
+.dark .xa-hoja-btn.principal { background: var(--green); color: var(--navy-dark, #0C2D40); }
+/* SUBIR DOCUMENTO: tiene que verse como lo que es, la acción de la carpeta. Borde punteado marcado,
+   un tono suave de la marca y el ícono en un círculo; al pasar el mouse se llena un poco más. */
+.xa-hoja-nueva {
+  min-height: 280px; border-radius: 14px; cursor: pointer; padding: 18px;
+  border: 2px dashed color-mix(in srgb, var(--green-fuerte, #00B377) 55%, transparent);
+  background: color-mix(in srgb, var(--green, #00E091) 7%, var(--surface-card));
+  color: var(--text-heading); font: inherit; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+.xa-hoja-nueva b { font-size: 14px; font-weight: 700; }
+.xa-hoja-nueva small { font-size: 12px; color: var(--text-muted); line-height: 1.4; max-width: 180px; }
+.xa-hoja-nueva-ico {
+  width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px;
+  background: var(--navy, #0C2D40); color: var(--green, #00E091);
+}
+.dark .xa-hoja-nueva-ico { background: var(--green, #00E091); color: var(--navy-dark, #0C2D40); }
+.xa-hoja-nueva:hover { border-color: var(--green-fuerte, #00B377); background: color-mix(in srgb, var(--green, #00E091) 14%, var(--surface-card)); transform: translateY(-2px); }
+/* La etiqueta de estado va arriba a la izquierda y la hoja empieza debajo: en tarjetas angostas
+   la etiqueta tapaba la esquina de la miniatura. Una imagen real ocupa toda la caja igual. */
+.xa-hoja-mini { height: 164px; place-items: end center; padding-bottom: 14px; box-sizing: border-box; }
+.xa-hoja-mini:has(.xa-mini-img) { padding: 0; place-items: stretch; }
+/* «De la ficha»: el archivo vive en la ficha del colaborador y se cambia allá. */
+.xa-hoja-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.xa-de-ficha { color: var(--dc-azul); background: var(--dc-azul-bg); }
+
+/* ── LA CARPETA COMO PÁGINA ── */
+.xa-pagina-carpeta { display: flex; flex-direction: column; gap: 16px; }
+/* La ruta de arriba del expediente: la misma en la vista de carpetas y dentro de una. */
+.xa-migas { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; font-weight: 500; color: var(--text-muted); min-height: 30px; }
+.xa-migas button { border: none; background: none; padding: 2px 4px; border-radius: 6px; font: inherit; color: var(--text-muted); cursor: pointer; }
+.xa-migas button:hover { color: var(--text-heading); background: var(--surface-hover); }
+.xa-migas-subir { width: 28px; height: 28px; display: grid; place-items: center; margin-right: 4px; border: 1px solid var(--border-soft) !important; background: var(--surface-card) !important; }
+.xa-migas-sep { color: var(--text-muted); opacity: .6; flex-shrink: 0; }
+.xa-migas-actual { color: var(--text-heading); font-weight: 600; padding: 2px 4px; }
+.xa-carpeta-cab { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 22px; border-top: 5px solid var(--c-osc); }
+.xa-carpeta-cab-ico { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--c-cla); color: var(--c-tin); flex-shrink: 0; }
+.xa-carpeta-cab-tit { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 3px; }
+.xa-carpeta-cab-tit h1 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-heading); }
+.xa-carpeta-cab-tit p { margin: 0; font-size: 12.5px; color: var(--text-muted); }
+.xa-carpeta-barra { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.xa-carpeta-barra .xa-busca { flex: 0 1 420px; }
+/* El cambio de vista va al extremo derecho: es de la carpeta entera, no del buscador. */
+.xa-carpeta-barra .xa-modo-vista { margin-left: auto; }
+.xa-carpeta-orden { width: 210px; }
+.xa-modo-vista { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg-canal); }
+.xa-modo-vista button {
+  display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent; cursor: pointer;
+  padding: 6px 12px; border-radius: 8px; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted);
+}
+.xa-modo-vista button.on { background: var(--surface-card); color: var(--text-heading); box-shadow: var(--sh-sm); }
+.xa-mostrar-mas { align-self: center; }
+@media (max-width: 640px) {
+  .xa-carpeta-orden { width: 100%; }
+}
+
+
+/* Cargar: abrir la lista a todas las carpetas, y la marca de «adjunto» en la carga masiva. */
+.xa-enlace-mini { align-self: flex-start; margin-top: 4px; border: none; background: none; padding: 0; font: inherit; font-size: 11.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.xa-enlace-mini:hover { color: var(--text-heading); }
+.xa-lote-adj { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; font-size: 10.5px; font-weight: 600; color: var(--dc-verde); }
+
+/* La primera página de un PDF cargado, como miniatura. El iframe se dibuja más grande y se achica,
+   para que el visor del navegador muestre la página entera y no una esquina. */
+.xa-hoja-mini:has(.xa-mini-pdf) { padding: 0; place-items: stretch; }
+.xa-mini-pdf { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; background: #FFFFFF; pointer-events: none; }
+.xa-mini-pdf .dc-pdf { width: 100%; }
+
+/* Los documentos de la carpeta como botones, al cargar. */
+.xa-elegir { display: flex; flex-wrap: wrap; gap: 6px; }
+.xa-elegir button {
+  border: 1.5px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading);
+  border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 12.5px; cursor: pointer;
+}
+.xa-elegir button:hover { border-color: var(--border-dark); }
+.xa-elegir button.on { border-color: var(--navy, #0C2D40); background: var(--navy, #0C2D40); color: #FFFFFF; font-weight: 600; }
+.dark .xa-elegir button.on { border-color: var(--green); background: var(--green); color: var(--navy-dark, #0C2D40); }
+.xa-sugerido { font-weight: 400; color: var(--text-muted); font-size: 11.5px; }
+
+/* Un documento sin archivo que mostrar, dibujado como una página entera —igual que un PDF—. */
+.xa-hoja-mini:has(.xa-mini-pagina) { padding: 0; place-items: stretch; }
+.xa-mini-pagina {
+  display: flex; flex-direction: column; gap: 6px; width: 100%; height: 100%; box-sizing: border-box;
+  padding: 34px 16px 12px; background: #FFFFFF; color: #1F2A33; text-align: left; overflow: hidden;
+}
+.xa-mini-pagina-tit { font-size: 11px; font-weight: 700; line-height: 1.3; text-transform: uppercase; letter-spacing: .02em; }
+.xa-mini-pagina-det { font-size: 9.5px; color: #5B6B7B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xa-mini-pagina-lineas { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+.xa-mini-pagina-lineas i { display: block; height: 4px; border-radius: 3px; background: #E3E8EE; }
+.xa-mini-pagina-pie { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.xa-mini-pagina-pie em { font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: .05em; color: #5B6B7B; padding: 2px 6px; border-radius: 4px; background: #F1F4F7; }
+.xa-mini-ejemplo { font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #9A5B06; background: #FFF4DE; padding: 2px 6px; border-radius: 4px; }
+
+/* El aviso tras subir, con su acción a mano: «Revisar fechas». Dura más que un aviso común
+   porque hay que alcanzar a tocarlo. */
+.xa-toast-accion { gap: 10px; }
+.xa-toast-accion button {
+  margin-left: 6px; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer;
+  background: var(--green, #00E091); color: var(--navy-dark, #0C2D40); font: inherit; font-size: 12.5px; font-weight: 700;
+}
+/* La ventana de fechas: un bloque por documento subido. */
+.xa-fechas-item { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--border-soft); }
+.xa-fechas-item b { font-size: 13.5px; color: var(--text-heading); }
+.xa-fechas-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.xa-fechas-novence { display: flex; align-items: center; min-height: 40px; font-size: 13px; }
+@media (max-width: 520px) { .xa-fechas-campos { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── SUBIR DOCUMENTOS: el archivo a la izquierda, una pregunta a la vez a la derecha ── */
+.xs-soltar {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  min-height: 260px; padding: 28px; border-radius: 16px; cursor: pointer; text-align: center;
+  border: 2px dashed color-mix(in srgb, var(--green-fuerte, #00B377) 55%, transparent);
+  background: color-mix(in srgb, var(--green, #00E091) 6%, var(--surface-card));
+  color: var(--text-heading); transition: background .15s, border-color .15s;
+}
+.xs-soltar:hover, .xs-soltar.on { border-color: var(--green-fuerte, #00B377); background: color-mix(in srgb, var(--green, #00E091) 13%, var(--surface-card)); }
+.xs-soltar:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.xs-soltar b { font-size: 16px; }
+.xs-soltar span { font-size: 13px; color: var(--text-muted); }
+.xs-soltar-ico { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--navy, #0C2D40); color: var(--green, #00E091); }
+
+.xs-tira { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid var(--border-soft); }
+.xs-tira-item, .xs-tira-mas {
+  display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; max-width: 220px;
+  padding: 6px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12.5px;
+  border: 1.5px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading);
+}
+.xs-tira-item.on { border-color: var(--navy, #0C2D40); background: var(--surface-hover); font-weight: 600; }
+.xs-tira-nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xs-tira-mas { border-style: dashed; color: var(--text-muted); }
+.xs-punto { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.xs-punto.ok { background: var(--dc-verde); }
+.xs-punto.falta { background: var(--dc-ambar); }
+
+.xs-cuerpo { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
+.xs-archivo { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 0; }
+.xs-vista { height: 340px; border-radius: 12px; overflow: hidden; background: var(--bg-canal); border: 1px solid var(--border-soft); display: grid; place-items: center; }
+.xs-vista img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.xs-vista-pdf { place-items: start stretch; overflow-y: auto; background: #fff; }
+.xs-vista-otro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 12px; }
+.xs-vista-otro b { font-size: 15px; color: var(--text-heading); }
+.xs-archivo-pie { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.xs-archivo-nom { font-weight: 600; color: var(--text-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xs-archivo-acc { display: flex; gap: 4px; }
+
+.xs-preguntas { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.xs-paso { display: flex; flex-direction: column; gap: 10px; }
+.xs-paso h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-heading); }
+.xs-pista { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--dc-azul); }
+.xs-grupo { display: flex; flex-direction: column; gap: 6px; }
+.xs-grupo-tit { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+.xs-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.xs-opcion {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  padding: 11px 34px 11px 13px; border-radius: 12px; cursor: pointer; text-align: left; font: inherit;
+  border: 1.5px solid var(--border-soft); background: var(--surface-card); color: var(--text-heading);
+  transition: border-color .12s, background .12s;
+}
+.xs-opcion:hover { border-color: var(--border-dark); }
+.xs-opcion.on { border-color: var(--navy, #0C2D40); background: color-mix(in srgb, var(--navy, #0C2D40) 5%, var(--surface-card)); }
+.dark .xs-opcion.on { border-color: var(--green); background: color-mix(in srgb, var(--green) 8%, var(--surface-card)); }
+.xs-opcion-nom { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.xs-opcion-est { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+.xs-rojo { color: var(--dc-rojo); background: var(--dc-rojo-bg); }
+.xs-gris { color: var(--dc-gris); background: var(--dc-gris-bg); }
+.xs-opcion-ok { position: absolute; top: 11px; right: 11px; color: var(--navy, #0C2D40); }
+.dark .xs-opcion-ok { color: var(--green); }
+
+.xs-fechas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.xs-ayuda { margin: 0; font-size: 12px; color: var(--text-muted); }
+.xs-error { margin: 0; font-size: 12.5px; font-weight: 500; color: var(--dc-rojo); }
+.xs-linea { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 10px; background: var(--bg-secondary); font-size: 13px; color: var(--text-heading); }
+.xs-linea-fecha { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); }
+.xs-linea-fecha > div { min-width: 170px; }
+.xs-nota { margin: 0; display: flex; align-items: flex-start; gap: 7px; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; line-height: 1.45; background: var(--dc-azul-bg); color: var(--dc-azul); }
+.xs-nota svg { flex-shrink: 0; margin-top: 2px; }
+.xs-nota-ambar { background: var(--dc-ambar-bg); color: var(--dc-ambar); }
+.xs-extras { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.xs-extras .xa-campo { width: 100%; }
+
+@media (max-width: 760px) {
+  .xs-cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .xs-archivo { position: static; }
+  .xs-vista { height: 220px; }
+  .xs-fechas { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Por clasificar: subido, falta decir qué es ── */
+.xa-pendientes { display: flex; flex-direction: column; gap: 10px; }
+.xa-pendientes-tit { margin: 0; font-size: 13px; font-weight: 700; color: var(--dc-ambar); text-transform: uppercase; letter-spacing: .05em; }
+.xa-hoja-pendiente { border: 2px solid color-mix(in srgb, var(--dc-ambar) 55%, transparent); box-shadow: 0 10px 24px -18px rgba(154,91,6,.6); }
+.xa-hoja-pendiente .xa-hoja-nombre { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.xa-clasificar { margin-top: auto; padding-top: 10px; width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.xa-insignia-ambar { color: #9A5B06; background: #FFF4DE; }
+.xa-clasificar-tit { font-size: 12px; font-weight: 700; color: var(--dc-ambar); }
+.xa-clasificar-fila { display: flex; align-items: stretch; gap: 6px; }
+.xa-clasificar-fila .xs-sel { flex: 1; min-width: 0; }
+/* El texto del desplegable se recorta dentro de su caja: en una tarjeta angosta no se dibuja encima del basurero. */
+.xa-clasificar-fila .xs-sel .pl-dropdown-trigger { min-width: 0; overflow: hidden; gap: 6px; }
+.xa-clasificar-fila .xs-sel .pl-dropdown-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xa-clasificar-fila .xs-sel .pl-dropdown-chevron { flex: none; }
+.xa-clasificar-fila { width: 100%; }
+.xa-clasificar-borrar { flex: none; width: 42px; position: relative; z-index: 1; border-radius: 10px; border: 1.5px solid #D5DEE8; background: var(--surface-card, #fff); color: #5B6B7B; display: grid; place-items: center; cursor: pointer; }
+.xa-clasificar-borrar:hover, .xa-clasificar-borrar:focus-visible { color: #B42318; border-color: #F3B7B0; background: #FDECEA; }
+
+/* ── Selector «¿Qué documento es?» ── */
+.xs-sel { position: relative; width: 100%; }
+.xs-sel .pl-dropdown-trigger { width: 100%; }
+.xs-sel-panel { position: fixed; z-index: 60; background: var(--surface-card, #fff); border: 1px solid var(--border-dark, #D5DEE8); border-radius: 14px; box-shadow: var(--sh-flotante, 0 18px 44px -16px rgba(12,45,64,.4)); display: flex; flex-direction: column; overflow: hidden; animation: plDropIn .15s ease-out; }
+.xs-sel-panel.arriba { animation-name: plDropInUp; }
+.xs-sel-buscar { display: flex; align-items: center; gap: 8px; margin: 8px; padding: 0 10px; height: 36px; border-radius: 9px; background: var(--surface-hover, #F1F4F8); color: #5B6B7B; }
+.xs-sel-buscar input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: inherit; font-size: 13px; color: var(--text-primary, #0C2D40); }
+.xs-sel-lista { max-height: 250px; overflow-y: auto; padding: 0 6px 6px; }
+.xs-sel-lista::-webkit-scrollbar { width: 6px; }
+.xs-sel-lista::-webkit-scrollbar-thumb { background: var(--surface-hover, #E3E8EE); border-radius: 3px; }
+.xs-sel-grupo + .xs-sel-grupo { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border, #EEF2F6); }
+.xs-sel-grupo-tit { display: flex; align-items: center; gap: 6px; padding: 8px 8px 4px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5B6B7B; }
+.xs-sel-grupo-tit.falta { color: #B42318; }
+.xs-sel-punto { width: 7px; height: 7px; border-radius: 50%; background: #E5484D; }
+.xs-sel-op { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; border: none; border-radius: 9px; background: none; font: inherit; font-size: 13px; color: var(--text-primary, #0C2D40); text-align: left; cursor: pointer; }
+.xs-sel-op.activo { background: var(--surface-hover, #F1F4F8); }
+.xs-sel-ico { flex: none; }
+.xs-sel-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.xs-sel-sub { font-size: 11px; color: #5B6B7B; }
+.xs-sel-falta { flex: none; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: #FDECEA; color: #B42318; }
+.xs-sel-nada { margin: 6px 8px 10px; font-size: 12.5px; color: #5B6B7B; }
+.xs-sel-pie { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: none; border-top: 1px solid var(--border, #EEF2F6); background: var(--surface-card, #fff); font: inherit; font-size: 13px; font-weight: 600; color: var(--text-primary, #0C2D40); text-align: left; cursor: pointer; }
+.xs-sel-pie:hover { background: #F2FBF7; }
+.xs-sel-mas { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: #0C2D40; color: #00E091; }
+.xs-sel-pie .xs-sel-sub { font-weight: 400; }
+.xs-sel-otro { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 14px; }
+.xs-sel-volver { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; border: none; background: none; padding: 0; font: inherit; font-size: 12px; color: #5B6B7B; cursor: pointer; }
+.xs-sel-otro-tit { font-size: 13px; font-weight: 700; color: var(--text-primary, #0C2D40); }
+.xs-sel-input { height: 38px; padding: 0 11px; border-radius: 9px; border: 1.5px solid #D5DEE8; font: inherit; font-size: 13px; color: var(--text-primary, #0C2D40); background: var(--surface-card, #fff); }
+.xs-sel-input:focus { outline: none; border-color: #00B377; box-shadow: 0 0 0 3px rgba(0,224,145,.18); }
+.xs-sel-ayuda { font-size: 11.5px; color: #5B6B7B; }
+.xs-sel-guardar { align-self: flex-end; height: 34px; padding: 0 16px; border-radius: 9px; border: none; background: #0C2D40; color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.xs-sel-guardar:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── El historial como carpeta (Documentación v2) ── */
+.xa-historial .dc-tarjeta-cab { flex-wrap: wrap; }
+.xa-hist-mes + .xa-hist-mes { margin-top: 18px; }
+.xa-hist-mes-tit { margin: 0 0 10px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+
+/* ── Expedientes v3: lo pendiente en pastillas ── */
+.xg-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 16px; }
+.xg-chip {
+  display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px;
+  border: 1px solid var(--border-soft); border-radius: 999px; background: var(--surface-card);
+  font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-heading); cursor: pointer;
+}
+.xg-chip b { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--text-muted); }
+.xg-chip:hover:not(:disabled) { border-color: var(--border-dark); }
+.xg-chip:disabled { opacity: .5; cursor: default; }
+.xg-chip.xg-azul b { color: var(--dc-azul); } .xg-chip.xg-rojo b { color: var(--dc-rojo); }
+.xg-chip.xg-ambar b { color: var(--dc-ambar); } .xg-chip.xg-violeta b { color: var(--dc-violeta); }
+.xg-chip.on { background: var(--navy, #0C2D40); border-color: var(--navy, #0C2D40); color: #fff; }
+.xg-chip.on b { color: #fff; }
+.xg-ver { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-size: 12px; color: var(--text-muted); }
+
+/* ── Expedientes: la tabla ordenable ── */
+.xa-orden {
+  display: inline-flex; align-items: center; gap: 4px; padding: 0; border: none; background: none;
+  font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; text-align: left;
+}
+.xa-orden svg { opacity: .45; }
+.xa-orden.on, .xa-orden:hover { color: var(--text-heading); }
+.xa-orden.on svg { opacity: 1; }
+
+/* ── Expedientes: buscador y filtros en una sola fila ── */
+.xa-barra-exp { margin-bottom: 4px; }
+.xa-barra-exp .xa-busca { flex: 1 1 200px; min-width: 180px; }
+.xa-barra-exp .dc-filtros { flex-wrap: nowrap; }
+.xa-barra-exp .dc-filtro { width: 184px; }
+@media (max-width: 1280px) {
+  .xa-barra-exp .dc-filtros { flex-wrap: wrap; }
+}
+
+/* ── Expedientes: el filtro de estado y el aviso de revisión (propuesta B) ── */
+.xa-estado { width: 230px; flex-shrink: 0; }
+.xa-estado .pl-dropdown-trigger, .xa-estado button[aria-haspopup] { height: 36px; font-size: 12.5px; font-weight: 600; }
+/* el borde de «en uso» lo pone .dc-filtro.on */
+.xa-aviso-rev {
+  display: flex; align-items: center; gap: 14px; margin: 14px 0 4px; padding: 12px 16px; border-radius: 12px;
+  background: #E8F0FC; border: 1px solid #C7D9F5; color: #1D5FBF;
+}
+.xa-aviso-rev.on { background: var(--surface-card); border-color: var(--border-soft); }
+.xa-aviso-txt { flex: 1; min-width: 0; font-size: 13.5px; color: var(--text-muted); line-height: 1.45; }
+.xa-aviso-txt b { color: var(--text-heading); }
+.xa-aviso-btn {
+  height: 36px; padding: 0 16px; border-radius: 10px; border: none; background: #1D5FBF; color: #fff;
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.xa-aviso-btn:hover { background: #174FA0; }
+.xa-resultado { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 14px 2px 4px; font-size: 13px; color: var(--text-muted); }
+.xa-resultado b { color: var(--text-heading); }
+@media (max-width: 760px) {
+  .xa-aviso-rev { flex-wrap: wrap; }
+  .xa-estado { width: 100%; }
+}
+.xa-resultado-der { display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.xa-barra-exp .xa-estado { width: 220px; }
+.dc-filtro.on .pl-dropdown-trigger, .dc-filtro.on button[aria-haspopup] { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Filtros aplicados en la línea del resultado (propuesta J) ── */
+.dc-filtro-compacto { width: 150px; }
+.xa-barra-exp .dc-filtro.dc-filtro-compacto { width: 150px; }
+.xa-barra-exp .xa-estado { width: 150px; }
+.dc-filtro-compacto.on .pl-dropdown-trigger, .dc-filtro-compacto.on button[aria-haspopup] { border: 1px solid var(--text-heading); padding-right: 12px; }
+.dc-filtro-cara { display: inline-flex; align-items: center; gap: 6px; }
+.dc-filtro-n {
+  min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px;
+  background: var(--text-heading); color: var(--surface-card); font-size: 11px; font-weight: 700; display: inline-grid; place-items: center;
+}
+.xa-resultado-izq { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.xa-aplicado {
+  display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 4px 0 11px; border-radius: 99px;
+  background: var(--surface-card); border: 1px solid var(--border-dark, #C3CFDC); font-size: 12.5px; color: var(--text-muted);
+}
+.xa-aplicado b { color: var(--text-heading); font-weight: 600; }
+.xa-aplicado button {
+  width: 20px; height: 20px; border-radius: 50%; border: none; padding: 0; margin-left: 2px; cursor: pointer;
+  display: grid; place-items: center; background: var(--bg-canal); color: var(--text-heading);
+}
+.xa-aplicado button:hover { background: var(--text-heading); color: var(--surface-card); }
+.xa-quitar-todos { border: none; background: none; padding: 4px; font: inherit; font-size: 12.5px; font-weight: 600; color: #1D5FBF; cursor: pointer; }
+.xa-quitar-todos:hover { text-decoration: underline; }
+.xa-barra-exp .xa-busca { flex: 1 1 200px; min-width: 200px; }
+.xa-barra-exp .dc-filtro.dc-filtro-compacto, .xa-barra-exp .xa-estado { width: 140px; }
+.xa-resultado { margin-top: 8px; min-height: 36px; }
+
+/* ── Filtros como los del Organigrama: nombre chico + valor; el que recorta se pinta ── */
+.xa-barra-exp .dc-filtro.dc-filtro-compacto, .xa-barra-exp .xa-estado { width: auto; max-width: 260px; }
+.dc-filtro-compacto .pl-dropdown-trigger, .dc-filtro-compacto button[aria-haspopup] {
+  height: 38px; padding: 0 10px 0 12px; gap: 6px; border: 1px solid var(--border); border-radius: 9px;
+  background: var(--surface-card); font-weight: 600; white-space: nowrap;
+}
+.dc-filtro-compacto.on .pl-dropdown-trigger, .dc-filtro-compacto.on button[aria-haspopup] {
+  background: var(--blue-bg); border: 1px solid color-mix(in srgb, var(--blue) 50%, transparent); padding-right: 10px;
+}
+.dc-filtro-compacto.on .pl-dropdown-trigger:hover, .dc-filtro-compacto.on button[aria-haspopup]:hover { border-color: var(--blue); }
+.dc-filtro-cara { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.dc-filtro-rot { font-size: 9.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+.dc-filtro-val { font-size: 12.5px; font-weight: 500; color: var(--text-heading); overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+.dc-filtro-compacto.on .dc-filtro-val { font-weight: 700; }
+.xa-resultado { justify-content: flex-end; }
+.xa-barra-exp .xa-busca { flex: 1 1 180px; min-width: 180px; }
+
+/* ── «Lo más urgente»: el tiempo como protagonista (propuesta S) ── */
+.xa-urg { display: flex; flex-direction: column; gap: 6px; max-width: 290px; }
+.xa-urg-txt { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+.xa-urg-txt b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xa-urg-mas { flex-shrink: 0; font-size: 11.5px; font-weight: 700; color: var(--text-muted); }
+.xa-urg-barra { height: 5px; border-radius: 3px; background: var(--bg-canal); overflow: hidden; }
+.xa-urg-barra > span { display: block; height: 100%; border-radius: 3px; }
+.xa-urg-rojo b { color: #B42318; }
+.xa-urg-rojo .xa-urg-barra > span { background: #D92D20; }
+.xa-urg-ambar b { color: #9A5B06; }
+.xa-urg-ambar .xa-urg-barra > span { background: #E5A13A; }
+.xa-urg-azul b { color: #1D5FBF; }
+.xa-urg-azul .xa-urg-barra > span { background: #6FA0E6; }
+.xa-urg-violeta b { color: #6A3FC0; }
+.xa-urg-violeta .xa-urg-barra > span { background: #8E6AD8; }
+.xa-urg-gris b { color: var(--text-heading); }
+.xa-urg-gris .xa-urg-barra > span { background: #94A3B8; }
+/* Lo que falta entregar no tiene fecha que se acerque: la barra va punteada, como un hueco. */
+.xa-urg-barra.rayada { background: none; }
+.xa-urg .xa-urg-barra.rayada > span { background: repeating-linear-gradient(90deg, #94A3B8 0 6px, transparent 6px 10px); }
+.xa-urg-rojo .xa-urg-barra.rayada > span { background: repeating-linear-gradient(90deg, #D92D20 0 6px, transparent 6px 10px); }
+.xa-urg-ok { font-size: 12.5px; color: #0F7A4F; }
+.xa-urg { gap: 3px; }
+.xa-urg-txt b { font-size: 13px; font-weight: 700; }
+.xa-urg-doc { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px; }
+
+/* ── Resumen + qué atender hoy (propuesta X) ── */
+.xr-resumen { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); gap: 12px; margin: 4px 0 16px; }
+.xr-salud, .xr-hoy { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; }
+.xr-salud { display: flex; align-items: center; gap: 16px; padding: 16px 18px; }
+.xr-anillo { width: 86px; height: 86px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; }
+.xr-anillo > span { width: 66px; height: 66px; border-radius: 50%; background: var(--surface-card); display: grid; place-items: center; font-size: 18px; font-weight: 800; color: var(--text-heading); }
+.xr-salud-txt { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--text-muted); }
+.xr-salud-txt b { font-size: 14px; color: var(--text-heading); }
+.xr-hoy { display: flex; flex-direction: column; padding: 10px 16px; }
+.xr-hoy-tit { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); padding: 4px 0 6px; }
+.xr-hoy-nada { font-size: 13px; color: #0F7A4F; padding: 8px 0; }
+.xr-tarea { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-top: 1px solid var(--border-soft); }
+.xr-tarea-txt { flex: 1; min-width: 0; font-size: 13px; color: var(--text-muted); }
+.xr-tarea-txt b { color: var(--text-heading); }
+.xr-punto { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.xr-btn { height: 30px; padding: 0 12px; border-radius: 8px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; border: 1px solid; }
+.xr-btn:disabled { cursor: default; opacity: .6; }
+.xr-punto.xr-rojo { background: #D92D20; } .xr-btn.xr-rojo { background: #FDECEA; color: #B42318; border-color: #F3C0BB; }
+.xr-punto.xr-azul { background: #1D5FBF; } .xr-btn.xr-azul { background: #E8F0FC; color: #1D5FBF; border-color: #C7D9F5; }
+.xr-punto.xr-violeta { background: #8E6AD8; } .xr-btn.xr-violeta { background: #F1ECFC; color: #6A3FC0; border-color: #DCCEF7; }
+.xr-punto.xr-gris { background: #94A3B8; } .xr-btn.xr-gris { background: var(--bg-canal); color: var(--text-heading); border-color: var(--border-soft); }
+.xr-punto.xr-ambar { background: #E5A13A; } .xr-btn.xr-ambar { background: #FFF4DE; color: #9A5B06; border-color: #F3D9A6; }
+@media (max-width: 900px) { .xr-resumen { grid-template-columns: 1fr; } }
+
+/* El detalle antes de pedir renovaciones */
+.xr-modal-txt { margin: 0 0 12px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.xr-renovar { list-style: none; margin: 0; padding: 0; max-height: 52vh; overflow: auto; border: 1px solid var(--border-soft); border-radius: 12px; }
+.xr-renovar li + li { border-top: 1px solid var(--border-soft); }
+.xr-renovar label { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; }
+.xr-renovar label:hover { background: var(--bg-canal); }
+.xr-renovar input { width: 16px; height: 16px; accent-color: var(--text-heading); flex-shrink: 0; }
+.xr-renovar .dc-persona { flex: 1; min-width: 0; }
+.xr-renovar-doc { display: flex; flex-direction: column; align-items: flex-end; text-align: right; font-size: 12.5px; }
+.xr-renovar-doc b { color: var(--text-heading); font-weight: 600; }
+.xr-renovar-doc span { color: #B42318; font-size: 12px; }
+
+/* ── A quién se mira: activos, desvinculados o todos, en la cabecera (propuesta AJ) ── */
+.xa-vinculo { display: inline-flex; gap: 2px; padding: 3px; border-radius: 11px; background: var(--surface-card); border: 1px solid var(--border-soft); }
+.xa-vinculo button {
+  height: 32px; padding: 0 14px; border-radius: 8px; border: none; background: transparent; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-muted); white-space: nowrap;
+}
+.xa-vinculo button span { margin-left: 4px; font-weight: 700; opacity: .75; }
+.xa-vinculo button:hover { color: var(--text-heading); }
+.xa-vinculo button.on { background: var(--navy, #0C2D40); color: #fff; }
+.xa-vinculo button.on span { opacity: 1; }

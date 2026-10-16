@@ -1,4 +1,4 @@
-import { estadoContrato, finEfectivo as finEfectivoBase } from '../../data/documentacionData'
+import { estadoContrato, finEfectivo as finEfectivoBase, rellenar } from '../../data/documentacionData'
 
 /* Lo que comparten la biblioteca, el editor, emitir y la ficha del contrato, y que no está en
    los archivos comunes del módulo. Vive junto a las cuatro pantallas porque sólo ellas lo usan. */
@@ -38,3 +38,12 @@ export const estadoEfectivo = (contrato, contratos, parametros) => estadoContrat
    dato que RF-66 pone adelante antes del tercero: avisa, no bloquea. */
 export const plazosFijosDe = (colaboradorId, contratos) =>
   contratos.filter(c => c.colaboradorId === colaboradorId && c.modalidad === 'plazo_fijo' && !c.reemplazado).length
+
+/* EL TEXTO DE UN EMITIDO: el congelado el día que salió (RN-16). Los de los datos de ejemplo no lo
+   guardan: se rehace con la versión de plantilla con que salieron y los datos que se congelaron. */
+export function textoEmitido(e, modelos) {
+  if (e.texto) return e.texto
+  const m = modelos.find(x => x.id === e.modeloId)
+  const v = m?.versiones.find(x => x.v === e.versionPlantilla) || versionPublicada(m)
+  return rellenar(v?.texto || '', { ...e.datos, 'documento.numero': e.numero, 'memo.observaciones': e.observaciones || e.datos?.['memo.observaciones'] || '' })
+}
