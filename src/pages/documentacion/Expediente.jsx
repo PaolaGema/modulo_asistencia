@@ -1138,9 +1138,25 @@ export async function descargarVersion(persona, subtipo, v, documento, registrar
    un clic o de un enlace con `?doc=`, una sola vez por apertura: la guarda del ref evita el
    doble registro del modo estricto de React. */
 function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRechazar, onRenovar }) {
-  const { subtipos, parametros, registrarDescarga } = useDocumentacion()
+  const { subtipos, parametros, registrarDescarga, personas, bitacora } = useDocumentacion()
   const subtipo = subtipos.find(s => s.id === documento.subtipoId)
   const versiones = [...documento.versiones].reverse()
+  /* QUIÉN, CON NOMBRE Y CARGO (16 oct 2026): «lo aprobó RR.HH.» no alcanza cuando RR.HH. son
+     cinco personas. Cada versión dice quién la subió y quién la aprobó o rechazó, y cuándo. Si la
+     versión no lo guardó (datos viejos), se busca en la bitácora del documento; lo que carga
+     RR.HH. entra aprobado por quien lo cargó. */
+  const cargoDe = nombre => personas.find(p => p.name === nombre)?.cargo
+  // Por la app sólo sube el propio colaborador: es él quien lo subió, diga lo que diga el dato viejo.
+  const subio = x => (x.canal === 'app' ? persona.name : x.subidoPor)
+  const quien = nombre => (nombre ? <>{nombre}{cargoDe(nombre) ? <small className="xa-quien-cargo"> · {cargoDe(nombre)}</small> : null}</> : null)
+  const revisionDe = x => {
+    if (x.revision === 'pendiente') return null
+    if (x.revisadoPor) return { por: x.revisadoPor, fecha: x.revisado || x.fecha }
+    const ev = (bitacora || []).find(b => b.entidad === 'documento' && b.entidadId === documento.id && b.accion === (x.revision === 'rechazado' ? 'rechazo' : 'aprobacion'))
+    if (ev) return { por: ev.usuario, fecha: ev.fecha }
+    if (x.revision === 'aprobado' && x.canal !== 'app') return { por: x.subidoPor, fecha: x.fecha, alSubir: true }
+    return null
+  }
   const [elegida, setElegida] = useState(versiones[0].v)
   const anotado = useRef(null)
   const v = documento.versiones.find(x => x.v === elegida)
@@ -1182,7 +1198,13 @@ function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRe
             {v.archivo.original && <div><dt>Nombre original</dt><dd>{v.archivo.original}</dd></div>}
             <div><dt>Emisión</dt><dd>{fechaCorta(v.emision)}</dd></div>
             <div><dt>Vencimiento</dt><dd>{v.vencimiento ? fechaCorta(v.vencimiento) : 'No vence'}</dd></div>
-            <div><dt>Cargado</dt><dd>{fechaCorta(v.fecha)} · {v.subidoPor} · {v.canal === 'app' ? 'desde la app' : v.canal === 'lote' ? 'por lote' : v.canal === 'ficha' ? 'en la ficha del colaborador' : 'web'}</dd></div>
+            <div><dt>Subido por</dt><dd>{quien(subio(v))}<span className="xa-quien-cuando">{fechaCorta(v.fecha)} · {v.canal === 'app' ? 'desde la app' : v.canal === 'lote' ? 'por lote' : v.canal === 'ficha' ? 'en la ficha del colaborador' : 'web'}</span></dd></div>
+            {(() => {
+              const r = revisionDe(v)
+              if (v.revision === 'pendiente') return <div><dt>Revisión</dt><dd>Todavía nadie lo revisó</dd></div>
+              if (!r) return null
+              return <div><dt>{v.revision === 'rechazado' ? 'Rechazado por' : 'Aprobado por'}</dt><dd>{quien(r.por)}<span className="xa-quien-cuando">{fechaCorta(r.fecha)}{r.alSubir ? ' · al subirlo, porque lo cargó RR.HH.' : ''}</span></dd></div>
+            })()}
             {v.info && <div><dt>Información adicional</dt><dd>{v.info}</dd></div>}
             {v.motivoRechazo && <div><dt>Motivo del rechazo</dt><dd className="xa-rojo">{v.motivoRechazo}</dd></div>}
             {v.motivoCambio && <div><dt>Motivo del cambio</dt><dd>{v.motivoCambio}</dd></div>}
@@ -1193,7 +1215,7 @@ function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRe
               <li key={x.v}>
                 <button type="button" className={x.v === elegida ? 'on' : ''} onClick={() => setElegida(x.v)} aria-pressed={x.v === elegida}>
                   <span className="xa-ver-1"><b>v{x.v}</b> · {fechaCorta(x.fecha)}</span>
-                  <span className="xa-ver-2">{i === 0 ? 'Actual' : 'Reemplazada'} · {x.subidoPor}</span>
+                  <span className="xa-ver-2">{i === 0 ? 'Actual' : 'Reemplazada'} · subió {subio(x)}{(() => { const r = revisionDe(x); return r ? ` · ${x.revision === 'rechazado' ? 'rechazó' : 'aprobó'} ${r.por}` : x.revision === 'pendiente' ? ' · en revisión' : '' })()}</span>
                 </button>
               </li>
             ))}
