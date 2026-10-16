@@ -31,10 +31,10 @@ function modulos(rol) {
     /* Para quien administra, el módulo; para el resto, su propia ruta. Es la misma puerta con
        dos lados: nadie entra a "Onboarding" a ver el de otro si no le corresponde. */
     { icon: Route, label: 'Onboarding', destino: admin ? '/onboarding' : '/mi-espacio/mi-onboarding' },
-    /* La misma idea: quien administra Documentación entra al módulo; el resto, a sus documentos. */
-    gestiona
-      ? { icon: FileText, label: 'Documentación', destino: '/documentos' }
-      : { icon: FileText, label: 'Mis documentos', destino: '/mi-espacio/zona-hr/documentos' },
+    /* SUS DOCUMENTOS, TAMBIÉN PARA QUIEN ADMINISTRA (16 oct 2026). Zona HR es el espacio de la
+       persona: quien administra Documentación sigue siendo un colaborador con su propio expediente.
+       El módulo se abre desde el riel; acá, lo suyo, igual que en el celular. */
+    { icon: FileText, label: 'Mis documentos', destino: '/mi-espacio/zona-hr/documentos' },
     { icon: MessageSquarePlus, label: 'Mis solicitudes', destino: '/mi-espacio/zona-hr/solicitudes' },
     { icon: ClipboardCheck, label: 'Evaluaciones' },
     { icon: ClipboardList, label: 'Encuestas' },

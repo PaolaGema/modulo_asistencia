@@ -972,7 +972,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </figure>
     </div>
     <dl class="ficha">
-      <div><dt>Versión</dt><dd>1.0</dd></div>
+      <div><dt>Versión</dt><dd>1.1</dd></div>
       <div><dt>Fecha</dt><dd>16 de octubre de 2026</dd></div>
       <div><dt>Autoría</dt><dd>Paola Gema — Diseñadora UX</dd></div>
       <div><dt>Revisa y aprueba</dt><dd>Por definir</dd></div>
@@ -1019,7 +1019,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
   <div class="lienzo">
     <svg class="gp-dgm" viewBox="0 0 900 580" role="img" aria-labelledby="dc-d0-t dc-d0-d">
       <title id="dc-d0-t">Mapa del módulo de documentación: dos espacios, su configuración y lo que ve el colaborador</title>
-      <desc id="dc-d0-d">Arriba, el módulo Documentación con un solo dato debajo; a la izquierda, la bitácora que registra todo; a la derecha, la ficha de Gestión de personas, que se lee y no se copia. En el medio, el Repositorio con Expedientes, Revisar documentos y Contratos, y la Emisión con Emitir, Documentos emitidos y Solicitudes. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente, en Recibidos o en Contratos. Debajo, la configuración: Notificaciones y numeración, que sirve a los dos, y Plantillas y tipos de documento, que alimentan la Emisión; los documentos que se exigen en el Repositorio todavía no tienen pantalla. Abajo, el colaborador en Zona HR: Por entregar y Mis carpetas salen del Repositorio; De RR.HH. y Mis solicitudes, de la Emisión.</desc>
+      <desc id="dc-d0-d">Arriba, el módulo Documentación con un solo dato debajo; a la izquierda, la bitácora que registra todo; a la derecha, la ficha de Gestión de personas, que se lee y no se copia. En el medio, el Repositorio con Expedientes, Revisar documentos y Contratos, y la Emisión con Emitir, Documentos emitidos y Solicitudes. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente, en De RR.HH. o en Contratos. Debajo, la configuración: Notificaciones y numeración, que sirve a los dos, y Plantillas y tipos de documento, que alimentan la Emisión; los documentos que se exigen en el Repositorio todavía no tienen pantalla. Abajo, el colaborador en Zona HR: Por entregar y Mis carpetas salen del Repositorio; De RR.HH. y Mis solicitudes, de la Emisión.</desc>
       <defs><marker id="dc-m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="gp-punta fuerte" d="M0 0L10 5L0 10z"/></marker></defs>
 
       <rect class="gp-caja" x="20" y="20" width="220" height="48" rx="10"/>
@@ -1057,7 +1057,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       <text class="gp-t" x="506" y="297">Solicitudes</text><text class="gp-s" x="506" y="314">Lo que piden los colaboradores; se atiende emitiendo</text>
 
       <path class="gp-flecha fuerte" d="M675 336 V360 H225 V340" marker-end="url(#dc-m0)"/>
-      <text class="gp-s" x="450" y="353" text-anchor="middle" font-weight="700" style="fill:var(--estructural)">Todo lo emitido queda en el expediente: Recibidos o Contratos</text>
+      <text class="gp-s" x="450" y="353" text-anchor="middle" font-weight="700" style="fill:var(--estructural)">Todo lo emitido queda en el expediente: De RR.HH. o Contratos</text>
 
       <path class="gp-lin" d="M120 396 V336 M780 396 V336 M450 396 V368"/>
       <rect class="gp-caja" x="20" y="396" width="270" height="58" rx="10" stroke-dasharray="5 4"/>
@@ -1082,7 +1082,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
   <dl class="dgm-lista">
     <div><dt>Repositorio</dt><dd>Responde «¿qué tiene esta persona, qué le falta y qué pasó con sus documentos?». Es su archivo y su historia: Expedientes, Revisar documentos y sus contratos.</dd></div>
     <div><dt>Emisión</dt><dd>Responde «¿qué le entregó la empresa, a quién, cuándo y lo confirmó?». Es la fábrica de certificados, memorándums, contratos y comunicados: Emitir, Documentos emitidos y Solicitudes.</dd></div>
-    <div><dt>La flecha</dt><dd>Lo que se emite no vive solo en la Emisión: se archiva solo en el expediente de la persona, en Recibidos, y un contrato en Contratos —BR‑DOC‑036—.</dd></div>
+    <div><dt>La flecha</dt><dd>Lo que se emite no vive solo en la Emisión: se archiva solo en el expediente de la persona, en la carpeta de su tipo dentro de «De RR.HH.», y un contrato en Contratos —BR‑DOC‑036—.</dd></div>
     <div><dt>Configuración</dt><dd>Plantillas y tipos alimentan la Emisión; Notificaciones y numeración sirve a los dos. Los documentos que se exigen en el Repositorio hoy no tienen pantalla —ABIERTA‑DOC‑02—.</dd></div>
     <div><dt>El colaborador</dt><dd>Ve los mismos dos espacios: lo que tiene que entregar y sus carpetas salen del Repositorio; lo que le enviaron y sus pedidos, de la Emisión.</dd></div>
   </dl>
@@ -1346,6 +1346,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#ax1-por-que-un-solo-editor-para-todas-las-planti">Por qué un solo editor para todas las plantillas</a></li>
     <li><a href="#ax1-por-que-guardar-y-activa-sin-publicar">Por qué «Guardar» y «Activa», sin «Publicar»</a></li>
     <li><a href="#ax1-por-que-las-de-fabrica-se-editan">Por qué las de fábrica se editan</a></li>
+    <li><a href="#ax1-por-que-el-expediente-de-rrhh-se-ve-como-mis">Por qué el expediente de RR.HH. se ve como Mis documentos</a></li>
+    <li><a href="#ax1-por-que-lo-recibido-va-en-una-carpeta-por-ti">Por qué lo recibido va en una carpeta por tipo</a></li>
     <li><a href="#ax1-por-que-otro-documento-ya-no-se-ofrece">Por qué «Otro documento» ya no se ofrece</a></li>
     <li><a href="#ax1-por-que-el-colaborador-confirma-que-lo-recib">Por qué el colaborador confirma «que lo recibió» y no «que está de acuerdo»</a></li>
   </ul>
@@ -1379,7 +1381,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tbody>
 <tr><td><strong>Información personal, Perfil profesional, Recursos y activos, Documentos agregados</strong></td><td>Lo que la persona entrega: carnet, títulos, croquis, licencias</td><td>Son los <strong>tipos</strong> de documento; los mismos grupos que la sección «Archivos» de la ficha</td></tr>
 <tr><td><strong>Contratos</strong></td><td>Sus contratos y adendas, con su estado</td><td>Se registran desde Emitir</td></tr>
-<tr><td><strong>Recibidos</strong></td><td>Lo que RR.HH. le envió: certificados, memorándums, comunicados</td><td>Se archiva solo al emitir —BR‑DOC‑036—</td></tr>
+<tr><td><strong>De RR.HH.</strong></td><td>Lo que RR.HH. le envió, en una carpeta por tipo: Certificados, Memorándums y una por cada tipo que creó la empresa. «Otros» aparece solo si tiene algo —un archivo propio que se le envió—</td><td>Se archiva solo al emitir —BR‑DOC‑036—</td></tr>
 <tr><td><strong>Por clasificar</strong></td><td>Archivos subidos que el sistema no reconoció</td><td>Aparece solo si hay alguno</td></tr>
 <tr><td><strong>Historial</strong></td><td>Todo lo que pasó con el expediente, mes a mes</td><td>La bitácora de la persona</td></tr>
 <tr><td><strong>Papelera</strong></td><td>Lo que se quitó, recuperable</td><td>Aparece solo si tiene algo</td></tr>
@@ -1417,6 +1419,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td><strong>Colaborador</strong></td><td>Ve sus carpetas, sube lo que le piden, confirma lo que recibe y hace sus pedidos, en la web o en el celular</td></tr>
 </tbody>
 </table></div>
+<p>Quien administra también es colaborador: en <strong>Zona HR</strong> entra a <strong>Mis documentos</strong> con su propio expediente, como todos. Al módulo Documentación llega desde el menú lateral.</p>
   </section>
 
   <section id="s1">
@@ -1485,6 +1488,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p2-1">2.1 Gestión de personas</h3>
 <ul>
 <li>La <strong>ficha</strong> es la dueña de los datos de la persona: nombre, documento, cargo, ingreso. Documentación los <strong>lee</strong>, no los copia.</li>
+<li>Desde <strong>Colaboradores</strong>, el menú de cada persona tiene <strong>«Ver expediente»</strong>, que abre su expediente en Documentación.</li>
 <li>Los archivos que la persona cargó en la sección «Archivos» de su ficha aparecen en su expediente como documentos <strong>de la ficha</strong>: aprobados y de solo lectura —BR‑DOC‑002—.</li>
 <li>La cabecera del expediente muestra los datos de la ficha y no se editan desde acá.</li>
 <li>Al emitir, las variables de la plantilla se rellenan con la ficha —BR‑DOC‑033—. Si un dato falta, se corrige en la ficha.</li>
@@ -1562,8 +1566,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Todo lo de una persona, por carpetas.</p>
 <ul>
 <li><strong>Cabecera</strong>: foto, nombre, cargo, unidad, sucursal y código, de la ficha; la barra de avance «x de y obligatorios exigibles»; y los botones <strong>Subir documento</strong>, <strong>Enviar documento</strong>, <strong>Descargar expediente</strong> e <strong>Historial</strong>.</li>
-<li><strong>Pendientes</strong> en pastillas que filtran: Por revisar, Faltan, Vencidos o por vencer. Sin nada: «No tiene nada pendiente».</li>
-<li><strong>Carpetas</strong>: una por tipo, más Contratos, Recibidos y, si tienen algo, Por clasificar y Papelera. Cada una dice cuánto le falta (número en rojo), si está al día (✓) o si no se le exige nada (—).</li>
+<li><strong>La franja de lo pendiente</strong>, la misma que ve el colaborador en Mis documentos: un anillo con lo cumplido («2/3») y cuánto debe —«1 documento pendiente · 1 falta»—, con <strong>«Ver qué falta»</strong> y, si subió algo, <strong>«Revisar N»</strong>. Al día dice «Está al día». Dentro de una carpeta, lo pendiente sigue en pastillas que filtran.</li>
+<li><strong>Carpetas</strong>, como las de Mis documentos —carpetas amarillas con un punto de color en lo urgente y una línea como «2 de 3 al día · 1 faltante»— en dos grupos: <strong>Sus carpetas</strong> (una por tipo, Contratos y, si tiene algo, Por clasificar) y <strong>De RR.HH.</strong> (una por tipo de documento emitido, con cuántos le falta confirmar, y la Papelera si tiene algo). El Historial se abre con su botón de arriba.</li>
 <li><strong>Buscar</strong> en todas sus carpetas y filtrar por estado; <strong>Agregar requisito</strong> para exigirle a esa persona un documento más.</li>
 <li><strong>Dentro de una carpeta</strong>: los documentos en tarjetas con miniatura o en lista, lo urgente primero, con su acción según el estado —Subir, Renovar, Revisar, Ver— y un menú con Ver, Descargar, Exonerar, Dejar de exigir y Enviar a la papelera.</li>
 <li><strong>Ver un documento</strong>: la vista previa, sus fechas, quién lo subió y por dónde, y todas sus versiones. Si está en revisión, Aprobar o Rechazar.</li>
@@ -1572,7 +1576,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
-<tr><td class="id" id="RF-DOC-007">RF‑DOC‑007</td><td>Las carpetas muestran cuánto falta en cada una</td><td>Oblig.</td><td>Una carpeta con un faltante muestra «1» en rojo</td></tr>
+<tr><td class="id" id="RF-DOC-007">RF‑DOC‑007</td><td>Las carpetas se ven como en Mis documentos y dicen cuánto falta</td><td>Oblig.</td><td>Una carpeta con un faltante lleva el punto rojo y «· 1 faltante»</td></tr>
 <tr><td class="id" id="RF-DOC-008">RF‑DOC‑008</td><td>Agregar requisito pide documento, si es obligatorio y el plazo</td><td>Oblig.</td><td>Agregar «Licencia» obligatoria con 30 días la suma a sus faltantes al vencer el plazo</td></tr>
 <tr><td class="id" id="RF-DOC-009">RF‑DOC‑009</td><td>Exonerar pide motivo y queda para siempre</td><td>Oblig.</td><td>Sin motivo, el botón no se activa</td></tr>
 <tr><td class="id" id="RF-DOC-010">RF‑DOC‑010</td><td>Descargar el expediente baja un ZIP con índice y una carpeta por tipo</td><td>Import.</td><td>El ZIP trae «00 Índice.txt» y las carpetas</td></tr>
@@ -1779,7 +1783,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </table></div>
 <h3 id="p3-15">3.15 Lo que recibe de RR.HH.</h3>
 <ul>
-<li><strong>De RR.HH.</strong>: carpetas Certificados, Memorándums, una por cada tipo que creó la empresa y Otros, cada una con cuántos le faltan confirmar.</li>
+<li><strong>De RR.HH.</strong>: carpetas Certificados, Memorándums y una por cada tipo que creó la empresa, cada una con cuántos le faltan confirmar. «Otros» aparece solo si tiene algo. Son las mismas carpetas que ve RR.HH. en su expediente.</li>
 <li>Al abrir un documento: la hoja tal como salió y <strong>Confirmar que lo recibí</strong>, que aclara que confirmar es haberlo recibido y leído, no estar de acuerdo.</li>
 <li><strong>Reportar un error</strong> abre una corrección con ese documento elegido.</li>
 <li>En <strong>Contratos</strong>, cada contrato con su estado y <strong>Pedir una copia</strong>. No hay firma desde la app.</li>
@@ -1866,7 +1870,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Cada colaborador tiene <strong>un solo expediente</strong>. Se ordena en una carpeta por <strong>tipo</strong> de documento (Información personal, Perfil profesional, Recursos y activos, Documentos agregados) y en carpetas fijas: <strong>Contratos</strong>, <strong>Recibidos</strong>, <strong>Historial</strong> y, cuando tienen algo, <strong>Por clasificar</strong> y <strong>Papelera</strong>.</p>
+<p>Cada colaborador tiene <strong>un solo expediente</strong>. Se ordena en una carpeta por <strong>tipo</strong> de documento (Información personal, Perfil profesional, Recursos y activos, Documentos agregados) y en carpetas fijas: <strong>Contratos</strong>, <strong>Historial</strong> y, cuando tienen algo, <strong>Por clasificar</strong> y <strong>Papelera</strong>. Lo que RR.HH. le envió va en <strong>De RR.HH.</strong>, con una carpeta por tipo de documento. RR.HH. y el colaborador ven las mismas carpetas, con el mismo dibujo.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Las carpetas fijas aparecen siempre</div><ul><li><b>Dado que</b>se abre el expediente de alguien sin contratos</li><li><b>Cuando</b>se mira la lista de carpetas</li><li><b>Entonces</b>Contratos aparece igual, con su aviso de que no tiene contrato vigente</li></ul></div>
@@ -3080,15 +3084,15 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Al emitir, el documento <strong>le llega a la persona</strong> por la app y queda en la carpeta <strong>Recibidos</strong> de su expediente, sin que nadie lo archive.</p>
+<p>Al emitir, el documento <strong>le llega a la persona</strong> por la app y queda en su expediente, en la carpeta de <strong>su tipo</strong> dentro de <strong>De RR.HH.</strong> —Certificados, Memorándums, Constancias—, sin que nadie lo archive.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Llega y se archiva</div><ul><li><b>Dado que</b>se emite un certificado a alguien</li><li><b>Cuando</b>se abre su expediente</li><li><b>Entonces</b>el certificado está en Recibidos y en su app, Sin confirmar</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Llega y se archiva</div><ul><li><b>Dado que</b>se emite un certificado a alguien</li><li><b>Cuando</b>se abre su expediente</li><li><b>Entonces</b>el certificado está en su carpeta Certificados, en el expediente y en su app, Sin confirmar</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
-<li>Un contrato queda en Contratos, no en Recibidos.</li>
-<li>Un archivo propio también se archiva en Recibidos.</li>
+<li>Un contrato queda en Contratos.</li>
+<li>Un archivo propio va a «Otros», que aparece solo cuando tiene algo.</li>
 </ul>
 <h4 class="br-h"><em>4</em>Trazabilidad</h4>
 <dl class="br-traza">
@@ -3824,7 +3828,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>En «De RR.HH.» la persona ve lo que se le <strong>entregó</strong>, en una carpeta por tipo: Certificados, Memorándums, los tipos de la empresa y Otros. Lo <strong>anulado</strong> ya no se ve.</p>
+<p>En «De RR.HH.» la persona ve lo que se le <strong>entregó</strong>, en una carpeta por tipo: Certificados, Memorándums y los tipos de la empresa. «Otros» aparece solo si tiene algo. Lo <strong>anulado</strong> ya no se ve.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Un anulado se va</div><ul><li><b>Dado que</b>a alguien le anularon un certificado</li><li><b>Cuando</b>abre Certificados</li><li><b>Entonces</b>ese certificado no está</li></ul></div>
@@ -3832,6 +3836,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
 <li>Cada carpeta cuenta cuántos le falta confirmar.</li>
+<li>«Otros» no es un tipo creado: aparece solo con un archivo propio enviado.</li>
 <li>El texto es el que salió, congelado.</li>
 </ul>
 <h4 class="br-h"><em>4</em>Trazabilidad</h4>
@@ -4117,7 +4122,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li>En Documentos emitidos, «Emitir documento».</li>
 <li>En el riel, Certificados › Certificado de trabajo: la hoja de ejemplo aparece al centro.</li>
 <li>En «Para quién» › Personas, se busca y se elige a la persona: la hoja se llena con sus datos.</li>
-<li>«Emitir y enviar a {nombre}»: le llega por la app y queda en Recibidos.</li>
+<li>«Emitir y enviar a {nombre}»: le llega por la app y queda en su carpeta Certificados, dentro de «De RR.HH.».</li>
 </ol>
 <h3 id="p7-5">7.5 Enviar un memorándum a un grupo</h3>
 <ol>
@@ -4320,6 +4325,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="tbl"><table>
 <thead><tr><th>Versión</th><th>Fecha</th><th>Qué cambió</th></tr></thead>
 <tbody>
+<tr><td><strong>1.1</strong></td><td>16 oct 2026</td><td>El expediente de RR.HH. se ve como Mis documentos: la franja de lo pendiente con su anillo y las carpetas amarillas en «Sus carpetas» y «De RR.HH.». «Recibidos» se divide en una carpeta por tipo —Certificados, Memorándums y los creados—, también para el colaborador en la web y en el celular; «Otros» solo aparece si tiene algo. Colaboradores, en Gestión de personas, suma «Ver expediente». En Zona HR de la web, el administrador también ve «Mis documentos» con su propio expediente, como en el celular</td></tr>
 <tr><td><strong>1.0</strong></td><td>16 oct 2026</td><td><strong>Primera versión con el formato de los demás módulos.</strong> Reúne lo construido en la maqueta hasta el 16 de octubre: Expedientes con «Qué atender hoy», el expediente por carpetas, Revisar documentos, contratos y adendas, Solicitudes y Atender, Documentos emitidos y Emitir con riel y grupos, el editor único de plantillas con tipos propios y vista previa en páginas, Notificaciones y numeración, y Mis documentos y Mis solicitudes del colaborador. 60 reglas BR‑DOC, 62 requisitos, 18 historias y 18 pantallas, por perfil</td></tr>
 <tr><td><strong>0.2</strong></td><td>14 oct 2026</td><td>Propuesta de estructura: Repositorio y Emisión sobre un solo dato, en fases. Queda como histórico</td></tr>
 </tbody>
@@ -4349,6 +4355,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>«Publicar» sonaba a enviar algo afuera. Lo que importa es si la plantilla se usa o no: activa es la que se usa, inactiva es el borrador. Las versiones se guardan igual, por dentro.</p>
 <h4 id="ax1-por-que-las-de-fabrica-se-editan" class="ax-h">Por qué las de fábrica se editan</h4>
 <p>Duplicarlas dejaba dos plantillas casi iguales y nadie sabía cuál usar. Con el historial, editar no pierde nada: lo emitido conserva su texto y «Volver al texto original» deshace lo propio.</p>
+<h4 id="ax1-por-que-el-expediente-de-rrhh-se-ve-como-mis" class="ax-h">Por qué el expediente de RR.HH. se ve como Mis documentos</h4>
+<p>Es el mismo expediente visto desde dos lados. Si RR.HH. y la persona ven las mismas carpetas, con el mismo dibujo y los mismos nombres, pueden hablar de él sin traducir: «está en Certificados» quiere decir lo mismo para los dos.</p>
+<h4 id="ax1-por-que-lo-recibido-va-en-una-carpeta-por-ti" class="ax-h">Por qué lo recibido va en una carpeta por tipo</h4>
+<p>Una sola carpeta «Recibidos» mezclaba certificados, memorándums y comunicados. Por tipo, cada uno se encuentra donde se lo busca, y un tipo nuevo —«Constancias»— trae su carpeta.</p>
 <h4 id="ax1-por-que-otro-documento-ya-no-se-ofrece" class="ax-h">Por qué «Otro documento» ya no se ofrece</h4>
 <p>Si la empresa puede crear sus tipos, «Otro» no dice nada. Se crea «Carta de recomendación» con su sigla y su carpeta en la app.</p>
 <h4 id="ax1-por-que-el-colaborador-confirma-que-lo-recib" class="ax-h">Por qué el colaborador confirma «que lo recibió» y no «que está de acuerdo»</h4>
@@ -4407,7 +4417,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 
 <footer class="pie">
-  <div>Documentación del módulo de documentación — versión 1.0, 16 de octubre de 2026. Souly HR. Documenta el módulo tal como está en el prototipo, con los mismos capítulos que los documentos de <a href="reglas-de-negocio.html">Organización</a>, <a href="gestion-de-personas.html">Gestión de personas</a> y <a href="onboarding.html">Onboarding</a>. La versión en Markdown dice lo mismo.</div>
+  <div>Documentación del módulo de documentación — versión 1.1, 16 de octubre de 2026. Souly HR. Documenta el módulo tal como está en el prototipo, con los mismos capítulos que los documentos de <a href="reglas-de-negocio.html">Organización</a>, <a href="gestion-de-personas.html">Gestión de personas</a> y <a href="onboarding.html">Onboarding</a>. La versión en Markdown dice lo mismo.</div>
 </footer>
 
 <script>

@@ -131,7 +131,9 @@ function IconoCarpeta({ size = 40 }) {
   )
 }
 
-function Mosaico({ titulo, sub, punto, insignia, onClick }) {
+/* El mosaico de carpeta también lo usa el expediente de RR.HH. (Expediente.jsx): las dos miradas
+   del mismo expediente se ven igual. */
+export function Mosaico({ titulo, sub, punto, insignia, onClick }) {
   return (
     <button type="button" className="md-mosaico" onClick={onClick}>
       {punto && <span className={`md-punto md-punto-${punto}`} aria-hidden="true" />}

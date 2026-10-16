@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Plus, MoreHorizontal, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Eye, Pencil, Rocket, Repeat, Shield, X, CheckCircle2, RefreshCw, Palmtree, Stethoscope, Ban, UserMinus, UserPlus, Users, Unlink, Send, Route, Filter, Info, AlertTriangle } from 'lucide-react'
+import { Search, Plus, MoreHorizontal, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Eye, Pencil, Rocket, Repeat, Shield, X, CheckCircle2, RefreshCw, Palmtree, Stethoscope, Ban, UserMinus, UserPlus, Users, Unlink, Send, Route, Filter, Info, AlertTriangle, FolderOpen } from 'lucide-react'
 import { useRutaActiva } from '../../context/RutaActivaContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { rutasData } from '../onboarding/JourneyBuilder'
@@ -615,6 +615,8 @@ export default function Colaboradores() {
                     }}>
                       {[
                         { icon: Eye, label: 'Ver perfil', color: '#475569' },
+                        /* Sus documentos, en un clic: el expediente de Documentación es de la misma persona. */
+                        { icon: FolderOpen, label: 'Ver expediente', color: '#475569', action: () => navigate(`/documentos/expedientes/${c.id}`) },
                         { icon: Pencil, label: 'Editar', color: '#475569' },
                         { icon: Shield, label: 'Roles y permisos', color: '#475569', action: () => setRolModal(c) },
                         ...accionesRuta,

@@ -921,6 +921,9 @@ export function semillaLoteDemo(personas, { emitidos = [], parametros = PARAMETR
    rango del directorio para no pisar a nadie, y con su ficha, que es de donde salen casi todos sus
    documentos. Así RR.HH. también los ve en Colaboradores y revisa lo que suben. */
 export const COLABORADORES_APP = [
+  /* Quien administra también es colaborador (16 oct 2026): Juan, el usuario de RR.HH. de la demo,
+     tiene su expediente y lo ve en Zona HR › Mis documentos, como todos. */
+  { id: 1001, name: 'Juan Pérez Gómez', email: 'juan.perez@farmavida.com.bo', depto: 'Recursos Humanos', cargo: 'Gerente de Recursos Humanos', rol: 'Administrador', ingreso: '10 Ene 2022', status: 'activo', registro: 100, onb: 'na', initials: 'JP', color: '#0C2D40' },
   { id: 1004, name: 'Carlos Mendoza Ríos', email: 'carlos.mendoza@farmavida.com.bo', depto: 'Tecnología', cargo: 'Desarrollador Frontend', rol: 'Colaborador', ingreso: '02 Feb 2025', status: 'activo', registro: 100, onb: 'graduado', initials: 'CM', color: '#f59e0b' },
   { id: 1002, name: 'María López Torres', email: 'maria.lopez@farmavida.com.bo', depto: 'Ventas', cargo: 'Ejecutiva Comercial', rol: 'Colaborador', ingreso: '15 Mar 2024', status: 'activo', registro: 100, onb: 'graduado', initials: 'ML', color: '#7c3aed' },
 ].map(c => {
@@ -935,7 +938,7 @@ export const COLABORADORES_APP = [
    agrega a una demo que puede llevar semanas abierta y con sus propias emisiones. */
 export function semillaColaboradoresApp(personas, { emitidos = [], contratos = [], parametros = PARAMETROS_SEED, modelos = MODELOS_SEED } = {}) {
   const P = id => personas.find(p => p.id === id)
-  const carlos = P(1004), maria = P(1002)
+  const carlos = P(1004), maria = P(1002), juan = P(1001)
   const out = { documentos: [], emitidos: [], contratos: [], solicitudes: [], requisitos: [], pedidos: {}, bitacora: [] }
   const sub = id => SUBTIPOS_SEED.find(s => s.id === id)
   const doc = (p, subtipoId, { dia, revision, canal, original, motivo = null }) => {
@@ -987,7 +990,12 @@ export function semillaColaboradoresApp(personas, { emitidos = [], contratos = [
     out.solicitudes.push({ id: `q-app-${maria.id}-1`, tipo: 'copia', colaboradorId: maria.id, fecha: dias(-20), asunto: 'Copia de su contrato firmado', detalle: 'La pide el propietario del departamento que va a alquilar.', estado: 'atendida', canal: 'web', carpeta: 'contratos', resuelto: { fecha: dias(-19), por: 'Paola Arce', nota: 'Se le envió la copia de su contrato por la app' } })
   }
 
-  const gente = [carlos, maria].filter(Boolean)
+  if (juan) {
+    // El que administra: su certificado de trabajo, recibido y confirmado hace dos meses.
+    emitido(juan, 'cert', 'm-cert-trabajo', -60, 'acusado')
+  }
+
+  const gente = [carlos, maria, juan].filter(Boolean)
   out.requisitos = requisitosSeed(gente)
   /* Los contratos salen de la misma regla que los de todos; sólo se les da id y número propios para
      no chocar con los sembrados, que empiezan los dos en 1. */

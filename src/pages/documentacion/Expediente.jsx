@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
-  ArrowLeft, ChevronRight, Folder, LayoutGrid, List as ListIcon, Upload, Download, FilePlus2, Eye, RefreshCw, ShieldCheck, Check, X, Trash2, Search,
+  ArrowLeft, ChevronRight, LayoutGrid, List as ListIcon, Upload, Download, FilePlus2, Eye, RefreshCw, ShieldCheck, Check, X, Trash2, Search,
   FolderOpen, Lock, FileText, History, Undo2, FileSignature, Archive, ListPlus, MinusCircle,
 } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
@@ -22,10 +22,13 @@ import { deducirSubtipo, extensionDe } from '../../components/documentacion/dedu
 import {
   ESTADOS, CATEGORIAS, MODALIDADES, ACCIONES_BITACORA, fechaCorta, fechaNum, diasHasta,
   estadoVersion, versionActual, estadoContrato, rellenar, normalizarNombre, sumarMeses, iso, hoy, nombreEmitido,
+  carpetasRecibidas, carpetaRecibida,
 } from '../../data/documentacionData'
 import CargarDocumentoModal from './CargarDocumentoModal'
 import PanelEmision from './PanelEmision'
 import HojaEmitido from '../../components/documentacion/HojaEmitido'
+import { Mosaico } from '../colaborador/MisDocumentos'
+import '../colaborador/misDocumentos.css'
 import './expediente.css'
 
 /* ── EL EXPEDIENTE DEL COLABORADOR (pantalla 5 · RF-17 a RF-25, revisada) ─
@@ -267,7 +270,15 @@ export default function Expediente() {
   ]
   /* La carpeta va en la ruta; `?carpeta=` se sigue leyendo para los enlaces que ya existían. */
   const carpetaParam = carpetaRuta || params.get('carpeta')
-  const carpeta = carpetas.find(c => c.clave === carpetaParam) || null
+  /* LO RECIBIDO, POR TIPO (16 oct 2026): como en Mis documentos, «De RR.HH.» tiene una carpeta por
+     tipo —Certificados, Memorándums, los que creó la empresa y Otros—. Todas son la carpeta
+     «emitidos» filtrada con `?de=`; el nombre que se ve es el del tipo. */
+  const deParam = params.get('de')
+  /* «Otros» sólo si tiene algo —un archivo propio que se le envió—: no es un tipo que se haya creado. */
+  const carpetasRrhh = carpetasRecibidas(parametros).filter(([k]) => k !== 'otro' || susEmitidos.some(e => carpetaRecibida(e, parametros) === 'otro'))
+  const deNombre = deParam ? carpetasRrhh.find(([k]) => k === deParam)?.[1] : null
+  const carpetaBase = carpetas.find(c => c.clave === carpetaParam) || null
+  const carpeta = carpetaBase?.clave === 'emitidos' && deNombre ? { ...carpetaBase, nombre: deNombre } : carpetaBase
   const filtrando = !!texto || !!filtroEstado
 
   /* Los cuatro números de arriba, de la misma checklist que la barra de avance. */
@@ -505,9 +516,14 @@ export default function Expediente() {
       )}
       {fechasDe && <ModalFechas items={fechasDe} onCerrar={() => setFechasDe(null)} onGuardado={() => { setFechasDe(null); avisar('Fechas corregidas.') }} />}
 
-      {/* ── LO PENDIENTE, EN UNA LÍNEA (v3): sólo lo que pide algo, y un toque muestra justo eso. Eran
-          cuatro recuadros grandes que repetían el porcentaje de arriba. ── */}
-      {!cerrado && (
+      {/* ── LO PENDIENTE, COMO EN MIS DOCUMENTOS (16 oct 2026): la misma franja oscura que ve el
+          colaborador —el anillo con lo cumplido y cuánto debe—, con sus botones para ver justo eso.
+          Dentro de una carpeta siguen las pastillas, que filtran. ── */}
+      {!cerrado && !carpeta && !filtrando && hayAlgo && (
+        <FranjaPendiente avance={avance} revision={nRevision} faltan={nFaltan} vencen={nVencen}
+          onVer={clave => setFiltroEstado(clave)} />
+      )}
+      {!cerrado && (carpeta || filtrando) && (
         <div className="xg-chips" role="group" aria-label="Lo pendiente de este expediente">
           {rapidos.filter(r => r.clave && r.valor > 0).length === 0
             ? <span className="dc-muted" style={{ fontSize: 13 }}>No tiene nada pendiente.</span>
@@ -532,7 +548,7 @@ export default function Expediente() {
           carpeta={carpeta}
           cerrado={cerrado}
           contratos={susContratos}
-          emitidos={susEmitidos}
+          emitidos={deParam ? susEmitidos.filter(e => carpetaRecibida(e, parametros) === deParam) : susEmitidos}
           papelera={enPapelera}
           lista={listaDeFilas}
           pendientes={carpeta.clave === 'porclasificar' ? misPendientes : misPendientes.filter(x => x.tipoId === carpeta.clave)}
@@ -610,31 +626,36 @@ export default function Expediente() {
           ))}
         </>
       ) : (
-        /* ── TODAS LAS CARPETAS ── */
-        <div className="xa-carpetas">
-          {/* El historial se abre desde su botón de arriba; la papelera sólo se ve si tiene algo. */}
-          {carpetas.filter(c => c.clave !== 'historial' && (c.clave !== 'papelera' || enPapelera.length)).map(c => (
-            <button
-              key={c.clave}
-              type="button"
-              className="xa-carpeta"
-              style={{ '--c-osc': c.color.osc, '--c-cla': c.color.cla, '--c-tin': c.color.tin }}
-              onClick={() => navigate(`/documentos/expedientes/${persona.id}/${c.clave}`)}
-              title={c.aviso}
-              aria-label={`Abrir la carpeta ${c.nombre}: ${c.aviso}`}
-            >
-              <span className="xa-carpeta-pestana" aria-hidden="true" />
-              <span className="xa-carpeta-cuerpo">
-                <span className="xa-carpeta-fila">
-                  <Folder size={20} aria-hidden="true" />
-                  <span className={`xa-insignia xa-insignia-${c.insigniaTono}`}>{c.insignia}</span>
-                </span>
-                <b className="xa-carpeta-nom">{c.nombre}</b>
-                <span className="xa-carpeta-cuenta">{c.cuenta}</span>
-              </span>
-            </button>
-          ))}
-        </div>
+        /* ── TODAS LAS CARPETAS, COMO EN MIS DOCUMENTOS (16 oct 2026): las mismas carpetas amarillas
+            que ve el colaborador, con el punto de lo más urgente y una palabra en su línea. «Sus
+            carpetas» son lo que la persona entrega y sus contratos; «De RR.HH.», lo que la empresa le
+            envió. El historial se abre desde su botón de arriba; la papelera, sólo si tiene algo. ── */
+        <>
+          <div className="md-seccion"><h2>Sus carpetas</h2><span className="dc-muted">Lo que entrega y sus contratos</span></div>
+          <div className="md-grilla">
+            {carpetas.filter(c => !['historial', 'papelera', 'emitidos'].includes(c.clave)).map(c => (
+              <Mosaico key={c.clave} titulo={c.nombre}
+                sub={['rojo', 'ambar', 'azul'].includes(c.tono) ? `${c.cuenta === c.aviso ? '' : `${c.cuenta} · `}${c.aviso}` : c.cuenta}
+                punto={{ rojo: 'rojo', ambar: 'ambar', azul: 'azul' }[c.tono]}
+                onClick={() => navigate(`/documentos/expedientes/${persona.id}/${c.clave}`)} />
+            ))}
+          </div>
+          <div className="md-seccion"><h2>De RR.HH.</h2><span className="dc-muted">Lo que la empresa le envió</span></div>
+          <div className="md-grilla">
+            {carpetasRrhh.map(([cat, nombre]) => {
+              const suyos = susEmitidos.filter(e => carpetaRecibida(e, parametros) === cat)
+              const sinConfirmar = suyos.filter(e => e.estado === 'entregado').length
+              return (
+                <Mosaico key={cat} titulo={nombre} insignia={sinConfirmar}
+                  sub={sinConfirmar ? `${plural(suyos.length, 'documento', 'documentos')} · ${sinConfirmar} sin confirmar` : plural(suyos.length, 'documento', 'documentos')}
+                  onClick={() => navigate(`/documentos/expedientes/${persona.id}/emitidos?de=${cat}`)} />
+              )
+            })}
+            {carpetas.filter(c => c.clave === 'papelera' && enPapelera.length).map(c => (
+              <Mosaico key={c.clave} titulo={c.nombre} sub={c.aviso} onClick={() => navigate(`/documentos/expedientes/${persona.id}/${c.clave}`)} />
+            ))}
+          </div>
+        </>
       )}
 
         </>
@@ -1448,5 +1469,30 @@ function Historial({ eventos }) {
         ))}
       </div>
     </section>
+  )
+}
+
+/* ── LA FRANJA DE LO PENDIENTE, la misma de Mis documentos ──
+   El anillo dice cuántos obligatorios exigibles cumple; al lado, cuánto le falta y de qué tipo, y un
+   botón por cada cosa que se puede ver: lo que espera revisión y lo que falta o vence. */
+function FranjaPendiente({ avance, revision, faltan, vencen, onVer }) {
+  const debe = faltan + vencen
+  const partes = [faltan && `${faltan} falta${faltan > 1 ? 'n' : ''}`, vencen && `${vencen} vencido${vencen > 1 ? 's' : ''} o por vencer`, revision && `${revision} por revisar`].filter(Boolean)
+  const [titulo, sub] = debe || revision
+    ? [debe ? `${debe} documento${debe === 1 ? '' : 's'} pendiente${debe === 1 ? '' : 's'}` : `${revision} por revisar`, partes.join(' · ')]
+    : ['Está al día', 'No le falta nada de lo que se le exige.']
+  const p = avance.pct ?? 100
+  return (
+    <div className="md-franja">
+      <span className="md-anillo" style={{ '--p': `${p}%` }} aria-label={avance.total ? `${avance.cumplidos} de ${avance.total} obligatorios al día` : 'Al día'}>
+        <span>{avance.total ? `${avance.cumplidos}/${avance.total}` : <Check size={16} />}</span>
+      </span>
+      <div className="md-franja-txt">
+        <b>{titulo}</b>
+        <span>{sub}</span>
+      </div>
+      {revision > 0 && <button type="button" className={debe ? 'md-franja-btn md-franja-btn-suave' : 'md-franja-btn'} onClick={() => onVer('_revision')}>Revisar {revision}</button>}
+      {debe > 0 && <button type="button" className="md-franja-btn" onClick={() => onVer(faltan ? '_faltan' : '_vencen')}>Ver qué falta</button>}
+    </div>
   )
 }

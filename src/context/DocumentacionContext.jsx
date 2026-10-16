@@ -123,6 +123,26 @@ export function DocumentacionProvider({ children }) {
     setAppSembrada(true)
   }, [appSembrada]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* JUAN, EL QUE ADMINISTRA, LLEGÓ DESPUÉS (16 oct 2026): en una demo que ya sembró a Carlos y María
+     se suma solo lo suyo, una vez y por id, con los números que siguen a los que ya hay. */
+  const [juanSembrado, setJuanSembrado] = useLocalStorage('doc_colab_app_juan_v1', false)
+  useEffect(() => {
+    if (juanSembrado || !appSembrada) return
+    const gente = personas.filter(p => p.id === 1001)
+    if (!gente.length) return
+    const n = semillaColaboradoresApp(gente, { emitidos, contratos, parametros, modelos })
+    const sumar = (antes, nuevos, alFrente = false) => {
+      const faltan = nuevos.filter(x => !antes.some(y => y.id === x.id))
+      if (!faltan.length) return antes
+      return alFrente ? [...faltan, ...antes] : [...antes, ...faltan]
+    }
+    setEmitidos(prev => sumar(prev, n.emitidos, true))
+    setContratos(prev => sumar(prev, n.contratos))
+    setBitacora(prev => sumar(prev, n.bitacora, true))
+    setRequisitos(prev => [...prev, ...n.requisitos.filter(r => !prev.some(x => x.colaboradorId === r.colaboradorId && x.subtipoId === r.subtipoId))])
+    setJuanSembrado(true)
+  }, [juanSembrado, appSembrada]) // eslint-disable-line react-hooks/exhaustive-deps
+
   /* EL LOTE DE EJEMPLO, con la misma regla: una vez, sobre lo guardado, entrando por su id. */
   const [loteSembrado, setLoteSembrado] = useLocalStorage('doc_lote_demo_v1', false)
   useEffect(() => {

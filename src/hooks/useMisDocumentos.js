@@ -142,8 +142,9 @@ export function useMisDocumentos(nombre, canal = 'web') {
 
     /* LO QUE LE ENVÍA RR.HH., EN CARPETAS: certificados, memorándums, una por cada tipo que creó la
        empresa —«Constancias»— y «Otros» para lo demás. */
-    const carpetasRrhh = carpetasRecibidas(parametros)
     const carpetaDe = e => carpetaRecibida(e, parametros)
+    /* «Otros» sólo si tiene algo —un archivo propio que se le envió—: no es un tipo que se haya creado. */
+    const carpetasRrhh = carpetasRecibidas(parametros).filter(([k]) => k !== 'otro' || recibidos.some(r => carpetaDe(r.emitido) === 'otro'))
     return { carpetasRrhh, carpetaDe, propios, porHacer, enRevision, carpetas, misContratos, recibidos, misSolicitudes, opciones, tiposActivos, subibles, avance: completitud(lista.filter(i => seVe(i.subtipo))) }
   }, [persona, documentos, subtipos, tipos, parametros, emitidos, contratos, solicitudes, modelos, pedidos, checklist])
 
