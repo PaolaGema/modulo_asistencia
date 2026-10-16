@@ -14,7 +14,7 @@ import './configuracion.css'
    solo «Guardar cambios»; `AvisosGenerales` y `Numeracion` quedaron sin usar. */
 const PARTES = {
   plantillas: { titulo: 'Plantillas', sub: 'Lo que RR.HH. envía: certificados, memorándums y contratos.' },
-  avisos: { titulo: 'Notificaciones y numeración', sub: 'A quién se le avisa, por dónde y con cuánta anticipación cuando un documento o un contrato está por vencer, y cómo se numera lo que emite RR.HH.' },
+  avisos: { titulo: 'Notificaciones y tipos de documento', sub: 'Los avisos antes de que venza un documento o un contrato, y los tipos de documento con su numeración.' },
 }
 
 export default function Configuracion() {

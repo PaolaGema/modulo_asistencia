@@ -12,7 +12,7 @@ import { Cabecera, EstadoChip, Etiqueta, EstadoContratoChip, Modal, Vacio } from
 import { PreviaDocumento, Miniatura } from '../../components/layout/MisDocumentosPhone'
 import Desplegable from '../../components/layout/Desplegable'
 import {
-  esperaAcuse, fechaCorta, MODALIDADES, TIPOS_SOLICITUD, ESTADOS_SOLICITUD, PLAZO_SOLICITUD_DIAS, responderAntes,
+  fechaCorta, MODALIDADES, TIPOS_SOLICITUD, ESTADOS_SOLICITUD, PLAZO_SOLICITUD_DIAS, responderAntes,
 } from '../../data/documentacionData'
 import HojaEmitido from '../../components/documentacion/HojaEmitido'
 import './misDocumentos.css'
@@ -28,7 +28,7 @@ import './misDocumentos.css'
 /* Las carpetas de lo recibido las arma `useMisDocumentos` (`md.carpetasRrhh`, `md.carpetaDe`): incluyen los tipos que cree la empresa. */
 const SOBRE = {
   certificado: [Award, 'Los certificados que RR.HH. le emitió.', 'Cuando RR.HH. le emita un certificado, llegará aquí.'],
-  memorandum: [ScrollText, 'Los memorándums que RR.HH. le envió. Algunos piden que confirme que los recibió.', 'No recibió memorándums.'],
+  memorandum: [ScrollText, 'Los memorándums que RR.HH. le envió.', 'No recibió memorándums.'],
   otro: [Megaphone, 'Comunicados, reglamentos y otros documentos de RR.HH.', 'No recibió otros documentos.'],
 }
 const archivos = n => (n ? `${n} archivo${n === 1 ? '' : 's'}` : 'Vacía')
@@ -108,7 +108,6 @@ export default function MisDocumentos() {
 
       {leyendo && (
         <LeerRecibido r={leyendo} onCerrar={() => setLeyendo(null)}
-          onConfirmar={() => { md.acusar(leyendo.emitido.id); setAviso('Confirmó la recepción. RR.HH. ya lo ve.') }}
           onReportar={() => { const id = leyendo.emitido.id; setLeyendo(null); pedir('correccion', id) }} />
       )}
       {pidiendo && (
@@ -137,7 +136,7 @@ export function Mosaico({ titulo, sub, punto, insignia, onClick }) {
   return (
     <button type="button" className="md-mosaico" onClick={onClick}>
       {punto && <span className={`md-punto md-punto-${punto}`} aria-hidden="true" />}
-      {insignia > 0 && <span className="md-insignia" aria-label={`${insignia} sin confirmar`}>{insignia}</span>}
+      {insignia > 0 && <span className="md-insignia" aria-label={`${insignia} pendientes`}>{insignia}</span>}
       <IconoCarpeta />
       <span className="md-mosaico-nom">{titulo}</span>
       <span className="md-mosaico-sub">{sub}</span>
@@ -194,8 +193,7 @@ function Portada({ md, volver, ir, onPedir }) {
         <div className="md-grilla">
           {md.carpetasRrhh.map(([cat, nombre]) => {
             const lista = md.recibidos.filter(x => md.carpetaDe(x.emitido) === cat)
-            const faltan = lista.filter(x => esperaAcuse(x.emitido)).length
-            return <Mosaico key={cat} titulo={nombre} insignia={faltan} onClick={() => ir({ de: cat })} sub={faltan ? `${faltan} sin confirmar` : archivos(lista.length)} />
+            return <Mosaico key={cat} titulo={nombre} onClick={() => ir({ de: cat })} sub={archivos(lista.length)} />
           })}
         </div>
 
@@ -508,7 +506,7 @@ function Contratos({ md, volver, onPedirCopia }) {
   return (
     <>
       {volver}
-      <Cabecera titulo="Contratos" sub="Sus contratos y adendas. Los firma en RR.HH., que guarda el original." />
+      <Cabecera titulo="Contratos" sub="Sus contratos. Los firma en RR.HH., que guarda el original." />
       {!md.misContratos.length ? (
         <div className="dc-tarjeta"><Vacio Icono={ScrollText} titulo="Todavía no hay contratos" texto="Cuando RR.HH. registre su contrato, lo verá aquí." /></div>
       ) : (
@@ -546,11 +544,8 @@ function DeRRHH({ md, cat, volver, onLeer, onPedir }) {
         <section className="dc-tarjeta">
           {lista.map(r => (
             <button key={r.emitido.id} type="button" className="md-fila md-fila-btn" onClick={() => onLeer(r)}>
-              <span className={`md-fila-ico${esperaAcuse(r.emitido) ? ' md-ico-por_vencer' : ''}`}><Icono size={16} aria-hidden="true" /></span>
+              <span className="md-fila-ico"><Icono size={16} aria-hidden="true" /></span>
               <span className="md-fila-txt"><span className="md-fila-nom">{r.nombre}</span><span className="md-fila-sub">{r.emitido.numero} · {fechaCorta(r.emitido.fecha)}</span></span>
-              {r.emitido.acuse
-                ? <Etiqueta tono="verde" titulo={r.emitido.acuse.dispositivo}>Confirmado el {fechaCorta(r.emitido.acuse.fecha)}</Etiqueta>
-                : esperaAcuse(r.emitido) ? <Etiqueta tono="ambar">Sin confirmar</Etiqueta> : null}
               <ChevronRight size={15} className="md-flecha" aria-hidden="true" />
             </button>
           ))}
@@ -560,28 +555,16 @@ function DeRRHH({ md, cat, volver, onLeer, onPedir }) {
   )
 }
 
-export function LeerRecibido({ r, onCerrar, onConfirmar, onReportar }) {
-  const confirmado = !esperaAcuse(r.emitido)
-  const [hecho, setHecho] = useState(false)
+/* Ya no se confirma la recepción (16 oct 2026): el documento se lee y, si tiene un error, se reporta. */
+export function LeerRecibido({ r, onCerrar, onReportar }) {
   return (
     <Modal titulo={`${r.nombre} · ${r.emitido.numero}`} Icono={ScrollText} onCerrar={onCerrar} ancho={640} pie={(
       <>
         {onReportar && <button type="button" className="dc-btn md-reportar" onClick={onReportar}><Flag size={14} aria-hidden="true" /> Reportar un error</button>}
         <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button>
-        {!confirmado && !hecho && onConfirmar && (
-          <button type="button" className="pl-btn-save" onClick={() => { onConfirmar(); setHecho(true) }}>
-            <CheckCircle2 size={14} aria-hidden="true" /> Confirmar que lo recibí
-          </button>
-        )}
       </>
     )}>
       {r.emitido.archivo ? <HojaEmitido emitido={r.emitido} /> : <pre className="md-hoja">{r.texto}</pre>}
-      <p className="md-nota-acuse">
-        {r.emitido.pideAcuse === false && !r.emitido.acuse ? 'RR.HH. se lo envió para que lo tenga; no hace falta confirmar.'
-          : confirmado || hecho
-            ? `Confirmó la recepción${r.emitido.acuse ? ` el ${fechaCorta(r.emitido.acuse.fecha)}` : ' hoy'}.`
-            : 'Confirmar significa que lo recibió y lo leyó, no que está de acuerdo con su contenido.'}
-      </p>
     </Modal>
   )
 }
@@ -591,7 +574,7 @@ export function LeerRecibido({ r, onCerrar, onConfirmar, onReportar }) {
    la copia de ese contrato, el error de ese documento— y no se lo vuelve a preguntar. */
 const QUE_PIDE = {
   certificacion: { label: 'Un certificado', titulo: 'Pedir un certificado', desc: 'De trabajo, o de trabajo con sueldo.', pregunta: '¿Qué certificado necesita?', detalle: '¿Para qué lo necesita? (opcional)' },
-  copia: { label: 'Copia del contrato', titulo: 'Pedir una copia', desc: 'De su contrato o una adenda.', pregunta: '¿De qué contrato?', detalle: '¿Para qué la necesita? (opcional)' },
+  copia: { label: 'Copia del contrato', titulo: 'Pedir una copia', desc: 'De su contrato.', pregunta: '¿De qué contrato?', detalle: '¿Para qué la necesita? (opcional)' },
   correccion: { label: 'Corregir algo que recibí', titulo: 'Reportar un error', desc: 'Un certificado o memorándum con un error.', pregunta: '¿Qué documento tiene el error?', detalle: '¿Qué está mal?' },
 }
 
@@ -700,7 +683,7 @@ export function MisSolicitudes() {
       <p className="dc-muted md-pronto">Pronto podrá pedir aquí también vacaciones, permisos y anticipos.</p>
 
       {pidiendo && <NuevaSolicitud md={md} onCerrar={() => setPidiendo(false)} onEnviada={() => { setPidiendo(false); setVista('curso'); setAviso('Solicitud enviada a RR.HH.') }} />}
-      {leyendo && <LeerRecibido r={leyendo} onCerrar={() => setLeyendo(null)} onConfirmar={() => { md.acusar(leyendo.emitido.id); setAviso('Confirmó la recepción. RR.HH. ya lo ve.') }} />}
+      {leyendo && <LeerRecibido r={leyendo} onCerrar={() => setLeyendo(null)} />}
       {aviso && <div className="md-aviso" role="status"><CheckCircle2 size={15} aria-hidden="true" /> {aviso}</div>}
     </div>
   )

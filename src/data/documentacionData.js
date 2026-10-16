@@ -644,9 +644,10 @@ export function estadoContrato(c, parametros, contratos = []) {
 
 export const ESTADOS_EMITIDO = {
   pendiente: { label: 'Pendiente de aprobación', tono: 'ambar' },
-  generado: { label: 'Sin enviar', tono: 'gris' },
+  generado: { label: 'Sin firmar', tono: 'ambar' }, // emitido y guardado; falta subir el firmado (16 oct 2026)
   entregado: { label: 'Entregado', tono: 'verde' },
-  acusado: { label: 'Confirmado', tono: 'verde' },
+  // Ya no se pide confirmar la recepción (16 oct 2026): lo que se confirmó antes se ve como entregado.
+  acusado: { label: 'Entregado', tono: 'verde' },
   anulado: { label: 'Anulado', tono: 'gris' },
 }
 
@@ -796,6 +797,57 @@ export function bitacoraSeed(documentos, emitidos) {
   return ev.sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
 }
 
+/* ── EL HISTORIAL DE EJEMPLO DE CADA PERSONA (16 oct 2026) ─────────────────
+   La bitácora de arriba sólo cubre los primeros documentos, y el Historial de casi todos los
+   expedientes salía vacío: no se entendía para qué sirve. Esto le arma a cada uno su historia con
+   lo que ya tiene —qué se le exigió, qué subió y cómo se revisó, su contrato, lo que recibió de la
+   empresa y lo que pidió—, en las fechas de cada cosa y a una hora creíble. Todo sale de los datos
+   de la demo: no se inventa nada que el expediente no muestre. */
+export function historialSeed({ personas, documentos, emitidos, contratos, solicitudes, requisitos, subtipos }) {
+  const ev = []
+  const hoyIso = iso(hoy())
+  const mas = (f, n) => { const d = aFecha(f); d.setDate(d.getDate() + n); const r = iso(d); return r > hoyIso ? hoyIso : r }
+  const hora = (...k) => { const x = semilla(k[0], k.slice(1).join('|')); return `${String(8 + Math.floor(x * 10)).padStart(2, '0')}:${String(Math.floor((x * 997) % 60)).padStart(2, '0')}` }
+  const nombre = id => subtipos.find(s => s.id === id)?.nombre || 'un documento'
+  const sumar = (colaboradorId, fecha, usuario, accion, entidad, entidadId, detalle) => {
+    ev.push({ id: `h-${colaboradorId}-${ev.length + 1}`, fecha, hora: hora(colaboradorId, accion, entidadId, detalle), usuario, accion, entidad, entidadId, colaboradorId, detalle })
+  }
+  const vivos = personas.filter(p => p.status !== 'desvinculado')
+  for (const p of vivos) {
+    for (const r of requisitos.filter(x => x.colaboradorId === p.id)) {
+      sumar(p.id, r.fecha, r.por, 'requisito', 'requisito', r.subtipoId, `Le exigió ${nombre(r.subtipoId)}${r.obligatorio ? '' : ' (opcional)'}, con ${r.plazoDias} días de plazo`)
+    }
+    for (const d of documentos.filter(x => x.colaboradorId === p.id && !x.eliminado)) {
+      for (const v of d.versiones) {
+        if (!v.archivo?.nombre || !v.fecha) continue
+        // Lo que llegó por la app lo subió la persona, aunque la semilla diga otra cosa.
+        sumar(p.id, v.fecha, v.canal === 'app' ? p.name : v.subidoPor, v.v > 1 ? 'reemplazo' : 'alta', 'documento', d.id, `Cargó ${v.archivo.nombre} (${v.canal})`)
+        if (v.revision === 'aprobado' && v.canal === 'app') sumar(p.id, mas(v.fecha, 1), 'Paola Arce', 'aprobacion', 'documento', d.id, `Aprobó ${nombre(d.subtipoId)}`)
+        if (v.revision === 'rechazado') {
+          sumar(p.id, mas(v.fecha, 1), 'Paola Arce', 'rechazo', 'documento', d.id, `Rechazó ${nombre(d.subtipoId)}: ${v.motivoRechazo || 'no se lee bien'}`)
+          sumar(p.id, mas(v.fecha, 4), 'Sistema', 'recordatorio', 'documento', d.id, `Le recordó volver a subir ${nombre(d.subtipoId)}`)
+        }
+      }
+    }
+    for (const c of contratos.filter(x => x.colaboradorId === p.id)) {
+      for (const v of c.versiones) {
+        if (v.tipo === 'firmado') sumar(p.id, v.fecha, v.por, 'alta', 'contrato', c.id, `Cargó ${c.tipo === 'adenda' ? 'la adenda firmada' : 'el contrato firmado'} ${c.numero}`)
+        else sumar(p.id, v.fecha, v.por, 'emision', 'contrato', c.id, `Generó ${c.tipo === 'adenda' ? 'la adenda' : 'el contrato'} ${c.numero}${v.motivo && c.tipo === 'adenda' ? ` (${v.motivo.toLowerCase()})` : ''}`)
+      }
+    }
+    for (const e of emitidos.filter(x => x.colaboradorId === p.id)) {
+      for (const en of e.entregas || []) sumar(p.id, en.fecha, en.por, 'entrega', 'emitido', e.id, `Le envió ${e.numero} por la ${en.canal === 'app' ? 'app' : en.canal}`)
+    }
+    for (const q of solicitudes.filter(x => x.colaboradorId === p.id)) {
+      sumar(p.id, q.fecha, p.name, 'solicitud', 'solicitud', q.id, `Pidió «${q.asunto}» desde la app`)
+      if (q.resuelto) sumar(p.id, q.resuelto.fecha, q.resuelto.por, 'solicitud', 'solicitud', q.id, `${q.estado === 'rechazada' ? 'Rechazó' : 'Atendió'} «${q.asunto}»: ${q.resuelto.nota}`)
+    }
+    // A algunos ya les bajaron el expediente completo, para que se vea que una descarga también queda.
+    if (semilla(p.id, 'descarga') > 0.6) sumar(p.id, dias(-Math.round(5 + semilla(p.id, 'dd') * 90)), 'Paola Arce', 'descarga', 'expediente', p.id, 'Descargó el expediente completo (ZIP)')
+  }
+  return ev
+}
+
 /* ── LAS SOLICITUDES DE LOS COLABORADORES ─────────────────────────────────
    Lo que una persona pide desde la app y que termina en un documento en sus manos. Son tres, y cada
    una se atiende con su propia acción, no con un «aprobar» que no entrega nada:
@@ -870,8 +922,9 @@ export function origenDe(e, solicitudes = []) {
 
 /* EL AVANCE DE UN LOTE: cuántos se entregaron y cuántos confirmaron, sobre los que siguen en pie
    (un anulado sale de la cuenta). Lo usan la lista de lotes y la ficha de cada uno. */
-/* ¿Espera que el colaborador confirme? Sólo lo entregado que pidió confirmación y no la tiene. */
-export const esperaAcuse = e => e.estado === 'entregado' && e.pideAcuse !== false
+/* ¿Espera que el colaborador confirme? Ya nunca (16 oct 2026): se quitó la confirmación de
+   recepción. Se deja la función para que lo que la usa no muestre «sin confirmar» en ningún lado. */
+export const esperaAcuse = () => false
 
 /* El nombre de un emitido: el del archivo propio que se envió, o el de su modelo. */
 export const nombreEmitido = (e, modelos = []) => e.nombre || modelos.find(m => m.id === e.modeloId)?.nombre || CATEGORIAS[e.categoria]?.label || 'Documento'

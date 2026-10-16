@@ -237,7 +237,7 @@ const documentacionNav = (cuentas = {}) => [
        ejes de Organización, en vez de pestañas dentro de la pantalla. */
     { label: 'Configuración', path: '/documentos/configuracion', icon: Settings, subs: [
       { label: 'Plantillas', ver: 'plantillas' },
-      { label: 'Notificaciones y numeración', ver: 'avisos' },
+      { label: 'Notificaciones y tipos de documento', ver: 'avisos' },
     ] },
   ]},
 ]

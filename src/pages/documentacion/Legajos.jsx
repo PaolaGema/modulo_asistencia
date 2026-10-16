@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
-import { Search, FolderOpen, ChevronUp, ChevronDown, ChevronsUpDown, Inbox, Send } from 'lucide-react'
+import { Search, FolderOpen, ChevronUp, ChevronDown, ChevronsUpDown, Inbox, Send, Download, Check, FileArchive, Sheet } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, Filtros, PersonaCelda, BarraAvance, Vacio, Modal } from '../../components/documentacion/comunes'
-import { FILTROS_VACIOS, pasaFiltros } from '../../components/documentacion/utilidades'
+import { FILTROS_VACIOS, pasaFiltros, describirFiltros, exportarCSV } from '../../components/documentacion/utilidades'
+import { zipDeExpedientes } from '../../components/documentacion/expedienteZip'
+import { descargarBlob } from '../../components/documentacion/zip'
 import { versionActual, fechaCorta } from '../../data/documentacionData'
 import { pilas } from './seguimientoDatos'
 import PorDocumento from './PorDocumento'
@@ -116,6 +118,8 @@ export default function Expedientes() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const [busca, setBusca] = useState(params.get('q') || '')
+  const [bajando, setBajando] = useState(null) // null: cerrado; 'pregunta' o 'preparando'
+  const [aviso, setAviso] = useState('')
   const filtros = {
     ...FILTROS_VACIOS,
     sede: params.get('sede') || '', area: params.get('area') || '', cargo: params.get('cargo') || '',
@@ -215,6 +219,58 @@ export default function Expedientes() {
     ]),
   ]
 
+  /* EXPORTAR LA LISTA (propuesta D, 16 oct 2026): un menú en la cabecera con dos salidas, y las
+     dos bajan los que dejan pasar la búsqueda, los filtros, el estado y Activos/Desvinculados
+     —todas las páginas, no sólo la que se ve—.
+     · Expedientes en ZIP: una carpeta por persona. Es una descarga masiva: lo confidencial no
+       viaja (RNF-12) y el índice de cada uno dice qué quedó fuera.
+     · Lista en Excel: una fila por persona con su avance y lo que tiene pendiente. */
+  const queSeBaja = [
+    VINCULOS.find(v => v.valor === vinculo)?.etiqueta,
+    texto && `«${busca.trim()}»`,
+    describirFiltros({ sede: filtros.sede, area: filtros.area, cargo: filtros.cargo }, { sucursales }).replace('Sin filtros', ''),
+    pend && NOMBRE_ESTADO[pend],
+  ].filter(Boolean).join(' · ')
+  // Lo mismo en una frase, para la confirmación: «Activos de Casa Matriz Equipetrol».
+  const nombreSede = sucursales.find(s => s.id === filtros.sede)?.nombre
+  const quienesBaja = [
+    { activos: 'Activos', desvinculados: 'Desvinculados', todos: 'Activos y desvinculados' }[vinculo],
+    nombreSede && `de ${nombreSede}`,
+    filtros.area && `de ${filtros.area}`,
+    filtros.cargo && `con el cargo ${filtros.cargo}`,
+    pend && `con el estado «${NOMBRE_ESTADO[pend]}»`,
+    texto && `que coinciden con «${busca.trim()}»`,
+  ].filter(Boolean).join(' ')
+  const descargarLista = async () => {
+    setBajando('preparando')
+    try {
+      const { blob, archivos, omitidos } = await zipDeExpedientes(ordenadas.map(f => f.p), ctx, { confidenciales: false })
+      descargarBlob(`expedientes_${new Date().toISOString().slice(0, 10)}.zip`, blob)
+      ctx.registrarDescarga('expediente', null, null, `Descargó ${ordenadas.length} expedientes (ZIP, ${archivos} archivos) · ${queSeBaja}`)
+      setAviso(`${ordenadas.length} expedientes descargados: ${archivos} archivos${omitidos ? ` · ${omitidos} confidencial${omitidos === 1 ? '' : 'es'} no incluido${omitidos === 1 ? '' : 's'}` : ''}.`)
+      setTimeout(() => setAviso(''), 3600)
+    } finally {
+      setBajando(null)
+    }
+  }
+  const exportarLista = () => {
+    const cerrado = f => f.p.status === 'desvinculado'
+    exportarCSV(`lista_expedientes_${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Código', 'Colaborador', 'Cargo', 'Unidad organizacional', 'Sucursal', 'Situación', 'Expediente completo', 'Obligatorios cumplidos',
+        'Vencidos', 'Por vencer', 'Faltan', 'Rechazados', 'En revisión', 'Contrato por terminar', 'Lo más urgente'],
+      ordenadas.map(f => [
+        f.p.codigo, f.p.name, f.p.cargo || '', f.p.depto || '', f.p.sedeNombre || '', cerrado(f) ? 'Desvinculado' : 'Activo',
+        cerrado(f) ? 'Expediente cerrado' : f.avance.pct == null ? '' : `${f.avance.pct} %`,
+        cerrado(f) ? '' : `${f.avance.cumplidos} de ${f.avance.total}`,
+        ...(cerrado(f) ? ['', '', '', '', '', ''] : [f.vencidos, f.porVencer, f.faltantes, f.rechazados, f.revision, f.contrato ? 'Sí' : 'No']),
+        !cerrado(f) && f.urgente ? `${f.urgente.titulo} · ${f.urgente.doc}` : '',
+      ]),
+      queSeBaja)
+    ctx.registrarDescarga('expediente', null, null, `Exportó la lista de ${ordenadas.length} expedientes (Excel) · ${queSeBaja}`)
+    setAviso(`Lista de ${ordenadas.length} expediente${ordenadas.length === 1 ? '' : 's'} descargada.`)
+    setTimeout(() => setAviso(''), 3200)
+  }
+
   // La revisión tiene su propia pantalla, en modo foco: los enlaces viejos con ?ver=revisar van ahí.
   if (revisando) return <Navigate to="/documentos/expedientes/revisar" replace />
 
@@ -232,6 +288,8 @@ export default function Expedientes() {
             </button>
           ))}
         </div>
+        <MenuExportar n={ordenadas.length} preparando={bajando === 'preparando'}
+          onZip={() => setBajando('pregunta')} onLista={exportarLista} />
       </Cabecera>
 
       {!revisando && (
@@ -295,6 +353,12 @@ export default function Expedientes() {
         </div>
       )}
 
+      {bajando === 'pregunta' && (
+        <ConfirmarDescarga n={ordenadas.length} quienes={quienesBaja} variasPaginas={ordenadas.length > POR_PAGINA}
+          onCerrar={() => setBajando(null)} onDescargar={descargarLista} />
+      )}
+      {aviso && <div className="xa-toast" role="status"><Check size={14} /> {aviso}</div>}
+
       {revisando ? (
         <PorRevisar filtros={filtros} />
       ) : porDocumento ? (
@@ -353,6 +417,69 @@ export default function Expedientes() {
             </tbody>
           </table>
           <Paginacion page={pagina} setPage={irAPagina} total={ordenadas.length} perPage={POR_PAGINA} nombre="colaboradores" nombreUno="colaborador" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* LA CONFIRMACIÓN CORTA (propuesta E, 16 oct 2026): una pregunta, una línea y dos botones, sin la
+   cabecera azul de los otros modales, porque no es un formulario. La línea dice a quiénes —con
+   los filtros en palabras— y que lo confidencial no viaja. Escape o tocar afuera la cierran. */
+function ConfirmarDescarga({ n, quienes, variasPaginas, onCerrar, onDescargar }) {
+  useEffect(() => {
+    const tecla = e => { if (e.key === 'Escape') onCerrar() }
+    window.addEventListener('keydown', tecla)
+    return () => window.removeEventListener('keydown', tecla)
+  }, [onCerrar])
+  const titulo = `¿Descargar ${n} expediente${n === 1 ? '' : 's'}?`
+  return (
+    <div className="pl-overlay" onClick={onCerrar}>
+      <div className="xa-bajar" role="alertdialog" aria-modal="true" aria-label={titulo} onClick={e => e.stopPropagation()}>
+        <span className="xa-bajar-ico" aria-hidden="true"><Download size={24} /></span>
+        <h2>{titulo}</h2>
+        <p>{quienes}{variasPaginas ? ', de todas las páginas' : ''}. Se bajan en un ZIP, sin los documentos confidenciales.</p>
+        <div className="xa-bajar-pie">
+          <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+          <button type="button" className="pl-btn-save" onClick={onDescargar} autoFocus>Descargar</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* EL MENÚ «EXPORTAR»: un botón con texto que abre las salidas, cada una con lo que trae y cuántos.
+   Se cierra con Escape o al tocar afuera. */
+function MenuExportar({ n, preparando, onZip, onLista }) {
+  const [abierto, setAbierto] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!abierto) return
+    const fuera = e => { if (ref.current && !ref.current.contains(e.target)) setAbierto(false) }
+    const tecla = e => { if (e.key === 'Escape') setAbierto(false) }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', tecla)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla) }
+  }, [abierto])
+  const elegir = accion => { setAbierto(false); accion() }
+  const de = n === 1 ? '1 colaborador' : `los ${n} colaboradores`
+  return (
+    <div className="xa-exportar" ref={ref}>
+      <button type="button" className="dc-btn" aria-haspopup="menu" aria-expanded={abierto} disabled={!n || preparando} onClick={() => setAbierto(a => !a)}>
+        <Download size={14} aria-hidden="true" /> {preparando ? 'Preparando…' : 'Exportar'}
+        <ChevronDown size={14} aria-hidden="true" />
+      </button>
+      {abierto && (
+        <div className="xa-exportar-lista" role="menu">
+          <button type="button" role="menuitem" onClick={() => elegir(onZip)}>
+            <FileArchive size={16} aria-hidden="true" />
+            <span><b>Expedientes en ZIP</b><small>Los documentos de {de}, una carpeta por persona</small></span>
+          </button>
+          <button type="button" role="menuitem" onClick={() => elegir(onLista)}>
+            <Sheet size={16} aria-hidden="true" />
+            <span><b>Lista en Excel</b><small>Avance y pendientes de {de}</small></span>
+          </button>
+          <p className="xa-exportar-nota">Con la búsqueda y los filtros elegidos, de todas las páginas.</p>
         </div>
       )}
     </div>

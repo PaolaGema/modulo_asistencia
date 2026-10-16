@@ -120,7 +120,7 @@ function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVol
   const textoNuevo = modelo ? rellenar(versionPublicada(modelo)?.texto || '', datosPara(persona, { empresa, contrato: contratoVigente, numero: '(se numera al emitir)' })) : ''
 
   const emitirYEnviar = () => {
-    const r = emitir({ modeloId, colaboradorId: q.colaboradorId })
+    const r = emitir({ modeloId, colaboradorId: q.colaboradorId, enviar: true })
     if (q.tipo === 'correccion' && anularAnterior && anterior) anular(anterior.id, `Reemplazado por ${r.numero}: ${q.detalle}`)
     resolverSolicitud(q.id, 'atendida', q.tipo === 'correccion' ? `Se reemitió como ${r.numero}${anularAnterior && anterior ? ` y se anuló ${anterior.numero}` : ''}` : `Se emitió ${r.numero}`, { emitidoId: r.id, ...(anularAnterior && anterior ? { anuladoId: anterior.id } : null) })
     onListo(true, `${r.numero} emitido: a ${nombre} le llegó por la app.`)

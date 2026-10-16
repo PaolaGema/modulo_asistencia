@@ -7,7 +7,7 @@ import BarraVolver from './BarraVolver'
 import { useMisDocumentos, textoMotivo } from '../../hooks/useMisDocumentos'
 import {
   ESTADOS, ESTADOS_CONTRATO, ESTADOS_SOLICITUD, TIPOS_SOLICITUD, PLAZO_SOLICITUD_DIAS, MODALIDADES, fechaCorta,
-  esperaAcuse, responderAntes,
+  responderAntes,
 } from '../../data/documentacionData'
 import { leerArchivo } from '../../utils/archivosLocales'
 import { useMiFicha } from '../../hooks/useMiFicha'
@@ -183,7 +183,7 @@ export default function MisDocumentosPhone({ currentUser, onVolver }) {
     case 'leer': {
       const r = md.recibidos.find(x => x.emitido.id === actual.id)
       pantalla = r
-        ? <LeerPhone r={r} atras={atras} onConfirmar={() => { md.acusar(r.emitido.id); setAviso('Recepción confirmada') }}
+        ? <LeerPhone r={r} atras={atras}
           onReportar={() => ir({ p: 'pedir', inicial: { tipo: 'correccion', clave: r.emitido.id }, fijo: true })} />
         : <div>{atras}</div>
       break
@@ -326,9 +326,8 @@ function InicioPhone({ md, atras, ir }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6 }}>
           {md.carpetasRrhh.map(([cat, nombre]) => {
             const lista = md.recibidos.filter(x => md.carpetaDe(x.emitido) === cat)
-            const faltan = lista.filter(x => esperaAcuse(x.emitido)).length
-            return <Mosaico key={cat} titulo={nombre} insignia={faltan} onClick={() => ir({ p: 'recibidos', cat })}
-              sub={faltan ? `${faltan} sin confirmar` : archivos(lista.length)} />
+            return <Mosaico key={cat} titulo={nombre} onClick={() => ir({ p: 'recibidos', cat })}
+              sub={archivos(lista.length)} />
           })}
         </div>
 
@@ -657,7 +656,7 @@ function ContratosPhone({ md, atras, ir }) {
   return (
     <div>
       {atras}
-      <Cabecera titulo="Contratos" sub="Sus contratos y adendas firmados. Los carga RR.HH." />
+      <Cabecera titulo="Contratos" sub="Sus contratos firmados. Los carga RR.HH." />
       {!md.misContratos.length ? (
         <Vacio Icono={ScrollText} titulo="Todavía no hay contratos" texto="Cuando RR.HH. registre su contrato, lo verá aquí." />
       ) : (
@@ -716,7 +715,7 @@ function ContratoPhone({ md, id, atras, ir }) {
 /* ── RECIBIDOS ── */
 const SOBRE = {
   certificado: [Award, 'Los certificados que RR.HH. le emitió.', 'Cuando RR.HH. le emita un certificado, llegará aquí.'],
-  memorandum: [ScrollText, 'Los memorándums que RR.HH. le envió. Algunos piden que confirme que los recibió.', 'No recibió memorándums.'],
+  memorandum: [ScrollText, 'Los memorándums que RR.HH. le envió.', 'No recibió memorándums.'],
   otro: [Megaphone, 'Comunicados, reglamentos y otros documentos de RR.HH.', 'No recibió otros documentos.'],
 }
 function RecibidosPhone({ md, cat, atras, onLeer, onPedir }) {
@@ -734,24 +733,18 @@ function RecibidosPhone({ md, cat, atras, onLeer, onPedir }) {
         </Vacio>
       ) : (
         <div style={{ ...TARJETA, marginTop: 9 }}>
-          {lista.map((r, i) => {
-            const pide = esperaAcuse(r.emitido)
-            return (
-              <Fila key={r.emitido.id} primera={!i} Icono={Icono} tono={pide ? 'ambar' : 'rosa'} titulo={r.nombre}
-                sub={`${r.emitido.numero} · ${fechaCorta(r.emitido.fecha)}`} flecha onClick={() => onLeer(r.emitido.id)}>
-                {r.emitido.acuse ? <Chip tono="verde">Confirmado</Chip> : pide ? <Chip tono="ambar">Sin confirmar</Chip> : null}
-              </Fila>
-            )
-          })}
+          {lista.map((r, i) => (
+            <Fila key={r.emitido.id} primera={!i} Icono={Icono} tono="rosa" titulo={r.nombre}
+              sub={`${r.emitido.numero} · ${fechaCorta(r.emitido.fecha)}`} flecha onClick={() => onLeer(r.emitido.id)} />
+          ))}
         </div>
       )}
     </div>
   )
 }
 
-function LeerPhone({ r, atras, onConfirmar, onReportar }) {
-  const acuse = r.emitido.acuse
-  const pide = esperaAcuse(r.emitido)
+/* Ya no se confirma la recepción (16 oct 2026): se lee y, si tiene un error, se reporta. */
+function LeerPhone({ r, atras, onReportar }) {
   /* Un archivo propio (un reglamento en PDF) se abre aparte: en el teléfono no se dibuja. */
   const abrirArchivo = async () => {
     const blob = r.emitido.archivo?.clave ? await leerArchivo(r.emitido.archivo.clave) : null
@@ -770,20 +763,6 @@ function LeerPhone({ r, atras, onConfirmar, onReportar }) {
           ? <button onClick={abrirArchivo} style={SECUNDARIO}>Abrir {r.emitido.archivo.nombre}</button>
           : r.texto}
       </div>
-      {!acuse && !pide ? null : acuse ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 9, padding: '7px 9px', borderRadius: 8, background: TONOS.verde[1], color: TONOS.verde[0], fontSize: 7, fontWeight: 600 }}>
-          <Check size={10} /> Confirmó la recepción el {fechaCorta(acuse.fecha)}.
-        </div>
-      ) : (
-        <>
-          <button onClick={onConfirmar} style={{ ...BOTON, width: '100%', height: 26, marginTop: 10, fontSize: 7.5 }}>
-            <CheckCircle2 size={10} /> Confirmar que lo recibí
-          </button>
-          <p style={{ margin: '6px 2px 0', fontSize: 6.5, color: '#94a3b8', lineHeight: 1.5, textAlign: 'center' }}>
-            Confirmar significa que lo recibió y lo leyó, no que está de acuerdo con su contenido.
-          </p>
-        </>
-      )}
       {onReportar && (
         <button onClick={onReportar} style={{ ...SECUNDARIO, width: '100%', height: 24, marginTop: 8, color: TONOS.rojo[0] }}>
           <Flag size={9} /> Reportar un error
@@ -1115,7 +1094,7 @@ export function MisSolicitudesPhone({ currentUser, onVolver }) {
   } else if (actual.p === 'leer') {
     const r = md.recibidos.find(x => x.emitido.id === actual.id)
     pantalla = r
-      ? <LeerPhone r={r} atras={atras} onConfirmar={() => { md.acusar(r.emitido.id); setAviso('Recepción confirmada') }} />
+      ? <LeerPhone r={r} atras={atras} />
       : <div>{atras}</div>
   } else {
     pantalla = <ListaSolicitudes md={md} atras={atras} onNueva={() => ir({ p: 'pedir' })} onLeer={id => ir({ p: 'leer', id })} />

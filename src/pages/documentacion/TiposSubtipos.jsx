@@ -418,7 +418,7 @@ export function Taxonomia() {
 
 /* ── AVISOS GENERALES (antes «Parámetros y avisos») ───────────────────────
    El valor POR DEFECTO de los subtipos que no declaran los suyos (RF-06, RF-35), más el aviso de
-   fin de contrato (RF-40), el resumen al responsable (RF-41) y la papelera (RF-89).
+   fin de contrato (RF-40), y el resumen al responsable (RF-41). La papelera se quitó (16 oct 2026): un documento se anula.
 
    SE EDITA UN BORRADOR Y SE GUARDA DE UNA VEZ: hasta pulsar «Guardar» nada toca lo que el resto
    del módulo lee. */
@@ -499,15 +499,11 @@ export function AvisosGenerales() {
         </section>
 
         <section className="dc-tarjeta">
-          <div className="dc-tarjeta-cab"><h2>Contratos y papelera</h2></div>
+          <div className="dc-tarjeta-cab"><h2>Contratos</h2></div>
           <div className="dc-tarjeta-cuerpo">
             <label className="xd-campo">Aviso de fin de contrato
               <span className="xd-fila"><input className="pl-input xd-num" inputMode="numeric" value={p.avisoContratoDias} onChange={e => set('avisoContratoDias', numero(e.target.value))} /> días antes</span>
               <span className="xd-ayuda">Un plazo fijo avisa al responsable con esta anticipación, con tiempo para renovar o finalizar (RF-40).</span>
-            </label>
-            <label className="xd-campo">Días en la papelera
-              <span className="xd-fila"><input className="pl-input xd-num" inputMode="numeric" value={p.papeleraDias} onChange={e => set('papeleraDias', numero(e.target.value))} /> días</span>
-              <span className="xd-ayuda">Un documento eliminado se puede recuperar durante este plazo sin ayuda técnica (RF-89).</span>
             </label>
             <p className="xd-nota">RR.HH. recibe siempre un aviso cuando se registra o se edita un documento: no se puede apagar.</p>
           </div>

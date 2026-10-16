@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, CircleCheck, FileText, Lock, Pencil, TriangleAlert, Upload, X } from 'lucide-react'
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, CircleCheck, Download, FileText, Lock, Pencil, TriangleAlert, Upload, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import {
   CATEGORIAS, FRASES_DEFECTO, MODALIDADES, aFecha, datosPara, fechaCorta, fechaLarga, fechaNum, iso, rellenar, siguienteNumero,
@@ -8,6 +8,9 @@ import {
 import Desplegable from '../../components/layout/Desplegable'
 import SelectorFecha from '../../components/layout/SelectorFecha'
 import HojaDocumento from './HojaDocumento'
+import { descargarParaImprimir } from '../../components/documentacion/utilidades'
+import { guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
+import { extensionDe } from '../../components/documentacion/deducir'
 import { contratoVigenteDe, emisible, esAdenda, plazosFijosDe, versionPublicada } from './emisionUtil'
 import './emision.css'
 
@@ -67,13 +70,15 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
   const [modeloId, setModeloId] = useState(inicial.modeloId)
   const [colabId, setColabId] = useState(inicial.colabId)
   const [obs, setObs] = useState('')
+  /* EDITAR ESTE DOCUMENTO (16 oct 2026): el texto entero se vuelve editable sobre la hoja, sólo para
+     esta emisión —firma otra persona, cambió un dato—. `null` es «como sale de la plantilla». */
+  const [editado, setEditado] = useState(null) // { para: 'persona|modelo', texto }
   const obsRef = useRef(null)
   const [fechaMemo, setFechaMemo] = useState(() => iso(new Date()))
   const [k, setK] = useState({ modalidad: inicial.modalidad, inicio: inicial.inicio, fin: '', camino: 'generar', archivo: '', decision: '', origenId: inicial.origenId, comentarios: '' })
   const [resultado, setResultado] = useState(null)
-  /* Enviar es entregar (v3): sale por la app al confirmar. Lo único que se elige es si se le pide
-     a la persona que confirme la recepción. */
-  const [pideAcuse, setPideAcuse] = useState(true)
+  /* Emitir no envía (16 oct 2026): el documento queda en el expediente sin firmar, hasta que se sube
+     el firmado. No se pide confirmación de recepción. */
   /* EMITIR A VARIOS: el mismo certificado o memorándum para un grupo. Los destinatarios se arman
      con «grupos» —una sucursal, una unidad, un cargo o una persona suelta— y se puede quitar a
      quien no corresponda. Los contratos no: cada uno lleva sus fechas y su decisión sobre el
@@ -208,10 +213,16 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
     ? siguienteNumero(categoria, [...Array(aEmitir.length - 1)].map(() => ({ categoria, gestion: numero.gestion })).concat(emitidos), parametros, contratos).texto
     : null
 
+  const unaPersona = !varios || (incluidos.length === 1 && aEmitir.length === 1)
+  const paraQuien = `${persona?.id}|${modelo?.id}`
+  const textoLibre = unaPersona && editado?.para === paraQuien ? editado.texto : null
+  const setTextoLibre = t => setEditado(t === null ? null : { para: paraQuien, texto: t })
+
   function confirmar() {
     if (!listo) return
-    if (varios) {
-      const nuevos = emitirVarios({ modeloId: modelo.id, colaboradorIds: aEmitir.map(p => p.id), observaciones: obs, fecha: categoria === 'memorandum' ? fechaMemo : null, pideAcuse })
+    // Con el texto editado, a una sola persona: sale como un documento suelto, con ese texto.
+    if (varios && textoLibre === null) {
+      const nuevos = emitirVarios({ modeloId: modelo.id, colaboradorIds: aEmitir.map(p => p.id), observaciones: obs, fecha: categoria === 'memorandum' ? fechaMemo : null })
       setResultado({ tipo: 'varios', ids: nuevos.map(n => n.id), loteId: nuevos[0]?.loteId, omitidos: sinDatos.map(p => p.name) })
       onEmitido?.({ tipo: 'varios', ids: nuevos.map(n => n.id), numero: nuevos.map(n => n.numero).join(', ') })
       return
@@ -226,7 +237,7 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
       setResultado({ tipo: 'contrato', id: nuevo.id, numero: nuevo.numero, texto: previa.replace(numero.texto, nuevo.numero) })
       onEmitido?.({ tipo: 'contrato', id: nuevo.id, numero: nuevo.numero })
     } else {
-      const nuevo = emitir({ modeloId: modelo.id, colaboradorId: persona.id, observaciones: obs, fecha: categoria === 'memorandum' ? fechaMemo : null, pideAcuse })
+      const nuevo = emitir({ modeloId: modelo.id, colaboradorId: persona.id, observaciones: obs, fecha: categoria === 'memorandum' ? fechaMemo : null, textoEditado: textoLibre })
       setResultado({ tipo: 'emitido', id: nuevo.id })
       onEmitido?.({ tipo: 'emitido', id: nuevo.id, numero: nuevo.numero })
     }
@@ -291,7 +302,7 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
         ...faltan.filter(f => !/datos? que la plantilla|elegir/.test(f)).map(f => ({ t: f[0].toUpperCase() + f.slice(1), ok: false })),
       ]
 
-  const textoBoton = categoria === 'contrato' ? (adenda ? 'Registrar adenda' : 'Registrar contrato') : varios && aEmitir.length ? `Enviar a ${aEmitir.length}` : 'Enviar'
+  const textoBoton = categoria === 'contrato' ? (adenda ? 'Registrar adenda' : 'Registrar contrato') : varios && aEmitir.length > 1 ? `Emitir ${aEmitir.length} documentos` : 'Emitir documento'
   const quien = varios ? `${incluidos.length} ${incluidos.length === 1 ? 'persona' : 'personas'}` : persona?.name
   const bajada = !modelo ? ''
     : categoria === 'contrato' ? `${modelo.nombre} para ${quien}. Complete los datos al costado: la hoja cambia a medida que completa.`
@@ -342,7 +353,6 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
         {modelo?.sensible && <span className="xh-sello" title="Su jefe no lo verá salvo permiso explícito, y cada vez que alguien lo abra queda registrado."><Lock size={12} aria-hidden="true" /> Confidencial</span>}
         <span className="xh-esp" />
         {numero && modelo && <span className="xh-numero">{varios && ultimoNumero ? `${numero.texto} al ${ultimoNumero}` : numero.texto}</span>}
-        {categoria && categoria !== 'contrato' && <CasillaAcuse valor={pideAcuse} onCambio={setPideAcuse} />}
         <button type="button" className="pl-btn-new" disabled={!listo} onClick={confirmar} title={listo ? undefined : `Falta ${faltan.join(', ')}.`} style={listo ? undefined : { opacity: .5, cursor: 'not-allowed' }}>
           <CircleCheck size={14} color="#00E091" /> {textoBoton}
         </button>
@@ -369,7 +379,18 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
               <span>Hoja de ejemplo: elija al costado para quién es y se completa con sus datos.</span>
             </div>
           )}
-          {(persona || muestra) && modelo && version ? (
+          {persona && modelo && version && unaPersona && categoria !== 'contrato' && (
+            <div className={`xe-previa-cab xe-editar${textoLibre !== null ? ' on' : ''}`}>
+              {textoLibre === null
+                ? <><span>¿Hay que cambiar algo sólo en este documento? Quién firma, un dato que cambió…</span>
+                  <button type="button" className="dc-btn dc-btn-sm" onClick={() => setTextoLibre(previa)}><Pencil size={13} aria-hidden="true" /> Editar documento</button></>
+                : <><span><b>Editando sólo este documento.</b> La plantilla y los datos de {persona.name.split(' ')[0]} no cambian.</span>
+                  <button type="button" className="dc-btn dc-btn-sm" onClick={() => setTextoLibre(null)}>Volver a la plantilla</button></>}
+            </div>
+          )}
+          {textoLibre !== null && persona ? (
+            <HojaLibre valor={textoLibre} onCambio={setTextoLibre} />
+          ) : (persona || muestra) && modelo && version ? (
             <HojaEditable
               plantilla={version.texto}
               datos={datos || muestra}
@@ -387,7 +408,7 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
           ) : (
             <div className="xe-previa-vacia">
               <FileText size={28} strokeWidth={1.4} aria-hidden="true" />
-              <p>{riel ? (!modelo ? 'Elija a la izquierda qué va a enviar.' : 'Elija al costado para quién es.') : !modelo ? 'Elija arriba qué va a emitir.' : varios ? 'Agregue a quiénes, al costado.' : 'Elija arriba a quién.'}<br />El documento aparece aquí, tal como va a salir, y lo que haya que escribir se escribe sobre él.</p>
+              <p>{riel ? (!modelo ? 'Elija a la izquierda qué va a emitir.' : 'Elija al costado para quién es.') : !modelo ? 'Elija arriba qué va a emitir.' : varios ? 'Agregue a quiénes, al costado.' : 'Elija arriba a quién.'}<br />El documento aparece aquí, tal como va a salir, y lo que haya que escribir se escribe sobre él.</p>
             </div>
           )}
         </section>
@@ -597,9 +618,8 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
                   : varios && ultimoNumero ? <>Salen del <b>{numero?.texto}</b> al <b>{ultimoNumero}</b>, uno por persona.</>
                     : <>Sale con el número <b>{numero?.texto}</b> y queda en su expediente.</>}
               </p>
-              {categoria !== 'contrato' && <CasillaAcuse valor={pideAcuse} onCambio={setPideAcuse} />}
               <button type="button" className="pl-btn-new xr-boton" disabled={!listo} onClick={confirmar}>
-                <CircleCheck size={15} color="#00E091" aria-hidden="true" /> {categoria === 'contrato' ? textoBoton : varios ? `Emitir y enviar a ${aEmitir.length} personas` : persona ? `Emitir y enviar a ${persona.name.split(' ')[0]}` : 'Emitir y enviar'}
+                <CircleCheck size={15} color="#00E091" aria-hidden="true" /> {categoria === 'contrato' ? textoBoton : aEmitir.length > 1 ? `Emitir ${aEmitir.length} documentos` : persona ? `Emitir para ${persona.name.split(' ')[0]}` : 'Emitir documento'}
               </button>
             </div>
           )}
@@ -624,7 +644,6 @@ export default function PanelEmision({ preset = {}, personaFija = false, onEmiti
               : varios && ultimoNumero ? <>Números del <b>{numero?.texto}</b> al <b>{ultimoNumero}</b></>
                 : <>Saldrá con el número <b>{numero?.texto}</b></>}
           </span>
-          {categoria !== 'contrato' && <CasillaAcuse valor={pideAcuse} onCambio={setPideAcuse} />}
           <button type="button" className="pl-btn-new xw-siguiente" disabled={!listo} onClick={confirmar}>
             <CircleCheck size={15} color="#00E091" aria-hidden="true" /> {textoBoton}
           </button>
@@ -656,6 +675,23 @@ function HojaEditable({ plantilla, datos, editable, conFecha = editable, obs, on
         /* El recuadro ya es un bloque: el salto de línea que lo sigue en la plantilla dejaría un renglón vacío de más. */
         return <span key={i}>{partes[i - 1] === MARCA_OBS ? p.replace(/^\n/, '') : p}</span>
       })}
+    </div>
+  )
+}
+
+/* LA HOJA ENTERA, EDITABLE: el mismo papel y la misma letra, pero todo el texto se puede cambiar.
+   Crece con lo que se escribe, como el recuadro del memorándum. */
+function HojaLibre({ valor, onCambio }) {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const t = ref.current
+    if (!t) return
+    t.style.height = 'auto'
+    t.style.height = `${t.scrollHeight}px`
+  }, [valor])
+  return (
+    <div className="xc-hoja xh-hoja xe-hoja-libre">
+      <textarea ref={ref} value={valor} onChange={e => onCambio(e.target.value)} aria-label="Texto del documento" spellCheck />
     </div>
   )
 }
@@ -710,22 +746,15 @@ function FechaEnHoja({ valor, onCambio }) {
   )
 }
 
-/* PEDIR CONFIRMACIÓN: lo único que se decide al enviar. Marcado, la persona confirma que lo
-   recibió y en Envíos se ve quién falta; desmarcado, el documento le llega y nada más. */
-function CasillaAcuse({ valor, onCambio }) {
-  return (
-    <label className="xb-check" title="La persona confirma en la app que lo recibió y lo leyó; no que está de acuerdo." style={{ marginLeft: 'auto' }}>
-      <input type="checkbox" checked={valor} onChange={e => onCambio(e.target.checked)} />
-      <span>Pedir que confirme la recepción</span>
-    </label>
-  )
-}
-
-/* ── DESPUÉS DE ENVIAR (v3) ───────────────────────────────────────────────
-   Enviar ya es entregar: el documento le llegó por la app y quedó en su expediente. Acá sólo se dice
-   eso y se ofrece seguirlo en Envíos. Un contrato no se envía: queda en el expediente para firmarse. */
+/* ── DESPUÉS DE EMITIR (16 oct 2026) ───────────────────────────────────────
+   Emitir no envía: el documento quedó en el expediente SIN FIRMAR. Lo que sigue es lo de la vida
+   real —descargarlo, imprimirlo, hacerlo firmar a mano y subir el firmado—, y por eso aquí están
+   esos dos botones. El firmado se puede subir también después, desde el expediente o el envío.
+   Un contrato tampoco se envía: queda en el expediente para firmarse. */
 function Resultado({ resultado, persona, modelo, onOtro, enModal }) {
-  const { emitidos } = useDocumentacion()
+  const { emitidos, adjuntarFirmado, registrarDescarga } = useDocumentacion()
+  const input = useRef(null)
+  const [subiendo, setSubiendo] = useState(false)
   if (resultado.tipo === 'contrato') {
     return (
       <section className={`xc-exito${enModal ? '' : ' dc-tarjeta xc-paso'}`}>
@@ -739,26 +768,48 @@ function Resultado({ resultado, persona, modelo, onOtro, enModal }) {
         <HojaDocumento texto={resultado.texto} compacta />
         <div className="xc-pie-paso" style={{ justifyContent: 'flex-start' }}>
           <Link className="pl-btn-new" to={`/documentos/expedientes/contrato/${resultado.id}`}>Abrir el contrato</Link>
-          <button type="button" className="dc-btn" onClick={onOtro}>Enviar otro documento</button>
+          <button type="button" className="dc-btn" onClick={onOtro}>Emitir otro documento</button>
         </div>
       </section>
     )
   }
   const e = emitidos.find(x => x.id === resultado.id)
   if (!e) return null
+  const descargar = () => {
+    descargarParaImprimir(`${e.numero.replace(/\//g, '-')}_${persona?.codigo || ''}_para-firmar`, e.texto)
+    registrarDescarga('emitido', e.id, e.colaboradorId, `Descargó ${e.numero} para imprimir y firmar`)
+  }
+  const subir = async files => {
+    const f = [...(files || [])][0]
+    if (!f) return
+    setSubiendo(true)
+    const clave = nuevaClaveArchivo()
+    const ok = await guardarArchivo(clave, f).catch(() => false)
+    adjuntarFirmado(e.id, { nombre: f.name, clave: ok === false ? null : clave, formato: extensionDe(f.name), tipoMime: f.type, tamanoKB: Math.round(f.size / 1024) })
+    setSubiendo(false)
+  }
   return (
     <section className={`xc-exito${enModal ? '' : ' dc-tarjeta xc-paso'}`}>
       <div className="xc-exito-cab">
         <span className="xc-exito-ico"><CircleCheck size={22} aria-hidden="true" /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h2>Enviado: {e.numero}</h2>
-          <p>{modelo?.nombre} le llegó a {persona?.name} por la app y quedó en su expediente.{e.pideAcuse !== false ? ' En Documentos emitidos verá cuándo confirma que lo recibió.' : ''}</p>
+          <h2>Emitido: {e.numero}</h2>
+          <p>{e.firmado
+            ? <>Firmado y guardado en el expediente de {persona?.name}. Ya está listo.</>
+            : <>{modelo?.nombre} quedó en el expediente de {persona?.name}, <b>sin firmar</b>. Descárguelo, imprímalo, hágalo firmar y suba el firmado.</>}</p>
         </div>
       </div>
       <HojaDocumento texto={e.texto} compacta />
-      <div className="xc-pie-paso" style={{ justifyContent: 'flex-start' }}>
-        {!enModal && <Link className="dc-btn" to={`/documentos/emitidos/${e.id}`}>Ver el envío</Link>}
-        <button type="button" className="pl-btn-new" onClick={onOtro}>Enviar otro documento</button>
+      <div className="xc-pie-paso" style={{ justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+        {e.firmado ? (
+          <span className="dc-chip dc-t-verde"><Check size={12} aria-hidden="true" /> Firmado subido · {e.firmado.archivo.nombre}</span>
+        ) : <>
+          <button type="button" className="pl-btn-new" onClick={descargar}><Download size={14} aria-hidden="true" /> Descargar para imprimir</button>
+          <button type="button" className="dc-btn" disabled={subiendo} onClick={() => input.current?.click()}><Upload size={14} aria-hidden="true" /> {subiendo ? 'Subiendo…' : 'Subir el firmado'}</button>
+          <input ref={input} type="file" hidden accept="application/pdf,image/*" onChange={ev => { subir(ev.target.files); ev.target.value = '' }} />
+        </>}
+        {!enModal && <Link className="dc-btn" to={`/documentos/emitidos/${e.id}`}>Ver el documento</Link>}
+        <button type="button" className="dc-btn" onClick={onOtro}>Emitir otro documento</button>
       </div>
     </section>
   )
@@ -772,16 +823,16 @@ function ResultadoVarios({ resultado, modelo, onOtro, enModal }) {
       <div className="xc-exito-cab">
         <span className="xc-exito-ico"><CircleCheck size={22} aria-hidden="true" /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h2>Se envió a {lista.length} personas: {modelo?.nombre}</h2>
-          <p>Del {lista[0]?.numero} al {lista[lista.length - 1]?.numero}. A cada una le llegó por la app con sus propios datos, y quedó en su expediente.</p>
+          <h2>Se emitieron {lista.length} documentos: {modelo?.nombre}</h2>
+          <p>Del {lista[0]?.numero} al {lista[lista.length - 1]?.numero}. Cada uno quedó en el expediente de su dueño, <b>sin firmar</b>. Descárguelos, imprímalos, hágalos firmar y suba cada firmado desde su expediente.</p>
         </div>
       </div>
       {resultado.omitidos?.length > 0 && (
-        <div className="xc-aviso xc-aviso-ambar"><TriangleAlert size={15} aria-hidden="true" /><p>No se envió a {resultado.omitidos.join(', ')}: a su ficha le falta un dato que la plantilla usa. Complételo y envíeselo aparte.</p></div>
+        <div className="xc-aviso xc-aviso-ambar"><TriangleAlert size={15} aria-hidden="true" /><p>No se emitió para {resultado.omitidos.join(', ')}: a su ficha le falta un dato que la plantilla usa. Complételo y emítaselo aparte.</p></div>
       )}
       <div className="xc-pie-paso" style={{ justifyContent: 'flex-start' }}>
-        {resultado.loteId && <Link className="dc-btn" to={`/documentos/emitidos/${resultado.loteId}`}>Ver el envío</Link>}
-        <button type="button" className="pl-btn-new" onClick={onOtro}>Enviar otro documento</button>
+        {resultado.loteId && <Link className="pl-btn-new" to={`/documentos/emitidos/${resultado.loteId}`}><Download size={14} aria-hidden="true" /> Ver y descargar todos</Link>}
+        <button type="button" className="dc-btn" onClick={onOtro}>Emitir otro documento</button>
       </div>
     </section>
   )

@@ -105,7 +105,7 @@ export default function Bandeja() {
               <thead>
                 <tr>
                   <th>Colaborador</th>
-                  <th>Pide</th>
+                  <th>Tipo</th>
                   <th>Detalle</th>
                   <th>{vista === 'pendiente' ? 'Responder antes' : 'Respondida'}</th>
                   <th className="xs-col-acc"><span className="sr-only">Acciones</span></th>

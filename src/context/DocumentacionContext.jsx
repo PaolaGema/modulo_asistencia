@@ -6,7 +6,7 @@ import { cargoDe, sedesDe } from '../data/organigramaData'
 import { colaboradoresData } from '../pages/personas/colaboradoresData'
 import {
   TIPOS_SEED, SUBTIPOS_SEED, PARAMETROS_SEED, MODELOS_SEED,
-  documentosSeed, contratosSeed, emitidosSeed, bitacoraSeed, requisitosSeed, solicitudesSeed, documentosDeFicha,
+  documentosSeed, contratosSeed, emitidosSeed, bitacoraSeed, historialSeed, requisitosSeed, solicitudesSeed, documentosDeFicha,
   sedeDemoDe, ingresoISO, iso, hoy, fechaLarga, checklistDe, completitud, siguienteNumero, datosPara, rellenar,
   estadoContrato, normalizarNombre, sumarMeses, COLABORADORES_APP, semillaColaboradoresApp, semillaLoteDemo, fechaCorta,
 } from '../data/documentacionData'
@@ -142,6 +142,21 @@ export function DocumentacionProvider({ children }) {
     setRequisitos(prev => [...prev, ...n.requisitos.filter(r => !prev.some(x => x.colaboradorId === r.colaboradorId && x.subtipoId === r.subtipoId))])
     setJuanSembrado(true)
   }, [juanSembrado, appSembrada]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* EL HISTORIAL DE EJEMPLO DE CADA PERSONA (16 oct 2026): se suma una vez, después de las otras
+     semillas, con lo que la demo tiene en ese momento. Lo que ya está anotado —la misma acción
+     sobre lo mismo y con el mismo texto— no se repite. */
+  const [historialSembrado, setHistorialSembrado] = useLocalStorage('doc_historial_ejemplo_v1', false)
+  useEffect(() => {
+    if (historialSembrado || !appSembrada || !juanSembrado || !personas.length) return
+    const n = historialSeed({ personas, documentos, emitidos, contratos, solicitudes, requisitos, subtipos })
+    const clave = b => `${b.colaboradorId}|${b.entidad}|${b.entidadId}|${b.accion}|${b.detalle}`
+    setBitacora(prev => {
+      const ya = new Set(prev.map(clave))
+      return [...prev, ...n.filter(b => !ya.has(clave(b)))]
+    })
+    setHistorialSembrado(true)
+  }, [historialSembrado, appSembrada, juanSembrado]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* EL LOTE DE EJEMPLO, con la misma regla: una vez, sobre lo guardado, entrando por su id. */
   const [loteSembrado, setLoteSembrado] = useLocalStorage('doc_lote_demo_v1', false)
@@ -293,7 +308,8 @@ export function DocumentacionProvider({ children }) {
   const eliminarDocumento = useCallback((docId, motivo) => {
     const colab = documentos.find(d => d.id === docId)?.colaboradorId ?? null
     setDocumentos(prev => prev.map(d => { if (d.id !== docId) return d; return { ...d, eliminado: { fecha: iso(hoy()), por: usuario, motivo } } }))
-    anotar('baja', 'documento', docId, colab, `Envió a la papelera: ${motivo}`)
+    // Anular, no borrar (16 oct 2026): `eliminado` es la clave de siempre; lo que se ve dice «anulado».
+    anotar('anulacion', 'documento', docId, colab, `Anuló el documento: ${motivo}`)
   }, [documentos, setDocumentos, anotar, usuario])
 
   const recuperarDocumento = useCallback(docId => {
@@ -386,7 +402,12 @@ export function DocumentacionProvider({ children }) {
     ? { estado: 'entregado', entregas: [{ canal: 'app', fecha: iso(hoy()), por: usuario }] }
     : { estado: pendiente ? 'pendiente' : 'generado', entregas: [] })
 
-  const emitir = useCallback(({ modeloId, colaboradorId, observaciones = '', pendiente = false, fecha = null, enviar = true, pideAcuse = true }) => {
+  /* `textoEditado` (16 oct 2026): RR.HH. cambió el texto en la hoja sólo para este documento —quien
+     firma en reemplazo, un dato que cambió—. Se guarda tal cual; la plantilla no se toca. */
+  /* EMITIR NO ENVÍA (16 oct 2026): el documento se genera y queda en el expediente SIN FIRMAR; RR.HH.
+     lo imprime, lo hace firmar a mano y sube el firmado (`adjuntarFirmado`), que es el que vale.
+     Al colaborador no le llega nada. `enviar: true` queda para lo que sí se manda (una solicitud). */
+  const emitir = useCallback(({ modeloId, colaboradorId, observaciones = '', pendiente = false, fecha = null, enviar = false, pideAcuse = false, textoEditado = null }) => {
     const modelo = modelos.find(m => m.id === modeloId)
     const persona = personas.find(p => p.id === colaboradorId)
     const version = [...modelo.versiones].reverse().find(v => v.estado === 'publicada')
@@ -398,10 +419,11 @@ export function DocumentacionProvider({ children }) {
     const nuevo = {
       id: nuevoId('e'), modeloId, categoria: modelo.categoria, colaboradorId, versionPlantilla: version.v,
       numero: num.texto, n: num.n, gestion: num.gestion, fecha: fecha || iso(hoy()), emitidoPor: usuario,
-      ...entregaInicial(enviar, pendiente), pideAcuse, datos, texto: rellenar(version.texto, datos), observaciones, acuse: null,
+      ...entregaInicial(enviar, pendiente), pideAcuse, datos, texto: textoEditado ?? rellenar(version.texto, datos), observaciones, acuse: null,
+      ...(textoEditado ? { editado: true } : {}),
     }
     setEmitidos(prev => [nuevo, ...prev])
-    anotar('emision', 'emitido', nuevo.id, colaboradorId, `Emitió ${nuevo.numero} · ${modelo.nombre}`)
+    anotar('emision', 'emitido', nuevo.id, colaboradorId, `Emitió ${nuevo.numero} · ${modelo.nombre}${textoEditado ? ' (con el texto editado para este documento)' : ''}`)
     return nuevo
   }, [modelos, personas, contratos, emitidos, parametros, empresa, usuario, setEmitidos, anotar]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -412,7 +434,7 @@ export function DocumentacionProvider({ children }) {
   /* CADA EMISIÓN A VARIOS DEJA UN LOTE (Documentación v2): el nombre, el modelo, quién y cuándo, y
      sus documentos. Es a lo que se vuelve para saber quién de los cuarenta confirmó y a quién
      recordarle. Cada emitido sigue siendo uno por persona, con su número; el lote sólo los junta. */
-  const emitirVarios = useCallback(({ modeloId, colaboradorIds, observaciones = '', fecha = null, nombreLote = '', enviar = true, pideAcuse = true }) => {
+  const emitirVarios = useCallback(({ modeloId, colaboradorIds, observaciones = '', fecha = null, nombreLote = '', enviar = false, pideAcuse = false }) => {
     const modelo = modelos.find(m => m.id === modeloId)
     const version = [...modelo.versiones].reverse().find(v => v.estado === 'publicada')
     const acumulado = [...emitidos]
@@ -445,16 +467,18 @@ export function DocumentacionProvider({ children }) {
   /* ENVIAR UN ARCHIVO PROPIO —un reglamento, una política, un comunicado en PDF— a una o a varias
      personas. No sale de una plantilla: es el mismo archivo para todos, guardado una vez. Igual que
      lo emitido, queda en «Recibidos» de cada uno, con su número de la serie «otro documento». */
-  const enviarArchivo = useCallback(({ nombre, archivo, colaboradorIds, pideAcuse = true }) => {
+  /* `categoria` y `fecha` (16 oct 2026): desde la carpeta Memorándums o Certificados de un expediente
+     se sube el archivo como ese tipo, con su serie y la fecha del documento. Sin ellos, «otro» y hoy. */
+  const enviarArchivo = useCallback(({ nombre, archivo, colaboradorIds, pideAcuse = false, categoria = 'otro', fecha = null }) => {
     const acumulado = [...emitidos]
     const loteId = colaboradorIds.length > 1 ? nuevoId('le') : null
     const nuevos = []
     for (const cid of colaboradorIds) {
       if (!personas.some(p => p.id === cid)) continue
-      const num = siguienteNumero('otro', acumulado, parametros, contratos)
+      const num = siguienteNumero(categoria, acumulado, parametros, contratos)
       const nuevo = {
-        id: nuevoId('e'), modeloId: null, nombre, archivo, categoria: 'otro', colaboradorId: cid, versionPlantilla: null,
-        numero: num.texto, n: num.n, gestion: num.gestion, fecha: iso(hoy()), emitidoPor: usuario,
+        id: nuevoId('e'), modeloId: null, nombre, archivo, categoria, colaboradorId: cid, versionPlantilla: null,
+        numero: num.texto, n: num.n, gestion: num.gestion, fecha: fecha || iso(hoy()), emitidoPor: usuario,
         ...entregaInicial(true, false), pideAcuse, datos: {}, texto: '', observaciones: '', acuse: null, ...(loteId ? { lote: true, loteId } : {}),
       }
       acumulado.unshift(nuevo)
@@ -538,11 +562,24 @@ export function DocumentacionProvider({ children }) {
   }, [emitidos, parametros, contratos, personas, usuario, setContratos, anotar])
 
   /* REEMPLAZAR VERSIONA (RF-63, RN-13): la anterior sigue descargable. */
-  const versionarContrato = useCallback((contratoId, { tipo, motivo, archivo }) => {
+  // `clave` (16 oct 2026): el escaneado firmado que se sube desde el expediente queda guardado en el navegador.
+  const versionarContrato = useCallback((contratoId, { tipo, motivo, archivo, clave = null }) => {
     const colab = contratos.find(c => c.id === contratoId)?.colaboradorId ?? null
-    setContratos(prev => prev.map(c => { if (c.id !== contratoId) return c; return { ...c, versiones: [...c.versiones, { v: c.versiones.length + 1, tipo, fecha: iso(hoy()), por: usuario, motivo, archivo }] } }))
+    setContratos(prev => prev.map(c => { if (c.id !== contratoId) return c; return { ...c, versiones: [...c.versiones, { v: c.versiones.length + 1, tipo, fecha: iso(hoy()), por: usuario, motivo, archivo, ...(clave ? { clave } : {}) }] } }))
     anotar('reemplazo', 'contrato', contratoId, colab, `Nueva versión: ${motivo}`)
   }, [contratos, setContratos, anotar, usuario])
+
+  /* EL FIRMADO DE UN EMITIDO (16 oct 2026). El sistema genera el certificado o el memorándum, pero
+     RR.HH. todavía lo imprime, lo hace firmar y sube el escaneado. Ese escaneado queda pegado al
+     emitido —mismo número, misma carpeta— en `firmado`, y el texto generado sigue siendo el original.
+     Subir otro firmado reemplaza al anterior; la bitácora guarda los dos. */
+  const adjuntarFirmado = useCallback((emitidoId, archivo) => {
+    const e = emitidos.find(x => x.id === emitidoId)
+    if (!e) return
+    // Con el firmado, el documento queda listo: lo que estaba «sin firmar» pasa a entregado.
+    setEmitidos(prev => prev.map(x => (x.id !== emitidoId ? x : { ...x, firmado: { archivo, fecha: iso(hoy()), por: usuario }, ...(x.estado === 'generado' ? { estado: 'entregado' } : {}) })))
+    anotar(e.firmado ? 'reemplazo' : 'alta', 'emitido', emitidoId, e.colaboradorId, `Cargó el firmado de ${e.numero} (${archivo.nombre})`)
+  }, [emitidos, setEmitidos, anotar, usuario])
 
   const finalizarContrato = useCallback((contratoId, motivo) => {
     const colab = contratos.find(c => c.id === contratoId)?.colaboradorId ?? null
@@ -574,7 +611,7 @@ export function DocumentacionProvider({ children }) {
     agregarRequisito, quitarRequisito, resolverSolicitud, crearSolicitud,
     pedidos, pedirDocumentos,
     emitir, emitirVarios, enviarArchivo, renombrarLote, recordarAcuse, entregar, entregarVarios, acusarRecibo, anular,
-    registrarContrato, versionarContrato, finalizarContrato,
+    registrarContrato, versionarContrato, finalizarContrato, adjuntarFirmado,
     anotarConfig,
     checklist, avanceDe, persona, personaDeUsuario, subtipo, tipo, modelo,
   }

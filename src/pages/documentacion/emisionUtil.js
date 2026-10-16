@@ -15,9 +15,10 @@ export const versionPublicada = modelo => [...(modelo?.versiones || [])].reverse
 export const ultimaVersion = modelo => (modelo?.versiones?.length ? modelo.versiones[modelo.versiones.length - 1] : null)
 
 /* Un modelo se puede usar para emitir si está activo y tiene plantilla publicada (RN-17). */
-export const emisible = modelo => modelo.estado === 'activo' && !!versionPublicada(modelo)
-
 export const esAdenda = modelo => !!modelo && (modelo.id === 'm-adenda' || /adenda/i.test(modelo.nombre))
+
+/* Las adendas no se emiten (16 oct 2026): la empresa renueva siempre con un contrato nuevo. */
+export const emisible = modelo => modelo.estado === 'activo' && !!versionPublicada(modelo) && !esAdenda(modelo)
 
 /* EL CONTRATO QUE MANDA HOY para una persona: el de tipo contrato que no se finalizó ni se
    reemplazó y cuyas fechas lo dejan vigente o por vencer. Es el que Planillas lee (RF-65) y el

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
-  ArrowLeft, ChevronRight, LayoutGrid, List as ListIcon, Upload, Download, FilePlus2, Eye, RefreshCw, ShieldCheck, Check, X, Trash2, Search,
-  FolderOpen, Lock, FileText, History, Undo2, FileSignature, Archive, ListPlus, MinusCircle,
+  ArrowLeft, ChevronRight, LayoutGrid, List as ListIcon, Upload, Download, FilePlus2, Eye, RefreshCw, Check, X, Trash2, Search,
+  FolderOpen, Lock, FileText, History, Ban, FileSignature, Archive, MinusCircle,
 } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import {
@@ -13,18 +13,18 @@ import { zipDeExpedientes } from '../../components/documentacion/expedienteZip'
 import { descargarBlob, nombreSeguro } from '../../components/documentacion/zip'
 import Avatar from '../../components/personas/Avatar'
 import Desplegable from '../../components/layout/Desplegable'
+import Paginacion from '../../components/layout/Paginacion'
 import SelectorDocumento from '../../components/documentacion/SelectorDocumento'
 import SelectorFecha from '../../components/layout/SelectorFecha'
 import { useArchivoLocal } from '../../hooks/useArchivoLocal'
 import PaginasPdf from '../../components/documentacion/PaginasPdf'
 import { leerArchivo, guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
-import { deducirSubtipo, extensionDe } from '../../components/documentacion/deducir'
+import { extensionDe } from '../../components/documentacion/deducir'
 import {
   ESTADOS, CATEGORIAS, MODALIDADES, ACCIONES_BITACORA, fechaCorta, fechaNum, diasHasta,
   estadoVersion, versionActual, estadoContrato, rellenar, normalizarNombre, sumarMeses, iso, hoy, nombreEmitido,
-  carpetasRecibidas, carpetaRecibida,
+  carpetasRecibidas, carpetaRecibida, siguienteNumero,
 } from '../../data/documentacionData'
-import CargarDocumentoModal from './CargarDocumentoModal'
 import PanelEmision from './PanelEmision'
 import HojaEmitido from '../../components/documentacion/HojaEmitido'
 import { Mosaico } from '../colaborador/MisDocumentos'
@@ -42,9 +42,8 @@ import './expediente.css'
    LA AUSENCIA ES UN DATO (principio 1): un requisito sin cumplir es una fila visible con su botón
    de cargar, no un hueco que hay que deducir (RF-17).
 
-   LOS REQUISITOS SE DECIDEN ACÁ. Lo que el subtipo exige a todo el personal ya viene; lo que se
-   le pide sólo a esta persona se agrega con «Agregar requisito». Ya no hay perfiles que configurar
-   en otra pantalla para que algo aparezca en esta.
+   LOS REQUISITOS VIENEN DE LA CONFIGURACIÓN: lo que el subtipo exige a todo el personal ya figura.
+   «Agregar requisito» a una sola persona se quitó (16 oct 2026).
 
    EMITIR NO SACA DE LA PANTALLA: se abre la emisión en un modal con la persona ya puesta.
 
@@ -106,26 +105,22 @@ export default function Expediente() {
   const doc = useDocumentacion()
   const {
     persona: personaDe, tipos, subtipos, documentos, emitidos, contratos, bitacora, parametros, modelos,
-    checklist, avanceDe, revisar, exonerar, cargarDocumento, sinClasificar, subirSinClasificar, clasificar, descartarSinClasificar, eliminarDocumento, recuperarDocumento, registrarDescarga, quitarRequisito,
+    checklist, avanceDe, revisar, sinClasificar, clasificar, descartarSinClasificar, eliminarDocumento, registrarDescarga, quitarRequisito,
   } = doc
   const persona = personaDe(id)
 
   const [busca, setBusca] = useState('')
   const [filtroEstado, setFiltroEstado] = useState(() => params.get('estado') || '')
   const [rechazo, setRechazo] = useState(null)       // docId
-  const [exonera, setExonera] = useState(null)       // subtipoId
   const [papelera, setPapelera] = useState(null)     // docId
   const [emitiendo, setEmitiendo] = useState(null)   // { categoria? }
   const [verEmitido, setVerEmitido] = useState(null) // emitido
-  const [requisito, setRequisito] = useState(false)
   const [descargando, setDescargando] = useState(false)
   const [aviso, setAviso] = useState('')
   /* Lo que la carga directa no pudo resolver sola: abre el formulario con esos archivos puestos. */
   /* Lo recién subido, para el aviso con «Revisar fechas» y para la ventana que las corrige. */
   const [subida, setSubida] = useState(null)
   const [fechasDe, setFechasDe] = useState(null)
-  const elegirArchivos = useRef(null)
-  const subtipoElegido = useRef(null)
   /* Cada aviso de subida lleva su número, para que el que vence a los 9 s no borre a uno más nuevo. */
   const marcas = useRef(0)
 
@@ -133,7 +128,7 @@ export default function Expediente() {
   const cerrar = k => { const q = Object.fromEntries(params.entries()); delete q[k]; setParams(q, { replace: true }) }
   /* De la vista de un documento a cargar su versión nueva: un solo cambio de URL. Hecho en dos
      pasos, el segundo leía los parámetros de antes y dejaba la vista abierta debajo. */
-  const pasarACargar = subtipoId => { const q = Object.fromEntries(params.entries()); delete q.doc; q.cargar = subtipoId; setParams(q, { replace: true }) }
+  const pasarACargar = (subtipoId, docId) => { const q = Object.fromEntries(params.entries()); delete q.doc; q.cargar = subtipoId; if (docId) q.reemplaza = docId; setParams(q, { replace: true }) }
   const cargarParam = params.get('cargar')
   const docParam = params.get('doc')
 
@@ -172,8 +167,6 @@ export default function Expediente() {
   const susEmitidos = emitidos.filter(e => e.colaboradorId === persona.id)
   const susContratos = contratos.filter(c => c.colaboradorId === persona.id)
   const susEventos = bitacora.filter(b => b.colaboradorId === persona.id)
-  const susSinConfirmar = susEmitidos.filter(e => e.estado === 'entregado').length
-  const exigidos = new Set(filas.filter(f => f.requisito).map(f => f.subtipo.id))
 
   const texto = busca.trim().toLowerCase()
   const estadosFiltro = FILTROS_RAPIDOS[filtroEstado]?.estados || (filtroEstado ? [filtroEstado] : null)
@@ -241,13 +234,13 @@ export default function Expediente() {
       tono: vigente ? 'muted' : cerrado ? 'muted' : 'rojo',
     },
     /* LO QUE LA EMPRESA LE ENTREGÓ (Documentación v2): todo lo emitido a esta persona se archiva
-       acá solo, con su estado y su confirmación. La clave sigue siendo «emitidos» por los enlaces. */
+       acá solo, con su estado. La clave sigue siendo «emitidos» por los enlaces. */
     {
       clave: 'emitidos', nombre: 'Recibidos', color: FIJAS.emitidos,
       cuenta: plural(susEmitidos.length, 'documento', 'documentos'),
-      ...(susSinConfirmar ? { insignia: String(susSinConfirmar), insigniaTono: 'ambar' } : { insignia: String(susEmitidos.length), insigniaTono: 'gris' }),
+      insignia: String(susEmitidos.length), insigniaTono: 'gris',
       aviso: susEmitidos.length
-        ? [Object.keys(CATEGORIAS).map(k => { const n = susEmitidos.filter(e => e.categoria === k).length; return n ? `${n} ${(n === 1 ? CATEGORIAS[k].label : CATEGORIAS[k].plural).toLowerCase()}` : null }).filter(Boolean).join(' · '), susSinConfirmar ? `${susSinConfirmar} sin confirmar` : null].filter(Boolean).join(' · ')
+        ? Object.keys(CATEGORIAS).map(k => { const n = susEmitidos.filter(e => e.categoria === k).length; return n ? `${n} ${(n === 1 ? CATEGORIAS[k].label : CATEGORIAS[k].plural).toLowerCase()}` : null }).filter(Boolean).join(' · ')
         : 'Todavía no se le emitió nada',
       tono: 'muted',
     },
@@ -261,10 +254,12 @@ export default function Expediente() {
       tono: 'muted',
     },
     {
-      clave: 'papelera', nombre: 'Papelera', color: FIJAS.papelera,
-      cuenta: enPapelera.length ? plural(enPapelera.length, 'documento', 'documentos') : 'Vacía',
+      /* ANULADOS, NO PAPELERA (16 oct 2026): un documento no se borra ni se recupera; se anula con
+         su motivo y queda acá para siempre. La clave sigue siendo «papelera» por los enlaces. */
+      clave: 'papelera', nombre: 'Anulados', color: FIJAS.papelera,
+      cuenta: enPapelera.length ? plural(enPapelera.length, 'documento', 'documentos') : 'Ninguno',
       insignia: String(enPapelera.length), insigniaTono: 'gris',
-      aviso: enPapelera.length ? `Se recuperan durante ${parametros.papeleraDias} días` : 'Vacía',
+      aviso: enPapelera.length ? plural(enPapelera.length, 'anulado', 'anulados') : 'Ninguno',
       tono: 'muted',
     },
   ]
@@ -322,72 +317,19 @@ export default function Expediente() {
 
   const avisar = t => { setAviso(t); setTimeout(() => setAviso(''), 3200) }
 
-  /* ── CARGAR SIN FORMULARIO ────────────────────────────────────────────────
-     «Subir documento» —en la cabecera y en el recuadro de la carpeta—, «Subir» y «Renovar» abren
-     directo el selector
-     de archivos del equipo y el archivo se carga al momento: la carpeta ya dice dónde va, y qué
-     documento es se deduce —el de la tarjeta, el que nombra el archivo o el primero que falta—.
-     La emisión queda con la fecha de hoy y el vencimiento con la vigencia del documento.
-     SE SUBE PRIMERO Y SE CLASIFICA DESPUÉS. Lo que no se reconoce no abre ninguna ventana: queda
-     «por clasificar», como una tarjeta más de la carpeta, y ahí mismo se elige qué documento es. */
-  const elegirArchivo = subtipoId => {
+  /* SUBIR ABRE EL MODAL GRANDE (16 oct 2026): «Subir documento», «Subir», «Renovar» y «Subir otro»
+     abren `ModalSubir` con ese documento ya elegido —o lo primero que falta— y la dirección lo
+     recuerda (`?cargar=`). Ya no se sube a ciegas ni queda nada «por clasificar» desde aquí. */
+  /* QUÉ SE SUBE DEPENDE DE LA CARPETA: en Contratos se registra un contrato; en lo recibido
+     (Certificados, Memorándums…), un archivo de ese tipo; en el resto, el modal grande. */
+  const elegirArchivo = (subtipoId, docId) => {
     if (cerrado) return
-    subtipoElegido.current = subtipoId || null
-    elegirArchivos.current?.click()
+    const q = Object.fromEntries(params.entries())
+    q.cargar = subtipoId || 'nuevo'
+    if (docId) q.reemplaza = docId; else delete q.reemplaza
+    setParams(q)
   }
-  const subirDirecto = async (files, subtipoFijo) => {
-    const tipoId = carpeta?.filas ? carpeta.clave : ''
-    const candidatos = subtipos.filter(x => x.activo && (!tipoId || x.tipoId === tipoId))
-    /* Un archivo que no dice qué es sólo completa lo que FALTA. Una renovación —vencido, por
-       vencer— no se adivina: se hace desde «Renovar» de su tarjeta, que sabe cuál es. */
-    /* Fuera de una carpeta no se adivina entre todo lo que falta: un archivo anónimo subido desde
-       la cabecera queda por clasificar. Dentro de una, sí: lo que falta ahí es lo esperable. */
-    const queFaltan = (carpeta?.filas || []).filter(f => ['faltante', 'rechazado'].includes(f.estado)).map(f => f.subtipo.id)
-    const listos = [], dudosos = [], usados = new Set()
-    for (const file of files) {
-      const sid = subtipoFijo || deducirSubtipo(file.name, candidatos) || queFaltan.find(x => !usados.has(x)) || (candidatos.length === 1 ? candidatos[0].id : '')
-      const sub = subtipos.find(x => x.id === sid)
-      const ext = extensionDe(file.name)
-      if (!sub || !sub.formatos.includes(ext) || file.size / 1048576 > sub.tamanoMaxMB) { dudosos.push(file); continue }
-      usados.add(sid)
-      listos.push({ file, sub, ext })
-    }
-    const subidos = []
-    for (const { file, sub, ext } of listos) {
-      const clave = nuevaClaveArchivo()
-      const guardado = await guardarArchivo(clave, file)
-      const emision = iso(hoy())
-      const yaEsta = !sub.varios && documentos.some(d => d.colaboradorId === persona.id && d.subtipoId === sub.id && !d.eliminado && d.origen !== 'ficha')
-      const docId = cargarDocumento({
-        colaboradorId: persona.id,
-        subtipoId: sub.id,
-        motivo: yaEsta ? 'Se cargó una versión nueva' : '',
-        version: {
-          archivo: { nombre: normalizarNombre(persona, sub, emision, ext), original: file.name, formato: ext, tamanoKB: Math.round(file.size / 1024), clave: guardado ? clave : null, tipoMime: file.type },
-          emision,
-          vencimiento: sub.vence ? sumarMeses(emision, sub.vigenciaMeses) : null,
-          info: '',
-        },
-      })
-      subidos.push({ docId, sub, emision, vencimiento: sub.vence ? sumarMeses(emision, sub.vigenciaMeses) : '' })
-    }
-    if (subidos.length) {
-      const marca = ++marcas.current
-      setSubida({ items: subidos, marca })
-      setTimeout(() => setSubida(a => (a?.marca === marca ? null : a)), 9000)
-    }
-    if (dudosos.length) {
-      const archivos = []
-      for (const file of dudosos) {
-        const clave = nuevaClaveArchivo()
-        const guardado = await guardarArchivo(clave, file)
-        archivos.push({ nombre: file.name, original: file.name, formato: extensionDe(file.name), tamanoKB: Math.round(file.size / 1024), clave: guardado ? clave : null, tipoMime: file.type })
-      }
-      subirSinClasificar(persona.id, tipoId || null, archivos)
-      avisar(dudosos.length === 1 ? 'Subido. Falta indicar qué documento es: elíjalo en su tarjeta.' : `${dudosos.length} subidos. Falta indicar qué documento es cada uno: elíjalo en su tarjeta.`)
-      if (!carpeta) navigate(`/documentos/expedientes/${persona.id}/porclasificar`)
-    }
-  }
+  const cerrarSubir = () => { const q = Object.fromEntries(params.entries()); delete q.cargar; delete q.reemplaza; delete q.en; setParams(q, { replace: true }) }
 
   /* RF-22: EL EXPEDIENTE COMPLETO EN UN ZIP, con su índice. Una carpeta por tipo, el archivo real
      de lo que se cargó en la demo y una constancia en texto de lo que es de ejemplo. */
@@ -420,10 +362,9 @@ export default function Expediente() {
           fila={f}
           cerrado={cerrado}
           onVer={() => abrir('doc', f.documento.id)}
-          onCargar={() => elegirArchivo(f.subtipo.id)}
+          onCargar={() => elegirArchivo(f.subtipo.id, f.documento?.id)}
           onAprobar={() => { revisar(f.documento.id, true); avisar(`«${f.subtipo.nombre}» aprobado: ya cuenta como cumplido.`) }}
           onRechazar={() => setRechazo(f.documento.id)}
-          onExonerar={() => setExonera(f.subtipo.id)}
           onQuitar={() => { quitarRequisito(persona.id, f.subtipo.id); avisar(`Ya no se le exige «${f.subtipo.nombre}».`) }}
           onPapelera={() => setPapelera(f.documento.id)}
           onDescargar={() => descargarVersion(persona, f.subtipo, versionActual(f.documento), f.documento, registrarDescarga)}
@@ -480,11 +421,6 @@ export default function Expediente() {
           {!cerrado && (
             <button type="button" className="pl-btn-new" onClick={() => elegirArchivo(null)}>
               <Upload size={14} /> Subir documento
-            </button>
-          )}
-          {!cerrado && (
-            <button type="button" className="dc-btn" onClick={() => setEmitiendo({})}>
-              <FilePlus2 size={14} /> Enviar documento
             </button>
           )}
           <button type="button" className="dc-btn" onClick={descargarExpediente} disabled={descargando}>
@@ -556,14 +492,12 @@ export default function Expediente() {
           onClasificar={alClasificar}
           onDescartar={id => { descartarSinClasificar(id); avisar('Archivo eliminado.') }}
           onVer={docId => abrir('doc', docId)}
-          onCargar={subtipoId => elegirArchivo(subtipoId === 'nuevo' ? null : subtipoId)}
-          onExonerar={subtipoId => setExonera(subtipoId)}
+          onCargar={(subtipoId, docId) => elegirArchivo(subtipoId === 'nuevo' ? null : subtipoId, docId)}
           onQuitar={f => { quitarRequisito(persona.id, f.subtipo.id); avisar(`Ya no se le exige «${f.subtipo.nombre}».`) }}
           onPapelera={docId => setPapelera(docId)}
           onDescargar={f => descargarVersion(persona, f.subtipo, versionActual(f.documento), f.documento, registrarDescarga)}
           onContrato={cid => navigate(`/documentos/expedientes/contrato/${cid}`)}
           onVerEmitido={abrirEmitido}
-          onRecuperar={docId => { recuperarDocumento(docId); avisar('Documento recuperado.') }}
         />
       ) : (
         <>
@@ -585,11 +519,6 @@ export default function Expediente() {
             onCambio={setFiltroEstado}
           />
         </div>
-        {!cerrado && (
-          <button type="button" className="dc-btn xa-barra-der" onClick={() => setRequisito(true)}>
-            <ListPlus size={14} /> Agregar requisito
-          </button>
-        )}
       </div>
 
       {!hayAlgo ? (
@@ -597,9 +526,8 @@ export default function Expediente() {
           <Vacio
             Icono={FolderOpen}
             titulo="No tiene documentos ni requisitos"
-            texto={cerrado ? 'Su expediente se cerró sin documentos.' : 'Agregue los documentos que se le exigen, o cargue directamente los que ya entregó.'}
+            texto={cerrado ? 'Su expediente se cerró sin documentos.' : 'Cargue los documentos que ya entregó.'}
           >
-            {!cerrado && <button type="button" className="dc-btn" onClick={() => setRequisito(true)}><ListPlus size={14} /> Agregar requisito</button>}
             {!cerrado && <button type="button" className="pl-btn-new" onClick={() => elegirArchivo(null)}><Upload size={14} /> Subir documento</button>}
           </Vacio>
         </div>
@@ -629,7 +557,7 @@ export default function Expediente() {
         /* ── TODAS LAS CARPETAS, COMO EN MIS DOCUMENTOS (16 oct 2026): las mismas carpetas amarillas
             que ve el colaborador, con el punto de lo más urgente y una palabra en su línea. «Sus
             carpetas» son lo que la persona entrega y sus contratos; «De RR.HH.», lo que la empresa le
-            envió. El historial se abre desde su botón de arriba; la papelera, sólo si tiene algo. ── */
+            envió. El historial se abre desde su botón de arriba; los anulados, sólo si hay alguno. ── */
         <>
           <div className="md-seccion"><h2>Sus carpetas</h2><span className="dc-muted">Lo que entrega y sus contratos</span></div>
           <div className="md-grilla">
@@ -640,14 +568,13 @@ export default function Expediente() {
                 onClick={() => navigate(`/documentos/expedientes/${persona.id}/${c.clave}`)} />
             ))}
           </div>
-          <div className="md-seccion"><h2>De RR.HH.</h2><span className="dc-muted">Lo que la empresa le envió</span></div>
+          <div className="md-seccion"><h2>De RR.HH.</h2><span className="dc-muted">Lo que la empresa le emitió</span></div>
           <div className="md-grilla">
             {carpetasRrhh.map(([cat, nombre]) => {
               const suyos = susEmitidos.filter(e => carpetaRecibida(e, parametros) === cat)
-              const sinConfirmar = suyos.filter(e => e.estado === 'entregado').length
               return (
-                <Mosaico key={cat} titulo={nombre} insignia={sinConfirmar}
-                  sub={sinConfirmar ? `${plural(suyos.length, 'documento', 'documentos')} · ${sinConfirmar} sin confirmar` : plural(suyos.length, 'documento', 'documentos')}
+                <Mosaico key={cat} titulo={nombre}
+                  sub={plural(suyos.length, 'documento', 'documentos')}
                   onClick={() => navigate(`/documentos/expedientes/${persona.id}/emitidos?de=${cat}`)} />
               )
             })}
@@ -662,53 +589,59 @@ export default function Expediente() {
       )}
 
       {/* ── MODALES ── */}
-      <input
-        ref={elegirArchivos}
-        type="file"
-        multiple
-        hidden
-        accept="application/pdf,image/*,.doc,.docx,.xls,.xlsx"
-        onChange={e => { const lista = [...(e.target.files || [])]; e.target.value = ''; if (lista.length) subirDirecto(lista, subtipoElegido.current) }}
-      />
-      {cargarParam && !cerrado && (
-        <CargarDocumentoModal
-          persona={persona}
-          subtipoInicial={cargarParam === 'nuevo' ? '' : cargarParam}
-          tipoInicial={carpeta?.filas ? carpeta.clave : ''}
-          onCerrar={() => cerrar('cargar')}
-          onCargado={n => avisar(n > 1 ? `${n} documentos subidos.` : 'Documento subido.')}
-        />
-      )}
+      {/* SUBIR DEPENDE DE DÓNDE SE ESTÁ (16 oct 2026): dentro de una carpeta, su modal; desde la
+          vista general, primero «¿En qué carpeta?» y la elegida queda en `?en=`, para volver. */}
+      {cargarParam && !cerrado && (() => {
+        const enParam = params.get('en') || ''
+        const elegirEn = v => { const q = Object.fromEntries(params.entries()); q.en = v; setParams(q, { replace: true }) }
+        const volver = enParam ? () => { const q = Object.fromEntries(params.entries()); delete q.en; delete q.reemplaza; setParams(q, { replace: true }) } : null
+        const hecho = t => { cerrarSubir(); avisar(t) }
+        let modo = 'elegir', tipoId = '', cat = ''
+        if (cargarParam !== 'nuevo') { modo = 'doc'; tipoId = subtipos.find(x => x.id === cargarParam)?.tipoId || '' }
+        else if (carpeta?.filas) { modo = 'doc'; tipoId = carpeta.clave }
+        else if (carpeta?.clave === 'emitidos') { modo = 'rrhh'; cat = deParam && carpetasRrhh.some(([k]) => k === deParam) ? deParam : '' }
+        else if (carpeta?.clave === 'contratos' || enParam === 'contrato') modo = 'contrato'
+        else if (enParam.startsWith('rrhh:')) { modo = 'rrhh'; cat = enParam.slice(5) }
+        else if (enParam) { modo = 'doc'; tipoId = enParam }
+
+        if (modo === 'elegir') return <ElegirCarpeta persona={persona} filas={filas} emitidos={susEmitidos} contratos={susContratos} onElegir={elegirEn} onCerrar={cerrarSubir} />
+        if (modo === 'rrhh') return <ModalSubirRecibido key={cat} persona={persona} categoria={cat} opciones={carpetasRecibidas(parametros)} emitidosDe={susEmitidos} onCerrar={cerrarSubir} onSubido={hecho} onVolver={volver} />
+        if (modo === 'contrato') return <ModalSubirContrato persona={persona} contratos={susContratos} onCerrar={cerrarSubir} onSubido={hecho} onNuevo={() => { cerrarSubir(); setEmitiendo({ categoria: 'contrato' }) }} onVolver={volver} />
+        return (
+          <ModalSubir
+            key={tipoId}
+            persona={persona}
+            filas={filas}
+            inicial={cargarParam === 'nuevo' ? '' : cargarParam}
+            inicialDoc={params.get('reemplaza') || ''}
+            tipoInicial={tipoId}
+            onVolver={volver}
+            onCerrar={cerrarSubir}
+            onSubido={({ nombre, reemplazo }) => hecho(reemplazo ? `«${nombre}» se reemplazó. El anterior quedó como versión anterior.` : `«${nombre}» se subió.`)}
+          />
+        )
+      })()}
 
       {filaDoc && (
         <VistaDocumento
           documento={filaDoc}
           persona={persona}
-          cerrado={cerrado}
+          cerrado={cerrado || !!filaDoc.eliminado}
           onCerrar={() => cerrar('doc')}
           onRechazar={() => setRechazo(filaDoc.id)}
           onAprobar={() => { revisar(filaDoc.id, true); avisar('Documento aprobado.') }}
-          onRenovar={() => pasarACargar(filaDoc.subtipoId)}
+          onRenovar={() => pasarACargar(filaDoc.subtipoId, filaDoc.id)}
         />
       )}
 
       {emitiendo && (
-        <Modal titulo={`Enviar a ${persona.name}`} Icono={FilePlus2} onCerrar={() => setEmitiendo(null)} ancho={1100}>
+        <Modal titulo={emitiendo.categoria === 'contrato' ? `Registrar contrato · ${persona.name}` : `Enviar a ${persona.name}`} Icono={emitiendo.categoria === 'contrato' ? FileSignature : FilePlus2} onCerrar={() => setEmitiendo(null)} ancho={1100}>
           <PanelEmision preset={{ colaboradorId: persona.id, categoria: emitiendo.categoria }} personaFija enModal />
         </Modal>
       )}
 
       {verEmitido && (
         <VistaEmitido emitido={verEmitido} modelo={modelos.find(m => m.id === verEmitido.modeloId)} onCerrar={() => setVerEmitido(null)} />
-      )}
-
-      {requisito && (
-        <ModalRequisito
-          persona={persona}
-          exigidos={exigidos}
-          onCerrar={() => setRequisito(false)}
-          onAgregado={nombre => { setRequisito(false); avisar(`Se le exige «${nombre}».`) }}
-        />
       )}
 
       {rechazo && (
@@ -724,24 +657,11 @@ export default function Expediente() {
         />
       )}
 
-      {exonera && (
-        <ModalMotivo
-          titulo={`Exonerar «${subtipos.find(s => s.id === exonera)?.nombre}»`}
-          Icono={ShieldCheck}
-          texto="El requisito deja de contar como faltante para esta persona. Queda registrado quién lo exoneró, cuándo y por qué, y eso no se borra (RN-09)."
-          placeholder="Extranjero con residencia temporal: presenta pasaporte en lugar de carnet."
-          accion="Exonerar"
-          onCerrar={() => setExonera(null)}
-          onConfirmar={m => { exonerar(persona.id, exonera, m); setExonera(null); avisar('Requisito exonerado.') }}
-        />
-      )}
-
       {papelera && (
         <ModalPapelera
           nombre={subtipos.find(s => s.id === documentos.find(d => d.id === papelera)?.subtipoId)?.nombre}
-          dias={parametros.papeleraDias}
           onCerrar={() => setPapelera(null)}
-          onConfirmar={m => { eliminarDocumento(papelera, m); setPapelera(null); avisar('Enviado a la papelera. Se puede recuperar desde la carpeta Papelera.') }}
+          onConfirmar={m => { eliminarDocumento(papelera, m); setPapelera(null); avisar('Documento anulado. Quedó en la carpeta Anulados y ya puede subir el correcto.') }}
         />
       )}
     </div>
@@ -753,7 +673,7 @@ const PRIORIDAD = { vencido: 0, rechazado: 1, faltante: 2, en_revision: 3, por_v
 const orden = f => PRIORIDAD[f.estado] ?? 9
 
 /* De dónde sale que se le pida: dicho en la fila, porque decide qué se puede hacer con ella. Lo
-   exigido a todos se exonera; lo agregado a esta persona, además, se puede dejar de exigir. */
+   exigido a todos ya no se exonera (16 oct 2026); lo agregado a esta persona, además, se puede dejar de exigir. */
 function origenDe(requisito) {
   if (!requisito) return 'no exigido'
   if (!requisito.obligatorio) return 'opcional'
@@ -762,8 +682,8 @@ function origenDe(requisito) {
 
 /* ── UNA FILA DEL EXPEDIENTE ──────────────────────────────────────────────
    A la vista, lo que se hace seguido: cargar, renovar, revisar, ver y descargar. Lo que se hace
-   rara vez —exonerar, dejar de exigir, mandar a la papelera— va en el menú de tres puntos. */
-function FilaDocumento({ fila, cerrado, onVer, onCargar, onAprobar, onRechazar, onExonerar, onQuitar, onPapelera, onDescargar }) {
+   rara vez —dejar de exigir, anular— va en el menú de tres puntos. */
+function FilaDocumento({ fila, cerrado, onVer, onCargar, onAprobar, onRechazar, onQuitar, onPapelera, onDescargar }) {
   const { subtipo, requisito, documento, estado, limite, exigible, exoneracion } = fila
   const v = versionActual(documento)
   const accion = ACCION[estado]
@@ -776,9 +696,8 @@ function FilaDocumento({ fila, cerrado, onVer, onCargar, onAprobar, onRechazar, 
   else if (v) detalle = `${v.archivo.nombre}${v.v > 1 ? ` · versión ${v.v}` : ''}`
 
   const menu = cerrado ? [] : [
-    requisito && ['faltante', 'vencido', 'rechazado'].includes(estado) && { label: 'Exonerar', Icono: ShieldCheck, onClick: onExonerar },
     requisito?.origen === 'personal' && !documento && { label: 'Dejar de exigir', Icono: MinusCircle, onClick: onQuitar },
-    documento && documento.origen !== 'ficha' && { label: 'Enviar a la papelera', Icono: Trash2, onClick: onPapelera, peligro: true },
+    documento && documento.origen !== 'ficha' && { label: 'Anular', Icono: Ban, onClick: onPapelera, peligro: true },
   ].filter(Boolean)
 
   return (
@@ -850,14 +769,19 @@ function FilaDocumento({ fila, cerrado, onVer, onCargar, onAprobar, onRechazar, 
    estado y el botón dice lo que hay que hacer con él. Lo que falta es una hoja vacía con un «+».
    Lo que se hace rara vez va en el menú de tres puntos. */
 const DE_A = 24
-const leerVista = () => { try { return localStorage.getItem('doc_vista_carpeta') || 'hojas' } catch { return 'hojas' } }
+/* LA LISTA PAGINA (16 oct 2026), como la tabla de Expedientes: de a 10, con su encabezado. La
+   gráfica sigue de a 24 con «Mostrar más», que es como se recorren tarjetas. */
+const POR_PAGINA_LISTA = 10
+// Lista primero (16 oct 2026): es la vista de entrada; la gráfica, la segunda opción.
+const leerVista = () => { try { return localStorage.getItem('doc_vista_carpeta') || 'lista' } catch { return 'lista' } }
 const guardarVista = v => { try { localStorage.setItem('doc_vista_carpeta', v) } catch { /* sin almacenamiento: se queda en esta visita */ } }
 
-function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, pendientes = [], opciones, onClasificar, onDescartar, onVer, onCargar, onExonerar, onQuitar, onPapelera, onDescargar, onContrato, onVerEmitido, onRecuperar }) {
+function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, pendientes = [], opciones, onClasificar, onDescartar, onVer, onCargar, onQuitar, onPapelera, onDescargar, onContrato, onVerEmitido }) {
   const { modelos, subtipos, parametros, contratos: todos } = useDocumentacion()
   const [busca, setBusca] = useState('')
   const [vista, setVista] = useState(leerVista)
   const [cuantos, setCuantos] = useState(DE_A)
+  const [pagina, setPagina] = useState(1)
   const esTipo = !!carpeta.filas
   const filas = carpeta.filas || []
   const texto = busca.trim().toLowerCase()
@@ -876,17 +800,16 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
   const accionDe = f => {
     if (cerrado) return f.documento ? { label: 'Ver', onClick: () => onVer(f.documento.id), principal: false } : null
     if (f.estado === 'faltante') return { label: 'Subir', onClick: () => onCargar(f.subtipo.id), principal: true }
-    if (f.estado === 'rechazado') return { label: 'Subir otro', onClick: () => onCargar(f.subtipo.id), principal: true }
-    if (f.estado === 'vencido' || f.estado === 'por_vencer') return { label: 'Renovar', onClick: () => onCargar(f.subtipo.id), principal: true }
+    if (f.estado === 'rechazado') return { label: 'Subir otro', onClick: () => onCargar(f.subtipo.id, f.documento?.id), principal: true }
+    if (f.estado === 'vencido' || f.estado === 'por_vencer') return { label: 'Renovar', onClick: () => onCargar(f.subtipo.id, f.documento?.id), principal: true }
     if (f.estado === 'en_revision') return { label: 'Revisar', onClick: () => onVer(f.documento.id), principal: true }
     return f.documento ? { label: 'Ver', onClick: () => onVer(f.documento.id), principal: false } : null
   }
   const menuDe = (f, accion) => [
     f.documento && accion?.label !== 'Ver' && accion?.label !== 'Revisar' && { label: 'Ver', Icono: Eye, onClick: () => onVer(f.documento.id) },
     f.documento && { label: 'Descargar', Icono: Download, onClick: () => onDescargar(f) },
-    !cerrado && f.requisito && ['faltante', 'vencido', 'rechazado'].includes(f.estado) && { label: 'Exonerar', Icono: ShieldCheck, onClick: () => onExonerar(f.subtipo.id) },
     !cerrado && f.requisito?.origen === 'personal' && !f.documento && { label: 'Dejar de exigir', Icono: MinusCircle, onClick: () => onQuitar(f) },
-    !cerrado && f.documento && f.documento.origen !== 'ficha' && { label: 'Enviar a la papelera', Icono: Trash2, onClick: () => onPapelera(f.documento.id), peligro: true },
+    !cerrado && f.documento && f.documento.origen !== 'ficha' && { label: 'Anular', Icono: Ban, onClick: () => onPapelera(f.documento.id), peligro: true },
   ].filter(Boolean)
 
   return (
@@ -894,12 +817,12 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
       <div className="xa-carpeta-barra">
         <div className="pl-search-wrap xa-busca">
           <Search size={13} className="pl-search-ico" />
-          <input type="search" className="pl-search" placeholder={`Buscar en ${carpeta.nombre.toLowerCase()}…`} value={busca} onChange={e => { setBusca(e.target.value); setCuantos(DE_A) }} aria-label={`Buscar en ${carpeta.nombre}`} />
+          <input type="search" className="pl-search" placeholder={`Buscar en ${carpeta.nombre.toLowerCase()}…`} value={busca} onChange={e => { setBusca(e.target.value); setCuantos(DE_A); setPagina(1) }} aria-label={`Buscar en ${carpeta.nombre}`} />
         </div>
         {esTipo && filas.length > 0 && (
           <div className="xa-modo-vista" role="group" aria-label="Vista">
-            <button type="button" className={vista === 'hojas' ? 'on' : ''} aria-pressed={vista === 'hojas'} onClick={() => cambiarVista('hojas')} title="Ver los documentos en tarjetas"><LayoutGrid size={15} aria-hidden="true" /> Gráfica</button>
             <button type="button" className={vista === 'lista' ? 'on' : ''} aria-pressed={vista === 'lista'} onClick={() => cambiarVista('lista')} title="Ver los documentos en una lista"><ListIcon size={15} aria-hidden="true" /> Lista</button>
+            <button type="button" className={vista === 'hojas' ? 'on' : ''} aria-pressed={vista === 'hojas'} onClick={() => cambiarVista('hojas')} title="Ver los documentos en tarjetas"><LayoutGrid size={15} aria-hidden="true" /> Gráfica</button>
           </div>
         )}
       </div>
@@ -917,9 +840,19 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
         </section>
       )}
 
-      {esTipo && vista === 'lista' && docsVisibles.length > 0 && (
-        <section className="dc-tarjeta xa-grupo">{lista(docsVisibles.slice(0, cuantos))}</section>
-      )}
+      {esTipo && vista === 'lista' && docsVisibles.length > 0 && (() => {
+        const paginas = Math.max(1, Math.ceil(docsVisibles.length / POR_PAGINA_LISTA))
+        const pag = Math.min(pagina, paginas)
+        return (
+          <section className="dc-tarjeta xa-grupo">
+            <div className="xa-fila xa-fila-cab" aria-hidden="true">
+              <span>Documento</span><span>Estado</span><span>Vencimiento</span><span className="xa-fila-cab-acc">Acciones</span>
+            </div>
+            {lista(docsVisibles.slice((pag - 1) * POR_PAGINA_LISTA, pag * POR_PAGINA_LISTA))}
+            <Paginacion page={pag} setPage={n => setPagina(typeof n === 'function' ? n(pag) : n)} total={docsVisibles.length} perPage={POR_PAGINA_LISTA} nombre="documentos" nombreUno="documento" />
+          </section>
+        )
+      })()}
 
       {(!esTipo || vista === 'hojas') && (
         <div className="xa-hojas">
@@ -967,7 +900,7 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
                 <div className="xa-hoja-mini"><Miniatura titulo={nombreEmitido(e, modelos)} detalle={e.numero} emitido /><span className="xa-hoja-chip"><EstadoEmitidoChip estado={e.estado} /></span></div>
                 <div className="xa-hoja-info">
                   <b className="xa-hoja-nombre">{nombreEmitido(e, modelos)} {m?.sensible && <SensibilidadChip nivel="confidencial" />}</b>
-                  <span className="xa-hoja-detalle">{e.numero} · {fechaCorta(e.fecha)} · {e.acuse ? `confirmó el ${fechaCorta(e.acuse.fecha)}` : e.estado === 'entregado' ? 'sin confirmar' : e.estado === 'generado' ? 'falta entregarlo' : ''}</span>
+                  <span className="xa-hoja-detalle">{e.numero} · {fechaCorta(e.fecha)}{e.firmado ? <> · <span className="dc-chip dc-t-verde xu-chip">Firmado</span></> : e.estado === 'generado' ? <> · <span className="dc-chip dc-t-ambar xu-chip">Sin firmar</span></> : null}</span>
                   <div className="xa-hoja-acc"><button type="button" className="xa-hoja-btn" onClick={() => onVerEmitido(e)}>Ver</button></div>
                 </div>
               </article>
@@ -979,8 +912,8 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
               <div className="xa-hoja-mini"><Miniatura version={versionActual(d)} titulo={subtipos.find(x => x.id === d.subtipoId)?.nombre} /></div>
               <div className="xa-hoja-info">
                 <b className="xa-hoja-nombre">{subtipos.find(x => x.id === d.subtipoId)?.nombre}</b>
-                <span className="xa-hoja-detalle">El {fechaCorta(d.eliminado.fecha)}: {d.eliminado.motivo}</span>
-                {!cerrado && <div className="xa-hoja-acc"><button type="button" className="xa-hoja-btn" onClick={() => onRecuperar(d.id)}><Undo2 size={13} /> Recuperar</button></div>}
+                <span className="xa-hoja-detalle">Anulado el {fechaCorta(d.eliminado.fecha)}{d.eliminado.por ? ` por ${d.eliminado.por}` : ''}: {d.eliminado.motivo}</span>
+                <div className="xa-hoja-acc"><button type="button" className="xa-hoja-btn" onClick={() => onVer(d.id)}><Eye size={13} /> Ver</button></div>
               </div>
             </article>
           ))}
@@ -995,7 +928,7 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
         </div>
       )}
 
-      {total > cuantos && (
+      {total > cuantos && !(esTipo && vista === 'lista') && (
         <button type="button" className="dc-btn xa-mostrar-mas" onClick={() => setCuantos(c => c + DE_A)}>
           Mostrar {Math.min(DE_A, total - cuantos)} más · quedan {total - cuantos}
         </button>
@@ -1007,7 +940,7 @@ function PaginaCarpeta({carpeta, cerrado, contratos, emitidos, papelera, lista, 
               : esTipo ? <Vacio Icono={FolderOpen} titulo="Esta carpeta está vacía" texto="No se le exige ningún documento de este tipo y no tiene ninguno cargado." />
                 : carpeta.clave === 'contratos' ? <Vacio Icono={FileSignature} titulo="Sin contratos registrados" texto="Un colaborador activo sin contrato vigente es una inconsistencia para Planillas (3.5)." />
                   : carpeta.clave === 'emitidos' ? <Vacio Icono={FileText} titulo="Todavía no se le emitió nada" texto="Los certificados, memorándums y otros documentos que se le emitan se archivan aquí solos." />
-                    : <Vacio Icono={Trash2} titulo="La papelera está vacía" texto={`Un documento eliminado se puede recuperar durante ${parametros.papeleraDias} días.`} />}
+                    : <Vacio Icono={Ban} titulo="No tiene documentos anulados" texto="Un documento anulado se guarda aquí con su motivo. No se borra." />}
         </div>
       )}
     </div>
@@ -1154,7 +1087,9 @@ function ModalFechas({ items, onCerrar, onGuardado }) {
 /* ── VER UN EMITIDO ───────────────────────────────────────────────────────
    El texto congelado del día de emisión (RN-16). Los emitidos de los datos de ejemplo no lo
    guardan: se rehace con la versión de plantilla con que salieron y los datos que se congelaron. */
+/* CON FIRMADO (16 oct 2026), se abre en el escaneado firmado y se puede ver el que generó el sistema. */
 function VistaEmitido({ emitido: e, modelo, onCerrar }) {
+  const [ver, setVer] = useState(e.firmado ? 'firmado' : 'original')
   const version = modelo?.versiones.find(x => x.v === e.versionPlantilla) || modelo?.versiones[modelo.versiones.length - 1]
   const texto = e.texto || rellenar(version?.texto || '', { ...e.datos, 'documento.numero': e.numero, 'memo.observaciones': e.observaciones || e.datos?.['memo.observaciones'] || '' })
   return (
@@ -1165,70 +1100,15 @@ function VistaEmitido({ emitido: e, modelo, onCerrar }) {
         <span className="dc-muted">Emitido el {fechaCorta(e.fecha)} por {e.emitidoPor} · plantilla versión {e.versionPlantilla}</span>
       </div>
       {e.anulado && <p className="xa-modal-txt xa-rojo">Anulado el {fechaCorta(e.anulado.fecha)} por {e.anulado.por}: {e.anulado.motivo}</p>}
-      <HojaEmitido emitido={{ ...e, texto }} />
-    </Modal>
-  )
-}
-
-/* ── AGREGAR UN REQUISITO A ESTA PERSONA ──────────────────────────────────
-   Reemplaza a los «requisitos por perfil»: en vez de armar un perfil en otra pantalla para que
-   a alguien se le pida su licencia, se le pide acá, a ella. El plazo cuenta desde su ingreso,
-   igual que el de los requisitos generales: si ya pasó, el faltante descuenta desde hoy. */
-function ModalRequisito({ persona, exigidos, onCerrar, onAgregado }) {
-  const { tipos, subtipos, agregarRequisito } = useDocumentacion()
-  const [subtipoId, setSubtipoId] = useState('')
-  const [obligatorio, setObligatorio] = useState(true)
-  const [plazo, setPlazo] = useState('30')
-  const opciones = subtipos
-    .filter(s => s.activo && !exigidos.has(s.id) && tipos.find(t => t.id === s.tipoId)?.activo !== false)
-    .map(s => ({ valor: s.id, etiqueta: `${tipos.find(t => t.id === s.tipoId)?.nombre || ''} · ${s.nombre}` }))
-    .sort((a, b) => a.etiqueta.localeCompare(b.etiqueta))
-  const listo = !!subtipoId && plazo !== ''
-
-  const confirmar = () => {
-    if (!listo) return
-    agregarRequisito(persona.id, { subtipoId, obligatorio, plazoDias: Number(plazo) || 0 })
-    onAgregado(subtipos.find(s => s.id === subtipoId)?.nombre)
-  }
-
-  return (
-    <Modal
-      titulo={`Agregar requisito a ${persona.name}`}
-      Icono={ListPlus}
-      onCerrar={onCerrar}
-      ancho={500}
-      pie={<>
-        <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
-        <button type="button" className="pl-btn-save" disabled={!listo} onClick={confirmar}>Agregar requisito</button>
-      </>}
-    >
-      <p className="xa-modal-txt">Indique qué documento se le exige a esta persona. Lo que se exige a todo el personal ya figura en su lista y se configura en Tipos de documento.</p>
-      <div className="xa-campo">
-        <span className="pl-label">Documento</span>
-        <Desplegable
-          valor={subtipoId}
-          onCambio={setSubtipoId}
-          ariaLabel="Documento que se le exige"
-          placeholder="Elija el documento"
-          conBuscador
-          nota={opciones.length ? undefined : 'Ya se le exigen todos los documentos activos.'}
-          opciones={opciones}
-        />
-      </div>
-      <div className="xa-campo">
-        <span className="pl-label">¿Es obligatorio?</span>
-        <div className="sn-grupo" role="group" aria-label="¿Es obligatorio?" style={{ alignSelf: 'flex-start' }}>
-          {[{ v: true, t: 'Sí' }, { v: false, t: 'No' }].map(o => (
-            <button key={o.t} type="button" className={`sn-op${obligatorio === o.v ? ' on' : ''}`} aria-pressed={obligatorio === o.v} onClick={() => setObligatorio(o.v)}>{o.t}</button>
-          ))}
+      {e.firmado && (
+        <div className="xa-segmento" role="group" aria-label="Qué versión ver" style={{ alignSelf: 'flex-start' }}>
+          <button type="button" className={ver === 'firmado' ? 'on' : ''} aria-pressed={ver === 'firmado'} onClick={() => setVer('firmado')}>Firmado · {fechaCorta(e.firmado.fecha)}</button>
+          <button type="button" className={ver === 'original' ? 'on' : ''} aria-pressed={ver === 'original'} onClick={() => setVer('original')}>El que generó el sistema</button>
         </div>
-        <span className="xa-ayuda">Un requisito opcional se muestra en su lista pero no cuenta para la completitud.</span>
-      </div>
-      <label className="xa-campo">
-        <span className="pl-label">Plazo de entrega (días)</span>
-        <input className="pl-input" style={{ maxWidth: 120 }} inputMode="numeric" value={plazo} onChange={e => setPlazo(e.target.value.replace(/\D/g, ''))} />
-        <span className="xa-ayuda">Días desde su ingreso para entregarlo. Si ya pasaron, el documento cuenta como faltante desde hoy.</span>
-      </label>
+      )}
+      {ver === 'firmado' && e.firmado
+        ? <HojaEmitido emitido={{ ...e, archivo: e.firmado.archivo }} />
+        : <HojaEmitido emitido={{ ...e, texto }} />}
     </Modal>
   )
 }
@@ -1351,7 +1231,7 @@ export function Previa({ version, persona, subtipo }) {
   )
 }
 
-/* Un motivo obligatorio antes de confirmar: rechazo y exoneración. */
+/* Un motivo obligatorio antes de confirmar: el rechazo. */
 function ModalMotivo({ titulo, Icono, texto, placeholder, accion, peligro, onCerrar, onConfirmar }) {
   const [m, setM] = useState('')
   const [intento, setIntento] = useState(false)
@@ -1374,9 +1254,10 @@ function ModalMotivo({ titulo, Icono, texto, placeholder, accion, peligro, onCer
   )
 }
 
-/* ENVIAR A LA PAPELERA PIDE DOS CONFIRMACIONES Y UN MOTIVO (RF-88), y aun así no borra: el
-   documento sale de las vistas y se puede recuperar durante el plazo de la papelera (RF-89). */
-function ModalPapelera({ nombre, dias, onCerrar, onConfirmar }) {
+/* ANULAR PIDE DOS CONFIRMACIONES Y UN MOTIVO (16 oct 2026, antes «enviar a la papelera»). Un
+   documento no se borra: se anula, deja de contar para sus requisitos —así se puede subir el
+   correcto— y queda en la carpeta Anulados con quién, cuándo y por qué. No se deshace. */
+function ModalPapelera({ nombre, onCerrar, onConfirmar }) {
   const [m, setM] = useState('')
   const [paso, setPaso] = useState(1)
   const ok = m.trim().length >= 5
@@ -1385,23 +1266,23 @@ function ModalPapelera({ nombre, dias, onCerrar, onConfirmar }) {
       <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
       {paso === 1
         ? <button type="button" className="pl-btn-save xa-btn-peligro" disabled={!ok} onClick={() => setPaso(2)}>Continuar</button>
-        : <button type="button" className="pl-btn-save xa-btn-peligro" onClick={() => onConfirmar(m.trim())}>Sí, enviar a la papelera</button>}
+        : <button type="button" className="pl-btn-save xa-btn-peligro" onClick={() => onConfirmar(m.trim())}>Sí, anular</button>}
     </>
   )
   return (
-    <Modal titulo="Enviar a la papelera" Icono={Trash2} onCerrar={onCerrar} pie={pie} ancho={480}>
+    <Modal titulo="Anular documento" Icono={Ban} onCerrar={onCerrar} pie={pie} ancho={480}>
       {paso === 1 ? (
         <>
-          <p className="xa-modal-txt">«{nombre}» dejará de verse en el expediente y dejará de contar para sus requisitos. No se borra: queda en la papelera {dias} días y se puede recuperar.</p>
+          <p className="xa-modal-txt">«{nombre}» queda anulado: deja de contar para sus requisitos y se guarda en la carpeta Anulados con su motivo. No se borra y no se puede deshacer. Después puede subir el documento correcto.</p>
           <label className="xa-campo">
-            <span className="pl-label">¿Por qué se elimina? <span className="pl-req" aria-hidden="true">*</span></span>
+            <span className="pl-label">¿Por qué se anula? <span className="pl-req" aria-hidden="true">*</span></span>
             <textarea className="pl-input xa-textarea" rows={3} value={m} onChange={e => setM(e.target.value)} placeholder="Se cargó en el expediente equivocado." autoFocus />
           </label>
         </>
       ) : (
         <div className="xa-confirma">
-          <Trash2 size={20} aria-hidden="true" />
-          <p><b>¿Confirma que desea enviar «{nombre}» a la papelera?</b></p>
+          <Ban size={20} aria-hidden="true" />
+          <p><b>¿Confirma que desea anular «{nombre}»?</b></p>
           <p className="dc-muted">Motivo: {m.trim()}</p>
         </div>
       )}
@@ -1469,6 +1350,488 @@ function Historial({ eventos }) {
         ))}
       </div>
     </section>
+  )
+}
+
+/* ── SUBIR UN DOCUMENTO (propuesta E, 16 oct 2026) ─────────────────────────
+   Antes «Subir documento» abría el explorador y subía en el acto: lo que no se reconocía quedaba
+   «por clasificar» y lo que ya existía se reemplazaba sin preguntar. Ahora es un modal grande:
+   A LA IZQUIERDA, todos los documentos de la persona por carpeta, con su estado —lo que falta
+   primero—; A LA DERECHA, el elegido. Siempre hay uno elegido, así que nada queda sin clasificar.
+   SI YA TIENE UNO, SE PREGUNTA: el actual y el nuevo lado a lado y «¿Desea reemplazar…?». El
+   actual no se borra: queda como versión anterior. Si el actual vino de la ficha, el nuevo pasa a
+   ser el que vale en el expediente (manda el más nuevo, ver `todosLosDocumentos`); la ficha
+   conserva el suyo. Un subtipo que admite varios no reemplaza: se guarda además. */
+const URGENCIA_SUBIR = { vencido: 0, rechazado: 1, faltante: 2, por_vencer: 3, en_revision: 4, vigente: 5, exonerado: 6, no_exigido: 7 }
+const minuscula = s => s.charAt(0).toLowerCase() + s.slice(1)
+// «el documento de identidad», «la certificación profesional», «el acta de entrega»: por la primera palabra.
+const conArticulo = nombre => { const w = nombre.split(' ')[0].toLowerCase(); return `${w !== 'acta' && /(a|ción|sión|dad|tad|ie)$/.test(w) ? 'la' : 'el'} ${minuscula(nombre)}` }
+const peso = b => (b < 1048576 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1).replace('.', ',')} MB`)
+
+function ModalSubir({ persona, filas, inicial, inicialDoc = '', tipoInicial, onCerrar, onSubido, onVolver }) {
+  const { tipos, subtipos, parametros, cargarDocumento } = useDocumentacion()
+  const [busca, setBusca] = useState('')
+  const [archivo, setArchivo] = useState(null)
+  const [arrastrando, setArrastrando] = useState(false)
+  const [guardando, setGuardando] = useState(false)
+  const input = useRef(null)
+
+  // Una entrada por documento posible: lo exigido, lo que ya tiene y lo demás de cada carpeta.
+  const entradas = useMemo(() => subtipos
+    .filter(s => s.activo && tipos.find(t => t.id === s.tipoId)?.activo !== false)
+    .map(s => {
+      const suyas = filas.filter(f => f.subtipo.id === s.id)
+      const req = suyas.find(f => f.requisito)
+      const docs = suyas.filter(f => f.documento).map(f => f.documento)
+      const fila = req || suyas[0] || null
+      return { subtipo: s, estado: fila?.estado || 'no_exigido', limite: fila?.limite, docs }
+    }), [subtipos, tipos, filas])
+  // Dentro de una carpeta se ve sólo esa carpeta; desde la vista general, todas.
+  const grupos = tipos.filter(t => t.activo !== false && (!tipoInicial || t.id === tipoInicial)).map(t => ({
+    tipo: t,
+    entradas: entradas.filter(e => e.subtipo.tipoId === t.id)
+      .sort((a, b) => URGENCIA_SUBIR[a.estado] - URGENCIA_SUBIR[b.estado] || a.subtipo.nombre.localeCompare(b.subtipo.nombre, 'es')),
+  })).filter(g => g.entradas.length)
+
+  // Lo que se pidió desde una fila; si no, lo primero que falta (de la carpeta abierta, si hay una).
+  const [elegido, setElegido] = useState(() => {
+    if (inicial && entradas.some(e => e.subtipo.id === inicial)) return inicial
+    const todas = grupos.flatMap(g => g.entradas)
+    return (todas.find(e => URGENCIA_SUBIR[e.estado] <= 2) || todas[0])?.subtipo.id || ''
+  })
+  const entrada = entradas.find(e => e.subtipo.id === elegido)
+  const sub = entrada?.subtipo
+  /* LOS QUE ADMITEN VARIOS —títulos, certificaciones, actas— no se reemplazan solos: si ya tiene
+     alguno, se elige agregar uno nuevo o cuál de los que tiene se reemplaza. Desde «Renovar» de
+     una fila llega ya elegido ése. */
+  const [destino, setDestino] = useState(inicialDoc)
+  const actual = !sub ? null : sub.varios ? entrada.docs.find(d => d.id === destino) || null : entrada.docs[0] || null
+  const vActual = versionActual(actual)
+  const deFicha = actual?.origen === 'ficha'
+
+  const [emision, setEmision] = useState(iso(hoy()))
+  const [vencimiento, setVencimiento] = useState('')
+  const [vencTocado, setVencTocado] = useState(false)
+  const venc = vencTocado ? vencimiento : (sub?.vence && emision ? sumarMeses(emision, sub.vigenciaMeses) : '')
+
+  const ext = archivo ? extensionDe(archivo.name) : ''
+  const error = !archivo || !sub ? ''
+    : !sub.formatos.includes(ext) ? `«${sub.nombre}» acepta ${sub.formatos.map(f => f.toUpperCase()).join(', ')}. Este archivo es ${ext.toUpperCase() || 'de otro tipo'}.`
+      : archivo.size / 1048576 > sub.tamanoMaxMB ? `El archivo pesa ${peso(archivo.size)} y el máximo es ${sub.tamanoMaxMB} MB.`
+        : deFicha && vActual?.emision && emision < vActual.emision ? `La fecha de emisión es anterior a la del actual (${fechaCorta(vActual.emision)}): seguiría valiendo el de la ficha.`
+          : ''
+  const listo = !!archivo && !error && !!emision && (!sub?.vence || !!venc) && !guardando
+
+  // La vista previa del archivo nuevo sale del navegador y se suelta al cambiarlo o al cerrar.
+  const url = useMemo(() => (archivo ? URL.createObjectURL(archivo) : null), [archivo])
+  useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
+  const esImagen = ['jpg', 'jpeg', 'png', 'webp'].includes(ext)
+  const previaNueva = url && esImagen ? <img src={url} alt="" />
+    : url && ext === 'pdf' ? <div className="xa-mini-pdf"><PaginasPdf url={url} primera /></div>
+      : <FileText size={26} aria-hidden="true" />
+
+  const elegir = id => { setElegido(id); setVencTocado(false); setDestino('') }
+  const tomar = files => { const f = [...(files || [])][0]; if (f) setArchivo(f) }
+
+  const guardar = async () => {
+    if (!listo) return
+    setGuardando(true)
+    const clave = nuevaClaveArchivo()
+    const ok = await guardarArchivo(clave, archivo).catch(() => false)
+    cargarDocumento({
+      colaboradorId: persona.id,
+      subtipoId: sub.id,
+      documentoId: sub.varios && actual ? actual.id : null,
+      motivo: actual ? 'Se reemplazó desde el expediente' : '',
+      version: {
+        archivo: { nombre: normalizarNombre(persona, sub, emision, ext), original: archivo.name, formato: ext, tamanoKB: Math.round(archivo.size / 1024), clave: ok === false ? null : clave, tipoMime: archivo.type },
+        emision,
+        vencimiento: sub.vence ? venc : null,
+        info: '',
+      },
+    })
+    onSubido({ nombre: sub.nombre, reemplazo: !!actual })
+  }
+
+  const texto = busca.trim().toLowerCase()
+  const reglas = sub ? [
+    sub.formatos.map(f => f.toUpperCase()).join(', '),
+    `hasta ${sub.tamanoMaxMB} MB`,
+    sub.vence ? `vence a los ${sub.vigenciaMeses % 12 ? `${sub.vigenciaMeses} meses` : plural(sub.vigenciaMeses / 12, 'año', 'años')}` : 'no vence',
+  ].join(' · ') : ''
+
+  return (
+    <Modal titulo={`Subir documento · ${persona.name}`} Icono={Upload} onCerrar={onCerrar} ancho={1000} pie={<>
+      <VolverCarpetas onVolver={onVolver} />
+      <span className="xu-pie-nota">{actual ? 'El actual no se borra: queda como versión anterior.' : 'Elija a la izquierda a qué documento corresponde.'}</span>
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+      <button type="button" className={`pl-btn-save${actual ? ' xu-btn-reemplazar' : ''}`} disabled={!listo} onClick={guardar}>
+        {guardando ? 'Guardando…' : actual ? <><RefreshCw size={14} aria-hidden="true" /> Sí, reemplazar</> : <><Upload size={14} aria-hidden="true" /> Subir documento</>}
+      </button>
+    </>}>
+      <div className="xu-dos">
+        <aside className="xu-izq" aria-label="Documentos de la persona">
+          <div className="pl-search-wrap">
+            <Search size={13} className="pl-search-ico" />
+            <input type="search" className="pl-search" placeholder="Buscar documento…" value={busca} onChange={e => setBusca(e.target.value)} aria-label="Buscar documento" />
+          </div>
+          {grupos.map(g => {
+            const visibles = g.entradas.filter(e => !texto || e.subtipo.nombre.toLowerCase().includes(texto))
+            if (!visibles.length) return null
+            const exigidos = g.entradas.filter(e => e.estado !== 'no_exigido' && e.estado !== 'exonerado')
+            const cumplidos = exigidos.filter(e => ESTADOS[e.estado]?.cumple).length
+            return (
+              <div key={g.tipo.id} className="xu-grupo">
+                <div className="xu-grupo-tit"><span>{g.tipo.nombre}</span>{exigidos.length > 0 && <span>{cumplidos} de {exigidos.length}</span>}</div>
+                {visibles.map(e => {
+                  const v = versionActual(e.docs[0])
+                  const det = e.estado === 'no_exigido' ? (e.docs.length ? plural(e.docs.length, 'documento', 'documentos') : 'No exigido')
+                    : e.estado === 'faltante' ? (e.limite ? `Hasta el ${fechaCorta(e.limite)}` : 'Sin plazo')
+                      : v?.vencimiento ? `Vence ${fechaCorta(v.vencimiento)}` : v ? 'No vence' : ''
+                  const on = e.subtipo.id === elegido
+                  return (
+                    <button key={e.subtipo.id} type="button" className={`xu-doc${on ? ' on' : ''}${e.estado === 'no_exigido' && !e.docs.length ? ' tenue' : ''}`} aria-pressed={on} onClick={() => elegir(e.subtipo.id)}>
+                      <span className="xu-doc-txt"><b>{e.subtipo.nombre}</b><small>{det}{e.docs[0]?.origen === 'ficha' ? ' · de la ficha' : ''}</small></span>
+                      {e.estado !== 'no_exigido' && <span className={`dc-chip dc-t-${ESTADOS[e.estado]?.tono || 'gris'} xu-chip`}>{ESTADOS[e.estado]?.label}</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            )
+          })}
+        </aside>
+
+        <section className="xu-der" aria-label="Documento elegido">
+          {!sub ? <Vacio Icono={FolderOpen} titulo="Elija un documento" texto="A la izquierda están los documentos de esta persona." /> : <>
+            <div className="xu-der-cab"><h3>{sub.nombre}</h3><span>{reglas}</span></div>
+
+            {sub.varios && entrada.docs.length > 0 && (
+              <div className="xu-varios" role="radiogroup" aria-label="Qué hacer con el nuevo">
+                <span className="pl-label">Ya tiene {plural(entrada.docs.length, 'documento', 'documentos')} de este tipo. ¿Qué desea hacer?</span>
+                <button type="button" role="radio" aria-checked={!destino} className={`xu-op${!destino ? ' on' : ''}`} onClick={() => setDestino('')}>
+                  <span className="xu-radio" aria-hidden="true" />
+                  <span><b>Agregar uno nuevo</b><small>Se guarda además de los que tiene.</small></span>
+                </button>
+                {entrada.docs.map(d => {
+                  const v = versionActual(d)
+                  const on = destino === d.id
+                  return (
+                    <button key={d.id} type="button" role="radio" aria-checked={on} className={`xu-op${on ? ' on' : ''}`} onClick={() => setDestino(d.id)}>
+                      <span className="xu-radio" aria-hidden="true" />
+                      <span><b>Reemplazar {v?.archivo?.nombre || sub.nombre}</b><small>{v?.vencimiento ? `Vence ${fechaCorta(v.vencimiento)}` : 'No vence'} · {ESTADOS[estadoVersion(v, sub, parametros)]?.label}</small></span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {actual && <>
+              <div className="xu-previas">
+                <figure className="xu-previa">
+                  <span className="xu-previa-et">Actual</span>
+                  <div className="xu-previa-hoja"><Miniatura version={vActual} titulo={sub.nombre} /></div>
+                  <figcaption><b>{vActual?.archivo?.nombre}</b><span>{vActual?.vencimiento ? `Vence ${fechaCorta(vActual.vencimiento)}` : 'No vence'}{deFicha ? ' · de la ficha' : ''}</span></figcaption>
+                </figure>
+                <figure className={`xu-previa nueva${archivo ? '' : ' vacia'}`}>
+                  <span className="xu-previa-et">Nuevo</span>
+                  <div className="xu-previa-hoja"
+                    onDragOver={e => { e.preventDefault(); setArrastrando(true) }} onDragLeave={() => setArrastrando(false)}
+                    onDrop={e => { e.preventDefault(); setArrastrando(false); tomar(e.dataTransfer.files) }}>
+                    {archivo ? previaNueva : (
+                      <button type="button" className={`xu-elegir${arrastrando ? ' on' : ''}`} onClick={() => input.current?.click()}>
+                        <Upload size={18} aria-hidden="true" /> Arrastre el nuevo o haga clic
+                      </button>
+                    )}
+                  </div>
+                  <figcaption>{archivo
+                    ? <><b>{archivo.name}</b><span>{peso(archivo.size)} · <button type="button" className="xu-cambiar" onClick={() => input.current?.click()}>Cambiar</button></span></>
+                    : <span>Todavía no eligió el archivo</span>}</figcaption>
+                </figure>
+              </div>
+              <div className="xu-pregunta" role="status">
+                <RefreshCw size={16} aria-hidden="true" />
+                <span><b>¿Desea reemplazar {conArticulo(sub.nombre)}?</b>
+                  {deFicha ? 'Se registró en su ficha. Desde ahora vale el nuevo en el expediente; la ficha conserva el suyo.' : 'El actual queda como versión anterior y deja de contar.'}</span>
+              </div>
+            </>}
+
+
+            {!actual && (archivo ? (
+              <div className="xu-archivo">
+                <span className="xu-archivo-mini">{previaNueva}</span>
+                <span className="xu-archivo-txt"><b>{archivo.name}</b><small>{peso(archivo.size)}</small></span>
+                <button type="button" className="dc-btn dc-btn-sm" onClick={() => input.current?.click()}>Cambiar</button>
+              </div>
+            ) : (
+              <button type="button" className={`xu-soltar${arrastrando ? ' on' : ''}`} onClick={() => input.current?.click()}
+                onDragOver={e => { e.preventDefault(); setArrastrando(true) }} onDragLeave={() => setArrastrando(false)}
+                onDrop={e => { e.preventDefault(); setArrastrando(false); tomar(e.dataTransfer.files) }}>
+                <Upload size={22} aria-hidden="true" />
+                <b>Arrastre aquí el archivo</b>
+                <span>o haga clic para elegirlo</span>
+              </button>
+            ))}
+
+            {error && <p className="xu-error" role="alert">{error}</p>}
+
+            {archivo && (
+              <div className="xu-fechas">
+                <label className="xa-campo"><span className="pl-label">Fecha de emisión</span><SelectorFecha valor={emision} onCambio={setEmision} ariaLabel="Fecha de emisión" /></label>
+                {sub.vence && <label className="xa-campo"><span className="pl-label">Vence</span><SelectorFecha valor={venc} onCambio={v => { setVencimiento(v); setVencTocado(true) }} ariaLabel="Fecha de vencimiento" /></label>}
+              </div>
+            )}
+          </>}
+          <input ref={input} type="file" hidden accept="application/pdf,image/*,.doc,.docx,.xls,.xlsx" onChange={e => { tomar(e.target.files); e.target.value = '' }} />
+        </section>
+      </div>
+    </Modal>
+  )
+}
+
+/* ── ¿EN QUÉ CARPETA? (propuesta B, 16 oct 2026) ───────────────────────────
+   Desde la vista general del expediente todavía no se sabe adónde va el documento, y la lista de
+   todo junto era larga. Se pregunta primero, con las mismas carpetas amarillas del expediente:
+   las suyas arriba, con lo que falta en cada una, y las de RR.HH. abajo. Al elegir, se abre el
+   modal de esa carpeta, con «Cambiar carpeta» para volver aquí. */
+function ElegirCarpeta({ persona, filas, emitidos, contratos, onElegir, onCerrar }) {
+  const { tipos, parametros } = useDocumentacion()
+  const suyas = tipos.filter(t => t.activo !== false).map(t => {
+    const fs = filas.filter(f => f.subtipo.tipoId === t.id)
+    const deben = fs.filter(f => ['faltante', 'vencido', 'rechazado'].includes(f.estado)).length
+    const conDoc = fs.filter(f => f.documento).length
+    return { clave: t.id, nombre: t.nombre, sub: deben ? `${deben === 1 ? 'Falta 1' : `Faltan ${deben}`}` : conDoc ? plural(conDoc, 'documento', 'documentos') : 'Vacía', punto: deben ? 'rojo' : undefined }
+  })
+  const deRrhh = [
+    ...carpetasRecibidas(parametros).map(([k, nombre]) => {
+      const n = emitidos.filter(e => e.estado !== 'anulado' && carpetaRecibida(e, parametros) === k).length
+      return { clave: `rrhh:${k}`, nombre, sub: n ? plural(n, 'documento', 'documentos') : 'Vacía' }
+    }),
+    { clave: 'contrato', nombre: 'Contratos', sub: contratos.length ? plural(contratos.length, 'contrato', 'contratos') : 'Vacía' },
+  ]
+  return (
+    <Modal titulo="¿En qué carpeta va el documento?" Icono={Upload} onCerrar={onCerrar} ancho={760}>
+      <p className="xa-modal-txt">Elija dónde guardar el documento de {persona.name}.</p>
+      <div className="md-seccion"><h2>Sus carpetas</h2><span className="dc-muted">Lo que entrega el colaborador</span></div>
+      <div className="md-grilla xu-grilla">
+        {suyas.map(c => <Mosaico key={c.clave} titulo={c.nombre} sub={c.sub} punto={c.punto} onClick={() => onElegir(c.clave)} />)}
+      </div>
+      <div className="md-seccion"><h2>De RR.HH.</h2><span className="dc-muted">Lo que la empresa emite: suba aquí el firmado o uno hecho afuera</span></div>
+      <div className="md-grilla xu-grilla">
+        {deRrhh.map(c => <Mosaico key={c.clave} titulo={c.nombre} sub={c.sub} onClick={() => onElegir(c.clave)} />)}
+      </div>
+    </Modal>
+  )
+}
+
+/* El botón para volver al paso de las carpetas, en el pie de cada modal de subir. */
+function VolverCarpetas({ onVolver }) {
+  if (!onVolver) return null
+  return <button type="button" className="dc-btn dc-btn-texto xu-volver" onClick={onVolver}><ArrowLeft size={14} aria-hidden="true" /> Cambiar carpeta</button>
+}
+
+/* Un archivo elegido o la zona para soltarlo: la misma pieza en los modales de RR.HH. y contratos. */
+function ZonaArchivo({ archivo, onArchivo, texto, accept = 'application/pdf,image/*,.doc,.docx' }) {
+  const [arrastrando, setArrastrando] = useState(false)
+  const input = useRef(null)
+  const tomar = files => { const f = [...(files || [])][0]; if (f) onArchivo(f) }
+  return (
+    <>
+      {archivo ? (
+        <div className="xu-archivo">
+          <span className="xu-archivo-mini"><FileText size={22} aria-hidden="true" /></span>
+          <span className="xu-archivo-txt"><b>{archivo.name}</b><small>{peso(archivo.size)}</small></span>
+          <button type="button" className="dc-btn dc-btn-sm" onClick={() => input.current?.click()}>Cambiar</button>
+        </div>
+      ) : (
+        <button type="button" className={`xu-soltar${arrastrando ? ' on' : ''}`} style={{ padding: '28px 20px' }} onClick={() => input.current?.click()}
+          onDragOver={e => { e.preventDefault(); setArrastrando(true) }} onDragLeave={() => setArrastrando(false)}
+          onDrop={e => { e.preventDefault(); setArrastrando(false); tomar(e.dataTransfer.files) }}>
+          <Upload size={22} aria-hidden="true" />
+          <b>{texto}</b>
+          <span>o haga clic para elegirlo · PDF, imagen o Word</span>
+        </button>
+      )}
+      <input ref={input} type="file" hidden accept={accept} onChange={e => { tomar(e.target.files); e.target.value = '' }} />
+    </>
+  )
+}
+const FORMATOS_RRHH = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx']
+const guardarEscaneado = async archivo => {
+  const clave = nuevaClaveArchivo()
+  const ok = await guardarArchivo(clave, archivo).catch(() => false)
+  const formato = extensionDe(archivo.name)
+  return { nombre: archivo.name, clave: ok === false ? null : clave, formato, tipoMime: archivo.type, tamanoKB: Math.round(archivo.size / 1024) }
+}
+
+/* ── SUBIR A UNA CARPETA DE RR.HH. (16 oct 2026) ───────────────────────────
+   En Certificados, Memorándums u otro tipo de lo que la empresa le dio no se muestran los
+   documentos de la ficha. Lo que se sube aquí es una de dos cosas:
+   · EL FIRMADO DE UNO YA EMITIDO. El sistema genera el documento, pero RR.HH. lo imprime, lo hace
+     firmar y sube el escaneado. Se elige cuál —MEM-0003/2026— y el firmado queda pegado a él.
+   · UNO NUEVO, hecho fuera del sistema, con su nombre, su fecha y el número de su serie.
+   Viene elegido «el firmado» si hay alguno emitido que todavía no lo tiene. */
+function ModalSubirRecibido({ persona, categoria, opciones, emitidosDe, onCerrar, onSubido, onVolver }) {
+  const { emitidos, parametros, contratos, modelos, enviarArchivo, adjuntarFirmado } = useDocumentacion()
+  const [tipo, setTipo] = useState(categoria || opciones[0]?.[0] || 'otro')
+  const deTipo = emitidosDe.filter(e => e.estado !== 'anulado' && carpetaRecibida(e, parametros) === tipo)
+  const sinFirmar = deTipo.filter(e => !e.firmado)
+  const [modo, setModo] = useState(sinFirmar.length ? 'firmado' : 'nuevo')
+  const [emitidoId, setEmitidoId] = useState(sinFirmar[0]?.id || deTipo[0]?.id || '')
+  const [nombre, setNombre] = useState('')
+  const [archivo, setArchivo] = useState(null)
+  const [fecha, setFecha] = useState(iso(hoy()))
+  const [guardando, setGuardando] = useState(false)
+
+  const singular = { certificado: 'Certificado', memorandum: 'Memorándum', otro: 'Documento' }[tipo]
+    || (parametros?.tiposPropios || []).find(t => t.key === tipo)?.label || 'Documento'
+  const carpetaNombre = opciones.find(([k]) => k === tipo)?.[1] || 'Recibidos'
+  const numero = siguienteNumero(tipo, emitidos, parametros, contratos).texto
+  const elegido = deTipo.find(e => e.id === emitidoId)
+  const ext = archivo ? extensionDe(archivo.name) : ''
+  const valido = !archivo || FORMATOS_RRHH.includes(ext)
+  const listo = !!archivo && valido && !guardando && (modo === 'firmado' ? !!elegido : nombre.trim().length >= 3 && !!fecha)
+
+  const cambiarTipo = k => {
+    setTipo(k)
+    const otros = emitidosDe.filter(e => e.estado !== 'anulado' && carpetaRecibida(e, parametros) === k)
+    const sin = otros.filter(e => !e.firmado)
+    setModo(sin.length ? 'firmado' : 'nuevo')
+    setEmitidoId(sin[0]?.id || otros[0]?.id || '')
+  }
+  const alArchivo = f => { setArchivo(f); if (modo === 'nuevo' && !nombre.trim()) setNombre(f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()) }
+
+  const guardar = async () => {
+    if (!listo) return
+    setGuardando(true)
+    const datos = await guardarEscaneado(archivo)
+    if (modo === 'firmado') {
+      adjuntarFirmado(elegido.id, datos)
+      onSubido(`Se guardó el firmado de ${elegido.numero}.`)
+    } else {
+      enviarArchivo({ nombre: nombre.trim(), archivo: datos, colaboradorIds: [persona.id], categoria: tipo, fecha })
+      onSubido(`«${nombre.trim()}» se subió a ${carpetaNombre}.`)
+    }
+  }
+
+  return (
+    <Modal titulo={`${carpetaNombre} · ${persona.name}`} Icono={Upload} onCerrar={onCerrar} ancho={620} pie={<>
+      <VolverCarpetas onVolver={onVolver} />
+      <span className="xu-pie-nota">{modo === 'nuevo' ? <>Sale con el número <b style={{ whiteSpace: 'nowrap' }}>{numero}</b></> : elegido ? <>Queda junto a <b style={{ whiteSpace: 'nowrap' }}>{elegido.numero}</b></> : ''}</span>
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+      <button type="button" className="pl-btn-save" disabled={!listo} onClick={guardar}><Upload size={14} aria-hidden="true" /> {guardando ? 'Guardando…' : modo === 'firmado' ? 'Subir firmado' : `Subir ${singular.toLowerCase()}`}</button>
+    </>}>
+      {!categoria && (
+        <div className="xa-campo">
+          <span className="pl-label">Tipo</span>
+          <div className="xa-segmento" role="group" aria-label="Tipo de documento">
+            {opciones.map(([k, n]) => <button key={k} type="button" className={tipo === k ? 'on' : ''} aria-pressed={tipo === k} onClick={() => cambiarTipo(k)}>{n}</button>)}
+          </div>
+        </div>
+      )}
+
+      <div className="xu-varios" role="radiogroup" aria-label="Qué va a subir">
+        <span className="pl-label">¿Qué va a subir?</span>
+        <button type="button" role="radio" aria-checked={modo === 'firmado'} disabled={!deTipo.length} className={`xu-op${modo === 'firmado' ? ' on' : ''}`} onClick={() => setModo('firmado')}>
+          <span className="xu-radio" aria-hidden="true" />
+          <span><b>El firmado de un {singular.toLowerCase()} ya emitido</b><small>{deTipo.length ? 'Lo imprimió, lo hizo firmar y ahora sube el escaneado.' : `Todavía no se le emitió ningún ${singular.toLowerCase()}.`}</small></span>
+        </button>
+        <button type="button" role="radio" aria-checked={modo === 'nuevo'} className={`xu-op${modo === 'nuevo' ? ' on' : ''}`} onClick={() => setModo('nuevo')}>
+          <span className="xu-radio" aria-hidden="true" />
+          <span><b>Uno nuevo, hecho fuera del sistema</b><small>Se guarda con su nombre, su fecha y el número que sigue.</small></span>
+        </button>
+      </div>
+
+      {modo === 'firmado' && deTipo.length > 0 && (
+        <div className="xa-campo">
+          <span className="pl-label">¿De cuál?</span>
+          <div className="xu-emitidos">
+            {deTipo.map(e => (
+              <button key={e.id} type="button" className={`xu-doc${emitidoId === e.id ? ' on' : ''}`} aria-pressed={emitidoId === e.id} onClick={() => setEmitidoId(e.id)}>
+                <span className="xu-doc-txt"><b>{nombreEmitido(e, modelos)}</b><small>{e.numero} · {fechaCorta(e.fecha)}</small></span>
+                {e.firmado ? <span className="dc-chip dc-t-verde xu-chip">Firmado</span> : <span className="dc-chip dc-t-ambar xu-chip">Sin firmar</span>}
+              </button>
+            ))}
+          </div>
+          {elegido?.firmado && <p className="xu-nota">Ya tiene un firmado del {fechaCorta(elegido.firmado.fecha)}. El nuevo lo reemplaza; el anterior queda en el historial.</p>}
+        </div>
+      )}
+
+      {modo === 'nuevo' && (
+        <label className="xa-campo">
+          <span className="pl-label">Nombre del documento <span className="pl-req" aria-hidden="true">*</span></span>
+          <input className="pl-input" value={nombre} onChange={e => setNombre(e.target.value)}
+            placeholder={tipo === 'memorandum' ? 'Memorándum de llamada de atención' : tipo === 'certificado' ? 'Certificado de trabajo' : 'Carta de recomendación'} />
+        </label>
+      )}
+
+      <ZonaArchivo archivo={archivo} onArchivo={alArchivo} texto={modo === 'firmado' ? 'Arrastre aquí el escaneado firmado' : `Arrastre aquí el ${singular.toLowerCase()}`} />
+      {!valido && <p className="xu-error" role="alert">Este archivo es {ext.toUpperCase() || 'de otro tipo'}. Se aceptan PDF, imágenes (JPG, PNG) y Word.</p>}
+
+      {modo === 'nuevo' && (
+        <label className="xa-campo" style={{ maxWidth: 260 }}>
+          <span className="pl-label">Fecha del documento</span>
+          <SelectorFecha valor={fecha} onCambio={setFecha} ariaLabel="Fecha del documento" />
+        </label>
+      )}
+    </Modal>
+  )
+}
+
+/* ── SUBIR A CONTRATOS (16 oct 2026) ───────────────────────────────────────
+   Lo mismo que con lo emitido: el contrato se genera en el sistema, se firma en papel y se sube
+   el escaneado, que queda como una versión «firmado» del mismo contrato (RF-63: la generada sigue
+   ahí). Para un contrato que todavía no existe, «Registrar un contrato nuevo» abre el registro. */
+function ModalSubirContrato({ persona, contratos, onCerrar, onSubido, onNuevo, onVolver }) {
+  const { versionarContrato } = useDocumentacion()
+  const vigentes = contratos.filter(c => !c.finalizado && !c.reemplazado)
+  const lista = vigentes.length ? vigentes : contratos
+  const firmado = c => c.versiones.some(v => v.tipo === 'firmado')
+  const [contratoId, setContratoId] = useState((lista.find(c => !firmado(c)) || lista[0])?.id || '')
+  const [archivo, setArchivo] = useState(null)
+  const [guardando, setGuardando] = useState(false)
+  const elegido = contratos.find(c => c.id === contratoId)
+  const ext = archivo ? extensionDe(archivo.name) : ''
+  const valido = !archivo || ['pdf', 'jpg', 'jpeg', 'png'].includes(ext)
+  const listo = !!elegido && !!archivo && valido && !guardando
+
+  const guardar = async () => {
+    if (!listo) return
+    setGuardando(true)
+    const datos = await guardarEscaneado(archivo)
+    versionarContrato(elegido.id, { tipo: 'firmado', motivo: 'Se cargó el escaneado firmado', archivo: datos.nombre, clave: datos.clave })
+    onSubido(`Se guardó el firmado de ${elegido.numero}.`)
+  }
+
+  return (
+    <Modal titulo={`Contratos · ${persona.name}`} Icono={FileSignature} onCerrar={onCerrar} ancho={620} pie={<>
+      <VolverCarpetas onVolver={onVolver} />
+      <span className="xu-pie-nota" />
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+      <button type="button" className="pl-btn-save" disabled={!listo} onClick={guardar}><Upload size={14} aria-hidden="true" /> {guardando ? 'Guardando…' : 'Subir firmado'}</button>
+    </>}>
+      {lista.length ? (
+        <div className="xa-campo">
+          <span className="pl-label">¿De qué contrato es el firmado?</span>
+          <div className="xu-emitidos">
+            {lista.map(c => (
+              <button key={c.id} type="button" className={`xu-doc${contratoId === c.id ? ' on' : ''}`} aria-pressed={contratoId === c.id} onClick={() => setContratoId(c.id)}>
+                <span className="xu-doc-txt"><b>{c.tipo === 'adenda' ? 'Adenda' : 'Contrato'} {c.numero}</b><small>{MODALIDADES[c.modalidad]} · desde {fechaCorta(c.inicio)}{c.fin ? ` hasta ${fechaCorta(c.fin)}` : ''}</small></span>
+                {firmado(c) ? <span className="dc-chip dc-t-verde xu-chip">Firmado</span> : <span className="dc-chip dc-t-ambar xu-chip">Sin firmar</span>}
+              </button>
+            ))}
+          </div>
+          {elegido && firmado(elegido) && <p className="xu-nota">Ya tiene un firmado. El nuevo queda como su última versión; los anteriores no se borran.</p>}
+        </div>
+      ) : <p className="xa-modal-txt">{persona.name.split(' ')[0]} todavía no tiene contratos registrados.</p>}
+
+      {lista.length > 0 && <ZonaArchivo archivo={archivo} onArchivo={setArchivo} texto="Arrastre aquí el contrato firmado" accept="application/pdf,image/*" />}
+      {!valido && <p className="xu-error" role="alert">Este archivo es {ext.toUpperCase() || 'de otro tipo'}. Se aceptan PDF e imágenes (JPG, PNG).</p>}
+
+      <div className="xu-otra">
+        <span>¿Es un contrato que todavía no está en el sistema?</span>
+        <button type="button" className="dc-btn dc-btn-sm" onClick={onNuevo}><FileSignature size={13} aria-hidden="true" /> Registrar un contrato nuevo</button>
+      </div>
+    </Modal>
   )
 }
 

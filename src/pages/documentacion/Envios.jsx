@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BellRing, CheckCircle2, Search, Send, Users, X } from 'lucide-react'
+import { CheckCircle2, Search, Send, Users, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, EstadoEmitidoChip, Etiqueta, PersonaCelda, Vacio } from '../../components/documentacion/comunes'
-import { avanceLote, esperaAcuse, fechaCorta, nombreEmitido, origenDe } from '../../data/documentacionData'
+import { avanceLote, fechaCorta, nombreEmitido, origenDe } from '../../data/documentacionData'
 import './seguimiento.css'
 
 /* ── DOCUMENTOS EMITIDOS (antes «Envíos», 15 oct 2026) ────────────────────
    Todo lo que la empresa le mandó a su gente, en una lista, como el panel de envíos de Humand o el
    de firmas de Talana. Un envío es un documento a una persona o el mismo documento a un grupo; de
-   cada uno se ve a quién, cuándo y cuántos confirmaron, y se le recuerda a quien falta.
+   cada uno se ve a quién y cuándo.
    ENVIAR ES ENTREGAR: lo que sale llega por la app en el mismo momento; no hay un paso aparte.
 
    LAS SOLICITUDES YA NO VIVEN ACÁ: son trabajo con plazo y tienen su propia entrada del menú
@@ -33,7 +33,7 @@ export default function Envios() {
   const navigate = useNavigate()
   return (
     <div className="content-scroll">
-      <Cabecera titulo="Documentos emitidos" sub="Los certificados, memorándums y comunicados que RR.HH. envió, y quién confirmó que los recibió.">
+      <Cabecera titulo="Documentos emitidos" sub="Los certificados, memorándums y documentos que RR.HH. emitió. Quedan en el expediente de cada persona.">
         <button type="button" className="pl-btn-new" onClick={() => navigate('/documentos/emitidos/nuevo')}>
           <Send size={14} aria-hidden="true" /> Emitir documento
         </button>
@@ -44,30 +44,22 @@ export default function Envios() {
 }
 
 function Enviados() {
-  const { emitidos, lotesEmision, personas, modelos, solicitudes, recordarAcuse } = useDocumentacion()
+  const { emitidos, lotesEmision, personas, modelos, solicitudes } = useDocumentacion()
   const navigate = useNavigate()
   const [busca, setBusca] = useState('')
-  const [soloSin, setSoloSin] = useState(false)
-  const [aviso, setAviso] = useAviso()
   const porId = useMemo(() => new Map(personas.map(p => [p.id, p])), [personas])
   const lista = useMemo(() => envios(emitidos, lotesEmision), [emitidos, lotesEmision])
 
   const texto = busca.trim().toLowerCase()
   const filas = lista.filter(x => {
-    const sin = x.emitidos.filter(esperaAcuse).length
-    if (soloSin && !sin) return false
     if (!texto) return true
     const nombre = x.lote ? x.lote.nombre : nombreEmitido(x.emitido, modelos)
     return [nombre, ...x.emitidos.map(e => `${e.numero} ${porId.get(e.colaboradorId)?.name || ''}`)].some(v => String(v).toLowerCase().includes(texto))
   })
-  const totalSin = lista.reduce((n, x) => n + x.emitidos.filter(esperaAcuse).length, 0)
 
-  const recordar = (ev, x) => {
-    ev.stopPropagation()
-    const n = recordarAcuse(x.emitidos.filter(esperaAcuse).map(e => e.id))
-    setAviso(`Se registró el recordatorio a ${n === 1 ? 'una persona' : `${n} personas`}. En producción saldría por la app y por correo.`)
-  }
-
+  /* SIN CONFIRMACIÓN DE RECEPCIÓN (16 oct 2026): ya no se le pide al colaborador que confirme lo
+     que recibe, así que se fueron la columna «Confirmación», el «Recordar» y el filtro de los sin
+     confirmar. Lo que sí importa saber —que algo no se envió o se anuló— queda junto a la fecha. */
   return (
     <section className="xb-reporte">
       <div className="xb-rango">
@@ -75,25 +67,22 @@ function Enviados() {
           <Search size={13} className="pl-search-ico" />
           <input type="search" className="pl-search" placeholder="Buscar por documento, número o persona…" value={busca} onChange={e => setBusca(e.target.value)} aria-label="Buscar envíos" />
         </div>
-        <label className="xb-check"><input type="checkbox" checked={soloSin} onChange={e => setSoloSin(e.target.checked)} /> <span>Solo los que tienen personas sin confirmar ({totalSin})</span></label>
       </div>
 
       {!filas.length ? (
         <div className="dc-tarjeta">
-          <Vacio Icono={Send} titulo={lista.length ? 'Ningún envío coincide' : 'Todavía no se envió nada'} texto={lista.length ? 'Pruebe con otra palabra o quite el filtro.' : 'Los certificados, memorándums y archivos que envíe aparecerán aquí, con quién los confirmó.'}>
-            {!lista.length && <button type="button" className="pl-btn-new" onClick={() => navigate('/documentos/emitidos/nuevo')}><Send size={14} aria-hidden="true" /> Enviar documento</button>}
+          <Vacio Icono={Send} titulo={lista.length ? 'Ningún documento coincide' : 'Todavía no se emitió nada'} texto={lista.length ? 'Pruebe con otra palabra.' : 'Los certificados, memorándums y archivos que envíe aparecerán aquí.'}>
+            {!lista.length && <button type="button" className="pl-btn-new" onClick={() => navigate('/documentos/emitidos/nuevo')}><Send size={14} aria-hidden="true" /> Emitir documento</button>}
           </Vacio>
         </div>
       ) : (
         <div className="as-table-wrap xb-tabla-wrap">
           <table className="as-table xb-tabla">
-            <thead><tr><th>Documento</th><th>Para</th><th>Enviado</th><th>Confirmación</th><th><span className="sr-only">Acciones</span></th></tr></thead>
+            <thead><tr><th>Documento</th><th>Para</th><th>Emitido</th></tr></thead>
             <tbody>
               {filas.map(x => {
                 const e = x.emitido
-                const sin = x.emitidos.filter(esperaAcuse).length
                 const ir = () => navigate(`/documentos/emitidos/${x.id}`)
-                const pide = x.emitidos.some(y => y.pideAcuse !== false)
                 return (
                   <tr key={x.id} className="xb-fila-link" tabIndex={0} onClick={ir} onKeyDown={ev => { if (ev.key === 'Enter') ir() }}>
                     <td>
@@ -110,16 +99,10 @@ function Enviados() {
                         ? <span className="xb-grupo"><Users size={15} aria-hidden="true" /> {x.a.total} personas</span>
                         : <PersonaCelda persona={porId.get(e.colaboradorId)} size={28} />}
                     </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{fechaCorta(x.fecha)}</td>
-                    <td className="xb-cuando">
-                      {x.lote
-                        ? (pide ? <><b>{x.a.confirmados} de {x.a.total}</b><span>{sin ? `${sin} sin confirmar` : 'Todos confirmaron'}</span></> : <span>Sin pedir confirmación</span>)
-                        : e.estado === 'acusado' ? <><EstadoEmitidoChip estado="acusado" /><span>{fechaCorta(e.acuse.fecha)}</span></>
-                          : esperaAcuse(e) ? <><Etiqueta tono="ambar">Sin confirmar</Etiqueta>{e.recordatorios?.length > 0 && <span>Recordado el {fechaCorta(e.recordatorios.at(-1).fecha)}</span>}</>
-                            : <EstadoEmitidoChip estado={e.estado} />}
-                    </td>
-                    <td className="xb-acc">
-                      {sin > 0 && <button type="button" className="dc-btn dc-btn-sm" onClick={ev => recordar(ev, x)}><BellRing size={12} aria-hidden="true" /> Recordar</button>}
+                    <td className="xb-cuando" style={{ whiteSpace: 'nowrap' }}>
+                      <span>{fechaCorta(x.fecha)}</span>
+                      {e && ['generado', 'pendiente', 'anulado'].includes(e.estado) && <EstadoEmitidoChip estado={e.estado} />}
+                      {e?.firmado && <span className="dc-chip dc-t-verde">Firmado</span>}
                     </td>
                   </tr>
                 )
@@ -128,7 +111,6 @@ function Enviados() {
           </table>
         </div>
       )}
-      {aviso}
     </section>
   )
 }

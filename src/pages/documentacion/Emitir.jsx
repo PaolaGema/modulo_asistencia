@@ -32,7 +32,7 @@ const PARA_VACIO = { pestana: 'personas', ids: [] }
 const DESCRIPCION = {
   certificado: 'Lo que la persona presenta afuera',
   memorandum: 'Felicitaciones y llamadas de atención',
-  contrato: 'Indefinido, plazo fijo y adendas',
+  contrato: 'Indefinido y plazo fijo',
   otro: 'Otros documentos con plantilla',
 }
 
@@ -159,9 +159,11 @@ function Riel({ elegido, categoria, onElegir }) {
 }
 
 /* ── PARA QUIÉN ──
-   TODO TERMINA EN UNA LISTA DE PERSONAS.
-   «Personas»: se busca y se suma de a una.
-   «Un grupo», COMO ARMAR UN GRUPO EN WHATSAPP: la gente en una lista con casillas, que se acorta
+   TODO TERMINA EN UNA LISTA DE PERSONAS, y no hace falta decir antes si es «una persona» o «un
+   grupo» (propuesta D, 16 oct 2026): se marca a una y es para una; se marcan varias y a cada una
+   le sale el suyo. Las pestañas «Personas / Un grupo» se quitaron; queda siempre la lista.
+   Un contrato es de una sola persona: ahí sigue el buscador de a una.
+   LA LISTA, COMO ARMAR UN GRUPO EN WHATSAPP: la gente en una lista con casillas, que se acorta
    con la sucursal, la unidad organizacional, el cargo —cada uno por separado— y un buscador. Se
    marca, se sigue buscando y se marca más: lo marcado no se pierde al cambiar el filtro y queda
    arriba como etiquetas, para quitar a quien sobre. «Marcar a los N» marca de una vez a todos los
@@ -173,7 +175,7 @@ const sinTildes = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').
 function ParaQuien({ para, onPara, sinDatos = [], viendo, ver, unaSola }) {
   const { personas } = useDocumentacion()
   const activos = personas.filter(p => p.status !== 'desvinculado')
-  const pestana = unaSola ? 'personas' : para.pestana
+  const pestana = unaSola ? 'personas' : 'lista'
   const ids = unaSola ? para.ids.slice(0, 1) : para.ids
   const [f, setF] = useState({ busca: '', sede: '', area: '', cargo: '' })
   const setFf = (c, v) => setF(prev => ({ ...prev, [c]: v }))
@@ -208,12 +210,6 @@ function ParaQuien({ para, onPara, sinDatos = [], viendo, ver, unaSola }) {
   return (
     <div className="xh-bloque xr-para">
       <h2 className="xe-tit">Para quién{cuantos > 1 ? ` · ${cuantos}` : ''}</h2>
-      {!unaSola && (
-        <span className="xe-modo xr-modo" role="group" aria-label="Cómo elegir a quién">
-          <button type="button" className={pestana === 'personas' ? 'on' : ''} aria-pressed={pestana === 'personas'} onClick={() => onPara(p => ({ ...p, pestana: 'personas' }))}>Personas</button>
-          <button type="button" className={pestana === 'grupo' ? 'on' : ''} aria-pressed={pestana === 'grupo'} onClick={() => onPara(p => ({ ...p, pestana: 'grupo' }))}>Un grupo</button>
-        </span>
-      )}
 
       {pestana === 'personas' ? (
         <>
@@ -239,12 +235,13 @@ function ParaQuien({ para, onPara, sinDatos = [], viendo, ver, unaSola }) {
               ))}
             </ul>
           ) : (
-            <p className="xh-ayuda">{unaSola ? 'Un contrato es de una sola persona.' : 'Sume a una o a varias personas: a cada una le sale el suyo.'}</p>
+            <p className="xh-ayuda">Un contrato es de una sola persona.</p>
           )}
         </>
       ) : (
         <>
           {/* Lo marcado, arriba y siempre a la vista, como en WhatsApp: se quita con la ×. */}
+          {elegidas.length === 0 && <p className="xh-ayuda">Marque a una o a varias personas: a cada una le sale el suyo.</p>}
           {elegidas.length > 0 && (
             <div className="xr-chips-cab">
               <span><b>{elegidas.length}</b> {elegidas.length === 1 ? 'elegida' : 'elegidas'}</span>
@@ -278,7 +275,7 @@ function ParaQuien({ para, onPara, sinDatos = [], viendo, ver, unaSola }) {
             <div className="xr-caja">
               <label className="xr-check xr-todos">
                 <input type="checkbox" checked={todos} onChange={marcarTodos} />
-                <span>{todos ? `Desmarcar a los ${lista.length}` : `Marcar a los ${lista.length}`}</span>
+                <span>{todos ? `Desmarcar los ${lista.length} que se ven` : `Marcar los ${lista.length} que se ven`}</span>
               </label>
               <ul className="xw-dest xr-lista">
                 {lista.map(p => {
@@ -312,7 +309,6 @@ const ACEPTA = '.pdf,.jpg,.jpeg,.png'
 function PanelArchivo({ archivo, onArchivo, para, onPara, onHecho, onOtro }) {
   const { personas, enviarArchivo } = useDocumentacion()
   const input = useRef(null)
-  const [pideAcuse, setPideAcuse] = useState(true)
   const [enviando, setEnviando] = useState(false)
   const [hecho, setHecho] = useState(null)
   const destino = para.ids.map(id => personas.find(p => p.id === id)).filter(Boolean)
@@ -327,7 +323,6 @@ function PanelArchivo({ archivo, onArchivo, para, onPara, onHecho, onOtro }) {
       nombre: archivo.nombre.trim() || f.name,
       archivo: { nombre: f.name, clave: ok === false ? null : clave, formato: extensionDe(f.name), tipoMime: f.type, tamanoKB: Math.round(f.size / 1024) },
       colaboradorIds: destino.map(p => p.id),
-      pideAcuse,
     })
     setEnviando(false)
     setHecho({ envio: nuevos[0]?.loteId || nuevos[0]?.id, cuantos: destino.length, a: destino[0]?.name })
@@ -376,10 +371,6 @@ function PanelArchivo({ archivo, onArchivo, para, onPara, onHecho, onOtro }) {
           <p className={`xr-enviar-nota${listo ? '' : ' falta'}`}>
             {!archivo ? 'Falta elegir el archivo.' : !destino.length ? 'Falta elegir a quién.' : 'Le llega por la app y queda en su expediente.'}
           </p>
-          <label className="xb-check" title="La persona confirma en la app que lo recibió y lo leyó; no que está de acuerdo.">
-            <input type="checkbox" checked={pideAcuse} onChange={e => setPideAcuse(e.target.checked)} />
-            <span>Pedir que confirme la recepción</span>
-          </label>
           <button type="button" className="pl-btn-new xr-boton" disabled={!listo || enviando} onClick={enviar}>
             <Send size={15} aria-hidden="true" /> {enviando ? 'Enviando…' : destino.length > 1 ? `Enviar a ${destino.length} personas` : destino.length ? `Enviar a ${destino[0].name.split(' ')[0]}` : 'Enviar'}
           </button>

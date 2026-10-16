@@ -45,6 +45,27 @@ export function descargarTexto(nombre, contenido) {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
+/* PARA IMPRIMIR Y HACER FIRMAR (16 oct 2026): el texto de un documento generado como archivo de
+   Word (.doc), con letra de documento, márgenes de hoja y, si se piden, las líneas de firma al pie.
+   Word lo abre tal cual y se imprime desde ahí; un .txt salía sin formato y sin lugar para firmar. */
+export function descargarParaImprimir(nombre, texto, { firmas = [] } = {}) {
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const parrafos = String(texto || '').split(/\n{2,}/).map((p, i) => `<p${i === 0 ? ' class="tit"' : ''}>${esc(p).replace(/\n/g, '<br>')}</p>`).join('')
+  const pie = firmas.length
+    ? `<table class="firmas"><tr>${firmas.map(f => `<td><div class="linea"></div>${esc(f)}</td>`).join('')}</tr></table>`
+    : ''
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(nombre)}</title>
+<style>@page { size: 21.59cm 27.94cm; margin: 2.5cm; } body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; }
+p { margin: 0 0 12pt; text-align: justify; } p.tit { text-align: center; font-weight: bold; }
+table.firmas { width: 100%; margin-top: 72pt; } table.firmas td { width: 50%; text-align: center; padding: 0 24pt; vertical-align: top; }
+.linea { border-top: 1px solid #000; margin-bottom: 6pt; }</style></head><body>${parrafos}${pie}</body></html>`
+  const blob = new Blob(['﻿', html], { type: 'application/msword' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = nombre.endsWith('.doc') ? nombre : `${nombre}.doc`; a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
 /* Exportar una tabla a CSV con los filtros escritos arriba (RF-83). Excel lo abre directo. */
 export function exportarCSV(nombre, encabezados, filas, filtrosTexto) {
   const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`

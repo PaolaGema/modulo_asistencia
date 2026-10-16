@@ -68,6 +68,12 @@ async function entradasDe(persona, ctx, { confidenciales = true } = {}) {
       const v = m?.versiones.find(x => x.v === e.versionPlantilla)
       const texto = e.texto || rellenar(v?.texto || '', { ...e.datos, 'documento.numero': e.numero })
       entradas.push({ nombre: `${raiz}/Emitidos/${nombreSeguro(e.numero)}.txt`, datos: texto })
+      // El escaneado firmado que subió RR.HH. viaja junto al texto generado, con el mismo número.
+      if (e.firmado?.archivo) {
+        const real = e.firmado.archivo.clave ? await leerArchivo(e.firmado.archivo.clave) : null
+        const ext = e.firmado.archivo.formato || e.firmado.archivo.nombre.split('.').pop() || 'pdf'
+        entradas.push({ nombre: `${raiz}/Emitidos/${nombreSeguro(e.numero)} firmado.${real ? ext : 'txt'}`, datos: real || `El firmado de ${e.numero} (${e.firmado.archivo.nombre}) está guardado en el navegador de quien lo subió.` })
+      }
     }
     indice.push('')
   }

@@ -1,20 +1,23 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Ban, BellRing, Check, CircleCheck, Download, Pencil, Send } from 'lucide-react'
+import { ArrowLeft, Ban, Check, Download, Pencil, Send, Upload } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
-import { Cabecera, EstadoEmitidoChip, Etiqueta, Modal, PersonaCelda, SensibilidadChip, Vacio } from '../../components/documentacion/comunes'
+import { Cabecera, EstadoEmitidoChip, Modal, PersonaCelda, SensibilidadChip, Vacio } from '../../components/documentacion/comunes'
 import HojaEmitido from '../../components/documentacion/HojaEmitido'
-import { descargarTexto } from '../../components/documentacion/utilidades'
+import { descargarTexto, descargarParaImprimir } from '../../components/documentacion/utilidades'
+import { guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
+import { extensionDe } from '../../components/documentacion/deducir'
 import { crearZip, descargarBlob, nombreSeguro } from '../../components/documentacion/zip'
-import { avanceLote, esperaAcuse, fechaCorta, iso, hoy, nombreEmitido } from '../../data/documentacionData'
+import { avanceLote, fechaCorta, iso, hoy, nombreEmitido } from '../../data/documentacionData'
 import { textoEmitido } from './emisionUtil'
 import { useAviso } from './Envios'
 import './seguimiento.css'
 
 /* ── UN ENVÍO (Documentación v3) ──────────────────────────────────────────
-   Lo enviado, abierto. Si fue a un grupo: a quiénes, quién confirmó y quién no, con «recordar» y
-   «descargar todos». Si fue a una persona: el documento tal como le llegó, su confirmación y lo que
-   se puede hacer con él —recordar, descargar, anular—. Anular no borra (RN-14): el número queda
+   Lo emitido, abierto. Desde el 16 oct 2026 no se envía: se descarga para imprimir y firmar, y se
+   sube el firmado. Si fue a un grupo: a quiénes les llegó, con «descargar todos». Si fue a una
+   persona: el documento tal como le llegó y lo que se puede hacer con él —descargar, anular—.
+   Ya no se pide confirmar la recepción (16 oct 2026): no hay «confirmó» ni «recordar». Anular no borra (RN-14): el número queda
    tachado con su motivo, y la persona deja de verlo como vigente. */
 export default function Envio() {
   const { id } = useParams()
@@ -56,27 +59,23 @@ function Avance({ n, total, tono }) {
 /* ── A UN GRUPO ── */
 function EnvioGrupo({ lote }) {
   const navigate = useNavigate()
-  const { emitidos, modelos, personas, recordarAcuse, renombrarLote, registrarDescarga } = useDocumentacion()
+  const { emitidos, modelos, personas, renombrarLote, registrarDescarga } = useDocumentacion()
   const [editando, setEditando] = useState(false)
   const [nombre, setNombre] = useState('')
   const [bajando, setBajando] = useState(false)
   const [aviso, setAviso] = useAviso()
   const a = avanceLote(lote, emitidos)
   const personaDe = e => personas.find(p => p.id === e.colaboradorId)
-  const sinConfirmar = a.emitidos.filter(esperaAcuse)
   const anulados = emitidos.filter(e => e.loteId === lote.id && e.estado === 'anulado')
   const doc = nombreEmitido(a.emitidos[0] || {}, modelos)
 
-  const recordar = () => {
-    const n = recordarAcuse(sinConfirmar.map(e => e.id))
-    setAviso(`Se registró el recordatorio a ${n} ${n === 1 ? 'persona' : 'personas'}. En producción saldría por la app y por correo.`)
-  }
   async function descargarTodos() {
     setBajando(true)
     try {
       const blob = await crearZip(a.emitidos.map(e => ({ nombre: `${nombreSeguro(e.numero.replace(/\//g, '-'))} ${nombreSeguro(personaDe(e)?.name || '')}.txt`, datos: textoEmitido(e, modelos) || nombreEmitido(e, modelos) })))
       descargarBlob(`${nombreSeguro(lote.nombre)}_${iso(hoy())}.zip`, blob)
       registrarDescarga('emitido', null, null, `Descargó el envío «${lote.nombre}» (${a.emitidos.length} documentos)`)
+      setAviso(`Se descargaron los ${a.emitidos.length} documentos del envío.`)
     } finally { setBajando(false) }
   }
   const guardar = () => { renombrarLote(lote.id, nombre); setEditando(false) }
@@ -97,18 +96,15 @@ function EnvioGrupo({ lote }) {
       )}
 
       <div className="dc-tarjeta xl-cab" style={{ margin: '0 0 16px' }}>
-        {a.pideAcuse
-          ? <div className="xl-cab-dato"><span className="xl-cab-rot">Confirmaron</span><Avance n={a.confirmados} total={a.total} tono="verde" /></div>
-          : <span className="xb-nota">Se envió sin pedir confirmación de recepción.</span>}
+        <div className="xl-cab-dato"><span className="xl-cab-rot">Con el firmado subido</span><Avance n={a.emitidos.filter(e => e.firmado).length} total={a.total} tono="verde" /></div>
         <div className="xl-acciones">
-          {sinConfirmar.length > 0 && <button type="button" className="pl-btn-new" onClick={recordar}><BellRing size={14} aria-hidden="true" /> Recordar a {sinConfirmar.length === 1 ? 'quien falta' : `los ${sinConfirmar.length} que faltan`}</button>}
           <button type="button" className="dc-btn" disabled={bajando || !a.emitidos.length} onClick={descargarTodos}><Download size={14} aria-hidden="true" /> {bajando ? 'Preparando…' : 'Descargar todos'}</button>
         </div>
       </div>
 
       <div className="as-table-wrap xb-tabla-wrap">
         <table className="as-table xb-tabla">
-          <thead><tr><th>Colaborador</th><th>Número</th><th>Confirmación</th></tr></thead>
+          <thead><tr><th>Colaborador</th><th>Número</th><th>Firmado</th></tr></thead>
           <tbody>
             {[...a.emitidos, ...anulados].map(e => {
               const ir = () => navigate(`/documentos/emitidos/${e.id}`)
@@ -117,9 +113,9 @@ function EnvioGrupo({ lote }) {
                   <td><PersonaCelda persona={personaDe(e)} size={28} /></td>
                   <td className="xb-num" style={e.estado === 'anulado' ? { textDecoration: 'line-through' } : undefined}>{e.numero}</td>
                   <td className="xb-cuando">
-                    {e.acuse ? <><EstadoEmitidoChip estado="acusado" /><span>{fechaCorta(e.acuse.fecha)} · {e.acuse.dispositivo}</span></>
-                      : esperaAcuse(e) ? <><Etiqueta tono="ambar">Sin confirmar</Etiqueta>{e.recordatorios?.length > 0 && <span>Recordado el {fechaCorta(e.recordatorios.at(-1).fecha)}</span>}</>
-                        : <EstadoEmitidoChip estado={e.estado} />}
+                    {e.estado === 'anulado' || e.estado === 'pendiente' ? <EstadoEmitidoChip estado={e.estado} />
+                      : e.firmado ? <span>{fechaCorta(e.firmado.fecha)}</span>
+                        : <EstadoEmitidoChip estado="generado" />}
                   </td>
                 </tr>
               )
@@ -135,7 +131,8 @@ function EnvioGrupo({ lote }) {
 /* ── A UNA PERSONA ── */
 function EnvioUno({ e }) {
   const navigate = useNavigate()
-  const { personas, modelos, lotesEmision, recordarAcuse, anular, entregar, registrarDescarga } = useDocumentacion()
+  const { personas, modelos, lotesEmision, anular, adjuntarFirmado, registrarDescarga } = useDocumentacion()
+  const input = useRef(null)
   const [anulando, setAnulando] = useState(false)
   const [motivo, setMotivo] = useState('')
   const [aviso, setAviso] = useAviso()
@@ -149,8 +146,16 @@ function EnvioUno({ e }) {
     <div className="content-scroll">
       {lote ? <Volver a={`/documentos/emitidos/${lote.id}`} texto={lote.nombre} /> : <Volver />}
       <Cabecera titulo={nombre} sub={`${e.numero} · enviado el ${fechaCorta(e.fecha)} por ${e.emitidoPor}`}>
-        {esperaAcuse(e) && <button type="button" className="pl-btn-new" onClick={() => { recordarAcuse([e.id]); setAviso('Se registró el recordatorio.') }}><BellRing size={14} aria-hidden="true" /> Recordar</button>}
-        {e.estado === 'generado' && <button type="button" className="pl-btn-new" onClick={() => { entregar(e.id, 'app'); setAviso('Enviado por la app.') }}><Send size={14} aria-hidden="true" /> Enviar por la app</button>}
+        {!anulado && !e.firmado && e.texto && <button type="button" className="pl-btn-new" onClick={() => { descargarParaImprimir(`${e.numero.replace(/\//g, '-')}_${persona?.codigo || ''}_para-firmar`, e.texto); registrarDescarga('emitido', e.id, e.colaboradorId, `Descargó ${e.numero} para imprimir y firmar`) }}><Download size={14} aria-hidden="true" /> Descargar para imprimir</button>}
+        {!anulado && <button type="button" className={e.firmado ? 'dc-btn' : 'pl-btn-new'} onClick={() => input.current?.click()}><Upload size={14} aria-hidden="true" /> {e.firmado ? 'Reemplazar el firmado' : 'Subir el firmado'}</button>}
+        <input ref={input} type="file" hidden accept="application/pdf,image/*" onChange={async ev => {
+          const f = ev.target.files?.[0]; ev.target.value = ''
+          if (!f) return
+          const clave = nuevaClaveArchivo()
+          const ok = await guardarArchivo(clave, f).catch(() => false)
+          adjuntarFirmado(e.id, { nombre: f.name, clave: ok === false ? null : clave, formato: extensionDe(f.name), tipoMime: f.type, tamanoKB: Math.round(f.size / 1024) })
+          setAviso('Se guardó el firmado.')
+        }} />
         <button type="button" className="dc-btn" onClick={() => { descargarTexto(`${e.numero.replace(/\//g, '-')}.txt`, textoEmitido(e, modelos) || nombre); registrarDescarga('emitido', e.id, e.colaboradorId, `Descargó ${e.numero}`, !!m?.sensible) }}><Download size={14} aria-hidden="true" /> Descargar</button>
         {!anulado && <button type="button" className="dc-btn dc-btn-peligro" onClick={() => { setAnulando(true); setMotivo('') }}><Ban size={14} aria-hidden="true" /> Anular</button>}
       </Cabecera>
@@ -163,9 +168,9 @@ function EnvioUno({ e }) {
         </div>
         <p className="xb-nota" style={{ flex: '1 1 280px' }}>
           {e.anulado ? `Anulado el ${fechaCorta(e.anulado.fecha)} por ${e.anulado.por}: ${e.anulado.motivo}`
-            : e.acuse ? <><CircleCheck size={12} aria-hidden="true" /> Confirmó la recepción el {fechaCorta(e.acuse.fecha)} · {e.acuse.dispositivo}</>
-              : esperaAcuse(e) ? `Le llegó por la app el ${fechaCorta(e.entregas.at(-1)?.fecha)} y todavía no confirmó.${e.recordatorios?.length ? ` Recordado el ${fechaCorta(e.recordatorios.at(-1).fecha)}.` : ''}`
-                : e.entregas.length ? `Le llegó por la app el ${fechaCorta(e.entregas.at(-1).fecha)}.` : 'Todavía no se le envió.'}
+            : e.firmado ? `Firmado: lo subió ${e.firmado.por} el ${fechaCorta(e.firmado.fecha)}. Está en su expediente.`
+              : e.estado === 'generado' ? 'Está en su expediente, sin firmar. Descárguelo, imprímalo, hágalo firmar y suba el firmado.'
+                : e.entregas.length ? `Le llegó por la app el ${fechaCorta(e.entregas.at(-1).fecha)}.` : 'Está en su expediente.'}
         </p>
       </div>
 
