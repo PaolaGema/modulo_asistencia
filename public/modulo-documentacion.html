@@ -996,104 +996,95 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="taxo">
   <div class="taxo-head">
     <div>
-      <p class="taxo-cap">El expediente, de un vistazo</p>
-      <p class="taxo-sub">Cuatro entradas en el menú, cada una con su número cuando hay algo pendiente, y el expediente de cada persona en carpetas. Cada carpeta dice <strong>cuánto le falta</strong> y cada documento <strong>en qué estado está</strong>, que nunca se elige: se deduce de sus fechas y de la revisión.</p>
+      <p class="taxo-cap">El módulo, de un vistazo</p>
+      <p class="taxo-sub">Documentación son <strong>dos espacios con un solo dato debajo</strong>: el <strong>Repositorio</strong>, que guarda lo de cada persona, y la <strong>Emisión</strong>, que le envía lo que la empresa genera. Todo lo emitido vuelve al expediente. Debajo, la configuración de cada espacio; abajo de todo, lo que ve el colaborador, que sale de los mismos dos espacios.</p>
     </div>
     <div class="leyenda">
       <div>
-        <p class="ley-t">Lo que dice cada carpeta</p>
+        <p class="ley-t">Colores</p>
         <div class="ley-i">
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="#E5484D"/><text x="11" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">2</text></svg> Le faltan documentos</span>
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="var(--hoja)" stroke="var(--funcional)" stroke-width="1.5"/><path d="M7 11.5l3 3 5-6" fill="none" stroke="var(--funcional)" stroke-width="1.8"/></svg> Al día</span>
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="var(--hoja)" stroke="var(--regla-2)" stroke-width="1.5"/><path d="M7.5 11h7" stroke="var(--tinta-3)" stroke-width="1.8"/></svg> No se le exige</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--estructural)" stroke-width="2"/></svg> Repositorio</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--funcional)" stroke-width="2"/></svg> Emisión</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--aprobacion)" stroke-width="2"/></svg> Colaborador</span>
         </div>
       </div>
       <div>
-        <p class="ley-t">Los estados de un documento</p>
+        <p class="ley-t">En el menú</p>
         <div class="ley-i">
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="var(--funcional)"/></svg> Vigente</span>
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="var(--alerta)"/></svg> Por vencer</span>
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="#E5484D"/></svg> Vencido o rechazado</span>
-          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="var(--estructural)"/></svg> En revisión</span>
+          <span class="ly">Expedientes · Solicitudes · Documentos emitidos · Configuración</span>
         </div>
       </div>
     </div>
   </div>
   <div class="lienzo">
-    <svg class="gp-dgm" viewBox="0 0 900 470" role="img" aria-labelledby="doc-d0-t doc-d0-d">
-      <title id="doc-d0-t">El expediente de una persona, con sus partes señaladas</title>
-      <desc id="doc-d0-d">A la izquierda, el menú del módulo con Expedientes (20 por revisar), Solicitudes (8), Documentos emitidos y Configuración. A la derecha, el expediente de Adriana Ledezma: su cabecera con foto, datos de la ficha, barra de avance de 67 % y los botones Subir documento, Enviar documento y Descargar expediente; las pastillas de lo pendiente; y las carpetas Información personal (falta 1), Perfil profesional (al día), Recursos y activos (no se le exige), Contratos (al día), Recibidos (2 sin confirmar) e Historial.</desc>
-      <rect x="10" y="10" width="880" height="450" rx="14" fill="var(--papel)" stroke="var(--regla-2)"/>
-      <!-- 1 · el menú -->
-      <rect x="30" y="30" width="200" height="410" rx="12" fill="var(--hoja)" stroke="var(--regla)"/>
-      <text class="gp-e gp-gris" x="48" y="58">DOCUMENTACIÓN</text>
-      <rect x="40" y="72" width="180" height="34" rx="8" fill="color-mix(in srgb, var(--funcional) 22%, var(--hoja))"/>
-      <text class="gp-t" x="54" y="94" font-size="12">Expedientes</text><circle cx="200" cy="89" r="10" fill="var(--marca)"/><text class="gp-n" x="200" y="93" text-anchor="middle" font-size="9.5" fill="#fff">20</text>
-      <text class="gp-s" x="54" y="132">Solicitudes</text><circle cx="200" cy="128" r="10" fill="var(--marca)"/><text class="gp-n" x="200" y="132" text-anchor="middle" font-size="9.5" fill="#fff">8</text>
-      <text class="gp-s" x="54" y="166">Documentos emitidos</text>
-      <text class="gp-s" x="54" y="200">Configuración  ˅</text>
-      <text class="gp-s" x="70" y="226" fill="var(--tinta-3)">· Plantillas</text>
-      <text class="gp-s" x="70" y="248" fill="var(--tinta-3)">· Notificaciones y numeración</text>
-      <!-- 2 · la persona -->
-      <rect x="250" y="30" width="620" height="86" rx="12" fill="var(--hoja)" stroke="var(--regla)"/>
-      <circle cx="290" cy="72" r="24" fill="color-mix(in srgb, var(--outsourcing) 30%, var(--hoja))"/>
-      <text class="gp-t" x="326" y="62" font-size="15">Adriana Ledezma</text>
-      <text class="gp-s" x="326" y="80">Sin puesto asignado · Sucursal El Prado · 1237570</text>
-      <rect x="326" y="92" width="120" height="7" rx="3.5" fill="var(--regla)"/><rect x="326" y="92" width="80" height="7" rx="3.5" fill="var(--alerta)"/>
-      <text class="gp-n" x="454" y="99" font-size="10">67 %</text><text class="gp-s" x="490" y="99" font-size="10.5" fill="var(--tinta-3)">2 de 3 obligatorios</text>
-      <!-- 5 · las acciones -->
-      <rect x="610" y="52" width="114" height="30" rx="8" fill="var(--marca)"/><text class="gp-s" x="667" y="71" text-anchor="middle" font-weight="700" style="fill:#fff">↑ Subir</text>
-      <rect x="732" y="52" width="58" height="30" rx="8" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="761" y="71" text-anchor="middle">Enviar</text>
-      <rect x="798" y="52" width="58" height="30" rx="8" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="827" y="71" text-anchor="middle">ZIP</text>
-      <!-- 3 · lo pendiente -->
-      <rect x="250" y="132" width="112" height="28" rx="14" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="264" y="151">Por revisar</text><text class="gp-n" x="342" y="151" fill="var(--estructural)">1</text>
-      <rect x="370" y="132" width="78" height="28" rx="14" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="384" y="151">Faltan</text><text class="gp-n" x="430" y="151" fill="#E5484D">1</text>
-      <rect x="456" y="132" width="160" height="28" rx="14" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="470" y="151">Vencidos o por vencer</text><text class="gp-n" x="598" y="151" fill="var(--alerta)">0</text>
-      <!-- 4 · las carpetas -->
-      <g>
-        <path d="M250 184 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--estructural) 14%, var(--hoja))" stroke="var(--regla-2)"/>
-        <text class="gp-t" x="264" y="236">Información personal</text><text class="gp-s" x="264" y="254">2 de 3 al día</text>
-        <circle cx="436" cy="208" r="9" fill="#E5484D"/><text class="gp-n" x="436" y="212" text-anchor="middle" font-size="9.5" fill="#fff">1</text>
-      </g>
-      <g>
-        <path d="M466 184 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--aprobacion) 14%, var(--hoja))" stroke="var(--regla-2)"/>
-        <text class="gp-t" x="480" y="236">Perfil profesional</text><text class="gp-s" x="480" y="254">1 documento</text>
-        <circle cx="652" cy="208" r="9" fill="var(--hoja)" stroke="var(--funcional)" stroke-width="1.5"/><path d="M648 208.5l3 3 5-6" fill="none" stroke="var(--funcional)" stroke-width="1.6"/>
-      </g>
-      <g>
-        <path d="M682 184 h66 l8 8 h106 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-172 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--funcional) 12%, var(--hoja))" stroke="var(--regla-2)"/>
-        <text class="gp-t" x="696" y="236">Recursos y activos</text><text class="gp-s" x="696" y="254">No se le exige</text>
-        <circle cx="854" cy="208" r="9" fill="var(--hoja)" stroke="var(--regla-2)" stroke-width="1.5"/><path d="M850 208h8" stroke="var(--tinta-3)" stroke-width="1.6"/>
-      </g>
-      <g>
-        <path d="M250 292 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--marca) 12%, var(--hoja))" stroke="var(--regla-2)"/>
-        <text class="gp-t" x="264" y="344">Contratos</text><text class="gp-s" x="264" y="362">Indefinido · vigente</text>
-        <circle cx="436" cy="316" r="9" fill="var(--hoja)" stroke="var(--funcional)" stroke-width="1.5"/><path d="M432 316.5l3 3 5-6" fill="none" stroke="var(--funcional)" stroke-width="1.6"/>
-      </g>
-      <g>
-        <path d="M466 292 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--outsourcing) 13%, var(--hoja))" stroke="var(--regla-2)"/>
-        <text class="gp-t" x="480" y="344">Recibidos</text><text class="gp-s" x="480" y="362">Lo que RR.HH. le envió</text>
-        <circle cx="652" cy="316" r="9" fill="var(--hoja)" stroke="var(--regla-2)" stroke-width="1.5"/><text class="gp-n" x="652" y="320" text-anchor="middle" font-size="9.5">2</text>
-      </g>
-      <g>
-        <path d="M682 292 h66 l8 8 h106 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-172 a8 8 0 0 1 -8 -8 z" fill="var(--hoja-2)" stroke="var(--regla-2)" stroke-dasharray="4 3"/>
-        <text class="gp-t" x="696" y="344">Historial</text><text class="gp-s" x="696" y="362">Todo lo que pasó, por mes</text>
-      </g>
-      <text class="gp-s" x="250" y="410" fill="var(--tinta-3)">Por clasificar y Papelera aparecen solo cuando tienen algo.</text>
-      <!-- números -->
-      <circle cx="30" cy="30" r="10" fill="var(--estructural)"/><text class="gp-n" x="30" y="34" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">1</text>
-      <circle cx="250" cy="30" r="10" fill="var(--estructural)"/><text class="gp-n" x="250" y="34" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">2</text>
-      <circle cx="250" cy="132" r="10" fill="var(--estructural)"/><text class="gp-n" x="250" y="136" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">3</text>
-      <circle cx="250" cy="184" r="10" fill="var(--estructural)"/><text class="gp-n" x="250" y="188" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">4</text>
-      <circle cx="866" cy="52" r="10" fill="var(--estructural)"/><text class="gp-n" x="866" y="56" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">5</text>
+    <svg class="gp-dgm" viewBox="0 0 900 580" role="img" aria-labelledby="dc-d0-t dc-d0-d">
+      <title id="dc-d0-t">Mapa del módulo de documentación: dos espacios, su configuración y lo que ve el colaborador</title>
+      <desc id="dc-d0-d">Arriba, el módulo Documentación con un solo dato debajo; a la izquierda, la bitácora que registra todo; a la derecha, la ficha de Gestión de personas, que se lee y no se copia. En el medio, el Repositorio con Expedientes, Revisar documentos y Contratos, y la Emisión con Emitir, Documentos emitidos y Solicitudes. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente, en Recibidos o en Contratos. Debajo, la configuración: Notificaciones y numeración, que sirve a los dos, y Plantillas y tipos de documento, que alimentan la Emisión; los documentos que se exigen en el Repositorio todavía no tienen pantalla. Abajo, el colaborador en Zona HR: Por entregar y Mis carpetas salen del Repositorio; De RR.HH. y Mis solicitudes, de la Emisión.</desc>
+      <defs><marker id="dc-m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="gp-punta fuerte" d="M0 0L10 5L0 10z"/></marker></defs>
+
+      <rect class="gp-caja" x="20" y="20" width="220" height="48" rx="10"/>
+      <text class="gp-t" x="36" y="41">Bitácora</text><text class="gp-s" x="36" y="58">Registra todo; solo crece</text>
+      <rect x="330" y="16" width="240" height="56" rx="12" class="gp-lleno"/>
+      <text class="gp-t" x="450" y="41" text-anchor="middle" style="fill:var(--sobre-acento)">DOCUMENTACIÓN</text>
+      <text class="gp-s" x="450" y="59" text-anchor="middle" style="fill:var(--sobre-acento)">Un solo dato debajo</text>
+      <rect class="gp-caja" x="660" y="20" width="220" height="48" rx="10"/>
+      <text class="gp-t" x="676" y="41">Ficha del colaborador</text><text class="gp-s" x="676" y="58">Se lee, no se copia</text>
+      <path class="gp-lin" d="M240 44 H330 M570 44 H660"/>
+      <path class="gp-lin" d="M450 72 V88 H225 V100 M450 88 H675 V100"/>
+
+      <rect class="gp-caja p1" x="20" y="100" width="410" height="236" rx="14"/>
+      <rect class="gp-banda p1" x="20" y="100" width="410" height="6" rx="3"/>
+      <text class="gp-e gp-azul" x="40" y="128">ESPACIO 1</text>
+      <text class="gp-t" x="40" y="146" font-size="15">Repositorio</text>
+      <text class="gp-s" x="140" y="146">Lo que hay de cada persona y su historia</text>
+      <rect class="gp-caja" x="40" y="160" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="56" y="181">Expedientes</text><text class="gp-s" x="56" y="198">Qué atender hoy, la lista y el expediente por carpetas</text>
+      <rect class="gp-caja" x="40" y="218" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="56" y="239">Revisar documentos</text><text class="gp-s" x="56" y="256">Lo que subieron los colaboradores, de a uno</text>
+      <rect class="gp-caja" x="40" y="276" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="56" y="297">Contratos</text><text class="gp-s" x="56" y="314">Uno vigente por persona, con sus adendas</text>
+
+      <rect class="gp-caja p2" x="470" y="100" width="410" height="236" rx="14"/>
+      <rect class="gp-banda p2" x="470" y="100" width="410" height="6" rx="3"/>
+      <text class="gp-e gp-verde" x="490" y="128">ESPACIO 2</text>
+      <text class="gp-t" x="490" y="146" font-size="15">Emisión</text>
+      <text class="gp-s" x="566" y="146">Lo que la empresa genera y entrega</text>
+      <rect class="gp-caja" x="490" y="160" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="506" y="181">Emitir</text><text class="gp-s" x="506" y="198">Una plantilla, la hoja y a quién: una persona o un grupo</text>
+      <rect class="gp-caja" x="490" y="218" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="506" y="239">Documentos emitidos</text><text class="gp-s" x="506" y="256">Quién confirmó, recordar y anular</text>
+      <rect class="gp-caja" x="490" y="276" width="370" height="50" rx="9"/>
+      <text class="gp-t" x="506" y="297">Solicitudes</text><text class="gp-s" x="506" y="314">Lo que piden los colaboradores; se atiende emitiendo</text>
+
+      <path class="gp-flecha fuerte" d="M675 336 V360 H225 V340" marker-end="url(#dc-m0)"/>
+      <text class="gp-s" x="450" y="353" text-anchor="middle" font-weight="700" style="fill:var(--estructural)">Todo lo emitido queda en el expediente: Recibidos o Contratos</text>
+
+      <path class="gp-lin" d="M120 396 V336 M780 396 V336 M450 396 V368"/>
+      <rect class="gp-caja" x="20" y="396" width="270" height="58" rx="10" stroke-dasharray="5 4"/>
+      <text class="gp-e gp-gris" x="36" y="416">CONFIGURACIÓN</text>
+      <text class="gp-t" x="36" y="436">Documentos que se exigen</text><text class="gp-s" x="36" y="450" style="fill:var(--tinta-3)">sin pantalla — ABIERTA‑DOC‑02</text>
+      <rect class="gp-caja" x="315" y="396" width="270" height="58" rx="10"/>
+      <text class="gp-e gp-gris" x="331" y="416">CONFIGURACIÓN · LOS DOS</text>
+      <text class="gp-t" x="331" y="436">Notificaciones y numeración</text><text class="gp-s" x="331" y="450">avisos, plazos y siglas</text>
+      <rect class="gp-caja" x="610" y="396" width="270" height="58" rx="10"/>
+      <text class="gp-e gp-gris" x="626" y="416">CONFIGURACIÓN</text>
+      <text class="gp-t" x="626" y="436">Plantillas y tipos</text><text class="gp-s" x="626" y="450">un solo editor, tipos propios</text>
+
+      <rect class="gp-caja p3" x="20" y="482" width="860" height="80" rx="14"/>
+      <text class="gp-e" x="40" y="504" style="fill:var(--aprobacion)">COLABORADOR · ZONA HR</text>
+      <text class="gp-s" x="450" y="504" text-anchor="middle" style="fill:var(--tinta-3)">del Repositorio ← · → de la Emisión</text>
+      <rect class="gp-caja" x="40" y="516" width="180" height="32" rx="8"/><text class="gp-s" x="130" y="537" text-anchor="middle" font-weight="700">Por entregar</text>
+      <rect class="gp-caja" x="230" y="516" width="180" height="32" rx="8"/><text class="gp-s" x="320" y="537" text-anchor="middle" font-weight="700">Mis carpetas y Contratos</text>
+      <rect class="gp-caja" x="490" y="516" width="180" height="32" rx="8"/><text class="gp-s" x="580" y="537" text-anchor="middle" font-weight="700">De RR.HH.</text>
+      <rect class="gp-caja" x="680" y="516" width="180" height="32" rx="8"/><text class="gp-s" x="770" y="537" text-anchor="middle" font-weight="700">Mis solicitudes</text>
     </svg>
   </div>
   <dl class="dgm-lista">
-    <div><dt>1 · El menú</dt><dd>Cuatro entradas por tarea. Expedientes cuenta lo que espera revisión; Solicitudes, los pedidos sin responder. Configuración se despliega en Plantillas y Notificaciones y numeración.</dd></div>
-    <div><dt>2 · La persona</dt><dd>Sus datos salen de la ficha y no se editan acá. La barra dice cuántos obligatorios ya exigibles tiene: lo que todavía está en plazo no descuenta.</dd></div>
-    <div><dt>3 · Lo pendiente</dt><dd>Por revisar, faltan, vencidos o por vencer: cada pastilla filtra el expediente para mostrar solo eso.</dd></div>
-    <div><dt>4 · Las carpetas</dt><dd>Una por tipo de documento, más Contratos, Recibidos —lo emitido se archiva solo— e Historial. Cada una dice cuánto le falta, si está al día o si no se le exige nada.</dd></div>
-    <div><dt>5 · Las acciones</dt><dd>Subir un documento, enviarle uno —un certificado, un memorándum— y descargar el expediente completo en un ZIP con índice.</dd></div>
+    <div><dt>Repositorio</dt><dd>Responde «¿qué tiene esta persona, qué le falta y qué pasó con sus documentos?». Es su archivo y su historia: Expedientes, Revisar documentos y sus contratos.</dd></div>
+    <div><dt>Emisión</dt><dd>Responde «¿qué le entregó la empresa, a quién, cuándo y lo confirmó?». Es la fábrica de certificados, memorándums, contratos y comunicados: Emitir, Documentos emitidos y Solicitudes.</dd></div>
+    <div><dt>La flecha</dt><dd>Lo que se emite no vive solo en la Emisión: se archiva solo en el expediente de la persona, en Recibidos, y un contrato en Contratos —BR‑DOC‑036—.</dd></div>
+    <div><dt>Configuración</dt><dd>Plantillas y tipos alimentan la Emisión; Notificaciones y numeración sirve a los dos. Los documentos que se exigen en el Repositorio hoy no tienen pantalla —ABIERTA‑DOC‑02—.</dd></div>
+    <div><dt>El colaborador</dt><dd>Ve los mismos dos espacios: lo que tiene que entregar y sus carpetas salen del Repositorio; lo que le enviaron y sus pedidos, de la Emisión.</dd></div>
   </dl>
 </div>
 
