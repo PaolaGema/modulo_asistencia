@@ -331,7 +331,8 @@ Un pedido a la vez, en dos columnas: lo que va a recibir la persona y el panel p
 - **Corrección**: se elige la plantilla, se marca **«Anular N al emitir el nuevo»** y **Generar el corregido**; igual que el certificado, se descarga, se firma y se entrega en persona. Si el error está en la ficha, se corrige en Gestión de personas.
 - **Copia**: se elige qué documento enviarle —sus contratos, lo que recibió, lo de su expediente— y **Enviar copia**.
 - **Rechazar…** con motivos rápidos —«Se entrega en persona», «Ya se le envió», «Falta información», «No corresponde»—.
-- Al terminar: el resultado, **Siguiente pendiente →** y **Volver a Solicitudes**.
+- **Arriba a la derecha**, como en el correo: **«‹ Anterior · 1 de 8 pendientes · Siguiente ›»**, siempre visible, en el orden de la tabla. Sirve también para saltar un pedido sin atenderlo. Al atender, el contador pasa a «Quedan N pendientes» y «Siguiente» se pinta de oscuro.
+- Al terminar, en el panel: el resultado, **Descargar para imprimir** si se generó un documento, y **Volver a Solicitudes**.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
@@ -2190,7 +2191,7 @@ No hay «Aprobar»: un **certificado** se genera, una **corrección** se genera 
 **3. Condiciones y excepciones**
 
 - Una copia puede ser de un contrato, de algo que recibió o de su expediente.
-- Atender lleva al siguiente pendiente.
+- Desde cualquier pedido se pasa al anterior o al siguiente pendiente con la navegación de la cabecera.
 
 **4. Trazabilidad**
 
@@ -3152,7 +3153,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 1. En Solicitudes, la más atrasada está primero; «Ver detalle».
 2. Certificado: se elige la plantilla y «Generar certificado»; se descarga para imprimir, se hace firmar y se entrega en persona. Corrección: «Generar el corregido», anulando el anterior, y lo mismo. Copia: se elige el documento y «Enviar copia».
 3. O «Rechazar…» con un motivo.
-4. «Siguiente pendiente →».
+4. «Siguiente ›», arriba a la derecha, lleva al próximo pendiente.
 
 ### 7.9 Crear una plantilla con un tipo nuevo
 

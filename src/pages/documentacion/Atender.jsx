@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Award, Check, CheckCircle2, Copy, Download, FileText, FolderOpen, PenLine, Send, X } from 'lucide-react'
+import { ArrowLeft, Award, Check, CheckCircle2, ChevronLeft, ChevronRight, Copy, Download, FileText, FolderOpen, PenLine, Send, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, PersonaCelda } from '../../components/documentacion/comunes'
 import { descargarParaImprimir } from '../../components/documentacion/utilidades'
@@ -52,9 +52,18 @@ export default function Atender() {
   const persona = q ? personas.find(p => p.id === q.colaboradorId) : null
   // Lo que pasó en esta visita: si se atendió o se rechazó, el panel lo dice y ofrece seguir.
   const [hecho, setHecho] = useState(null)
-  const siguiente = solicitudes
-    .filter(x => x.estado === 'pendiente' && x.id !== id && TIPOS_SOLICITUD[x.tipo])
-    .sort((a, b) => (limiteSolicitud(a) < limiteSolicitud(b) ? -1 : 1))[0] || null
+  /* ANTERIOR Y SIGUIENTE EN LA CABECERA (propuesta A, 16 oct 2026), como en el correo: la cola de
+     pendientes en el orden de la tabla —lo que vence antes, primero— y este pedido en su lugar,
+     aunque recién se haya atendido. Está siempre, así que también sirve para saltar uno. */
+  const cola = solicitudes
+    .filter(x => (x.estado === 'pendiente' || x.id === id) && TIPOS_SOLICITUD[x.tipo])
+    .sort((a, b) => (limiteSolicitud(a) < limiteSolicitud(b) ? -1 : limiteSolicitud(a) > limiteSolicitud(b) ? 1 : a.id.localeCompare(b.id)))
+  const pos = cola.findIndex(x => x.id === id)
+  const pendientes = cola.filter(x => x.estado === 'pendiente')
+  const anterior = pos > 0 ? cola[pos - 1] : null
+  // Al final de la cola, «Siguiente» vuelve al primero que siga pendiente.
+  const siguiente = (pos >= 0 && cola[pos + 1]) || pendientes.find(x => x.id !== id) || null
+  const ir = x => { setHecho(null); navigate(`/documentos/solicitudes/${x.id}`) }
 
   if (!q || !persona) {
     return (
@@ -68,12 +77,17 @@ export default function Atender() {
   return (
     <div className="content-scroll rv-pagina">
       <Link to="/documentos/solicitudes" className="xc-volver"><ArrowLeft size={13} aria-hidden="true" /> Solicitudes</Link>
-      <Cabecera titulo={q.asunto} sub={q.tipo === 'copia' ? `Pedido de ${persona.name}. Al atenderlo, la copia le llega por la app.` : `Pedido de ${persona.name}. Al atenderlo se genera el documento para imprimir, hacerlo firmar y entregárselo en persona.`} />
+      <Cabecera titulo={q.asunto} sub={q.tipo === 'copia' ? `Pedido de ${persona.name}. Al atenderlo, la copia le llega por la app.` : `Pedido de ${persona.name}. Al atenderlo se genera el documento para imprimir, hacerlo firmar y entregárselo en persona.`}>
+        <div className="rv-nav" role="group" aria-label="Pedidos pendientes">
+          <button type="button" disabled={!anterior} onClick={() => ir(anterior)}><ChevronLeft size={14} aria-hidden="true" /> Anterior</button>
+          <span className="rv-nav-cuenta">{q.estado === 'pendiente' && !hecho ? `${pos + 1} de ${cola.length} pendientes` : pendientes.length ? `Quedan ${pendientes.length} pendientes` : 'No quedan pendientes'}</span>
+          <button type="button" className={hecho || q.estado !== 'pendiente' ? 'on' : ''} disabled={!siguiente} onClick={() => ir(siguiente)}>Siguiente <ChevronRight size={14} aria-hidden="true" /></button>
+        </div>
+      </Cabecera>
       <div className="rv-bandeja rv-dos">
         <Pedido key={q.id} q={q} persona={persona}
           decision={hecho?.ok === true || (yaResuelto && q.estado === 'atendida') ? 'ok' : hecho?.ok === false || (yaResuelto && q.estado === 'rechazada') ? 'no' : null}
           resultado={hecho?.texto || (yaResuelto ? q.resuelto?.nota : null)}
-          siguiente={siguiente} onSiguiente={() => { setHecho(null); navigate(`/documentos/solicitudes/${siguiente.id}`) }}
           onVolver={() => navigate('/documentos/solicitudes')}
           onListo={(ok, texto) => setHecho({ ok, texto })} onExpediente={() => navigate(`/documentos/expedientes/${q.colaboradorId}`)} />
       </div>
@@ -82,7 +96,7 @@ export default function Atender() {
 }
 
 /* Un pedido: el documento al centro y el panel a la derecha. Ocupa dos columnas de la bandeja. */
-function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVolver, onListo, onExpediente }) {
+function Pedido({ q, persona, decision, resultado, onVolver, onListo, onExpediente }) {
   const ctx = useDocumentacion()
   const { modelos, emitidos, contratos, documentos, subtipos, tipos, empresa, emitir, anular, entregar, registrarDescarga, resolverSolicitud } = ctx
   const nombre = persona?.name.split(' ')[0] || ''
@@ -208,10 +222,8 @@ function Pedido({ q, persona, decision, resultado, siguiente, onSiguiente, onVol
               {decision === 'ok' && generado && !generado.firmado && generado.estado !== 'anulado' && (
                 <button type="button" className="rv-btn-aprobar" onClick={descargar}><Download size={15} aria-hidden="true" /> Descargar para imprimir</button>
               )}
-              {siguiente
-                ? <button type="button" className="rv-btn-aprobar" onClick={onSiguiente}>Siguiente pendiente →</button>
-                : <button type="button" className="rv-btn-aprobar" onClick={onVolver}>Volver a Solicitudes</button>}
-              {siguiente && <button type="button" className="rv-btn-rechazar rv-btn-neutro" onClick={onVolver}>Volver a Solicitudes</button>}
+              {/* El siguiente pedido está arriba, en la cabecera; aquí sólo se vuelve a la tabla. */}
+              <button type="button" className="rv-btn-rechazar rv-btn-neutro" onClick={onVolver}>Volver a Solicitudes</button>
             </>
           ) : rechazando ? (
             <>
