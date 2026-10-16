@@ -2,7 +2,7 @@ Souly HR · Módulo de documentación · Documentación de producto
 
 # Módulo de documentación
 
-> **Módulo de documentación — versión en Markdown.** Reúne completo el documento de producto `public/modulo-documentacion.html` (versión 1.1, 16 de octubre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Reemplaza a la «Propuesta de estructura» v0.2 (`public/modulo-documentacion-propuesta.html`), que queda como histórico.
+> **Módulo de documentación — versión en Markdown.** Reúne completo el documento de producto `public/modulo-documentacion.html` (versión 1.2, 16 de octubre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Reemplaza a la «Propuesta de estructura» v0.2 (`public/modulo-documentacion-propuesta.html`), que queda como histórico.
 
 ## Índice
 
@@ -21,9 +21,9 @@ Souly HR · Módulo de documentación · Documentación de producto
 - [Anexo · Por qué decidimos así](#anexo--por-qué-decidimos-así)
 - [Anexo · El módulo en el prototipo, hoy](#anexo--el-módulo-en-el-prototipo-hoy)
 
-Los papeles de cada persona dejan de estar repartidos en carpetas, correos y cajones, y pasan a ser *un expediente por colaborador que dice solo qué le falta, qué vence y qué se le envió, con rastro de todo*. Este documento define qué es el módulo, qué reglas cumple, qué tiene que hacer el producto y cómo se opera.
+Los papeles de cada persona dejan de estar repartidos en carpetas, correos y cajones, y pasan a ser *un expediente por colaborador que dice solo qué le falta, qué vence y qué se le emitió, con rastro de todo*. Este documento define qué es el módulo, qué reglas cumple, qué tiene que hacer el producto y cómo se opera.
 
-- **Versión:** 1.1
+- **Versión:** 1.2
 - **Fecha:** 16 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
@@ -33,13 +33,13 @@ Los papeles de cada persona dejan de estar repartidos en carpetas, correos y caj
 | --- | --- |
 | roles con su vista | 3 |
 | estados de un documento | 7 |
-| reglas de negocio | 60 |
-| requisitos funcionales | 62 |
-| historias de usuario | 18 |
+| reglas de negocio | 64 |
+| requisitos funcionales | 69 |
+| historias de usuario | 19 |
 | pantallas | 18 |
-| decisiones abiertas | 12 |
+| decisiones abiertas | 10 |
 
-> **Diagrama · El módulo, de un vistazo.** Documentación son dos espacios con un solo dato debajo. Arriba, la bitácora que registra todo y la ficha de Gestión de personas, que se lee y no se copia. En el medio, el **Repositorio** —Expedientes, Revisar documentos y Contratos: lo que hay de cada persona y su historia— y la **Emisión** —Emitir, Documentos emitidos y Solicitudes: lo que la empresa genera y entrega—. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente, en la carpeta de su tipo dentro de «De RR.HH.», o en Contratos. Debajo, la configuración: Plantillas y tipos alimentan la Emisión, Notificaciones y numeración sirve a los dos, y los documentos que se exigen en el Repositorio todavía no tienen pantalla (ABIERTA‑DOC‑02). Abajo, el colaborador en Zona HR: Por entregar y Mis carpetas salen del Repositorio; De RR.HH. y Mis solicitudes, de la Emisión. En la versión HTML está dibujado.
+> **Diagrama · El módulo, de un vistazo.** Documentación son dos espacios con un solo dato debajo. Arriba, la bitácora que registra todo y la ficha de Gestión de personas, que se lee y no se copia. En el medio, el **Repositorio** —Expedientes, Revisar documentos y Contratos: lo que hay de cada persona y su historia— y la **Emisión** —Emitir, Documentos emitidos y Solicitudes: lo que la empresa genera y hace firmar—. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente, en la carpeta de su tipo dentro de «De RR.HH.», o en Contratos. Debajo, la configuración: Plantillas y tipos alimentan la Emisión, Notificaciones y tipos de documento sirve a los dos, y los documentos que se exigen en el Repositorio todavía no tienen pantalla (ABIERTA‑DOC‑02). Abajo, el colaborador en Zona HR: Por entregar y Mis carpetas salen del Repositorio; De RR.HH. y Mis solicitudes, de la Emisión. En la versión HTML está dibujado.
 
 ## 00 · Glosario
 
@@ -52,11 +52,11 @@ El **expediente** es todo lo que la empresa guarda de una persona. Hay uno por c
 | Carpeta | Qué guarda | De dónde sale |
 | --- | --- | --- |
 | **Información personal, Perfil profesional, Recursos y activos, Documentos agregados** | Lo que la persona entrega: carnet, títulos, croquis, licencias | Son los **tipos** de documento; los mismos grupos que la sección «Archivos» de la ficha |
-| **Contratos** | Sus contratos y adendas, con su estado | Se registran desde Emitir |
-| **De RR.HH.** | Lo que RR.HH. le envió, en una carpeta por tipo: Certificados, Memorándums y una por cada tipo que creó la empresa. «Otros» aparece solo si tiene algo —un archivo propio que se le envió— | Se archiva solo al emitir —BR‑DOC‑036— |
-| **Por clasificar** | Archivos subidos que el sistema no reconoció | Aparece solo si hay alguno |
+| **Contratos** | Sus contratos, con su estado, y las adendas que tenía de antes | Se registran desde Emitir; renovar registra uno nuevo |
+| **De RR.HH.** | Lo que RR.HH. le emitió, en una carpeta por tipo: Certificados, Memorándums y una por cada tipo que creó la empresa. «Otros» aparece solo si tiene algo —un archivo propio que se le envió— | Se archiva solo al emitir, «Sin firmar» hasta que se sube el firmado —BR‑DOC‑036— |
+| **Por clasificar** | Archivos que llegaron sin decir qué documento son | Aparece solo si hay alguno; desde Subir documento ya no se crea |
 | **Historial** | Todo lo que pasó con el expediente, mes a mes | La bitácora de la persona |
-| **Papelera** | Lo que se quitó, recuperable | Aparece solo si tiene algo |
+| **Anulados** | Lo que se anuló, con quién, cuándo y por qué; no se recupera —BR‑DOC‑018— | Aparece solo si tiene algo |
 
 Un **documento** es un papel concreto de la persona —su carnet— con todas sus **versiones**: cada vez que se reemplaza, la anterior se conserva —BR‑DOC‑012—.
 
@@ -66,7 +66,7 @@ El **tipo** es la carpeta (Información personal). El **subtipo** es el document
 
 ### 0.3 Requisito y exoneración
 
-Un **requisito** es un subtipo que se le exige a una persona. Sale de dos lados: lo que se **exige a todos** desde la configuración del subtipo, y lo que RR.HH. **agrega a esa persona** desde su expediente. Si los dos piden lo mismo, gana lo más exigente —BR‑DOC‑003—. **Exonerar** es liberar a alguien de un requisito, con motivo, para siempre —BR‑DOC‑005—.
+Un **requisito** es un subtipo que se le exige a una persona. Sale de lo que se **exige a todos** desde la configuración del subtipo. Lo que antes se le agregaba a una sola persona desde su expediente sigue contando, pero desde la 1.2 ya no se agrega —BR‑DOC‑003—. **Exonerar** era liberar a alguien de un requisito, con motivo, para siempre; ya no se hace, y las exoneraciones que existen se ven como historial —BR‑DOC‑005—.
 
 ### 0.4 Los siete estados de un documento
 
@@ -78,13 +78,13 @@ Un **requisito** es un subtipo que se le exige a una persona. Sale de dos lados:
 | **Faltante** | Se le exige y no lo entregó | No |
 | **En revisión** | Lo subió el colaborador y RR.HH. no lo miró | No, hasta aprobarse |
 | **Rechazado** | RR.HH. lo rechazó con un motivo | No |
-| **Exonerado** | Se le liberó de entregarlo | No cuenta |
+| **Exonerado** | Se le liberó de entregarlo antes de la 1.2; queda como historial | No cuenta |
 
 Ningún estado se guarda: se deduce de las fechas y de la revisión —BR‑DOC‑007—.
 
 ### 0.5 Plantilla, tipo de documento y emitido
 
-Una **plantilla** es el texto con el que RR.HH. arma un documento para una persona: un certificado de trabajo, un memorándum, un contrato. Cada plantilla es de un **tipo de documento** —Certificado, Memorándum, Contrato o uno que cree la empresa, como «Carta de recomendación»— que le da su color y su **sigla** de numeración. Un **emitido** es el documento ya hecho para una persona, con su número, sus datos congelados y su estado de entrega.
+Una **plantilla** es el texto con el que RR.HH. arma un documento para una persona: un certificado de trabajo, un memorándum, un contrato. Cada plantilla es de un **tipo de documento** —Certificado, Memorándum, Contrato o uno que cree la empresa, como «Carta de recomendación»— que le da su color y su **sigla** de numeración. Un **emitido** es el documento ya hecho para una persona, con su número, sus datos congelados y su estado: **Sin firmar**, **Entregado** o **Anulado**. El **firmado** es el escaneado del emitido ya firmado a mano, que RR.HH. sube y queda pegado a él, con el mismo número —BR‑DOC‑036—.
 
 ### 0.6 Solicitud
 
@@ -94,9 +94,9 @@ Lo que un colaborador le pide a RR.HH. desde la app: **un certificado**, **una c
 
 | Rol | Qué hace en el módulo |
 | --- | --- |
-| **Recursos Humanos** (administrador) | Lleva los expedientes, revisa lo que suben, registra contratos, emite documentos, atiende las solicitudes y configura plantillas y avisos |
+| **Recursos Humanos** (administrador) | Lleva los expedientes, revisa lo que suben, registra y renueva contratos, emite documentos y sube sus firmados, atiende las solicitudes y configura plantillas, avisos y tipos de documento |
 | **Líder de área** | Hoy entra al módulo con lo mismo que Recursos Humanos —ABIERTA‑DOC‑01— |
-| **Colaborador** | Ve sus carpetas, sube lo que le piden, confirma lo que recibe y hace sus pedidos, en la web o en el celular |
+| **Colaborador** | Ve sus carpetas, sube lo que le piden, lee lo que recibe y hace sus pedidos, en la web o en el celular |
 
 Quien administra también es colaborador: en **Zona HR** entra a **Mis documentos** con su propio expediente, como todos. Al módulo Documentación llega desde el menú lateral.
 
@@ -106,7 +106,7 @@ Quien administra también es colaborador: en **Zona HR** entra a **Mis documento
 
 ### 1.1 ¿Qué es la documentación en Souly?
 
-Es el lugar donde vive el expediente de cada persona y desde donde RR.HH. le envía documentos. Tiene dos caras sobre el mismo dato: lo que **la persona entrega** (su carnet, sus títulos) y lo que **la empresa le envía** (certificados, memorándums, contratos). Las dos terminan en el mismo expediente.
+Es el lugar donde vive el expediente de cada persona y desde donde RR.HH. emite sus documentos. Tiene dos caras sobre el mismo dato: lo que **la persona entrega** (su carnet, sus títulos) y lo que **la empresa le emite** (certificados, memorándums, contratos), que se imprime, se firma a mano y se sube firmado. Las dos terminan en el mismo expediente.
 
 ### 1.2 El problema que resuelve
 
@@ -114,11 +114,11 @@ Es el lugar donde vive el expediente de cada persona y desde donde RR.HH. le env
 - Nadie sabe a quién le falta qué hasta que un auditor lo pide.
 - Los documentos vencen sin que nadie lo note.
 - Cada certificado se hace a mano, con datos que se copian y se equivocan.
-- No queda constancia de que la persona recibió un memorándum.
+- El papel firmado queda en un cajón, lejos del documento que se generó.
 
 ### 1.3 Visión del módulo
 
-Un expediente que se cuida solo: dice qué falta, qué vence y qué espera revisión; arma los documentos con los datos de la ficha, sin tipear nada; y deja rastro de cada cosa que pasó.
+Un expediente que se cuida solo: dice qué falta, qué vence, qué espera revisión y qué falta firmar; arma los documentos con los datos de la ficha, sin tipear nada; y deja rastro de cada cosa que pasó.
 
 ### 1.4 Principios de diseño
 
@@ -126,7 +126,7 @@ Un expediente que se cuida solo: dice qué falta, qué vence y qué espera revis
 | --- | --- |
 | **Lo pendiente tiene puerta** | Lo que hay que hacer se ve primero y lleva directo a hacerlo: «Qué atender hoy», «Revisar», «Pedir renovación» |
 | **Nada se tipea dos veces** | Los datos de la persona salen de su ficha; si están mal, se corrigen allá |
-| **Nada se borra** | Lo reemplazado queda como versión; lo quitado va a la papelera; lo emitido se anula con motivo |
+| **Nada se borra** | Lo reemplazado queda como versión; lo que estaba mal se anula con motivo, sea un documento del expediente o uno emitido |
 | **El estado se deduce** | De las fechas y la revisión, nunca a mano |
 | **Una sola forma de hacer cada cosa** | Un solo editor para todas las plantillas, una sola pantalla para emitir |
 | **El colaborador ve el mismo dato** | Lo que RR.HH. aprueba, emite o pide es lo que la persona ve en su app |
@@ -137,19 +137,19 @@ Un expediente que se cuida solo: dice qué falta, qué vence y qué espera revis
 | --- | --- |
 | Expedientes al día | Que el anillo de «Qué atender hoy» suba mes a mes |
 | Tiempo de respuesta a solicitudes | Todas dentro de los 2 días hábiles |
-| Documentos sin confirmar | Que bajen a menos del 10 % de lo enviado |
+| Documentos sin firmar | Que bajen a menos del 10 % de lo emitido |
 | Documentos subidos por el colaborador | Que la mayoría de las renovaciones las haga la persona, no RR.HH. |
 
 ### 1.6 A quién sirve
 
 - **Recursos Humanos**, que deja de perseguir papeles y de armar certificados a mano.
-- **El colaborador**, que sabe qué le falta y recibe sus documentos en el celular.
-- **La empresa**, que tiene el expediente completo ante una auditoría y constancia de cada entrega.
+- **El colaborador**, que sabe qué le falta y recibe sus documentos firmados en el celular.
+- **La empresa**, que tiene el expediente completo ante una auditoría, con el firmado de cada documento que emitió.
 
 ### 1.7 Alcance y límites
 
-- **Entra:** expedientes, carpetas y requisitos; subir, revisar y versionar; contratos y adendas; emitir certificados, memorándums, contratos y archivos propios; solicitudes; plantillas y tipos; avisos y numeración; Mis documentos del colaborador.
-- **No entra en esta versión:** la firma electrónica; las boletas de pago (cuando exista Planillas); vacaciones, permisos y anticipos como solicitudes; el envío real de avisos y correos.
+- **Entra:** expedientes, carpetas y requisitos; subir, revisar, versionar y anular; exportar los expedientes en ZIP y la lista en Excel; contratos y su renovación; emitir certificados, memorándums, contratos y archivos propios, descargarlos para imprimir y subir el firmado; solicitudes; plantillas y tipos de documento; avisos y numeración; Mis documentos del colaborador.
+- **No entra en esta versión:** la firma electrónica; las adendas, la exoneración, los requisitos agregados a una sola persona y la confirmación de recepción, que se quitaron en la 1.2; las boletas de pago (cuando exista Planillas); vacaciones, permisos y anticipos como solicitudes; el envío real de avisos y correos.
 
 ## 02 · Integraciones
 
@@ -159,7 +159,7 @@ Un expediente que se cuida solo: dice qué falta, qué vence y qué espera revis
 
 - La **ficha** es la dueña de los datos de la persona: nombre, documento, cargo, ingreso. Documentación los **lee**, no los copia.
 - Desde **Colaboradores**, el menú de cada persona tiene **«Ver expediente»**, que abre su expediente en Documentación.
-- Los archivos que la persona cargó en la sección «Archivos» de su ficha aparecen en su expediente como documentos **de la ficha**: aprobados y de solo lectura —BR‑DOC‑002—.
+- Los archivos que la persona cargó en la sección «Archivos» de su ficha aparecen en su expediente como documentos **de la ficha**: aprobados y de solo lectura —BR‑DOC‑002—. Si RR.HH. sube uno nuevo desde el expediente, desde ahora vale el nuevo en el expediente y la ficha conserva el suyo.
 - La cabecera del expediente muestra los datos de la ficha y no se editan desde acá.
 - Al emitir, las variables de la plantilla se rellenan con la ficha —BR‑DOC‑033—. Si un dato falta, se corrige en la ficha.
 
@@ -202,7 +202,7 @@ Un expediente que se cuida solo: dice qué falta, qué vence y qué espera revis
 
 ### Para Recursos Humanos
 
-Las pantallas del módulo Documentación del menú lateral: Expedientes, Solicitudes, Documentos emitidos y Configuración, que se despliega en Plantillas y Notificaciones y numeración.
+Las pantallas del módulo Documentación del menú lateral: Expedientes, Solicitudes, Documentos emitidos y Configuración, que se despliega en Plantillas y Notificaciones y tipos de documento.
 
 ### 3.1 Expedientes
 
@@ -213,6 +213,9 @@ La primera pantalla: todos los colaboradores, qué les falta y qué hay que aten
 - **Buscador** por nombre, código, cargo o correo, y **filtros** de sucursal, unidad organizacional, cargo y **estado** en la misma fila: Todos, Al día, Requieren atención (Vencidos, Por vencer, Falta entregar, Rechazados, Contrato por vencer), cada uno con su número.
 - **Tabla** de diez por página, ordenable por cualquier columna: Colaborador, Unidad organizacional, Sucursal, Expediente completo (barra con «x de y obligatorios») y **Lo más urgente**: una sola cosa, con el tiempo en color —«Venció hace 12 días», «Falta desde hace 4 meses»— y «+N más».
 - Con un estado elegido aparece **«Ver por Colaborador / Documento»**: la vista por documento lista cada papel pendiente, con casillas para pedir varios a la vez y «Subir» por fila.
+- **Exportar**, un menú en la cabecera con dos salidas. Las dos bajan a los que deja pasar la vista —búsqueda, filtros, estado y Activos/Desvinculados—, de todas las páginas, y quedan en la bitácora —BR‑DOC‑063—.
+- **Exportar › Expedientes en ZIP**: una carpeta por persona, con su índice. Los documentos confidenciales no viajan y el índice dice cuáles quedaron fuera. Antes pide una confirmación corta: «¿Descargar 20 expedientes?», una línea con a quiénes —«Activos de Casa Matriz Equipetrol, de todas las páginas»— y **Cancelar** o **Descargar**.
+- **Exportar › Lista en Excel**: un CSV con una fila por persona —código, nombre, cargo, unidad organizacional, sucursal, situación, % completo, obligatorios cumplidos, vencidos, por vencer, faltan, rechazados, en revisión, contrato por terminar y lo más urgente—. La primera línea dice los filtros.
 - Todo queda en la dirección: se puede compartir o volver a la misma vista.
 
 | Código | Requisito | Prioridad | Criterio |
@@ -223,6 +226,7 @@ La primera pantalla: todos los colaboradores, qué les falta y qué hay que aten
 | RF‑DOC‑004 | La tabla pagina de a diez y se ordena por columna | Import. | Ordenar por sucursal y pasar de página conserva el orden |
 | RF‑DOC‑005 | Pedir renovación guarda a quién y cuándo se pidió | Oblig. | Lo pedido muestra «pedido el …» y no se vuelve a marcar |
 | RF‑DOC‑006 | Los desvinculados no suman pendientes | Oblig. | Un desvinculado con un vencido no aparece en «Qué atender hoy» |
+| RF‑DOC‑063 | Exportar baja los expedientes de la vista, de todas las páginas: en ZIP sin confidenciales, o la lista en Excel | Import. | Con «Activos» y una sucursal, «¿Descargar 20 expedientes?» y el ZIP trae 20 carpetas; el índice dice qué confidencial quedó fuera |
 
 > **En la maqueta:** «Pedir renovación» guarda el pedido pero no envía ningún mensaje. El texto «en los próximos 45 días» está fijo aunque el cálculo usa el valor de Notificaciones.
 
@@ -230,36 +234,48 @@ La primera pantalla: todos los colaboradores, qué les falta y qué hay que aten
 
 Todo lo de una persona, por carpetas.
 
-- **Cabecera**: foto, nombre, cargo, unidad, sucursal y código, de la ficha; la barra de avance «x de y obligatorios exigibles»; y los botones **Subir documento**, **Enviar documento**, **Descargar expediente** e **Historial**.
+- **Cabecera**: foto, nombre, cargo, unidad, sucursal y código, de la ficha; la barra de avance «x de y obligatorios exigibles»; y los botones **Subir documento**, **Descargar expediente** e **Historial**. «Enviar documento» se quitó en la 1.2: se emite desde Emitir.
 - **La franja de lo pendiente**, la misma que ve el colaborador en Mis documentos: un anillo con lo cumplido («2/3») y cuánto debe —«1 documento pendiente · 1 falta»—, con **«Ver qué falta»** y, si subió algo, **«Revisar N»**. Al día dice «Está al día». Dentro de una carpeta, lo pendiente sigue en pastillas que filtran.
-- **Carpetas**, como las de Mis documentos —carpetas amarillas con un punto de color en lo urgente y una línea como «2 de 3 al día · 1 faltante»— en dos grupos: **Sus carpetas** (una por tipo, Contratos y, si tiene algo, Por clasificar) y **De RR.HH.** (una por tipo de documento emitido, con cuántos le falta confirmar, y la Papelera si tiene algo). El Historial se abre con su botón de arriba.
-- **Buscar** en todas sus carpetas y filtrar por estado; **Agregar requisito** para exigirle a esa persona un documento más.
-- **Dentro de una carpeta**: los documentos en tarjetas con miniatura o en lista, lo urgente primero, con su acción según el estado —Subir, Renovar, Revisar, Ver— y un menú con Ver, Descargar, Exonerar, Dejar de exigir y Enviar a la papelera.
-- **Ver un documento**: la vista previa, sus fechas, quién lo subió y por dónde, y todas sus versiones. Si está en revisión, Aprobar o Rechazar.
+- **Carpetas**, como las de Mis documentos —carpetas amarillas con un punto de color en lo urgente y una línea como «2 de 3 al día · 1 faltante»— en dos grupos: **Sus carpetas** (una por tipo, Contratos y, si tiene algo, Por clasificar) y **De RR.HH.** (una por tipo de documento emitido, con cuántos tiene, y **Anulados** si hay alguno). El Historial se abre con su botón de arriba.
+- **Buscar** en todas sus carpetas y filtrar por estado. «Agregar requisito» se quitó en la 1.2.
+- **Dentro de una carpeta**: un selector con **Lista** primero —la vista de entrada— y **Gráfica**. La lista tiene encabezado (Documento, Estado, Vencimiento, Acciones) y pagina de a 10; la gráfica, tarjetas con miniatura de a 24 con «Mostrar más». Lo urgente va primero, con su acción según el estado —Subir, Renovar, Subir otro, Revisar, Ver— y un menú con Ver, Descargar, Dejar de exigir (solo lo que antes se le pidió a esa persona y no tiene documento) y **Anular**.
+- **Anular** pide motivo y una segunda confirmación. El documento deja de contar para sus requisitos —vuelve a quedar faltante para subir el correcto— y va a la carpeta **Anulados**, con «Anulado el … por …: motivo» y **Ver** en solo lectura. No hay Recuperar —BR‑DOC‑018—.
+- **Exonerar** se quitó en la 1.2. Lo exonerado antes se sigue viendo: «Exonerado por … el …: motivo».
+- **Ver un documento**: la vista previa, sus fechas, quién lo subió y por dónde, y todas sus versiones. Si está en revisión, Aprobar o Rechazar. Un emitido con firmado se abre en el escaneado y se puede cambiar a «El que generó el sistema».
 - **Historial**: la bitácora de la persona por mes, filtrable por Documentos, Recibidos, Contratos y Solicitudes.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑DOC‑007 | Las carpetas se ven como en Mis documentos y dicen cuánto falta | Oblig. | Una carpeta con un faltante lleva el punto rojo y «· 1 faltante» |
-| RF‑DOC‑008 | Agregar requisito pide documento, si es obligatorio y el plazo | Oblig. | Agregar «Licencia» obligatoria con 30 días la suma a sus faltantes al vencer el plazo |
-| RF‑DOC‑009 | Exonerar pide motivo y queda para siempre | Oblig. | Sin motivo, el botón no se activa |
-| RF‑DOC‑010 | Descargar el expediente baja un ZIP con índice y una carpeta por tipo | Import. | El ZIP trae «00 Índice.txt» y las carpetas |
+| RF‑DOC‑008 | Retirado en la 1.2: ya no se agrega un requisito a una sola persona | — | Lo agregado antes sigue en su lista y se puede dejar de exigir |
+| RF‑DOC‑009 | Retirado en la 1.2: ya no se exonera | — | Lo exonerado antes se ve con quién, cuándo y el motivo |
+| RF‑DOC‑010 | Descargar el expediente baja un ZIP con índice y una carpeta por tipo, con los firmados | Import. | El ZIP trae «00 Índice.txt», las carpetas y, junto a cada emitido, su firmado |
 | RF‑DOC‑011 | El historial es una línea de tiempo por mes, filtrable | Import. | Filtrar «Contratos» deja solo los eventos de contratos |
-| RF‑DOC‑012 | Un expediente de un desvinculado es de solo lectura | Oblig. | No aparecen Subir ni Enviar; Descargar sí |
+| RF‑DOC‑012 | Un expediente de un desvinculado es de solo lectura | Oblig. | No aparece Subir; Descargar sí |
+| RF‑DOC‑067 | Anular pide motivo y doble confirmación, y no se deshace | Oblig. | El carnet anulado va a Anulados y el documento vuelve a quedar Faltante |
+| RF‑DOC‑069 | En una carpeta, la lista es la vista de entrada y pagina de a 10 | Import. | Una carpeta con 14 documentos muestra 10 y la página 2 |
 
-### 3.3 Subir y clasificar
+### 3.3 Subir documento
 
-- **Subir documento** adivina qué es: por la tarjeta desde la que se sube, por el nombre del archivo, por lo que falta en la carpeta. Lo que no reconoce queda en **Por clasificar**, donde se elige «¿Qué documento es?».
-- La fecha de emisión se pone en hoy y el vencimiento se calcula con la vigencia del subtipo. Un aviso ofrece **«Revisar fechas»** para corregirlas.
+Subir siempre dice a qué documento va. Lo que se ve depende de dónde se está.
+
+- **Desde la vista general**, primero **«¿En qué carpeta va el documento?»**, con las mismas carpetas amarillas: **Sus carpetas** (Información personal, Perfil profesional, Recursos y activos, Documentos agregados, con «Falta N» y punto rojo) y **De RR.HH.** (Certificados, Memorándums, los tipos creados, Otros y Contratos). Al elegir se abre el modal de esa carpeta, con **«Cambiar carpeta»** para volver. Dentro de una carpeta, abre directo esa carpeta.
+- **En una carpeta de documentos**, un modal grande. A la izquierda, los documentos de esa carpeta con su estado, lo que falta primero, y un buscador. A la derecha, el elegido. Desde «Renovar» o «Subir otro» de una fila, llega elegido ese documento.
+- **Si le falta**: la zona para arrastrar el archivo y las fechas de emisión y vencimiento, con el vencimiento propuesto por la vigencia.
+- **Si ya tiene uno**: **el actual y el nuevo lado a lado** y «¿Desea reemplazar el documento de identidad?», con **Sí, reemplazar**. El actual queda como versión anterior —BR‑DOC‑012—. Si el actual vino de la ficha, desde ahora vale el nuevo en el expediente y la ficha conserva el suyo.
+- **Si el documento admite varios** —títulos, certificaciones, actas—: «Ya tiene N documentos de este tipo. ¿Qué desea hacer?», con **Agregar uno nuevo** o **Reemplazar** uno de los que tiene.
+- **En una carpeta de RR.HH.**: «¿Qué va a subir?». **El firmado de uno ya emitido** —se elige cuál, cada uno con «Sin firmar» o «Firmado»— o **uno nuevo hecho fuera del sistema**, con nombre, archivo, fecha y el número que sigue en su serie.
+- **En Contratos**: se elige el contrato y se **sube el firmado**, que queda como su versión firmada; o **Registrar un contrato nuevo**.
 - Valida formato y tamaño antes de subir y dice el error en palabras.
-- Un archivo igual a otro ya subido avisa, sin bloquear.
+- Desde aquí ya no se crea nada «Por clasificar». Lo que llega de la app sin clasificar se sigue viendo en su carpeta, donde se elige «¿Qué documento es?».
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑DOC‑013 | Lo que sube RR.HH. queda aprobado | Oblig. | Subir un carnet lo deja Vigente |
-| RF‑DOC‑014 | Lo no reconocido va a Por clasificar | Oblig. | Un archivo «scan001.pdf» aparece en Por clasificar |
+| RF‑DOC‑014 | Al subir se elige siempre a qué documento va | Oblig. | Sin documento elegido no se sube; «scan001.pdf» ya no queda en Por clasificar |
 | RF‑DOC‑015 | Formato y tamaño se validan antes de subir | Oblig. | Un .exe se rechaza con «Este documento se recibe en PDF, JPG o PNG» |
 | RF‑DOC‑016 | Las fechas se corrigen sin crear versión | Import. | Cambiar el vencimiento no suma una versión |
+| RF‑DOC‑066 | Si ya tiene el documento, se pregunta antes de reemplazar, con el actual y el nuevo a la vista | Oblig. | Subir otro carnet muestra los dos y «Sí, reemplazar»; el anterior queda como versión |
 
 ### 3.4 Revisar documentos
 
@@ -280,14 +296,15 @@ Lo que suben los colaboradores, en una bandeja de tres columnas.
 
 La ficha de un contrato: la hoja grande con su sello «Firmado» o «Sin firma» y, al costado, qué pasa con él.
 
-- **Aviso de estado**: vigente y firmado, por vencer con «Decida si lo renueva», vencido, falta el firmado, finalizado o reemplazado.
-- **Acciones**: **Renovar con adenda** (solo si no es indefinido), **Subir el firmado** o reemplazarlo con motivo, y **Finalizar** con motivo.
-- **Datos**: inicio, fin —con «ampliado al …» si una adenda lo corrió—, modalidad, plantilla, quién lo registró; sus versiones y la cadena de contrato y adendas.
+- **Aviso de estado**: vigente y firmado, por vencer con «Decida si lo renueva o lo deja terminar», vencido, falta el firmado, finalizado o reemplazado. Si ya encadena dos o más plazos fijos, el aviso de Legal.
+- **Acciones**: sin firmado, lo principal es **Subir el firmado**, con **Descargar para imprimir** al lado —un Word con las líneas de firma de la empresa y de la persona— y **Finalizar** con motivo. Con firmado, **Reemplazar** con motivo.
+- **Renovar contrato** va adelante solo cuando el plazo fijo está por vencer o vencido. Abre un modal grande: **Modalidad** (Plazo fijo o Indefinido), **Desde** (el día siguiente al fin vigente), **Hasta** (no se pide si es indefinido) y, a la derecha, la **vista previa** del contrato nuevo con su número. Renovar **registra siempre un contrato nuevo** que reemplaza al anterior; el anterior queda «reemplazado», con sus versiones. Después, el mismo modal muestra el contrato nuevo con **Descargar para imprimir** e **Ir al contrato**.
+- **Datos**: inicio, fin —con «ampliado al …» si una adenda de antes lo corrió—, modalidad, plantilla, quién lo registró; sus versiones y, si las tiene, la cadena de contrato y adendas, como historial.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑DOC‑020 | El estado del contrato se calcula de sus fechas | Oblig. | Un plazo fijo a 30 días del fin está Por vencer |
-| RF‑DOC‑021 | Renovar crea una adenda encadenada | Oblig. | La adenda aparece en la cadena y corre el fin |
+| RF‑DOC‑021 | Renovar registra un contrato nuevo que reemplaza al anterior | Oblig. | Renovar un plazo fijo que vence el 30 oct crea uno nuevo desde el 31 oct, y el anterior queda Reemplazado |
 | RF‑DOC‑022 | Subir el firmado crea una versión | Oblig. | El sello pasa a «Firmado» |
 | RF‑DOC‑023 | Encadenar plazos fijos avisa, no bloquea | Import. | Con dos plazos fijos se ve «consúltelo con Legal» |
 
@@ -297,7 +314,7 @@ Lo que los colaboradores le piden a RR.HH.
 
 - **Selector en la cabecera**: Pendientes, Atendidas y Rechazadas, con su número.
 - **Filtros** de sucursal, unidad, cargo y tipo de pedido.
-- **Tabla**: Colaborador, Pide (Certificado, Copia o Corrección), Detalle y **Responder antes**, con el plazo en color: «Atrasada 2 días» o «Vence hoy» en rojo, «Mañana» en ámbar, «En 4 días» en gris. Lo más atrasado primero.
+- **Tabla**: Colaborador, **Tipo** (Certificado, Copia o Corrección), Detalle y **Responder antes**, con el plazo en color: «Atrasada 2 días» o «Vence hoy» en rojo, «Mañana» en ámbar, «En 4 días» en gris. Lo más atrasado primero.
 - Cada fila abre el pedido con «Ver detalle».
 
 | Código | Requisito | Prioridad | Criterio |
@@ -327,38 +344,45 @@ Un pedido a la vez, en dos columnas: lo que va a recibir la persona y el panel p
 
 ### 3.8 Documentos emitidos
 
-Todo lo que RR.HH. envió y quién confirmó que lo recibió.
+Todo lo que RR.HH. emitió. Cada documento queda en el expediente de su dueño.
 
 - **Emitir documento** arriba a la derecha.
-- **Buscador** por documento, número o persona y **«Solo los que tienen personas sin confirmar (N)»**.
-- **Tabla**: Documento (con su número, o «N documentos» si fue a un grupo, y «Solicitud» si vino de un pedido), Para, Enviado y **Confirmación**: «Confirmado» con fecha, «Sin confirmar», «x de y» o «Todos confirmaron». **Recordar** a quien no confirmó.
-- **Detalle** de un envío: si fue a un grupo, su nombre editable, «Confirmaron x de y», «Recordar a los N que faltan», «Descargar todos» y la lista; si fue a una persona, la hoja tal como salió, Recordar, Descargar y **Anular** con motivo.
+- **Buscador** por documento, número o persona.
+- **Tabla**: Documento (con su número, o «N documentos» si fue a un grupo, y «Solicitud» si vino de un pedido), Para y **Emitido**: la fecha y, en cada uno, «Sin firmar» o «Firmado» (o «Anulado»).
+- **Detalle** de un documento: la hoja tal como salió, **Descargar para imprimir** y **Subir el firmado** —o **Reemplazar el firmado**, si ya tiene uno—, Descargar y **Anular** con motivo. Dice «Está en su expediente, sin firmar» o «Firmado: lo subió … el …».
+- **Detalle** de un grupo: su nombre editable, «Con el firmado subido: x de y», «Descargar todos» y la lista, con la columna Firmado.
+- Ya no hay columna «Confirmación», ni «Recordar», ni el filtro de los sin confirmar: se quitó la confirmación de recepción. Lo que se confirmó antes se ve como Entregado.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑DOC‑031 | Un envío a varios se ve como uno, con su avance | Oblig. | «Felicitación · Ventas» muestra «5 de 7» |
-| RF‑DOC‑032 | Recordar anota cuándo se recordó | Import. | La fila muestra «Recordado el …» |
+| RF‑DOC‑031 | Un envío a varios se ve como uno, con su avance | Oblig. | «Felicitación · Ventas» muestra «Con el firmado subido: 5 de 7» |
+| RF‑DOC‑032 | Retirado en la 1.2: no hay confirmación que recordar | — | No aparece «Recordar» |
+| RF‑DOC‑064 | Lo emitido se descarga para imprimir y se le sube el firmado, que queda con el mismo número | Oblig. | Subir el firmado de CERT‑0007 lo deja «Firmado» y el colaborador lo ve en Certificados |
 | RF‑DOC‑033 | Anular pide motivo y el número no se reutiliza | Oblig. | El siguiente certificado no toma el número anulado |
 
 ### 3.9 Emitir
 
-Una sola pantalla para enviar cualquier documento.
+Una sola pantalla para emitir cualquier documento. Emitir genera el documento y lo guarda en el expediente **«Sin firmar»**; al colaborador no le llega nada hasta que se sube el firmado —BR‑DOC‑036—.
 
 - **A la izquierda, el riel**: cada tipo con su puntito de color y su flechita para desplegar sus plantillas, con cuántas veces se emitió cada una. Al final, **Un archivo propio** (reglamento, política, comunicado).
-- **Al centro, la hoja** tal como va a salir. Sin nadie elegido es una **hoja de ejemplo**, con los datos de la persona en celeste («Sin nombre»). Con alguien, sus datos; lo que falta en su ficha se marca en rojo y no deja enviar.
-- **A la derecha, «Para quién»**: **Personas** (se busca y se suma de a una) o **Un grupo** (filtros de sucursal, unidad y cargo, buscador y casillas, como armar un grupo en WhatsApp; lo marcado queda arriba como etiquetas). Con varias personas, cada una tiene «Ver» y quien tiene un dato vacío «No sale».
-- **Abajo**: el número que va a salir —«Salen del CERT‑0007 al CERT‑0012»—, **Pedir que confirme la recepción** y **Emitir y enviar a N personas**.
+- **Al centro, la hoja** tal como va a salir. Sin nadie elegido es una **hoja de ejemplo**, con los datos de la persona en celeste («Sin nombre»). Con alguien, sus datos; lo que falta en su ficha se marca en rojo y no deja emitir.
+- **A la derecha, «Para quién»**: siempre la lista con casillas, un buscador y filtros de sucursal, unidad organizacional y cargo, con **«Marcar los N que se ven»**. Lo marcado queda arriba como etiquetas, con **«Quitar todos»**. Una persona marcada es un documento; varias, uno por persona. Con varias, cada una tiene «Ver» y quien tiene un dato vacío «No sale». Las pestañas «Personas / Un grupo» se quitaron en la 1.2.
+- **Editar documento**: con una sola persona elegida, y si no es un contrato, arriba de la hoja dice «¿Hay que cambiar algo sólo en este documento? Quién firma, un dato que cambió…». **Editar documento** vuelve editable toda la hoja solo para esa emisión: «Editando sólo este documento. La plantilla y los datos de X no cambian», con **Volver a la plantilla** —BR‑DOC‑061—.
+- **Abajo**: el número que va a salir —«Salen del CERT‑0007 al CERT‑0012»— y el botón **Emitir para Carlos** o **Emitir N documentos**.
+- **Después de emitir**: «Emitido: CERT‑…», «quedó en el expediente de X, sin firmar», con **Descargar para imprimir** —un .doc de Word con formato de hoja— y **Subir el firmado**. Con varios: «Se emitieron N documentos», cada uno sin firmar, y **Ver y descargar todos**.
 - **Memorándum**: un recuadro sobre la hoja para escribir el hecho, textos frecuentes y el aviso si ya recibió uno igual en el año.
-- **Contrato y adenda**: una sola persona, con modalidad, fechas y qué pasa con el contrato vigente.
+- **Contrato**: una sola persona, con el buscador de a una, modalidad, fechas y qué pasa con el contrato vigente. La plantilla de adenda ya no se ofrece.
+- **Un archivo propio** (reglamento, comunicado) sí se envía: le llega a cada persona por la app y queda en su expediente.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑DOC‑034 | Solo se ofrecen plantillas activas | Oblig. | Una plantilla inactiva no aparece en el riel |
-| RF‑DOC‑035 | La hoja se ve antes de enviar, con los datos reales | Oblig. | Al elegir a Diego, la hoja dice «Diego Morales» |
-| RF‑DOC‑036 | Se puede enviar a un grupo armado con filtros | Oblig. | Unidad Ventas marca a sus 7 personas |
+| RF‑DOC‑035 | La hoja se ve antes de emitir, con los datos reales | Oblig. | Al elegir a Diego, la hoja dice «Diego Morales» |
+| RF‑DOC‑036 | Se emite para una o varias personas marcadas en la misma lista, con filtros | Oblig. | Filtrar la unidad Ventas y «Marcar los 7 que se ven» deja «Emitir 7 documentos» |
 | RF‑DOC‑037 | Quien tiene un dato vacío no sale y se dice | Oblig. | «No sale» junto a su nombre; los demás sí salen |
-| RF‑DOC‑038 | El número que saldrá se ve antes de enviar | Import. | «Sale con el número CERT‑0007/2026» |
+| RF‑DOC‑038 | El número que saldrá se ve antes de emitir | Import. | «Sale con el número CERT‑0007/2026» |
 | RF‑DOC‑039 | Un archivo propio se envía igual que una plantilla | Import. | Un PDF llega a cada persona elegida con su número |
+| RF‑DOC‑065 | Con una persona, el texto se edita solo para ese documento | Import. | Cambiar quién firma no cambia la plantilla, y el emitido queda marcado como editado |
 
 ### 3.10 Plantillas
 
@@ -391,19 +415,21 @@ Uno solo para todos los tipos, en tres columnas.
 | RF‑DOC‑046 | El historial muestra cómo era cada versión | Import. | «Ver cómo era» abre el texto de ese día |
 | RF‑DOC‑047 | Las de fábrica se editan y se pueden volver al original | Import. | «Volver al texto original» repone el texto |
 
-### 3.12 Notificaciones y numeración
+### 3.12 Notificaciones y tipos de documento
 
-Una página de ajustes con un solo **Guardar cambios** en un encabezado fijo, que aparece con «N cambios sin guardar» y **Descartar**.
+Una página de ajustes —en el menú y en el título, «Notificaciones y tipos de documento»— con un solo **Guardar cambios** en un encabezado fijo, que aparece con «N cambios sin guardar» y **Descartar**.
 
-- **Vencimiento de documentos**: encendido o apagado; **Cuándo avisar** (hasta tres, en días antes); **A quién** (colaborador, jefe directo, responsable de RR.HH.); **Por dónde** (correo, notificación en la app); **Resumen a RR.HH.** (nunca, semanal, mensual).
-- **Contratos y papelera**: días de aviso antes del fin de un plazo fijo y días que lo quitado queda en la papelera.
-- **Numeración**: una tabla con cada tipo —también los creados—, su sigla, sus dígitos, si reinicia cada año y **el próximo número**, que cambia mientras se edita.
+- **Los avisos de vencimiento**, sin título de sección: la primera fila es **«Avisar antes de que venza un documento»**, con su interruptor. Encendido: **Cuándo avisar** (hasta tres, en días antes); **A quién** (colaborador, jefe directo, responsable de RR.HH.); **Por dónde** (correo, notificación en la app); **Resumen a RR.HH.** (nunca, semanal, mensual).
+- **Contratos**: solo los días de aviso antes del fin de un plazo fijo. «Días en la papelera» se quitó: un documento ya no se borra, se anula.
+- **Tipos de documento**: «Cada tipo con su sigla y su numeración. Un número no se usa dos veces, ni si el documento se anula.» Una tabla con cada tipo —también los creados—, su sigla, sus dígitos, si reinicia cada año y **el próximo número**, que cambia mientras se edita.
+- **+ Nuevo tipo de documento**, al final de la tabla: una fila con nombre, sigla (se propone sola), dígitos, si reinicia cada año y el próximo número en vivo. Valida que el nombre y la sigla no existan. Se crea al momento, con su carpeta en «De RR.HH.» —BR‑DOC‑044—.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑DOC‑048 | Con los avisos encendidos hace falta un día y un destinatario | Oblig. | Sin destinatario, «Elija al menos a quién avisar» |
 | RF‑DOC‑049 | Cada tipo necesita su sigla | Oblig. | Una sigla vacía impide guardar |
 | RF‑DOC‑050 | El próximo número se ve en vivo | Import. | Cambiar CERT por CER muestra «CER‑0007/2026» |
+| RF‑DOC‑068 | Un tipo nuevo se crea desde la tabla de tipos, sin repetir nombre ni sigla | Import. | «Constancia» propone CON y muestra «CON‑0001/2026»; una sigla que ya existe no deja crear |
 
 > **En la maqueta:** ningún aviso ni resumen se envía. Los días de aviso sí cambian el cálculo de «Por vencer».
 
@@ -437,14 +463,15 @@ Mis documentos y Mis solicitudes, en Zona HR, en la web y en el celular, con las
 
 ### 3.15 Lo que recibe de RR.HH.
 
-- **De RR.HH.**: carpetas Certificados, Memorándums y una por cada tipo que creó la empresa, cada una con cuántos le faltan confirmar. «Otros» aparece solo si tiene algo. Son las mismas carpetas que ve RR.HH. en su expediente.
-- Al abrir un documento: la hoja tal como salió y **Confirmar que lo recibí**, que aclara que confirmar es haberlo recibido y leído, no estar de acuerdo.
+- **De RR.HH.**: carpetas Certificados, Memorándums y una por cada tipo que creó la empresa, cada una con cuántos documentos tiene. «Otros» aparece solo si tiene algo. Son las mismas carpetas que ve RR.HH. en su expediente.
+- Ve lo que ya está listo: lo emitido con el firmado subido, lo que resolvió una solicitud y los archivos propios que se le enviaron. Lo emitido sin firmar no le aparece; cuando RR.HH. sube el firmado, le aparece sin aviso.
+- Al abrir un documento: la hoja tal como salió. Ya no hay «Confirmar que lo recibí», ni en la web ni en el celular.
 - **Reportar un error** abre una corrección con ese documento elegido.
 - En **Contratos**, cada contrato con su estado y **Pedir una copia**. No hay firma desde la app.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑DOC‑055 | Confirmar es una vez y guarda fecha y dispositivo | Oblig. | Después de confirmar, el botón ya no está |
+| RF‑DOC‑055 | Retirado en la 1.2: ya no se confirma la recepción | — | No aparece «Confirmar que lo recibí»; lo confirmado antes no muestra nada aparte |
 | RF‑DOC‑056 | Cada tipo creado tiene su carpeta | Import. | «Constancias» aparece al recibir una constancia |
 | RF‑DOC‑057 | Lo anulado no se ve | Oblig. | Un certificado anulado desaparece de Certificados |
 
@@ -480,7 +507,7 @@ Lo que vale en todas las pantallas.
 - La pantalla de RR.HH. y la del colaborador hablan de **usted**.
 - Se dice **sucursal** y **unidad organizacional**, nunca «sede» ni «área».
 - Se dice **expediente**, no «legajo»; **tipo**, no «categoría»; **plantilla**, no «modelo», salvo en «Nuevo modelo».
-- Los avisos dicen qué pasó y qué hacer, en una frase: «Falta el firmado», «Decida si lo renueva con una adenda».
+- Los avisos dicen qué pasó y qué hacer, en una frase: «Falta el firmado», «Decida si lo renueva o lo deja terminar».
 
 ### 3.20 Fuera de alcance de esta versión
 
@@ -511,12 +538,12 @@ Las condiciones de las pantallas de Recursos Humanos, por tema: el expediente, l
 - **Código:** BR-DOC-001
 - **Grupo:** El expediente y sus carpetas
 - **Qué gobierna:** Expediente
-- **Antes:** v0.2 · Repositorio
+- **Antes:** v0.2 · Repositorio · 1.1 (cambia)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Cada colaborador tiene **un solo expediente**. Se ordena en una carpeta por **tipo** de documento (Información personal, Perfil profesional, Recursos y activos, Documentos agregados) y en carpetas fijas: **Contratos**, **Historial** y, cuando tienen algo, **Por clasificar** y **Papelera**. Lo que RR.HH. le envió va en **De RR.HH.**, con una carpeta por tipo de documento. RR.HH. y el colaborador ven las mismas carpetas, con el mismo dibujo.
+Cada colaborador tiene **un solo expediente**. Se ordena en una carpeta por **tipo** de documento (Información personal, Perfil profesional, Recursos y activos, Documentos agregados) y en carpetas fijas: **Contratos**, **Historial** y, cuando tienen algo, **Por clasificar** y **Anulados**. Lo que RR.HH. le emitió va en **De RR.HH.**, con una carpeta por tipo de documento. RR.HH. y el colaborador ven las mismas carpetas, con el mismo dibujo.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -528,7 +555,7 @@ Cada colaborador tiene **un solo expediente**. Se ordena en una carpeta por **ti
 
 **3. Condiciones y excepciones**
 
-- Por clasificar y Papelera solo aparecen si tienen algo.
+- Por clasificar y Anulados solo aparecen si tienen algo. Anulados reemplaza a la Papelera desde la 1.2.
 - Un tipo desactivado no aparece, salvo que la persona ya tenga documentos en él.
 
 **4. Trazabilidad**
@@ -561,12 +588,12 @@ Los archivos que la persona cargó en la sección «Archivos» de su ficha apare
 
 - **Dado que** la persona cargó su carnet en la ficha
 - **Cuando** RR.HH. abre su carpeta Información personal
-- **Entonces** el carnet está Vigente, con la etiqueta «de la ficha», y no ofrece Enviar a la papelera
+- **Entonces** el carnet está Vigente, con la etiqueta «de la ficha», y no ofrece Anular
 
 **3. Condiciones y excepciones**
 
 - Si el mismo documento está en la ficha y en Documentación, se muestra el de emisión más nueva.
-- Un documento de la ficha no se versiona desde Documentación.
+- Un documento de la ficha no se versiona desde Documentación. Si RR.HH. sube uno nuevo desde el expediente, desde ahora vale el nuevo en el expediente y la ficha conserva el suyo; no se acepta una emisión anterior a la del de la ficha.
 
 **4. Trazabilidad**
 
@@ -576,7 +603,7 @@ Los archivos que la persona cargó en la sección «Archivos» de su ficha apare
 - **Pantalla:** W‑DOC‑02 Expediente
 - **Diseño:** Prototipado
 
-#### 4.3 · BR-DOC-003 · Se exige lo que pide la empresa a todos, más lo que se pide a esa persona
+#### 4.3 · BR-DOC-003 · Se exige lo que pide la empresa a todos; lo pedido antes a una persona sigue valiendo
 
 *Estado: Borrador*
 
@@ -585,25 +612,25 @@ Los archivos que la persona cargó en la sección «Archivos» de su ficha apare
 - **Código:** BR-DOC-003
 - **Grupo:** El expediente y sus carpetas
 - **Qué gobierna:** Requisito
-- **Antes:** RF‑10 a RF‑13
+- **Antes:** RF‑10 a RF‑13 · 1.1 (cambia)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Lo que se le exige a una persona sale de dos lados: lo **exigido a todos** desde la configuración del documento, con su plazo desde el ingreso, y lo que RR.HH. **le agregó a ella** desde su expediente. Si los dos piden lo mismo, **gana lo más exigente**: obligatorio sobre opcional, el plazo más corto.
+Lo que se le exige a una persona sale de lo **exigido a todos** desde la configuración del documento, con su plazo desde el ingreso. Desde la 1.2, «Agregar requisito» ya no está en el expediente: no se le agrega un documento a una sola persona. Lo que se le agregó antes **sigue contando** y, si los dos piden lo mismo, **gana lo más exigente**: obligatorio sobre opcional, el plazo más corto.
 
 **2. Escenarios ágiles de ejecución**
 
-*Un requisito personal más exigente gana*
+*Un requisito personal de antes sigue contando*
 
-- **Dado que** el título se pide a todos como opcional
-- **Cuando** RR.HH. se lo agrega a una persona como obligatorio a 15 días
-- **Entonces** para esa persona es obligatorio y vence a los 15 días
+- **Dado que** antes de la 1.2 se le agregó a una persona la licencia de conducir como obligatoria a 15 días
+- **Cuando** se abre su expediente
+- **Entonces** la licencia sigue en su lista, con su plazo, y el expediente ya no ofrece «Agregar requisito»
 
 **3. Condiciones y excepciones**
 
-- Quitar un requisito personal solo se puede si no tiene documento.
-- No hay perfiles: se exige por documento o por persona.
+- Un requisito personal de antes se puede dejar de exigir solo si no tiene documento.
+- No hay perfiles: se exige por documento.
 
 **4. Trazabilidad**
 
@@ -652,7 +679,7 @@ El porcentaje de un expediente es lo **cumplido** sobre lo **obligatorio que ya 
 
 #### 4.5 · BR-DOC-005 · Exonerar pide motivo y es para siempre
 
-*Estado: Borrador*
+*Estado: Retirada en la 1.2*
 
 **1. Información básica**
 
@@ -660,24 +687,24 @@ El porcentaje de un expediente es lo **cumplido** sobre lo **obligatorio que ya 
 - **Grupo:** El expediente y sus carpetas
 - **Qué gobierna:** Requisito
 - **Antes:** RF‑15 · RN‑09
-- **Estado:** Borrador
+- **Estado:** Retirada en la 1.2
 
 *Descripción general*
 
-RR.HH. puede liberar a una persona de un documento que se le exige. Lleva **motivo**, queda quién y cuándo, y **no se deshace**. El documento pasa a **Exonerado** y sale del avance.
+**Retirada en la 1.2: ya no se exonera.** «Exonerar» salió del menú de cada documento. Lo que se exoneró antes **se sigue mostrando como historial**: el documento dice «Exonerado por … el …: motivo» y sigue fuera del avance. Una exoneración no se deshace.
 
 **2. Escenarios ágiles de ejecución**
 
-*Exonerar sin motivo no se puede*
+*Una exoneración de antes se sigue viendo*
 
-- **Dado que** a alguien le falta el certificado de antecedentes
-- **Cuando** RR.HH. elige «Exonerar» y no escribe motivo
-- **Entonces** el botón no se activa
+- **Dado que** a alguien se le exoneró el certificado de antecedentes antes de la 1.2
+- **Cuando** RR.HH. abre su carpeta
+- **Entonces** el documento dice «Exonerado» con quién, cuándo y el motivo, y ningún documento ofrece «Exonerar»
 
 **3. Condiciones y excepciones**
 
-- Solo se exonera lo que se exige y está faltante, vencido o rechazado.
-- La exoneración queda en la bitácora.
+- Lo exonerado sale del avance —BR‑DOC‑004—.
+- La exoneración sigue en la bitácora.
 
 **4. Trazabilidad**
 
@@ -799,7 +826,7 @@ Un documento está **Por vencer** desde el aviso más temprano: si los avisos so
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑048
 - **Historia de usuario:** HU‑DOC‑03
-- **Pantalla:** W‑DOC‑12 Notificaciones
+- **Pantalla:** W‑DOC‑12 Notificaciones y tipos de documento
 - **Diseño:** Prototipado
 
 #### 4.9 · BR-DOC-009 · Si el documento vence, la fecha de vencimiento es obligatoria
@@ -922,24 +949,24 @@ Rechazar un documento pide un **motivo** de al menos cinco letras. Ese motivo es
 - **Código:** BR-DOC-012
 - **Grupo:** El estado de un documento
 - **Qué gobierna:** Documento
-- **Antes:** RN‑13 · RN‑02
+- **Antes:** RN‑13 · RN‑02 · 1.1 (cambia)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Subir un documento que ya existe **agrega una versión**; la anterior queda guardada, marcada como reemplazada. Si el documento admite **varios** —certificados de cursos—, en cambio, se suma uno nuevo.
+Subir un documento que ya existe **agrega una versión**; la anterior queda guardada, marcada como reemplazada. Antes de reemplazar **se pregunta**: el actual y el nuevo se ven lado a lado con «¿Desea reemplazar…?» y **Sí, reemplazar**. Si el documento admite **varios** —títulos, certificaciones, actas—, se elige **Agregar uno nuevo** o **Reemplazar** uno de los que tiene.
 
 **2. Escenarios ágiles de ejecución**
 
 *Renovar el carnet*
 
 - **Dado que** alguien tiene su carnet vencido
-- **Cuando** RR.HH. sube el nuevo
+- **Cuando** RR.HH. sube el nuevo y confirma «Sí, reemplazar»
 - **Entonces** el documento tiene dos versiones y la actual es la nueva
 
 **3. Condiciones y excepciones**
 
-- Se puede escribir por qué se reemplaza.
+- La versión nueva queda con el motivo «Se reemplazó desde el expediente».
 - Las versiones se ven al abrir el documento.
 
 **4. Trazabilidad**
@@ -980,15 +1007,15 @@ Un documento que sube RR.HH. desde el expediente entra **aprobado**: no pasa por
 
 **3. Condiciones y excepciones**
 
-- La emisión se pone en hoy y se puede corregir con «Revisar fechas».
-- El vencimiento se propone con la vigencia del documento.
+- La emisión se propone en hoy y se elige en el mismo modal, antes de subir.
+- El vencimiento se propone con la vigencia del documento y se puede cambiar.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑013
 - **Historia de usuario:** HU‑DOC‑04
-- **Pantalla:** W‑DOC‑03 Subir
+- **Pantalla:** W‑DOC‑03 Subir documento
 - **Diseño:** Prototipado
 
 #### 4.14 · BR-DOC-014 · Formato y tamaño se validan antes de subir
@@ -1013,22 +1040,22 @@ Cada documento acepta ciertos **formatos** (por defecto PDF, JPG y PNG) y un **t
 
 - **Dado que** un archivo pesa 15 MB
 - **Cuando** se intenta subir
-- **Entonces** no se sube y dice «El archivo pesa más de 10 MB»
+- **Entonces** no se sube y dice «El archivo pesa 15,0 MB y el máximo es 10 MB.»
 
 **3. Condiciones y excepciones**
 
 - Vale igual para RR.HH. y para el colaborador.
-- Un archivo igual a otro ya subido avisa, sin bloquear.
+- En las carpetas de RR.HH. se aceptan PDF, imágenes y Word; en Contratos, PDF e imágenes.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑015
 - **Historia de usuario:** HU‑DOC‑04
-- **Pantalla:** W‑DOC‑03 Subir
+- **Pantalla:** W‑DOC‑03 Subir documento
 - **Diseño:** Prototipado
 
-#### 4.15 · BR-DOC-015 · Lo que no se reconoce va a Por clasificar
+#### 4.15 · BR-DOC-015 · Al subir se elige qué documento es; Por clasificar queda para lo que llega sin clasificar
 
 *Estado: Borrador*
 
@@ -1037,32 +1064,32 @@ Cada documento acepta ciertos **formatos** (por defecto PDF, JPG y PNG) y un **t
 - **Código:** BR-DOC-015
 - **Grupo:** Subir y revisar
 - **Qué gobierna:** Documento
-- **Antes:** v0.2 · Por clasificar
+- **Antes:** v0.2 · Por clasificar · 1.1 (cambia)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Al subir, el sistema adivina qué documento es: por la tarjeta desde la que se sube, por el nombre del archivo, por lo que falta en la carpeta. Si no puede, el archivo queda en **Por clasificar**, donde RR.HH. elige qué es o lo descarta.
+Desde la 1.2, **Subir documento** ya no adivina ni sube a ciegas: primero se elige la carpeta —desde la vista general, «¿En qué carpeta va el documento?»— y después, a la izquierda del modal, **el documento**. Siempre hay uno elegido: lo pedido desde una fila o lo primero que falta. Desde aquí no se crea nada en **Por clasificar**. Lo que llega de la app sin clasificar se sigue viendo ahí, donde RR.HH. elige qué es o lo descarta.
 
 **2. Escenarios ágiles de ejecución**
 
-*Clasificar después*
+*Subir desde la cabecera*
 
-- **Dado que** se sube «scan001.pdf» desde la cabecera
-- **Cuando** el sistema no reconoce qué es
-- **Entonces** queda en Por clasificar con «¿Qué documento es?», los faltantes primero
+- **Dado que** RR.HH. pulsa «Subir documento» en la vista general del expediente
+- **Cuando** elige la carpeta Información personal
+- **Entonces** se abre el modal de esa carpeta con lo que falta primero, y «Cambiar carpeta» vuelve a la pregunta
 
 **3. Condiciones y excepciones**
 
-- «Otro documento» permite ponerle un nombre.
-- Los archivos sin clasificar suman al contador del menú.
+- Cada carpeta dice cuánto le falta: «Falta N», con punto rojo.
+- Los archivos sin clasificar que ya existen suman al contador del menú.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑014
 - **Historia de usuario:** HU‑DOC‑04
-- **Pantalla:** W‑DOC‑03 Subir
+- **Pantalla:** W‑DOC‑03 Subir documento
 - **Diseño:** Prototipado
 
 #### 4.16 · BR-DOC-016 · La revisión va de lo más antiguo a lo más nuevo
@@ -1128,7 +1155,7 @@ Corregir la emisión o el vencimiento de un documento **no crea una versión**: 
 
 **3. Condiciones y excepciones**
 
-- Se corrige desde el aviso «Revisar fechas» o desde Revisar.
+- Se corrige desde Revisar o desde el aviso «Revisar fechas» que aparece al clasificar un archivo.
 - Valen las reglas de BR‑DOC‑009.
 
 **4. Trazabilidad**
@@ -1139,11 +1166,50 @@ Corregir la emisión o el vencimiento de un documento **no crea una versión**: 
 - **Pantalla:** W‑DOC‑04 Revisar
 - **Diseño:** Prototipado
 
+#### 4.64 · BR-DOC-064 · En una carpeta de RR.HH. se sube el firmado de lo emitido o un documento hecho afuera
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-DOC-064
+- **Grupo:** Subir y revisar
+- **Qué gobierna:** Emitido
+- **Antes:** Nueva (1.2)
+- **Estado:** Borrador
+
+*Descripción general*
+
+Subir en Certificados, Memorándums, un tipo creado u Otros pregunta **«¿Qué va a subir?»**. **El firmado de uno ya emitido**: se elige cuál —cada uno dice «Sin firmar» o «Firmado»— y el escaneado queda pegado a ese emitido, con su número. **Uno nuevo hecho fuera del sistema**: se escribe el nombre, se elige el archivo y la fecha, y sale con **el número que sigue en su serie**. En Contratos se elige el contrato y se sube su firmado, o se registra un contrato nuevo.
+
+**2. Escenarios ágiles de ejecución**
+
+*El firmado va con su número*
+
+- **Dado que** a alguien se le emitió MEM‑0003/2026 y está «Sin firmar»
+- **Cuando** RR.HH. sube el escaneado firmado desde su carpeta Memorándums
+- **Entonces** MEM‑0003/2026 queda «Firmado» y el colaborador lo ve en su carpeta
+
+**3. Condiciones y excepciones**
+
+- Si hay un emitido sin firmar, viene elegido «El firmado».
+- Subir otro firmado reemplaza al anterior; la bitácora guarda los dos.
+- Se aceptan PDF, imágenes y Word.
+- El firmado de un contrato queda como su versión firmada —BR‑DOC‑028—.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑DOC‑064
+- **Historia de usuario:** HU‑DOC‑08
+- **Pantalla:** W‑DOC‑03 Subir documento
+- **Diseño:** Prototipado
+
 ### El rastro
 
 *Nada se borra y todo queda escrito*
 
-#### 4.18 · BR-DOC-018 · Nada se borra: lo quitado va a la papelera
+#### 4.18 · BR-DOC-018 · Nada se borra: un documento se anula con motivo
 
 *Estado: Borrador*
 
@@ -1152,25 +1218,25 @@ Corregir la emisión o el vencimiento de un documento **no crea una versión**: 
 - **Código:** BR-DOC-018
 - **Grupo:** El rastro
 - **Qué gobierna:** Documento
-- **Antes:** RF‑88 · RF‑89 · REP‑01
+- **Antes:** RF‑88 · RF‑89 · REP‑01 · 1.1 (cambia: antes, la papelera)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Quitar un documento pide **motivo** y **una segunda confirmación**, y lo manda a la **Papelera**, de donde se recupera. Los documentos de la ficha no van a la papelera.
+Desde la 1.2 un documento no se borra ni va a la papelera: **se anula**. Anular pide **motivo** y **una segunda confirmación**. El documento deja de contar para sus requisitos —vuelve a quedar faltante, para subir el correcto— y va a la carpeta **Anulados**, con «Anulado el … por …: motivo» y **Ver** en solo lectura. **No se deshace**: no hay Recuperar. Los documentos de la ficha no se anulan desde aquí.
 
 **2. Escenarios ágiles de ejecución**
 
-*Quitar con doble paso*
+*Anular con doble paso*
 
-- **Dado que** RR.HH. quiere quitar un documento cargado por error
-- **Cuando** escribe el motivo y confirma «Sí, enviar a la papelera»
-- **Entonces** el documento aparece en la Papelera con «Recuperar»
+- **Dado que** RR.HH. cargó por error el carnet de otra persona
+- **Cuando** escribe el motivo y confirma «Sí, anular»
+- **Entonces** el carnet aparece en Anulados con su motivo, y el documento de identidad vuelve a estar Faltante
 
 **3. Condiciones y excepciones**
 
-- La papelera guarda lo quitado durante los días de Notificaciones (30 por defecto).
-- Recuperar devuelve el documento a su carpeta.
+- «Días en la papelera» ya no existe en Notificaciones y tipos de documento.
+- La anulación queda en la bitácora: «Anuló el documento: motivo».
 
 **4. Trazabilidad**
 
@@ -1194,7 +1260,7 @@ Quitar un documento pide **motivo** y **una segunda confirmación**, y lo manda 
 
 *Descripción general*
 
-Subir, aprobar, rechazar, exonerar, quitar, emitir, entregar, anular, registrar contratos, atender solicitudes y cambiar la configuración dejan una entrada: **quién, cuándo, qué y sobre quién**. La bitácora no se edita ni se borra.
+Subir, aprobar, rechazar, anular, emitir, descargar para imprimir, subir un firmado, entregar, registrar y renovar contratos, atender solicitudes, exportar y cambiar la configuración dejan una entrada: **quién, cuándo, qué y sobre quién**. La bitácora no se edita ni se borra.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1208,6 +1274,7 @@ Subir, aprobar, rechazar, exonerar, quitar, emitir, entregar, anular, registrar 
 
 - El Historial de cada persona es su parte de la bitácora.
 - Se filtra por Documentos, Recibidos, Contratos y Solicitudes.
+- Lo exonerado o confirmado antes de la 1.2 sigue en la bitácora.
 
 **4. Trazabilidad**
 
@@ -1268,7 +1335,7 @@ Cada documento tiene una **visibilidad**: general, restringida o confidencial. A
 
 *Descripción general*
 
-Descargar el expediente baja un **ZIP** con un **índice** y una carpeta por tipo, más los recibidos y los contratos. La descarga queda en la bitácora.
+Descargar el expediente baja un **ZIP** con un **índice** y una carpeta por tipo, más los recibidos —cada emitido con **su firmado** al lado, con el mismo número— y los contratos. La descarga queda en la bitácora.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1282,6 +1349,7 @@ Descargar el expediente baja un **ZIP** con un **índice** y una carpeta por tip
 
 - También se descarga un expediente cerrado.
 - Cada documento va con su versión actual.
+- Varios expedientes a la vez se bajan desde Expedientes › Exportar —BR‑DOC‑063—.
 
 **4. Trazabilidad**
 
@@ -1289,6 +1357,44 @@ Descargar el expediente baja un **ZIP** con un **índice** y una carpeta por tip
 - **Requisitos:** RF‑DOC‑010
 - **Historia de usuario:** HU‑DOC‑05
 - **Pantalla:** W‑DOC‑02 Expediente
+- **Diseño:** Prototipado
+
+#### 4.63 · BR-DOC-063 · La lista de expedientes se exporta tal como se ve, sin confidenciales en el ZIP
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-DOC-063
+- **Grupo:** El rastro
+- **Qué gobierna:** Expediente
+- **Antes:** Nueva (1.2) · RF‑83
+- **Estado:** Borrador
+
+*Descripción general*
+
+**Exportar** baja a las personas que deja pasar la vista —búsqueda, filtros, estado y Activos/Desvinculados—, **de todas las páginas**. **Expedientes en ZIP** arma una carpeta por persona con su índice y **deja fuera lo confidencial**: el índice dice qué quedó fuera. **Lista en Excel** arma una fila por persona con su avance y lo que tiene pendiente, y la primera línea dice los filtros. Las dos descargas quedan en la bitácora.
+
+**2. Escenarios ágiles de ejecución**
+
+*Descargar una sucursal*
+
+- **Dado que** en Expedientes se eligió «Activos» y la sucursal Casa Matriz Equipetrol, y hay 20 personas en dos páginas
+- **Cuando** se pulsa Exportar › Expedientes en ZIP
+- **Entonces** pregunta «¿Descargar 20 expedientes?» con «Activos de Casa Matriz Equipetrol, de todas las páginas» y, al descargar, baja un ZIP con 20 carpetas
+
+**3. Condiciones y excepciones**
+
+- El ZIP pide una confirmación corta, con Cancelar y Descargar; la lista en Excel baja directo.
+- En la lista, un desvinculado dice «Expediente cerrado» y no suma pendientes —BR‑DOC‑006—.
+- Cada expediente del ZIP sigue la forma de BR‑DOC‑021.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑DOC‑063
+- **Historia de usuario:** HU‑DOC‑19
+- **Pantalla:** W‑DOC‑01 Expedientes
 - **Diseño:** Prototipado
 
 ### Lo urgente
@@ -1371,7 +1477,7 @@ Pedir la renovación de un vencido o la entrega de un faltante guarda **a quién
 
 ### Los contratos
 
-*Uno vigente por persona, y la cadena de adendas*
+*Uno vigente por persona; renovar es registrar uno nuevo*
 
 #### 4.24 · BR-DOC-024 · Un contrato se registra desde Emitir y vive en el expediente
 
@@ -1382,12 +1488,12 @@ Pedir la renovación de un vencido o la entrega de un faltante guarda **a quién
 - **Código:** BR-DOC-024
 - **Grupo:** Los contratos
 - **Qué gobierna:** Contrato
-- **Antes:** v0.2 · ABIERTA‑03
+- **Antes:** v0.2 · ABIERTA‑03 · 1.1 (cambia)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Los contratos y las adendas se **registran desde Emitir**, para una sola persona, generados desde una plantilla o subiendo el firmado. Quedan en la carpeta **Contratos** del expediente, con su número.
+Los contratos se **registran desde Emitir**, para una sola persona, generados desde una plantilla o subiendo el firmado; desde la carpeta Contratos del expediente, «Registrar un contrato nuevo» abre lo mismo. Quedan en la carpeta **Contratos**, con su número. Desde la 1.2 ya no se registran adendas.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1401,6 +1507,7 @@ Los contratos y las adendas se **registran desde Emitir**, para una sola persona
 
 - Un contrato es de una sola persona.
 - No hay grupo en Emitir para un contrato.
+- «Descargar para imprimir» baja un Word con las líneas de firma de la empresa y de la persona.
 
 **4. Trazabilidad**
 
@@ -1475,6 +1582,7 @@ Planillas liquida con **el** contrato vigente. Por eso, al registrar uno nuevo p
 
 - Reemplazado guarda por cuál se reemplazó.
 - Finalizado guarda la fecha, quién y el motivo.
+- Renovar desde la ficha del contrato ya decide: el nuevo reemplaza al anterior —BR‑DOC‑062—.
 
 **4. Trazabilidad**
 
@@ -1486,7 +1594,7 @@ Planillas liquida con **el** contrato vigente. Por eso, al registrar uno nuevo p
 
 #### 4.27 · BR-DOC-027 · Una adenda necesita su contrato y no empieza antes que él
 
-*Estado: Borrador*
+*Estado: Retirada en la 1.2*
 
 **1. Información básica**
 
@@ -1494,24 +1602,24 @@ Planillas liquida con **el** contrato vigente. Por eso, al registrar uno nuevo p
 - **Grupo:** Los contratos
 - **Qué gobierna:** Contrato
 - **Antes:** RN‑19
-- **Estado:** Borrador
+- **Estado:** Retirada en la 1.2
 
 *Descripción general*
 
-Una **adenda** siempre modifica un contrato: sin contrato vigente no se puede registrar, y no puede regir desde antes del inicio de su contrato. Una adenda de ampliación **corre el fin** del contrato.
+**Retirada en la 1.2: las adendas ya no se crean.** La plantilla de adenda no se ofrece en Emitir y la ficha del contrato ya no tiene «Renovar con adenda»: renovar es registrar un contrato nuevo —BR‑DOC‑062—. Las adendas que ya existen **se muestran como historial**, en la cadena de su contrato, y la que amplió el plazo sigue diciendo «ampliado al …».
 
 **2. Escenarios ágiles de ejecución**
 
-*Renovar con adenda*
+*Una adenda de antes se sigue viendo*
 
-- **Dado que** un plazo fijo termina el 30 de octubre
-- **Cuando** se pulsa «Renovar con adenda» con fin al 30 de abril
-- **Entonces** el contrato dice «ampliado al 30 de abril» y deja de estar Por vencer
+- **Dado que** un contrato se amplió con una adenda antes de la 1.2
+- **Cuando** se abre su ficha
+- **Entonces** el fin dice «ampliado al …» y la adenda está en «Contrato y adendas», pero no hay cómo registrar otra
 
 **3. Condiciones y excepciones**
 
-- «Renovar con adenda» propone empezar el día siguiente al fin.
-- Un contrato indefinido no se renueva con adenda.
+- El fin que vale sigue siendo el de la última adenda —BR‑DOC‑028—.
+- El colaborador ve sus adendas de antes en Contratos.
 
 **4. Trazabilidad**
 
@@ -1543,11 +1651,11 @@ Un contrato está **En elaboración** (sin versiones), **Vigente**, **Por vencer
 
 - **Dado que** un plazo fijo termina en 40 días
 - **Cuando** se mira su ficha
-- **Entonces** está Por vencer y dice «Decida si lo renueva con una adenda»
+- **Entonces** está Por vencer, dice «Decida si lo renueva o lo deja terminar» y ofrece «Renovar contrato»
 
 **3. Condiciones y excepciones**
 
-- El fin que vale es el de la última adenda.
+- Si tiene adendas de antes, el fin que vale es el de la última.
 - Subir el firmado crea una versión; el sello pasa a «Firmado».
 
 **4. Trazabilidad**
@@ -1585,7 +1693,7 @@ Si una persona ya encadena **dos o más contratos a plazo fijo**, registrar o re
 **3. Condiciones y excepciones**
 
 - Cuentan los plazos fijos no reemplazados.
-- El aviso aparece en Emitir y en la ficha del contrato.
+- El aviso aparece en Emitir, en la ficha del contrato y en «Renovar contrato» cuando se elige Plazo fijo.
 
 **4. Trazabilidad**
 
@@ -1595,9 +1703,48 @@ Si una persona ya encadena **dos o más contratos a plazo fijo**, registrar o re
 - **Pantalla:** W‑DOC‑05 Contrato
 - **Diseño:** Prototipado
 
+#### 4.62 · BR-DOC-062 · Renovar un contrato es registrar uno nuevo que reemplaza al anterior
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-DOC-062
+- **Grupo:** Los contratos
+- **Qué gobierna:** Contrato
+- **Antes:** Nueva (1.2) · reemplaza a BR‑DOC‑027
+- **Estado:** Borrador
+
+*Descripción general*
+
+**Renovar contrato** registra **siempre un contrato nuevo**, a plazo fijo o indefinido, que **reemplaza** al anterior. El anterior queda «Reemplazado», con sus versiones. El nuevo rige por defecto desde el día siguiente al fin vigente, y antes de registrarlo se ve la vista previa con su número. El botón va adelante solo cuando el contrato está por vencer o vencido.
+
+**2. Escenarios ágiles de ejecución**
+
+*Renovar un plazo fijo que vence*
+
+- **Dado que** un plazo fijo termina el 30 de octubre y está Por vencer
+- **Cuando** se pulsa «Renovar contrato», se elige Plazo fijo hasta el 30 de abril y se confirma
+- **Entonces** se registra un contrato nuevo del 31 de octubre al 30 de abril, el anterior queda Reemplazado y el modal ofrece «Descargar para imprimir» e «Ir al contrato»
+
+**3. Condiciones y excepciones**
+
+- Indefinido no pide «Hasta».
+- El fin tiene que ser posterior al inicio —BR‑DOC‑025—.
+- Si ya encadena dos o más plazos fijos, avisa y deja seguir —BR‑DOC‑029—.
+- El contrato nuevo nace sin firma: se descarga, se imprime, se hace firmar y se sube el firmado.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑DOC‑021
+- **Historia de usuario:** HU‑DOC‑06
+- **Pantalla:** W‑DOC‑05 Contrato
+- **Diseño:** Prototipado
+
 ### Emitir
 
-*Cómo sale un documento hacia una persona*
+*Cómo se genera un documento para una persona y cómo queda firmado*
 
 #### 4.30 · BR-DOC-030 · Solo se emite con una plantilla activa
 
@@ -1687,14 +1834,14 @@ Nombre, documento, cargo, unidad, sucursal, ingreso, antigüedad y haber salen d
 
 *Descripción general*
 
-Al emitir a varias personas, a quien le falta un dato que la plantilla usa se le marca **«No sale»** y se dice por qué; **los demás salen**. Un envío a varios queda como un solo envío con su avance.
+Al emitir para varias personas, a quien le falta un dato que la plantilla usa se le marca **«No sale»** y se dice por qué; **los demás salen**. Un envío a varios queda como un solo envío con su avance: «Con el firmado subido: x de y».
 
 **2. Escenarios ágiles de ejecución**
 
 *Uno no frena a todos*
 
 - **Dado que** se emite una felicitación a 7 personas y a una le falta el cargo
-- **Cuando** se pulsa «Emitir y enviar a 6 personas»
+- **Cuando** se pulsa «Emitir 6 documentos»
 - **Entonces** salen 6 y la séptima queda dicha con su nombre
 
 **3. Condiciones y excepciones**
@@ -1737,7 +1884,7 @@ Cada emitido recibe el **siguiente número** de la serie de su tipo, con el form
 **3. Condiciones y excepciones**
 
 - A varios, salen en serie: «del CERT‑0007 al CERT‑0012».
-- La sigla y los dígitos se cambian en Notificaciones y numeración.
+- La sigla y los dígitos se cambian en Notificaciones y tipos de documento.
 
 **4. Trazabilidad**
 
@@ -1812,6 +1959,7 @@ Al emitir, los datos y el texto se **congelan**: aunque la plantilla o la ficha 
 
 - Un anulado desaparece de la app del colaborador.
 - La corrección de una solicitud anula y reemite en un paso.
+- Antes de emitir, a una sola persona, el texto se puede editar solo para ese documento —BR‑DOC‑061—; después de emitido, queda congelado igual.
 
 **4. Trazabilidad**
 
@@ -1821,7 +1969,7 @@ Al emitir, los datos y el texto se **congelan**: aunque la plantilla o la ficha 
 - **Pantalla:** W‑DOC‑08 Documentos emitidos
 - **Diseño:** Prototipado
 
-#### 4.36 · BR-DOC-036 · Emitir es entregar, y lo emitido se archiva solo
+#### 4.36 · BR-DOC-036 · Emitir guarda el documento sin firmar; vale cuando se sube el firmado
 
 *Estado: Borrador*
 
@@ -1830,37 +1978,39 @@ Al emitir, los datos y el texto se **congelan**: aunque la plantilla o la ficha 
 - **Código:** BR-DOC-036
 - **Grupo:** Emitir
 - **Qué gobierna:** Emitido
-- **Antes:** REP‑05
+- **Antes:** REP‑05 · 1.1 (cambia: antes, emitir era entregar)
 - **Estado:** Borrador
 
 *Descripción general*
 
-Al emitir, el documento **le llega a la persona** por la app y queda en su expediente, en la carpeta de **su tipo** dentro de **De RR.HH.** —Certificados, Memorándums, Constancias—, sin que nadie lo archive.
+Desde la 1.2, **emitir no envía nada al colaborador**. El documento se genera y queda en su expediente, en la carpeta de **su tipo** dentro de **De RR.HH.** —Certificados, Memorándums, Constancias—, **«Sin firmar»**, sin que nadie lo archive. RR.HH. lo **descarga para imprimir** —un .doc de Word con formato de hoja—, lo hace firmar a mano y **sube el firmado**, que queda pegado a ese emitido, con el mismo número. Con el firmado subido, el documento queda listo y **el colaborador lo ve** en su carpeta, sin aviso.
 
 **2. Escenarios ágiles de ejecución**
 
-*Llega y se archiva*
+*Se emite, se firma y se sube*
 
-- **Dado que** se emite un certificado a alguien
-- **Cuando** se abre su expediente
-- **Entonces** el certificado está en su carpeta Certificados, en el expediente y en su app, Sin confirmar
+- **Dado que** se emite un certificado de trabajo para Carlos
+- **Cuando** RR.HH. lo descarga para imprimir, lo hace firmar y pulsa «Subir el firmado»
+- **Entonces** el certificado pasa de «Sin firmar» a «Firmado» en su carpeta Certificados y Carlos lo ve en su app
 
 **3. Condiciones y excepciones**
 
-- Un contrato queda en Contratos.
-- Un archivo propio va a «Otros», que aparece solo cuando tiene algo.
+- Lo que nace de una **solicitud** sigue llegando al colaborador al atenderla —BR‑DOC‑040—.
+- **Un archivo propio** (reglamento, comunicado) sigue enviándose: le llega al emitirlo y va a «Otros», que aparece solo cuando tiene algo.
+- Un contrato queda en Contratos, «Sin firma» hasta que se sube su firmado.
+- Al abrir un emitido con firmado se ve el escaneado; «El que generó el sistema» muestra el texto original.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑DOC‑039
-- **Historia de usuario:** HU‑DOC‑07
+- **Requisitos:** RF‑DOC‑064 · RF‑DOC‑039
+- **Historia de usuario:** HU‑DOC‑08
 - **Pantalla:** W‑DOC‑09 Emitir
 - **Diseño:** Prototipado
 
 #### 4.37 · BR-DOC-037 · Confirmar la recepción es una vez y no se deshace
 
-*Estado: Borrador*
+*Estado: Retirada en la 1.2*
 
 **1. Información básica**
 
@@ -1868,24 +2018,24 @@ Al emitir, el documento **le llega a la persona** por la app y queda en su exped
 - **Grupo:** Emitir
 - **Qué gobierna:** Emitido
 - **Antes:** RF‑55
-- **Estado:** Borrador
+- **Estado:** Retirada en la 1.2
 
 *Descripción general*
 
-Si al emitir se pidió que la persona **confirme la recepción**, ella confirma desde su app una sola vez; queda la **fecha y el dispositivo**. Confirmar es haberlo recibido y leído, no estar de acuerdo.
+**Retirada en la 1.2: ya no se pide confirmar la recepción**, en todo el módulo. No hay «Pedir que confirme la recepción» al emitir, ni columna «Confirmación», ni «Recordar», ni «Sin confirmar» o «Confirmado» en Documentos emitidos, ni «Confirmar que lo recibí» del lado del colaborador, en la web o en el celular. Lo que se había confirmado antes **se ve como Entregado**. La constancia es ahora el firmado que sube RR.HH. —BR‑DOC‑036—.
 
 **2. Escenarios ágiles de ejecución**
 
-*Confirmar desde el celular*
+*Un memorándum se lee y nada más*
 
-- **Dado que** alguien recibió un memorándum
-- **Cuando** pulsa «Confirmar que lo recibí»
-- **Entonces** queda Confirmado con la fecha y «Celular · app SoulyHR»
+- **Dado que** alguien tiene un memorándum en su carpeta
+- **Cuando** lo abre desde el celular
+- **Entonces** ve la hoja y «Reportar un error», y no hay nada que confirmar
 
 **3. Condiciones y excepciones**
 
-- Sin pedir confirmación, el documento dice que no hace falta confirmar.
-- Un anulado no se confirma.
+- Lo confirmado antes queda en la bitácora.
+- Las carpetas de «De RR.HH.» ya no cuentan «sin confirmar»: dicen cuántos documentos tienen.
 
 **4. Trazabilidad**
 
@@ -1928,6 +2078,44 @@ Un memorándum exige escribir **el hecho o el motivo** en su recuadro, sin dejar
 
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑035
+- **Historia de usuario:** HU‑DOC‑07
+- **Pantalla:** W‑DOC‑09 Emitir
+- **Diseño:** Prototipado
+
+#### 4.61 · BR-DOC-061 · Editar un documento antes de emitirlo cambia solo ese documento
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-DOC-061
+- **Grupo:** Emitir
+- **Qué gobierna:** Emitido
+- **Antes:** Nueva (1.2)
+- **Estado:** Borrador
+
+*Descripción general*
+
+Con **una sola persona** elegida, y si no es un contrato, **Editar documento** vuelve editable toda la hoja **solo para esa emisión**: quién firma, un dato que cambió. La plantilla y la ficha no cambian. Se guarda ese texto tal cual, el emitido queda marcado como **editado** y la bitácora lo dice.
+
+**2. Escenarios ágiles de ejecución**
+
+*Firma otra persona*
+
+- **Dado que** el gerente que firma los certificados está de viaje
+- **Cuando** RR.HH. elige a Carlos, pulsa «Editar documento», cambia el firmante y emite
+- **Entonces** el certificado sale con ese texto, la plantilla queda igual y la bitácora dice «con el texto editado para este documento»
+
+**3. Condiciones y excepciones**
+
+- No se puede con varias personas ni en contratos.
+- «Volver a la plantilla» descarta lo editado.
+- Una vez emitido, el texto queda congelado como cualquier otro —BR‑DOC‑035—.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑DOC‑065
 - **Historia de usuario:** HU‑DOC‑07
 - **Pantalla:** W‑DOC‑09 Emitir
 - **Diseño:** Prototipado
@@ -1987,7 +2175,7 @@ Cada pedido tiene un **plazo de dos días hábiles** desde que se hizo: sin sáb
 
 *Descripción general*
 
-No hay «Aprobar»: un **certificado** se emite, una **copia** se elige y se envía, una **corrección** se reemite. Al atender, la solicitud guarda **qué documento la resolvió** y el colaborador lo abre desde su pedido.
+No hay «Aprobar»: un **certificado** se emite y se envía, una **copia** se elige y se envía, una **corrección** se reemite. Lo que resuelve una solicitud le llega al colaborador al atenderla. Al atender, la solicitud guarda **qué documento la resolvió** y el colaborador lo abre desde su pedido.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2151,8 +2339,8 @@ Crear un tipo pide **nombre** y **color**; la **sigla** se arma sola y se puede 
 
 **3. Condiciones y excepciones**
 
-- Se crea desde la lista de tipos, sin ventana aparte.
-- Su numeración empieza con 4 dígitos y reinicio anual.
+- Se crea desde la lista de tipos del editor, sin ventana aparte, o con «+ Nuevo tipo de documento» en la tabla de Notificaciones y tipos de documento —BR‑DOC‑052—.
+- Desde el editor, su numeración empieza con 4 dígitos y reinicio anual; desde la tabla, se eligen.
 
 **4. Trazabilidad**
 
@@ -2347,7 +2535,7 @@ Cada plantilla define su **tamaño de hoja**: carta (21,6 × 27,9 cm) u oficio (
 - **Pantalla:** W‑DOC‑11 Editor
 - **Diseño:** Prototipado
 
-### Notificaciones y numeración
+### Notificaciones y tipos de documento
 
 *Los valores de la empresa*
 
@@ -2358,7 +2546,7 @@ Cada plantilla define su **tamaño de hoja**: carta (21,6 × 27,9 cm) u oficio (
 **1. Información básica**
 
 - **Código:** BR-DOC-050
-- **Grupo:** Notificaciones y numeración
+- **Grupo:** Notificaciones y tipos de documento
 - **Qué gobierna:** Parámetros
 - **Antes:** RF‑06 · RF‑35 · RF‑37
 - **Estado:** Borrador
@@ -2385,7 +2573,7 @@ Los avisos se definen una vez: **cuándo** (hasta tres, en días antes), **a qui
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑048
 - **Historia de usuario:** HU‑DOC‑11
-- **Pantalla:** W‑DOC‑12 Notificaciones
+- **Pantalla:** W‑DOC‑12 Notificaciones y tipos de documento
 - **Diseño:** Prototipado
 
 #### 4.51 · BR-DOC-051 · El fin de un contrato se avisa con anticipación
@@ -2395,7 +2583,7 @@ Los avisos se definen una vez: **cuándo** (hasta tres, en días antes), **a qui
 **1. Información básica**
 
 - **Código:** BR-DOC-051
-- **Grupo:** Notificaciones y numeración
+- **Grupo:** Notificaciones y tipos de documento
 - **Qué gobierna:** Parámetros
 - **Antes:** RF‑40
 - **Estado:** Borrador
@@ -2422,7 +2610,7 @@ Un contrato a plazo fijo pasa a **Por vencer** y se avisa al responsable los dí
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑DOC‑020
 - **Historia de usuario:** HU‑DOC‑11
-- **Pantalla:** W‑DOC‑12 Notificaciones
+- **Pantalla:** W‑DOC‑12 Notificaciones y tipos de documento
 - **Diseño:** Prototipado
 
 #### 4.52 · BR-DOC-052 · Cada tipo necesita su sigla, y el próximo número se ve antes de guardar
@@ -2432,14 +2620,14 @@ Un contrato a plazo fijo pasa a **Por vencer** y se avisa al responsable los dí
 **1. Información básica**
 
 - **Código:** BR-DOC-052
-- **Grupo:** Notificaciones y numeración
+- **Grupo:** Notificaciones y tipos de documento
 - **Qué gobierna:** Parámetros
 - **Antes:** RF‑07
 - **Estado:** Borrador
 
 *Descripción general*
 
-La numeración de cada tipo tiene **sigla**, **dígitos** y si **reinicia cada año**. Sin sigla no se guarda. La tabla muestra el **próximo número** con los cambios todavía sin guardar.
+En **Tipos de documento**, cada tipo tiene **sigla**, **dígitos** y si **reinicia cada año**. Sin sigla no se guarda. La tabla muestra el **próximo número** con los cambios todavía sin guardar. Al final, **+ Nuevo tipo de documento** agrega una fila con nombre, sigla —propuesta sola—, dígitos y reinicio, con el próximo número en vivo; no deja crear un nombre ni una sigla que ya existan, y el tipo se crea al momento, con su carpeta en «De RR.HH.».
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2452,14 +2640,15 @@ La numeración de cada tipo tiene **sigla**, **dígitos** y si **reinicia cada a
 **3. Condiciones y excepciones**
 
 - Hasta 8 dígitos.
-- Todos los cambios de la página se guardan con un solo «Guardar cambios».
+- Todos los cambios de la página se guardan con un solo «Guardar cambios»; un tipo nuevo, en cambio, se guarda al pulsar «Crear».
+- La sigla nueva necesita al menos dos letras.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑DOC‑049
+- **Requisitos:** RF‑DOC‑049 · RF‑DOC‑068
 - **Historia de usuario:** HU‑DOC‑11
-- **Pantalla:** W‑DOC‑12 Notificaciones
+- **Pantalla:** W‑DOC‑12 Notificaciones y tipos de documento
 - **Diseño:** Prototipado
 
 ### Para El líder de área
@@ -2541,7 +2730,7 @@ En Mis documentos aparecen los documentos cuyo subtipo dice que **el colaborador
 
 **3. Condiciones y excepciones**
 
-- Ve sus contratos y lo que le enviaron.
+- Ve sus contratos y lo que RR.HH. le entregó.
 - Ve el mismo estado que RR.HH.
 
 **4. Trazabilidad**
@@ -2628,9 +2817,9 @@ Lo que la persona tiene que entregar se ordena: **rechazado, vencido, faltante, 
 
 ### Lo que recibe y lo que pide
 
-*Recibidos, confirmación y solicitudes*
+*Recibidos y solicitudes*
 
-#### 4.57 · BR-DOC-057 · Recibe lo entregado; lo anulado desaparece
+#### 4.57 · BR-DOC-057 · Recibe lo que ya está listo; lo anulado desaparece
 
 *Estado: Borrador*
 
@@ -2639,12 +2828,12 @@ Lo que la persona tiene que entregar se ordena: **rechazado, vencido, faltante, 
 - **Código:** BR-DOC-057
 - **Grupo:** Lo que recibe y lo que pide
 - **Qué gobierna:** Emitido
-- **Antes:** REP‑05
+- **Antes:** REP‑05 · 1.1 (cambia)
 - **Estado:** Borrador
 
 *Descripción general*
 
-En «De RR.HH.» la persona ve lo que se le **entregó**, en una carpeta por tipo: Certificados, Memorándums y los tipos de la empresa. «Otros» aparece solo si tiene algo. Lo **anulado** ya no se ve.
+En «De RR.HH.» la persona ve lo que se le **entregó**, en una carpeta por tipo: Certificados, Memorándums y los tipos de la empresa. Entregado es lo emitido **con el firmado subido**, lo que resolvió una solicitud y los archivos propios que se le enviaron; lo **sin firmar** todavía no se ve. «Otros» aparece solo si tiene algo. Lo **anulado** ya no se ve.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2656,7 +2845,7 @@ En «De RR.HH.» la persona ve lo que se le **entregó**, en una carpeta por tip
 
 **3. Condiciones y excepciones**
 
-- Cada carpeta cuenta cuántos le falta confirmar.
+- Cada carpeta dice cuántos documentos tiene.
 - «Otros» no es un tipo creado: aparece solo con un archivo propio enviado.
 - El texto es el que salió, congelado.
 
@@ -2789,18 +2978,18 @@ Mis documentos en la web y en el celular muestran **lo mismo**: las mismas carpe
 | --- | --- | --- |
 | **Tipo** | Una carpeta del expediente | id, nombre, activo, años de retención |
 | **Subtipo** | Un documento que la empresa espera | tipo, nombre, varios, el colaborador lo ve, el colaborador lo sube, vence, vigencia en meses, formatos, tamaño máximo, visibilidad, avisos propios, exigido a todos, plazo en días, activo, campo de la ficha con que se enlaza |
-| **Requisito personal** | Lo que RR.HH. le agrega a una persona | persona, subtipo, obligatorio, plazo, por, fecha |
-| **Exoneración** | La liberación de un requisito | persona, subtipo, motivo, por, fecha |
-| **Documento** | Un papel de una persona | persona, subtipo, versiones, eliminado (fecha, por, motivo), origen (ficha) |
+| **Requisito personal** | Lo que RR.HH. le agregó a una persona antes de la 1.2; ya no se crean | persona, subtipo, obligatorio, plazo, por, fecha |
+| **Exoneración** | La liberación de un requisito, antes de la 1.2; ya no se crean | persona, subtipo, motivo, por, fecha |
+| **Documento** | Un papel de una persona | persona, subtipo, versiones, anulado (fecha, por, motivo; la clave interna sigue siendo «eliminado»), origen (ficha) |
 | **Versión del documento** | Cada archivo de un documento | archivo, emisión, vencimiento, subido por, canal (web, app, ficha), revisión (pendiente, aprobado, rechazado), motivo de rechazo, motivo de cambio, revisado por |
 | **Sin clasificar** | Un archivo que no se reconoció | persona, tipo, archivo, fecha, por |
 | **Pedido** | Cuándo se le pidió un documento a alguien | persona y subtipo → fecha |
-| **Contrato** | Un contrato o una adenda | persona, tipo (contrato, adenda), contrato origen, modalidad, inicio, fin, plantilla, número, gestión, versiones (generado, firmado), finalizado, reemplazado |
+| **Contrato** | Un contrato; las adendas son solo las de antes de la 1.2 | persona, tipo (contrato, adenda), contrato origen, modalidad, inicio, fin, plantilla, número, gestión, versiones (generado, firmado, con su archivo), finalizado, reemplazado |
 | **Plantilla** | El texto de un documento que se emite | nombre, tipo, el colaborador la puede pedir, circuito de aprobación, aprobador, confidencial, activa, de fábrica, tamaño de hoja, versiones |
-| **Emitido** | Un documento hecho para una persona | plantilla o archivo propio, tipo, persona, versión de la plantilla, número, gestión, fecha, por, entregas, pide confirmación, datos y texto congelados, confirmación (fecha, dispositivo), recordatorios, lote, anulado |
+| **Emitido** | Un documento hecho para una persona | plantilla o archivo propio, tipo, persona, versión de la plantilla, número, gestión, fecha, por, estado, entregas, datos y texto congelados, editado (si el texto se cambió solo para él), firmado (archivo, fecha, por), lote, anulado. La confirmación y los recordatorios de antes quedan guardados y no se usan |
 | **Lote de emisión** | Un envío a varias personas | nombre, plantilla, fecha, por, emitidos |
 | **Solicitud** | Un pedido del colaborador | tipo (certificado, copia, corrección), persona, fecha, asunto, detalle, estado, canal, resuelto (fecha, por, nota, documento que lo resolvió) |
-| **Parámetros** | Los valores de la empresa | avisos encendidos, días de aviso, destinatarios, canales, resumen, aviso de fin de contrato, días de papelera, numeración por tipo, tipos propios |
+| **Parámetros** | Los valores de la empresa | avisos encendidos, días de aviso, destinatarios, canales, resumen, aviso de fin de contrato, numeración por tipo, tipos propios |
 | **Bitácora** | Lo que pasó | fecha, hora, usuario, acción, entidad, persona, detalle |
 
 ### 5.2 Lo que se guarda y lo que se deduce
@@ -2810,11 +2999,12 @@ Mis documentos en la web y en el celular muestran **lo mismo**: las mismas carpe
 | Estado de un documento | De la revisión, el vencimiento y la ventana de aviso —BR‑DOC‑007— |
 | Lo que se le exige a alguien | Lo exigido a todos más lo personal, menos lo exonerado —BR‑DOC‑003— |
 | Avance del expediente | Cumplidos sobre obligatorios exigibles —BR‑DOC‑004— |
-| Estado de un contrato | De sus fechas y de la última adenda; solo finalizado y reemplazado se guardan —BR‑DOC‑028— |
+| Estado de un contrato | De sus fechas y, si tiene adendas de antes, de la última; solo finalizado y reemplazado se guardan —BR‑DOC‑028— |
 | Siguiente número | Contando los emitidos de la serie en la gestión —BR‑DOC‑033— |
 | Plazo de una solicitud | Dos días hábiles desde la fecha del pedido —BR‑DOC‑039— |
 | Origen de un emitido | Individual, lote o solicitud, de sus vínculos |
 | Los documentos de la ficha | Se leen de la ficha cada vez; no se copian —BR‑DOC‑002— |
+| Firmado o sin firmar | Si el emitido tiene su firmado subido —BR‑DOC‑036— |
 
 ### 5.3 Las variables de las plantillas
 
@@ -2826,13 +3016,13 @@ Las plantillas usan veinte datos en cinco grupos, con su origen:
 | **Puesto** | Cargo, unidad organizacional, sucursal, ciudad de la sucursal | Organización |
 | **Relación laboral** | Fecha de ingreso, antigüedad, haber básico, modalidad, inicio y fin del contrato | Gestión de personas y Planillas |
 | **Empresa** | Razón social, NIT, representante legal | Organización |
-| **Documento** | Número, fecha de emisión, texto que se escribe al enviar | Este módulo |
+| **Documento** | Número, fecha de emisión, texto que se escribe al emitir | Este módulo |
 
 ### 5.4 El emitido y sus datos congelados
 
-Al emitir se guardan **los datos y el texto ya rellenado**: si mañana cambia la ficha o la plantilla, el documento dice lo mismo —BR‑DOC‑035—. Un emitido pasa por: **Sin enviar → Entregado (sin confirmar) → Confirmado**, o **Anulado** en cualquier momento, con motivo.
+Al emitir se guardan **los datos y el texto ya rellenado** —o el texto editado solo para ese documento—: si mañana cambia la ficha o la plantilla, el documento dice lo mismo —BR‑DOC‑035—. Un emitido pasa por: **Sin firmar → Entregado**, cuando se sube el firmado, o **Anulado** en cualquier momento, con motivo. Lo que resuelve una solicitud y los archivos propios nacen **Entregados**. Lo que se confirmó antes de la 1.2 se ve como Entregado.
 
-> **En la maqueta:** todo se guarda en el navegador; los archivos subidos, en el navegador de quien los subió. El haber básico sale de una tabla de ejemplo por unidad.
+> **En la maqueta:** todo se guarda en el navegador; los archivos subidos y los firmados, en el navegador de quien los subió. El haber básico sale de una tabla de ejemplo por unidad.
 
 ## 06 · Roadmap
 
@@ -2846,9 +3036,9 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Entrega | Qué incluye |
 | --- | --- |
-| **1 · El expediente** | Tipos y subtipos, requisitos, estados, expediente por carpetas, subir, versiones, papelera, bitácora y la lectura de la ficha |
+| **1 · El expediente** | Tipos y subtipos, requisitos, estados, expediente por carpetas, subir, versiones, anular, bitácora, exportar y la lectura de la ficha |
 | **2 · Revisar y lo urgente** | Revisar documentos, Expedientes con «Qué atender hoy», pedir renovación y Mis documentos del colaborador con su subida |
-| **3 · Emitir** | Plantillas y editor, tipos propios, numeración, Emitir a una persona y a grupos, Documentos emitidos, confirmación y contratos |
+| **3 · Emitir** | Plantillas y editor, tipos propios, numeración, Emitir para una o varias personas, descargar para imprimir y subir el firmado, Documentos emitidos y contratos con su renovación |
 | **4 · Solicitudes y avisos** | Pedir y Mis solicitudes, Solicitudes y Atender, y el envío real de avisos, recordatorios y resumen por Comunicación |
 
 ### 6.3 Hitos
@@ -2856,7 +3046,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | Hito | Se cumple cuando |
 | --- | --- |
 | **Primer expediente completo** | Una persona llega al 100 % con documentos aprobados |
-| **Primer documento confirmado** | Un colaborador confirma desde la app un certificado emitido |
+| **Primer documento firmado** | RR.HH. sube el firmado de un certificado emitido y el colaborador lo ve en su app |
 | **Primera solicitud atendida a tiempo** | Un pedido se resuelve dentro de los 2 días hábiles |
 
 ### 6.4 Dependencias
@@ -2889,11 +3079,11 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | ABIERTA‑DOC‑03 | ¿El contrato es un tipo más, o se trata aparte por sus fechas y decisiones? | Nueva |
 | ABIERTA‑DOC‑04 | El circuito de aprobación de una plantilla: ¿qué pasa al emitir si la pide? | v0.2 · ABIERTA‑04 |
 | ABIERTA‑DOC‑05 | ¿La subida de documentos de una ruta de Onboarding va al expediente? | Nueva |
-| ABIERTA‑DOC‑06 | Recordar automáticamente a quien no confirmó a los N días hábiles | v0.2 · ABIERTA‑02 |
+| ABIERTA‑DOC‑06 | **Resuelta en la 1.2:** no hay a quién recordar; ya no se pide confirmar la recepción —BR‑DOC‑037— | v0.2 · ABIERTA‑02 |
 | ABIERTA‑DOC‑07 | Dar de alta en el directorio a los colaboradores de la app de ejemplo | v0.2 · ABIERTA‑05 |
 | ABIERTA‑DOC‑08 | Boletas de pago como recibido, cuando exista Planillas | v0.2 · ABIERTA‑06 |
-| ABIERTA‑DOC‑09 | El tamaño carta u oficio, ¿se aplica también al descargar e imprimir lo emitido? | Nueva |
-| ABIERTA‑DOC‑10 | ¿La papelera se vacía sola al cumplirse sus días? | RF‑89 |
+| ABIERTA‑DOC‑09 | El tamaño carta u oficio, ¿se aplica también al descargar e imprimir lo emitido? Hoy «Descargar para imprimir» baja siempre en carta | Nueva |
+| ABIERTA‑DOC‑10 | **Resuelta en la 1.2:** no hay papelera; un documento se anula y queda en Anulados —BR‑DOC‑018— | RF‑89 |
 | ABIERTA‑DOC‑11 | Las plantillas de fábrica se editan, contra RF‑50: confirmarlo con el análisis | RF‑50 |
 | ABIERTA‑DOC‑12 | ¿El auxiliar del líder entra al módulo? | Nueva |
 
@@ -2920,82 +3110,98 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 ### 7.3 Completar un expediente
 
 1. En Expedientes se busca a la persona y se abre.
-2. Las pastillas dicen qué falta; se abre la carpeta.
-3. «Subir» en la tarjeta del faltante, o «Subir documento» arriba.
-4. Si el archivo no se reconoce, queda en Por clasificar y se elige qué es.
-5. «Revisar fechas» para corregir emisión y vencimiento.
+2. «Subir documento» arriba pregunta «¿En qué carpeta va el documento?»; las carpetas con «Falta N» llevan punto rojo. O se abre la carpeta y «Subir» en la fila del faltante.
+3. En el modal, a la izquierda, se elige el documento; a la derecha se arrastra el archivo y se ponen la emisión y el vencimiento.
+4. Si ya tenía uno, se ven el actual y el nuevo lado a lado: «Sí, reemplazar». El actual queda como versión anterior.
 
-### 7.4 Emitir un certificado a una persona
+### 7.4 Anular un documento cargado por error
+
+1. En la carpeta, el menú de la fila › «Anular».
+2. Se escribe por qué y «Sí, anular» en la segunda confirmación.
+3. El documento va a Anulados con su motivo y vuelve a quedar faltante: se sube el correcto.
+
+### 7.5 Emitir un certificado y subir el firmado
 
 1. En Documentos emitidos, «Emitir documento».
 2. En el riel, Certificados › Certificado de trabajo: la hoja de ejemplo aparece al centro.
-3. En «Para quién» › Personas, se busca y se elige a la persona: la hoja se llena con sus datos.
-4. «Emitir y enviar a {nombre}»: le llega por la app y queda en su carpeta Certificados, dentro de «De RR.HH.».
+3. En «Para quién» se busca a la persona y se marca: la hoja se llena con sus datos. Si hay que cambiar algo solo en este documento, «Editar documento».
+4. «Emitir para {nombre}»: queda en su carpeta Certificados, dentro de «De RR.HH.», «Sin firmar».
+5. «Descargar para imprimir», se imprime y se hace firmar.
+6. «Subir el firmado» —ahí mismo, en el detalle del documento o desde la carpeta Certificados del expediente—: queda «Firmado» y el colaborador lo ve en su app.
 
-### 7.5 Enviar un memorándum a un grupo
+### 7.6 Emitir un memorándum para varias personas
 
 1. En Emitir, Memorándums › Felicitación.
-2. «Para quién» › Un grupo: se filtra por unidad y se marcan todos.
+2. En «Para quién» se filtra por unidad organizacional y «Marcar los N que se ven».
 3. Se escribe el motivo en el recuadro de la hoja.
-4. «Emitir y enviar a N personas»: cada uno con su número; quien tiene un dato vacío no sale y se dice.
+4. «Emitir N documentos»: cada uno con su número, sin firmar; quien tiene un dato vacío no sale y se dice.
+5. En el detalle del envío, «Descargar todos»; cada firmado se sube desde su documento. El avance dice «Con el firmado subido: x de y».
 
-### 7.6 Renovar un contrato a plazo fijo
+### 7.7 Renovar un contrato a plazo fijo
 
 1. «Qué atender hoy» › «Ver contratos», o el contrato desde el expediente.
-2. En la ficha del contrato, «Renovar con adenda».
-3. Rige desde el día siguiente al fin; se pone el nuevo fin.
-4. La adenda queda encadenada y el contrato dice «ampliado al …».
+2. En la ficha del contrato, por vencer o vencido, «Renovar contrato».
+3. Se elige Plazo fijo o Indefinido; «Desde» viene en el día siguiente al fin; se pone «Hasta», si es plazo fijo. A la derecha se ve el contrato nuevo con su número.
+4. «Renovar contrato»: se registra el nuevo y el anterior queda Reemplazado.
+5. «Descargar para imprimir», se hace firmar e «Ir al contrato» para subir el firmado.
 
-### 7.7 Atender una solicitud
+### 7.8 Atender una solicitud
 
 1. En Solicitudes, la más atrasada está primero; «Ver detalle».
 2. Certificado: se elige la plantilla y «Emitir y enviar». Copia: se elige el documento y «Enviar copia». Corrección: «Reemitir y enviar», anulando el anterior.
 3. O «Rechazar…» con un motivo.
 4. «Siguiente pendiente →».
 
-### 7.8 Crear una plantilla con un tipo nuevo
+### 7.9 Crear una plantilla con un tipo nuevo
 
 1. En Configuración › Plantillas, «Nuevo modelo»: abre el editor.
 2. Nombre; Tipo › «+ Crear un tipo nuevo»: nombre, color, y «Crear».
 3. Se escribe sobre la hoja y se tocan los datos para insertarlos.
 4. «Vista previa» para verla en páginas; «Guardar».
 
-### 7.9 Cambiar los avisos y la numeración
+### 7.10 Cambiar los avisos y los tipos de documento
 
-1. En Configuración › Notificaciones y numeración.
+1. En Configuración › Notificaciones y tipos de documento.
 2. Se cambian los días, a quién y por dónde, o la sigla de un tipo.
 3. Arriba aparece «N cambios sin guardar»; «Guardar cambios» o «Descartar».
+4. Para un tipo nuevo, «+ Nuevo tipo de documento» al final de la tabla: nombre, sigla, dígitos y «Crear».
+
+### 7.11 Exportar los expedientes
+
+1. En Expedientes se eligen la situación, los filtros y el estado.
+2. «Exportar» › «Expedientes en ZIP»: «¿Descargar N expedientes?», con a quiénes; «Descargar».
+3. O «Exportar» › «Lista en Excel»: baja la lista con el avance y los pendientes de cada uno.
 
 ### Para El líder de área
 
-### 7.10 Mirar los expedientes
+### 7.12 Mirar los expedientes
 
 1. Entra a Documentación desde el menú.
 2. En Expedientes ve a todos —ABIERTA‑DOC‑01— y abre a una persona de su unidad.
 
 ### Para El colaborador
 
-### 7.11 Entregar lo que falta
+### 7.13 Entregar lo que falta
 
 1. En Zona HR › Mis documentos, la franja dice «N documentos por entregar».
 2. «Resolver» abre Por entregar, con lo más urgente primero y su motivo.
 3. «Subir» o «Renovar»: elige el archivo.
 4. Queda En revisión hasta que RR.HH. lo apruebe.
 
-### 7.12 Confirmar un documento recibido
+### 7.14 Ver un documento recibido
 
-1. En «De RR.HH.», la carpeta muestra cuántos falta confirmar.
-2. Abre el documento y lo lee.
-3. «Confirmar que lo recibí»: queda la fecha y el dispositivo.
+1. En «De RR.HH.», abre la carpeta de su tipo: Certificados, Memorándums.
+2. Abre el documento y lo lee. Ya no hay nada que confirmar.
+3. Si tiene un error, «Reportar un error» —7.16—.
 
-### 7.13 Pedir un certificado
+### 7.15 Pedir un certificado
 
 1. En Mis documentos › Certificados, «Pedir un certificado», o en Mis solicitudes.
 2. Elige cuál y cuenta para qué.
 3. En Mis solicitudes ve «Responde hasta el …».
 4. Cuando RR.HH. lo atiende, «Ver el documento».
 
-### 7.14 Reportar un error
+### 7.16 Reportar un error
 
 1. Abre un documento recibido.
 2. «Reportar un error» y cuenta qué está mal.
@@ -3013,16 +3219,16 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | --- | --- | --- |
 | W‑DOC‑01 | Expedientes | /documentos/expedientes |
 | W‑DOC‑02 | Expediente de una persona | /documentos/expedientes/:id y /:id/:carpeta |
-| W‑DOC‑03 | Subir y clasificar | sobre el expediente |
+| W‑DOC‑03 | Subir documento | sobre el expediente (?cargar=) |
 | W‑DOC‑04 | Revisar documentos | /documentos/expedientes/revisar |
-| W‑DOC‑05 | Contrato | /documentos/expedientes/contrato/:id |
+| W‑DOC‑05 | Contrato y Renovar contrato | /documentos/expedientes/contrato/:id |
 | W‑DOC‑06 | Solicitudes | /documentos/solicitudes |
 | W‑DOC‑07 | Atender un pedido | /documentos/solicitudes/:id |
 | W‑DOC‑08 | Documentos emitidos y su detalle | /documentos/emitidos y /emitidos/:id |
 | W‑DOC‑09 | Emitir | /documentos/emitidos/nuevo |
 | W‑DOC‑10 | Plantillas | /documentos/configuracion?ver=plantillas |
 | W‑DOC‑11 | Editor de plantillas | /documentos/configuracion/plantillas/:id y /nuevo |
-| W‑DOC‑12 | Notificaciones y numeración | /documentos/configuracion?ver=avisos |
+| W‑DOC‑12 | Notificaciones y tipos de documento | /documentos/configuracion?ver=avisos |
 
 ### Para El líder de área
 
@@ -3056,17 +3262,18 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | Código | Historia | Criterios de aceptación |
 | --- | --- | --- |
 | HU‑DOC‑01 | **Como** Recursos Humanos, **quiero** ver el expediente de cada persona por carpetas **para** saber qué tiene y qué le falta | Carpetas con lo que falta · Estados deducidos · La ficha se lee |
-| HU‑DOC‑02 | **Como** Recursos Humanos, **quiero** exigirle un documento a una persona o liberarla de uno | Agregar requisito · Exonerar con motivo |
+| HU‑DOC‑02 | **Como** Recursos Humanos, **quiero** exigirle un documento a una persona o liberarla de uno | Retirada en la 1.2 · Lo agregado y lo exonerado antes se ven como historial |
 | HU‑DOC‑03 | **Como** Recursos Humanos, **quiero** ver primero lo urgente **para** no enterarme tarde | Qué atender hoy · Lo más urgente por persona · Pedir renovación |
-| HU‑DOC‑04 | **Como** Recursos Humanos, **quiero** subir y revisar documentos rápido | Lo mío entra aprobado · Lo del colaborador en revisión · Bandeja de a uno |
-| HU‑DOC‑05 | **Como** Recursos Humanos, **quiero** que nada se pierda **para** responder a una auditoría | Papelera · Bitácora · ZIP del expediente |
-| HU‑DOC‑06 | **Como** Recursos Humanos, **quiero** registrar y renovar contratos sin dejar dos vigentes | Decidir el anterior · Adendas encadenadas · Aviso de fin |
-| HU‑DOC‑07 | **Como** Recursos Humanos, **quiero** emitir documentos con los datos de la ficha, a una persona o a un grupo | Hoja antes de enviar · Sin tipear datos · Grupo con filtros |
-| HU‑DOC‑08 | **Como** Recursos Humanos, **quiero** saber quién confirmó y anular lo que salió mal | Confirmación con fecha · Recordar · Anular con motivo |
+| HU‑DOC‑04 | **Como** Recursos Humanos, **quiero** subir y revisar documentos rápido | Elegir carpeta y documento · Reemplazar con el actual a la vista · Lo mío entra aprobado · Lo del colaborador en revisión · Bandeja de a uno |
+| HU‑DOC‑05 | **Como** Recursos Humanos, **quiero** que nada se pierda **para** responder a una auditoría | Anular con motivo · Bitácora · ZIP del expediente con sus firmados |
+| HU‑DOC‑06 | **Como** Recursos Humanos, **quiero** registrar y renovar contratos sin dejar dos vigentes | Decidir el anterior · Renovar con un contrato nuevo · Vista previa · Aviso de fin |
+| HU‑DOC‑07 | **Como** Recursos Humanos, **quiero** emitir documentos con los datos de la ficha, para una o varias personas | Hoja antes de emitir · Sin tipear datos · Una lista con filtros · Editar solo ese documento |
+| HU‑DOC‑08 | **Como** Recursos Humanos, **quiero** imprimir lo emitido, guardar el firmado y anular lo que salió mal | Descargar para imprimir · Subir el firmado · Sin firmar o Firmado · Anular con motivo |
 | HU‑DOC‑09 | **Como** Recursos Humanos, **quiero** responder los pedidos a tiempo | Plazo en días hábiles · Cada pedido con lo que pide · Rechazo con motivo |
 | HU‑DOC‑10 | **Como** Recursos Humanos, **quiero** armar mis plantillas y mis tipos de documento | Un solo editor · Tipos propios · Historial · Activa o inactiva |
-| HU‑DOC‑11 | **Como** Recursos Humanos, **quiero** fijar una vez los avisos y la numeración | Valores de la empresa · Un solo guardar · Próximo número a la vista |
-| HU‑DOC‑17 | **Como** Recursos Humanos, **quiero** enviar un reglamento a toda una unidad | Archivo propio · Un grupo · Confirmación de cada uno |
+| HU‑DOC‑11 | **Como** Recursos Humanos, **quiero** fijar una vez los avisos y los tipos de documento | Valores de la empresa · Un solo guardar · Próximo número a la vista · Tipo nuevo desde la tabla |
+| HU‑DOC‑17 | **Como** Recursos Humanos, **quiero** enviar un reglamento a toda una unidad | Archivo propio · Varias personas con filtros · Le llega a cada uno |
+| HU‑DOC‑19 | **Como** Recursos Humanos, **quiero** bajar los expedientes que estoy viendo **para** una auditoría o un reporte | ZIP de todas las páginas · Sin confidenciales · Lista en Excel con los filtros |
 
 ### Para El líder de área
 
@@ -3082,7 +3289,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Código | Historia | Criterios de aceptación |
 | --- | --- | --- |
-| HU‑DOC‑12 | **Como** colaborador, **quiero** recibir mis documentos en la app y confirmar que los leí | Una carpeta por tipo · Confirmar una vez · Lo anulado desaparece |
+| HU‑DOC‑12 | **Como** colaborador, **quiero** recibir mis documentos en la app | Una carpeta por tipo · Llega con el firmado subido · Lo anulado desaparece |
 | HU‑DOC‑14 | **Como** colaborador, **quiero** saber qué me falta y entregarlo desde el celular | Por entregar por urgencia · Motivo de cada uno · Queda en revisión |
 | HU‑DOC‑15 | **Como** colaborador, **quiero** pedir un certificado, una copia o una corrección | Tres tipos · Plazo a la vista · Ver el documento que me enviaron |
 | HU‑DOC‑16 | **Como** colaborador, **quiero** lo mismo en la web y en el celular | Mismas carpetas · Mismo estado |
@@ -3091,7 +3298,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 ## Cómo se mantiene este documento
 
 - Se actualiza junto con la maqueta: un cambio de comportamiento lleva su cambio aquí, en la misma entrega.
-- Los códigos no cambian nunca. Una regla que deja de valer se marca, no se renumera.
+- Los códigos no cambian nunca. Una regla que deja de valer se marca «Retirada» con la versión, conserva su código y dice qué la reemplaza; un requisito retirado dice «Retirado en la 1.x». No se renumera.
 - La versión en Markdown (`modulo-documentacion.md`) es la fuente; la página (`public/modulo-documentacion.html`) se genera de ella con `node herramientas/doc-modulo.cjs modulo-documentacion.md public/modulo-documentacion.html`.
 - La propuesta anterior, «Propuesta de estructura» v0.2 (`public/modulo-documentacion-propuesta.html`), queda como histórico. Cada regla dice de dónde viene.
 
@@ -3099,6 +3306,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
+| **1.2** | 16 oct 2026 | **Emitir ya no envía:** el documento queda en el expediente «Sin firmar»; RR.HH. lo descarga para imprimir (Word), lo hace firmar y sube el firmado, que queda con el mismo número y recién ahí lo ve el colaborador. Las solicitudes y los archivos propios se siguen enviando. **Se quitó la confirmación de recepción** en todo el módulo, web y celular; lo confirmado antes se ve como Entregado. Emitir: sin pestañas «Personas / Un grupo», siempre la lista con filtros, y «Editar documento» solo para esa emisión. **Las adendas ya no se crean:** «Renovar contrato» registra un contrato nuevo que reemplaza al anterior, con vista previa. Expedientes suma **Exportar** (ZIP de expedientes sin confidenciales y lista en Excel). En el expediente se quitaron Enviar documento, Agregar requisito y Exonerar; **no se borra, se anula**, y la Papelera pasa a Anulados; Subir documento pregunta la carpeta y el documento, y muestra el actual y el nuevo antes de reemplazar; en las carpetas, Lista primero con paginación de 10. Configuración: «Notificaciones y tipos de documento», con «+ Nuevo tipo de documento»; sin «Días en la papelera». Solicitudes: la columna «Pide» pasa a «Tipo». Estado «Sin enviar» pasa a «Sin firmar». **Reglas:** retiradas BR‑DOC‑005 (exonerar), 027 (adendas) y 037 (confirmar la recepción); cambian 001, 002, 003, 012, 013, 014, 015, 018, 019, 021, 024, 026, 028, 029, 032, 033, 035, 036, 040, 044, 052 y 057; nuevas BR‑DOC‑061 a 064. Requisitos retirados RF‑DOC‑008, 009, 032 y 055; nuevos RF‑DOC‑063 a 069. Nueva HU‑DOC‑19. Resueltas ABIERTA‑DOC‑06 y 10. Los flujos se renumeran: suman Anular, Subir el firmado y Exportar, y «Confirmar un documento recibido» pasa a «Ver un documento recibido» |
 | **1.1** | 16 oct 2026 | El expediente de RR.HH. se ve como Mis documentos: la franja de lo pendiente con su anillo y las carpetas amarillas en «Sus carpetas» y «De RR.HH.». «Recibidos» se divide en una carpeta por tipo —Certificados, Memorándums y los creados—, también para el colaborador en la web y en el celular; «Otros» solo aparece si tiene algo. Colaboradores, en Gestión de personas, suma «Ver expediente». En Zona HR de la web, el administrador también ve «Mis documentos» con su propio expediente, como en el celular |
 | **1.0** | 16 oct 2026 | **Primera versión con el formato de los demás módulos.** Reúne lo construido en la maqueta hasta el 16 de octubre: Expedientes con «Qué atender hoy», el expediente por carpetas, Revisar documentos, contratos y adendas, Solicitudes y Atender, Documentos emitidos y Emitir con riel y grupos, el editor único de plantillas con tipos propios y vista previa en páginas, Notificaciones y numeración, y Mis documentos y Mis solicitudes del colaborador. 60 reglas BR‑DOC, 62 requisitos, 18 historias y 18 pantallas, por perfil |
 | **0.2** | 14 oct 2026 | Propuesta de estructura: Repositorio y Emisión sobre un solo dato, en fases. Queda como histórico |
@@ -3149,31 +3357,57 @@ Una sola carpeta «Recibidos» mezclaba certificados, memorándums y comunicados
 
 Si la empresa puede crear sus tipos, «Otro» no dice nada. Se crea «Carta de recomendación» con su sigla y su carpeta en la app.
 
-#### Por qué el colaborador confirma «que lo recibió» y no «que está de acuerdo»
+#### Por qué ya no se confirma la recepción
 
-Un memorándum de llamada de atención no se firma de conformidad. Confirmar la recepción da constancia de entrega sin pedirle a la persona que acepte lo que dice.
+Hasta la 1.1, el colaborador confirmaba «que lo recibió», no «que está de acuerdo»: un memorándum de llamada de atención no se firma de conformidad. Desde la 1.2 lo emitido se imprime y se firma a mano, y el firmado que sube RR.HH. es el que vale. Confirmar en la app pedía una segunda constancia de lo mismo, así que se quitó.
+
+#### Por qué emitir no envía
+
+El documento que vale es el firmado en papel. Si emitir lo mandaba en el acto, el colaborador recibía una versión sin firma. Ahora emitir lo deja en el expediente «Sin firmar», con lo que sigue a mano —Descargar para imprimir y Subir el firmado—, y la persona lo ve cuando ya está firmado.
+
+#### Por qué Emitir no pregunta «una persona o un grupo»
+
+No hace falta decirlo antes: se marca a una y es para una; se marcan varias y a cada una le sale el suyo. Las pestañas obligaban a elegir un camino antes de saber a quién.
+
+#### Por qué renovar es un contrato nuevo y no una adenda
+
+La empresa no usa adendas. Renovar registra un contrato nuevo que reemplaza al anterior, que se conserva con sus versiones, y así siempre hay un solo contrato vigente que Planillas lee.
+
+#### Por qué se anula y no se borra
+
+Un documento cargado por error es parte de la historia del expediente. La papelera lo escondía y lo dejaba recuperar; anular lo deja a la vista en Anulados, con quién, cuándo y por qué, y libera el lugar para subir el correcto.
+
+#### Por qué Subir pregunta primero la carpeta y el documento
+
+Antes, «Subir documento» abría el explorador y subía en el acto: lo que no se reconocía quedaba «por clasificar» y lo que ya existía se reemplazaba sin preguntar. Ahora siempre hay un documento elegido, y si ya existe, se ve el actual al lado del nuevo antes de reemplazarlo. Desde la vista general, la lista de todo junto era larga: por eso se pregunta antes la carpeta.
 
 ## Anexo · El módulo en el prototipo, hoy
 
-*Cómo está construido el módulo de documentación en el prototipo al 16 de octubre de 2026, y en qué se aparta de este documento. Todo sale del código de `ficha_colaborador`.*
+*Cómo está construido el módulo de documentación en el prototipo al 16 de octubre de 2026 (versión 1.2), y en qué se aparta de este documento. Todo sale del código de `ficha_colaborador`.*
 
 ### Las pantallas y sus rutas
 
 | Dirección | Componente | Qué hay |
 | --- | --- | --- |
-| `/documentos/expedientes` | `pages/documentacion/Legajos.jsx` + `PorDocumento.jsx` | Expedientes, resumen de hoy y vista por documento |
-| `/documentos/expedientes/:id` | `Expediente.jsx` + `CargarDocumentoModal.jsx` | Expediente por carpetas, subir, versiones, historial |
+| `/documentos/expedientes` | `pages/documentacion/Legajos.jsx` + `PorDocumento.jsx` | Expedientes, resumen de hoy, vista por documento y el menú Exportar (`components/documentacion/expedienteZip.js`, `utilidades.js`) |
+| `/documentos/expedientes/:id` | `Expediente.jsx` | Expediente por carpetas, Subir documento (`ElegirCarpeta`, `ModalSubir`, `ModalSubirRecibido`, `ModalSubirContrato`), anular, versiones, historial |
 | `/documentos/expedientes/revisar` | `Revisar.jsx` | Revisar documentos |
-| `/documentos/expedientes/contrato/:id` | `Contrato.jsx` | Ficha del contrato |
+| `/documentos/expedientes/contrato/:id` | `Contrato.jsx` | Ficha del contrato y Renovar contrato (`ModalRenovar`) |
 | `/documentos/solicitudes` y `/:id` | `Solicitudes.jsx` → `Bandeja.jsx`, `Atender.jsx` | Solicitudes y atender |
 | `/documentos/emitidos` y `/:id` | `Envios.jsx`, `Envio.jsx` | Documentos emitidos y su detalle |
 | `/documentos/emitidos/nuevo` | `Emitir.jsx` + `PanelEmision.jsx` | Emitir |
-| `/documentos/configuracion` | `Configuracion.jsx` → `Biblioteca.jsx`, `Notificaciones.jsx` | Plantillas y Notificaciones y numeración |
+| `/documentos/configuracion` | `Configuracion.jsx` → `Biblioteca.jsx`, `Notificaciones.jsx` | Plantillas y Notificaciones y tipos de documento |
 | `/documentos/configuracion/plantillas/:id` | `EditorPlantilla.jsx` | Editor de plantillas |
 | `/mi-espacio/zona-hr/documentos` y `/solicitudes` | `pages/colaborador/MisDocumentos.jsx` | Mis documentos y Mis solicitudes |
 | celular | `components/layout/MisDocumentosPhone.jsx` | Mis documentos y Mis solicitudes en la app |
 
 Los datos viven en `context/DocumentacionContext.jsx` y `data/documentacionData.js`; el lado del colaborador, en `hooks/useMisDocumentos.js`. Las rutas viejas (`/legajos`, `/colaboradores`, `/envios`, `/emitir`, `/por-revisar`, `/carga-masiva`, `/reportes`) redirigen a las nuevas.
+
+«Descargar para imprimir» arma un .doc de Word con `descargarParaImprimir` (`components/documentacion/utilidades.js`); en los contratos, con las líneas de firma de la empresa y de la persona. El firmado de un emitido se guarda con `adjuntarFirmado` en `DocumentacionContext.jsx`. Las claves internas siguen con sus nombres de antes: un documento anulado guarda `eliminado`, la carpeta Anulados es `papelera`, el estado «Sin firmar» es `generado` y lo confirmado antes es `acusado`, que ahora se ve «Entregado».
+
+### El historial de ejemplo
+
+Para que el Historial de cada expediente no salga vacío, la demo siembra una vez una historia por persona activa (`historialSeed` en `data/documentacionData.js`), armada con sus propios datos: lo que se le exigió, cada archivo que se cargó y por dónde, las aprobaciones y los rechazos con su recordatorio, sus contratos generados y firmados, lo que se le envió, lo que pidió y cómo se respondió y, a algunos, la descarga de su expediente completo. No inventa nada que el expediente no muestre y no repite lo que ya estaba anotado.
 
 ### Lo que la maqueta todavía no hace
 
@@ -3184,12 +3418,12 @@ Los datos viven en `context/DocumentacionContext.jsx` y `data/documentacionData.
 | Circuito de aprobación de plantillas | Se guarda; al emitir no se aplica | ABIERTA‑DOC‑04 |
 | Líder | Ve toda la empresa y puede editar | BR‑DOC‑053 |
 | Carpetas y documentos requeridos | No hay pantalla para configurarlos; son los de ejemplo | ABIERTA‑DOC‑02 |
-| Papelera | No se vacía sola | ABIERTA‑DOC‑10 |
-| Tamaño carta u oficio | Solo cambia la vista previa del editor | ABIERTA‑DOC‑09 |
-| Contratos | Del firmado solo se guarda el nombre del archivo; las descargas son texto | BR‑DOC‑028 |
+| Tamaño carta u oficio | Solo cambia la vista previa del editor; «Descargar para imprimir» baja siempre en carta | ABIERTA‑DOC‑09 |
+| Contratos | El firmado que se sube desde el expediente se guarda en el navegador; el que se sube desde la ficha del contrato guarda solo el nombre. «Descargar» de una versión baja texto; «Descargar para imprimir», un Word | BR‑DOC‑028 |
+| Firmados de lo emitido | Se guardan en el navegador de quien los subió; en el ZIP, si no está, va una nota en su lugar | BR‑DOC‑036 |
 | Archivos | Se guardan en el navegador de quien los subió; los de ejemplo bajan como .txt | 5.4 |
 | Haber básico | Sale de una tabla de ejemplo por unidad | BR‑DOC‑031 |
 | Carpeta Perfil profesional | Se ve en local y se oculta en Vercel | 3.14 |
 | Colaboradores de ejemplo | Carlos y María no están en el directorio | ABIERTA‑DOC‑07 |
 | Revisar | Abrir un confidencial ahí no deja rastro | BR‑DOC‑020 |
-| Código sin uso | `CargaLote.jsx`, `Reportes.jsx`, `TiposSubtipos.jsx` y `PorRevisar.jsx` quedan sin pantalla | — |
+| Código sin uso | `CargaLote.jsx`, `Reportes.jsx`, `TiposSubtipos.jsx`, `PorRevisar.jsx` y `CargarDocumentoModal.jsx` quedan sin pantalla; en el contexto quedan sin uso desde las pantallas `exonerar`, `agregarRequisito`, `recuperarDocumento`, `subirSinClasificar`, `acusarRecibo` y `recordarAcuse` | — |
