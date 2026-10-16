@@ -39,6 +39,8 @@ Los papeles de cada persona dejan de estar repartidos en carpetas, correos y caj
 | pantallas | 18 |
 | decisiones abiertas | 12 |
 
+> **Diagrama · El expediente, de un vistazo.** A la izquierda, el menú del módulo: Expedientes (con cuántos documentos esperan revisión), Solicitudes (con cuántos pedidos sin responder), Documentos emitidos y Configuración, que se despliega en Plantillas y Notificaciones y numeración. A la derecha, el expediente de una persona: su cabecera con los datos de la ficha, la barra de avance y los botones Subir, Enviar y Descargar; las pastillas de lo pendiente (Por revisar, Faltan, Vencidos o por vencer); y las carpetas —Información personal, Perfil profesional, Recursos y activos, Contratos, Recibidos e Historial—, cada una con un número rojo si le falta algo, un ✓ si está al día o un guion si no se le exige nada. En la versión HTML está dibujado.
+
 ## 00 · Glosario
 
 *Las palabras del módulo, con lo que significan en Souly. Se leen antes que nada porque todo lo demás las usa: un expediente no es una carpeta, un tipo no es un subtipo y un documento emitido no es un documento subido.*

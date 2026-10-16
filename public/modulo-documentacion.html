@@ -993,6 +993,110 @@ td.rg{color:var(--tinta-3);font-weight:700}
   </div>
 </div>
 
+<div class="taxo">
+  <div class="taxo-head">
+    <div>
+      <p class="taxo-cap">El expediente, de un vistazo</p>
+      <p class="taxo-sub">Cuatro entradas en el menú, cada una con su número cuando hay algo pendiente, y el expediente de cada persona en carpetas. Cada carpeta dice <strong>cuánto le falta</strong> y cada documento <strong>en qué estado está</strong>, que nunca se elige: se deduce de sus fechas y de la revisión.</p>
+    </div>
+    <div class="leyenda">
+      <div>
+        <p class="ley-t">Lo que dice cada carpeta</p>
+        <div class="ley-i">
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="#E5484D"/><text x="11" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">2</text></svg> Le faltan documentos</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="var(--hoja)" stroke="var(--funcional)" stroke-width="1.5"/><path d="M7 11.5l3 3 5-6" fill="none" stroke="var(--funcional)" stroke-width="1.8"/></svg> Al día</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="var(--hoja)" stroke="var(--regla-2)" stroke-width="1.5"/><path d="M7.5 11h7" stroke="var(--tinta-3)" stroke-width="1.8"/></svg> No se le exige</span>
+        </div>
+      </div>
+      <div>
+        <p class="ley-t">Los estados de un documento</p>
+        <div class="ley-i">
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="var(--funcional)"/></svg> Vigente</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="var(--alerta)"/></svg> Por vencer</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="#E5484D"/></svg> Vencido o rechazado</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="var(--estructural)"/></svg> En revisión</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="lienzo">
+    <svg class="gp-dgm" viewBox="0 0 900 470" role="img" aria-labelledby="doc-d0-t doc-d0-d">
+      <title id="doc-d0-t">El expediente de una persona, con sus partes señaladas</title>
+      <desc id="doc-d0-d">A la izquierda, el menú del módulo con Expedientes (20 por revisar), Solicitudes (8), Documentos emitidos y Configuración. A la derecha, el expediente de Adriana Ledezma: su cabecera con foto, datos de la ficha, barra de avance de 67 % y los botones Subir documento, Enviar documento y Descargar expediente; las pastillas de lo pendiente; y las carpetas Información personal (falta 1), Perfil profesional (al día), Recursos y activos (no se le exige), Contratos (al día), Recibidos (2 sin confirmar) e Historial.</desc>
+      <rect x="10" y="10" width="880" height="450" rx="14" fill="var(--papel)" stroke="var(--regla-2)"/>
+      <!-- 1 · el menú -->
+      <rect x="30" y="30" width="200" height="410" rx="12" fill="var(--hoja)" stroke="var(--regla)"/>
+      <text class="gp-e gp-gris" x="48" y="58">DOCUMENTACIÓN</text>
+      <rect x="40" y="72" width="180" height="34" rx="8" fill="color-mix(in srgb, var(--funcional) 22%, var(--hoja))"/>
+      <text class="gp-t" x="54" y="94" font-size="12">Expedientes</text><circle cx="200" cy="89" r="10" fill="var(--marca)"/><text class="gp-n" x="200" y="93" text-anchor="middle" font-size="9.5" fill="#fff">20</text>
+      <text class="gp-s" x="54" y="132">Solicitudes</text><circle cx="200" cy="128" r="10" fill="var(--marca)"/><text class="gp-n" x="200" y="132" text-anchor="middle" font-size="9.5" fill="#fff">8</text>
+      <text class="gp-s" x="54" y="166">Documentos emitidos</text>
+      <text class="gp-s" x="54" y="200">Configuración  ˅</text>
+      <text class="gp-s" x="70" y="226" fill="var(--tinta-3)">· Plantillas</text>
+      <text class="gp-s" x="70" y="248" fill="var(--tinta-3)">· Notificaciones y numeración</text>
+      <!-- 2 · la persona -->
+      <rect x="250" y="30" width="620" height="86" rx="12" fill="var(--hoja)" stroke="var(--regla)"/>
+      <circle cx="290" cy="72" r="24" fill="color-mix(in srgb, var(--outsourcing) 30%, var(--hoja))"/>
+      <text class="gp-t" x="326" y="62" font-size="15">Adriana Ledezma</text>
+      <text class="gp-s" x="326" y="80">Sin puesto asignado · Sucursal El Prado · 1237570</text>
+      <rect x="326" y="92" width="120" height="7" rx="3.5" fill="var(--regla)"/><rect x="326" y="92" width="80" height="7" rx="3.5" fill="var(--alerta)"/>
+      <text class="gp-n" x="454" y="99" font-size="10">67 %</text><text class="gp-s" x="490" y="99" font-size="10.5" fill="var(--tinta-3)">2 de 3 obligatorios</text>
+      <!-- 5 · las acciones -->
+      <rect x="610" y="52" width="114" height="30" rx="8" fill="var(--marca)"/><text class="gp-s" x="667" y="71" text-anchor="middle" font-weight="700" style="fill:#fff">↑ Subir</text>
+      <rect x="732" y="52" width="58" height="30" rx="8" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="761" y="71" text-anchor="middle">Enviar</text>
+      <rect x="798" y="52" width="58" height="30" rx="8" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="827" y="71" text-anchor="middle">ZIP</text>
+      <!-- 3 · lo pendiente -->
+      <rect x="250" y="132" width="112" height="28" rx="14" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="264" y="151">Por revisar</text><text class="gp-n" x="342" y="151" fill="var(--estructural)">1</text>
+      <rect x="370" y="132" width="78" height="28" rx="14" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="384" y="151">Faltan</text><text class="gp-n" x="430" y="151" fill="#E5484D">1</text>
+      <rect x="456" y="132" width="160" height="28" rx="14" fill="var(--hoja)" stroke="var(--regla-2)"/><text class="gp-s" x="470" y="151">Vencidos o por vencer</text><text class="gp-n" x="598" y="151" fill="var(--alerta)">0</text>
+      <!-- 4 · las carpetas -->
+      <g>
+        <path d="M250 184 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--estructural) 14%, var(--hoja))" stroke="var(--regla-2)"/>
+        <text class="gp-t" x="264" y="236">Información personal</text><text class="gp-s" x="264" y="254">2 de 3 al día</text>
+        <circle cx="436" cy="208" r="9" fill="#E5484D"/><text class="gp-n" x="436" y="212" text-anchor="middle" font-size="9.5" fill="#fff">1</text>
+      </g>
+      <g>
+        <path d="M466 184 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--aprobacion) 14%, var(--hoja))" stroke="var(--regla-2)"/>
+        <text class="gp-t" x="480" y="236">Perfil profesional</text><text class="gp-s" x="480" y="254">1 documento</text>
+        <circle cx="652" cy="208" r="9" fill="var(--hoja)" stroke="var(--funcional)" stroke-width="1.5"/><path d="M648 208.5l3 3 5-6" fill="none" stroke="var(--funcional)" stroke-width="1.6"/>
+      </g>
+      <g>
+        <path d="M682 184 h66 l8 8 h106 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-172 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--funcional) 12%, var(--hoja))" stroke="var(--regla-2)"/>
+        <text class="gp-t" x="696" y="236">Recursos y activos</text><text class="gp-s" x="696" y="254">No se le exige</text>
+        <circle cx="854" cy="208" r="9" fill="var(--hoja)" stroke="var(--regla-2)" stroke-width="1.5"/><path d="M850 208h8" stroke="var(--tinta-3)" stroke-width="1.6"/>
+      </g>
+      <g>
+        <path d="M250 292 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--marca) 12%, var(--hoja))" stroke="var(--regla-2)"/>
+        <text class="gp-t" x="264" y="344">Contratos</text><text class="gp-s" x="264" y="362">Indefinido · vigente</text>
+        <circle cx="436" cy="316" r="9" fill="var(--hoja)" stroke="var(--funcional)" stroke-width="1.5"/><path d="M432 316.5l3 3 5-6" fill="none" stroke="var(--funcional)" stroke-width="1.6"/>
+      </g>
+      <g>
+        <path d="M466 292 h66 l8 8 h120 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-186 a8 8 0 0 1 -8 -8 z" fill="color-mix(in srgb, var(--outsourcing) 13%, var(--hoja))" stroke="var(--regla-2)"/>
+        <text class="gp-t" x="480" y="344">Recibidos</text><text class="gp-s" x="480" y="362">Lo que RR.HH. le envió</text>
+        <circle cx="652" cy="316" r="9" fill="var(--hoja)" stroke="var(--regla-2)" stroke-width="1.5"/><text class="gp-n" x="652" y="320" text-anchor="middle" font-size="9.5">2</text>
+      </g>
+      <g>
+        <path d="M682 292 h66 l8 8 h106 a8 8 0 0 1 8 8 v64 a8 8 0 0 1 -8 8 h-172 a8 8 0 0 1 -8 -8 z" fill="var(--hoja-2)" stroke="var(--regla-2)" stroke-dasharray="4 3"/>
+        <text class="gp-t" x="696" y="344">Historial</text><text class="gp-s" x="696" y="362">Todo lo que pasó, por mes</text>
+      </g>
+      <text class="gp-s" x="250" y="410" fill="var(--tinta-3)">Por clasificar y Papelera aparecen solo cuando tienen algo.</text>
+      <!-- números -->
+      <circle cx="30" cy="30" r="10" fill="var(--estructural)"/><text class="gp-n" x="30" y="34" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">1</text>
+      <circle cx="250" cy="30" r="10" fill="var(--estructural)"/><text class="gp-n" x="250" y="34" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">2</text>
+      <circle cx="250" cy="132" r="10" fill="var(--estructural)"/><text class="gp-n" x="250" y="136" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">3</text>
+      <circle cx="250" cy="184" r="10" fill="var(--estructural)"/><text class="gp-n" x="250" y="188" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">4</text>
+      <circle cx="866" cy="52" r="10" fill="var(--estructural)"/><text class="gp-n" x="866" y="56" text-anchor="middle" font-size="10.5" fill="var(--sobre-acento)">5</text>
+    </svg>
+  </div>
+  <dl class="dgm-lista">
+    <div><dt>1 · El menú</dt><dd>Cuatro entradas por tarea. Expedientes cuenta lo que espera revisión; Solicitudes, los pedidos sin responder. Configuración se despliega en Plantillas y Notificaciones y numeración.</dd></div>
+    <div><dt>2 · La persona</dt><dd>Sus datos salen de la ficha y no se editan acá. La barra dice cuántos obligatorios ya exigibles tiene: lo que todavía está en plazo no descuenta.</dd></div>
+    <div><dt>3 · Lo pendiente</dt><dd>Por revisar, faltan, vencidos o por vencer: cada pastilla filtra el expediente para mostrar solo eso.</dd></div>
+    <div><dt>4 · Las carpetas</dt><dd>Una por tipo de documento, más Contratos, Recibidos —lo emitido se archiva solo— e Historial. Cada una dice cuánto le falta, si está al día o si no se le exige nada.</dd></div>
+    <div><dt>5 · Las acciones</dt><dd>Subir un documento, enviarle uno —un certificado, un memorándum— y descargar el expediente completo en un ZIP con índice.</dd></div>
+  </dl>
+</div>
+
 <div class="doc">
   <aside class="rail">
     <details open>

@@ -259,6 +259,9 @@ const railIni = plantilla.indexOf('<div class="doc">')
 const navIni = plantilla.indexOf('<nav id="toc">', railIni)
 const antesDelToc = plantilla.slice(railIni, navIni + '<nav id="toc">'.length)
 const scripts = plantilla.slice(plantilla.indexOf('<script>', plantilla.indexOf('<footer class="pie">')))
+/* El diagrama de la portada (opcional): herramientas/taxo/<nombre del md>.html, entre las cifras y el índice. */
+const taxoPath = path.join(raiz, 'herramientas/taxo', path.basename(mdPath).replace(/\.md$/, '.html'))
+const taxo = fs.existsSync(taxoPath) ? fs.readFileSync(taxoPath, 'utf8').replace(/\r\n/g, '\n') : ''
 const version = (ficha.find(([k]) => k === 'Versión') || [])[1] || ''
 const fecha = (ficha.find(([k]) => k === 'Fecha') || [])[1] || ''
 
@@ -285,7 +288,7 @@ ${ficha.map(([k, v]) => `      <div><dt>${esc(k)}</dt><dd>${inline(v)}</dd></div
 ${cifras.map(([n, t]) => `    <div><b>${n}</b><span>${esc(t)}</span></div>`).join('\n')}
   </div>
 </div>
-
+${taxo ? `\n${taxo}` : ''}
 ${antesDelToc}
 ${rail.join('\n')}
       </nav>
