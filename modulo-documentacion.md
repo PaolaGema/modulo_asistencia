@@ -353,7 +353,7 @@ Todo lo que RR.HH. emitió. Cada documento queda en el expediente de su dueño.
 
 - **Emitir documento** arriba a la derecha.
 - **Buscador** por documento, número o persona.
-- **Tabla**: Documento (con su número, o «N documentos» si fue a un grupo, y «Solicitud» si vino de un pedido), Para y **Emitido**: la fecha y, en cada uno, «Sin firmar» o «Firmado» (o «Anulado»).
+- **Tabla**: Documento (con su número, o «N documentos» si fue a un grupo, y «Solicitud» si vino de un pedido), Para y **Emitido**: la fecha y, en cada uno, «Sin firmar» o «Firmado» (o «Anulado»). Pagina de a 10, como Expedientes y Plantillas.
 - **Detalle** de un documento: la hoja tal como salió, **Descargar para imprimir** y **Subir el firmado** —o **Reemplazar el firmado**, si ya tiene uno—, Descargar y **Anular** con motivo. Dice «Está en su expediente, sin firmar» o «Firmado: lo subió … el …».
 - **Detalle** de un grupo: su nombre editable, «Con el firmado subido: x de y», «Descargar todos» y la lista, con la columna Firmado.
 - Ya no hay columna «Confirmación», ni «Recordar», ni el filtro de los sin confirmar: se quitó la confirmación de recepción. Lo que se confirmó antes se ve como Entregado.
