@@ -5,7 +5,7 @@ import { useUser } from './UserContext'
 import { cargoDe, sedesDe } from '../data/organigramaData'
 import { colaboradoresData } from '../pages/personas/colaboradoresData'
 import {
-  TIPOS_SEED, SUBTIPOS_SEED, PARAMETROS_SEED, MODELOS_SEED,
+  TIPOS_SEED, SUBTIPOS_SEED, PARAMETROS_SEED, MODELOS_SEED, idSouly,
   documentosSeed, contratosSeed, emitidosSeed, bitacoraSeed, historialSeed, requisitosSeed, solicitudesSeed, documentosDeFicha,
   sedeDemoDe, ingresoISO, iso, hoy, fechaLarga, checklistDe, completitud, siguienteNumero, datosPara, rellenar,
   estadoContrato, normalizarNombre, sumarMeses, plazoSolicitudDe, COLABORADORES_APP, semillaColaboradoresApp, semillaLoteDemo, fechaCorta,
@@ -77,6 +77,18 @@ export function DocumentacionProvider({ children }) {
   const [requisitos, setRequisitos] = useLocalStorage('doc_requisitos_v3', s.requisitos)
   const [solicitudes, setSolicitudes] = useLocalStorage('doc_solicitudes_v4', s.solicitudes)
   const [modelos, setModelos] = useLocalStorage('doc_modelos', MODELOS_SEED)
+  /* LAS DE FÁBRICA PASAN A SER DE LA EMPRESA (16 oct 2026): una demo ya abierta las tiene con
+     `base`. Siguen siendo las mismas —mismo id, mismo texto, sus emitidos—, pero ahora son
+     plantillas propias hechas desde las de Souly, que viven aparte (`PLANTILLAS_SOULY`). */
+  useEffect(() => {
+    if (!modelos.some(m => m.base)) return
+    setModelos(prev => prev.map(m => {
+      if (!m.base) return m
+      const resto = { ...m, origenSouly: idSouly(m.id) }
+      delete resto.base
+      return resto
+    }))
+  }, [modelos, setModelos])
   const [documentos, setDocumentos] = useLocalStorage('doc_documentos_v3', s.documentos)
   /* Lo subido que todavía no se sabe qué documento es (ver «Subir primero, clasificar después»). */
   const [sinClasificar, setSinClasificar] = useLocalStorage('doc_sin_clasificar', [])
@@ -178,7 +190,10 @@ export function DocumentacionProvider({ children }) {
      más reciente—, venga de donde venga: un carnet renovado en la ficha reemplaza al viejo
      cargado acá, y uno cargado acá después de la ficha reemplaza al de la ficha. El otro no se
      muestra, para que el mismo documento no aparezca dos veces con estados distintos.
-     Las acciones (cargar, revisar, eliminar) trabajan sólo sobre los propios: `documentos`. */
+     Las acciones (cargar, revisar, eliminar) trabajan sólo sobre los propios: `documentos`.
+     UN ANULADO TAMBIÉN TAPA AL DE LA FICHA (16 oct 2026): si el que reemplazó al de la ficha se
+     anula, el de la ficha no vuelve como «Vigente»: ya se había dejado atrás, y lo que corresponde
+     es subir el correcto. */
   const todosLosDocumentos = useMemo(() => {
     const deFicha = personas.flatMap(p => documentosDeFicha(p, subtipos))
     const fechaDe = d => { const v = d.versiones[d.versiones.length - 1]; return v?.emision || v?.fecha || '' }
@@ -187,7 +202,7 @@ export function DocumentacionProvider({ children }) {
     const propios = documentos.filter(d => d.eliminado || !uno(d)
       || !deFicha.some(f => par(f, d) && fechaDe(f) > fechaDe(d)))
     const ajenos = deFicha.filter(f => !uno(f)
-      || !documentos.some(d => !d.eliminado && par(f, d) && fechaDe(d) >= fechaDe(f)))
+      || !documentos.some(d => par(f, d) && fechaDe(d) >= fechaDe(f)))
     return [...propios, ...ajenos]
   }, [personas, subtipos, documentos])
 
@@ -393,8 +408,8 @@ export function DocumentacionProvider({ children }) {
   /* ── EMISIÓN (4.7, 4.8) ── */
 
   /* EMITIR: número automático que no se repite (RF-53, RN-15), datos congelados del momento
-     (RN-16) y texto rellenado con la versión de plantilla vigente. Si el modelo requiere
-     aprobación y lo pide una solicitud, queda pendiente. */
+     (RN-16) y texto rellenado con la versión de plantilla vigente. Las plantillas ya no piden
+     aprobación (16 oct 2026): `pendiente` queda sólo por los datos viejos que lo tengan. */
   /* ENVIAR ES EMITIR Y ENTREGAR EN UN SOLO GESTO (Documentación v3, como Humand y Talana): lo que se
      emite le llega al colaborador por la app en el mismo momento. `pideAcuse` dice si se le pide
      confirmar que lo recibió; sin eso, el documento queda entregado y nada más. */

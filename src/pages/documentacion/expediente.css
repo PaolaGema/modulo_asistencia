@@ -156,6 +156,9 @@
 }
 .xa-versiones .xa-ver-2 { font-size: 11px; color: var(--text-muted); }
 .xa-versiones button.on { border-color: var(--green-fuerte); box-shadow: 0 0 0 1px var(--green-fuerte); }
+/* Un anulado del historial: tachado el número y en gris, para que no se lea como el que vale. */
+.xa-versiones button.xa-ver-anulada { background: var(--surface-muted, var(--surface-card)); }
+.xa-versiones button.xa-ver-anulada .xa-ver-1 b { text-decoration: line-through; color: var(--text-muted); }
 .xa-mono { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 11.5px; }
 
 /* ── Modales de motivo y papelera ── */
@@ -166,7 +169,15 @@
 .xa-pie-rechazar { color: var(--dc-rojo); }
 .xa-confirma { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 8px 0; }
 .xa-confirma svg { color: var(--dc-rojo); }
+/* El sello de «anulado con éxito»: un check verde con halo, el título y un solo botón. */
+.xa-sello { width: 400px; max-width: calc(100vw - 32px); box-sizing: border-box; padding: 36px 32px 28px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; border-radius: 18px; }
+.xa-sello-halo { width: 76px; height: 76px; border-radius: 50%; background: rgba(0,224,145,.14); display: flex; align-items: center; justify-content: center; }
+.xa-sello-halo > span { width: 52px; height: 52px; border-radius: 50%; background: var(--green-fuerte); color: #fff; display: flex; align-items: center; justify-content: center; }
+.xa-sello h2 { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--text-heading); }
+.xa-sello-btn { width: 100%; height: 44px; margin-top: 8px; }
 .xa-confirma p { margin: 0; font-size: 13.5px; color: var(--text-heading); }
+.xa-alt-reemplazar { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--surface-muted, var(--border-soft)); font-size: 12.5px; color: var(--text-muted); }
+.xa-enlace-reemplazar { border: none; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--green-fuerte); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
 /* ── El modal de carga ── */
 .xa-soltar {
@@ -842,6 +853,8 @@ button.xa-rapido:hover { border-color: var(--border-dark); }
 
 /* ── Subir documento: el modal grande, la lista a la izquierda y el elegido a la derecha ── */
 .xu-dos { display: grid; grid-template-columns: 320px minmax(0, 1fr); margin: -20px -26px; min-height: 460px; max-height: 68vh; }
+/* Desde el «Subir» de una fila: un solo documento, sin la lista de la izquierda. */
+.xu-dos.xu-fijo { grid-template-columns: minmax(0, 1fr); min-height: 0; }
 .xu-izq { border-right: 1px solid var(--border-soft); background: var(--bg-secondary); padding: 14px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
 .xu-izq > .pl-search-wrap { flex: none; max-width: none; } /* en la columna, `flex: 1` lo estiraba hacia abajo */
 .xu-grupo { display: flex; flex-direction: column; gap: 4px; flex: none; }
@@ -937,3 +950,52 @@ button.xa-rapido:hover { border-color: var(--border-dark); }
 /* Quién subió y quién revisó: el nombre, su cargo en gris y, debajo, cuándo. */
 .xa-quien-cargo { color: var(--text-muted); font-weight: 400; }
 .xa-quien-cuando { display: block; font-size: 12px; color: var(--text-muted); }
+
+/* ── SUBIR UNO NUEVO DESDE SU FILA (propuesta C, 16 oct 2026) ──
+   Vista previa grande a la izquierda; revisión del archivo y fechas a la derecha. */
+.xv-dos { display: grid; grid-template-columns: minmax(0, 1fr) 320px; margin: -20px -26px; height: min(520px, 64vh); }
+.xv-izq { padding: 20px; display: flex; flex-direction: column; gap: 12px; min-height: 0; min-width: 0; }
+.xv-previa { flex: 1; min-height: 0; border: 1px solid var(--border-soft); border-radius: 14px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; overflow: auto; }
+.xv-previa.vacia { border: 2px dashed var(--border-soft); }
+.xv-previa.on { border-color: var(--green-fuerte); background: var(--green-bg); }
+.xv-previa > img { max-width: calc(100% - 32px); max-height: calc(100% - 32px); object-fit: contain; border-radius: 8px; box-shadow: 0 14px 30px rgba(12,45,64,.18); }
+.xv-pdf { width: 100%; height: 100%; overflow: auto; padding: 16px; box-sizing: border-box; }
+.xv-sin-previa { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-muted); font-size: 12.5px; }
+.xv-soltar { width: 100%; height: 100%; border: none; background: none; font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-muted); font-size: 12.5px; }
+.xv-soltar b { font-size: 14px; color: var(--text-heading); }
+.xv-soltar svg { color: var(--green-fuerte); margin-bottom: 4px; }
+.xv-archivo { display: flex; align-items: center; gap: 10px; }
+.xv-archivo-nom { flex: 1; min-width: 0; font-size: 12.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xv-archivo-nom b { font-weight: 500; color: var(--text-heading); }
+.xv-der { border-left: 1px solid var(--border-soft); background: var(--bg-secondary); padding: 20px 22px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+.xv-bloque { display: flex; flex-direction: column; gap: 10px; }
+.xv-tit { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); }
+.xv-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.xv-check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-heading); }
+.xv-check-ico { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; background: var(--border-soft); }
+.xv-check.ok .xv-check-ico { background: var(--green-fuerte); }
+.xv-check.mal .xv-check-ico { background: var(--dc-rojo); }
+.xv-check.espera { color: var(--text-muted); }
+.xv-check-dato { margin-left: auto; font-size: 11.5px; color: var(--text-muted); text-align: right; }
+.xv-nombre { margin: -4px 0 0 30px; font-size: 11.5px; color: var(--text-muted); word-break: break-all; }
+.xv-sep { height: 1px; background: var(--border-soft); flex-shrink: 0; }
+.xv-nota { font-size: 11.5px; color: var(--text-muted); }
+@media (max-width: 760px) {
+  .xv-dos { grid-template-columns: 1fr; height: auto; }
+  .xv-previa { min-height: 280px; }
+  .xv-der { border-left: none; border-top: 1px solid var(--border-soft); }
+}
+
+/* ── SUBIR DOCUMENTO CON COLOR (propuesta J + carpeta de K, 16 oct 2026) ──
+   El título de cada carpeta en una franja verde con su carpeta amarilla; el elegido, con borde
+   verde; el título de la derecha en verde y la zona para soltar con un verde suave. */
+.xu-grupo-tit {
+  align-items: center; justify-content: flex-start; padding: 7px 10px; margin-bottom: 2px; border-radius: 10px;
+  background: var(--green-fuerte); color: #fff; font-size: 12.5px; letter-spacing: 0; text-transform: none;
+}
+.xu-grupo-tit > span:first-of-type { flex: 1; min-width: 0; }
+.xu-grupo-tit svg { flex: none; }
+.xu-grupo-n { flex: none; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.2); font-size: 11px; }
+.xu-doc.on { border-color: var(--green-fuerte); box-shadow: 0 0 0 1px var(--green-fuerte); }
+.xu-der-cab h3 { color: var(--green-fuerte); }
+.xu-soltar { border-color: #A7E3C9; background: var(--green-bg); }

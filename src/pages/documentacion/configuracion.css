@@ -135,3 +135,45 @@
 .xd-subtitulo { margin: 32px 0 12px; font-size: 15px; font-weight: 700; color: var(--text-heading); }
 .xd-tipo { display: inline-flex; align-items: center; gap: 8px; }
 .xd-tipo > span { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+/* La etiqueta «Souly» de las plantillas del catálogo (16 oct 2026). */
+.xd-souly { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 999px; background: var(--dc-verde-bg, #ECFDF5); color: var(--dc-verde, #00704A); font-size: 10.5px; font-weight: 600; vertical-align: 1px; }
+.xd-souly-acc { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.xd-souly-usar { background: var(--navy); border-color: var(--navy); color: #fff; }
+.xd-souly-usar:hover { background: var(--navy-alt, var(--navy)); color: #fff; }
+
+/* ── EL WORD, DE IDA Y DE VUELTA (16 oct 2026) ── */
+.xd-bajar { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.xd-bajar li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-soft); border-radius: 10px; }
+.xd-subidas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.xd-subida { display: grid; grid-template-columns: 36px minmax(0, 1.4fr) 180px minmax(0, 1.2fr) 32px; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--surface-card); }
+.xd-subida.error { background: var(--bg-secondary); }
+.xd-subida-ico { width: 36px; height: 36px; border-radius: 9px; background: #EFF4FF; color: #1D4ED8; display: flex; align-items: center; justify-content: center; }
+.xd-subida-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.xd-subida-datos small { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xd-subida-estado { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+.xd-subida-ok, .xd-subida-ambar, .xd-subida-mal { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+.xd-subida-ok { color: var(--green-fuerte); }
+.xd-subida-ambar { color: #B54708; }
+.xd-subida-mal { color: var(--dc-rojo, #B42318); font-weight: 500; }
+.xd-subida-quitar { width: 32px; height: 32px; border: none; border-radius: 8px; background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.xd-subida-quitar:hover { background: var(--bg-secondary); color: var(--text-heading); }
+@media (max-width: 760px) {
+  .xd-subida { grid-template-columns: 36px minmax(0, 1fr) 32px; }
+  .xd-subida-tipo, .xd-subida-estado { grid-column: 2 / 3; }
+}
+.pl-modal-footer .dc-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* El modal «Cargar plantillas»: soltar los Word y, si hace falta, bajar la plantilla modelo. */
+.xd-cargar { display: flex; flex-direction: column; gap: 14px; }
+.xd-cargar-zona { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 38px 20px; border: 2px dashed #A7E3C9; border-radius: 14px; background: var(--green-bg); color: var(--text-muted); font-size: 12.5px; text-align: center; cursor: pointer; }
+.xd-cargar-zona b { font-size: 14.5px; color: var(--text-heading); }
+.xd-cargar-zona.on, .xd-cargar-zona:hover { border-color: var(--green-fuerte); }
+.xd-cargar-ico { width: 54px; height: 54px; border-radius: 50%; background: rgba(0,224,145,.18); color: var(--green-fuerte); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.xd-cargar-modelo { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 4px 12px; padding: 14px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--bg-secondary); }
+.xd-cargar-modelo-ico { width: 36px; height: 36px; border-radius: 9px; background: #EFF4FF; color: #1D4ED8; display: flex; align-items: center; justify-content: center; grid-row: span 2; }
+.xd-cargar-modelo-txt { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+.xd-cargar-modelo-txt b { font-size: 13px; color: var(--text-heading); }
+.xd-cargar-modelo-acc { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+.xd-cargar-mas { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed var(--border-soft); border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--text-heading); cursor: pointer; }
+.xd-cargar-mas:hover, .xd-cargar-mas.on { border-color: var(--green-fuerte); background: var(--green-bg); }

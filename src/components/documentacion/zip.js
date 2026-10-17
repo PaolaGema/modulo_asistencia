@@ -142,5 +142,22 @@ function xmlATexto(xml) {
     .trim()
 }
 
+/* ── ESCRIBIR UN .DOCX (16 oct 2026) ──────────────────────────────────────
+   Para «Descargar plantilla»: un Word mínimo —un párrafo por línea— que se abre y se edita como
+   cualquiera. Los marcadores `[NOMBRE COMPLETO]` van resaltados en amarillo y en negrita para que
+   se vean al editar. Sin comprimir, como el resto de los ZIP del módulo: Word lo abre igual. */
+const xmlSeguro = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const RUN = (t, marca) => `<w:r>${marca ? '<w:rPr><w:b/><w:highlight w:val="yellow"/></w:rPr>' : ''}<w:t xml:space="preserve">${xmlSeguro(t)}</w:t></w:r>`
+const parrafo = linea => `<w:p>${linea.split(/(\[[^\]\n]{2,60}\])/g).filter(Boolean).map(p => RUN(p, /^\[.*\]$/.test(p))).join('')}</w:p>`
+
+export function crearDocx(texto) {
+  const cuerpo = String(texto || '').split('\n').map(parrafo).join('')
+  return crearZip([
+    { nombre: '[Content_Types].xml', datos: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>' },
+    { nombre: '_rels/.rels', datos: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>' },
+    { nombre: 'word/document.xml', datos: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${cuerpo}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>` },
+  ]).then(zip => new Blob([zip], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }))
+}
+
 /* Las variables `{{…}}` que trae un texto, sin repetir y en el orden en que aparecen. */
 export const variablesDe = texto => [...new Set([...String(texto || '').matchAll(/\{\{\s*#?(?:si\s+)?([a-z0-9_.]+)\s*\}\}/gi)].map(m => m[1]))]

@@ -1,12 +1,12 @@
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, CircleCheck, Eye, FileText, History, Lock, PenLine, RotateCcw, Save, TriangleAlert, Upload, X } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Download, Eye, FileText, History, PenLine, RotateCcw, Save, TriangleAlert, Upload, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { useUser } from '../../context/UserContext'
 import { miFichaDe } from '../../data/miFicha'
-import { COLORES_TIPO, VARIABLES, CLAVES_VARIABLES, datosPara, dias, fechaCorta, rellenar, tiposDoc, validarPlantilla } from '../../data/documentacionData'
+import { COLORES_TIPO, VARIABLES, CLAVES_VARIABLES, datosPara, dias, fechaCorta, rellenar, tiposDoc, validarPlantilla, PLANTILLAS_SOULY, aMarcadores, deMarcadores, aplicarMarcadores, textoDePartida } from '../../data/documentacionData'
 import { Cabecera, Etiqueta, Modal, Vacio } from '../../components/documentacion/comunes'
-import { textoDeDocx } from '../../components/documentacion/zip'
+import { crearDocx, descargarBlob, nombreSeguro, textoDeDocx } from '../../components/documentacion/zip'
 import Desplegable from '../../components/layout/Desplegable'
 import HojaDocumento from './HojaDocumento'
 import { contratoVigenteDe, ultimaVersion, versionPublicada } from './emisionUtil'
@@ -32,17 +32,29 @@ import './plantilla.css'
    LOS DE FÁBRICA SE VEN IGUAL pero no se editan: se duplican (RF-50). */
 
 const nuevoId = () => `m-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`
+
 const ETIQ = Object.fromEntries(VARIABLES.flatMap(g => g.items.map(i => [i.clave, i.label])))
 const RX_SI = /\{\{#si\s+([a-z0-9_.]+)\s*\}\}([\s\S]*?)\{\{\/si\}\}/g
 
 export default function EditorPlantilla() {
   const { id } = useParams()
   const [params] = useSearchParams()
-  const { modelo: buscar } = useDocumentacion()
+  const { modelo: buscar, modelos } = useDocumentacion()
   const nuevo = id === 'nuevo'
-  const modelo = nuevo
-    ? { id: 'nuevo', nuevo: true, nombre: '', categoria: params.get('tipo') || 'certificado', disponibleSolicitud: false, circuito: 'sin_aprobacion', aprobador: '', estado: 'activo', base: false, versiones: [] }
-    : buscar(id)
+  /* «USAR» UNA DE SOULY (16 oct 2026) abre una plantilla nueva con su nombre, su tipo y su texto
+     ya puestos (`?desde=souly-…`). No se crea nada hasta que se guarda: si se sale sin guardar,
+     no queda una copia suelta en la lista. El nombre lleva «(copia)» para que se vea que la de
+     Souly no se toca; si ya hay una copia con ese nombre, la nueva lleva su número. */
+  const souly = nuevo ? PLANTILLAS_SOULY.find(s => s.id === params.get('desde')) : null
+  const nombreCopia = souly && (() => {
+    const libre = n => !modelos.some(m => m.nombre === n)
+    for (let i = 1; ; i++) { const n = `${souly.nombre} (copia${i > 1 ? ` ${i}` : ''})`; if (libre(n)) return n }
+  })()
+  const modelo = souly
+    ? { id: 'nuevo', nuevo: true, nombre: nombreCopia, categoria: souly.categoria, disponibleSolicitud: !!souly.disponibleSolicitud, sensible: !!souly.sensible, estado: 'activo', base: false, origenSouly: souly.id, versiones: souly.versiones }
+    : nuevo
+      ? { id: 'nuevo', nuevo: true, nombre: '', categoria: params.get('tipo') || 'certificado', disponibleSolicitud: false, estado: 'activo', base: false, versiones: [] }
+      : buscar(id)
   if (!modelo) {
     return (
       <div className="content-scroll">
@@ -56,7 +68,7 @@ export default function EditorPlantilla() {
     )
   }
   /* La clave remonta el editor al cambiar de modelo —al guardar uno nuevo—. */
-  return <Editor key={modelo.id} modelo={modelo} />
+  return <Editor key={souly ? `nuevo-${souly.id}` : modelo.id} modelo={modelo} />
 }
 
 function Editor({ modelo }) {
@@ -67,14 +79,15 @@ function Editor({ modelo }) {
      eso dejaba dos plantillas casi iguales. Ahora se editan como cualquiera —lo ya emitido no
      cambia, el historial guarda cada texto— y «Volver al texto original» deshace lo propio. */
   const soloLectura = false
-  const original = modelo.base ? modelo.versiones[0]?.texto : null
+  // La que salió de una plantilla de Souly puede volver al texto de Souly.
+  const original = modelo.origenSouly ? PLANTILLAS_SOULY.find(s => s.id === modelo.origenSouly)?.versiones[0]?.texto ?? null : null
   const ultima = ultimaVersion(modelo)
   const publicada = versionPublicada(modelo)
   const tipos = tiposDoc(parametros)
 
   const [meta, setMeta] = useState({
     nombre: modelo.nombre, categoria: modelo.categoria, disponibleSolicitud: !!modelo.disponibleSolicitud,
-    circuito: modelo.circuito || 'sin_aprobacion', aprobador: modelo.aprobador || '', estado: modelo.estado,
+    estado: modelo.estado,
     tamano: modelo.tamano || 'carta',
   })
   const [texto, setTexto] = useState(ultima?.texto || '')
@@ -84,6 +97,8 @@ function Editor({ modelo }) {
      en el estado de la navegación. */
   const [aviso, setAviso] = useState(location.state?.aviso || null)
   const [viendo, setViendo] = useState(null)
+  /* El Word subido con marcadores que no coinciden: espera a que se diga qué es cada uno. */
+  const [revisar, setRevisar] = useState(null) // { nombreArchivo, texto, reconocidos, desconocidos }
   const activos = personas.filter(p => p.status !== 'desvinculado')
   const hoja = useRef(null)
 
@@ -116,7 +131,7 @@ function Editor({ modelo }) {
     ? !!(texto.trim() || meta.nombre.trim())
     : texto !== (ultima?.texto || '')
       || meta.nombre !== modelo.nombre || meta.categoria !== modelo.categoria || meta.disponibleSolicitud !== !!modelo.disponibleSolicitud
-      || meta.circuito !== (modelo.circuito || 'sin_aprobacion') || meta.aprobador !== (modelo.aprobador || '') || meta.estado !== modelo.estado
+      || meta.estado !== modelo.estado
       || meta.tamano !== (modelo.tamano || 'carta')
   const setM = (k, v) => { setMeta(prev => ({ ...prev, [k]: v })); setAviso(null) }
 
@@ -131,26 +146,49 @@ function Editor({ modelo }) {
     e.target.value = ''
     if (!f) return
     try {
-      const t = /\.docx$/i.test(f.name) ? await textoDeDocx(f) : await f.text()
+      const crudo = /\.docx$/i.test(f.name) ? await textoDeDocx(f) : await f.text()
+      // Los marcadores del Word —[NOMBRE COMPLETO], [CARGO]— vuelven a ser datos.
+      const { texto: t, reconocidos, desconocidos } = deMarcadores(crudo)
       if (!t.trim()) throw new Error('vacío')
-      setTexto(t)
-      if (!meta.nombre.trim()) setM('nombre', f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '))
-      setVista('escribir')
-      setAviso({ tono: 'verde', texto: `Se cargó «${f.name}». Revise que los datos de la persona estén como pastillas celestes antes de publicar.` })
+      /* LO QUE NO COINCIDE SE PREGUNTA ANTES DE CARGAR (16 oct 2026): un marcador mal escrito
+         —«[FECHA INI]»— no se cuela como texto en la plantilla; se muestra con el dato que más
+         se le parece, y se carga recién cuando se dijo qué es cada uno. */
+      if (desconocidos.length) { setRevisar({ nombreArchivo: f.name, texto: t, reconocidos, desconocidos }); return }
+      cargarTexto(f.name, t, reconocidos.length)
     } catch {
       setAviso({ tono: 'ambar', texto: 'No se pudo leer el archivo. Use un .docx o un .txt con texto.' })
     }
+  }
+
+  function cargarTexto(nombreArchivo, t, cuantos, comoTexto = 0) {
+    setTexto(t)
+    if (!meta.nombre.trim()) setM('nombre', nombreArchivo.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '))
+    setVista('escribir')
+    const datosTxt = cuantos ? ` Reconocimos ${cuantos === 1 ? '1 dato' : `${cuantos} datos`} de la persona.` : ''
+    const textoTxt = comoTexto ? ` ${comoTexto === 1 ? 'Un marcador quedó' : `${comoTexto} marcadores quedaron`} como texto, tal como estaba escrito.` : ''
+    setAviso({ tono: comoTexto ? 'ambar' : 'verde', texto: `Se cargó «${nombreArchivo}».${datosTxt}${textoTxt} Revise que los datos estén como pastillas celestes antes de guardar.` })
+  }
+
+  /* DESCARGAR PLANTILLA (16 oct 2026): el texto de la hoja en un Word, con cada dato escrito como
+     marcador, para completarlo en Word y subirlo de vuelta. Con la hoja vacía, un texto de partida
+     que ya muestra cómo se usan. Abajo va la lista de marcadores, que al subir se ignora. */
+  async function descargarPlantilla() {
+    const titulo = (meta.nombre.trim() || tipos[meta.categoria]?.label || 'Documento').toUpperCase()
+    const blob = await crearDocx(aMarcadores(texto.trim() ? texto : textoDePartida(meta.categoria, titulo)))
+    descargarBlob(`${nombreSeguro(meta.nombre.trim() || 'Plantilla')}.docx`, blob)
   }
 
   const hoyISO = dias(0)
   /* GUARDAR Y ACTIVA, NADA MÁS (16 oct 2026). Ya no hay «borrador» ni «publicar»: una plantilla
      INACTIVA es el borrador —no aparece en Emitir— y una ACTIVA es la que se usa. Guardar con
      otro texto crea una versión nueva (RF-47): lo ya emitido conserva el texto con que salió.
-     Sólo una plantilla activa se valida al guardar (RF-46): la inactiva puede quedar a medias. */
-  function guardar() {
+     Sólo una plantilla activa se valida al guardar (RF-46): la inactiva puede quedar a medias.
+     UNA NUEVA SE GUARDA DE DOS MODOS (16 oct 2026): «Guardar borrador» la deja inactiva y «Guardar
+     y activar», lista para emitir. `estado` es ése; sin él, manda el interruptor «Activa». */
+  function guardar(estado = meta.estado) {
     const nombre = meta.nombre.trim()
     if (!nombre) { setAviso({ tono: 'ambar', texto: 'Póngale un nombre a la plantilla, a la izquierda.' }); return }
-    const activa = meta.estado === 'activo'
+    const activa = estado === 'activo'
     if (activa) {
       const errs = validarPlantilla(texto, datos)
       if (!texto.trim()) errs.unshift({ tipo: 'vacia', texto: 'La hoja está vacía' })
@@ -159,11 +197,12 @@ function Editor({ modelo }) {
     const version = { texto, estado: 'publicada', publicadaPor: usuario, fecha: hoyISO }
     const avisoListo = activa
       ? 'Guardada. Está activa: aparece en Emitir, y lo que se emita desde ahora sale con este texto.'
-      : 'Guardada. Está inactiva: no aparece en Emitir hasta que la active.'
+      : modelo.nuevo ? 'Borrador guardado. No aparece en Emitir hasta que la active.'
+        : 'Guardada. Está inactiva: no aparece en Emitir hasta que la active.'
     if (modelo.nuevo) {
       const id = nuevoId()
-      setModelos(prev => [...prev, { id, ...meta, nombre, sensible: false, base: false, versiones: [{ v: 1, ...version }] }])
-      anotarConfig(`Creó la plantilla «${nombre}»${activa ? '' : ' (inactiva)'}`)
+      setModelos(prev => [...prev, { id, ...meta, estado, nombre, sensible: !!modelo.sensible, base: false, ...(modelo.origenSouly ? { origenSouly: modelo.origenSouly } : {}), versiones: [{ v: 1, ...version }] }])
+      anotarConfig(`${modelo.origenSouly ? 'Agregó desde Souly' : 'Creó'} la plantilla «${nombre}»${activa ? '' : ' como borrador'}`)
       navigate(`/documentos/configuracion/plantillas/${id}`, { replace: true, state: { aviso: { tono: 'verde', texto: avisoListo } } })
       return
     }
@@ -195,7 +234,7 @@ function Editor({ modelo }) {
   }
 
   const tipo = tipos[meta.categoria] || tipos.otro
-  const estadoTxt = modelo.nuevo ? 'Plantilla nueva, sin guardar'
+  const estadoTxt = modelo.nuevo ? (modelo.origenSouly ? 'Desde Souly, sin guardar: revísela y guárdela para usarla' : 'Plantilla nueva, sin guardar')
     : cambiado ? 'Cambios sin guardar'
       : modelo.estado === 'activo' ? 'Guardada · activa' : 'Guardada · inactiva'
 
@@ -206,10 +245,17 @@ function Editor({ modelo }) {
         <div className="xpl-titulo">
           <span className="xpl-punto" style={{ background: tipo.color }} aria-hidden="true" />
           <h1>{meta.nombre.trim() || 'Plantilla nueva'}</h1>
-          {modelo.base && <Etiqueta tono="gris" titulo="Viene con el sistema. Se puede editar; «Volver al texto original» la deja como venía."><Lock size={10} aria-hidden="true" /> De fábrica</Etiqueta>}
+          {modelo.origenSouly && <Etiqueta tono="verde" titulo="Se hizo a partir de una plantilla de Souly. «Volver al texto original» la deja como la de Souly.">De Souly</Etiqueta>}
           <span className={`xpl-estado${cambiado ? ' cambios' : ''}`}>{estadoTxt}</span>
         </div>
-        <button type="button" className="pl-btn-new" onClick={guardar} disabled={!cambiado && ultima?.estado !== 'borrador'} title={!cambiado && ultima?.estado !== 'borrador' ? 'No hay cambios para guardar' : undefined}><Save size={14} color="#00E091" /> {modelo.nuevo ? 'Guardar' : 'Guardar cambios'}</button>
+        {modelo.nuevo ? (
+          <span className="xpl-guardar-dos">
+            <button type="button" className="dc-btn" onClick={() => guardar('inactivo')} title="Queda inactiva: no aparece en Emitir y puede quedar a medias">Guardar borrador</button>
+            <button type="button" className="pl-btn-new" onClick={() => guardar('activo')} title="Queda activa: aparece en Emitir"><Save size={14} color="#00E091" /> Guardar y activar</button>
+          </span>
+        ) : (
+          <button type="button" className="pl-btn-new" onClick={() => guardar()} disabled={!cambiado && ultima?.estado !== 'borrador'} title={!cambiado && ultima?.estado !== 'borrador' ? 'No hay cambios para guardar' : undefined}><Save size={14} color="#00E091" /> Guardar cambios</button>
+        )}
       </div>
 
       {aviso && (
@@ -239,17 +285,10 @@ function Editor({ modelo }) {
             </label>
             <SelectorTipo valor={meta.categoria} tipos={tipos} numeracion={parametros.numeracion} onCambio={v => setM('categoria', v)} onCrear={crearTipo} />
             <Interruptor valor={meta.disponibleSolicitud} onCambio={v => setM('disponibleSolicitud', v)} texto="El colaborador lo puede pedir" ayuda="Aparece en «Pedir un documento» de su app." />
-            <Interruptor valor={meta.circuito !== 'sin_aprobacion'} onCambio={v => setM('circuito', v ? 'una' : 'sin_aprobacion')} texto="Necesita aprobación" ayuda={meta.circuito === 'sin_aprobacion' ? 'Sale apenas se emite.' : undefined} />
-            {meta.circuito !== 'sin_aprobacion' && (
-              <div className="xpl-sub">
-                <div className="xe-modo xpl-modo" role="group" aria-label="Cuántas aprobaciones">
-                  <button type="button" className={meta.circuito === 'una' ? 'on' : ''} aria-pressed={meta.circuito === 'una'} onClick={() => setM('circuito', 'una')}>Una</button>
-                  <button type="button" className={meta.circuito === 'dos' ? 'on' : ''} aria-pressed={meta.circuito === 'dos'} onClick={() => setM('circuito', 'dos')}>Dos</button>
-                </div>
-                <input className="pl-input" value={meta.aprobador} onChange={e => setM('aprobador', e.target.value)} placeholder="Quién aprueba: Responsable de RR.HH." aria-label="Quién aprueba" />
-              </div>
-            )}
-            <Interruptor valor={meta.estado === 'activo'} onCambio={v => setM('estado', v ? 'activo' : 'inactivo')} texto="Activa" ayuda={meta.estado === 'activo' ? 'Aparece en Emitir.' : 'No aparece en Emitir: queda como borrador.'} />
+            {/* SIN «NECESITA APROBACIÓN» (16 oct 2026): lo emitido se genera, se imprime y se firma a
+                mano; no hay firma digital ni un paso de aprobación en el sistema que tenga sentido. */}
+            {/* En una nueva lo deciden los dos botones de guardar; el interruptor, en una que ya existe. */}
+            {!modelo.nuevo && <Interruptor valor={meta.estado === 'activo'} onCambio={v => setM('estado', v ? 'activo' : 'inactivo')} texto="Activa" ayuda={meta.estado === 'activo' ? 'Aparece en Emitir.' : 'No aparece en Emitir: queda como borrador.'} />}
           </fieldset>
 
           {!modelo.nuevo && (
@@ -293,8 +332,13 @@ function Editor({ modelo }) {
               ))}
             </div>
             {vista === 'escribir' && !soloLectura && (
+              <button type="button" className="xpl-herr-btn" onClick={descargarPlantilla} title="Bájela en Word con los datos marcados, complétela y súbala">
+                <Download size={13} aria-hidden="true" /> Descargar plantilla
+              </button>
+            )}
+            {vista === 'escribir' && !soloLectura && (
               <label className="xpl-herr-btn" style={{ cursor: 'pointer' }}>
-                <Upload size={13} aria-hidden="true" /> Subir .docx o .txt
+                <Upload size={13} aria-hidden="true" /> Subir plantilla
                 <input type="file" accept=".txt,.docx,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={cargarArchivo} hidden />
               </label>
             )}
@@ -339,7 +383,66 @@ function Editor({ modelo }) {
           <HojaDocumento texto={rellenar(viendo.texto, datos)} compacta />
         </Modal>
       )}
+
+      {revisar && (
+        <ModalMarcadores
+          {...revisar}
+          onCerrar={() => setRevisar(null)}
+          onAplicar={elecciones => {
+            const comoTexto = Object.values(elecciones).filter(k => !k).length
+            const cuantos = new Set([...revisar.reconocidos, ...Object.values(elecciones).filter(Boolean)]).size
+            cargarTexto(revisar.nombreArchivo, aplicarMarcadores(revisar.texto, elecciones), cuantos, comoTexto)
+            setRevisar(null)
+          }}
+        />
+      )}
     </div>
+  )
+}
+
+/* ── LOS MARCADORES QUE NO SE RECONOCIERON (16 oct 2026) ─────────────────
+   Uno por fila, con un pedazo del texto donde aparece para ubicarlo, y el dato que más se le
+   parece ya elegido. Se puede elegir otro o dejarlo como texto, tal como está escrito. Hasta
+   «Cargar la plantilla» no cambia nada: «Cancelar» deja la hoja como estaba. */
+const TODOS_LOS_DATOS = VARIABLES.flatMap(g => g.items.map(i => ({ valor: i.clave, etiqueta: `${i.label} · ${g.grupo}` })))
+
+export function ModalMarcadores({ nombreArchivo, reconocidos, desconocidos, onCerrar, onAplicar }) {
+  const [elecciones, setElecciones] = useState(() => Object.fromEntries(desconocidos.map(d => [d.marcador, d.sugerencias[0]?.clave || ''])))
+  const pie = (
+    <>
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+      <button type="button" className="pl-btn-save" onClick={() => onAplicar(elecciones)}>Cargar la plantilla</button>
+    </>
+  )
+  return (
+    <Modal titulo="Revise estos marcadores" Icono={TriangleAlert} onCerrar={onCerrar} pie={pie} ancho={720}>
+      <p className="xc-ayuda" style={{ margin: '0 0 14px' }}>
+        En «{nombreArchivo}» {reconocidos.length ? <>reconocimos {reconocidos.length === 1 ? '1 dato' : `${reconocidos.length} datos`}, pero </> : null}
+        {desconocidos.length === 1 ? 'un marcador no coincide' : `${desconocidos.length} marcadores no coinciden`} con ningún dato. Elija qué va en {desconocidos.length === 1 ? 'él' : 'cada uno'}:
+      </p>
+      <ul className="xpl-marcas">
+        {desconocidos.map(d => {
+          const sugeridas = d.sugerencias.map(s => s.clave)
+          const opciones = [
+            ...d.sugerencias.map((s, i) => ({ valor: s.clave, etiqueta: `${i === 0 ? '¿Quiso decir…? ' : ''}${s.label}` })),
+            ...TODOS_LOS_DATOS.filter(o => !sugeridas.includes(o.valor)),
+            { valor: '', etiqueta: 'Dejarlo como texto, tal como está escrito' },
+          ]
+          return (
+            <li key={d.marcador} className="xpl-marca">
+              <div className="xpl-marca-txt">
+                <code className="xpl-marca-cod">{d.marcador}</code>
+                <span className="xpl-marca-ctx">«…{d.contexto.antes}<b>{d.marcador}</b>{d.contexto.despues}…»</span>
+                {!d.sugerencias.length && <span className="xpl-marca-sin">No se parece a ningún dato: elija uno o déjelo como texto.</span>}
+              </div>
+              <div className="xpl-marca-sel">
+                <Desplegable valor={elecciones[d.marcador]} onCambio={v => setElecciones(prev => ({ ...prev, [d.marcador]: v }))} ariaLabel={`Qué dato va en ${d.marcador}`} opciones={opciones} conBuscador />
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </Modal>
   )
 }
 

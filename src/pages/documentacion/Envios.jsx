@@ -4,7 +4,10 @@ import { CheckCircle2, Search, Send, Users, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { Cabecera, EstadoEmitidoChip, Etiqueta, PersonaCelda, Vacio } from '../../components/documentacion/comunes'
 import { avanceLote, fechaCorta, nombreEmitido, origenDe } from '../../data/documentacionData'
+import Paginacion from '../../components/layout/Paginacion'
 import './seguimiento.css'
+
+const POR_PAGINA = 10
 
 /* ── DOCUMENTOS EMITIDOS (antes «Envíos», 15 oct 2026) ────────────────────
    Todo lo que la empresa le mandó a su gente, en una lista, como el panel de envíos de Humand o el
@@ -47,6 +50,7 @@ function Enviados() {
   const { emitidos, lotesEmision, personas, modelos, solicitudes } = useDocumentacion()
   const navigate = useNavigate()
   const [busca, setBusca] = useState('')
+  const [pag, setPag] = useState(1)
   const porId = useMemo(() => new Map(personas.map(p => [p.id, p])), [personas])
   const lista = useMemo(() => envios(emitidos, lotesEmision), [emitidos, lotesEmision])
 
@@ -56,6 +60,10 @@ function Enviados() {
     const nombre = x.lote ? x.lote.nombre : nombreEmitido(x.emitido, modelos)
     return [nombre, ...x.emitidos.map(e => `${e.numero} ${porId.get(e.colaboradorId)?.name || ''}`)].some(v => String(v).toLowerCase().includes(texto))
   })
+  /* DIEZ POR PÁGINA (16 oct 2026), como Expedientes y Plantillas: lo emitido sólo crece. */
+  const paginas = Math.max(1, Math.ceil(filas.length / POR_PAGINA))
+  const pagina = Math.min(pag, paginas)
+  const deLaPagina = filas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
 
   /* SIN CONFIRMACIÓN DE RECEPCIÓN (16 oct 2026): ya no se le pide al colaborador que confirme lo
      que recibe, así que se fueron la columna «Confirmación», el «Recordar» y el filtro de los sin
@@ -65,7 +73,7 @@ function Enviados() {
       <div className="xb-rango">
         <div className="pl-search-wrap" style={{ flex: '1 1 320px', maxWidth: 420 }}>
           <Search size={13} className="pl-search-ico" />
-          <input type="search" className="pl-search" placeholder="Buscar por documento, número o persona…" value={busca} onChange={e => setBusca(e.target.value)} aria-label="Buscar envíos" />
+          <input type="search" className="pl-search" placeholder="Buscar por documento, número o persona…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar envíos" />
         </div>
       </div>
 
@@ -80,7 +88,7 @@ function Enviados() {
           <table className="as-table xb-tabla">
             <thead><tr><th>Documento</th><th>Para</th><th>Emitido</th></tr></thead>
             <tbody>
-              {filas.map(x => {
+              {deLaPagina.map(x => {
                 const e = x.emitido
                 const ir = () => navigate(`/documentos/emitidos/${x.id}`)
                 return (
@@ -109,6 +117,7 @@ function Enviados() {
               })}
             </tbody>
           </table>
+          <Paginacion page={pagina} setPage={setPag} total={filas.length} perPage={POR_PAGINA} nombre="documentos" nombreUno="documento" />
         </div>
       )}
     </section>

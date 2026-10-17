@@ -370,6 +370,115 @@ export const VARIABLES = [
 ]
 export const CLAVES_VARIABLES = VARIABLES.flatMap(g => g.items.map(i => i.clave))
 
+/* ── LOS MARCADORES DEL WORD (16 oct 2026) ────────────────────────────────
+   Quien prefiere armar la plantilla en Word la descarga con los datos escritos como marcadores
+   —`[NOMBRE COMPLETO]`, `[CARGO]`—, la completa en su Word y la sube: cada marcador vuelve a ser
+   su dato. El marcador es el nombre del dato en mayúsculas, así no hay que aprender un código;
+   al subir se reconoce sin importar mayúsculas ni tildes. Lo que está debajo de la línea de la
+   guía (`GUIA_MARCADORES`) no es parte de la plantilla y se descarta. Los `{{#si …}}` se dejan
+   tal cual: van y vuelven sin tocarse. */
+/* SE COMPARA SIN LO QUE NO IMPORTA (16 oct 2026): mayúsculas, tildes, guiones, puntos, paréntesis
+   y espacios de más. «[Número de documento]», «[NUMERO-DE-DOCUMENTO]» y «[número  de documento.]»
+   son el mismo marcador. */
+const normal = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim()
+const MARCADOR_DE = Object.fromEntries(VARIABLES.flatMap(g => g.items.map(i => [i.clave, `[${i.label.toUpperCase()}]`])))
+/* OTROS NOMBRES QUE LA GENTE USA para el mismo dato: también se reconocen tal cual. */
+const SINONIMOS = {
+  'colaborador.nombre': ['Nombre', 'Nombre del trabajador', 'Nombre del colaborador', 'Trabajador'],
+  'colaborador.documento': ['CI', 'C.I.', 'Carnet', 'Carnet de identidad', 'Documento', 'Cédula'],
+  'cargo.nombre': ['Cargo del trabajador'],
+  'ingreso.fecha': ['Ingreso', 'Fecha de alta'],
+  'salario.basico': ['Sueldo', 'Salario', 'Haber', 'Sueldo básico', 'Monto del salario'],
+  'contrato.fecha_inicio': ['Fecha de inicio', 'Fecha inicio', 'Inicio'],
+  'contrato.fecha_fin': ['Fecha de fin', 'Fecha fin', 'Fecha final', 'Fin'],
+  'contrato.modalidad': ['Modalidad', 'Tipo de contrato'],
+  'empresa.nombre': ['Empresa', 'Nombre de la empresa'],
+  'documento.fecha': ['Fecha', 'Fecha de hoy'],
+  'documento.numero': ['CITE', 'Número', 'Número de documento interno'],
+  'sucursal.ciudad': ['Ciudad'],
+}
+const ETIQUETAS = VARIABLES.flatMap(g => g.items.flatMap(i => [i.label, ...(SINONIMOS[i.clave] || [])]
+  .map(nombre => ({ clave: i.clave, label: i.label, n: normal(nombre) }))))
+// El nombre oficial manda si un sinónimo choca con otro dato («Número de documento» es el CI).
+const CLAVE_DE = Object.fromEntries([...ETIQUETAS].reverse().map(e => [e.n, e.clave]))
+
+/* LO QUE NO COINCIDE SE SUGIERE: el dato más parecido, para que «[FECHA INI]» proponga «Inicio
+   del contrato» y «[NOMBRE COMPLTO]», «Nombre completo». Cuenta las palabras que empiezan igual
+   —«INI» es el comienzo de «INICIO»— y, para los errores de tipeo, cuántas letras hay que cambiar. */
+function distancia(a, b) {
+  const d = Array.from({ length: b.length + 1 }, (_, j) => j)
+  for (let i = 1; i <= a.length; i++) {
+    let prev = d[0]
+    d[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const t = d[j]
+      d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1))
+      prev = t
+    }
+  }
+  return d[b.length]
+}
+const VACIAS = new Set(['DE', 'DEL', 'LA', 'EL', 'Y'])
+function sugerenciasPara(nombre) {
+  const n = normal(nombre)
+  const suyas = n.split(' ').filter(p => p && !VACIAS.has(p))
+  // Cada dato se mide por su nombre o sinónimo más parecido, y aparece una sola vez.
+  const mejor = new Map()
+  for (const e of ETIQUETAS) {
+    const delDato = e.n.split(' ').filter(p => !VACIAS.has(p))
+    const coinciden = suyas.filter(p => delDato.some(q => q.startsWith(p) || p.startsWith(q))).length
+    const parecido = 1 - distancia(n, e.n) / Math.max(n.length, e.n.length)
+    const puntos = coinciden / Math.max(suyas.length, 1) + parecido
+    if (puntos > (mejor.get(e.clave)?.puntos ?? -1)) mejor.set(e.clave, { clave: e.clave, label: e.label, puntos })
+  }
+  const orden = [...mejor.values()].filter(s => s.puntos >= 0.75).sort((a, b) => b.puntos - a.puntos)
+  // Lo que queda muy por debajo del primero no ayuda: confunde.
+  return orden.filter(s => s.puntos >= orden[0].puntos * 0.7).slice(0, 3)
+}
+export const GUIA_MARCADORES = '──── Marcadores que puede usar · esta parte se ignora al subir ────'
+
+export function aMarcadores(texto) {
+  const cuerpo = String(texto || '').replace(/\{\{\s*([a-z0-9_.]+)\s*\}\}/gi, (m, k) => MARCADOR_DE[k] || m)
+  const guia = VARIABLES.map(g => `${g.grupo}: ${g.items.map(i => MARCADOR_DE[i.clave]).join('  ')}`).join('\n')
+  return `${cuerpo}\n\n\n${GUIA_MARCADORES}\nCopie un marcador donde va ese dato de la persona. Al emitir, cada persona recibe los suyos.\n${guia}`
+}
+
+/* `desconocidos`: cada marcador que no coincide, una vez, con un pedazo del texto donde aparece
+   (para reconocerlo en el modal) y sus sugerencias. `aplicarMarcadores` los resuelve después. */
+export function deMarcadores(texto) {
+  const reconocidos = new Set()
+  const desconocidos = new Map()
+  // Por la frase y no por la línea entera: si Word cambió los guiones, igual se encuentra.
+  const cuerpo = String(texto || '').split(/^.*esta parte se ignora al subir.*$/m)[0].trimEnd()
+  const convertido = cuerpo.replace(/\[([^\]\n]{2,60})\]/g, (m, nombre, pos) => {
+    const k = CLAVE_DE[normal(nombre)]
+    if (k) { reconocidos.add(k); return `{{${k}}}` }
+    if (!desconocidos.has(m)) {
+      const antes = cuerpo.slice(Math.max(0, pos - 32), pos).replace(/\s+/g, ' ')
+      const despues = cuerpo.slice(pos + m.length, pos + m.length + 24).replace(/\s+/g, ' ')
+      desconocidos.set(m, { marcador: m, contexto: { antes, despues }, sugerencias: sugerenciasPara(nombre) })
+    }
+    return m
+  })
+  return { texto: convertido, reconocidos: [...reconocidos], desconocidos: [...desconocidos.values()] }
+}
+
+/* `elecciones`: marcador → clave del dato, o '' para dejarlo como está escrito. */
+export function aplicarMarcadores(texto, elecciones) {
+  return Object.entries(elecciones).reduce((t, [m, k]) => (k ? t.split(m).join(`{{${k}}}`) : t), texto)
+}
+
+/* EL TEXTO DE PARTIDA DEL WORD, SEGÚN EL TIPO (16 oct 2026): con la hoja vacía, «Descargar
+   plantilla» baja un borrador del tipo elegido, con los marcadores donde suelen ir. Un tipo
+   creado por la empresa recibe el genérico. */
+export function textoDePartida(categoria, titulo) {
+  const cierre = '\n\n{{sucursal.ciudad}}, {{documento.fecha}}'
+  if (categoria === 'certificado') return `${titulo}\n\n{{documento.numero}}\n\n{{empresa.nombre}}, con NIT {{empresa.nit}}, certifica que {{colaborador.nombre}}, con documento de identidad {{colaborador.documento}}, trabaja en la empresa desde el {{ingreso.fecha}} como {{cargo.nombre}} en {{unidad.nombre}}.\n\nSe extiende el presente certificado a solicitud del interesado, para los fines que viere conveniente.${cierre}\n\n\n{{empresa.representante}}\nRepresentante legal`
+  if (categoria === 'memorandum') return `${titulo}\n\n{{documento.numero}}\n\nA: {{colaborador.nombre}} · {{cargo.nombre}}\nDe: Recursos Humanos\nFecha: {{documento.fecha}}\n\n{{memo.observaciones}}\n\nEscriba aquí el resto del memorándum.${cierre}`
+  if (categoria === 'contrato') return `${titulo}\n\n{{documento.numero}}\n\nConste por el presente documento el contrato de trabajo que celebran {{empresa.nombre}}, con NIT {{empresa.nit}}, representada por {{empresa.representante}}, y {{colaborador.nombre}}, con documento de identidad {{colaborador.documento}}.\n\nPRIMERA. El trabajador prestará servicios como {{cargo.nombre}} en {{sucursal.nombre}}.\n\nSEGUNDA. El contrato es {{contrato.modalidad}} y rige desde el {{contrato.fecha_inicio}}{{#si contrato.fecha_fin}} hasta el {{contrato.fecha_fin}}{{/si}}.\n\nTERCERA. El haber básico mensual es de {{salario.basico}}.\n\nEscriba aquí las demás cláusulas.${cierre}`
+  return `${titulo}\n\n{{documento.numero}}\n\nEscriba aquí el texto. Donde va un dato de la persona, deje un marcador: por ejemplo, {{colaborador.nombre}}, con documento de identidad {{colaborador.documento}}, que trabaja como {{cargo.nombre}} desde el {{ingreso.fecha}}.${cierre}`
+}
+
 export const MODALIDADES = {
   indefinido: 'Indefinido',
   plazo_fijo: 'Plazo fijo',
@@ -553,8 +662,6 @@ Las demás cláusulas se mantienen sin modificación.
 const M = (id, nombre, categoria, texto, extra = {}) => ({
   id, nombre, categoria,
   disponibleSolicitud: false,
-  circuito: 'sin_aprobacion', // 'sin_aprobacion' | 'una' | 'dos'
-  aprobador: 'Responsable de RR.HH.',
   sensible: false,
   estado: 'activo',
   base: true,
@@ -577,15 +684,26 @@ export const FRASES_DEFECTO = {
   ],
 }
 
-export const MODELOS_SEED = [
-  M('m-cert-trabajo', 'Certificado de trabajo', 'certificado', CERT_TRABAJO, { disponibleSolicitud: true }),
-  M('m-cert-sueldo', 'Certificado de trabajo con sueldo', 'certificado', CERT_SUELDO, { disponibleSolicitud: true, circuito: 'una' }),
-  M('m-memo-felicitacion', 'Memorándum de felicitación', 'memorandum', MEMO_FELICITACION),
-  M('m-memo-llamada', 'Memorándum de llamada de atención', 'memorandum', MEMO_LLAMADA, { sensible: true }),
-  M('m-contrato-indef', 'Contrato indefinido', 'contrato', CONTRATO_BASE),
-  M('m-contrato-plazo', 'Contrato a plazo fijo', 'contrato', CONTRATO_BASE),
-  M('m-adenda', 'Adenda de ampliación de plazo', 'contrato', ADENDA_BASE),
+/* ── LAS PLANTILLAS DE SOULY (16 oct 2026, antes «de fábrica») ────────────
+   Un catálogo de referencia que Souly prepara y mantiene: no se emite ni se activa. La empresa
+   «usa» una —se copia a sus plantillas, activa— o la «personaliza» —se copia y se abre el editor—.
+   No viven en `modelos` (lo de la empresa): así nada de Emitir, las adendas ni las solicitudes
+   puede tomar una de Souly por error. Su id es el del modelo de la demo con `souly-` en vez de
+   `m-`, y la copia recuerda de cuál salió en `origenSouly`. */
+export const PLANTILLAS_SOULY = [
+  M('souly-cert-trabajo', 'Certificado de trabajo', 'certificado', CERT_TRABAJO, { disponibleSolicitud: true }),
+  M('souly-cert-sueldo', 'Certificado de trabajo con sueldo', 'certificado', CERT_SUELDO, { disponibleSolicitud: true }),
+  M('souly-memo-felicitacion', 'Memorándum de felicitación', 'memorandum', MEMO_FELICITACION),
+  M('souly-memo-llamada', 'Memorándum de llamada de atención', 'memorandum', MEMO_LLAMADA, { sensible: true }),
+  M('souly-contrato-indef', 'Contrato indefinido', 'contrato', CONTRATO_BASE),
+  M('souly-contrato-plazo', 'Contrato a plazo fijo', 'contrato', CONTRATO_BASE),
+  M('souly-adenda', 'Adenda de ampliación de plazo', 'contrato', ADENDA_BASE),
 ]
+export const idSouly = idModelo => idModelo.replace(/^m-/, 'souly-')
+
+/* La demo arranca con las siete ya en uso: son las plantillas de la empresa, hechas desde las de
+   Souly, y de ellas salió todo lo emitido de ejemplo. */
+export const MODELOS_SEED = PLANTILLAS_SOULY.map(s => ({ ...s, id: s.id.replace(/^souly-/, 'm-'), base: false, origenSouly: s.id }))
 
 /* El número correlativo (RF-07, RF-53, RN-15): por categoría y gestión, y nunca se reutiliza,
    ni siquiera si el documento se anula. Se calcula contando los ya emitidos de esa serie. */

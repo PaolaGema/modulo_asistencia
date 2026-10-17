@@ -2,7 +2,7 @@ Souly HR · Módulo de documentación · Documentación de producto
 
 # Módulo de documentación
 
-> **Módulo de documentación — versión en Markdown.** Reúne completo el documento de producto `public/modulo-documentacion.html` (versión 1.2, 16 de octubre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Reemplaza a la «Propuesta de estructura» v0.2 (`public/modulo-documentacion-propuesta.html`), que queda como histórico.
+> **Módulo de documentación — versión en Markdown.** Reúne completo el documento de producto `public/modulo-documentacion.html` (versión 1.3, 16 de octubre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Reemplaza a la «Propuesta de estructura» v0.2 (`public/modulo-documentacion-propuesta.html`), que queda como histórico.
 
 ## Índice
 
@@ -23,7 +23,7 @@ Souly HR · Módulo de documentación · Documentación de producto
 
 Los papeles de cada persona dejan de estar repartidos en carpetas, correos y cajones, y pasan a ser *un expediente por colaborador que dice solo qué le falta, qué vence y qué se le emitió, con rastro de todo*. Este documento define qué es el módulo, qué reglas cumple, qué tiene que hacer el producto y cómo se opera.
 
-- **Versión:** 1.2
+- **Versión:** 1.3
 - **Fecha:** 16 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
@@ -33,11 +33,11 @@ Los papeles de cada persona dejan de estar repartidos en carpetas, correos y caj
 | --- | --- |
 | roles con su vista | 3 |
 | estados de un documento | 7 |
-| reglas de negocio | 64 |
-| requisitos funcionales | 69 |
+| reglas de negocio | 66 |
+| requisitos funcionales | 76 |
 | historias de usuario | 19 |
-| pantallas | 18 |
-| decisiones abiertas | 10 |
+| pantallas | 19 |
+| decisiones abiertas | 8 |
 
 > **Diagrama · El módulo, de un vistazo.** Documentación son dos espacios con un solo dato debajo. Arriba, la bitácora que registra todo y la ficha de Gestión de personas, que se lee y no se copia. En el medio, el **Repositorio** —Expedientes, Revisar documentos y Contratos: lo que hay de cada persona y su historia— y la **Emisión** —Emitir, Documentos emitidos y Solicitudes: lo que la empresa genera y hace firmar—. Una flecha va de la Emisión al Repositorio: todo lo emitido queda en el expediente, en la carpeta de su tipo dentro de «De RR.HH.», o en Contratos. Debajo, la configuración: Plantillas y tipos alimentan la Emisión, Notificaciones y tipos de documento sirve a los dos, y los documentos que se exigen en el Repositorio todavía no tienen pantalla (ABIERTA‑DOC‑02). Abajo, el colaborador en Zona HR: Por entregar y Mis carpetas salen del Repositorio; De RR.HH. y Mis solicitudes, de la Emisión. En la versión HTML está dibujado.
 
@@ -84,11 +84,11 @@ Ningún estado se guarda: se deduce de las fechas y de la revisión —BR‑DOC�
 
 ### 0.5 Plantilla, tipo de documento y emitido
 
-Una **plantilla** es el texto con el que RR.HH. arma un documento para una persona: un certificado de trabajo, un memorándum, un contrato. Cada plantilla es de un **tipo de documento** —Certificado, Memorándum, Contrato o uno que cree la empresa, como «Carta de recomendación»— que le da su color y su **sigla** de numeración. Un **emitido** es el documento ya hecho para una persona, con su número, sus datos congelados y su estado: **Sin firmar**, **Entregado** o **Anulado**. El **firmado** es el escaneado del emitido ya firmado a mano, que RR.HH. sube y queda pegado a él, con el mismo número —BR‑DOC‑036—.
+Una **plantilla** es el texto con el que RR.HH. arma un documento para una persona: un certificado de trabajo, un memorándum, un contrato. Cada plantilla es de un **tipo de documento** —Certificado, Memorándum, Contrato o uno que cree la empresa, como «Carta de recomendación»— que le da su color y su **sigla** de numeración. Las **plantillas de Souly** vienen con el sistema y son un catálogo de referencia: se ven y se usan como base, pero no se emiten ni se editan —BR‑DOC‑065—. Las de la empresa son **Mis plantillas**. Un **emitido** es el documento ya hecho para una persona, con su número, sus datos congelados y su estado: **Sin firmar**, **Entregado** o **Anulado**. El **firmado** es el escaneado del emitido ya firmado a mano, que RR.HH. sube y queda pegado a él, con el mismo número —BR‑DOC‑036—.
 
 ### 0.6 Solicitud
 
-Lo que un colaborador le pide a RR.HH. desde la app: **un certificado**, **una copia** de su contrato o **una corrección** de algo que recibió. Cada una tiene un plazo de respuesta en días hábiles que RR.HH. configura —2 de fábrica—, y al pedir se le dice hasta qué día le responden.
+Lo que un colaborador le pide a RR.HH. desde la app: **un certificado**, **una copia** de su contrato o **una corrección** de algo que recibió. Cada una tiene un plazo de respuesta en días hábiles que RR.HH. configura —2 por defecto—, y al pedir se le dice hasta qué día le responden.
 
 ### 0.7 Quién es quién
 
@@ -136,7 +136,7 @@ Un expediente que se cuida solo: dice qué falta, qué vence, qué espera revisi
 | Indicador | Meta |
 | --- | --- |
 | Expedientes al día | Que el anillo de «Qué atender hoy» suba mes a mes |
-| Tiempo de respuesta a solicitudes | Todas dentro del plazo configurado (2 días hábiles de fábrica) |
+| Tiempo de respuesta a solicitudes | Todas dentro del plazo configurado (2 días hábiles por defecto) |
 | Documentos sin firmar | Que bajen a menos del 10 % de lo emitido |
 | Documentos subidos por el colaborador | Que la mayoría de las renovaciones las haga la persona, no RR.HH. |
 
@@ -148,8 +148,8 @@ Un expediente que se cuida solo: dice qué falta, qué vence, qué espera revisi
 
 ### 1.7 Alcance y límites
 
-- **Entra:** expedientes, carpetas y requisitos; subir, revisar, versionar y anular; exportar los expedientes en ZIP y la lista en Excel; contratos y su renovación; emitir certificados, memorándums, contratos y archivos propios, descargarlos para imprimir y subir el firmado; solicitudes; plantillas y tipos de documento; avisos y numeración; Mis documentos del colaborador.
-- **No entra en esta versión:** la firma electrónica; las adendas, la exoneración, los requisitos agregados a una sola persona y la confirmación de recepción, que se quitaron en la 1.2; las boletas de pago (cuando exista Planillas); vacaciones, permisos y anticipos como solicitudes; el envío real de avisos y correos.
+- **Entra:** expedientes, carpetas y requisitos; subir, revisar, versionar y anular; exportar los expedientes en ZIP y la lista en Excel; contratos y su renovación; emitir certificados, memorándums, contratos y archivos propios, descargarlos para imprimir y subir el firmado; solicitudes; plantillas y tipos de documento, el catálogo de plantillas de Souly y la carga de plantillas desde Word; avisos y numeración; Mis documentos del colaborador.
+- **No entra en esta versión:** la firma electrónica; la aprobación de plantillas, que se quitó en la 1.3; el diseño de un Word cargado como plantilla —membrete, logo, tablas y negritas—, del que se toma solo el texto; las adendas, la exoneración, los requisitos agregados a una sola persona y la confirmación de recepción, que se quitaron en la 1.2; las boletas de pago (cuando exista Planillas); vacaciones, permisos y anticipos como solicitudes; el envío real de avisos y correos.
 
 ## 02 · Integraciones
 
@@ -239,9 +239,10 @@ Todo lo de una persona, por carpetas.
 - **Carpetas**, como las de Mis documentos —carpetas amarillas con un punto de color en lo urgente y una línea como «2 de 3 al día · 1 faltante»— en dos grupos: **Sus carpetas** (una por tipo, Contratos y, si tiene algo, Por clasificar) y **De RR.HH.** (una por tipo de documento emitido, con cuántos tiene, y **Anulados** si hay alguno). El Historial se abre con su botón de arriba.
 - **Buscar** en todas sus carpetas y filtrar por estado. «Agregar requisito» se quitó en la 1.2.
 - **Dentro de una carpeta**: un selector con **Lista** primero —la vista de entrada— y **Gráfica**. La lista tiene encabezado (Documento, Estado, Vencimiento, Acciones) y pagina de a 10; la gráfica, tarjetas con miniatura de a 24 con «Mostrar más». Lo urgente va primero, con su acción según el estado —Subir, Renovar, Subir otro, Revisar, Ver— y un menú con Ver, Descargar, Dejar de exigir (solo lo que antes se le pidió a esa persona y no tiene documento) y **Anular**.
-- **Anular** pide motivo y una segunda confirmación. El documento deja de contar para sus requisitos —vuelve a quedar faltante para subir el correcto— y va a la carpeta **Anulados**, con «Anulado el … por …: motivo» y **Ver** en solo lectura. No hay Recuperar —BR‑DOC‑018—.
+- **Anular** pide motivo y una segunda confirmación. El primer paso dice cuándo no hace falta: «¿Sólo tiene una versión más nueva? Use «Subir nueva versión»: el actual queda en el historial como versión anterior, sin anularlo.», con un enlace que lleva a reemplazar. Reemplazar es para lo que **era válido y quedó viejo**: queda como «Reemplazada». Anular es para lo que **nunca debió contar**: deja de contar al instante y pide motivo.
+- El documento anulado deja de contar para sus requisitos —vuelve a quedar faltante para subir el correcto— y va a la carpeta **Anulados**, con «Anulado el … por …: motivo» y **Ver** en solo lectura. Si había reemplazado a la copia de la ficha, la de la ficha **no vuelve a verse como Vigente**: el documento queda Faltante. Al terminar, un aviso con un check verde grande, «Documento anulado con éxito» y un solo botón, **Cerrar**. No hay Recuperar —BR‑DOC‑018—.
 - **Exonerar** se quitó en la 1.2. Lo exonerado antes se sigue viendo: «Exonerado por … el …: motivo».
-- **Ver un documento**: la vista previa, sus fechas y todas sus versiones. Cada versión dice **quién la subió** y **quién la aprobó o rechazó**, con su nombre, su cargo y la fecha —«Aprobado por Paola Arce · Especialista RRHH · 28 jul 2026»—, porque RR.HH. pueden ser varias personas. Lo que carga RR.HH. queda aprobado por quien lo cargó, al subirlo; lo que llega por la app lo subió el propio colaborador. Si está en revisión, dice «Todavía nadie lo revisó» y ofrece Aprobar o Rechazar. Un emitido con firmado se abre en el escaneado y se puede cambiar a «El que generó el sistema».
+- **Ver un documento**: la vista previa, sus fechas y todas sus versiones. Cada versión dice **quién la subió** y **quién la aprobó o rechazó**, con su nombre, su cargo y la fecha —«Aprobado por Paola Arce · Especialista RRHH · 28 jul 2026»—, porque RR.HH. pueden ser varias personas. Lo que carga RR.HH. queda aprobado por quien lo cargó, al subirlo; lo que llega por la app lo subió el propio colaborador. Si está en revisión, dice «Todavía nadie lo revisó» y ofrece Aprobar o Rechazar. Un emitido con firmado se abre en el escaneado y se puede cambiar a «El que generó el sistema». Si el documento tiene anulados, la lista del costado se llama **Historial**: debajo de las versiones del actual van los anulados de ese mismo documento, con «Anulado el …» y el número tachado; se ven y se descargan, y dicen **Anulado por** y **Motivo de la anulación**. No pasa en los documentos que admiten varios.
 - **Historial**: la bitácora de la persona por mes, filtrable por Documentos, Recibidos, Contratos y Solicitudes.
 
 | Código | Requisito | Prioridad | Criterio |
@@ -252,17 +253,19 @@ Todo lo de una persona, por carpetas.
 | RF‑DOC‑010 | Descargar el expediente baja un ZIP con índice y una carpeta por tipo, con los firmados | Import. | El ZIP trae «00 Índice.txt», las carpetas y, junto a cada emitido, su firmado |
 | RF‑DOC‑011 | El historial es una línea de tiempo por mes, filtrable | Import. | Filtrar «Contratos» deja solo los eventos de contratos |
 | RF‑DOC‑012 | Un expediente de un desvinculado es de solo lectura | Oblig. | No aparece Subir; Descargar sí |
-| RF‑DOC‑067 | Anular pide motivo y doble confirmación, y no se deshace | Oblig. | El carnet anulado va a Anulados y el documento vuelve a quedar Faltante |
+| RF‑DOC‑067 | Anular pide motivo y doble confirmación, y no se deshace | Oblig. | El carnet anulado va a Anulados y el documento vuelve a quedar Faltante, aunque la ficha tenga su copia; al terminar, «Documento anulado con éxito» |
 | RF‑DOC‑069 | En una carpeta, la lista es la vista de entrada y pagina de a 10 | Import. | Una carpeta con 14 documentos muestra 10 y la página 2 |
+| RF‑DOC‑070 | Al ver un documento, el Historial suma sus anulados, con quién y el motivo | Import. | Un carnet anulado se ve tachado debajo del actual, con «Anulado por» y «Motivo de la anulación», y se descarga |
 
 ### 3.3 Subir documento
 
 Subir siempre dice a qué documento va. Lo que se ve depende de dónde se está.
 
 - **Desde la vista general**, primero **«¿En qué carpeta va el documento?»**, con las mismas carpetas amarillas: **Sus carpetas** (Información personal, Perfil profesional, Recursos y activos, Documentos agregados, con «Falta N» y punto rojo) y **De RR.HH.** (Certificados, Memorándums, los tipos creados, Otros y Contratos). Al elegir se abre el modal de esa carpeta, con **«Cambiar carpeta»** para volver. Dentro de una carpeta, abre directo esa carpeta.
-- **En una carpeta de documentos**, un modal grande. A la izquierda, los documentos de esa carpeta con su estado, lo que falta primero, y un buscador. A la derecha, el elegido. Desde «Renovar» o «Subir otro» de una fila, llega elegido ese documento.
-- **Si le falta**: la zona para arrastrar el archivo y las fechas de emisión y vencimiento, con el vencimiento propuesto por la vigencia.
-- **Si ya tiene uno**: **el actual y el nuevo lado a lado** y «¿Desea reemplazar el documento de identidad?», con **Sí, reemplazar**. El actual queda como versión anterior —BR‑DOC‑012—. Si el actual vino de la ficha, desde ahora vale el nuevo en el expediente y la ficha conserva el suyo.
+- **En una carpeta de documentos**, desde la cabecera o desde la carpeta, un modal grande. A la izquierda, los documentos de esa carpeta con su estado, lo que falta primero, y un buscador. El título de la carpeta va en una franja verde, con la carpeta amarilla y «x de y»; el elegido lleva borde verde. Los que no se exigen ya no se ven apagados: dicen «Si lo trae, se guarda» y llevan la etiqueta «Opcional». A la derecha, el elegido.
+- **Desde una fila** —Subir, Renovar o Subir otro—, el modal se abre **solo con ese documento**: sin la lista de la izquierda ni «Cambiar carpeta».
+- **Si le falta**: la zona para arrastrar el archivo y las fechas de emisión y vencimiento, con el vencimiento propuesto por la vigencia. Desde una fila, la **vista previa grande** del archivo va a la izquierda y, a la derecha, la **«Revisión del archivo»** con tres verificaciones —**Formato aceptado**, **Tamaño dentro del límite** y **Se guardará como**, con el nombre ya normalizado— y las fechas: «Calculado: este documento vale N años».
+- **Si ya tiene uno**, también desde una fila: **el actual y el nuevo lado a lado** y «¿Desea reemplazar el documento de identidad?», con **Sí, reemplazar**. El actual queda como versión anterior —BR‑DOC‑012—. Si el actual vino de la ficha, desde ahora vale el nuevo en el expediente y la ficha conserva el suyo.
 - **Si el documento admite varios** —títulos, certificaciones, actas—: «Ya tiene N documentos de este tipo. ¿Qué desea hacer?», con **Agregar uno nuevo** o **Reemplazar** uno de los que tiene.
 - **En una carpeta de RR.HH.**: «¿Qué va a subir?». **El firmado de uno ya emitido** —se elige cuál, cada uno con «Sin firmar» o «Firmado»— o **uno nuevo hecho fuera del sistema**, con nombre, archivo, fecha y el número que sigue en su serie.
 - **En Contratos**: se elige el contrato y se **sube el firmado**, que queda como su versión firmada; o **Registrar un contrato nuevo**.
@@ -276,6 +279,7 @@ Subir siempre dice a qué documento va. Lo que se ve depende de dónde se está.
 | RF‑DOC‑015 | Formato y tamaño se validan antes de subir | Oblig. | Un .exe se rechaza con «Este documento se recibe en PDF, JPG o PNG» |
 | RF‑DOC‑016 | Las fechas se corrigen sin crear versión | Import. | Cambiar el vencimiento no suma una versión |
 | RF‑DOC‑066 | Si ya tiene el documento, se pregunta antes de reemplazar, con el actual y el nuevo a la vista | Oblig. | Subir otro carnet muestra los dos y «Sí, reemplazar»; el anterior queda como versión |
+| RF‑DOC‑071 | Desde una fila, el modal trae solo ese documento y revisa el archivo antes de subir | Import. | «Subir» en el carnet que falta muestra la vista previa, «Formato aceptado», «Tamaño dentro del límite» y «Se guardará como …» |
 
 ### 3.4 Revisar documentos
 
@@ -387,25 +391,30 @@ Una sola pantalla para emitir cualquier documento. Emitir genera el documento y 
 
 ### 3.10 Plantillas
 
-La lista de plantillas de la empresa.
+La lista de plantillas: las de la empresa y las de Souly.
 
-- **Buscador**, filtro de **Tipo** y **Todos, Activos, Inactivos**. **Nuevo modelo** abre el editor directo, sin ventana previa.
-- **Tabla** de diez por página: Modelo (de fábrica o propio, y cuántas veces se emitió), Tipo con su color, Última edición y Estado.
-- Menú por fila: Editar, Duplicar (para armar una variante), Activar o Desactivar, Eliminar (solo si nunca se usó).
+- **Buscador**, filtro de **Tipo**, al lado el de **origen** —«Todas las plantillas», «Plantillas de Souly (7)», «Mis plantillas (n)»— y **Todos, Activos, Inactivos**; con Activos o Inactivos solo se ven las de la empresa. **Nuevo modelo** abre el editor directo, sin ventana previa, y **Cargar plantillas**, a su lado, trae una o varias desde Word.
+- **Tabla** de diez por página: Modelo, Tipo con su color, Última edición y Estado. Las de la empresa dicen de dónde salieron y cuántas veces se emitieron: «Desde Souly · N emitidos» o «Propia · N emitidos».
+- **Plantillas de Souly**: vienen con el sistema y son un **catálogo de referencia**. Cada fila lleva la etiqueta «Souly», «Lista para usar o personalizar» y «La mantiene Souly»; no tiene Activo ni Inactivo, no se emite y no se edita. Tiene dos botones: **Ver**, que abre su texto, y **Usar**, que abre el editor con esa plantilla cargada como una nueva, con el nombre «Certificado de trabajo (copia)» —o «(copia 2)»…—. Nada se crea hasta guardar —BR‑DOC‑065—.
+- Las siete plantillas que se usaban hasta la 1.2 pasan a ser de la empresa, en **Mis plantillas**, con sus emitidos: Emitir, las adendas de antes y las solicitudes siguen funcionando.
+- Menú por fila de las de la empresa: Editar, Duplicar (para armar una variante), Activar o Desactivar, Eliminar (solo si nunca se usó).
+- **Cargar plantillas** abre un modal con la zona para soltar uno o varios Word y el recuadro **«¿Todavía no tiene la plantilla?»**, con un desplegable de tipo y **Descargar plantilla modelo**. Cada archivo da una fila: el nombre, que sale del archivo y se puede cambiar; el tipo, adivinado por el nombre y el comienzo del texto, que también se puede cambiar; el estado —«N datos reconocidos» o «N marcadores por revisar», con **Revisar**—, y quitar el archivo. Abajo, **+ Agregar más archivos**. Al pie, **Guardar como borradores**, siempre —lo pendiente queda como texto—, y **Guardar y activar**, solo sin pendientes. Al guardar, la lista se filtra en «Mis plantillas», con un aviso —BR‑DOC‑066—.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑DOC‑040 | Una plantilla usada no se elimina | Oblig. | Ofrece «Desactivarlo» en su lugar |
 | RF‑DOC‑041 | Duplicar crea una copia inactiva | Import. | La copia no aparece en Emitir hasta activarla |
+| RF‑DOC‑072 | Las plantillas de Souly se ven y se usan como base; no se emiten ni se editan | Oblig. | Una de Souly no tiene Activo ni Inactivo y no está en Emitir; «Usar» abre el editor con «… (copia)» y nada se crea hasta guardar |
+| RF‑DOC‑073 | «Cargar plantillas» trae varios Word a la vez, una plantilla por archivo | Import. | Tres Word dan tres filas con su tipo adivinado; con un marcador por revisar, solo se puede «Guardar como borradores» |
 
 ### 3.11 El editor de plantillas
 
 Uno solo para todos los tipos, en tres columnas.
 
-- **Ajustes**, a la izquierda: Nombre; **Tipo**, con **«+ Crear un tipo nuevo»** al final de la lista (nombre, color, y «Así se va a ver»: el riel de Emitir, el número con su sigla y la carpeta en la app); y los interruptores **El colaborador lo puede pedir**, **Necesita aprobación** y **Activa**. Debajo, el **Historial**: cuándo se creó y cada edición, con «Ver cómo era»; en las de fábrica, **Volver al texto original**.
-- **La hoja**, al centro: se escribe sobre ella. Los datos de la persona se ven como **pastillas** con su nombre de siempre —«Nombre completo», «Cargo»— y no como código. **Escribir** y **Vista previa**, que reparte el texto en páginas **Carta** u **Oficio** con los datos de quien está usando el sistema. **Subir .docx o .txt** trae el texto de un Word.
+- **Ajustes**, a la izquierda: Nombre; **Tipo**, con **«+ Crear un tipo nuevo»** al final de la lista (nombre, color, y «Así se va a ver»: el riel de Emitir, el número con su sigla y la carpeta en la app); y los interruptores **El colaborador lo puede pedir** y, en una que ya existe, **Activa**. «Necesita aprobación» se quitó en la 1.3: lo emitido se genera, se imprime y se firma a mano. Debajo, el **Historial**: cuándo se creó y cada edición, con «Ver cómo era». Una hecha desde Souly lleva la etiqueta «De Souly», y **Volver al texto original** la devuelve al texto de Souly.
+- **La hoja**, al centro: se escribe sobre ella. Los datos de la persona se ven como **pastillas** con su nombre de siempre —«Nombre completo», «Cargo»— y no como código. **Escribir** y **Vista previa**, que reparte el texto en páginas **Carta** u **Oficio** con los datos de quien está usando el sistema. **Descargar plantilla** baja un Word (.docx) con el texto de la hoja y cada dato de la persona escrito como **marcador** entre corchetes —el nombre del dato en mayúsculas: [NOMBRE COMPLETO], [NÚMERO DE DOCUMENTO], [CARGO], [HABER BÁSICO]…—, resaltado en amarillo. Con la hoja vacía, baja un texto de partida según el tipo: certificado, memorándum, contrato, o uno genérico para los tipos propios. Al final va la lista de marcadores, que se ignora al subir. **Subir plantilla** —antes «Subir .docx o .txt»— trae el texto de un Word y convierte cada marcador en su dato; lo que no reconoce se revisa en **«Revise estos marcadores»** —BR‑DOC‑066—.
 - **Datos para insertar**, a la derecha: Colaborador, Puesto, Relación laboral, Empresa y Documento; un toque los pone donde está el cursor.
-- Arriba: el estado —«Cambios sin guardar», «Guardada · activa»— y **Guardar cambios**.
+- Arriba: el estado —«Cambios sin guardar», «Guardada · activa»— y los botones. Una plantilla nueva —desde Nuevo modelo o con Usar desde Souly— tiene dos: **Guardar borrador**, que la deja inactiva, sin validar y fuera de Emitir, y **Guardar y activar**, que la valida y la pone en Emitir; no muestra el interruptor «Activa». Una que ya existe tiene **Guardar cambios**.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
@@ -414,7 +423,10 @@ Uno solo para todos los tipos, en tres columnas.
 | RF‑DOC‑044 | Crear un tipo nuevo no abre una ventana | Import. | Se crea desde la misma lista de tipos |
 | RF‑DOC‑045 | Guardar una plantilla activa la valida | Oblig. | Un dato inexistente impide guardar y se dice cuál |
 | RF‑DOC‑046 | El historial muestra cómo era cada versión | Import. | «Ver cómo era» abre el texto de ese día |
-| RF‑DOC‑047 | Las de fábrica se editan y se pueden volver al original | Import. | «Volver al texto original» repone el texto |
+| RF‑DOC‑047 | Retirado en la 1.3: las de Souly ya no se editan; se usan como base —BR‑DOC‑065— | — | «Volver al texto original» sigue en las copias hechas desde Souly |
+| RF‑DOC‑074 | Una plantilla nueva se guarda como borrador o se guarda y activa | Oblig. | «Guardar borrador» con un dato mal escrito la guarda inactiva; «Guardar y activar» dice qué dato falla |
+| RF‑DOC‑075 | «Descargar plantilla» baja un Word con los datos como marcadores entre corchetes | Import. | Un certificado baja con [NOMBRE COMPLETO] y [CARGO] en amarillo, y la lista de marcadores al final |
+| RF‑DOC‑076 | «Subir plantilla» convierte cada marcador en su dato y pregunta por los que no reconoce | Oblig. | [SUELDO] queda como Haber básico; [FECHA INI] abre «Revise estos marcadores» con «Inicio del contrato» ya elegido |
 
 ### 3.12 Notificaciones y tipos de documento
 
@@ -518,6 +530,8 @@ Lo que vale en todas las pantallas.
 - Vacaciones, permisos y anticipos como solicitudes.
 - Envío real de avisos, recordatorios y resúmenes.
 - Configurar carpetas y documentos requeridos desde una pantalla —ABIERTA‑DOC‑02—.
+- Aprobar una plantilla antes de usarla: lo emitido se imprime y se firma a mano.
+- Conservar el diseño de un Word al cargarlo como plantilla: se toma solo el texto.
 
 ## 04 · Reglas de negocio
 
@@ -970,6 +984,7 @@ Subir un documento que ya existe **agrega una versión**; la anterior queda guar
 
 - La versión nueva queda con el motivo «Se reemplazó desde el expediente».
 - Las versiones se ven al abrir el documento.
+- Reemplazar es para lo que era válido y quedó viejo; lo que nunca debió contar se anula —BR‑DOC‑018—.
 
 **4. Trazabilidad**
 
@@ -1085,11 +1100,13 @@ Desde la 1.2, **Subir documento** ya no adivina ni sube a ciegas: primero se eli
 
 - Cada carpeta dice cuánto le falta: «Falta N», con punto rojo.
 - Los archivos sin clasificar que ya existen suman al contador del menú.
+- Desde una fila, el modal trae solo ese documento, sin la lista ni «Cambiar carpeta»; si le falta, con la vista previa grande y la «Revisión del archivo».
+- En la lista, lo que no se exige dice «Si lo trae, se guarda» y lleva la etiqueta «Opcional».
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑DOC‑014
+- **Requisitos:** RF‑DOC‑014 · RF‑DOC‑071
 - **Historia de usuario:** HU‑DOC‑04
 - **Pantalla:** W‑DOC‑03 Subir documento
 - **Diseño:** Prototipado
@@ -1225,7 +1242,7 @@ Subir en Certificados, Memorándums, un tipo creado u Otros pregunta **«¿Qué 
 
 *Descripción general*
 
-Desde la 1.2 un documento no se borra ni va a la papelera: **se anula**. Anular pide **motivo** y **una segunda confirmación**. El documento deja de contar para sus requisitos —vuelve a quedar faltante, para subir el correcto— y va a la carpeta **Anulados**, con «Anulado el … por …: motivo» y **Ver** en solo lectura. **No se deshace**: no hay Recuperar. Los documentos de la ficha no se anulan desde aquí.
+Desde la 1.2 un documento no se borra ni va a la papelera: **se anula**. Anular pide **motivo** y **una segunda confirmación**. El documento deja de contar para sus requisitos —vuelve a quedar faltante, para subir el correcto— y va a la carpeta **Anulados**, con «Anulado el … por …: motivo» y **Ver** en solo lectura. **No se deshace**: no hay Recuperar. Los documentos de la ficha no se anulan desde aquí. Si el documento anulado había reemplazado a la copia de la ficha, la de la ficha **no vuelve a verse como Vigente**: el documento queda Faltante y se pide el correcto.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1239,11 +1256,14 @@ Desde la 1.2 un documento no se borra ni va a la papelera: **se anula**. Anular 
 
 - «Días en la papelera» ya no existe en Notificaciones y tipos de documento.
 - La anulación queda en la bitácora: «Anuló el documento: motivo».
+- Anular no es para lo que solo quedó viejo: el primer paso lo dice y lleva a «Subir nueva versión», que lo deja como «Reemplazada» —BR‑DOC‑012—.
+- Al terminar, «Documento anulado con éxito», con un solo botón: Cerrar.
+- Al ver el documento, sus anulados siguen en el Historial, tachados, con quién y el motivo; no en los documentos que admiten varios.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑DOC‑060
+- **Requisitos:** RF‑DOC‑060 · RF‑DOC‑067 · RF‑DOC‑070
 - **Historia de usuario:** HU‑DOC‑05
 - **Pantalla:** W‑DOC‑02 Expediente
 - **Diseño:** Prototipado
@@ -1776,6 +1796,7 @@ En Emitir aparecen solo las plantillas **activas** con un texto guardado. Una pl
 
 - Lo ya emitido con ella no cambia.
 - Volver a activarla la devuelve a Emitir.
+- Las plantillas de Souly no aparecen en Emitir: se usan como base de una de la empresa —BR‑DOC‑065—.
 
 **4. Trazabilidad**
 
@@ -2140,7 +2161,7 @@ Con **una sola persona** elegida, y si no es un contrato, **Editar documento** v
 
 *Descripción general*
 
-Cada pedido tiene un **plazo en días hábiles** desde que se hizo, sin sábados ni domingos. El plazo lo configura RR.HH. en **Notificaciones y tipos de documento › Solicitudes** —de 1 a 30 días; 2 de fábrica—. **Cada pedido guarda el plazo con que se hizo**: si RR.HH. lo cambia después, no cambia lo que ya se le prometió a quien pidió. Lo atrasado se ve primero y en rojo.
+Cada pedido tiene un **plazo en días hábiles** desde que se hizo, sin sábados ni domingos. El plazo lo configura RR.HH. en **Notificaciones y tipos de documento › Solicitudes** —de 1 a 30 días; 2 por defecto—. **Cada pedido guarda el plazo con que se hizo**: si RR.HH. lo cambia después, no cambia lo que ya se le prometió a quien pidió. Lo atrasado se ve primero y en rojo.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2367,25 +2388,27 @@ Crear un tipo pide **nombre** y **color**; la **sigla** se arma sola y se puede 
 
 *Descripción general*
 
-Una plantilla **activa** aparece en Emitir; una **inactiva** no, y sirve de **borrador**: se puede guardar a medias. Solo al guardar una plantilla activa se **valida**: que no esté vacía, que cada dato exista y que la persona de prueba los tenga.
+Una plantilla **activa** aparece en Emitir; una **inactiva** no, y sirve de **borrador**: se puede guardar a medias. Una plantilla nueva se guarda de dos modos: **Guardar borrador** la deja inactiva sin validarla, y **Guardar y activar** la valida y la pone en Emitir. Solo al guardar una plantilla activa se **valida**: que no esté vacía, que cada dato exista y que la persona de prueba los tenga.
 
 **2. Escenarios ágiles de ejecución**
 
 *Guardar a medias*
 
-- **Dado que** una plantilla nueva está inactiva y con un dato mal escrito
-- **Cuando** se guarda
-- **Entonces** se guarda igual y no aparece en Emitir
+- **Dado que** una plantilla nueva tiene un dato mal escrito
+- **Cuando** se pulsa «Guardar borrador»
+- **Entonces** se guarda inactiva y no aparece en Emitir; con «Guardar y activar», no se guarda y se dice qué dato falla
 
 **3. Condiciones y excepciones**
 
-- Una plantilla nueva nace activa.
+- En una nueva no aparece el interruptor «Activa»: lo decide el botón con que se guarda.
+- En una que ya existe siguen «Guardar cambios» y el interruptor «Activa».
+- No hay paso de aprobación: «Necesita aprobación» se quitó en la 1.3.
 - Duplicar crea la copia inactiva.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑DOC‑045
+- **Requisitos:** RF‑DOC‑045 · RF‑DOC‑074
 - **Historia de usuario:** HU‑DOC‑10
 - **Pantalla:** W‑DOC‑11 Editor
 - **Diseño:** Prototipado
@@ -2427,9 +2450,9 @@ Cada vez que se guarda con **otro texto** queda una versión nueva en el **histo
 - **Pantalla:** W‑DOC‑11 Editor
 - **Diseño:** Prototipado
 
-#### 4.47 · BR-DOC-047 · Las plantillas de fábrica se editan y vuelven a su texto original
+#### 4.47 · BR-DOC-047 · Las plantillas que vienen con el sistema se editan y vuelven a su texto original
 
-*Estado: Borrador*
+*Estado: Retirada en la 1.3*
 
 **1. Información básica**
 
@@ -2437,24 +2460,24 @@ Cada vez que se guarda con **otro texto** queda una versión nueva en el **histo
 - **Grupo:** Las plantillas
 - **Qué gobierna:** Plantilla
 - **Antes:** RF‑50 (cambia)
-- **Estado:** Borrador
+- **Estado:** Retirada en la 1.3
 
 *Descripción general*
 
-Las plantillas que vienen con el sistema se **editan** como cualquier otra. Si se cambiaron, **«Volver al texto original»** repone el de fábrica; hay que guardar para dejarlo así.
+**Retirada en la 1.3: las plantillas que vienen con el sistema ya no se editan.** Ahora son las **plantillas de Souly**, un catálogo de referencia que se usa como base —BR‑DOC‑065—. «Volver al texto original» sigue en las copias hechas desde Souly y las devuelve al texto de Souly.
 
 **2. Escenarios ágiles de ejecución**
 
-*Volver al original*
+*Lo que se usaba sigue siendo de la empresa*
 
-- **Dado que** se editó el «Certificado de trabajo»
-- **Cuando** se pulsa «Volver al texto original» y se guarda
-- **Entonces** el certificado vuelve al texto de fábrica, como una versión nueva
+- **Dado que** el «Certificado de trabajo» se editó y se emitió antes de la 1.3
+- **Cuando** RR.HH. abre Plantillas
+- **Entonces** está en «Mis plantillas» con sus emitidos, y el de Souly está aparte, sin cambios
 
 **3. Condiciones y excepciones**
 
-- Conservan la etiqueta «De fábrica».
-- Duplicar sirve para hacer una variante.
+- Las siete plantillas que se usaban pasan a «Mis plantillas»: Emitir, las adendas de antes y las solicitudes siguen funcionando.
+- Resuelve ABIERTA‑DOC‑11: queda como pedía RF‑50, sin editar las de Souly.
 
 **4. Trazabilidad**
 
@@ -2490,7 +2513,7 @@ Solo se elimina una plantilla **propia** que **nunca se usó**. Si ya se emitió
 
 **3. Condiciones y excepciones**
 
-- Las de fábrica no se eliminan.
+- Las de Souly no se eliminan: no son de la empresa.
 - Eliminar queda en la bitácora.
 
 **4. Trazabilidad**
@@ -2536,6 +2559,87 @@ Cada plantilla define su **tamaño de hoja**: carta (21,6 × 27,9 cm) u oficio (
 - **Requisitos:** RF‑DOC‑043
 - **Historia de usuario:** HU‑DOC‑10
 - **Pantalla:** W‑DOC‑11 Editor
+- **Diseño:** Prototipado
+
+#### 4.65 · BR-DOC-065 · Las plantillas de Souly son un catálogo: se ven y se usan como base
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-DOC-065
+- **Grupo:** Las plantillas
+- **Qué gobierna:** Plantilla
+- **Antes:** Nueva (1.3) · reemplaza a BR‑DOC‑047 · RF‑50
+- **Estado:** Borrador
+
+*Descripción general*
+
+Las plantillas que vienen con el sistema son las **plantillas de Souly**: un **catálogo de referencia** que mantiene Souly. **No se emiten, no se editan y no tienen estado** Activo o Inactivo. Cada una tiene **Ver**, que abre su texto, y **Usar**, que abre el editor con ella cargada como **una plantilla nueva de la empresa**, con el nombre «… (copia)», para que se entienda que la de Souly no cambia. Nada se crea hasta guardar. La copia guarda de cuál salió, lleva la etiqueta «De Souly», y «Volver al texto original» la devuelve al texto de Souly.
+
+**2. Escenarios ágiles de ejecución**
+
+*Usar el certificado de Souly*
+
+- **Dado que** en Plantillas de Souly está el «Certificado de trabajo»
+- **Cuando** RR.HH. pulsa «Usar» y después «Guardar y activar»
+- **Entonces** aparece en «Mis plantillas» como «Certificado de trabajo (copia)», con «Desde Souly», y sale en Emitir; el de Souly sigue igual
+
+**3. Condiciones y excepciones**
+
+- Si ya hay una «(copia)», la siguiente se llama «(copia 2)», «(copia 3)»…
+- Cerrar el editor sin guardar no deja nada.
+- Con «Activos» o «Inactivos» solo se ven las de la empresa.
+- Las siete plantillas que se usaban hasta la 1.2 pasan a «Mis plantillas», con sus emitidos.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑DOC‑072
+- **Historia de usuario:** HU‑DOC‑10
+- **Pantalla:** W‑DOC‑10 Plantillas · W‑DOC‑11 Editor
+- **Diseño:** Prototipado
+
+#### 4.66 · BR-DOC-066 · Una plantilla se trae de un Word: cada marcador entre corchetes es un dato
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-DOC-066
+- **Grupo:** Las plantillas
+- **Qué gobierna:** Plantilla
+- **Antes:** Nueva (1.3)
+- **Estado:** Borrador
+
+*Descripción general*
+
+**Descargar plantilla** baja un Word con el texto de la hoja y cada dato de la persona como **marcador entre corchetes**, con su nombre en mayúsculas —[NOMBRE COMPLETO], [CARGO], [HABER BÁSICO]—, resaltado en amarillo. Se completa en Word y se sube con **Subir plantilla**, o varios a la vez con **Cargar plantillas**: cada marcador se convierte en su dato. El reconocimiento es **tolerante**: no importan mayúsculas, tildes, guiones, puntos, paréntesis ni espacios de más, y entiende los sinónimos comunes. Lo que no coincide **se revisa antes de cargar**. Del Word se toma **solo el texto**.
+
+**2. Escenarios ágiles de ejecución**
+
+*Un marcador que no se reconoce*
+
+- **Dado que** un Word dice [SUELDO] y [FECHA INI]
+- **Cuando** se sube con «Subir plantilla»
+- **Entonces** [SUELDO] queda como Haber básico y se abre «Revise estos marcadores» con [FECHA INI], un pedazo del texto donde aparece y «¿Quiso decir…? Inicio del contrato» ya elegido
+
+**3. Condiciones y excepciones**
+
+- Sinónimos: [SUELDO], [SALARIO] o [HABER] son Haber básico; [CI] o [CARNET], Número de documento; [FECHA DE INICIO], Inicio del contrato; también se reconocen [FECHA FIN], [EMPRESA], [CITE] y [FECHA].
+- En «Revise estos marcadores» se puede elegir otro dato o «Dejarlo como texto, tal como está escrito». «Cargar la plantilla» aplica; «Cancelar» no cambia nada.
+- Los `{{#si …}}` van y vuelven sin tocarse.
+- La lista de marcadores del final del Word se ignora al subir.
+- Con la hoja vacía, «Descargar plantilla» baja un texto de partida según el tipo.
+- Membrete, logo, tablas y negritas no se conservan: el diseño lo pone la hoja al emitir.
+- En «Cargar plantillas», «Guardar como borradores» guarda siempre y deja lo pendiente como texto; «Guardar y activar» solo se puede sin pendientes.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑DOC‑073 · RF‑DOC‑075 · RF‑DOC‑076
+- **Historia de usuario:** HU‑DOC‑10
+- **Pantalla:** W‑DOC‑11 Editor · W‑DOC‑19 Cargar plantillas
 - **Diseño:** Prototipado
 
 ### Notificaciones y tipos de documento
@@ -2988,7 +3092,7 @@ Mis documentos en la web y en el celular muestran **lo mismo**: las mismas carpe
 | **Sin clasificar** | Un archivo que no se reconoció | persona, tipo, archivo, fecha, por |
 | **Pedido** | Cuándo se le pidió un documento a alguien | persona y subtipo → fecha |
 | **Contrato** | Un contrato; las adendas son solo las de antes de la 1.2 | persona, tipo (contrato, adenda), contrato origen, modalidad, inicio, fin, plantilla, número, gestión, versiones (generado, firmado, con su archivo), finalizado, reemplazado |
-| **Plantilla** | El texto de un documento que se emite | nombre, tipo, el colaborador la puede pedir, circuito de aprobación, aprobador, confidencial, activa, de fábrica, tamaño de hoja, versiones |
+| **Plantilla** | El texto de un documento que se emite; las de Souly son el catálogo de referencia | nombre, tipo, el colaborador la puede pedir, confidencial, activa (las de Souly no tienen), de Souly (origen: si es del catálogo o de cuál salió una copia), tamaño de hoja, versiones |
 | **Emitido** | Un documento hecho para una persona | plantilla o archivo propio, tipo, persona, versión de la plantilla, número, gestión, fecha, por, estado, entregas, datos y texto congelados, editado (si el texto se cambió solo para él), firmado (archivo, fecha, por), lote, anulado. La confirmación y los recordatorios de antes quedan guardados y no se usan |
 | **Lote de emisión** | Un envío a varias personas | nombre, plantilla, fecha, por, emitidos |
 | **Solicitud** | Un pedido del colaborador | tipo (certificado, copia, corrección), persona, fecha, asunto, detalle, estado, canal, resuelto (fecha, por, nota, documento que lo resolvió) |
@@ -3020,6 +3124,8 @@ Las plantillas usan veinte datos en cinco grupos, con su origen:
 | **Relación laboral** | Fecha de ingreso, antigüedad, haber básico, modalidad, inicio y fin del contrato | Gestión de personas y Planillas |
 | **Empresa** | Razón social, NIT, representante legal | Organización |
 | **Documento** | Número, fecha de emisión, texto que se escribe al emitir | Este módulo |
+
+En un Word, cada dato se escribe como marcador entre corchetes con su nombre en mayúsculas —[NOMBRE COMPLETO], [CARGO]—, y se reconocen sinónimos comunes como [SUELDO] o [CI] —BR‑DOC‑066—.
 
 ### 5.4 El emitido y sus datos congelados
 
@@ -3080,14 +3186,14 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | ABIERTA‑DOC‑01 | ¿El líder ve solo su unidad, y en lectura? | v0.2 · ABIERTA‑01 |
 | ABIERTA‑DOC‑02 | ¿Dónde se configuran las carpetas y los documentos requeridos, ahora que salieron de Configuración? | Nueva |
 | ABIERTA‑DOC‑03 | ¿El contrato es un tipo más, o se trata aparte por sus fechas y decisiones? | Nueva |
-| ABIERTA‑DOC‑04 | El circuito de aprobación de una plantilla: ¿qué pasa al emitir si la pide? | v0.2 · ABIERTA‑04 |
+| ABIERTA‑DOC‑04 | **Resuelta en la 1.3:** se quitó. Las plantillas no piden aprobación: lo emitido se genera, se imprime y se firma a mano —BR‑DOC‑045— | v0.2 · ABIERTA‑04 |
 | ABIERTA‑DOC‑05 | ¿La subida de documentos de una ruta de Onboarding va al expediente? | Nueva |
 | ABIERTA‑DOC‑06 | **Resuelta en la 1.2:** no hay a quién recordar; ya no se pide confirmar la recepción —BR‑DOC‑037— | v0.2 · ABIERTA‑02 |
 | ABIERTA‑DOC‑07 | Dar de alta en el directorio a los colaboradores de la app de ejemplo | v0.2 · ABIERTA‑05 |
 | ABIERTA‑DOC‑08 | Boletas de pago como recibido, cuando exista Planillas | v0.2 · ABIERTA‑06 |
 | ABIERTA‑DOC‑09 | El tamaño carta u oficio, ¿se aplica también al descargar e imprimir lo emitido? Hoy «Descargar para imprimir» baja siempre en carta | Nueva |
 | ABIERTA‑DOC‑10 | **Resuelta en la 1.2:** no hay papelera; un documento se anula y queda en Anulados —BR‑DOC‑018— | RF‑89 |
-| ABIERTA‑DOC‑11 | Las plantillas de fábrica se editan, contra RF‑50: confirmarlo con el análisis | RF‑50 |
+| ABIERTA‑DOC‑11 | **Resuelta en la 1.3:** las de Souly no se editan, como pedía RF‑50; son un catálogo que se usa como base —BR‑DOC‑065— | RF‑50 |
 | ABIERTA‑DOC‑12 | ¿El auxiliar del líder entra al módulo? | Nueva |
 
 ## 07 · Flujos de usuario
@@ -3114,14 +3220,15 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 1. En Expedientes se busca a la persona y se abre.
 2. «Subir documento» arriba pregunta «¿En qué carpeta va el documento?»; las carpetas con «Falta N» llevan punto rojo. O se abre la carpeta y «Subir» en la fila del faltante.
-3. En el modal, a la izquierda, se elige el documento; a la derecha se arrastra el archivo y se ponen la emisión y el vencimiento.
+3. Desde la cabecera, a la izquierda del modal se elige el documento; desde la fila, el modal ya trae ese solo. Se arrastra el archivo, se mira la «Revisión del archivo» y se ponen la emisión y el vencimiento.
 4. Si ya tenía uno, se ven el actual y el nuevo lado a lado: «Sí, reemplazar». El actual queda como versión anterior.
 
 ### 7.4 Anular un documento cargado por error
 
 1. En la carpeta, el menú de la fila › «Anular».
-2. Se escribe por qué y «Sí, anular» en la segunda confirmación.
-3. El documento va a Anulados con su motivo y vuelve a quedar faltante: se sube el correcto.
+2. Si solo hay una versión más nueva, «Use «Subir nueva versión»» lleva a reemplazar: el actual queda como versión anterior, sin anularlo.
+3. Si de verdad estaba mal, se escribe por qué y «Sí, anular» en la segunda confirmación.
+4. «Documento anulado con éxito» y «Cerrar». El documento va a Anulados con su motivo y vuelve a quedar faltante, aunque la ficha tenga su copia: se sube el correcto.
 
 ### 7.5 Emitir un certificado y subir el firmado
 
@@ -3157,19 +3264,27 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ### 7.9 Crear una plantilla con un tipo nuevo
 
-1. En Configuración › Plantillas, «Nuevo modelo»: abre el editor.
+1. En Configuración › Plantillas, «Nuevo modelo»: abre el editor. O, en una de Souly, «Usar»: abre su texto como «… (copia)».
 2. Nombre; Tipo › «+ Crear un tipo nuevo»: nombre, color, y «Crear».
 3. Se escribe sobre la hoja y se tocan los datos para insertarlos.
-4. «Vista previa» para verla en páginas; «Guardar».
+4. «Vista previa» para verla en páginas; «Guardar borrador» si queda a medias, o «Guardar y activar» para que salga en Emitir.
 
-### 7.10 Cambiar los avisos y los tipos de documento
+### 7.10 Cargar plantillas desde Word
+
+1. En el editor, «Descargar plantilla»; o en Plantillas › «Cargar plantillas», en «¿Todavía no tiene la plantilla?», se elige el tipo y «Descargar plantilla modelo».
+2. Se completa en Word, con los datos como marcadores entre corchetes: [NOMBRE COMPLETO], [CARGO].
+3. En «Cargar plantillas» se sueltan uno o varios Word: cada uno da una fila con su nombre, su tipo y cuántos datos se reconocieron.
+4. Si dice «N marcadores por revisar», «Revisar»: se deja el dato propuesto, se elige otro o se deja como texto, y «Cargar la plantilla».
+5. «Guardar y activar», o «Guardar como borradores» si algo queda pendiente. La lista se filtra en «Mis plantillas».
+
+### 7.11 Cambiar los avisos y los tipos de documento
 
 1. En Configuración › Notificaciones y tipos de documento.
 2. Se cambian los días, a quién y por dónde, o la sigla de un tipo.
 3. Arriba aparece «N cambios sin guardar»; «Guardar cambios» o «Descartar».
 4. Para un tipo nuevo, «+ Nuevo tipo de documento» al final de la tabla: nombre, sigla, dígitos y «Crear».
 
-### 7.11 Exportar los expedientes
+### 7.12 Exportar los expedientes
 
 1. En Expedientes se eligen la situación, los filtros y el estado.
 2. «Exportar» › «Expedientes en ZIP»: «¿Descargar N expedientes?», con a quiénes; «Descargar».
@@ -3177,34 +3292,34 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ### Para El líder de área
 
-### 7.12 Mirar los expedientes
+### 7.13 Mirar los expedientes
 
 1. Entra a Documentación desde el menú.
 2. En Expedientes ve a todos —ABIERTA‑DOC‑01— y abre a una persona de su unidad.
 
 ### Para El colaborador
 
-### 7.13 Entregar lo que falta
+### 7.14 Entregar lo que falta
 
 1. En Zona HR › Mis documentos, la franja dice «N documentos por entregar».
 2. «Resolver» abre Por entregar, con lo más urgente primero y su motivo.
 3. «Subir» o «Renovar»: elige el archivo.
 4. Queda En revisión hasta que RR.HH. lo apruebe.
 
-### 7.14 Ver un documento recibido
+### 7.15 Ver un documento recibido
 
 1. En «De RR.HH.», abre la carpeta de su tipo: Certificados, Memorándums.
 2. Abre el documento y lo lee. Ya no hay nada que confirmar.
-3. Si tiene un error, «Reportar un error» —7.16—.
+3. Si tiene un error, «Reportar un error» —7.17—.
 
-### 7.15 Pedir un certificado
+### 7.16 Pedir un certificado
 
 1. En Mis documentos › Certificados, «Pedir un certificado», o en Mis solicitudes.
 2. Elige cuál y cuenta para qué.
 3. En Mis solicitudes ve «Responde hasta el …».
 4. Cuando RR.HH. lo atiende, «Ver el documento».
 
-### 7.16 Reportar un error
+### 7.17 Reportar un error
 
 1. Abre un documento recibido.
 2. «Reportar un error» y cuenta qué está mal.
@@ -3232,6 +3347,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | W‑DOC‑10 | Plantillas | /documentos/configuracion?ver=plantillas |
 | W‑DOC‑11 | Editor de plantillas | /documentos/configuracion/plantillas/:id y /nuevo |
 | W‑DOC‑12 | Notificaciones y tipos de documento | /documentos/configuracion?ver=avisos |
+| W‑DOC‑19 | Cargar plantillas | ventana sobre Plantillas |
 
 ### Para El líder de área
 
@@ -3273,7 +3389,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | HU‑DOC‑07 | **Como** Recursos Humanos, **quiero** emitir documentos con los datos de la ficha, para una o varias personas | Hoja antes de emitir · Sin tipear datos · Una lista con filtros · Editar solo ese documento |
 | HU‑DOC‑08 | **Como** Recursos Humanos, **quiero** imprimir lo emitido, guardar el firmado y anular lo que salió mal | Descargar para imprimir · Subir el firmado · Sin firmar o Firmado · Anular con motivo |
 | HU‑DOC‑09 | **Como** Recursos Humanos, **quiero** responder los pedidos a tiempo | Plazo en días hábiles · Cada pedido con lo que pide · Rechazo con motivo |
-| HU‑DOC‑10 | **Como** Recursos Humanos, **quiero** armar mis plantillas y mis tipos de documento | Un solo editor · Tipos propios · Historial · Activa o inactiva |
+| HU‑DOC‑10 | **Como** Recursos Humanos, **quiero** armar mis plantillas y mis tipos de documento | Un solo editor · Tipos propios · Historial · Borrador o activa · Partir de una de Souly · Traerla de un Word |
 | HU‑DOC‑11 | **Como** Recursos Humanos, **quiero** fijar una vez los avisos y los tipos de documento | Valores de la empresa · Un solo guardar · Próximo número a la vista · Tipo nuevo desde la tabla |
 | HU‑DOC‑17 | **Como** Recursos Humanos, **quiero** enviar un reglamento a toda una unidad | Archivo propio · Varias personas con filtros · Le llega a cada uno |
 | HU‑DOC‑19 | **Como** Recursos Humanos, **quiero** bajar los expedientes que estoy viendo **para** una auditoría o un reporte | ZIP de todas las páginas · Sin confidenciales · Lista en Excel con los filtros |
@@ -3309,6 +3425,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
+| **1.3** | 16 oct 2026 | **Plantillas de Souly:** las que vienen con el sistema —antes «de fábrica»— pasan a ser un catálogo de referencia, sin Activo ni Inactivo, que no se emite ni se edita. Cada una tiene **Ver** y **Usar**, que abre el editor con una «(copia)» que se crea recién al guardar y lleva «De Souly». Filtro nuevo «Todas las plantillas / Plantillas de Souly / Mis plantillas»; las siete que se usaban pasan a «Mis plantillas» con sus emitidos. **Plantillas desde Word:** «Descargar plantilla» baja un Word con cada dato como marcador entre corchetes, y «Subir plantilla» —antes «Subir .docx o .txt»— los convierte, con reconocimiento tolerante, sinónimos y el modal «Revise estos marcadores» para lo que no coincide; **Cargar plantillas** sube varios Word a la vez. **Sin aprobación en plantillas:** se quitó «Necesita aprobación»; lo emitido se imprime y se firma a mano. Una plantilla nueva se guarda con **Guardar borrador** o **Guardar y activar**. Expediente: **anular** ya no devuelve a Vigente la copia de la ficha —el documento queda Faltante—, el primer paso ofrece «Subir nueva versión» para lo que solo quedó viejo, y al terminar dice «Documento anulado con éxito»; al ver un documento, su **Historial** suma los anulados, con quién y el motivo. **Subir** desde una fila trae solo ese documento, con la vista previa grande y la «Revisión del archivo»; desde la cabecera, la lista con la franja verde de la carpeta y lo no exigido como «Opcional». **Reglas:** retirada BR‑DOC‑047 (las de fábrica se editan), que reemplaza la nueva BR‑DOC‑065 (catálogo de Souly); nueva BR‑DOC‑066 (plantillas desde Word); cambian 012, 015, 018, 030, 045 y 048. Requisito retirado RF‑DOC‑047; nuevos RF‑DOC‑070 a 076. Pantalla nueva W‑DOC‑19 Cargar plantillas. Resueltas ABIERTA‑DOC‑04 (se quitó la aprobación) y 11. Flujo nuevo 7.10 «Cargar plantillas desde Word»; los siguientes se renumeran |
 | **1.2** | 16 oct 2026 | **Emitir ya no envía:** el documento queda en el expediente «Sin firmar»; RR.HH. lo descarga para imprimir (Word), lo hace firmar y sube el firmado, que queda con el mismo número y recién ahí lo ve el colaborador. Las solicitudes de certificado o corrección también: se generan, se firman y se entregan en persona; sólo las copias y los archivos propios se siguen enviando. **Se quitó la confirmación de recepción** en todo el módulo, web y celular; lo confirmado antes se ve como Entregado. Emitir: sin pestañas «Personas / Un grupo», siempre la lista con filtros, y «Editar documento» solo para esa emisión. **Las adendas ya no se crean:** «Renovar contrato» registra un contrato nuevo que reemplaza al anterior, con vista previa. Expedientes suma **Exportar** (ZIP de expedientes sin confidenciales y lista en Excel). En el expediente se quitaron Enviar documento, Agregar requisito y Exonerar; **no se borra, se anula**, y la Papelera pasa a Anulados; Subir documento pregunta la carpeta y el documento, y muestra el actual y el nuevo antes de reemplazar; en las carpetas, Lista primero con paginación de 10. Configuración: «Notificaciones y tipos de documento», con «+ Nuevo tipo de documento»; sin «Días en la papelera». Solicitudes: la columna «Pide» pasa a «Tipo»; el **plazo para responder** se configura y el colaborador lo ve al pedir (cambia BR‑DOC‑039); un certificado o una corrección pedidos se generan sin enviar y se entregan firmados en persona. Estado «Sin enviar» pasa a «Sin firmar». **Reglas:** retiradas BR‑DOC‑005 (exonerar), 027 (adendas) y 037 (confirmar la recepción); cambian 001, 002, 003, 012, 013, 014, 015, 018, 019, 021, 024, 026, 028, 029, 032, 033, 035, 036, 040, 044, 052 y 057; nuevas BR‑DOC‑061 a 064. Requisitos retirados RF‑DOC‑008, 009, 032 y 055; nuevos RF‑DOC‑063 a 069. Nueva HU‑DOC‑19. Resueltas ABIERTA‑DOC‑06 y 10. Los flujos se renumeran: suman Anular, Subir el firmado y Exportar, y «Confirmar un documento recibido» pasa a «Ver un documento recibido» |
 | **1.1** | 16 oct 2026 | El expediente de RR.HH. se ve como Mis documentos: la franja de lo pendiente con su anillo y las carpetas amarillas en «Sus carpetas» y «De RR.HH.». «Recibidos» se divide en una carpeta por tipo —Certificados, Memorándums y los creados—, también para el colaborador en la web y en el celular; «Otros» solo aparece si tiene algo. Colaboradores, en Gestión de personas, suma «Ver expediente». En Zona HR de la web, el administrador también ve «Mis documentos» con su propio expediente, como en el celular |
 | **1.0** | 16 oct 2026 | **Primera versión con el formato de los demás módulos.** Reúne lo construido en la maqueta hasta el 16 de octubre: Expedientes con «Qué atender hoy», el expediente por carpetas, Revisar documentos, contratos y adendas, Solicitudes y Atender, Documentos emitidos y Emitir con riel y grupos, el editor único de plantillas con tipos propios y vista previa en páginas, Notificaciones y numeración, y Mis documentos y Mis solicitudes del colaborador. 60 reglas BR‑DOC, 62 requisitos, 18 historias y 18 pantallas, por perfil |
@@ -3342,11 +3459,19 @@ Un certificado, un memorándum y un contrato son texto con datos de la persona. 
 
 #### Por qué «Guardar» y «Activa», sin «Publicar»
 
-«Publicar» sonaba a enviar algo afuera. Lo que importa es si la plantilla se usa o no: activa es la que se usa, inactiva es el borrador. Las versiones se guardan igual, por dentro.
+«Publicar» sonaba a enviar algo afuera. Lo que importa es si la plantilla se usa o no: activa es la que se usa, inactiva es el borrador. Por eso una nueva se guarda con «Guardar borrador» o «Guardar y activar». Las versiones se guardan igual, por dentro.
 
-#### Por qué las de fábrica se editan
+#### Por qué las de Souly no se editan
 
-Duplicarlas dejaba dos plantillas casi iguales y nadie sabía cuál usar. Con el historial, editar no pierde nada: lo emitido conserva su texto y «Volver al texto original» deshace lo propio.
+Hasta la 1.2 las que venían con el sistema se editaban, y no se distinguía lo que mantiene Souly de lo que era de la empresa. Ahora son un catálogo: se miran y se usan como base con «Usar». La copia es de la empresa, que la edita, la activa y la emite; el nombre «(copia)» dice que la de Souly sigue igual, y «Volver al texto original» deshace lo propio.
+
+#### Por qué las plantillas no piden aprobación
+
+Lo emitido se genera, se imprime y se firma a mano: la firma es la aprobación. Un paso de aprobación en el sistema, sin firma digital, pedía una segunda constancia de lo mismo, así que se quitó.
+
+#### Por qué una plantilla se trae de Word con marcadores
+
+RR.HH. ya tiene sus modelos en Word. Escribir cada dato entre corchetes, con su nombre, se entiende sin aprender nada; si un marcador no coincide, se pregunta en vez de adivinar. Del Word se toma el texto: el diseño lo pone la hoja al emitir.
 
 #### Por qué el expediente de RR.HH. se ve como Mis documentos
 
@@ -3378,7 +3503,7 @@ La empresa no usa adendas. Renovar registra un contrato nuevo que reemplaza al a
 
 #### Por qué se anula y no se borra
 
-Un documento cargado por error es parte de la historia del expediente. La papelera lo escondía y lo dejaba recuperar; anular lo deja a la vista en Anulados, con quién, cuándo y por qué, y libera el lugar para subir el correcto.
+Un documento cargado por error es parte de la historia del expediente. La papelera lo escondía y lo dejaba recuperar; anular lo deja a la vista en Anulados, con quién, cuándo y por qué, y libera el lugar para subir el correcto. Por eso el primer paso ofrece «Subir nueva versión»: reemplazar es para lo que era válido y quedó viejo; anular, para lo que nunca debió contar.
 
 #### Por qué Subir pregunta primero la carpeta y el documento
 
@@ -3386,7 +3511,7 @@ Antes, «Subir documento» abría el explorador y subía en el acto: lo que no s
 
 ## Anexo · El módulo en el prototipo, hoy
 
-*Cómo está construido el módulo de documentación en el prototipo al 16 de octubre de 2026 (versión 1.2), y en qué se aparta de este documento. Todo sale del código de `ficha_colaborador`.*
+*Cómo está construido el módulo de documentación en el prototipo al 16 de octubre de 2026 (versión 1.3), y en qué se aparta de este documento. Todo sale del código de `ficha_colaborador`.*
 
 ### Las pantallas y sus rutas
 
@@ -3399,14 +3524,14 @@ Antes, «Subir documento» abría el explorador y subía en el acto: lo que no s
 | `/documentos/solicitudes` y `/:id` | `Solicitudes.jsx` → `Bandeja.jsx`, `Atender.jsx` | Solicitudes y atender |
 | `/documentos/emitidos` y `/:id` | `Envios.jsx`, `Envio.jsx` | Documentos emitidos y su detalle |
 | `/documentos/emitidos/nuevo` | `Emitir.jsx` + `PanelEmision.jsx` | Emitir |
-| `/documentos/configuracion` | `Configuracion.jsx` → `Biblioteca.jsx`, `Notificaciones.jsx` | Plantillas y Notificaciones y tipos de documento |
-| `/documentos/configuracion/plantillas/:id` | `EditorPlantilla.jsx` | Editor de plantillas |
+| `/documentos/configuracion` | `Configuracion.jsx` → `Biblioteca.jsx`, `Notificaciones.jsx` | Plantillas, con las de Souly y Cargar plantillas (`ModalCargarPlantillas`), y Notificaciones y tipos de documento |
+| `/documentos/configuracion/plantillas/:id` | `EditorPlantilla.jsx` | Editor de plantillas, con «Revise estos marcadores» (`ModalMarcadores`) |
 | `/mi-espacio/zona-hr/documentos` y `/solicitudes` | `pages/colaborador/MisDocumentos.jsx` | Mis documentos y Mis solicitudes |
 | celular | `components/layout/MisDocumentosPhone.jsx` | Mis documentos y Mis solicitudes en la app |
 
 Los datos viven en `context/DocumentacionContext.jsx` y `data/documentacionData.js`; el lado del colaborador, en `hooks/useMisDocumentos.js`. Las rutas viejas (`/legajos`, `/colaboradores`, `/envios`, `/emitir`, `/por-revisar`, `/carga-masiva`, `/reportes`) redirigen a las nuevas.
 
-«Descargar para imprimir» arma un .doc de Word con `descargarParaImprimir` (`components/documentacion/utilidades.js`); en los contratos, con las líneas de firma de la empresa y de la persona. El firmado de un emitido se guarda con `adjuntarFirmado` en `DocumentacionContext.jsx`. Las claves internas siguen con sus nombres de antes: un documento anulado guarda `eliminado`, la carpeta Anulados es `papelera`, el estado «Sin firmar» es `generado` y lo confirmado antes es `acusado`, que ahora se ve «Entregado».
+«Descargar para imprimir» arma un .doc de Word con `descargarParaImprimir` (`components/documentacion/utilidades.js`); en los contratos, con las líneas de firma de la empresa y de la persona. El firmado de un emitido se guarda con `adjuntarFirmado` en `DocumentacionContext.jsx`. Las plantillas de Souly están en `PLANTILLAS_SOULY` (`data/documentacionData.js`), con `souly-` delante de su id; los marcadores se arman y se leen con `aMarcadores`, `deMarcadores` y `aplicarMarcadores`, en el mismo archivo, y el Word con `crearDocx` y `textoDeDocx` (`components/documentacion/zip.js`). Las claves internas siguen con sus nombres de antes: un documento anulado guarda `eliminado`, la carpeta Anulados es `papelera`, el estado «Sin firmar» es `generado` y lo confirmado antes es `acusado`, que ahora se ve «Entregado».
 
 ### El historial de ejemplo
 
@@ -3418,7 +3543,6 @@ Para que el Historial de cada expediente no salga vacío, la demo siembra una ve
 | --- | --- | --- |
 | Avisos y recordatorios | Se registran; no se envía nada | BR‑DOC‑023, 050 |
 | Copia de un documento del expediente | Se anota; no le llega a la persona | BR‑DOC‑040 |
-| Circuito de aprobación de plantillas | Se guarda; al emitir no se aplica | ABIERTA‑DOC‑04 |
 | Líder | Ve toda la empresa y puede editar | BR‑DOC‑053 |
 | Carpetas y documentos requeridos | No hay pantalla para configurarlos; son los de ejemplo | ABIERTA‑DOC‑02 |
 | Tamaño carta u oficio | Solo cambia la vista previa del editor; «Descargar para imprimir» baja siempre en carta | ABIERTA‑DOC‑09 |

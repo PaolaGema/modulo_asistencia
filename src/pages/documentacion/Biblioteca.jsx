@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, Copy, Library, Lock, Pencil, Plus, Power, Search, Trash2 } from 'lucide-react'
+import { CheckCircle2, Copy, Download, Eye, FileText, Library, Pencil, Plus, Power, Search, Trash2, TriangleAlert, Upload, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
-import { dias, fechaCorta, numeracionDe, tiposDoc } from '../../data/documentacionData'
+import { dias, fechaCorta, numeracionDe, tiposDoc, PLANTILLAS_SOULY, aMarcadores, deMarcadores, aplicarMarcadores, textoDePartida } from '../../data/documentacionData'
 import { Etiqueta, MenuAcciones, Modal, Vacio } from '../../components/documentacion/comunes'
+import { crearDocx, descargarBlob, textoDeDocx } from '../../components/documentacion/zip'
 import Desplegable from '../../components/layout/Desplegable'
 import Paginacion from '../../components/layout/Paginacion'
+import HojaDocumento from './HojaDocumento'
+import { ModalMarcadores } from './EditorPlantilla'
 import { versionPublicada } from './emisionUtil'
 import './emision.css'
 import './configuracion.css'
@@ -19,8 +22,10 @@ import './configuracion.css'
    el sistema le dice qué campos variables reconoció y cuáles no existen en el catálogo, antes de
    abrir el editor.
 
-   LOS MODELOS DE FÁBRICA NO SE TOCAN: se duplican (RF-50). La NUMERACIÓN vive acá, en su pestaña,
-   porque es de los modelos y no de los tipos de documento. */
+   LAS DE SOULY SON UN CATÁLOGO (16 oct 2026, antes «de fábrica»): no tienen estado ni se emiten.
+   Se ven, se «usan» —se copian a las de la empresa, activas— o se «personalizan» —se copian y se
+   abre el editor—. Un filtro elige qué mirar: todas, las de Souly o las suyas. La NUMERACIÓN vive
+   acá, en su pestaña, porque es de los modelos y no de los tipos de documento. */
 
 /* Diez por página, como Expedientes: las plantillas propias pueden ser muchas. */
 const POR_PAGINA = 10
@@ -34,9 +39,13 @@ export function Modelos() {
   const navigate = useNavigate()
   const [categoria, setCategoria] = useState('')
   const [estado, setEstado] = useState('todos')
+  const [origen, setOrigen] = useState('')  // '' todas · 'souly' · 'mias'
   const [busca, setBusca] = useState('')
   const [borrando, setBorrando] = useState(null)
   const [bloqueado, setBloqueado] = useState(null)
+  const [viendo, setViendo] = useState(null)  // una plantilla de Souly abierta para leerla
+  const [cargando, setCargando] = useState(false)  // el modal de «Cargar plantillas»
+  const [aviso, setAviso] = useState('')
   const [pag, setPag] = useState(1)
 
   /* Cuántos documentos salieron de cada modelo: decide si se puede eliminar (RF-08). */
@@ -47,10 +56,12 @@ export function Modelos() {
     return n
   }, [emitidos, contratos])
 
-  const visibles = modelos.filter(m =>
-    (!categoria || m.categoria === categoria)
-    && (estado === 'todos' || m.estado === estado)
-    && m.nombre.toLowerCase().includes(busca.trim().toLowerCase()))
+  /* Las de Souly no tienen estado: con «Activos» o «Inactivos» sólo se ven las de la empresa. */
+  const deSouly = PLANTILLAS_SOULY.map(s => ({ ...s, souly: true, enUso: modelos.some(m => m.origenSouly === s.id) }))
+  const visibles = [
+    ...(origen !== 'mias' && estado === 'todos' ? deSouly : []),
+    ...(origen !== 'souly' ? modelos.filter(m => estado === 'todos' || m.estado === estado) : []),
+  ].filter(m => (!categoria || m.categoria === categoria) && m.nombre.toLowerCase().includes(busca.trim().toLowerCase()))
   const paginas = Math.max(1, Math.ceil(visibles.length / POR_PAGINA))
   const pagina = Math.min(pag, paginas)
   const deLaPagina = visibles.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
@@ -71,6 +82,26 @@ export function Modelos() {
     setModelos(prev => [...prev, copia])
     anotarConfig(`Duplicó el modelo «${m.nombre}»`)
     navigate(`/documentos/configuracion/plantillas/${copia.id}`)
+  }
+
+  /* USAR UNA DE SOULY abre el editor con ella cargada, como plantilla nueva: ahí se revisa o se
+     cambia, y recién al guardar queda en las de la empresa. Nada se crea con un solo clic. */
+  const usarSouly = s => navigate(`/documentos/configuracion/plantillas/nuevo?desde=${s.id}`)
+
+  /* CARGAR PLANTILLAS (16 oct 2026): un solo botón abre el modal donde se sueltan los Word y,
+     para quien todavía no tiene uno, se descarga la plantilla modelo. Ver `ModalCargarPlantillas`. */
+  function guardarSubidas(filas, estadoNuevo) {
+    const nuevas = filas.filter(f => !f.error).map(f => ({
+      id: nuevoId(), nombre: f.nombre.trim() || f.archivo, categoria: f.categoria, disponibleSolicitud: false, sensible: false,
+      estado: estadoNuevo, base: false,
+      versiones: [{ v: 1, texto: f.texto, estado: 'publicada', publicadaPor: usuario, fecha: dias(0) }],
+    }))
+    setModelos(prev => [...prev, ...nuevas])
+    for (const m of nuevas) anotarConfig(`Subió la plantilla «${m.nombre}» desde Word${estadoNuevo === 'activo' ? '' : ' como borrador'}`)
+    setCargando(false)
+    setOrigen('mias'); setEstado('todos'); setPag(1)
+    setAviso(`${nuevas.length === 1 ? 'Se guardó 1 plantilla' : `Se guardaron ${nuevas.length} plantillas`} ${estadoNuevo === 'activo' ? 'activas: ya aparecen en Emitir' : 'como borrador: actívelas cuando estén listas'}.`)
+    setTimeout(() => setAviso(''), 5000)
   }
 
   function alternar(m) {
@@ -94,20 +125,31 @@ export function Modelos() {
         <div style={{ width: 220 }}>
           <Desplegable valor={categoria} onCambio={v => { setCategoria(v); setPag(1) }} ariaLabel="Tipo" opciones={[{ valor: '', etiqueta: 'Todos los tipos' }, ...Object.entries(CATEGORIAS).filter(([k]) => k !== 'otro' || modelos.some(m => m.categoria === 'otro')).map(([k, c]) => ({ valor: k, etiqueta: `${c.plural} (${modelos.filter(m => m.categoria === k).length})` }))]} />
         </div>
+        <div style={{ width: 220 }}>
+          <Desplegable valor={origen} onCambio={v => { setOrigen(v); setPag(1) }} ariaLabel="De quién es la plantilla" opciones={[
+            { valor: '', etiqueta: 'Todas las plantillas' },
+            { valor: 'souly', etiqueta: `Plantillas de Souly (${PLANTILLAS_SOULY.length})` },
+            { valor: 'mias', etiqueta: `Mis plantillas (${modelos.length})` },
+          ]} />
+        </div>
         <div className="xc-seg" role="group" aria-label="Estado">
           {[['todos', 'Todos'], ['activo', 'Activos'], ['inactivo', 'Inactivos']].map(([k, t]) => (
             <button key={k} type="button" className={estado === k ? 'on' : ''} aria-pressed={estado === k} onClick={() => { setEstado(k); setPag(1) }}>{t}</button>
           ))}
         </div>
-        <button type="button" className="pl-btn-new" style={{ marginLeft: 'auto' }} onClick={() => navigate('/documentos/configuracion/plantillas/nuevo')}>
+        <button type="button" className="dc-btn" style={{ marginLeft: 'auto' }} onClick={() => setCargando(true)} title="Suba uno o varios Word: cada uno se vuelve una plantilla">
+          <Upload size={14} aria-hidden="true" /> Cargar plantillas
+        </button>
+        <button type="button" className="pl-btn-new" onClick={() => navigate('/documentos/configuracion/plantillas/nuevo')}>
           <Plus size={14} color="#00E091" /> Nuevo modelo
         </button>
       </div>
+      {aviso && <p className="xd-guardado" role="status" style={{ margin: '0 0 12px' }}><CheckCircle2 size={15} /> {aviso}</p>}
 
       {visibles.length === 0 ? (
         <div className="dc-tarjeta">
           <Vacio Icono={Library} titulo="Ningún modelo coincide" texto={`Se buscó «${busca || 'todo'}» en ${categoria ? CATEGORIAS[categoria]?.plural.toLowerCase() : 'todos los tipos'}, con estado ${estado === 'todos' ? 'cualquiera' : estado}.`}>
-            <button type="button" className="dc-btn" onClick={() => { setBusca(''); setCategoria(''); setEstado('todos') }}>Limpiar filtros</button>
+            <button type="button" className="dc-btn" onClick={() => { setBusca(''); setCategoria(''); setEstado('todos'); setOrigen('') }}>Limpiar filtros</button>
           </Vacio>
         </div>
       ) : (
@@ -118,6 +160,26 @@ export function Modelos() {
             </thead>
             <tbody>
               {deLaPagina.map(m => {
+                if (m.souly) return (
+                  <tr key={m.id} className="xd-fila-link" onClick={() => setViendo(m)}>
+                    <td data-etq="Modelo">
+                      <div className="xc-nombre">
+                        <b>{m.nombre}</b>
+                        <small><span className="xd-souly">Souly</span> Lista para usar o personalizar</small>
+                      </div>
+                    </td>
+                    <td data-etq="Tipo"><span className="xd-tipo"><span style={{ background: CATEGORIAS[m.categoria]?.color }} aria-hidden="true" />{CATEGORIAS[m.categoria]?.label || 'Otro documento'}</span></td>
+                    <td data-etq="Última edición"><span className="xc-nombre"><small>La mantiene Souly</small></span></td>
+                    {/* Las de Souly no tienen estado: en su lugar, lo que se hace con ellas. */}
+                    <td data-etq="Estado" onClick={e => e.stopPropagation()}>
+                      <span className="xd-souly-acc">
+                        <button type="button" className="dc-btn dc-btn-sm" onClick={() => setViendo(m)}><Eye size={13} aria-hidden="true" /> Ver</button>
+                        <button type="button" className="dc-btn dc-btn-sm xd-souly-usar" onClick={() => usarSouly(m)} title="La abre en el editor: revísela, cámbiela si quiere y guárdela en sus plantillas"><Plus size={13} aria-hidden="true" /> Usar</button>
+                      </span>
+                    </td>
+                    <td className="xd-acc" />
+                  </tr>
+                )
                 const pub = versionPublicada(m)
                 const n = usos[m.id] || 0
                 const abrir = () => navigate(`/documentos/configuracion/plantillas/${m.id}`)
@@ -127,7 +189,7 @@ export function Modelos() {
                       <div className="xc-nombre">
                         <b>{m.nombre}</b>
                         <small>
-                          {m.base ? <><Lock size={10} aria-hidden="true" /> De fábrica · </> : 'Propio · '}
+                          {m.origenSouly ? 'Desde Souly · ' : 'Propia · '}
                           {n === 0 ? 'sin emitidos' : `${n} ${n === 1 ? 'emitido' : 'emitidos'}`}
                         </small>
                       </div>
@@ -146,7 +208,7 @@ export function Modelos() {
                         { label: m.estado === 'activo' ? 'Desactivar' : 'Activar', Icono: Power, titulo: m.estado === 'activo' ? 'Un modelo inactivo no aparece al emitir' : 'Vuelve a aparecer al emitir', onClick: () => alternar(m) },
                         /* ELIMINAR SÓLO LO QUE NO TIENE HISTORIA (RF-08), y al pulsarlo dice por
                            qué no: un botón apagado sin explicación se lee como una falla. */
-                        !m.base && { label: 'Eliminar', Icono: Trash2, peligro: true, onClick: () => (n > 0 ? setBloqueado({ m, n }) : setBorrando(m)) },
+                        { label: 'Eliminar', Icono: Trash2, peligro: true, onClick: () => (n > 0 ? setBloqueado({ m, n }) : setBorrando(m)) },
                       ]} />
                     </td>
                   </tr>
@@ -157,6 +219,23 @@ export function Modelos() {
           <Paginacion page={pagina} setPage={setPag} total={visibles.length} perPage={POR_PAGINA} nombre="plantillas" nombreUno="plantilla" />
         </div>
       )}
+
+      {viendo && (
+        <Modal titulo={viendo.nombre} Icono={Eye} onCerrar={() => setViendo(null)} ancho={720}
+          pie={<>
+            <button type="button" className="pl-btn-cancel" onClick={() => setViendo(null)}>Cerrar</button>
+            <button type="button" className="pl-btn-save" onClick={() => usarSouly(viendo)}><Plus size={13} /> Usar esta plantilla</button>
+          </>}
+        >
+          <p className="xd-nota" style={{ marginTop: 0 }}>
+            Plantilla de Souly. «Usar» la abre en el editor: puede dejarla como está o cambiarla, y al guardar queda en sus plantillas.
+            {viendo.enUso && ' Ya tiene una copia en sus plantillas.'}
+          </p>
+          <HojaDocumento texto={(versionPublicada(viendo) || viendo.versiones[0])?.texto} compacta etiqueta={`Texto de ${viendo.nombre}`} />
+        </Modal>
+      )}
+
+      {cargando && <ModalCargarPlantillas tipos={CATEGORIAS} onCerrar={() => setCargando(false)} onGuardar={guardarSubidas} />}
 
       {bloqueado && (
         <Modal titulo="No se puede eliminar" Icono={Trash2} onCerrar={() => setBloqueado(null)} ancho={460}
@@ -180,6 +259,162 @@ export function Modelos() {
             Se eliminará «{borrando.nombre}». No tiene documentos emitidos, así que no deja nada sin origen. El cambio queda registrado en la bitácora.
           </p>
         </Modal>
+      )}
+    </>
+  )
+}
+
+/* EL TIPO DE UN WORD SUBIDO, ADIVINADO por su nombre y su comienzo: «Certificado de trabajo.docx»
+   es un certificado. Un tipo propio se reconoce por su nombre; si nada coincide, «otro». Se puede
+   cambiar en la fila antes de guardar. */
+const plano = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
+function adivinarTipo(texto, tipos) {
+  const t = plano(texto)
+  const propio = Object.entries(tipos).find(([k, c]) => !['certificado', 'memorandum', 'contrato', 'otro'].includes(k) && t.includes(plano(c.label)))
+  if (propio) return propio[0]
+  if (t.includes('CERTIFIC') || t.includes('CONSTANCIA')) return 'certificado'
+  if (t.includes('MEMOR')) return 'memorandum'
+  if (t.includes('CONTRATO') || t.includes('ADENDA')) return 'contrato'
+  return tipos.otro ? 'otro' : 'certificado'
+}
+
+/* ── CARGAR PLANTILLAS (16 oct 2026) ──────────────────────────────────────
+   Un solo modal para todo el camino del Word. Primero, dónde soltar los archivos —uno o varios—
+   y, para quien todavía no tiene uno, «Descargar plantilla modelo» del tipo que elija: trae un
+   texto de ejemplo y los datos de la persona como marcadores. Después, una fila por archivo con
+   el nombre (sale del archivo), el tipo adivinado y lo que se reconoció; lo que no coincide se
+   revisa con el mismo modal del editor. «Guardar y activar» espera a que no quede nada por
+   revisar; «Guardar como borradores» no, y lo pendiente queda como texto. */
+const ACEPTA = '.docx,.txt,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+function ModalCargarPlantillas({ tipos, onCerrar, onGuardar }) {
+  const [filas, setFilas] = useState([])
+  const [leyendo, setLeyendo] = useState(false)
+  const [arrastrando, setArrastrando] = useState(false)
+  const [modelo, setModelo] = useState('certificado')
+  const [revisando, setRevisando] = useState(null) // id de la fila
+  const cambiar = (id, cambios) => setFilas(prev => prev.map(f => (f.id === id ? { ...f, ...cambios } : f)))
+  const validas = filas.filter(f => !f.error)
+  const pendientes = validas.filter(f => f.desconocidos.length).length
+  const fila = filas.find(f => f.id === revisando)
+  const opcionesTipo = Object.entries(tipos).map(([k, c]) => ({ valor: k, etiqueta: c.label }))
+
+  async function leer(lista) {
+    const archivos = [...(lista || [])]
+    if (!archivos.length) return
+    setLeyendo(true)
+    const nuevas = await Promise.all(archivos.map(async f => {
+      const base = { id: nuevoId(), archivo: f.name, nombre: f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim() }
+      try {
+        const crudo = /\.docx$/i.test(f.name) ? await textoDeDocx(f) : await f.text()
+        const r = deMarcadores(crudo)
+        if (!r.texto.trim()) throw new Error('vacío')
+        return { ...base, categoria: adivinarTipo(`${f.name} ${r.texto.slice(0, 300)}`, tipos), texto: r.texto, reconocidos: r.reconocidos, desconocidos: r.desconocidos, comoTexto: 0 }
+      } catch {
+        return { ...base, error: true }
+      }
+    }))
+    setFilas(prev => [...prev, ...nuevas])
+    setLeyendo(false)
+  }
+
+  async function bajarModelo() {
+    const c = tipos[modelo]
+    const blob = await crearDocx(aMarcadores(textoDePartida(modelo, c.label.toUpperCase())))
+    descargarBlob(`Plantilla modelo de ${c.label.toLowerCase()}.docx`, blob)
+  }
+
+  const soltar = {
+    onDragOver: e => { e.preventDefault(); setArrastrando(true) },
+    onDragLeave: () => setArrastrando(false),
+    onDrop: e => { e.preventDefault(); setArrastrando(false); leer(e.dataTransfer.files) },
+  }
+  const elegir = <input type="file" multiple accept={ACEPTA} onChange={e => { leer(e.target.files); e.target.value = '' }} hidden />
+
+  const pie = filas.length ? (
+    <>
+      <span className="xu-pie-nota">{pendientes ? `${pendientes === 1 ? 'Una plantilla tiene' : `${pendientes} plantillas tienen`} marcadores por revisar.` : validas.length ? 'Todo listo.' : ''}</span>
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+      <button type="button" className="dc-btn" disabled={!validas.length} onClick={() => onGuardar(filas, 'inactivo')}>Guardar como borradores</button>
+      <button type="button" className="pl-btn-save" disabled={!validas.length || pendientes > 0} title={pendientes ? 'Revise primero los marcadores que no coinciden' : undefined} onClick={() => onGuardar(filas, 'activo')}>Guardar y activar</button>
+    </>
+  ) : <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+
+  return (
+    <>
+      <Modal titulo={filas.length ? `Cargar plantillas · ${filas.length === 1 ? '1 archivo' : `${filas.length} archivos`}` : 'Cargar plantillas'} Icono={Upload} onCerrar={onCerrar} ancho={filas.length ? 900 : 640} pie={pie}>
+        {!filas.length ? (
+          <div className="xd-cargar">
+            <label className={`xd-cargar-zona${arrastrando ? ' on' : ''}`} {...soltar}>
+              <span className="xd-cargar-ico" aria-hidden="true"><Upload size={24} /></span>
+              <b>{leyendo ? 'Leyendo los archivos…' : 'Arrastre aquí sus plantillas en Word'}</b>
+              <span>o haga clic para elegirlas · puede subir varias a la vez · .docx o .txt</span>
+              {elegir}
+            </label>
+            <div className="xd-cargar-modelo">
+              <span className="xd-cargar-modelo-ico" aria-hidden="true"><FileText size={18} /></span>
+              <div className="xd-cargar-modelo-txt">
+                <b>¿Todavía no tiene la plantilla?</b>
+                <span>Descargue la plantilla modelo: trae un texto de ejemplo y los datos de la persona marcados, como [NOMBRE COMPLETO]. Escriba su texto en Word y súbala aquí.</span>
+              </div>
+              <div className="xd-cargar-modelo-acc">
+                <div style={{ width: 170 }}><Desplegable valor={modelo} onCambio={setModelo} ariaLabel="Tipo de la plantilla modelo" opciones={opcionesTipo} /></div>
+                <button type="button" className="dc-btn" onClick={bajarModelo}><Download size={14} aria-hidden="true" /> Descargar plantilla modelo</button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="xd-nota" style={{ marginTop: 0 }}>Cada Word se guarda como una plantilla en Mis plantillas. Revise el nombre y el tipo; los marcadores como [NOMBRE COMPLETO] ya se convirtieron en datos.</p>
+            <ul className="xd-subidas">
+              {filas.map(f => (
+                <li key={f.id} className={`xd-subida${f.error ? ' error' : ''}`}>
+                  <span className="xd-subida-ico" aria-hidden="true"><FileText size={18} /></span>
+                  <div className="xd-subida-datos">
+                    <input className="pl-input" value={f.nombre} onChange={e => cambiar(f.id, { nombre: e.target.value })} aria-label={`Nombre de la plantilla de ${f.archivo}`} disabled={f.error} />
+                    <small>{f.archivo}</small>
+                  </div>
+                  <div className="xd-subida-tipo">
+                    {!f.error && <Desplegable valor={f.categoria} onCambio={v => cambiar(f.id, { categoria: v })} ariaLabel={`Tipo de ${f.nombre}`} opciones={opcionesTipo} />}
+                  </div>
+                  <div className="xd-subida-estado">
+                    {f.error ? <span className="xd-subida-mal"><TriangleAlert size={13} aria-hidden="true" /> No se pudo leer: use un .docx o .txt con texto</span>
+                      : f.desconocidos.length ? (
+                        <>
+                          <span className="xd-subida-ambar"><TriangleAlert size={13} aria-hidden="true" /> {f.desconocidos.length === 1 ? '1 marcador' : `${f.desconocidos.length} marcadores`} por revisar</span>
+                          <button type="button" className="dc-btn dc-btn-sm" onClick={() => setRevisando(f.id)}>Revisar</button>
+                        </>
+                      ) : <span className="xd-subida-ok"><CheckCircle2 size={13} aria-hidden="true" /> {f.reconocidos.length === 1 ? '1 dato reconocido' : `${f.reconocidos.length} datos reconocidos`}{f.comoTexto ? ` · ${f.comoTexto} como texto` : ''}</span>}
+                  </div>
+                  <button type="button" className="xd-subida-quitar" onClick={() => setFilas(prev => prev.filter(x => x.id !== f.id))} aria-label={`No subir ${f.archivo}`} title="No subir este archivo"><X size={15} /></button>
+                </li>
+              ))}
+            </ul>
+            <label className={`xd-cargar-mas${arrastrando ? ' on' : ''}`} {...soltar}>
+              <Plus size={14} aria-hidden="true" /> {leyendo ? 'Leyendo…' : 'Agregar más archivos'}
+              {elegir}
+            </label>
+          </>
+        )}
+      </Modal>
+
+      {fila && (
+        <ModalMarcadores
+          nombreArchivo={fila.archivo}
+          reconocidos={fila.reconocidos}
+          desconocidos={fila.desconocidos}
+          onCerrar={() => setRevisando(null)}
+          onAplicar={elecciones => {
+            const elegidos = Object.values(elecciones).filter(Boolean)
+            cambiar(fila.id, {
+              texto: aplicarMarcadores(fila.texto, elecciones),
+              reconocidos: [...new Set([...fila.reconocidos, ...elegidos])],
+              desconocidos: [],
+              comoTexto: Object.values(elecciones).length - elegidos.length,
+            })
+            setRevisando(null)
+          }}
+        />
       )}
     </>
   )

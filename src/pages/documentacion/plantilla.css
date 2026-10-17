@@ -135,3 +135,16 @@
 .xpl-paginas-marco { width: 100%; }
 .xpl-original { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; border: none; background: none; padding: 4px 0; font: inherit; font-size: 12.5px; font-weight: 600; color: #1D5FBF; cursor: pointer; }
 .xpl-original:hover { text-decoration: underline; }
+
+/* Una plantilla nueva se guarda como borrador o activa (16 oct 2026). */
+.xpl-guardar-dos { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+
+/* Los marcadores del Word que no se reconocieron (16 oct 2026). */
+.xpl-marcas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.xpl-marca { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; align-items: center; padding: 12px 14px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--bg-secondary); }
+.xpl-marca-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.xpl-marca-cod { align-self: flex-start; padding: 2px 8px; border-radius: 6px; background: #FEF3C7; color: #92400E; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; font-weight: 700; }
+.xpl-marca-ctx { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xpl-marca-ctx b { color: var(--text-heading); }
+.xpl-marca-sin { font-size: 11.5px; color: #92400E; }
+@media (max-width: 640px) { .xpl-marca { grid-template-columns: 1fr; } }

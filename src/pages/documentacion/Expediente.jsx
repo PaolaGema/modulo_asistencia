@@ -27,7 +27,7 @@ import {
 } from '../../data/documentacionData'
 import PanelEmision from './PanelEmision'
 import HojaEmitido from '../../components/documentacion/HojaEmitido'
-import { Mosaico } from '../colaborador/MisDocumentos'
+import { Mosaico, IconoCarpeta } from '../colaborador/MisDocumentos'
 import '../colaborador/misDocumentos.css'
 import './expediente.css'
 
@@ -113,6 +113,7 @@ export default function Expediente() {
   const [filtroEstado, setFiltroEstado] = useState(() => params.get('estado') || '')
   const [rechazo, setRechazo] = useState(null)       // docId
   const [papelera, setPapelera] = useState(null)     // docId
+  const [anulado, setAnulado] = useState(false)      // recién anulado: muestra el sello de éxito
   const [emitiendo, setEmitiendo] = useState(null)   // { categoria? }
   const [verEmitido, setVerEmitido] = useState(null) // emitido
   const [descargando, setDescargando] = useState(false)
@@ -661,9 +662,16 @@ export default function Expediente() {
         <ModalPapelera
           nombre={subtipos.find(s => s.id === documentos.find(d => d.id === papelera)?.subtipoId)?.nombre}
           onCerrar={() => setPapelera(null)}
-          onConfirmar={m => { eliminarDocumento(papelera, m); setPapelera(null); avisar('Documento anulado. Quedó en la carpeta Anulados y ya puede subir el correcto.') }}
+          onReemplazar={() => { const d = documentos.find(x => x.id === papelera); setPapelera(null); pasarACargar(d?.subtipoId, papelera) }}
+          onConfirmar={m => {
+            eliminarDocumento(papelera, m)
+            setPapelera(null)
+            setAnulado(true)
+          }}
         />
       )}
+
+      {anulado && <ModalAnulado onCerrar={() => setAnulado(false)} />}
     </div>
   )
 }
@@ -1138,9 +1146,19 @@ export async function descargarVersion(persona, subtipo, v, documento, registrar
    un clic o de un enlace con `?doc=`, una sola vez por apertura: la guarda del ref evita el
    doble registro del modo estricto de React. */
 function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRechazar, onRenovar }) {
-  const { subtipos, parametros, registrarDescarga, personas, bitacora } = useDocumentacion()
+  const { subtipos, parametros, registrarDescarga, personas, bitacora, documentos } = useDocumentacion()
   const subtipo = subtipos.find(s => s.id === documento.subtipoId)
-  const versiones = [...documento.versiones].reverse()
+  /* LOS ANULADOS SON PARTE DEL HISTORIAL (16 oct 2026): anular y subir el correcto crea otro
+     documento, pero para quien lo mira es el mismo croquis. Debajo de las versiones del actual van
+     los anulados del mismo documento, con su motivo, y se previsualizan igual. Un subtipo de
+     varios (vacunas, cursos) no: cada uno es un documento distinto. */
+  const anulados = subtipo?.varios ? [] : documentos
+    .filter(d => d.id !== documento.id && d.eliminado && d.colaboradorId === persona.id && d.subtipoId === documento.subtipoId)
+    .sort((a, b) => (a.eliminado.fecha < b.eliminado.fecha ? 1 : -1))
+  const versiones = [
+    ...[...documento.versiones].reverse().map((x, i) => ({ ...x, clave: `${documento.id}-${x.v}`, doc: documento, etiqueta: documento.eliminado ? 'Anulado' : i === 0 ? 'Actual' : 'Reemplazada' })),
+    ...anulados.flatMap(d => [...d.versiones].reverse().map(x => ({ ...x, clave: `${d.id}-${x.v}`, doc: d, etiqueta: `Anulado el ${fechaCorta(d.eliminado.fecha)}` }))),
+  ]
   /* QUIÉN, CON NOMBRE Y CARGO (16 oct 2026): «lo aprobó RR.HH.» no alcanza cuando RR.HH. son
      cinco personas. Cada versión dice quién la subió y quién la aprobó o rechazó, y cuándo. Si la
      versión no lo guardó (datos viejos), se busca en la bitácora del documento; lo que carga
@@ -1152,14 +1170,15 @@ function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRe
   const revisionDe = x => {
     if (x.revision === 'pendiente') return null
     if (x.revisadoPor) return { por: x.revisadoPor, fecha: x.revisado || x.fecha }
-    const ev = (bitacora || []).find(b => b.entidad === 'documento' && b.entidadId === documento.id && b.accion === (x.revision === 'rechazado' ? 'rechazo' : 'aprobacion'))
+    const ev = (bitacora || []).find(b => b.entidad === 'documento' && b.entidadId === (x.doc || documento).id && b.accion === (x.revision === 'rechazado' ? 'rechazo' : 'aprobacion'))
     if (ev) return { por: ev.usuario, fecha: ev.fecha }
     if (x.revision === 'aprobado' && x.canal !== 'app') return { por: x.subidoPor, fecha: x.fecha, alSubir: true }
     return null
   }
-  const [elegida, setElegida] = useState(versiones[0].v)
+  const [elegida, setElegida] = useState(versiones[0].clave)
   const anotado = useRef(null)
-  const v = documento.versiones.find(x => x.v === elegida)
+  const v = versiones.find(x => x.clave === elegida) || versiones[0]
+  const anuladoV = v.doc.eliminado
   const estado = estadoVersion(versionActual(documento), subtipo, parametros)
   const confidencial = subtipo?.sensibilidad === 'confidencial'
 
@@ -1178,7 +1197,7 @@ function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRe
         </>
       )}
       {estado !== 'en_revision' && !cerrado && <button type="button" className="pl-btn-cancel" onClick={onRenovar}><RefreshCw size={13} /> Subir nueva versión</button>}
-      <button type="button" className="pl-btn-save" onClick={() => descargarVersion(persona, subtipo, v, documento, registrarDescarga)}><Download size={13} /> Descargar</button>
+      <button type="button" className="pl-btn-save" onClick={() => descargarVersion(persona, subtipo, v, v.doc, registrarDescarga)}><Download size={13} /> Descargar</button>
     </>
   )
 
@@ -1208,14 +1227,16 @@ function VistaDocumento({ documento, persona, cerrado, onCerrar, onAprobar, onRe
             {v.info && <div><dt>Información adicional</dt><dd>{v.info}</dd></div>}
             {v.motivoRechazo && <div><dt>Motivo del rechazo</dt><dd className="xa-rojo">{v.motivoRechazo}</dd></div>}
             {v.motivoCambio && <div><dt>Motivo del cambio</dt><dd>{v.motivoCambio}</dd></div>}
+            {anuladoV && <div><dt>Anulado por</dt><dd>{quien(anuladoV.por)}<span className="xa-quien-cuando">{fechaCorta(anuladoV.fecha)}</span></dd></div>}
+            {anuladoV && <div><dt>Motivo de la anulación</dt><dd className="xa-rojo">{anuladoV.motivo}</dd></div>}
           </dl>
-          <h3 className="xa-vista-sub">Versiones</h3>
+          <h3 className="xa-vista-sub">{anulados.length ? 'Historial' : 'Versiones'}</h3>
           <ol className="xa-versiones">
-            {versiones.map((x, i) => (
-              <li key={x.v}>
-                <button type="button" className={x.v === elegida ? 'on' : ''} onClick={() => setElegida(x.v)} aria-pressed={x.v === elegida}>
+            {versiones.map(x => (
+              <li key={x.clave}>
+                <button type="button" className={`${x.clave === elegida ? 'on' : ''}${x.doc.eliminado ? ' xa-ver-anulada' : ''}`} onClick={() => setElegida(x.clave)} aria-pressed={x.clave === elegida}>
                   <span className="xa-ver-1"><b>v{x.v}</b> · {fechaCorta(x.fecha)}</span>
-                  <span className="xa-ver-2">{i === 0 ? 'Actual' : 'Reemplazada'} · subió {subio(x)}{(() => { const r = revisionDe(x); return r ? ` · ${x.revision === 'rechazado' ? 'rechazó' : 'aprobó'} ${r.por}` : x.revision === 'pendiente' ? ' · en revisión' : '' })()}</span>
+                  <span className="xa-ver-2">{x.etiqueta} · subió {subio(x)}{(() => { const r = revisionDe(x); return r ? ` · ${x.revision === 'rechazado' ? 'rechazó' : 'aprobó'} ${r.por}` : x.revision === 'pendiente' ? ' · en revisión' : '' })()}</span>
                 </button>
               </li>
             ))}
@@ -1279,7 +1300,10 @@ function ModalMotivo({ titulo, Icono, texto, placeholder, accion, peligro, onCer
 /* ANULAR PIDE DOS CONFIRMACIONES Y UN MOTIVO (16 oct 2026, antes «enviar a la papelera»). Un
    documento no se borra: se anula, deja de contar para sus requisitos —así se puede subir el
    correcto— y queda en la carpeta Anulados con quién, cuándo y por qué. No se deshace. */
-function ModalPapelera({ nombre, onCerrar, onConfirmar }) {
+/* «¿SÓLO TIENE UNA VERSIÓN MÁS NUEVA?» (16 oct 2026): anular es para lo que nunca debió contar;
+   un carnet renovado se reemplaza. El enlace lleva a reemplazar, para que no se anule por error
+   lo que sólo quedó viejo. */
+function ModalPapelera({ nombre, onCerrar, onConfirmar, onReemplazar }) {
   const [m, setM] = useState('')
   const [paso, setPaso] = useState(1)
   const ok = m.trim().length >= 5
@@ -1300,6 +1324,11 @@ function ModalPapelera({ nombre, onCerrar, onConfirmar }) {
             <span className="pl-label">¿Por qué se anula? <span className="pl-req" aria-hidden="true">*</span></span>
             <textarea className="pl-input xa-textarea" rows={3} value={m} onChange={e => setM(e.target.value)} placeholder="Se cargó en el expediente equivocado." autoFocus />
           </label>
+          {onReemplazar && (
+            <p className="xa-modal-txt xa-alt-reemplazar">
+              ¿Sólo tiene una versión más nueva? <button type="button" className="xa-enlace-reemplazar" onClick={onReemplazar}>Use «Subir nueva versión»</button>: el actual queda en el historial como versión anterior, sin anularlo.
+            </p>
+          )}
         </>
       ) : (
         <div className="xa-confirma">
@@ -1309,6 +1338,26 @@ function ModalPapelera({ nombre, onCerrar, onConfirmar }) {
         </div>
       )}
     </Modal>
+  )
+}
+
+/* ANULADO CON ÉXITO (16 oct 2026): un aviso que se va solo en tres segundos es poco para algo
+   que no se deshace. Un sello centrado y un solo botón: no tiene cabecera de `Modal` porque el
+   sello ya dice lo que pasó. Escape cierra, como en los demás. */
+function ModalAnulado({ onCerrar }) {
+  useEffect(() => {
+    const tecla = e => { if (e.key === 'Escape') onCerrar() }
+    window.addEventListener('keydown', tecla)
+    return () => window.removeEventListener('keydown', tecla)
+  }, [onCerrar])
+  return (
+    <div className="pl-overlay" onClick={onCerrar}>
+      <div className="pl-modal xa-sello" role="alertdialog" aria-modal="true" aria-labelledby="xa-sello-tit" onClick={e => e.stopPropagation()}>
+        <span className="xa-sello-halo" aria-hidden="true"><span><Check size={26} strokeWidth={2.6} /></span></span>
+        <h2 id="xa-sello-tit">Documento anulado con éxito</h2>
+        <button type="button" className="pl-btn-save xa-sello-btn" onClick={onCerrar} autoFocus>Cerrar</button>
+      </div>
+    </div>
   )
 }
 
@@ -1383,7 +1432,10 @@ function Historial({ eventos }) {
    SI YA TIENE UNO, SE PREGUNTA: el actual y el nuevo lado a lado y «¿Desea reemplazar…?». El
    actual no se borra: queda como versión anterior. Si el actual vino de la ficha, el nuevo pasa a
    ser el que vale en el expediente (manda el más nuevo, ver `todosLosDocumentos`); la ficha
-   conserva el suyo. Un subtipo que admite varios no reemplaza: se guarda además. */
+   conserva el suyo. Un subtipo que admite varios no reemplaza: se guarda además.
+   DESDE EL «SUBIR» DE UNA FILA (16 oct 2026) ya se sabe qué documento es: el modal se abre sólo
+   con ése, sin la lista de la izquierda ni otras opciones. La lista queda para la cabecera y
+   las carpetas, donde todavía hay que elegir. */
 const URGENCIA_SUBIR = { vencido: 0, rechazado: 1, faltante: 2, por_vencer: 3, en_revision: 4, vigente: 5, exonerado: 6, no_exigido: 7 }
 const minuscula = s => s.charAt(0).toLowerCase() + s.slice(1)
 // «el documento de identidad», «la certificación profesional», «el acta de entrega»: por la primera palabra.
@@ -1423,6 +1475,7 @@ function ModalSubir({ persona, filas, inicial, inicialDoc = '', tipoInicial, onC
   })
   const entrada = entradas.find(e => e.subtipo.id === elegido)
   const sub = entrada?.subtipo
+  const fijo = !!inicial && sub?.id === inicial
   /* LOS QUE ADMITEN VARIOS —títulos, certificaciones, actas— no se reemplazan solos: si ya tiene
      alguno, se elige agregar uno nuevo o cuál de los que tiene se reemplaza. Desde «Renovar» de
      una fila llega ya elegido ése. */
@@ -1476,23 +1529,91 @@ function ModalSubir({ persona, filas, inicial, inicialDoc = '', tipoInicial, onC
   }
 
   const texto = busca.trim().toLowerCase()
+  const vigencia = sub?.vence ? (sub.vigenciaMeses % 12 ? `${sub.vigenciaMeses} meses` : plural(sub.vigenciaMeses / 12, 'año', 'años')) : ''
   const reglas = sub ? [
     sub.formatos.map(f => f.toUpperCase()).join(', '),
     `hasta ${sub.tamanoMaxMB} MB`,
-    sub.vence ? `vence a los ${sub.vigenciaMeses % 12 ? `${sub.vigenciaMeses} meses` : plural(sub.vigenciaMeses / 12, 'año', 'años')}` : 'no vence',
+    sub.vence ? `vence a los ${vigencia}` : 'no vence',
   ].join(' · ') : ''
+  const pie = <>
+    {!fijo && <VolverCarpetas onVolver={onVolver} />}
+    <span className="xu-pie-nota">{actual ? 'El actual no se borra: queda como versión anterior.' : fijo ? '' : 'Elija a la izquierda a qué documento corresponde.'}</span>
+    <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
+    <button type="button" className={`pl-btn-save${actual ? ' xu-btn-reemplazar' : ''}`} disabled={!listo} onClick={guardar}>
+      {guardando ? 'Guardando…' : actual ? <><RefreshCw size={14} aria-hidden="true" /> Sí, reemplazar</> : <><Upload size={14} aria-hidden="true" /> Subir documento</>}
+    </button>
+  </>
+  const soltar = {
+    onDragOver: e => { e.preventDefault(); setArrastrando(true) },
+    onDragLeave: () => setArrastrando(false),
+    onDrop: e => { e.preventDefault(); setArrastrando(false); tomar(e.dataTransfer.files) },
+  }
+  const elegirArchivo = <input ref={input} type="file" hidden accept="application/pdf,image/*,.doc,.docx,.xls,.xlsx" onChange={e => { tomar(e.target.files); e.target.value = '' }} />
+
+  /* UNO NUEVO DESDE SU FILA (propuesta C, 16 oct 2026): la vista previa grande a la izquierda y, a
+     la derecha, la revisión del archivo —formato, tamaño y con qué nombre se guarda— y las
+     fechas. Se ve qué se sube y que está bien antes de confirmar. */
+  if (fijo && !actual) {
+    const formatoOk = archivo && sub.formatos.includes(ext)
+    const tamanoOk = archivo && archivo.size / 1048576 <= sub.tamanoMaxMB
+    const revisado = (ok, txt, dato) => (
+      <li className={`xv-check${!archivo ? ' espera' : ok ? ' ok' : ' mal'}`}>
+        <span className="xv-check-ico" aria-hidden="true">{!archivo ? null : ok ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}</span>
+        <span className="xv-check-txt">{txt}</span>
+        {dato && <span className="xv-check-dato">{dato}</span>}
+      </li>
+    )
+    return (
+      <Modal titulo={`Subir ${minuscula(sub.nombre)} · ${persona.name}`} Icono={Upload} onCerrar={onCerrar} ancho={940} pie={pie}>
+        <div className="xv-dos">
+          <div className="xv-izq">
+            <div className={`xv-previa${archivo ? '' : ' vacia'}${arrastrando ? ' on' : ''}`} {...soltar}>
+              {!archivo ? (
+                <button type="button" className="xv-soltar" onClick={() => input.current?.click()}>
+                  <Upload size={26} aria-hidden="true" />
+                  <b>Arrastre aquí el archivo</b>
+                  <span>o haga clic para elegirlo · {reglas}</span>
+                </button>
+              ) : esImagen ? <img src={url} alt={`Vista previa de ${archivo.name}`} />
+                : ext === 'pdf' ? <div className="xv-pdf"><PaginasPdf url={url} /></div>
+                  : <div className="xv-sin-previa"><FileText size={34} aria-hidden="true" /><span>Este formato no tiene vista previa</span></div>}
+            </div>
+            {archivo && (
+              <div className="xv-archivo">
+                <span className="xv-archivo-nom"><b>{archivo.name}</b> · {peso(archivo.size)}</span>
+                <button type="button" className="dc-btn dc-btn-sm" onClick={() => input.current?.click()}><RefreshCw size={13} aria-hidden="true" /> Cambiar archivo</button>
+              </div>
+            )}
+          </div>
+          <aside className="xv-der">
+            <div className="xv-bloque">
+              <span className="xv-tit">Revisión del archivo</span>
+              <ul className="xv-checks">
+                {revisado(formatoOk, 'Formato aceptado', archivo ? ext.toUpperCase() : sub.formatos.map(f => f.toUpperCase()).join(', '))}
+                {revisado(tamanoOk, 'Tamaño dentro del límite', archivo ? `${peso(archivo.size)} de ${sub.tamanoMaxMB} MB` : `hasta ${sub.tamanoMaxMB} MB`)}
+                {revisado(formatoOk && tamanoOk, 'Se guardará como')}
+              </ul>
+              <span className="xv-nombre">{archivo ? normalizarNombre(persona, sub, emision || iso(hoy()), ext) : 'Elija el archivo para verlo'}</span>
+            </div>
+            <div className="xv-sep" />
+            <div className="xv-bloque">
+              <span className="xv-tit">Fechas</span>
+              <label className="xa-campo"><span className="pl-label">Fecha de emisión</span><SelectorFecha valor={emision} onCambio={setEmision} ariaLabel="Fecha de emisión" /></label>
+              {sub.vence && <label className="xa-campo"><span className="pl-label">Vence</span><SelectorFecha valor={venc} onCambio={v => { setVencimiento(v); setVencTocado(true) }} ariaLabel="Fecha de vencimiento" /></label>}
+              <span className="xv-nota">{sub.vence ? (vencTocado ? 'Vencimiento corregido a mano.' : `Calculado: este documento vale ${vigencia}.`) : 'Este documento no vence.'}</span>
+            </div>
+            {error && <p className="xu-error" role="alert">{error}</p>}
+          </aside>
+        </div>
+        {elegirArchivo}
+      </Modal>
+    )
+  }
 
   return (
-    <Modal titulo={`Subir documento · ${persona.name}`} Icono={Upload} onCerrar={onCerrar} ancho={1000} pie={<>
-      <VolverCarpetas onVolver={onVolver} />
-      <span className="xu-pie-nota">{actual ? 'El actual no se borra: queda como versión anterior.' : 'Elija a la izquierda a qué documento corresponde.'}</span>
-      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
-      <button type="button" className={`pl-btn-save${actual ? ' xu-btn-reemplazar' : ''}`} disabled={!listo} onClick={guardar}>
-        {guardando ? 'Guardando…' : actual ? <><RefreshCw size={14} aria-hidden="true" /> Sí, reemplazar</> : <><Upload size={14} aria-hidden="true" /> Subir documento</>}
-      </button>
-    </>}>
-      <div className="xu-dos">
-        <aside className="xu-izq" aria-label="Documentos de la persona">
+    <Modal titulo={fijo ? `Subir ${minuscula(sub.nombre)} · ${persona.name}` : `Subir documento · ${persona.name}`} Icono={Upload} onCerrar={onCerrar} ancho={fijo ? 720 : 1000} pie={pie}>
+      <div className={`xu-dos${fijo ? ' xu-fijo' : ''}`}>
+        {!fijo && <aside className="xu-izq" aria-label="Documentos de la persona">
           <div className="pl-search-wrap">
             <Search size={13} className="pl-search-ico" />
             <input type="search" className="pl-search" placeholder="Buscar documento…" value={busca} onChange={e => setBusca(e.target.value)} aria-label="Buscar documento" />
@@ -1504,30 +1625,33 @@ function ModalSubir({ persona, filas, inicial, inicialDoc = '', tipoInicial, onC
             const cumplidos = exigidos.filter(e => ESTADOS[e.estado]?.cumple).length
             return (
               <div key={g.tipo.id} className="xu-grupo">
-                <div className="xu-grupo-tit"><span>{g.tipo.nombre}</span>{exigidos.length > 0 && <span>{cumplidos} de {exigidos.length}</span>}</div>
+                <div className="xu-grupo-tit"><IconoCarpeta size={20} /><span>{g.tipo.nombre}</span>{exigidos.length > 0 && <span className="xu-grupo-n">{cumplidos} de {exigidos.length}</span>}</div>
                 {visibles.map(e => {
                   const v = versionActual(e.docs[0])
-                  const det = e.estado === 'no_exigido' ? (e.docs.length ? plural(e.docs.length, 'documento', 'documentos') : 'No exigido')
+                  // Lo no exigido no se ve apagado: es opcional, y si lo trae se guarda igual.
+                  const det = e.estado === 'no_exigido' ? (e.docs.length ? plural(e.docs.length, 'documento', 'documentos') : 'Si lo trae, se guarda')
                     : e.estado === 'faltante' ? (e.limite ? `Hasta el ${fechaCorta(e.limite)}` : 'Sin plazo')
                       : v?.vencimiento ? `Vence ${fechaCorta(v.vencimiento)}` : v ? 'No vence' : ''
                   const on = e.subtipo.id === elegido
                   return (
-                    <button key={e.subtipo.id} type="button" className={`xu-doc${on ? ' on' : ''}${e.estado === 'no_exigido' && !e.docs.length ? ' tenue' : ''}`} aria-pressed={on} onClick={() => elegir(e.subtipo.id)}>
+                    <button key={e.subtipo.id} type="button" className={`xu-doc${on ? ' on' : ''}`} aria-pressed={on} onClick={() => elegir(e.subtipo.id)}>
                       <span className="xu-doc-txt"><b>{e.subtipo.nombre}</b><small>{det}{e.docs[0]?.origen === 'ficha' ? ' · de la ficha' : ''}</small></span>
-                      {e.estado !== 'no_exigido' && <span className={`dc-chip dc-t-${ESTADOS[e.estado]?.tono || 'gris'} xu-chip`}>{ESTADOS[e.estado]?.label}</span>}
+                      {e.estado !== 'no_exigido'
+                        ? <span className={`dc-chip dc-t-${ESTADOS[e.estado]?.tono || 'gris'} xu-chip`}>{ESTADOS[e.estado]?.label}</span>
+                        : <span className="dc-chip dc-t-gris xu-chip">Opcional</span>}
                     </button>
                   )
                 })}
               </div>
             )
           })}
-        </aside>
+        </aside>}
 
         <section className="xu-der" aria-label="Documento elegido">
           {!sub ? <Vacio Icono={FolderOpen} titulo="Elija un documento" texto="A la izquierda están los documentos de esta persona." /> : <>
             <div className="xu-der-cab"><h3>{sub.nombre}</h3><span>{reglas}</span></div>
 
-            {sub.varios && entrada.docs.length > 0 && (
+            {sub.varios && entrada.docs.length > 0 && !(fijo && inicialDoc) && (
               <div className="xu-varios" role="radiogroup" aria-label="Qué hacer con el nuevo">
                 <span className="pl-label">Ya tiene {plural(entrada.docs.length, 'documento', 'documentos')} de este tipo. ¿Qué desea hacer?</span>
                 <button type="button" role="radio" aria-checked={!destino} className={`xu-op${!destino ? ' on' : ''}`} onClick={() => setDestino('')}>

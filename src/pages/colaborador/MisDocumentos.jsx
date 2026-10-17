@@ -121,7 +121,7 @@ export default function MisDocumentos() {
 }
 
 /* La carpeta dibujada: el amarillo de las carpetas de Windows, igual que en el celular. */
-function IconoCarpeta({ size = 40 }) {
+export function IconoCarpeta({ size = 40 }) {
   return (
     <svg width={size} height={size * 0.85} viewBox="0 0 40 34" aria-hidden="true">
       <path d="M2 6a4 4 0 0 1 4-4h10l4 5h14a4 4 0 0 1 4 4v17a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z" fill="#E8A82A" />
