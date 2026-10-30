@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import {
   Users, Network, Route, ClipboardCheck, ClipboardList, TrendingUp,
-  CircleDollarSign, Bot, Folder, Calendar, Gift, Globe, FileText, MessageSquarePlus,
+  CircleDollarSign, Bot, Folder, Calendar, Gift, Globe, FileText, MessageSquarePlus, ScanFace,
 } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 
@@ -36,6 +36,7 @@ function modulos(rol) {
        El módulo se abre desde el riel; acá, lo suyo, igual que en el celular. */
     { icon: FileText, label: 'Mis documentos', destino: '/mi-espacio/zona-hr/documentos' },
     { icon: MessageSquarePlus, label: 'Mis solicitudes', destino: '/mi-espacio/zona-hr/solicitudes' },
+    { icon: ScanFace, label: 'Mi asistencia', destino: '/mi-espacio/mi-asistencia' },
     { icon: ClipboardCheck, label: 'Evaluaciones' },
     { icon: ClipboardList, label: 'Encuestas' },
     { icon: TrendingUp, label: 'PDI' },

@@ -2,16 +2,15 @@ import { Rocket, Users, HeartHandshake, ChevronRight, AlertTriangle, CheckCircle
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { colaboradoresData } from '../../pages/personas/colaboradoresData'
 
-function Pildora({ children, fondo = '#f1f5f9', texto = '#0C2D40', Icon }) {
+/* Las etiquetas de estado de siempre (DISENO_MOBILE.md): rojo = en riesgo, verde = listo, gris = lo demás. */
+const TONO = { gris: ['var(--tx-gris)', 'var(--tn-gris)'], rojo: ['var(--in-rojo)', 'var(--in-rojo-bg)'], verde: ['var(--tx-verde)', 'var(--tn-verde)'] }
+function Etiqueta({ children, tono = 'gris', Icon }) {
+  const [c, bg] = TONO[tono]
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 2,
-      background: fondo, color: texto, fontSize: 5.5, fontWeight: 700,
-      padding: '2px 6px', borderRadius: 5,
-    }}>
-      {Icon && <Icon size={6} />}
+    <em style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontStyle: 'normal', fontSize: 6, fontWeight: 700, borderRadius: 99, padding: '2px 7px', color: c, background: bg }}>
+      {Icon && <Icon size={7} />}
       {children}
-    </span>
+    </em>
   )
 }
 
@@ -21,7 +20,10 @@ function Pildora({ children, fondo = '#f1f5f9', texto = '#0C2D40', Icon }) {
 
    El orden de las tarjetas no es fijo, es por urgencia: arriba va el trabajo que le queda a
    la persona y abajo lo que ya cerró. Por eso al buddy graduado le abre con "Mis acompañados"
-   y deja "Mi Onboarding" como consulta. */
+   y deja "Mi onboarding" como consulta.
+
+   Con las piezas de Zona HR (auditoría heurística): el ícono en el círculo con aro menta, tarjetas con
+   sombra y no con borde, y trato de usted. */
 export default function OnboardingHubPhone({ currentUser, onIr }) {
   const { asignaciones } = useOnboardingData()
   const esBuddy = currentUser.role === 'buddy'
@@ -29,13 +31,9 @@ export default function OnboardingHubPhone({ currentUser, onIr }) {
   const cardMiOnboarding = {
     key: 'mi-onboarding',
     icon: Rocket,
-    titulo: 'Mi Onboarding',
-    detalle: 'Tu propia ruta de incorporación',
-    pie: currentUser.onbGraduado
-      ? <div style={{ marginTop: 6 }}>
-          <Pildora fondo="#f0fdf4" texto="#16a34a" Icon={CheckCircle2}>Completado</Pildora>
-        </div>
-      : null,
+    titulo: 'Mi onboarding',
+    detalle: 'Su propia ruta de incorporación',
+    pie: currentUser.onbGraduado ? <Etiqueta tono="verde" Icon={CheckCircle2}>Completado</Etiqueta> : null,
   }
 
   let tarjetas
@@ -48,17 +46,8 @@ export default function OnboardingHubPhone({ currentUser, onIr }) {
         key: 'acompanados',
         icon: HeartHandshake,
         titulo: 'Mis acompañados',
-        detalle: 'Las personas que acompañas',
-        pie: (
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4, marginTop: 6 }}>
-            <Pildora>{acompanados.length} {acompanados.length === 1 ? 'persona' : 'personas'}</Pildora>
-            {enRiesgo > 0 && (
-              <Pildora fondo="#fef2f2" texto="#dc2626" Icon={AlertTriangle}>
-                {enRiesgo} en riesgo
-              </Pildora>
-            )}
-          </div>
-        ),
+        detalle: `${acompanados.length} ${acompanados.length === 1 ? 'persona' : 'personas'} que acompaña`,
+        pie: enRiesgo > 0 ? <Etiqueta tono="rojo" Icon={AlertTriangle}>{enRiesgo} en riesgo</Etiqueta> : null,
       },
       cardMiOnboarding,
     ]
@@ -72,53 +61,42 @@ export default function OnboardingHubPhone({ currentUser, onIr }) {
         key: 'seguimiento',
         icon: Users,
         titulo: 'Seguimiento',
-        detalle: `Tu área: ${currentUser.area}`,
-        pie: (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-            <Pildora>{mios.length} {mios.length === 1 ? 'persona' : 'personas'}</Pildora>
-            {enAlerta > 0 && (
-              <Pildora fondo="#fef2f2" texto="#dc2626" Icon={AlertTriangle}>
-                {enAlerta} necesitan atención
-              </Pildora>
-            )}
-          </div>
-        ),
+        detalle: `Su área: ${currentUser.area} · ${mios.length} ${mios.length === 1 ? 'persona' : 'personas'}`,
+        pie: enAlerta > 0 ? <Etiqueta tono="rojo" Icon={AlertTriangle}>{enAlerta} necesitan atención</Etiqueta> : null,
       },
     ]
   }
 
   return (
-    <div style={{ padding: '2px 2px' }}>
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 800, color: '#0C2D40' }}>Onboarding</div>
-        <div style={{ fontSize: 6.5, color: '#94a3b8', marginTop: 1 }}>
-          {esBuddy ? 'Tu ruta y tu gente.' : 'Tu ruta y la de tu equipo.'}
-        </div>
+    <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
+      <div style={{ display: 'grid', marginBottom: 12 }}>
+        <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Onboarding</b>
+        <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>
+          {esBuddy ? 'Su recorrido y las personas que acompaña' : 'Su recorrido y el de su equipo'}
+        </small>
       </div>
 
       {tarjetas.map(t => (
-        <div
+        <button
           key={t.key}
+          type="button"
           onClick={() => onIr(t.key)}
           style={{
-            display: 'flex', alignItems: 'flex-start', gap: 9, cursor: 'pointer',
-            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12,
-            padding: '12px 11px', marginBottom: 8,
+            width: '100%', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textAlign: 'left',
+            background: 'var(--in-carta)', border: 'none', borderRadius: 15, boxShadow: 'var(--in-sombra)',
+            padding: '11px 11px', marginBottom: 8, fontFamily: 'inherit', color: 'var(--in-texto)',
           }}
         >
-          <div style={{
-            width: 30, height: 30, borderRadius: 10, background: '#0C2D40', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <t.icon size={14} style={{ color: '#00E091' }} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 8.5, fontWeight: 700, color: '#0C2D40' }}>{t.titulo}</div>
-            <div style={{ fontSize: 6, color: '#94a3b8', marginTop: 1 }}>{t.detalle}</div>
-            {t.pie}
-          </div>
-          <ChevronRight size={12} style={{ color: '#cbd5e1', flexShrink: 0, marginTop: 3 }} />
-        </div>
+          <span style={{ width: 32, height: 32, borderRadius: '50%', boxShadow: 'inset 0 0 0 1.4px #00E091', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <t.icon size={14} strokeWidth={1.7} />
+          </span>
+          <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 1 }}>
+            <b style={{ fontSize: 9.6, fontWeight: 600 }}>{t.titulo}</b>
+            <small style={{ fontSize: 7.4, color: 'var(--in-mute)' }}>{t.detalle}</small>
+            {t.pie && <span style={{ marginTop: 4 }}>{t.pie}</span>}
+          </span>
+          <ChevronRight size={12} style={{ color: 'var(--in-suave)', flexShrink: 0 }} />
+        </button>
       ))}
     </div>
   )

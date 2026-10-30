@@ -1,4 +1,4 @@
-import { House, CircleUserRound, UserRound, MessageCircleMore, ClipboardCheck, Settings, Rocket, Folder, Building2, FolderCheck } from 'lucide-react'
+import { House, CircleUserRound, UserRound, MessageCircleMore, ClipboardCheck, Settings, Rocket, Folder, Building2, FolderCheck, ScanFace } from 'lucide-react'
 
 /* Los módulos de la aplicación. Viven aparte para que los lean el riel (`Sidebar`) y el menú de
    teléfono (`MenuPanel`) sin que ninguno de los dos tenga que exportar otra cosa que componentes. */
@@ -28,6 +28,10 @@ export const allNavItems = [
      pestaña de la ficha porque tiene su propio trabajo diario —la bandeja, emitir, el panel—
      que no empieza eligiendo a nadie. */
   { icon: FolderCheck, label: 'Documentación', path: '/documentos', roles: ['admin', 'manager'] },
+  /* ASISTENCIA VA DESPUÉS DE DOCUMENTACIÓN: también su unidad es la persona, y lee de Organización
+     dónde marca cada una (su sucursal o su centro de trabajo) y a qué unidad pertenece. Lo del
+     colaborador —marcar, su mes— entra por Mi espacio personal. */
+  { icon: ScanFace, label: 'Asistencia', path: '/asistencia', roles: ['admin', 'manager'] },
   { icon: Rocket, label: 'Onboarding', path: '/onboarding', roles: ['admin', 'manager', 'auxiliar'] },
   /* COMUNICACIÓN Y EVALUACIÓN SON MÓDULOS DE ADMINISTRACIÓN, no del colaborador: aquí se
      redactan los anuncios y se arman las campañas de evaluación, no se leen. Lo que al

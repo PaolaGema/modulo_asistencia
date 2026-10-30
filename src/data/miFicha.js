@@ -17,6 +17,11 @@ const pdf = nombre => ({
   origen: 'Registrado por RR.HH.',
 })
 
+/* Una fecha a N días de hoy, en el formato de la ficha. Para que la demo SIEMPRE tenga el caso de dos
+   documentos por renovar (pasaporte y licencia de Carlos): con una fecha fija, en unos meses el
+   pasaporte dejaría de estar «por vencer» y nadie vería cómo se resuelve ese caso en el teléfono. */
+const enDias = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10) }
+
 const CARLOS = {
   '0.1': 'no',
   // Datos personales
@@ -25,7 +30,8 @@ const CARLOS = {
   '1.14': 'Bolivia', '1.10': 'Documento nacional de identidad', '1.11': '7845123', '1.12': 'LP', '1.13': '1F',
   '1.15': '2019-11-22', '1.16': '2029-11-22', '1.17': pdf('CI_Carlos_Mendoza.pdf'), '1.29': 'Casado(a)',
   '__n_docsec': 1, '1.20g': 'Bolivia', '1.20a': 'Pasaporte', '1.20b': 'EG482913', '1.20e': '2023-04-10',
-  '1.20f': '2033-04-10', '1.20h': pdf('Pasaporte_Carlos_Mendoza.pdf'),
+  // Vence en 40 días, siempre: es el segundo documento por renovar de la demo (ver `enDias`).
+  '1.20f': enDias(40), '1.20h': pdf('Pasaporte_Carlos_Mendoza.pdf'),
   // Nacimiento
   '1.21': '1996-03-14', '1.27': 'M · Masculino', '1.23': 'Bolivia', '1.22': 'La Paz', '1.24': 'si',
   '1.21b': pdf('Certificado_nacimiento_Carlos.pdf'),

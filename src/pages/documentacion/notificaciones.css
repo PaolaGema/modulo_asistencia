@@ -81,13 +81,46 @@
 .nt-tipo-agregar-btn small { font-weight: 500; color: var(--text-muted); margin-left: 4px; }
 .nt-tipo-agregar-btn:hover { border-style: solid; }
 .nt-tipo-agregar-btn:focus-visible { outline: 2px solid var(--focus, var(--navy)); outline-offset: 2px; }
-.nt-nuevo td { background: var(--bg-secondary); }
-.nt-nuevo-acc { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.nt-nuevo-crear { padding: 7px 14px; }
+/* ── El panel del tipo (propuesta D): la lista a la izquierda y, al abrir uno, su panel al costado ── */
+.nt-tipos { display: grid; grid-template-columns: minmax(0, 1fr); }
+.nt-tipos.con-panel { grid-template-columns: minmax(0, 1fr) 360px; }
+.nt-tipo { font: inherit; font-weight: 600; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.nt-tipo:focus-visible { outline: 2px solid var(--focus, var(--navy)); outline-offset: 3px; border-radius: 4px; }
+.nt-tipo-fila { cursor: pointer; }
+.nt-tipo-fila:hover td { background: var(--surface-hover); }
+.nt-tipo-fila.on td { background: var(--green-tint, #F3FFF9); }
+.nt-tipo-fila.on td:first-child { box-shadow: inset 3px 0 0 var(--green-fuerte, #00875A); }
+.nt-chev { width: 20px; color: var(--text-muted); }
+.nt-tipo-fila.on .nt-chev { color: var(--green-fuerte, #00875A); }
+.nt-souly, .nt-propio { font-size: 10.5px; font-weight: 600; border-radius: 99px; padding: 2px 8px; background: var(--bg-secondary); color: var(--text-muted); }
+.nt-propio { background: #F3E8FF; color: #6B21A8; }
+.dark .nt-propio { background: rgba(168,85,247,.16); color: #D8B4FE; }
+
+.nt-panel { border-left: 1px solid var(--border); display: flex; flex-direction: column; min-width: 0; }
+.nt-panel-cab { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.nt-panel-cab h3 { margin: 0; flex: 1; min-width: 0; font-size: 14.5px; font-weight: 700; color: var(--text-heading); overflow-wrap: anywhere; }
+.nt-panel-punto { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.nt-panel-cuerpo { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.nt-campo { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.nt-campo .pl-input { width: 100%; height: 36px; box-sizing: border-box; }
+.nt-campo .pl-input[readonly] { background: var(--bg-secondary); color: var(--text-muted); }
+.nt-panel-dos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.nt-panel-linea { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.nt-panel-nota { margin: -6px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+.nt-panel-cuerpo > .nt-panel-nota:last-child { margin-top: 0; }
+.nt-panel-cuerpo .nt-nuevo-error { margin: 0; }
+.nt-panel-pie { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--border); }
+.nt-panel-pie .pl-btn-cancel { margin-left: auto; }
+.nt-panel-pie .pl-btn-save:disabled { opacity: .5; cursor: not-allowed; }
+.nt-eliminar { font: inherit; font-size: 12.5px; font-weight: 600; border: 0; background: none; color: var(--dc-rojo, #B42318); padding: 6px 4px; cursor: pointer; }
+.nt-eliminar:disabled { color: var(--text-muted); opacity: .6; cursor: not-allowed; }
+@media (max-width: 900px) {
+  .nt-tipos.con-panel { grid-template-columns: minmax(0, 1fr); }
+  .nt-panel { border-left: 0; border-top: 1px solid var(--border); }
+}
 .nt-nuevo-x { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; background: none; color: var(--text-muted); cursor: pointer; }
 .nt-nuevo-x:hover { background: var(--surface-hover); color: var(--text-heading); }
 .nt-nuevo-error { margin: 8px 22px 0; font-size: 12.5px; color: var(--dc-rojo, #B42318); }
-.nt-nuevo-ayuda { margin: 8px 22px 0; font-size: 12.5px; color: var(--text-muted); }
 
 /* En esta cabecera sobra ancho: el subtítulo va en una sola línea, sin el tope de párrafo de .pl-subtitle. */
 .nt-encabezado .pl-subtitle { max-width: none; }

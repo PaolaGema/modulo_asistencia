@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, ShieldOff, ChevronDown, HeartHandshake } from 'lucide-react'
+import { AlertTriangle, ShieldOff, ChevronDown, ChevronRight, HeartHandshake } from 'lucide-react'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { buildDetalleEtapas } from '../../utils/detalleEtapas'
 import { colaboradoresData, ESTADOS_ONBOARDING } from '../../pages/personas/colaboradoresData'
@@ -16,21 +16,28 @@ const URGENCIA = { 'en-riesgo': 0, 'sin-iniciar': 1, 'en-curso': 2, 'graduado': 
    fin. Lo que se corta se dice, no se esconde. */
 const TOPE = 6
 
-/* Píldora con los colores del directorio (`ESTADOS_ONBOARDING`), que es la fuente que usa
-   "Mis acompañados" en escritorio: si aquí se inventaran tonos, el mismo estado se vería de
-   dos colores según el dispositivo. */
+/* Las etiquetas de estado de siempre (DISENO_MOBILE.md), no los tonos del directorio de escritorio
+   (azul, naranja): rojo = en riesgo, verde = graduado, gris = lo demás. El nombre del estado sí sale de
+   `ESTADOS_ONBOARDING`, así dice lo mismo en los dos dispositivos. La barra de avance va en menta, roja
+   si está en riesgo. */
+const TONO_ESTADO = {
+  'en-riesgo': ['var(--in-rojo)', 'var(--in-rojo-bg)'],
+  graduado: ['var(--tx-verde)', 'var(--tn-verde)'],
+}
+const barraDe = onb => onb === 'en-riesgo' ? '#D92D20' : '#00E091'
+
 function Badge({ onb }) {
   const estado = ESTADOS_ONBOARDING[onb]
   if (!estado) return null
+  const [c, bg] = TONO_ESTADO[onb] || ['var(--tx-gris)', 'var(--tn-gris)']
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 3,
-      background: estado.bg, color: estado.color,
-      fontSize: 7, fontWeight: 700, padding: '2px 9px', borderRadius: 20,
+    <em style={{
+      display: 'inline-flex', alignItems: 'center', gap: 3, fontStyle: 'normal', whiteSpace: 'nowrap',
+      background: bg, color: c, fontSize: 6, fontWeight: 700, padding: '2px 7px', borderRadius: 99,
     }}>
       {onb === 'en-riesgo' && <AlertTriangle size={7} />}
       {estado.label}
-    </span>
+    </em>
   )
 }
 
@@ -38,67 +45,39 @@ function Badge({ onb }) {
    el buddy acompaña, no supervisa, y en el celular cada pantalla se lee sola. */
 function NotaPrivacidad({ nombre }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'flex-start', gap: 7,
-      background: '#fff', border: '1px solid #e8ecf0', borderRadius: 10,
-      padding: '9px 10px', marginTop: 10,
-    }}>
-      <ShieldOff size={11} style={{ color: '#94a3b8', flexShrink: 0, marginTop: 1 }} />
-      <span style={{ fontSize: 6.5, color: '#94a3b8', lineHeight: 1.5 }}>
-        Ves el avance general y el recorrido. Las respuestas, las evaluaciones y los datos
-        personales {nombre ? `de ${nombre}` : 'de cada colaborador'} siguen siendo visibles
-        solo para Recursos Humanos.
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, padding: '4px 4px 0', marginTop: 6 }}>
+      <ShieldOff size={10} style={{ color: 'var(--in-suave)', flexShrink: 0, marginTop: 1 }} />
+      <span style={{ fontSize: 7, color: 'var(--in-mute)', lineHeight: 1.5 }}>
+        Usted ve el avance general y el recorrido. Las respuestas, las evaluaciones y los datos
+        personales {nombre ? `de ${nombre}` : 'de cada colaborador'} solo los ve Recursos Humanos.
       </span>
     </div>
   )
 }
 
-/* Misma anatomía que `ColaboradorCard` en escritorio: identidad, avance y el botón al pie.
-   Sin línea de contexto sobre el botón: el buddy no tiene trabajo propio que contar, y el
-   estado y el avance ya están arriba. */
+/* Una fila por persona, como las tarjetas de Mis solicitudes: toda la tarjeta se toca. Antes cada una
+   llevaba un botón navy «Ver detalles» a todo lo ancho y entraba una persona y media por pantalla. */
 function Card({ c, onVerDetalles }) {
-  const estado = ESTADOS_ONBOARDING[c.onb]
-
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', gap: 9,
-      background: '#fff', border: '1px solid #e8ecf0', borderRadius: 11,
-      boxShadow: '0 4px 14px rgba(12,45,64,.07)',
-      padding: 11, marginBottom: 9,
+    <button type="button" onClick={() => onVerDetalles(c)} style={{
+      width: '100%', display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', cursor: 'pointer',
+      background: 'var(--in-carta)', border: 'none', borderRadius: 14, boxShadow: 'var(--in-sombra)',
+      padding: '9px 10px', marginBottom: 7, fontFamily: 'inherit', color: 'var(--in-texto)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
-        <AvatarPhone nombre={c.name} color={c.color} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#0C2D40', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-          <div style={{ fontSize: 8, fontWeight: 500, color: '#94a3b8', lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.cargo}</div>
-          <div style={{ fontSize: 7, fontWeight: 600, color: '#94a3b8', opacity: .75, lineHeight: 1.35 }}>{c.depto}</div>
-          <div style={{ marginTop: 5 }}><Badge onb={c.onb} /></div>
-        </div>
-      </div>
-
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
-          <span style={{ fontSize: 8, color: '#94a3b8' }}>Avance de su onboarding</span>
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40' }}>{c.onbPct}%</span>
-        </div>
-        <div style={{ height: 5, background: '#edf2f7', borderRadius: 100, overflow: 'hidden' }}>
-          <div style={{ width: `${c.onbPct}%`, height: '100%', background: estado.color, borderRadius: 100 }} />
-        </div>
-      </div>
-
-      <div style={{ borderTop: '1px solid #eef2f6', paddingTop: 9 }}>
-        <button
-          onClick={() => onVerDetalles(c)}
-          style={{
-            width: '100%', padding: '8px 0', borderRadius: 7, border: 'none',
-            background: '#0C2D40', color: '#fff', cursor: 'pointer',
-            fontSize: 8.5, fontWeight: 700, fontFamily: 'inherit',
-          }}
-        >
-          Ver detalles
-        </button>
-      </div>
-    </div>
+      <AvatarPhone nombre={c.name} color={c.color} size={28} />
+      <span style={{ flex: 1, minWidth: 0, display: 'grid' }}>
+        <b style={{ fontSize: 9.2, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</b>
+        <small style={{ fontSize: 7.4, color: 'var(--in-mute)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.cargo} · {c.depto}</small>
+        <span style={{ display: 'block', height: 4, background: 'var(--in-linea)', borderRadius: 99, overflow: 'hidden', marginTop: 5 }}>
+          <span style={{ display: 'block', width: `${c.onbPct}%`, height: '100%', background: barraDe(c.onb), borderRadius: 99 }} />
+        </span>
+      </span>
+      <span style={{ display: 'grid', justifyItems: 'end', gap: 4, flexShrink: 0 }}>
+        <Badge onb={c.onb} />
+        <small style={{ fontSize: 7, fontWeight: 600, color: 'var(--in-mute)' }}>{c.onbPct} %</small>
+      </span>
+      <ChevronRight size={11} style={{ color: 'var(--in-suave)', flexShrink: 0 }} />
+    </button>
   )
 }
 
@@ -106,7 +85,6 @@ function Card({ c, onVerDetalles }) {
    buddy acompaña y no administra el proceso; lo único que abre una tarea es su contenido, y
    de solo lectura. */
 function Detalle({ c, plantillas, onVolver }) {
-  const estado = ESTADOS_ONBOARDING[c.onb]
   const etapas = buildDetalleEtapas({ pct: c.onbPct }, plantillas)
   const nombre = c.name.split(' ')[0]
   const [tarea, setTarea] = useState(null)
@@ -121,42 +99,40 @@ function Detalle({ c, plantillas, onVolver }) {
     <div style={{ padding: '2px 2px' }}>
       <BarraVolver texto="Mis acompañados" onVolver={onVolver} />
 
-      <div style={{ background: '#0C2D40', borderRadius: 12, padding: '12px 13px', marginBottom: 11 }}>
+      {/* La tarjeta destacada blanca de los módulos, no una franja navy (esa es solo del Inicio). */}
+      <div style={{ background: 'var(--in-carta)', borderRadius: 18, boxShadow: 'var(--in-sombra)', padding: '13px 14px', marginBottom: 11, color: 'var(--in-texto)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <AvatarPhone nombre={c.name} color={c.color} size={32} />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#fff' }}>{c.name}</div>
-            <div style={{ fontSize: 7.5, color: 'rgba(255,255,255,.6)', marginTop: 1 }}>{c.cargo} — {c.depto}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11, fontWeight: 600 }}>{c.name}</div>
+            <div style={{ fontSize: 7.6, color: 'var(--in-mute)', marginTop: 1 }}>{c.cargo} · {c.depto}</div>
           </div>
+          <Badge onb={c.onb} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
-          <span style={{ flex: 1, height: 5, background: 'rgba(255,255,255,.15)', borderRadius: 100, overflow: 'hidden' }}>
-            <span style={{ display: 'block', width: `${c.onbPct}%`, height: '100%', background: estado.color, borderRadius: 100 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 11 }}>
+          <span style={{ flex: 1, height: 5, background: 'var(--in-linea)', borderRadius: 99, overflow: 'hidden' }}>
+            <span style={{ display: 'block', width: `${c.onbPct}%`, height: '100%', background: barraDe(c.onb), borderRadius: 99 }} />
           </span>
-          <span style={{ fontSize: 9, fontWeight: 800, color: '#fff' }}>{c.onbPct}%</span>
+          <span style={{ fontSize: 9, fontWeight: 600 }}>{c.onbPct} %</span>
         </div>
-      </div>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-        <Badge onb={c.onb} />
-        <span style={{ fontSize: 7.5, color: '#94a3b8' }}>Ingresó {c.ingreso}</span>
+        <div style={{ fontSize: 7.4, color: 'var(--in-mute)', marginTop: 5 }}>Ingresó {c.ingreso}</div>
       </div>
 
       {/* El aviso es el mismo de escritorio: nombra el motivo y propone la acción del buddy. */}
       {c.onb === 'en-riesgo' && (
         <div style={{
           display: 'flex', alignItems: 'flex-start', gap: 7,
-          background: '#fef2f2', borderRadius: 10, padding: '9px 10px', marginBottom: 11,
+          background: 'var(--in-rojo-bg)', borderRadius: 12, padding: '9px 10px', marginBottom: 11,
         }}>
-          <AlertTriangle size={11} style={{ color: '#dc2626', flexShrink: 0, marginTop: 1 }} />
-          <span style={{ fontSize: 7, color: '#dc2626', fontWeight: 600, lineHeight: 1.45 }}>
-            Lleva más de 3 días sin actividad. Un mensaje tuyo puede desatascar el proceso.
+          <AlertTriangle size={11} style={{ color: 'var(--in-rojo)', flexShrink: 0, marginTop: 1 }} />
+          <span style={{ fontSize: 7.4, color: 'var(--in-rojo)', fontWeight: 600, lineHeight: 1.45 }}>
+            Lleva más de 3 días sin actividad. Un mensaje suyo puede destrabar el proceso.
           </span>
         </div>
       )}
 
-      <div style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40', marginBottom: 2 }}>
-        Su recorrido <span style={{ fontWeight: 500, fontSize: 7, color: '#94a3b8' }}>· solo lectura</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)', marginBottom: 2 }}>
+        Su recorrido <span style={{ fontWeight: 500, fontSize: 7.4, textTransform: 'none', letterSpacing: 0, color: 'var(--in-mute)' }}>solo lectura</span>
       </div>
       <RecorridoPhone etapas={etapas} onVerTarea={setTarea} />
 
@@ -186,48 +162,44 @@ export default function AcompanadosPhone({ currentUser, onVolver }) {
   const ocultos = acompanados.length - visibles.length
 
   return (
-    <div style={{ padding: '2px 2px' }}>
+    <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       {onVolver && <BarraVolver texto="Onboarding" onVolver={onVolver} />}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div>
-          <div style={{ fontSize: 10, fontWeight: 800, color: '#0C2D40' }}>Mis acompañados</div>
-          <div style={{ fontSize: 6.5, color: '#94a3b8', marginTop: 1 }}>Onboardings que acompañas como buddy</div>
-        </div>
-        <AvatarPhone nombre={currentUser.name} color={currentUser.color} size={22} />
+      <div style={{ display: 'grid', marginBottom: 10 }}>
+        <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Mis acompañados</b>
+        <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Las personas que acompaña como buddy</small>
       </div>
 
       {acompanados.length === 0 ? (
         <div style={{
-          background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 10,
+          background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', borderRadius: 14,
           padding: '22px 14px', textAlign: 'center',
         }}>
-          <HeartHandshake size={18} style={{ color: '#cbd5e1', margin: '0 auto 7px' }} />
-          <div style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>Todavía no acompañas a nadie</div>
-          <div style={{ fontSize: 6.5, color: '#94a3b8', marginTop: 4, lineHeight: 1.5 }}>
-            Cuando Recursos Humanos te asigne como buddy de alguien, esa persona aparecerá aquí.
+          <HeartHandshake size={18} style={{ color: 'var(--in-suave)', margin: '0 auto 7px' }} />
+          <div style={{ fontSize: 9, fontWeight: 600 }}>Todavía no acompaña a nadie</div>
+          <div style={{ fontSize: 7.4, color: 'var(--in-mute)', marginTop: 4, lineHeight: 1.5 }}>
+            Cuando Recursos Humanos lo asigne como buddy de alguien, esa persona aparecerá aquí.
           </div>
         </div>
       ) : (
         <>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+          <div style={{ display: 'flex', gap: 7, marginBottom: 12 }}>
             {[
-              { n: acompanados.length, t: 'acompañados', c: '#0C2D40' },
-              { n: enRiesgo, t: 'en riesgo', c: '#dc2626' },
+              { n: acompanados.length, t: 'acompañados', c: 'var(--in-texto)' },
+              { n: enRiesgo, t: 'en riesgo', c: enRiesgo ? 'var(--in-rojo)' : 'var(--in-texto)' },
             ].map(k => (
               <div key={k.t} style={{
-                flex: 1, background: '#fff', border: '1px solid #e8ecf0', borderRadius: 10,
-                boxShadow: '0 2px 8px rgba(12,45,64,.05)',
-                padding: '9px 4px', textAlign: 'center',
+                flex: 1, background: 'var(--in-carta)', borderRadius: 14, boxShadow: 'var(--in-sombra)',
+                padding: '9px 11px', display: 'grid',
               }}>
-                <div style={{ fontSize: 15, fontWeight: 800, color: k.c, lineHeight: 1.1 }}>{k.n}</div>
-                <div style={{ fontSize: 6.5, color: '#94a3b8', marginTop: 2, lineHeight: 1.25 }}>{k.t}</div>
+                <b style={{ fontSize: 14, fontWeight: 600, color: k.c, lineHeight: 1.2 }}>{k.n}</b>
+                <small style={{ fontSize: 7.2, color: 'var(--in-mute)' }}>{k.t}</small>
               </div>
             ))}
           </div>
 
-          <div style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40', marginBottom: 8 }}>
-            Tu gente <span style={{ fontWeight: 500, color: '#94a3b8' }}>· por urgencia</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', marginBottom: 7 }}>
+            Su gente <span style={{ fontWeight: 500, fontSize: 7.4, textTransform: 'none', letterSpacing: 0, color: 'var(--in-mute)' }}>por urgencia</span>
           </div>
 
           {visibles.map(c => <Card key={c.id} c={c} onVerDetalles={setDetalle} />)}
@@ -237,9 +209,9 @@ export default function AcompanadosPhone({ currentUser, onVolver }) {
               onClick={() => setTodos(true)}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                background: '#fff', border: '1px solid #e8ecf0', borderRadius: 9,
+                background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', borderRadius: 99,
                 padding: '8px 0', cursor: 'pointer',
-                fontSize: 8.5, fontWeight: 700, color: '#0C2D40',
+                fontSize: 8.5, fontWeight: 600, color: 'var(--in-texto)',
               }}
             >
               Ver {ocultos} acompañado{ocultos > 1 ? 's' : ''} más

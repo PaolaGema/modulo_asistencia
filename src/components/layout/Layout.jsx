@@ -7,8 +7,7 @@ import MenuPanel from './MenuPanel'
 import MiOnboarding from '../../pages/colaborador/MiOnboarding'
 import { useUser } from '../../context/UserContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
-import { Home, MessageCircle, Bell, User, Users, LayoutGrid, Route, Calendar, MapPin, Sun, Gift, Info, HeartHandshake } from 'lucide-react'
-import { colaboradoresData } from '../../pages/personas/colaboradoresData'
+import { Home, MessageCircle, User, LayoutGrid, Route, Info } from 'lucide-react'
 import EncabezadoPropuesta from './EncabezadoPropuesta'
 import ZonaHRPhone from './ZonaHRPhone'
 import OrganigramaPhone from './OrganigramaPhone'
@@ -17,11 +16,32 @@ import AcompanadosPhone from './AcompanadosPhone'
 import OnboardingHubPhone from './OnboardingHubPhone'
 import PerfilPhone from './PerfilPhone'
 import MisDocumentosPhone, { MisSolicitudesPhone } from './MisDocumentosPhone'
+import Marcador from '../asistencia/Marcador'
+import InicioPhone from './InicioPhone'
+import SolicitarVacacionPhone from './VacacionPhone'
+import CalendarioPhone from './CalendarioPhone'
+import AvisoPhone, { useAvisosMarca } from './AvisoPhone'
 import BarraVolver from './BarraVolver'
 import RedDeSeguridad from './RedDeSeguridad'
+/* Abrir crece desde lo tocado, volver se encoge a su lugar, las pestañas se funden (transicionPhone). */
+import { abrirCreciendo, volverEncogiendo, cambiarPestana } from '../../utils/transicionPhone'
+
+/* Mis solicitudes lleva el gris azulado claro de su maqueta (opción C), con la franja de arriba igual:
+   así las tarjetas blancas se despegan del fondo. */
+const FONDO_SOLICITUDES = 'var(--in-fondo)'
 
 // Destinos que cuelgan de la pestaña Onboarding.
 const SUB_ONBOARDING = ['mi-onboarding', 'seguimiento', 'acompanados']
+/* Las pantallas con el fondo del Inicio, franja de arriba incluida. */
+const CON_FONDO_INICIO = ['inicio', 'vacacion', 'solicitudes', 'asistencia', 'hr', 'perfil']
+/* Onboarding también lleva el fondo del Inicio (auditoría heurística: su franja navy lo hacía ver como
+   otra app), pero siempre en claro con `papel-claro`: sus tareas todavía tienen colores fijos y en
+   oscuro quedarían letras navy sobre navy. */
+const ONBOARDING = ['onboarding', ...SUB_ONBOARDING]
+const FONDO_ONBOARDING = '#F2F5FC'
+/* Mis documentos también va en claro con el fondo del Inicio: sus pantallas de adentro todavía tienen
+   colores fijos (mismo criterio que Onboarding). */
+const SIEMPRE_CLARO = [...ONBOARDING, 'documentos']
 
 export default function Layout() {
   const { currentUser } = useUser()
@@ -75,43 +95,27 @@ export default function Layout() {
      Y la pestaña "Onboarding" es transitoria — cuando la persona se gradúa desaparece y
      Zona HR queda como única puerta, así que ese camino tiene que verse bien sin barra. */
   const [origenHR, setOrigenHR] = useState(false)
-  const abrirDesdeHR = key => { setOrigenHR(true); setMobileTab(key) }
-  const volverAHR = () => { setOrigenHR(false); setMobileTab('hr') }
-  const irAPestana = key => guardNavigate(() => { setOrigenHR(false); setMobileTab(key) })
+  /* `con`: pantallas que el módulo abre ya apiladas (el buscador de Zona HR lleva directo a un pedido o a una carpeta). */
+  const [abrirCon, setAbrirCon] = useState(null)
+  const abrirDesdeHR = (key, con = null) => abrirCreciendo(() => { setAbrirCon(con); setDesdeInicio(false); setDesdePerfil(false); setOrigenHR(true); setMobileTab(key) })
+  const volverAHR = () => volverEncogiendo(() => { setOrigenHR(false); setMobileTab('hr') })
+  /* Lo que se abre desde el inicio (marcar, pedir vacaciones) vuelve al inicio, no a Zona HR.
+     `marcarCon` es el paso que el botón del carrusel ya eligió: el marcador abre directo en él. */
+  const [desdeInicio, setDesdeInicio] = useState(false)
+  const [marcarCon, setMarcarCon] = useState(null)
+  const abrirDesdeInicio = (key, paso = null) => abrirCreciendo(() => { setAbrirCon(null); setMarcarCon(paso); setDesdeInicio(true); setOrigenHR(true); setMobileTab(key) })
+  const volverAInicio = () => volverEncogiendo(() => { setDesdeInicio(false); setOrigenHR(false); setMobileTab('inicio') })
+  /* Los avisos de marcar bajan como notificación del teléfono; tocarlos lleva al inicio. */
+  const avisos = useAvisosMarca(isMobile)
+  const volverDeModulo = desdeInicio ? volverAInicio : volverAHR
+  /* El organigrama abierto desde Perfil vuelve a Perfil (antes ese botón no hacía nada). */
+  const [desdePerfil, setDesdePerfil] = useState(false)
+  const abrirDesdePerfil = key => abrirCreciendo(() => { setDesdePerfil(true); setOrigenHR(true); setMobileTab(key) })
+  const volverAPerfil = () => volverEncogiendo(() => { setDesdePerfil(false); setOrigenHR(false); setMobileTab('perfil') })
+  const irAPestana = key => guardNavigate(() => cambiarPestana(() => { setOrigenHR(false); setMobileTab(key) }))
 
-  /* El banner de Inicio es el atajo al onboarding desde el muro, y cada perfil llega con un
-     trabajo distinto: el colaborador sigue su ruta, el líder mira a su área y el buddy mira a
-     su gente. Escrito como un objeto y no con ternarios repetidos en el ícono, el título y
-     el pie: así el día que se agregue un cuarto perfil se toca un solo lugar.
-
-     Quien no tiene pestaña propia entra por `abrirDesdeHR`, aunque venga del muro: el atajo
-     adelanta pasos, pero deja a la persona parada en el mismo lugar del árbol al que habría
-     llegado por Zona HR. Si entrara por `irAPestana` quedaría en una pantalla sin pestaña
-     encendida y sin salida hacia atrás. */
-  const acompanados = esBuddy ? colaboradoresData.filter(c => c.buddy?.name === currentUser.name) : []
-  const buddyEnRiesgo = acompanados.filter(c => c.onb === 'en-riesgo').length
-
-  const banner = esBuddy
-    ? {
-        icon: HeartHandshake,
-        titulo: 'Acompañar a mi gente',
-        detalle: `${acompanados.length} ${acompanados.length === 1 ? 'persona' : 'personas'}`
-          + (buddyEnRiesgo > 0 ? ` · ${buddyEnRiesgo} en riesgo →` : ' →'),
-        ir: () => abrirDesdeHR('acompanados'),
-      }
-    : esLider
-      ? {
-          icon: Users,
-          titulo: 'Ver el onboarding de mi equipo',
-          detalle: `Tu área: ${currentUser.area} →`,
-          ir: () => abrirDesdeHR('seguimiento'),
-        }
-      : {
-          icon: Route,
-          titulo: 'Continuar mi Onboarding',
-          detalle: 'Tienes tareas pendientes →',
-          ir: () => irAPestana('onboarding'),
-        }
+  /* El inicio ya no lleva el atajo «Continuar mi Onboarding» (ni el del líder o el buddy): se pidió
+     quitarlo. El onboarding sigue en su pestaña de la barra de abajo. */
 
   // Al cambiar de usuario en el simulador se vuelve a la raíz de la pestaña: si no, un
   // colaborador puede quedar parado en Seguimiento, que no le corresponde.
@@ -144,6 +148,9 @@ export default function Layout() {
     // riel, así que llegar aquí es haber escrito la URL a mano o venir de un enlace viejo.
     if (sinAccesoAdmin && location.pathname.startsWith('/inicio')) {
       navigate('/mi-espacio/mi-dia', { replace: true })
+    } else if (sinAccesoAdmin && location.pathname.startsWith('/asistencia')) {
+      /* La asistencia de todos es de RR.HH.; la suya la marca y la mira en Mi asistencia. */
+      navigate('/mi-espacio/mi-asistencia', { replace: true })
     } else if (sinAccesoAdmin && location.pathname.startsWith('/documentos')) {
       /* Documentación entra al rebote como el resto: son los expedientes de todos. Lo suyo lo
          tiene en Zona HR › Mis documentos, y ahí se lo lleva. */
@@ -214,6 +221,9 @@ export default function Layout() {
             width: 8, height: 8, borderRadius: '50%', background: '#00E091',
           }} />
           Vista Mobile — Prototipo UX
+          <button type="button" onClick={avisos.probar} style={{ marginLeft: 6, padding: '4px 10px', borderRadius: 99, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 600, cursor: 'pointer' }}>
+            Probar aviso de marcación
+          </button>
         </div>
 
         {/* Phone frame. Su `id` lo mide la lista del teléfono para abrirse hacia arriba si abajo no cabe (`useMenuPhone`). */}
@@ -221,18 +231,21 @@ export default function Layout() {
           width: 280, height: 560, zoom: zoomCel,
           borderRadius: 36,
           border: '5px solid #334155',
-          background: mobileTab === 'perfil' ? 'var(--bg-nav)' : '#fff',
+          background: CON_FONDO_INICIO.includes(mobileTab) ? FONDO_SOLICITUDES : SIEMPRE_CLARO.includes(mobileTab) ? FONDO_ONBOARDING : '#fff',
           overflow: 'hidden',
           boxShadow: '0 0 0 2px #1e293b, 0 25px 60px rgba(0,0,0,.4)',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
         }}>
+          <AvisoPhone aviso={avisos.aviso} onCerrar={avisos.cerrar} onAbrir={() => { avisos.cerrar(); volverAInicio() }} />
           {/* Status bar */}
           <div style={{
-            height: 40, background: '#0C2D40',
+            /* Solo la franja de la cámara, como un teléfono de verdad: el nombre «SoulyHR» se quitó porque
+               se leía como un encabezado y ocupaba espacio. */
+            height: 34, background: CON_FONDO_INICIO.includes(mobileTab) ? FONDO_SOLICITUDES : SIEMPRE_CLARO.includes(mobileTab) ? FONDO_ONBOARDING : '#0C2D40',
             display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-            paddingBottom: 6, flexShrink: 0,
+            paddingBottom: 5, flexShrink: 0,
             position: 'relative',
           }}>
             <div style={{
@@ -240,261 +253,46 @@ export default function Layout() {
               background: '#1e293b', position: 'absolute', top: 6,
               left: '50%', transform: 'translateX(-50%)',
             }} />
-            <span style={{ fontSize: 8, color: 'rgba(255,255,255,.6)', fontWeight: 600 }}>
-              SoulyHR
-            </span>
           </div>
 
           {/* Content */}
           <div style={{
             flex: 1, overflowY: 'auto', padding: '10px 10px 10px',
-            /* La ficha del colaborador sigue el tema; el resto de las pantallas del teléfono todavía
-               tiene sus colores fijos y se queda en claro. */
-            background: mobileTab === 'perfil' ? 'var(--bg-app)' : '#f8fafc',
+            /* La ficha del colaborador, el inicio y el formulario de vacación siguen el tema; el resto de las
+               pantallas del teléfono todavía tiene sus colores fijos y se queda en claro. */
+            background: CON_FONDO_INICIO.includes(mobileTab) ? FONDO_SOLICITUDES : SIEMPRE_CLARO.includes(mobileTab) ? FONDO_ONBOARDING : '#f8fafc',
             scrollbarWidth: 'none', msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
           }}
-          className="phone-scroll"
+          className={SIEMPRE_CLARO.includes(mobileTab) ? 'phone-scroll papel-claro' : 'phone-scroll'}
           >
             {mobileTab === 'inicio' ? (
-              <div style={{ padding: '2px 2px' }}>
-
-                {/* ── Header: Saludo + iconos ── */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div>
-                    <div style={{ fontSize: 7, color: '#94a3b8' }}>Hola 👋</div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: '#0C2D40' }}>{currentUser.name}</div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Bell size={9} style={{ color: '#64748b' }} />
-                    </div>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Calendar size={9} style={{ color: '#64748b' }} />
-                    </div>
-                    <div style={{
-                      width: 22, height: 22, borderRadius: '50%',
-                      background: currentUser.color,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ color: '#fff', fontSize: 6, fontWeight: 700 }}>{currentUser.initials}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Fecha card ── */}
-                <div style={{
-                  background: '#fff', borderRadius: 10, padding: '10px 12px',
-                  border: '1px solid #e2e8f0', marginBottom: 8, textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: 6, color: '#94a3b8', marginBottom: 1 }}>Hoy es</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                    <Calendar size={10} style={{ color: '#0C2D40' }} />
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#0C2D40' }}>Junio 22, 2026</span>
-                  </div>
-                  <div style={{ fontSize: 5.5, color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, marginTop: 2 }}>
-                    <MapPin size={5} /> La Paz, Bolivia
-                  </div>
-                </div>
-
-                {/* ── Turno + Reunión row ── */}
-                <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-                  <div style={{
-                    flex: 1, background: '#fff', borderRadius: 8, padding: '6px 8px',
-                    border: '1px solid #e2e8f0',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 2 }}>
-                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#3b82f6' }} />
-                      <span style={{ fontSize: 5.5, color: '#3b82f6', fontWeight: 600 }}>Turno</span>
-                    </div>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>08:00-16:00</div>
-                  </div>
-                  <div style={{
-                    flex: 1, background: '#fff', borderRadius: 8, padding: '6px 8px',
-                    border: '1px solid #e2e8f0',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 2 }}>
-                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981' }} />
-                      <span style={{ fontSize: 5.5, color: '#10b981', fontWeight: 600 }}>Actividad</span>
-                    </div>
-                    <div style={{ fontSize: 7, fontWeight: 600, color: '#0C2D40' }}>Reunión con RRHH</div>
-                  </div>
-                  <div style={{
-                    flex: 1, background: '#fff', borderRadius: 8, padding: '6px 8px',
-                    border: '1px solid #e2e8f0',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 2 }}>
-                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#f59e0b' }} />
-                      <span style={{ fontSize: 5.5, color: '#f59e0b', fontWeight: 600 }}>Pendientes</span>
-                    </div>
-                    <div style={{ fontSize: 7, fontWeight: 600, color: '#0C2D40' }}>2 solicitudes</div>
-                  </div>
-                </div>
-
-                {/* ── Próximos eventos y cumpleaños ── */}
-                <div style={{ marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
-                    <span style={{ fontSize: 6, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.04em' }}>Próximos eventos y cumpleaños</span>
-                    <span style={{ fontSize: 5.5, color: '#3b82f6', fontWeight: 600 }}>Ver más →</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
-                    {[
-                      { name: 'María', date: '12 Abr', type: 'CUMPLEAÑOS', color: '#ec4899', border: '#fecdd3' },
-                      { name: 'Jorge', date: '16 Abr', type: 'CUMPLEAÑOS', color: '#f59e0b', border: '#fde68a' },
-                      { name: 'Ana', date: '20 Abr', type: 'CUMPLEAÑOS', color: '#8b5cf6', border: '#ddd6fe' },
-                      { name: 'Carlos', date: '28 Abr', type: 'CUMPLEAÑOS', color: '#0d9488', border: '#99f6e4' },
-                      { name: 'ADN', date: '28 Abr', type: 'EVENTO', color: '#0C2D40', border: '#cbd5e1', isEvent: true },
-                    ].map(e => (
-                      <div key={e.name + e.date} style={{ minWidth: 42, textAlign: 'center', flexShrink: 0 }}>
-                        <div style={{ fontSize: 4.5, fontWeight: 700, color: e.isEvent ? '#0C2D40' : '#ec4899', textTransform: 'uppercase', marginBottom: 2, letterSpacing: '.02em' }}>
-                          {e.type}
-                        </div>
-                        <div style={{
-                          width: 28, height: 28, borderRadius: '50%', margin: '0 auto 2px',
-                          background: e.isEvent ? '#0C2D40' : e.color,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          border: `2px solid ${e.border}`,
-                        }}>
-                          {e.isEvent ? (
-                            <span style={{ fontSize: 5, fontWeight: 700, color: '#00E091' }}>🏢</span>
-                          ) : (
-                            <span style={{ fontSize: 7, fontWeight: 700, color: '#fff' }}>{e.name[0]}</span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: 5.5, fontWeight: 600, color: '#0C2D40' }}>{e.name}</div>
-                        <div style={{ fontSize: 4.5, color: '#94a3b8' }}>{e.date}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ── Acciones rápidas ── */}
-                <div style={{ marginBottom: 8 }}>
-                  <span style={{ fontSize: 6, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.04em' }}>Acciones rápidas</span>
-                  <div style={{ display: 'flex', gap: 5, marginTop: 4, overflowX: 'auto' }}>
-                    {[
-                      { icon: Calendar, label: 'Solicitar\nVacación' },
-                      { icon: Sun, label: 'Solicitar\nPermiso' },
-                      { icon: Gift, label: 'Ver\nBeneficios' },
-                    ].map(a => (
-                      <div key={a.label} style={{
-                        background: '#fff', borderRadius: 8, padding: '8px 10px',
-                        border: '1px solid #e2e8f0', textAlign: 'center',
-                        minWidth: 58, flexShrink: 0,
-                      }}>
-                        <a.icon size={11} style={{ color: '#64748b', display: 'block', margin: '0 auto 3px' }} />
-                        <div style={{ fontSize: 6, fontWeight: 600, color: '#475569', whiteSpace: 'pre-line', lineHeight: 1.3 }}>{a.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ── Tabs: Noticias / Muro / Menciones ── */}
-                <div style={{ display: 'flex', gap: 0, marginBottom: 8, background: '#f1f5f9', borderRadius: 8, padding: 2 }}>
-                  {['Noticias', 'Muro', 'Menciones'].map((t, i) => (
-                    <span key={t} style={{
-                      flex: 1, textAlign: 'center',
-                      fontSize: 6.5, fontWeight: 600, padding: '5px 0', borderRadius: 6,
-                      background: i === 2 ? '#0C2D40' : 'transparent',
-                      color: i === 2 ? '#fff' : '#64748b',
-                      cursor: 'pointer',
-                    }}>{t}</span>
-                  ))}
-                </div>
-
-                {/* ── Post de mención ── */}
-                <div style={{
-                  background: '#fff', borderRadius: 10, padding: '10px',
-                  border: '1px solid #e2e8f0', marginBottom: 8,
-                }}>
-                  {/* Post header */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#0C2D40', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 6, fontWeight: 700, color: '#fff' }}>JP</span>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 7.5, fontWeight: 700, color: '#0C2D40' }}>Juan Pérez Gómez</div>
-                      <div style={{ fontSize: 5.5, color: '#94a3b8' }}>Hace un momento · Hoy</div>
-                    </div>
-                  </div>
-
-                  {/* Post body */}
-                  <p style={{ fontSize: 7, color: '#475569', margin: '0 0 8px', lineHeight: 1.5 }}>
-                    ¡Hoy celebramos a Carlos Mendoza por cumplir su primer día con nosotros! Gracias por el compromiso y todo lo que aportas al equipo. <span style={{ color: '#3b82f6' }}>#BienvenidaFarmaVida</span>
-                  </p>
-
-                  {/* Post card celebración */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, #fce7f3, #fdf2f8, #ede9fe)',
-                    borderRadius: 8, padding: '10px', textAlign: 'center', marginBottom: 6,
-                  }}>
-                    <div style={{ fontSize: 5, fontWeight: 700, color: '#be185d', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-                      🎉 Bienvenida al equipo 🎉
-                    </div>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: '50%', margin: '0 auto 4px',
-                      background: currentUser.color,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,.1)',
-                    }}>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: '#fff' }}>{currentUser.initials}</span>
-                    </div>
-                    <div style={{ fontSize: 7.5, fontWeight: 700, color: '#0C2D40' }}>Carlos Mendoza Ríos</div>
-                    <div style={{ fontSize: 5.5, color: '#64748b' }}>Tecnología · Backend</div>
-                  </div>
-
-                  {/* Post interactions */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid #f1f5f9' }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <span style={{ fontSize: 5.5, color: '#64748b', display: 'flex', alignItems: 'center', gap: 2 }}>❤️ 24 personas</span>
-                      <span style={{ fontSize: 5.5, color: '#64748b' }}>3 comentarios</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 0, marginTop: 5, background: '#f8fafc', borderRadius: 6, padding: 2 }}>
-                    <span style={{ flex: 1, textAlign: 'center', fontSize: 6, color: '#64748b', padding: '4px 0', fontWeight: 500 }}>♡ Recomendar</span>
-                    <span style={{ flex: 1, textAlign: 'center', fontSize: 6, color: '#64748b', padding: '4px 0', fontWeight: 500 }}>💬 Comentar</span>
-                  </div>
-                </div>
-
-                {/* ── Banner Onboarding ── */}
-                {/* Ni el líder ni el buddy tienen una ruta propia que continuar: su atajo es
-                    su gente, y el pie dice si alguno necesita atención. */}
-                <div
-                  onClick={banner.ir}
-                  style={{
-                    background: '#0C2D40', borderRadius: 10, padding: '10px 12px',
-                    marginBottom: 6, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 8,
-                  }}
-                >
-                  <div style={{
-                    width: 26, height: 26, borderRadius: 8,
-                    background: 'rgba(0,224,145,.15)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <banner.icon size={11} style={{ color: '#00E091' }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 7.5, fontWeight: 700, color: '#fff' }}>
-                      {banner.titulo}
-                    </div>
-                    <div style={{ fontSize: 5.5, color: 'rgba(255,255,255,.6)', marginTop: 1 }}>
-                      {banner.detalle}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
+              /* El inicio, estilo suave (propuesta B1): «Hoy es» con tu turno y el botón de marcar. */
+              <InicioPhone
+                currentUser={currentUser}
+                onMarcar={paso => abrirDesdeInicio('asistencia', paso)}
+                onVacacion={() => abrirDesdeInicio('vacacion')}
+                onSolicitudes={() => abrirDesdeInicio('solicitudes')}
+                onCalendario={() => abrirDesdeInicio('calendario')}
+                onPerfil={() => irAPestana('perfil')}
+              />
+            ) : mobileTab === 'vacacion' ? (
+              /* «Solicitar vacación» del inicio abre directo el formulario, sin pasar por Mis solicitudes. */
+              <SolicitarVacacionPhone onVolver={volverDeModulo} volverA={desdeInicio ? 'Inicio' : 'Zona HR'} listoTexto={desdeInicio ? undefined : 'Volver a Zona HR'} />
             ) : mobileTab === 'hr' ? (
               <ZonaHRPhone currentUser={currentUser} onNavegar={abrirDesdeHR} />
             ) : mobileTab === 'perfil' ? (
-              <PerfilPhone key={currentUser.id} currentUser={currentUser} />
+              <PerfilPhone key={currentUser.id} currentUser={currentUser} onOrganigrama={() => abrirDesdePerfil('organigrama')} />
             ) : mobileTab === 'organigrama' ? (
-              <OrganigramaPhone onSalir={volverAHR} />
+              <OrganigramaPhone onSalir={desdePerfil ? volverAPerfil : volverAHR} />
             ) : mobileTab === 'documentos' ? (
-              <MisDocumentosPhone currentUser={currentUser} onVolver={volverAHR} />
+              <MisDocumentosPhone currentUser={currentUser} onVolver={volverAHR} inicio={abrirCon} />
             ) : mobileTab === 'solicitudes' ? (
-              <MisSolicitudesPhone currentUser={currentUser} onVolver={volverAHR} />
+              <MisSolicitudesPhone currentUser={currentUser} onVolver={volverDeModulo} inicio={desdeInicio ? null : abrirCon} />
+            ) : mobileTab === 'calendario' ? (
+              <CalendarioPhone onVolver={volverDeModulo} />
+            ) : mobileTab === 'asistencia' ? (
+              <div className="at-cel"><Marcador key={marcarCon || 'marcador'} iniciar={marcarCon} onVolver={volverDeModulo} telefono volverA={desdeInicio ? 'Inicio' : 'Zona HR'} /></div>
             ) : mobileTab === 'seguimiento' ? (
               <SeguimientoPhone currentUser={currentUser} onVolver={() => setMobileTab('onboarding')} />
             ) : mobileTab === 'acompanados' ? (
@@ -524,7 +322,7 @@ export default function Layout() {
             display: origenHR ? 'none' : 'block',
           }}>
             <div style={{
-              background: mobileTab === 'perfil' ? 'var(--bg-nav)' : '#fff',
+              background: ['perfil', 'inicio'].includes(mobileTab) ? 'var(--bg-nav)' : '#fff',
               borderRadius: 18,
               boxShadow: '0 -2px 16px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-around',

@@ -15,6 +15,8 @@ import TarjetaCampos from '../../components/organizacion/TarjetaCampos'
 import RielPasos from '../../components/personas/RielPasos'
 import Acordeon from '../../components/personas/Acordeon'
 import TarjetaReingreso from '../../components/personas/TarjetaReingreso'
+import AsignacionAsistencia, { asignacionDeFicha } from '../../components/personas/AsignacionAsistencia'
+import { useAsistencia } from '../../context/AsistenciaContext'
 import ExpedientePrevia from '../../components/personas/ExpedientePrevia'
 import ConfirmarAlta from '../../components/personas/ConfirmarAlta'
 
@@ -60,6 +62,7 @@ export default function ColaboradorNuevo() {
     organigrama, setOrganigrama, nodos, sucursales, colaboradores, setColaboradores, empresa,
     empresasGrupo,
   } = useOnboardingData()
+  const at = useAsistencia()
   // La raíz de la pantalla, para encontrar desde ella el contenedor que se desplaza.
   const raiz = useRef(null)
   const [guardado, setForm] = useLocalStorage(LLAVE_BORRADOR, EN_BLANCO)
@@ -481,6 +484,10 @@ export default function ColaboradorNuevo() {
       ficha: form,
     }])
 
+    /* SU ASISTENCIA: lo elegido en la parte Asistencia queda asignado en el módulo desde hoy. */
+    const asistencia = asignacionDeFicha(form, at)
+    if (asistencia) at.asignar([id], asistencia)
+
     if (puesto) {
       setOrganigrama(prev => ({
         ...prev,
@@ -494,7 +501,12 @@ export default function ColaboradorNuevo() {
   }
 
   const enPrevia = paso === PASO_PREVIA
-  const tarjetas = enPrevia ? [] : tarjetasDe(paso, form, ctx, nivel)
+  /* En Asistencia, la primera sección es la del módulo: horario, lugar, modalidad y cómo marca.
+     Los campos del estudio (jornada legal, vacaciones, permisos) siguen debajo. */
+  const tarjetas = enPrevia ? [] : [
+    ...(paso === 'asistencia' ? [{ id: 'at-modulo', titulo: 'Asignación de asistencia', desc: 'Su horario, dónde marca y cómo marca. Desde su primer día aparece en Hoy y en su app.', campos: [] }] : []),
+    ...tarjetasDe(paso, form, ctx, nivel),
+  ]
   const pasoActual = PASOS[indice]
   const pestana = pestanaDe(paso)
   /* El riel lista las pestañas y la vista previa; pulsar una pestaña abre su primera parte. */
@@ -771,13 +783,13 @@ export default function ColaboradorNuevo() {
                   abierto={abiertos.includes(t.titulo)}
                   onAlternar={() => alternar(t.titulo)}
                   llenos={llenosDe(t)}
-                  total={escribibles(t).length}
+                  total={t.id === 'at-modulo' ? null : escribibles(t).length}
                 >
                   <TarjetaCampos
                     campos={t.id === 'reingreso' ? [] : t.campos}
                     children={t.id === 'reingreso'
                       ? <TarjetaReingreso form={form} set={set} gente={colaboradores} />
-                      : null}
+                      : t.id === 'at-modulo' ? <AsignacionAsistencia form={form} set={set} /> : null}
                     form={form}
                     set={set}
                     aplicar={aplicar}

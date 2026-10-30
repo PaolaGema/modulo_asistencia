@@ -76,6 +76,8 @@ function leer(t, form) {
     if (vacio(v) || typeof v === 'object') continue
     bloques[bloques.length - 1].datos.push({
       key: c.key, label: c.label, valor: formatear(c, v, form), reservado: RESERVADOS.has(base(c.key)),
+      // Para que el teléfono ponga el detalle («Descripción de la alergia») debajo de su pregunta.
+      siNo: c.tipo === 'siNo', detalle: c.detalle || null,
     })
   }
   const llenos = bloques.filter(b => b.datos.length)

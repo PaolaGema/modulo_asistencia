@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle2, Plus, Save, X } from 'lucide-react'
+import { CheckCircle2, ChevronRight, Plus, Save, X } from 'lucide-react'
 import { useDocumentacion } from '../../context/DocumentacionContext'
 import { COLORES_TIPO, DESTINATARIOS, numeracionDe, plazoSolicitudDe, siguienteNumero, tiposDoc } from '../../data/documentacionData'
 import './notificaciones.css'
@@ -31,14 +31,12 @@ const siglaDe = nombre => {
   const palabras = sinTildes(nombre).replace(/[^A-Za-z ]/g, '').trim().split(/\s+/).filter(p => p.length > 2)
   return (palabras.length > 1 ? palabras.map(p => p[0]).join('') : (palabras[0] || '').slice(0, 3)).slice(0, 4).toUpperCase()
 }
+// La clave interna de un tipo nuevo: el nombre sin tildes y un sufijo para que no choque.
+const claveNueva = nombre => `t-${sinTildes(nombre).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString(36).slice(-3)}`
 
 export default function Notificaciones({ titulo, sub }) {
-  const { parametros, setParametros, emitidos, contratos, anotarConfig } = useDocumentacion()
+  const { parametros, setParametros, emitidos, contratos, modelos, anotarConfig } = useDocumentacion()
   const tipos = tiposDoc(parametros)
-  /* UN TIPO NUEVO DESDE LA NUMERACIÓN (16 oct 2026): la tabla ya muestra todos los tipos, y aquí
-     también se crean, sin tener que abrir una plantilla. Se guarda al momento, como en el editor:
-     queda su carpeta en Recibidos, su serie de números y la opción al hacer una plantilla. */
-  const [nuevo, setNuevo] = useState(null) // { nombre, sigla, digitos, reinicio }
   const inicial = () => ({
     notificarVencimiento: parametros.notificarVencimiento,
     hitos: parametros.hitos.map(String),
@@ -54,7 +52,6 @@ export default function Notificaciones({ titulo, sub }) {
   const [error, setError] = useState('')
   const [guardado, setGuardado] = useState(false)
   const set = (k, v) => { setP(prev => ({ ...prev, [k]: v })); setGuardado(false); setError('') }
-  const setNum = (tipo, k, v) => set('numeracion', { ...p.numeracion, [tipo]: { ...p.numeracion[tipo], [k]: v } })
 
   /* Lo que se guardaría, ya normalizado: así «hay cambios» no salta por un 45 escrito como texto. */
   const hitos = [...new Set(p.hitos.map(Number).filter(n => n > 0))].sort((a, b) => b - a)
@@ -92,26 +89,75 @@ export default function Notificaciones({ titulo, sub }) {
   const alternar = (lista, v) => (lista.includes(v) ? lista.filter(x => x !== v) : [...lista, v])
   const proximo = tipo => siguienteNumero(tipo, emitidos, { ...parametros, numeracion: normal.numeracion }, contratos).texto
 
-  const siglaNueva = nuevo ? (nuevo.sigla || siglaDe(nuevo.nombre)).toUpperCase().replace(/[^A-Z0-9]/g, '') : ''
-  const errorNuevo = !nuevo ? ''
-    : nuevo.nombre.trim().length < 3 ? 'Escriba el nombre del tipo.'
-      : Object.values(tipos).some(t => sinTildes(t.label).toLowerCase() === sinTildes(nuevo.nombre.trim()).toLowerCase()) ? 'Ya existe un tipo con ese nombre.'
-        : siglaNueva.length < 2 ? 'La sigla necesita al menos dos letras.'
-          : Object.values(p.numeracion).some(c => c.prefijo.toUpperCase() === siglaNueva) ? `La sigla ${siglaNueva} ya la usa otro tipo.`
+  /* EL PANEL DEL TIPO (23 oct 2026, propuesta D): la tabla sólo lista los tipos y su próximo
+     número; al hacer clic en uno se abre al costado un panel con todo lo suyo —nombre, sigla,
+     dígitos, si reinicia cada año y cuánto se usa— y ahí se cambia. «Guardar» lo guarda al momento,
+     sin pasar por «Guardar cambios». El mismo panel crea un tipo nuevo.
+     · Los tipos de Souly no cambian de nombre ni se eliminan; su numeración sí se ajusta.
+     · Un tipo propio se elimina sólo si ninguna plantilla ni documento lo usa.
+     · Los documentos guardan la clave del tipo, no su nombre: al renombrarlo, los ya emitidos y
+       su carpeta en Recibidos pasan a llamarse como el tipo. */
+  const propios = new Set((parametros.tiposPropios || []).map(t => t.key))
+  const [panel, setPanel] = useState(null) // { key: clave, o null si es nuevo; nombre, prefijo, digitos, reinicioAnual }
+  const nombreDe = k => (k === 'otro' ? 'Otros documentos' : tipos[k]?.label)
+  const abrir = k => setPanel({ key: k, nombre: tipos[k].label, prefijo: p.numeracion[k].prefijo, digitos: String(p.numeracion[k].digitos), reinicioAnual: !!p.numeracion[k].reinicioAnual })
+  const abrirNuevo = () => setPanel({ key: null, nombre: '', prefijo: '', digitos: '4', reinicioAnual: true })
+  const esNuevo = !!panel && !panel.key
+  const editaNombre = !!panel && (esNuevo || propios.has(panel.key))
+  // En uno nuevo la sigla se propone sola mientras no se escriba otra.
+  const siglaPanel = !panel ? '' : (panel.prefijo || (esNuevo ? siglaDe(panel.nombre) : '')).toUpperCase()
+  const errorPanel = !panel ? ''
+    : editaNombre && panel.nombre.trim().length < 3 ? 'Escriba el nombre del tipo.'
+      : editaNombre && Object.entries(tipos).some(([k, t]) => k !== panel.key && sinTildes(t.label).toLowerCase() === sinTildes(panel.nombre.trim()).toLowerCase()) ? 'Ya existe un tipo con ese nombre.'
+        : siglaPanel.length < 2 ? 'La sigla necesita al menos dos letras.'
+          : Object.entries(p.numeracion).some(([k, c]) => k !== panel.key && c.prefijo.toUpperCase() === siglaPanel) ? `La sigla ${siglaPanel} ya la usa otro tipo.`
             : ''
-  function crearTipo() {
-    if (errorNuevo) return
-    const label = nuevo.nombre.trim()
-    const base = sinTildes(label).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-    const key = `t-${base}-${Date.now().toString(36).slice(-3)}`
-    const usados = Object.values(tipos).map(t => t.color)
-    const color = COLORES_TIPO.find(c => !usados.includes(c)) || COLORES_TIPO[0]
-    const cfg = { prefijo: siglaNueva, formato: '{prefijo}-{n}/{gestion}', reinicioAnual: nuevo.reinicio, digitos: Math.min(8, Math.max(1, Number(nuevo.digitos) || 4)) }
-    setParametros(prev => ({ ...prev, tiposPropios: [...(prev.tiposPropios || []), { key, label, plural: plural(label), color }], numeracion: { ...prev.numeracion, [key]: cfg } }))
+  const cfgPanel = panel && {
+    ...(panel.key ? numeracion[panel.key] : { formato: '{prefijo}-{n}/{gestion}' }),
+    prefijo: siglaPanel, digitos: Math.min(8, Math.max(1, Number(panel.digitos) || 4)), reinicioAnual: panel.reinicioAnual,
+  }
+  const cambioPanel = !!panel && (esNuevo || panel.nombre.trim() !== tipos[panel.key].label || JSON.stringify(cfgPanel) !== JSON.stringify(numeracion[panel.key]))
+  const claveProx = panel?.key || '__nuevo'
+  const proximoPanel = panel ? siguienteNumero(claveProx, emitidos, { ...parametros, numeracion: { ...normal.numeracion, [claveProx]: cfgPanel } }, contratos).texto : ''
+  const usoPanel = panel?.key ? { plantillas: modelos.filter(m => m.categoria === panel.key).length, documentos: emitidos.filter(e => e.categoria === panel.key).length } : null
+  const setCampo = (k, v) => setPanel(prev => ({ ...prev, [k]: v }))
+
+  function guardarPanel() {
+    if (errorPanel || !cambioPanel) return
+    const label = panel.nombre.trim()
     // El borrador de la tabla también lo suma, ya guardado: no queda como «cambio sin guardar».
-    setP(prev => ({ ...prev, numeracion: { ...prev.numeracion, [key]: { ...cfg, digitos: String(cfg.digitos) } } }))
-    anotarConfig(`Creó el tipo de documento «${label}» (${siglaNueva})`)
-    setNuevo(null)
+    const alBorrador = key => setP(prev => ({ ...prev, numeracion: { ...prev.numeracion, [key]: { ...cfgPanel, digitos: String(cfgPanel.digitos) } } }))
+    if (esNuevo) {
+      const key = claveNueva(label)
+      const usados = Object.values(tipos).map(t => t.color)
+      const color = COLORES_TIPO.find(c => !usados.includes(c)) || COLORES_TIPO[0]
+      setParametros(prev => ({ ...prev, tiposPropios: [...(prev.tiposPropios || []), { key, label, plural: plural(label), color }], numeracion: { ...prev.numeracion, [key]: cfgPanel } }))
+      alBorrador(key)
+      anotarConfig(`Creó el tipo de documento «${label}» (${siglaPanel})`)
+      return setPanel(null)
+    }
+    const k = panel.key
+    const antes = tipos[k].label
+    const renombra = propios.has(k) && label !== antes
+    setParametros(prev => ({
+      ...prev,
+      ...(renombra && { tiposPropios: (prev.tiposPropios || []).map(t => (t.key === k ? { ...t, label, plural: plural(label) } : t)) }),
+      numeracion: { ...prev.numeracion, [k]: cfgPanel },
+    }))
+    alBorrador(k)
+    anotarConfig(renombra ? `Cambió el nombre del tipo de documento «${antes}» a «${label}»` : `Cambió la numeración de «${nombreDe(k)}»`)
+    setPanel(null)
+  }
+
+  const eliminable = !!usoPanel && propios.has(panel.key) && !usoPanel.plantillas && !usoPanel.documentos
+  function eliminarTipo() {
+    if (!eliminable) return
+    const k = panel.key
+    const sinTipo = num => Object.fromEntries(Object.entries(num).filter(([c]) => c !== k))
+    setParametros(prev => ({ ...prev, tiposPropios: (prev.tiposPropios || []).filter(t => t.key !== k), numeracion: sinTipo(prev.numeracion || {}) }))
+    setP(prev => ({ ...prev, numeracion: sinTipo(prev.numeracion) }))
+    anotarConfig(`Eliminó el tipo de documento «${tipos[k].label}»`)
+    setPanel(null)
   }
 
   return (
@@ -200,50 +246,80 @@ export default function Notificaciones({ titulo, sub }) {
           </Fila>
         </section>
 
-        {/* ── NUMERACIÓN ── */}
+        {/* ── NUMERACIÓN: la lista de tipos y, al costado, el panel del que se abrió ── */}
         <section className="nt-sec">
           <div className="nt-cab"><h2>Tipos de documento</h2><span>Cada tipo con su sigla y su numeración. Un número no se usa dos veces, ni si el documento se anula.</span></div>
-          <div className="nt-tabla-wrap">
-            <table className="nt-tabla">
-              <thead><tr><th>Tipo</th><th>Sigla</th><th>Dígitos</th><th>Reinicia cada año</th><th>Próximo número</th></tr></thead>
-              <tbody>
-                {Object.entries(tipos).map(([k, t]) => {
-                  const cfg = p.numeracion[k]
-                  if (!cfg) return null
-                  return (
-                    <tr key={k}>
-                      <td><span className="nt-tipo"><span style={{ background: t.color }} aria-hidden="true" />{k === 'otro' ? 'Otros documentos' : t.label}</span></td>
-                      <td><input className="pl-input nt-sigla" aria-label={`Sigla de ${t.label}`} value={cfg.prefijo} onChange={e => setNum(k, 'prefijo', e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 8))} /></td>
-                      <td><input className="pl-input nt-num nt-chico" inputMode="numeric" aria-label={`Dígitos de ${t.label}`} value={cfg.digitos} onChange={e => setNum(k, 'digitos', soloNumero(e.target.value).slice(0, 1))} /></td>
-                      <td><Interruptor valor={!!cfg.reinicioAnual} onCambio={v => setNum(k, 'reinicioAnual', v)} etiqueta={`Reiniciar cada año la numeración de ${t.label}`} /></td>
-                      <td><span className="nt-proximo">{proximo(k)}</span></td>
-                    </tr>
-                  )
-                })}
-                {nuevo ? (
-                  <tr className="nt-nuevo">
-                    <td><input className="pl-input" aria-label="Nombre del tipo nuevo" placeholder="Constancia" value={nuevo.nombre} autoFocus onChange={e => setNuevo(n => ({ ...n, nombre: e.target.value }))} onKeyDown={e => { if (e.key === 'Enter') crearTipo(); if (e.key === 'Escape') setNuevo(null) }} /></td>
-                    <td><input className="pl-input nt-sigla" aria-label="Sigla del tipo nuevo" placeholder={siglaDe(nuevo.nombre) || 'SIG'} value={nuevo.sigla} onChange={e => setNuevo(n => ({ ...n, sigla: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) }))} /></td>
-                    <td><input className="pl-input nt-num nt-chico" inputMode="numeric" aria-label="Dígitos del tipo nuevo" value={nuevo.digitos} onChange={e => setNuevo(n => ({ ...n, digitos: soloNumero(e.target.value).slice(0, 1) }))} /></td>
-                    <td><Interruptor valor={nuevo.reinicio} onCambio={v => setNuevo(n => ({ ...n, reinicio: v }))} etiqueta="Reiniciar cada año la numeración del tipo nuevo" /></td>
-                    <td>
-                      <div className="nt-nuevo-acc">
-                        <span className="nt-proximo">{siglaNueva || 'SIG'}-{'1'.padStart(Math.min(8, Math.max(1, Number(nuevo.digitos) || 4)), '0')}/{new Date().getFullYear()}</span>
-                        <button type="button" className="pl-btn-save nt-nuevo-crear" disabled={!!errorNuevo} onClick={crearTipo}>Crear</button>
-                        <button type="button" className="nt-nuevo-x" aria-label="Cancelar el tipo nuevo" onClick={() => setNuevo(null)}><X size={14} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
+          <div className={`nt-tipos${panel ? ' con-panel' : ''}`}>
+            <div className="nt-tabla-wrap">
+              <table className="nt-tabla">
+                <thead><tr><th>Tipo</th><th>Próximo número</th><th aria-hidden="true" /></tr></thead>
+                <tbody>
+                  {Object.entries(tipos).map(([k, t]) => {
+                    if (!p.numeracion[k]) return null
+                    const abierto = panel?.key === k
+                    return (
+                      <tr key={k} className={`nt-tipo-fila${abierto ? ' on' : ''}`} onClick={() => abrir(k)}>
+                        <td>
+                          <button type="button" className="nt-tipo" aria-expanded={abierto} onClick={e => { e.stopPropagation(); abrir(k) }}>
+                            <span style={{ background: t.color }} aria-hidden="true" />{nombreDe(k)}
+                            {!propios.has(k) && <small className="nt-souly">Souly</small>}
+                          </button>
+                        </td>
+                        <td><span className="nt-proximo">{proximo(k)}</span></td>
+                        <td className="nt-chev"><ChevronRight size={15} aria-hidden="true" /></td>
+                      </tr>
+                    )
+                  })}
                   <tr className="nt-tipo-agregar">
-                    <td colSpan={5}><button type="button" className="nt-tipo-agregar-btn" onClick={() => setNuevo({ nombre: '', sigla: '', digitos: '4', reinicio: true })}><Plus size={14} aria-hidden="true" /> Nuevo tipo de documento <small>Constancia, carta de recomendación…</small></button></td>
+                    <td colSpan={3}><button type="button" className="nt-tipo-agregar-btn" aria-expanded={esNuevo} onClick={abrirNuevo}><Plus size={14} aria-hidden="true" /> Nuevo tipo de documento <small>Constancia, carta de recomendación…</small></button></td>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
+
+            {panel && (
+              <aside className="nt-panel" aria-label={esNuevo ? 'Nuevo tipo de documento' : `Tipo ${nombreDe(panel.key)}`} onKeyDown={e => { if (e.key === 'Escape') setPanel(null) }}>
+                <div className="nt-panel-cab">
+                  {!esNuevo && <span className="nt-panel-punto" style={{ background: tipos[panel.key].color }} aria-hidden="true" />}
+                  <h3>{esNuevo ? 'Nuevo tipo de documento' : nombreDe(panel.key)}</h3>
+                  {!esNuevo && <small className={propios.has(panel.key) ? 'nt-propio' : 'nt-souly'}>{propios.has(panel.key) ? 'Creado por la empresa' : 'De Souly'}</small>}
+                  <button type="button" className="nt-nuevo-x" aria-label="Cerrar" onClick={() => setPanel(null)}><X size={15} /></button>
+                </div>
+                <div className="nt-panel-cuerpo">
+                  <label className="nt-campo">Nombre
+                    {editaNombre
+                      ? <input className="pl-input" key={panel.key || 'nuevo'} autoFocus={esNuevo} placeholder="Constancia" value={panel.nombre} onChange={e => setCampo('nombre', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') guardarPanel() }} />
+                      : <input className="pl-input" value={nombreDe(panel.key)} readOnly aria-describedby="nt-nombre-fijo" />}
+                  </label>
+                  {!editaNombre && <span id="nt-nombre-fijo" className="nt-panel-nota">Los tipos de Souly no cambian de nombre. Su numeración sí se ajusta.</span>}
+                  <div className="nt-panel-dos">
+                    <label className="nt-campo">Sigla
+                      <input className="pl-input nt-sigla" placeholder={siglaDe(panel.nombre) || 'SIG'} value={panel.prefijo} onChange={e => setCampo('prefijo', e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 8))} />
+                    </label>
+                    <label className="nt-campo">Dígitos
+                      <input className="pl-input" inputMode="numeric" value={panel.digitos} onChange={e => setCampo('digitos', soloNumero(e.target.value).slice(0, 1))} />
+                    </label>
+                  </div>
+                  <div className="nt-panel-linea">Reinicia cada año<Interruptor valor={!!panel.reinicioAnual} onCambio={v => setCampo('reinicioAnual', v)} etiqueta="Reiniciar cada año la numeración" /></div>
+                  <div className="nt-panel-linea">Próximo número<span className="nt-proximo">{proximoPanel}</span></div>
+                  {errorPanel && (editaNombre ? panel.nombre.trim() : true) && <p className="nt-nuevo-error" role="alert">{errorPanel}</p>}
+                  <p className="nt-panel-nota">
+                    {esNuevo
+                      ? <>Se crea con su carpeta «{plural(panel.nombre.trim()) || '…'}» en Recibidos. Después se le hace su plantilla en Plantillas.</>
+                      : <>Lo usan {usoPanel.plantillas === 1 ? '1 plantilla' : `${usoPanel.plantillas} plantillas`} y {usoPanel.documentos === 1 ? '1 documento emitido' : `${usoPanel.documentos} documentos emitidos`}.{propios.has(panel.key) && ' Si cambia el nombre, cambia también en ellos y en su carpeta de Recibidos.'}</>}
+                  </p>
+                </div>
+                <div className="nt-panel-pie">
+                  {!esNuevo && propios.has(panel.key) && (
+                    <button type="button" className="nt-eliminar" disabled={!eliminable} onClick={eliminarTipo}
+                      title={eliminable ? undefined : 'Lo usan plantillas o documentos: no se puede eliminar.'}>Eliminar tipo</button>
+                  )}
+                  <button type="button" className="pl-btn-cancel" onClick={() => setPanel(null)}>Cancelar</button>
+                  <button type="button" className="pl-btn-save" disabled={!!errorPanel || !cambioPanel} onClick={guardarPanel}>{esNuevo ? 'Crear' : 'Guardar'}</button>
+                </div>
+              </aside>
+            )}
           </div>
-          {nuevo && nuevo.nombre.trim().length > 0 && errorNuevo && <p className="nt-nuevo-error" role="alert">{errorNuevo}</p>}
-          {nuevo && !errorNuevo && <p className="nt-nuevo-ayuda">Se crea al momento, con su carpeta «{plural(nuevo.nombre.trim())}» en Recibidos. Después se le hace su plantilla en Plantillas.</p>}
         </section>
       </div>
     </>

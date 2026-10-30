@@ -2,7 +2,8 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox } from 'lucide-react'
+import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, BellRing, Wallet, ScanFace } from 'lucide-react'
+import { useAsistencia } from '../../context/AsistenciaContext'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
@@ -15,6 +16,7 @@ const sectionInfo = {
   'Empresa': 'Quién es la empresa, dónde está y cómo se organiza por dentro. Se define una vez y casi no se toca.',
   'Puestos y personas': 'Los cargos, las plazas y el dibujo. De aquí sacan Onboarding y Evaluación el área y el cargo de cada persona.',
   'Sistema': 'Cómo se comporta Souly para toda la empresa. Se decide una vez y afecta a todos los módulos.',
+  'Asistencia': 'Hoy: lo que pasa en vivo. Libro: cada jornada. Incidencias: lo que espera una decisión. Solicitudes: vacaciones, permisos, horas extra y correcciones. Cierre: el saldo para nómina.',
   'Documentación': 'Expedientes: lo de cada persona. Solicitudes: lo que la gente pide a RR.HH. Documentos emitidos: lo que la empresa le envió. Configuración: carpetas y plantillas.',
 }
 const sectionInfoTitle = {
@@ -24,6 +26,7 @@ const sectionInfoTitle = {
   'Puestos y personas': 'Puestos y personas',
   'Sistema': 'Sistema',
   'Documentación': 'Documentación',
+  'Asistencia': 'Asistencia',
 }
 
 /* El calendario de la empresa entra aquí y no en «Mi espacio»: lo que muestra son cumpleaños,
@@ -44,6 +47,7 @@ const inicioNav = [
 const miEspacioPropio = [
   { label: 'Mi día', path: '/mi-espacio/mi-dia', icon: Sun },
   { label: 'Mi Onboarding', path: '/mi-espacio/mi-onboarding', icon: Rocket },
+  { label: 'Mi asistencia', path: '/mi-espacio/mi-asistencia', icon: ScanFace },
 ]
 
 /* Las tres últimas son las pestañas que el colaborador ya tiene en la barra de abajo del móvil
@@ -226,7 +230,7 @@ const personasNav = [
    colaborador (Mis solicitudes, De RR.HH.). El contador dice dónde hay trabajo: lo que espera
    revisión en Expedientes y los pedidos sin responder en Solicitudes. */
 /* Las entradas que tienen subsecciones fijas (`subs`), para abrirlas al entrar. */
-const RUTAS_CON_SUBS = ['/documentos/configuracion']
+const RUTAS_CON_SUBS = ['/documentos/configuracion', '/asistencia/configuracion', '/asistencia/solicitudes']
 
 const documentacionNav = (cuentas = {}) => [
   { section: 'Documentación', items: [
@@ -238,6 +242,34 @@ const documentacionNav = (cuentas = {}) => [
     { label: 'Configuración', path: '/documentos/configuracion', icon: Settings, subs: [
       { label: 'Plantillas', ver: 'plantillas' },
       { label: 'Notificaciones y tipos de documento', ver: 'avisos' },
+    ] },
+  ]},
+]
+
+/* ASISTENCIA: POR LO QUE SE VIENE A HACER. «Hoy» se mira; el libro se consulta; las incidencias se
+   resuelven —por eso llevan el contador—; el cierre se hace una vez al mes. La configuración se
+   despliega en sus cinco partes, como la de Documentación. */
+const asistenciaNav = (cuentas = {}) => [
+  { section: 'Asistencia', items: [
+    { label: 'Hoy', path: '/asistencia', icon: Radio, end: true },
+    { label: 'Libro de asistencia', path: '/asistencia/registro', icon: BookOpenCheck },
+    { label: 'Incidencias', path: '/asistencia/incidencias', icon: BellRing, cuenta: cuentas.incidencias },
+    /* SOLICITUDES SE DESPLIEGA: lo que la gente pide sobre su tiempo, una sub-vista por tipo. */
+    { label: 'Solicitudes', path: '/asistencia/solicitudes', icon: Inbox, cuenta: cuentas.solicitudes, subs: [
+      { label: 'Vacaciones', ver: 'vacaciones' },
+      { label: 'Permisos y licencias', ver: 'permisos' },
+      { label: 'Horas extra', ver: 'horas-extra' },
+      { label: 'Correcciones de marcación', ver: 'correcciones' },
+      { label: 'Trabajo remoto', ver: 'remoto' },
+      { label: 'Cambios de turno', ver: 'cambios' },
+    ] },
+    { label: 'Cierre del mes', path: '/asistencia/cierre', icon: Wallet },
+    { label: 'Configuración', path: '/asistencia/configuracion', icon: Settings, subs: [
+      { label: 'Horarios', ver: 'horarios' },
+      { label: 'Políticas de marcación', ver: 'politicas' },
+      { label: 'Lugares y geocercas', ver: 'lugares' },
+      { label: 'Asignaciones', ver: 'asignaciones' },
+      { label: 'Biometría y privacidad', ver: 'biometria' },
     ] },
   ]},
 ]
@@ -282,6 +314,7 @@ const moduleConfig = {
   organizacion: { title: 'Organización' },
   personas: { title: 'Gestión de Personas' },
   documentacion: { title: 'Documentación' },
+  asistencia: { title: 'Asistencia' },
   comunicacion: { title: 'Comunicación' },
   archivos: { title: 'Mis archivos' },
   configuracion: { title: 'Configuración' },
@@ -306,6 +339,9 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
     porRevisar: doc.documentos.filter(d => !d.eliminado && versionActual(d)?.revision === 'pendiente').length + doc.sinClasificar.length,
     solicitudes: doc.solicitudes.filter(q => q.estado === 'pendiente').length,
   } : {}), [doc])
+
+  const at = useAsistencia()
+  const cuentasAt = { incidencias: at?.incidencias.length || 0, solicitudes: (at?.horasExtra.filter(x => x.estado === 'pendiente').length || 0) + (at?.solicitudes.filter(x => x.estado === 'pendiente').length || 0) }
 
   const isPersonas = donde.startsWith('/personas')
   const isOrganizacion = donde.startsWith('/organizacion')
@@ -370,10 +406,13 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
   const isInicio = donde.startsWith('/inicio')
   const isMiEspacio = donde.startsWith('/mi-espacio')
   const isDocumentacion = donde.startsWith('/documentos')
-  const moduleKey = isDocumentacion ? 'documentacion' : isConfiguracion ? 'configuracion' : isArchivos ? 'archivos' : isComunicacion ? 'comunicacion' : isOrganizacion ? 'organizacion' : isPersonas ? 'personas' : isMiEspacio ? 'miEspacio' : isInicio ? 'inicio' : 'onboarding'
+  const isAsistencia = donde.startsWith('/asistencia')
+  const moduleKey = isAsistencia ? 'asistencia' : isDocumentacion ? 'documentacion' : isConfiguracion ? 'configuracion' : isArchivos ? 'archivos' : isComunicacion ? 'comunicacion' : isOrganizacion ? 'organizacion' : isPersonas ? 'personas' : isMiEspacio ? 'miEspacio' : isInicio ? 'inicio' : 'onboarding'
   const config = moduleConfig[moduleKey]
 
-  const sections = isDocumentacion
+  const sections = isAsistencia
+    ? asistenciaNav(cuentasAt)
+    : isDocumentacion
     ? documentacionNav(cuentasDoc)
     : isConfiguracion
     ? configuracionNav

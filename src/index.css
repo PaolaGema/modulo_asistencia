@@ -11208,10 +11208,12 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
    Mismos tokens que el acordeón de la ficha de RR.HH., para que la sección se lea igual en las
    dos pantallas. En la web las tarjetas están siempre abiertas, así que van en verde; la que no
    tiene nada asignado queda en gris. */
-.mf-sec-cab { background: var(--bg-seccion-plegada); color: var(--navy-dark); transition: background .15s; }
-.mf-sec-cab.on { background: var(--bg-seccion); border-bottom: 1px solid var(--border-soft) !important; }
-.dark .mf-sec-cab { background: var(--navy); color: #fff; }
-.dark .mf-sec-cab.on { background: var(--navy-alt); }
+/* En el teléfono (auditoría heurística de Perfil): la cabecera toma el fondo de su tarjeta (plomo suave
+   cerrada, blanca abierta, ver `tarjeta()` en PerfilPhone) y la abierta se pinta de menta suave con la
+   flecha en menta oscuro (opciones P1 y V1 elegidas). En oscuro, el velo menta de `--in-acento-bg`. */
+.mf-sec-cab { background: transparent; color: var(--in-texto); transition: background .15s; }
+.mf-sec-cab.on { background: var(--in-acento-bg); border-bottom: 1px solid var(--in-linea) !important; }
+.mf-sec-cab.on svg { color: var(--in-acento-txt) !important; }
 .mf-tarjeta { padding: 0 0 12px; overflow: hidden; }
 .mf-tarjeta > *:not(.mf-tarjeta-cab) { margin-left: 16px; margin-right: 16px; }
 .mf-tarjeta-cab { margin: 0 0 8px; padding: 12px 16px; background: var(--bg-seccion); color: var(--navy-dark); border-bottom: 1px solid var(--border-soft); }
@@ -11483,3 +11485,101 @@ a.sa-enlace:hover { color: var(--green-fuerte); text-decoration: underline; }
 .mf-dd-check { flex-shrink: 0; color: var(--green); }
 .mf-dd-sigla { flex-shrink: 0; font-size: 6px; font-weight: 700; padding: 1px 3px; border-radius: 3px; background: var(--navy); color: #fff; }
 .mf-dd-nada { margin: 8px 0; text-align: center; font-size: 7px; color: var(--text-muted); }
+@keyframes at-aviso-baja { from { transform: translateY(-140%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ── EL INICIO DEL TELÉFONO, EN CLARO Y EN OSCURO ──
+   InicioPhone y el formulario de vacación toman sus colores de aquí, así el botón de sol y luna del
+   inicio cambia la pantalla entera. En oscuro las tarjetas son el navy de la app y la franja «Hoy» baja
+   a un navy más hondo para seguir destacando. */
+:root {
+  --in-fondo: #F2F5FC; --in-carta: #ffffff; --in-texto: #0C2D40; --in-mute: #62788A; --in-suave: #9AABBB;
+  --in-linea: #EEF2F6; --in-borde: #C6F0DF; --in-circulo: #EEF2F6; --in-tile: #E1FFF3; --in-deco: rgba(16, 32, 96, .067);
+  --in-acento-txt: #0A7F55; --in-acento-bg: #E3FAF0; --in-rango: #C9F5E2; --in-banda: #0C2D40; --in-pill: #0C2D40; --in-pill-txt: #ffffff;
+  --in-plomo: #E4EAF0; --in-ok-bg: #F2FCF7; --in-campo: #D5DFE7; --in-boton-off: #E8EEF3; --in-rojo: #B42318; --in-rojo-bg: #FDE4E1; --in-rojo-borde: #FECDCA; --in-calendario: #F8FAFC;
+  --in-sombra: 0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06);
+}
+.dark {
+  --in-fondo: #102B3D; --in-carta: #173D54; --in-texto: #F5F7FA; --in-mute: #A9BCCB; --in-suave: #7F95A6;
+  --in-linea: #23506B; --in-borde: #23506B; --in-circulo: #23506B; --in-tile: #1C4A5F; --in-deco: rgba(255, 255, 255, .04);
+  --in-acento-txt: #3EE8A8; --in-acento-bg: rgba(0, 224, 145, .14); --in-rango: rgba(0, 224, 145, .22); --in-banda: #0A2232; --in-pill: #00E091; --in-pill-txt: #0C2D40;
+  --in-plomo: #133449; --in-ok-bg: #134A42; --in-campo: #2B5A75; --in-boton-off: #23506B; --in-rojo: #FF8A80; --in-rojo-bg: rgba(240, 68, 56, .18); --in-rojo-borde: rgba(240, 68, 56, .4); --in-calendario: #133449;
+  --in-sombra: 0 6px 16px -8px rgba(0,0,0,.45), 0 1px 2px rgba(0,0,0,.2);
+}
+
+/* ── LOS TONOS DE CADA TIPO (DISENO_MOBILE.md) ──
+   Fondo suave (--tn-*) y texto (--tx-*) de vacación, permiso, corrección, remoto, certificado… En oscuro
+   el fondo pasa a un velo del color y el texto se aclara, para que se lea sobre las tarjetas navy. */
+:root {
+  --tn-verde: #E3FAF0; --tn-violeta: #F1ECFC; --tn-violeta-borde: #E4DAFB; --tn-gris: #EEF2F6; --tn-azul: #E8F0FC; --tn-cian: #E0F5F9; --tn-ambar: #FFF4DE; --tn-rosa: #FCE8F2;
+  --tx-verde: #0A7F55; --tx-violeta: #6A3FC0; --tx-gris: #4B5B6B; --tx-azul: #1D5FBF; --tx-cian: #0E7490; --tx-ambar: #9A5B06; --tx-rosa: #B4236C;
+}
+.dark {
+  --tn-verde: rgba(0, 224, 145, .14); --tn-violeta: rgba(150, 120, 230, .2); --tn-violeta-borde: rgba(150, 120, 230, .35); --tn-gris: rgba(255, 255, 255, .08); --tn-azul: rgba(80, 140, 240, .2); --tn-cian: rgba(40, 180, 215, .18); --tn-ambar: rgba(245, 181, 68, .16); --tn-rosa: rgba(230, 90, 160, .18);
+  --tx-verde: #3EE8A8; --tx-violeta: #C4B1F7; --tx-gris: #C3D0DB; --tx-azul: #9DC0F7; --tx-cian: #7FD8EC; --tx-ambar: #F7C873; --tx-rosa: #F4A6CC;
+}
+
+/* Lo que es papel (la solicitud armada para revisar) se queda claro aunque el teléfono esté en oscuro. */
+.papel-claro {
+  --in-fondo: #F2F5FC; --in-carta: #ffffff; --in-texto: #0C2D40; --in-mute: #62788A; --in-suave: #9AABBB; --in-linea: #EEF2F6;
+  --in-campo: #D5DFE7; --in-calendario: #F8FAFC; --in-ok-bg: #F2FCF7;
+  --tn-verde: #E3FAF0; --tn-gris: #EEF2F6; --tn-ambar: #FFF4DE; --tx-verde: #0A7F55; --tx-ambar: #9A5B06;
+  /* Onboarding en el teléfono también va en claro (sus tareas todavía tienen colores fijos): necesita
+     además la sombra, el acento menta y el rojo de riesgo. */
+  --in-sombra: 0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06);
+  --in-acento-txt: #0A7F55; --in-acento-bg: #E3FAF0; --in-rojo: #B42318; --in-rojo-bg: #FDE4E1; --tx-gris: #4B5B6B;
+  color-scheme: light;
+}
+
+/* ── EL CAMBIO DE MODO (ThemeContext) ──
+   Con transición de vista, la pantalla nueva entra recortada por un círculo que anima ThemeContext:
+   se apaga el fundido que el navegador pone por defecto. Sin ella, los colores se funden. */
+::view-transition-old(root), ::view-transition-new(root),
+::view-transition-old(telefono), ::view-transition-new(telefono) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root), ::view-transition-new(telefono) { z-index: 2; }
+::view-transition-group(telefono) { animation: none; }
+html.tema-fundido *, html.tema-fundido *::before, html.tema-fundido *::after {
+  transition: background-color .4s ease, color .4s ease, border-color .4s ease, fill .4s ease, stroke .4s ease !important;
+}
+/* El sol y la luna del inicio, uno encima del otro: el que sale gira y se achica, el que entra crece. */
+.tema-ico { position: absolute; transition: transform .45s cubic-bezier(.65, 0, .35, 1), opacity .3s ease; }
+@media (prefers-reduced-motion: reduce) { .tema-ico { transition: opacity .2s ease; } }
+/* Al volver (transicionPhone), la pantalla que se cierra va encima y se encoge hasta la tarjeta de origen. */
+html.vt-volver::view-transition-old(telefono) { z-index: 3; }
+/* Al presionar, los botones del teléfono se hunden un poco: la respuesta táctil del sistema de movimiento. */
+#marco-telefono button:not(:disabled):active { transform: scale(.97); }
+#marco-telefono button { transition: transform .12s ease; }
+
+/* ── EL CALENDARIO DE VACACIONES (VacacionPhone): navy de la marca con «Sale ✈ Vuelve» ──
+   En claro la tarjeta es blanca, la cabecera del viaje es menta suave y el navy queda en los días elegidos; en
+   oscuro todo el calendario es navy y lo elegido brilla en menta. */
+:root {
+  --in-vac-carta: #ffffff; --in-vac-borde: #EDF1F4;
+  --in-vac-viaje: linear-gradient(135deg, #E9FCF4, #F4FBF8); --in-vac-viaje-borde: #D3F5E6; --in-vac-viaje-sombra: none;
+  --in-vac-viaje-txt: #0C2D40; --in-vac-viaje-rotulo: #0A7F55; --in-vac-avion: #00B876; --in-vac-trazo: rgba(0,184,118,.55);
+  --in-vac-punta: #0C2D40; --in-vac-punta-txt: #ffffff; --in-vac-punta-sombra: 0 6px 12px -6px rgba(12,45,64,.8);
+  --in-vac-cinta: #DDF9EE; --in-vac-cinta-txt: #0C2D40; --in-vac-etiqueta: #0A7F55; --in-vac-separador: #EEF2F5;
+}
+.dark {
+  --in-vac-carta: radial-gradient(120% 80% at 100% 0%, #13465E 0%, #0C2D40 55%); --in-vac-borde: rgba(255,255,255,.06);
+  --in-vac-viaje: rgba(255,255,255,.06); --in-vac-viaje-borde: rgba(255,255,255,.08); --in-vac-viaje-sombra: none;
+  --in-vac-viaje-txt: #ffffff; --in-vac-viaje-rotulo: #7DF5C6; --in-vac-avion: #00E091; --in-vac-trazo: rgba(0,224,145,.65);
+  --in-vac-punta: #00E091; --in-vac-punta-txt: #0C2D40; --in-vac-punta-sombra: 0 0 0 3px rgba(0,224,145,.18), 0 6px 16px -5px rgba(0,224,145,.8);
+  --in-vac-cinta: rgba(0,224,145,.16); --in-vac-cinta-txt: #7DF5C6; --in-vac-etiqueta: #7DF5C6; --in-vac-separador: rgba(255,255,255,.1);
+}
+/* El avión vuela de la salida al centro cada vez que cambian las fechas. */
+.vac-avion { animation: vac-vuelo .65s cubic-bezier(.2, .8, .2, 1); }
+/* Arranca ya dentro de la línea: si salía desde el borde, la mitad del avión quedaba tapada por la fecha. */
+@keyframes vac-vuelo { from { left: 22%; opacity: 0; } 30% { opacity: 1; } to { left: 50%; } }
+@media (prefers-reduced-motion: reduce) { .vac-avion { animation: none; } }
+/* La hoja «Revise su solicitud» sube desde abajo sobre un velo que aparece. */
+@keyframes vac-subir { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes vac-aparecer { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { [role="dialog"][aria-label="Revise su solicitud"] { animation: none !important; } }
+/* El avión de «¡Listo!» flota apenas: un vaivén lento, no un festejo. */
+.vac-flota { animation: vac-flota 3.2s ease-in-out infinite; }
+@keyframes vac-flota { 0%, 100% { transform: translate(-2px, 1px) rotate(-5deg); } 50% { transform: translate(2px, -2px) rotate(3deg); } }
+@media (prefers-reduced-motion: reduce) { .vac-flota { animation: none; } }
+/* La barra de dos colores de las fechas (VacacionPhone · Viaje): el tramo de la vacación y el del día en
+   que ya trabaja. En oscuro el tramo de trabajo pasa a blanco para seguir separándose del fondo navy. */
+:root { --in-vac-tramo: #DDF9EE; --in-vac-tramo-rot: #0A7F55; --in-vac-trab: #0C2D40; --in-vac-trab-txt: #ffffff; --in-vac-trab-rot: #7DF5C6; }
+.dark { --in-vac-tramo: #1D5248; --in-vac-tramo-rot: #7DF5C6; --in-vac-trab: #F5F7FA; --in-vac-trab-txt: #0C2D40; --in-vac-trab-rot: #0A7F55; }

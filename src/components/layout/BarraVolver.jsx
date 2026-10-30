@@ -13,19 +13,20 @@ export default function BarraVolver({ texto, onVolver, conTema = false }) {
     <button
       onClick={onVolver}
       style={{
-        display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8,
+        display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8,
         background: 'none', border: 'none', padding: '2px 2px 2px 0',
         cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
       }}
     >
+      {/* El botón redondo blanco del Inicio (calendario, modo oscuro), no un cuadrado con borde. */}
       <span style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: 20, height: 20, borderRadius: 7, border: `1px solid ${conTema ? 'var(--border-dark)' : '#e2e8f0'}`,
+        width: 26, height: 26, borderRadius: '50%', boxShadow: 'var(--in-sombra)',
         background: conTema ? 'var(--surface-card)' : '#fff', color: conTema ? 'var(--text-heading)' : '#0C2D40', flexShrink: 0,
       }}>
-        <ChevronLeft size={11} />
+        <ChevronLeft size={12} strokeWidth={2.2} />
       </span>
-      <span style={{ fontSize: 8.5, fontWeight: 700, color: conTema ? 'var(--text-heading)' : '#0C2D40' }}>{texto}</span>
+      <span style={{ fontSize: 8.6, fontWeight: 600, color: conTema ? 'var(--text-heading)' : '#0C2D40' }}>{texto}</span>
     </button>
   )
 }

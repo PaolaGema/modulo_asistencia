@@ -4,6 +4,10 @@ import { ESTADO_HISTORIAL, contarTareas } from '../../data/historialIncorporacio
 import { tipoMap } from '../../utils/tareaTipos'
 import { useConfig } from '../../context/ConfigContext'
 import { RutaPath } from './RutaPreviewModal'
+import BarraVolver from '../layout/BarraVolver'
+
+/* En el teléfono, las etiquetas de estado de siempre (DISENO_MOBILE.md): verde = listo, gris = lo demás. */
+const ETIQUETA_TEL = { completado: ['var(--tx-verde)', 'var(--tn-verde)'] }
 
 /* Línea de tiempo de las incorporaciones de una persona.
    `compact` es para el marco del teléfono: ahí no puede ser un modal `fixed`, porque
@@ -99,14 +103,21 @@ function Entrada({ p, compact, ultimo }) {
   const etapas = p.etapas || []
   const totalTareas = contarTareas(p)
   const s = compact
-    ? { punto: 14, icono: 7, titulo: 8, meta: 6, chip: 6, gap: 9 }
+    ? { punto: 26, icono: 11, titulo: 9.6, meta: 7.4, chip: 6, gap: 9 }
     : { punto: 26, icono: 12, titulo: 13, meta: 11, chip: 10, gap: 14 }
+  /* En el teléfono: el círculo con aro menta de Zona HR (relleno menta el proceso en curso) y la etiqueta
+     de estado del sistema, sin el azul de escritorio. */
+  const [chipTxt, chipFondo] = compact ? (ETIQUETA_TEL[p.estado] || ['var(--tx-gris)', 'var(--tn-gris)']) : [est.color, est.fondo]
 
   return (
     <div style={{ display: 'flex', gap: s.gap }}>
       {/* Riel: punto + línea hacia la entrada siguiente */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-        <div style={{
+        <div style={compact ? {
+          width: s.punto, height: s.punto, borderRadius: '50%', background: activo ? '#00E091' : 'var(--in-carta)',
+          boxShadow: activo ? 'none' : 'inset 0 0 0 1.4px #00E091', color: '#0C2D40',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        } : {
           width: s.punto, height: s.punto, borderRadius: '50%',
           background: activo ? '#0C2D40' : '#f1f5f9',
           color: activo ? '#fff' : '#7C93A6',
@@ -115,14 +126,14 @@ function Entrada({ p, compact, ultimo }) {
         }}>
           <Icono size={s.icono} />
         </div>
-        {!ultimo && <div style={{ flex: 1, width: 1.5, background: '#e2e8f0', marginTop: 3, minHeight: compact ? 14 : 20 }} />}
+        {!ultimo && <div style={{ flex: 1, width: compact ? 2 : 1.5, background: compact ? 'var(--in-linea)' : '#e2e8f0', marginTop: 3, minHeight: compact ? 14 : 20 }} />}
       </div>
 
       <div style={{ flex: 1, minWidth: 0, paddingBottom: compact ? 12 : 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: s.titulo, fontWeight: 700, color: '#0C2D40' }}>{p.ruta}</span>
+          <span style={{ fontSize: s.titulo, fontWeight: compact ? 600 : 700, color: compact ? 'var(--in-texto)' : '#0C2D40' }}>{p.ruta}</span>
           <span style={{
-            background: est.fondo, color: est.color,
+            background: chipFondo, color: chipTxt,
             fontSize: s.chip, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
           }}>
             {est.label}
@@ -187,10 +198,10 @@ function Entrada({ p, compact, ultimo }) {
 function Cuerpo({ procesos, compact }) {
   if (procesos.length === 0) {
     return (
-      <p style={{ fontSize: compact ? 7 : 12.5, color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
-        Todavía no tienes procesos registrados. Aquí van a quedar tu incorporación y cada
-        reboarding que hagas más adelante — por un ascenso, un cambio de área o una
-        actualización obligatoria.
+      <p style={{ fontSize: compact ? 7.6 : 12.5, color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
+        {compact
+          ? 'Todavía no tiene procesos registrados. Aquí van a quedar su incorporación y cada reboarding que haga más adelante: por un ascenso, un cambio de área o una actualización obligatoria.'
+          : 'Todavía no tienes procesos registrados. Aquí van a quedar tu incorporación y cada reboarding que hagas más adelante — por un ascenso, un cambio de área o una actualización obligatoria.'}
       </p>
     )
   }
@@ -198,7 +209,7 @@ function Cuerpo({ procesos, compact }) {
   const cerrados = procesos.filter(p => p.estado !== 'en-curso').length
   return (
     <>
-      <p style={{ fontSize: compact ? 6.5 : 11.5, color: '#94a3b8', margin: `0 0 ${compact ? 12 : 18}px` }}>
+      <p style={{ fontSize: compact ? 7.4 : 11.5, color: compact ? 'var(--in-mute)' : '#94a3b8', margin: `0 0 ${compact ? 12 : 18}px` }}>
         {procesos.length} {procesos.length === 1 ? 'proceso' : 'procesos'} en total
         {cerrados > 0 && ` · ${cerrados} ${cerrados === 1 ? 'completado' : 'completados'}`}
       </p>
@@ -210,24 +221,15 @@ function Cuerpo({ procesos, compact }) {
 }
 
 export default function HistorialOnboardingModal({ procesos, nombre, compact = false, onCerrar }) {
+  /* En el teléfono es una pantalla del módulo con «‹ Mi onboarding» para volver, no una ventana con
+     «×» (auditoría heurística: la «×» hacía sentir que se había salido a otro lugar). */
   if (compact) {
     return (
-      <div style={{ padding: '2px 2px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 800, color: '#0C2D40' }}>Mi trayectoria</div>
-            <div style={{ fontSize: 6.5, color: '#94a3b8', marginTop: 1 }}>Tus incorporaciones en la empresa</div>
-          </div>
-          <button
-            onClick={onCerrar}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 20, height: 20, borderRadius: 7, border: '1px solid #e2e8f0',
-              background: '#fff', color: '#0C2D40', cursor: 'pointer', padding: 0,
-            }}
-          >
-            <X size={11} />
-          </button>
+      <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
+        <BarraVolver texto="Mi onboarding" onVolver={onCerrar} />
+        <div style={{ display: 'grid', marginBottom: 10 }}>
+          <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Mi trayectoria</b>
+          <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Sus incorporaciones en la empresa</small>
         </div>
         <Cuerpo procesos={procesos} compact />
       </div>

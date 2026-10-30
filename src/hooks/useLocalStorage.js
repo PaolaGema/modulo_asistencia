@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 
 const PREFIX = 'onb_demo_'
 
@@ -22,6 +22,23 @@ export function useLocalStorage(key, initialValue) {
       } catch { /* quota exceeded — ignore */ }
       return next
     })
+  }, [prefixedKey])
+
+  /* OTRA PESTAÑA CAMBIÓ O BORRÓ LA CLAVE («Borrar datos de la demo», o la vista del teléfono abierta
+     al lado de la de RR.HH.): esta se pone al día. Sin esto, la pestaña vieja seguía con las marcas
+     en memoria —el teléfono decía «Listo por hoy» y no dejaba volver a marcar— y al tocar
+     cualquier cosa las volvía a escribir encima de lo borrado. */
+  const inicial = useRef(initialValue)
+  useEffect(() => {
+    const alCambiar = e => {
+      if (e.storageArea !== localStorage || (e.key !== null && e.key !== prefixedKey)) return
+      try {
+        const item = localStorage.getItem(prefixedKey)
+        setStoredValue(item !== null ? JSON.parse(item) : inicial.current)
+      } catch { setStoredValue(inicial.current) }
+    }
+    window.addEventListener('storage', alCambiar)
+    return () => window.removeEventListener('storage', alCambiar)
   }, [prefixedKey])
 
   return [storedValue, setValue]

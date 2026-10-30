@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  HelpCircle, LogOut, Network, Settings, User, Briefcase, FileText, Monitor, ChevronRight,
-  ChevronDown, Gift, Sparkles, Plus, Info, Download, AlertTriangle, Pencil, Eye, EyeOff, Check, X,
-  GraduationCap, Image as ImageIcon, Trash2, Upload, Search,
+  Network, Settings, User, Briefcase, FileText, Monitor, ChevronRight,
+  ChevronDown, Gift, Sparkles, Plus, Info, Download, AlertTriangle, Pencil, Eye, EyeOff, Check,
+  GraduationCap, Image as ImageIcon, Trash2, Upload, Search, IdCard, Car, Home, Shirt, Laptop,
 } from 'lucide-react'
 import BarraVolver from './BarraVolver'
 import ConfiguracionPhone from './ConfiguracionPhone'
@@ -17,7 +17,6 @@ import { cuantosHay, tarjetasDe } from '../../data/fichaColaborador'
 import { CODIGOS_PAIS, paisPorSigla, partirTelefono } from '../../data/codigosPais'
 import { useFotoPerfil } from '../../hooks/useFotoPerfil'
 import { guardarArchivo, nuevaClaveArchivo } from '../../utils/archivosLocales'
-import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 
 /* LA PESTAÑA «PERFIL» DEL TELÉFONO: el perfil de siempre —banda, foto, nombre, cargo— con
    «Mi ficha» debajo. Cada fila abre una pestaña de la ficha en pantalla propia; la barra de
@@ -32,7 +31,9 @@ const CAMPO = {
   width: '100%', boxSizing: 'border-box', height: 24, marginTop: 2, padding: '0 7px', borderRadius: 6,
   border: '1px solid var(--border-dark)', background: 'var(--surface-card)', fontFamily: 'inherit', fontSize: 8, color: 'var(--text-heading)', outline: 'none',
 }
-const TARJETA = { background: 'var(--surface-card)', borderRadius: 11, marginTop: 6, border: '1px solid var(--border-soft)', overflow: 'hidden' }
+/* Sección de la ficha (opción P1 elegida): cerrada en plomo suave y sin sombra, como antes pero más liviana;
+   abierta, tarjeta blanca con sombra y el encabezado en menta suave (`.mf-sec-cab.on`). */
+const tarjeta = abierta => ({ background: abierta ? 'var(--in-carta)' : 'var(--in-plomo)', borderRadius: 14, marginTop: 7, boxShadow: abierta ? 'var(--in-sombra)' : 'none', overflow: 'hidden' })
 
 function GuardarCancelar({ onGuardar, onCancelar, textoGuardar = 'Guardar', desactivado }) {
   return (
@@ -61,29 +62,30 @@ function useAvisoGuardado() {
   return [visto, avisar]
 }
 
+/* Los gustos en píldoras blancas con sombra y el título como rótulo de sección del Inicio. */
 function Chips({ lista }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 7 }}>
       {lista.map(x => (
-        <span key={x} style={{ fontSize: 7, padding: '3px 7px', borderRadius: 99, background: 'var(--surface-card)', border: '1px solid var(--border-dark)', color: 'var(--text-heading)' }}>{x}</span>
+        <span key={x} style={{ fontSize: 7.6, padding: '5px 9px', borderRadius: 99, background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', color: 'var(--in-texto)' }}>{x}</span>
       ))}
     </div>
   )
 }
 
 const tituloPref = (I, t, arriba) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9, fontWeight: 700, color: 'var(--text-heading)', marginTop: arriba ? 11 : 0 }}>
-    <I size={11} /> {t}
+  <div style={{ fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)', marginTop: arriba ? 13 : 0 }}>
+    {t}
   </div>
 )
-const vacioPref = t => <div style={{ fontSize: 7, fontStyle: 'italic', color: 'var(--icon-muted)', marginTop: 5 }}>{t}</div>
+const vacioPref = t => <div style={{ fontSize: 7.4, color: 'var(--in-mute)', marginTop: 5 }}>{t}</div>
 
 /* Regalos y experiencias en la portada: para mirar. Se cambian en Configuración. */
 function PreferenciasPhone({ form }) {
   const regalos = lineas(form['ra.f1'])
   const experiencias = lineas(form['ra.f4'])
   return (
-    <div style={{ margin: '14px 2px 0' }}>
+    <div style={{ marginTop: 14 }}>
       {tituloPref(Gift, 'Regalos que le gustaría recibir')}
       {regalos.length ? <Chips lista={regalos} /> : vacioPref('Sin regalos agregados')}
       {tituloPref(Sparkles, 'Experiencias que le gustaría vivir', true)}
@@ -92,93 +94,92 @@ function PreferenciasPhone({ form }) {
   )
 }
 
-function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
+/* ── LA PORTADA (auditoría heurística, opción B2 «la tarjeta de identidad»): sin franja de color —esa
+   es solo del Inicio—, la persona en una tarjeta blanca destacada con los dos círculos menta de la franja
+   «hoy» del Inicio como adorno, la foto con aro menta y sombra, y dos píldoras que funcionan. «Ayuda» y
+   «Cerrar sesión» eran cuadrados que no hacían nada: «Ayuda» se quitó y «Cerrar sesión» vive en
+   Configuración. La ficha usa las filas de Zona HR (círculo con aro menta, sombra) y «1 por renovar» es
+   la etiqueta ámbar de siempre. ── */
+const ROTULO = { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 6, fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)' }
+const ROTULO_LADO = { fontSize: 7.4, fontWeight: 500, letterSpacing: 0, textTransform: 'none', color: 'var(--in-mute)', whiteSpace: 'nowrap' }
+const PILDORA = { height: 26, borderRadius: 99, border: 'none', fontSize: 8.2, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }
+/* «Información Personal» → «Información personal»: en la app los títulos van en minúscula después de la primera. */
+const frase = t => t ? t.charAt(0) + t.slice(1).toLowerCase() : t
+
+function Portada({ currentUser, ficha, onAbrir, onConfiguracion, onOrganigrama }) {
   const form = ficha?.form
   const [sinFoto, setSinFoto] = useState(false)
   const foto = useFotoPerfil(currentUser.name, form?.['1.9'], 120)
   return (
-    <div>
+    <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       <div style={{
-        height: 92, margin: '-10px -10px 0', borderRadius: '0 0 16px 16px', position: 'relative',
-        background: 'linear-gradient(160deg, #0B3B3A 0%, #0E8F63 55%, #19D992 100%)',
+        position: 'relative', overflow: 'hidden', background: 'var(--in-carta)', borderRadius: 18, boxShadow: 'var(--in-sombra)',
+        padding: '16px 12px 12px', textAlign: 'center', display: 'grid', justifyItems: 'center', gap: 3, marginBottom: 14,
       }}>
-        {[{ I: HelpCircle, l: 'Ayuda', lado: 'left' }, { I: LogOut, l: 'Cerrar sesión', lado: 'right' }].map(({ I, l, lado }) => (
-          <span key={l} aria-label={l} style={{
-            position: 'absolute', top: 10, [lado]: 10, width: 22, height: 22, borderRadius: 7,
-            background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><I size={11} style={{ color: 'var(--text-heading)' }} /></span>
-        ))}
-        <img src={logoClaro} alt="SoulyHR" style={{
-          position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', height: 15, width: 'auto', opacity: .95,
-        }} />
-      </div>
-
-      <div style={{
-        margin: '-42px 2px 0', background: 'var(--surface-card)', borderRadius: 14, padding: '34px 10px 12px',
-        textAlign: 'center', position: 'relative', border: '1px solid var(--border-soft)',
-      }}>
-        <div style={{
-          position: 'absolute', top: -28, left: '50%', marginLeft: -28, width: 56, height: 56,
-          borderRadius: '50%', border: '2.5px solid #19D992', overflow: 'hidden',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxSizing: 'border-box',
+        {/* Los dos círculos de la franja «hoy» del Inicio, en menta translúcido. */}
+        <span aria-hidden="true" style={{ position: 'absolute', width: 150, height: 150, top: -70, right: -50, borderRadius: '50%', background: 'rgba(0,224,145,.10)' }} />
+        <span aria-hidden="true" style={{ position: 'absolute', width: 80, height: 80, top: 30, right: -40, borderRadius: '50%', background: 'rgba(0,224,145,.07)' }} />
+        <span style={{
+          position: 'relative', width: 54, height: 54, borderRadius: '50%', overflow: 'hidden', marginBottom: 4,
+          boxShadow: '0 0 0 3px var(--in-carta), 0 0 0 4.5px #00E091, 0 8px 18px -8px rgba(12,45,64,.35)',
         }}>
           {sinFoto ? (
-            <span style={{ width: '100%', height: '100%', background: currentUser.color, color: '#fff', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ width: '100%', height: '100%', background: currentUser.color, color: '#fff', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {currentUser.initials}
             </span>
           ) : (
             <img src={foto} alt={currentUser.name} onError={() => setSinFoto(true)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}
-        </div>
-        <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-heading)' }}>{currentUser.name}</div>
-        <div style={{
-          display: 'inline-block', marginTop: 5, padding: '3px 10px', borderRadius: 99, background: 'var(--green-bg)',
-          border: '1px solid #19D992', fontSize: 7.5, fontWeight: 600, color: 'var(--text-heading)',
-        }}>{currentUser.cargo}</div>
-        <div style={{ marginTop: 5, fontSize: 7.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-          {[currentUser.area || ficha?.area, ficha?.sucursal].filter(Boolean).join(' · ')}
-          {ficha && <div style={{ color: 'var(--text-muted)' }}>{ficha.antiguedad}</div>}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 9 }}>
-          <span style={{ height: 24, borderRadius: 8, border: '1.5px solid var(--mf-verde-txt)', color: 'var(--mf-verde-txt)', fontSize: 7.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-            <Network size={9} /> Organigrama
-          </span>
-          <button onClick={onConfiguracion} style={{ height: 24, borderRadius: 8, border: 'none', background: '#00E091', color: '#0C2D40', fontSize: 7.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-            <Settings size={9} /> Configuración
+        </span>
+        <b style={{ position: 'relative', fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>{currentUser.name}</b>
+        <small style={{ position: 'relative', fontSize: 8, color: 'var(--in-mute)' }}>
+          {[currentUser.cargo, currentUser.area || ficha?.area].filter(Boolean).join(' · ')}
+        </small>
+        <small style={{ position: 'relative', fontSize: 8, color: 'var(--in-mute)' }}>
+          {[ficha?.sucursal, ficha?.antiguedad].filter(Boolean).join(' · ')}
+        </small>
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, width: '100%', marginTop: 9 }}>
+          <button type="button" onClick={onOrganigrama} style={{ ...PILDORA, background: 'var(--in-carta)', color: 'var(--in-texto)', boxShadow: 'var(--in-sombra)' }}>
+            <Network size={10} /> Organigrama
+          </button>
+          <button type="button" onClick={onConfiguracion} style={{ ...PILDORA, background: '#00E091', color: '#0C2D40' }}>
+            <Settings size={10} /> Configuración
           </button>
         </div>
       </div>
 
       {ficha ? (
         <>
-          <div style={{ margin: '14px 2px 0', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6 }}>
-            <div>
-              <div style={{ fontSize: 6.5, letterSpacing: '.12em', fontWeight: 700, color: 'var(--text-muted)' }}>MI FICHA</div>
-              <div style={{ fontSize: 7, color: 'var(--text-muted)', marginTop: 2 }}>Revise sus datos registrados por RR.HH.</div>
-            </div>
-            <span style={{ fontSize: 6.5, fontWeight: 600, color: 'var(--mf-verde-txt)', whiteSpace: 'nowrap' }}>Actualizada {ficha.actualizada}</span>
+          <div style={{ ...ROTULO, marginBottom: 7 }}>
+            Mi ficha
+            <span style={ROTULO_LADO}>Actualizada {ficha.actualizada}</span>
           </div>
-          <div style={{ margin: '6px 2px 0', background: 'var(--surface-card)', borderRadius: 12, border: '1px solid var(--border-soft)' }}>
-            {pestanasCon(form).map((p, i) => {
+          <div style={{ display: 'grid', gap: 7 }}>
+            {pestanasCon(form).map(p => {
               const I = ICONOS[p.key] || FileText
-              const aviso = p.key === 'documentos' && porRenovar(form).length > 0
+              const renovar = p.key === 'documentos' ? porRenovar(form).length : 0
               return (
-                <button key={p.key} onClick={() => onAbrir(p.key)} style={{
+                <button key={p.key} type="button" onClick={() => onAbrir(p.key)} style={{
                   display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 9px',
-                  border: 'none', borderTop: i ? '1px solid var(--border)' : 'none', background: 'none',
-                  fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+                  border: 'none', borderRadius: 14, background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)',
+                  fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', color: 'var(--in-texto)',
                 }}>
-                  <span style={{ width: 22, height: 22, borderRadius: 7, background: 'var(--green-bg)', color: 'var(--mf-verde-txt)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <I size={11} />
+                  <span style={{ width: 26, height: 26, borderRadius: '50%', boxShadow: 'inset 0 0 0 1.4px #00E091', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                    <I size={12} strokeWidth={1.8} />
                   </span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'block', fontSize: 8, fontWeight: 600, color: 'var(--text-heading)' }}>{p.titulo}</span>
-                    <span style={{ display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1 }}>{resumenDe(form, p.key)}</span>
+                    <span style={{ display: 'block', fontSize: 9, fontWeight: 500 }}>{frase(p.titulo)}</span>
+                    <span style={{ display: 'block', fontSize: 7.2, color: 'var(--in-mute)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {renovar ? resumenDe(form, p.key).split(' · ')[0] : resumenDe(form, p.key)}
+                    </span>
                   </span>
-                  {aviso && <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mf-punto)' }} />}
-                  <ChevronRight size={10} style={{ color: 'var(--icon-muted)' }} />
+                  {renovar > 0 && (
+                    <em style={{ fontStyle: 'normal', fontSize: 6, fontWeight: 700, borderRadius: 99, padding: '2px 7px', whiteSpace: 'nowrap', color: 'var(--tx-ambar)', background: 'var(--tn-ambar)' }}>
+                      {renovar} por renovar
+                    </em>
+                  )}
+                  <ChevronRight size={11} style={{ color: 'var(--in-suave)', flexShrink: 0 }} />
                 </button>
               )
             })}
@@ -187,19 +188,54 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
           {preferenciasVisibles() && <PreferenciasPhone form={form} />}
         </>
       ) : (
-        <div style={{ margin: '14px 2px 0', padding: 10, borderRadius: 10, background: 'var(--surface-card)', fontSize: 7.5, color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center' }}>
+        <div style={{ padding: 12, borderRadius: 14, background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', fontSize: 7.8, color: 'var(--in-mute)', textAlign: 'center' }}>
           RR.HH. todavía no registró su ficha.
         </div>
       )}
 
-      <div style={{ margin: '14px 2px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: 6.5, letterSpacing: '.12em', fontWeight: 700, color: 'var(--text-muted)' }}>MIS PUBLICACIONES</div>
-        <span aria-label="Nueva publicación" style={{ width: 22, height: 22, borderRadius: 7, background: 'var(--navy)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Plus size={11} />
+      <div style={{ ...ROTULO, alignItems: 'center', margin: '14px 0 4px' }}>
+        Mis publicaciones
+        <span aria-label="Nueva publicación" style={{ width: 22, height: 22, borderRadius: '50%', background: '#00E091', color: '#0C2D40', display: 'grid', placeItems: 'center' }}>
+          <Plus size={11} strokeWidth={2.6} />
         </span>
       </div>
     </div>
   )
+}
+
+/* ── LOS DATOS DE UNA SECCIÓN ABIERTA (opciones E1 y F3 elegidas, en plomo) ──
+   En su orden de siempre y en **dos columnas fijas**: la etiqueta siempre a la izquierda (42 %) y el valor
+   siempre empieza en la misma línea vertical; si es largo (un correo, una dirección), baja de renglón
+   dentro de su columna. Antes lo corto iba a la derecha y lo largo apilado, y en una misma tarjeta se
+   mezclaban las dos formas. Las preguntas de sí/no llevan su respuesta en una pildorita: «Sí» en navy
+   sobre plomo, «No» en gris apagado. El detalle de una pregunta («Descripción de la alergia») es una fila
+   más, con su título, pegada a su pregunta: sin línea entre las dos, para que se lean como una sola
+   respuesta. Antes iba en una cajita plomo a lo ancho y sin título. Se pidió sin amarillo. */
+const VALOR = { fontSize: 8.4, fontWeight: 500, color: 'var(--in-texto)', lineHeight: 1.35, overflowWrap: 'anywhere' }
+function DatosPhone({ datos, ver, sinLineaArriba }) {
+  const detalles = new Set(datos.map(d => d.detalle).filter(Boolean))
+  const valor = d => (d.reservado && !ver ? '••••••' : d.valor)
+  return datos.map((d, i) => {
+    const esDetalle = detalles.has(d.key)
+    return (
+      <div key={d.key} style={{
+        display: 'grid', gridTemplateColumns: '42% 1fr', gap: 8, alignItems: 'baseline',
+        padding: esDetalle ? '0 10px 6px' : '6px 10px',
+        borderTop: esDetalle || (i === 0 && sinLineaArriba) ? 'none' : '1px solid var(--in-linea)',
+      }}>
+        <span style={{ fontSize: 7.2, color: 'var(--in-mute)', lineHeight: 1.3 }}>{d.label}</span>
+        {d.siNo ? (
+          <em style={{
+            justifySelf: 'start', fontStyle: 'normal', fontSize: 6.6, fontWeight: 700, borderRadius: 99, padding: '2px 9px',
+            color: d.valor === 'Sí' ? 'var(--in-texto)' : 'var(--in-mute)', background: d.valor === 'Sí' ? 'var(--in-plomo)' : 'transparent',
+            boxShadow: d.valor === 'Sí' ? 'none' : 'inset 0 0 0 1px var(--in-linea)',
+          }}>{d.valor}</em>
+        ) : (
+          <span style={VALOR}>{valor(d)}</span>
+        )}
+      </div>
+    )
+  })
 }
 
 /* Una sección de la ficha, para leer. Acordeón con cabecera verde abierta / gris plegada,
@@ -207,15 +243,15 @@ function Portada({ currentUser, ficha, onAbrir, onConfiguracion }) {
 function Seccion({ s, abierta, onAlternar }) {
   const [ver, setVer] = useState(false)
   return (
-    <div style={{ ...TARJETA, borderStyle: s.vacia ? 'dashed' : 'solid' }}>
+    <div style={tarjeta(abierta && !s.vacia)}>
       <button onClick={onAlternar} aria-expanded={abierta} className={`mf-sec-cab${abierta && !s.vacia ? ' on' : ''}`} style={{
         display: 'flex', alignItems: 'center', gap: 5, width: '100%', padding: '8px 9px', border: 'none',
         fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
-        borderRadius: abierta && !s.vacia ? '11px 11px 0 0' : 11,
+        borderRadius: abierta && !s.vacia ? '14px 14px 0 0' : 14,
       }}>
-        <ChevronDown size={10} style={{ flexShrink: 0, opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
-        <span style={{ flex: 1, fontSize: 8, fontWeight: 600 }}>{s.titulo}</span>
-        {s.vacia && <span style={{ fontSize: 6.5, opacity: .7 }}>Sin asignaciones</span>}
+        <span style={{ flex: 1, fontSize: 9, fontWeight: 600 }}>{s.titulo}</span>
+        {s.vacia && <span style={{ fontSize: 7, color: 'var(--in-mute)' }}>Sin asignaciones</span>}
+        <ChevronDown size={11} style={{ flexShrink: 0, color: 'var(--in-mute)', transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
       </button>
       {abierta && !s.vacia && (
         <div>
@@ -229,14 +265,9 @@ function Seccion({ s, abierta, onAlternar }) {
           {s.bloques.map((b, bi) => (
             <div key={bi}>
               {b.titulo && (
-                <div style={{ padding: '6px 9px 2px', borderTop: '1px solid var(--border)', fontSize: 6.5, fontWeight: 700, color: 'var(--mf-verde-txt)', textTransform: 'uppercase', letterSpacing: '.06em' }}>{b.titulo}</div>
+                <div style={{ padding: '8px 10px 2px', borderTop: '1px solid var(--in-linea)', fontSize: 6.8, fontWeight: 700, color: 'var(--in-acento-txt)', textTransform: 'uppercase', letterSpacing: '.05em' }}>{b.titulo}</div>
               )}
-              {b.datos.map(d => (
-                <div key={d.key} style={{ padding: '5px 9px', borderTop: b.titulo ? 'none' : '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>{d.label}</div>
-                  <div style={{ fontSize: 8, fontWeight: 500, color: 'var(--text-heading)', marginTop: 1 }}>{d.reservado && !ver ? '••••••' : d.valor}</div>
-                </div>
-              ))}
+              <DatosPhone datos={b.datos} ver={ver} sinLineaArriba={!!b.titulo} />
             </div>
           ))}
         </div>
@@ -255,8 +286,8 @@ function Datos({ pestana, form }) {
   const alternar = i => setAbiertas(a => { const n = new Set(a); n.has(i) ? n.delete(i) : n.add(i); return n })
   return (
     <>
-      <div style={{ display: 'flex', gap: 5, padding: '6px 8px', borderRadius: 8, background: 'var(--mf-info-bg)', color: 'var(--mf-info-txt)', fontSize: 6.5, lineHeight: 1.45 }}>
-        <Info size={9} style={{ flexShrink: 0, marginTop: 1 }} />
+      <div style={{ display: 'flex', gap: 5, color: 'var(--in-mute)', fontSize: 7.4, lineHeight: 1.45 }}>
+        <Info size={10} style={{ flexShrink: 0, marginTop: 1 }} />
         <span>{suya
           ? 'Estos datos los mantiene usted al día. Para cambiarlos, entre a Configuración › Editar perfil de usuario.'
           : recursos
@@ -265,7 +296,8 @@ function Datos({ pestana, form }) {
       </div>
       {partes.map(parte => (
         <div key={parte.key}>
-          {parte.titulo && <div style={{ margin: '10px 0 5px', fontSize: 8, fontWeight: 700, color: 'var(--text-heading)' }}>{parte.titulo}</div>}
+          {/* Con una sola parte, su rótulo repetía el título de la pantalla. */}
+          {parte.titulo && partes.length > 1 && <div style={{ margin: '12px 0 0', fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)' }}>{parte.titulo}</div>}
           {parte.secciones.map(s => {
             const i = idx++
             return <Seccion key={s.id} s={s} abierta={abiertas.has(i)} onAlternar={() => alternar(i)} />
@@ -277,9 +309,9 @@ function Datos({ pestana, form }) {
 }
 
 const ESTADO = {
-  vigente: { t: 'Vigente', bg: 'var(--green-bg)', c: 'var(--mf-vig-txt)' },
-  'por-vencer': { t: 'Por vencer', bg: 'var(--mf-por-bg)', c: 'var(--mf-por-txt)' },
-  vencido: { t: 'Vencido', bg: 'var(--mf-ven-bg)', c: 'var(--mf-ven-txt)' },
+  vigente: { t: 'Vigente', bg: 'var(--tn-verde)', c: 'var(--tx-verde)' },
+  'por-vencer': { t: 'Por vencer', bg: 'var(--tn-ambar)', c: 'var(--tx-ambar)' },
+  vencido: { t: 'Vencido', bg: 'var(--in-rojo-bg)', c: 'var(--in-rojo)' },
 }
 
 const esImagen = d => /\.(jpe?g|png|webp)$/i.test(d.archivo)
@@ -287,107 +319,200 @@ const esImagen = d => /\.(jpe?g|png|webp)$/i.test(d.archivo)
 /* ── VER UN DOCUMENTO ──────────────────────────────────────────────────────
    Bottom sheet dentro del teléfono: fondo oscuro arriba, tarjeta blanca con la vista previa,
    los datos del documento y la descarga. */
-function VisorPhone({ doc, titular, onVolver }) {
+/* ── VER UN DOCUMENTO (opción W2 elegida, «lo que importa arriba») ──
+   Pantalla propia con «‹ Documentación» para volver: antes era una hoja que subía encima de la lista,
+   con la lista asomando detrás, el nombre largo y «Descargar» escondido al fondo. Arriba, la tarjeta
+   destacada (con los círculos de Perfil) dice lo que se viene a averiguar: si está al día y cuánto falta
+   para que venza, con «Descargar» y, si vence y es de su Información Personal, «Subir la nueva». Debajo
+   la hoja (tocarla la muestra entera) y los datos en las dos columnas de la ficha. */
+const diasPara = fecha => {
+  const [d, m, a] = String(fecha).split('/').map(Number)
+  if (!a) return null
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0)
+  return Math.round((new Date(a, m - 1, d) - hoy) / 86400000)
+}
+const PILDORA_DOC = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5, height: 28, borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 8.4, fontWeight: 600, cursor: 'pointer' }
+
+function VisorPhone({ doc, titular, onVolver, onSubir }) {
+  const [entera, setEntera] = useState(false)
   const e = ESTADO[doc.estado]
-  const dato = (t, v) => v && (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '4px 0', borderTop: '1px solid var(--border)' }}>
-      <span style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>{t}</span>
-      <span style={{ fontSize: 7, fontWeight: 500, color: 'var(--text-heading)' }}>{v}</span>
+  const [titulo, tipo] = nombreCorto(doc)
+  const dias = doc.vence ? diasPara(doc.vence) : null
+  const renovar = (doc.estado === 'por-vencer' || doc.estado === 'vencido') && /personal/i.test(doc.grupo || '') && onSubir
+  const fila = (t, v) => v && (
+    <div style={{ display: 'grid', gridTemplateColumns: '42% 1fr', gap: 8, alignItems: 'baseline', padding: '6px 10px', borderTop: '1px solid var(--in-linea)' }}>
+      <span style={{ fontSize: 7.2, color: 'var(--in-mute)' }}>{t}</span>
+      <span style={{ fontSize: 8.4, fontWeight: 500, overflowWrap: 'anywhere' }}>{v}</span>
     </div>
   )
   return (
-    <div className="mf-sheet-velo" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', margin: '-10px -10px 0' }}>
-      <div onClick={onVolver} style={{ flex: '0 0 30px', background: 'rgba(12,45,64,.55)', cursor: 'pointer' }} />
-      <div className="mf-sheet-panel" style={{ flex: 1, background: 'var(--surface-card)', borderRadius: '14px 14px 0 0', padding: '0 10px 10px', marginTop: -4 }}>
-        <div style={{ width: 28, height: 3, borderRadius: 2, background: 'var(--border-dark)', margin: '6px auto 8px' }} />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-heading)', lineHeight: 1.3 }}>{doc.nombre}</div>
-            <div style={{ fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1 }}>{doc.grupo}</div>
-          </div>
-          <button onClick={onVolver} style={{ width: 20, height: 20, borderRadius: 6, border: 'none', background: 'var(--bg-secondary)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
-            <X size={10} />
-          </button>
-        </div>
-        <div style={{ borderRadius: 8, overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-          <HojaDocumento doc={doc} titular={titular} chico />
-        </div>
-        <div style={{ padding: '6px 0' }}>
-          {dato('Archivo', doc.archivo)}
-          {dato('Fecha de emisión', doc.emite)}
-          {dato('Fecha de vencimiento', doc.vence)}
-          {e && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderTop: '1px solid var(--border)' }}>
-              <span style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Estado</span>
-              <span style={{ padding: '1px 6px', borderRadius: 99, background: e.bg, color: e.c, fontWeight: 600, fontSize: 6.5 }}>{e.t}</span>
+    <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
+      <BarraVolver conTema texto="Documentación" onVolver={onVolver} />
+
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--in-carta)', borderRadius: 18, boxShadow: 'var(--in-sombra)', padding: '13px 13px 12px', marginBottom: 10 }}>
+        <span aria-hidden="true" style={{ position: 'absolute', width: 150, height: 150, top: -70, right: -50, borderRadius: '50%', background: 'rgba(0,224,145,.10)' }} />
+        <span aria-hidden="true" style={{ position: 'absolute', width: 80, height: 80, top: 30, right: -40, borderRadius: '50%', background: 'rgba(0,224,145,.07)' }} />
+        <div style={{ position: 'relative', display: 'grid', gap: 2 }}>
+          <span style={{ fontSize: 7.2, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: 'var(--in-acento-txt)' }}>{tipo || doc.grupo}</span>
+          <b style={{ fontSize: 12, fontWeight: 600, letterSpacing: '-.01em' }}>{titulo}</b>
+          {dias !== null && (
+            <div style={{ display: 'grid', justifyItems: 'start', gap: 2, marginTop: 6 }}>
+              {e && <em style={{ fontStyle: 'normal', fontSize: 6, fontWeight: 700, borderRadius: 99, padding: '2px 7px', background: e.bg, color: e.c }}>{e.t}</em>}
+              <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-.02em', lineHeight: 1.1 }}>{Math.abs(dias)} {Math.abs(dias) === 1 ? 'día' : 'días'}</span>
+              <small style={{ fontSize: 7.6, color: 'var(--in-mute)' }}>{dias < 0 ? 'desde que venció' : 'para que venza'} · {doc.vence}</small>
             </div>
           )}
+          <div style={{ display: 'grid', gridTemplateColumns: renovar ? '1fr 1fr' : '1fr', gap: 7, marginTop: 10 }}>
+            <button type="button" style={{ ...PILDORA_DOC, background: renovar ? 'var(--in-carta)' : '#00E091', color: renovar ? 'var(--in-texto)' : '#0C2D40', boxShadow: renovar ? 'var(--in-sombra)' : 'none' }}>
+              <Download size={10} /> Descargar
+            </button>
+            {renovar && (
+              <button type="button" onClick={onSubir} style={{ ...PILDORA_DOC, background: '#00E091', color: '#0C2D40' }}>
+                <Upload size={10} /> Subir la nueva
+              </button>
+            )}
+          </div>
         </div>
-        <button style={{ ...BOTON, width: '100%', height: 24, gap: 4, border: 'none', background: '#00E091', color: '#0C2D40' }}>
-          <Download size={9} /> Descargar
-        </button>
+      </div>
+
+      {/* La hoja: recortada para que se vea qué es; tocarla la muestra entera. */}
+      <button type="button" onClick={() => setEntera(v => !v)} aria-label={entera ? 'Achicar el documento' : 'Ver el documento entero'} style={{
+        display: 'block', width: '100%', padding: 0, border: 'none', cursor: 'pointer', borderRadius: 14, overflow: 'hidden',
+        background: 'var(--bg-secondary)', boxShadow: 'var(--in-sombra)', maxHeight: entera ? 'none' : 170, position: 'relative', marginBottom: 10,
+      }}>
+        <HojaDocumento doc={doc} titular={titular} chico />
+        {!entera && <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 34, background: 'linear-gradient(transparent, var(--in-carta))', display: 'grid', placeItems: 'end center', paddingBottom: 5, fontSize: 7, fontWeight: 600, color: 'var(--in-acento-txt)' }}>Ver entero</span>}
+      </button>
+
+      <div style={{ background: 'var(--in-carta)', borderRadius: 15, boxShadow: 'var(--in-sombra)', overflow: 'hidden' }}>
+        <div style={{ marginTop: -1 }}>
+          {fila('Archivo', doc.archivo)}
+          {fila(doc.vence ? 'Emitida' : 'Emitido', doc.emite)}
+          {fila('Vence', doc.vence)}
+          {dias === null && e && fila('Estado', e.t)}
+        </div>
       </div>
     </div>
   )
 }
 
-function Documentos({ form }) {
+/* ── DOCUMENTACIÓN Y EXPEDIENTE (opción G2 elegida, «lo que hay que hacer, primero») ──
+   Lo único que la persona tiene que hacer aquí es renovar lo que vence; lo demás es para consultar. Por
+   eso lo que vence va arriba en una sola tarjeta destacada (con los círculos de Perfil): con un documento
+   dice cuál y cuándo; con dos o más, «N documentos por renovar» y una línea por cada uno. Si alguno es de
+   su Información Personal, «Subir la nueva» lleva a Editar perfil de usuario. Debajo, la lista con las
+   piezas del Perfil: el nombre corto primero («Pasaporte», no «Documento de identidad secundario…
+   · Pasaporte»), su círculo con aro menta e ícono, la etiqueta de estado a la derecha y una sola «›».
+   Antes cada fila tenía un ojo (repetía tocar la fila) y una descarga que no era botón: descargar vive
+   en la vista previa. */
+const nombreCorto = d => {
+  const partes = d.nombre.split(' · ')
+  return partes.length > 1 ? [partes.pop(), partes.join(' · ').replace(/ \(anverso y reverso\)/, '')] : [d.nombre, null]
+}
+const iconoDoc = d => {
+  const n = d.nombre.toLowerCase()
+  if (esImagen(d)) return ImageIcon
+  if (n.includes('licencia')) return Car
+  if (n.includes('identidad') || n.includes('pasaporte')) return IdCard
+  if (n.includes('domicilio')) return Home
+  if (n.includes('uniforme')) return Shirt
+  if (n.includes('equipo')) return n.includes('monitor') ? Monitor : Laptop
+  return FileText
+}
+const ROTULO_DOC = { fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)', margin: '14px 0 7px' }
+const cuando = d => `${d.estado === 'vencido' ? 'Venció' : 'Vence'} el ${d.vence}`
+
+function PorRenovar({ docs, onSubir }) {
+  const uno = docs.length === 1
+  const vencido = docs.some(d => d.estado === 'vencido')
+  const suyos = docs.some(d => /personal/i.test(d.grupo || ''))
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--in-carta)', borderRadius: 18, boxShadow: 'var(--in-sombra)', padding: '11px 12px' }}>
+        <span aria-hidden="true" style={{ position: 'absolute', width: 90, height: 90, top: -45, right: -30, borderRadius: '50%', background: 'rgba(0,224,145,.10)' }} />
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9 }}>
+          <span style={{ width: 30, height: 30, borderRadius: '50%', background: vencido ? 'var(--in-rojo-bg)' : 'var(--tn-ambar)', color: vencido ? 'var(--in-rojo)' : 'var(--tx-ambar)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <AlertTriangle size={14} />
+          </span>
+          <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 1 }}>
+            <b style={{ fontSize: 9.6, fontWeight: 600 }}>{uno ? nombreCorto(docs[0])[0] : `${docs.length} documentos por renovar`}</b>
+            <small style={{ fontSize: 7.4, color: 'var(--in-mute)', lineHeight: 1.4 }}>
+              {uno ? `${cuando(docs[0])}. ` : ''}{suyos ? 'Suba la copia renovada para RR.HH.' : 'Renuévelos y envíe la copia a RR.HH.'}
+            </small>
+          </span>
+        </div>
+        {!uno && (
+          <div style={{ position: 'relative', marginTop: 8, display: 'grid' }}>
+            {docs.map(d => (
+              <div key={d.key} style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '5px 0', borderTop: '1px solid var(--in-linea)' }}>
+                <span style={{ flex: 1, minWidth: 0, fontSize: 8.4, fontWeight: 500 }}>{nombreCorto(d)[0]}</span>
+                <span style={{ fontSize: 7.2, color: d.estado === 'vencido' ? 'var(--in-rojo)' : 'var(--in-mute)', whiteSpace: 'nowrap' }}>{cuando(d).toLowerCase()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {suyos && onSubir && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 7 }}>
+          <button type="button" onClick={onSubir} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 26, padding: '0 14px', borderRadius: 99, border: 'none', background: '#00E091', color: '#0C2D40', fontFamily: 'inherit', fontSize: 8.2, fontWeight: 600, cursor: 'pointer' }}>
+            <Upload size={10} /> {uno ? 'Subir la nueva' : 'Subir las nuevas'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Documentos({ form, onSubir, onVer }) {
   const [filtro, setFiltro] = useState('todos')
-  const [viendo, setViendo] = useState(null)
-  const ver = d => { setViendo(d); document.querySelector('.phone-scroll')?.scrollTo(0, 0) }
   const docs = documentosDe(form)
   const renovar = docs.filter(d => d.estado === 'por-vencer' || d.estado === 'vencido')
   const lista = filtro === 'todos' ? docs : renovar
-  if (viendo) return <VisorPhone doc={viendo} titular={titularDe(form)} onVolver={() => setViendo(null)} />
   return (
     <>
-      <div style={{ display: 'flex', gap: 4 }}>
+      {renovar.length > 0 && <PorRenovar docs={renovar} onSubir={onSubir} />}
+
+      <div style={{ display: 'flex', gap: 6 }}>
         {[['todos', `Todos · ${docs.length}`], ['renovar', `Por renovar · ${renovar.length}`]].map(([k, t]) => (
-          <button key={k} onClick={() => setFiltro(k)} style={{
-            padding: '4px 9px', borderRadius: 99, fontFamily: 'inherit', fontSize: 7, cursor: 'pointer',
-            border: `1px solid ${filtro === k ? 'var(--navy)' : 'var(--border-dark)'}`,
-            background: filtro === k ? 'var(--navy)' : 'var(--surface-card)', color: filtro === k ? '#fff' : 'var(--text-heading)',
+          <button key={k} type="button" onClick={() => setFiltro(k)} style={{
+            padding: '5px 11px', borderRadius: 99, fontFamily: 'inherit', fontSize: 7.8, fontWeight: 600, cursor: 'pointer', border: 'none',
+            boxShadow: 'var(--in-sombra)', background: filtro === k ? 'var(--in-pill)' : 'var(--in-carta)', color: filtro === k ? 'var(--in-pill-txt)' : 'var(--in-texto)',
           }}>{t}</button>
         ))}
       </div>
-      {renovar.map(d => (
-        <div key={d.key} style={{ display: 'flex', gap: 5, marginTop: 8, padding: '6px 8px', borderRadius: 8, background: d.estado === 'vencido' ? 'var(--mf-ven-bg)' : 'var(--mf-por-bg)', color: d.estado === 'vencido' ? 'var(--mf-ven-aviso)' : 'var(--mf-por-aviso)', fontSize: 6.5, lineHeight: 1.45 }}>
-          <AlertTriangle size={9} style={{ flexShrink: 0, marginTop: 1 }} />
-          <span><b>{d.nombre.split(' · ').pop()}</b> {d.estado === 'vencido' ? 'venció' : 'vence'} el {d.vence}. Renuévelo y envíe la copia a RR.HH.</span>
-        </div>
-      ))}
+
       {agrupar(lista, 'grupo').map(g => (
         <div key={g.titulo}>
-          <div style={{ fontSize: 6, letterSpacing: '.1em', fontWeight: 700, color: 'var(--text-muted)', margin: '11px 2px 4px', textTransform: 'uppercase' }}>{g.titulo}</div>
-          <div style={{ background: 'var(--surface-card)', borderRadius: 11, border: '1px solid var(--border-soft)' }}>
+          <div style={ROTULO_DOC}>{g.titulo}</div>
+          <div style={{ background: 'var(--in-carta)', borderRadius: 15, boxShadow: 'var(--in-sombra)', overflow: 'hidden' }}>
             {g.items.map((d, i) => {
               const e = ESTADO[d.estado]
+              const [titulo, tipo] = nombreCorto(d)
+              const I = iconoDoc(d)
+              const meta = d.vence ? `vence ${d.vence}` : d.emite ? `emitido ${d.emite}` : d.archivo
               return (
-                <div key={d.key} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 8px', borderTop: i ? '1px solid var(--border)' : 'none' }}>
-                  {/* Tocar la fila abre la vista previa; la descarga va aparte. */}
-                  <button onClick={() => ver(d)} style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 7, padding: 0, border: 'none', background: 'none', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
-                  <span style={{ width: 20, height: 20, borderRadius: 6, background: 'var(--bg-secondary)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {esImagen(d) ? <ImageIcon size={10} /> : <FileText size={10} />}
+                <button key={d.key} type="button" onClick={() => onVer(d)} aria-label={`Ver ${d.nombre}`} style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', border: 'none', borderTop: i ? '1px solid var(--in-linea)' : 'none',
+                  background: 'none', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', color: 'var(--in-texto)',
+                }}>
+                  <span style={{ width: 26, height: 26, borderRadius: '50%', boxShadow: 'inset 0 0 0 1.4px #00E091', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                    <I size={12} strokeWidth={1.8} />
                   </span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'block', fontSize: 7.5, fontWeight: 600, color: 'var(--text-heading)', lineHeight: 1.3 }}>{d.nombre}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, fontSize: 6.5, color: 'var(--text-muted)', marginTop: 2 }}>
-                      {d.vence ? `Vence ${d.vence}` : d.emite ? `Emitido ${d.emite}` : d.archivo}
-                      {e && <span style={{ padding: '1px 5px', borderRadius: 99, background: e.bg, color: e.c, fontWeight: 600, fontSize: 6 }}>{e.t}</span>}
+                    <span style={{ display: 'block', fontSize: 8.8, fontWeight: 500, lineHeight: 1.3 }}>{titulo}</span>
+                    <span style={{ display: 'block', fontSize: 7, color: 'var(--in-mute)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {tipo ? `${tipo} · ${meta}` : meta.charAt(0).toUpperCase() + meta.slice(1)}
                     </span>
                   </span>
-                  </button>
-                  <button onClick={() => ver(d)} aria-label={`Ver ${d.nombre}`} style={{ width: 22, height: 22, borderRadius: 6, border: 'none', background: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
-                    <Eye size={11} />
-                  </button>
-                  <Download size={10} aria-label={`Descargar ${d.nombre}`} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                </div>
+                  {e && <em style={{ fontStyle: 'normal', fontSize: 6, fontWeight: 700, borderRadius: 99, padding: '2px 7px', whiteSpace: 'nowrap', background: e.bg, color: e.c }}>{e.t}</em>}
+                  <ChevronRight size={11} style={{ color: 'var(--in-suave)', flexShrink: 0 }} />
+                </button>
               )
             })}
           </div>
         </div>
       ))}
-      <p style={{ margin: '10px 2px 0', fontSize: 6.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+      <p style={{ margin: '12px 2px 0', fontSize: 7.2, color: 'var(--in-mute)', lineHeight: 1.5 }}>
         Los documentos de su Información Personal puede cambiarlos en Configuración › Editar perfil de usuario. Los demás los sube RR.HH.
       </p>
     </>
@@ -637,11 +762,11 @@ function EntradaArchivo({ campo, valor, onCambiar, onVer }) {
 
 function SeccionEditable({ s, ed, abierta, onAlternar, onVerDoc }) {
   return (
-    <div style={{ ...TARJETA, overflow: 'visible' }}>
+    <div style={{ ...tarjeta(abierta), overflow: 'visible' }}>
       <button onClick={onAlternar} aria-expanded={abierta} className={`mf-sec-cab${abierta ? ' on' : ''}`} style={{
         display: 'flex', alignItems: 'center', gap: 5, width: '100%', padding: '8px 9px', border: 'none',
         fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
-        borderRadius: abierta ? '11px 11px 0 0' : 11,
+        borderRadius: abierta ? '14px 14px 0 0' : 14,
       }}>
         <ChevronDown size={10} style={{ flexShrink: 0, opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
         <span style={{ flex: 1, fontSize: 8, fontWeight: 600 }}>{s.titulo}</span>
@@ -731,10 +856,10 @@ function PreferenciasEditables({ ed }) {
   if (!t) return null
   const llenos = t.campos.filter(c => lineas(ed.vivo[c.key]).length).length
   return (
-    <div style={{ ...TARJETA, overflow: 'visible' }}>
+    <div style={{ ...tarjeta(abierta), overflow: 'visible' }}>
       <button onClick={() => setAbierta(a => !a)} aria-expanded={abierta} className={`mf-sec-cab${abierta ? ' on' : ''}`} style={{
         display: 'flex', alignItems: 'center', gap: 5, width: '100%', padding: '8px 9px', border: 'none',
-        fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', borderRadius: abierta ? '11px 11px 0 0' : 11,
+        fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', borderRadius: abierta ? '14px 14px 0 0' : 14,
       }}>
         <ChevronDown size={10} style={{ flexShrink: 0, opacity: .7, transform: abierta ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
         <span style={{ flex: 1, fontSize: 8, fontWeight: 600 }}>{t.titulo}</span>
@@ -859,31 +984,34 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
   }
 
   return (
-    <div style={{ padding: '2px 2px' }}>
+    <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       <BarraVolver conTema texto="Configuración" onVolver={() => ed.salir(onVolver)} />
-      <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Configuración</div>
-      <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>Editar perfil de usuario</div>
+      <div style={{ display: 'grid', marginBottom: 8 }}>
+        <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Editar perfil de usuario</b>
+        <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Lo que usted mantiene al día</small>
+      </div>
 
-      <div style={{ display: 'flex', gap: 5, padding: '6px 8px', borderRadius: 8, background: 'var(--mf-info-bg)', color: 'var(--mf-info-txt)', fontSize: 6.5, lineHeight: 1.45 }}>
-        <Info size={9} style={{ flexShrink: 0, marginTop: 1 }} />
+      <div style={{ display: 'flex', gap: 5, color: 'var(--in-mute)', fontSize: 7.4, lineHeight: 1.45 }}>
+        <Info size={10} style={{ flexShrink: 0, marginTop: 1 }} />
         <span>Mantenga al día su información personal y sus documentos. Lo laboral lo registra RR.HH.</span>
       </div>
 
-      <div style={{ marginTop: 6, background: 'var(--surface-card)', borderRadius: 12, border: '1px solid var(--border-soft)' }}>
-        {categorias.map((cat, i) => (
+      {/* Las filas de Mi ficha: círculo con aro menta, sombra y títulos en minúscula. */}
+      <div style={{ marginTop: 9, display: 'grid', gap: 7 }}>
+        {categorias.map(cat => (
           <button key={cat.idx} onClick={() => entrar(cat.idx)} style={{
             display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 9px',
-            border: 'none', borderTop: i ? '1px solid var(--border)' : 'none', background: 'none',
-            fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+            border: 'none', borderRadius: 14, background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)',
+            fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', color: 'var(--in-texto)',
           }}>
-            <span style={{ width: 22, height: 22, borderRadius: 7, background: 'var(--green-bg)', color: 'var(--mf-verde-txt)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <cat.I size={11} />
+            <span style={{ width: 26, height: 26, borderRadius: '50%', boxShadow: 'inset 0 0 0 1.4px #00E091', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+              <cat.I size={12} strokeWidth={1.8} />
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 8, fontWeight: 600, color: 'var(--text-heading)' }}>{cat.titulo}</span>
-              <span style={{ display: 'block', fontSize: 6.5, color: 'var(--text-muted)', marginTop: 1 }}>{cat.pista}</span>
+              <span style={{ display: 'block', fontSize: 9, fontWeight: 500 }}>{frase(cat.titulo)}</span>
+              <span style={{ display: 'block', fontSize: 7.2, color: 'var(--in-mute)', marginTop: 1 }}>{cat.pista}</span>
             </span>
-            <ChevronRight size={10} style={{ color: 'var(--icon-muted)' }} />
+            <ChevronRight size={11} style={{ color: 'var(--in-suave)', flexShrink: 0 }} />
           </button>
         ))}
       </div>
@@ -892,30 +1020,37 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
   )
 }
 
-export default function PerfilPhone({ currentUser }) {
+export default function PerfilPhone({ currentUser, onOrganigrama }) {
   const { ficha, guardar } = useMiFicha(currentUser.name)
   const [vista, setVista] = useState('portada')
+  /* El documento abierto es una pantalla propia: reemplaza a Documentación entera, con su «‹ Documentación». */
+  const [doc, setDoc] = useState(null)
   const arriba = () => document.querySelector('.phone-scroll')?.scrollTo(0, 0)
-  const abrir = v => { setVista(v); arriba() }
+  const abrir = v => { setVista(v); setDoc(null); arriba() }
 
   if (vista === 'config') {
-    return <ConfiguracionPhone onVolver={() => abrir('portada')} onPerfilUsuario={ficha ? () => abrir('misdatos') : undefined} />
+    return <ConfiguracionPhone onVolver={() => abrir('portada')} onPerfilUsuario={ficha ? () => abrir('misdatos') : undefined} currentUser={currentUser} form={ficha?.form} />
   }
   if (vista === 'misdatos' && ficha) {
     return <EditarPerfil form={ficha.form} onGuardar={guardar} onVolver={() => abrir('config')} currentUser={currentUser} />
   }
+  if (doc && ficha && vista === 'documentos') {
+    return <VisorPhone doc={doc} titular={titularDe(ficha.form)} onVolver={() => { setDoc(null); arriba() }} onSubir={() => { setDoc(null); abrir('misdatos') }} />
+  }
   if (vista === 'portada' || !ficha) {
-    return <Portada currentUser={currentUser} ficha={ficha} onAbrir={abrir} onConfiguracion={() => abrir('config')} />
+    return <Portada currentUser={currentUser} ficha={ficha} onAbrir={abrir} onConfiguracion={() => abrir('config')} onOrganigrama={onOrganigrama} />
   }
 
   const p = pestanasCon(ficha.form).find(x => x.key === vista)
   return (
-    <div style={{ padding: '2px 2px' }}>
+    <div style={{ padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       <BarraVolver conTema texto="Mi perfil" onVolver={() => abrir('portada')} />
-      <div style={{ fontSize: 6.5, color: 'var(--text-muted)' }}>Mi ficha</div>
-      <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>{p?.titulo}</div>
+      <div style={{ display: 'grid', marginBottom: 8 }}>
+        <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>{frase(p?.titulo)}</b>
+        <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Mi ficha</small>
+      </div>
       {vista === 'documentos'
-        ? <Documentos form={ficha.form} />
+        ? <Documentos form={ficha.form} onSubir={() => abrir('misdatos')} onVer={d => { setDoc(d); arriba() }} />
         : <Datos key={vista} pestana={vista} form={ficha.form} />}
     </div>
   )

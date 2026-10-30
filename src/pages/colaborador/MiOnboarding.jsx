@@ -21,6 +21,8 @@ import manualPdf from '../../assets/documentos/manual_funciones.pdf'
 import viaContinuar from '../../assets/imagenes/continuar_via.webp'
 import viaTrofeo from '../../assets/imagenes/via_trofeo.webp'
 import trofeoImg from '../../assets/imagenes/trofeo_onboarding.webp'
+import { CabeceraOnb, VolverOnb, PortadaOnb, SiguientePaso, MapaRutaOnb } from './OnboardingPhonePiezas'
+import { PILDORA, TIPO_TEXTO } from './onboardingPhone'
 
 const viaHuevo = viaBebe
 
@@ -301,6 +303,16 @@ export default function MiOnboarding({ forcePhone = false }) {
   const abrirHistorial = () => setHistorialAbierto(true)
   const irAlOrganigrama = () => navigate('/personas/organigrama')
 
+  /* El siguiente paso del teléfono: la primera tarea sin hacer, con su etapa y actividad para abrirla. */
+  const siguiente = etapas.flatMap(e => flatTareas(e)).find(t => !t.done) || null
+  const ubicacion = tarea => {
+    for (const e of etapas) for (const a of e.actividades) if (a.tareas.some(t => t.id === tarea.id)) return { etapa: e.name, actividad: a.name, days: e.days }
+    return null
+  }
+  const abrirTarea = (tarea, ctx = ubicacion(tarea)) => { setStarted(true); setSelTarea(tarea); setSelContext(ctx) }
+  const cabeceraPhone = <CabeceraOnb titulo="Mi onboarding" sub={ruta?.nombre} onHistorial={abrirHistorial} onOrganigrama={irAlOrganigrama} />
+  const puntosRuta = etapas.flatMap(e => flatTareas(e)).reduce((s, t) => s + t.puntos, 0)
+
   /* En el teléfono el historial no puede ser un modal `fixed`: taparía el escritorio entero
      en vez del marco. Se muestra como pantalla propia dentro del celular. */
   if (historialAbierto && isMobile) {
@@ -326,21 +338,9 @@ export default function MiOnboarding({ forcePhone = false }) {
     // En el teléfono la pantalla de escritorio no entra: la mascota sola mide 200px.
     if (isMobile) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '20px 10px', minHeight: '100%' }}>
-          <img src={viaAntiguo} alt="Mascota" style={{ width: 66, marginBottom: 10 }} />
-          <h1 style={{ fontSize: 12, fontWeight: 800, color: '#0C2D40', margin: '0 0 5px' }}>¡Hola, {firstName}!</h1>
-          <p style={{ fontSize: 7, color: '#64748b', margin: '0 0 12px', lineHeight: 1.5, maxWidth: 190 }}>
-            Este módulo es para nuevos colaboradores en proceso de incorporación. Como ya eres parte del equipo, no tienes tareas pendientes aquí.
-          </p>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '7px 12px', borderRadius: 9,
-            background: '#f0fdf4', border: '1px solid #bbf7d0',
-          }}>
-            <CheckCircle2 size={11} style={{ color: '#16a34a' }} />
-            <span style={{ fontSize: 7.5, color: '#166534', fontWeight: 700 }}>Sin tareas pendientes</span>
-          </div>
-        </div>
+        <PortadaOnb mascota={viaAntiguo} titulo={`¡Hola, ${firstName}!`}
+          texto="Este módulo es para quienes se están incorporando. Usted ya es parte del equipo, así que aquí no tiene tareas pendientes."
+          boton={<span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 6, fontSize: 7.4, fontWeight: 700, borderRadius: 99, padding: '4px 10px', color: 'var(--tx-verde)', background: 'var(--tn-verde)' }}><CheckCircle2 size={10} />Sin tareas pendientes</span>} />
       )
     }
     return (
@@ -416,45 +416,10 @@ export default function MiOnboarding({ forcePhone = false }) {
        porque en teléfono nadie llegaba graduado — el buddy es el primero. */
     if (isMobile) {
       return (
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 8px', textAlign: 'center', minHeight: '100%' }}>
-          {modalHistorial}
-          <div style={{ position: 'absolute', top: 8, right: 8 }}>
-            <AccionesCabecera compact onHistorial={abrirHistorial} onOrganigrama={irAlOrganigrama} />
-          </div>
-          <img src={viaTrofeo} alt="Mascota graduada" style={{ width: 60, marginBottom: 10 }} />
-          <h1 style={{ fontSize: 14, fontWeight: 800, color: '#0C2D40', margin: '0 0 4px' }}>¡Felicidades, {firstName}!</h1>
-          <p style={{ fontSize: 8, color: '#64748b', margin: '0 0 12px', lineHeight: 1.4 }}>
-            Completaste todas las etapas de tu ruta. Aquí puedes revisar tu recorrido cuando quieras.
-          </p>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-            {[
-              { val: `${totalAll}/${totalAll}`, label: 'tareas', bg: '#00E091' },
-              { val: totalPuntos, label: 'Pts', bg: '#f59e0b' },
-              { val: '100%', label: 'completado', bg: '#0C2D40' },
-            ].map(p => (
-              <div key={p.label} style={{
-                background: p.bg, borderRadius: 8, padding: '6px 10px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 48,
-              }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{p.val}</span>
-                <span style={{ fontSize: 6, fontWeight: 600, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.label}</span>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={() => setStarted(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              background: '#0C2D40', color: '#fff', border: 'none',
-              borderRadius: 8, padding: '8px 16px',
-              fontSize: 9, fontWeight: 700, cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            <Trophy size={10} />
-            Ver mi ruta completada
-          </button>
-        </div>
+        <PortadaOnb cabecera={cabeceraPhone} mascota={viaTrofeo} titulo={`¡Felicidades, ${firstName}!`}
+          texto="Completó todas las etapas de su ruta. Puede revisar su recorrido cuando quiera."
+          cifras={[[`${totalAll}/${totalAll}`, 'tareas'], [totalPuntos, 'puntos'], ['100 %', 'completado']]}
+          boton={<button type="button" onClick={() => setStarted(true)} style={{ ...PILDORA, height: 30, padding: '0 20px', marginTop: 8 }}><Trophy size={11} />Ver mi ruta completada</button>} />
       )
     }
     return (
@@ -505,46 +470,10 @@ export default function MiOnboarding({ forcePhone = false }) {
   if (!started && totalDone === 0) {
     if (isMobile) {
       return (
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 8px', textAlign: 'center', minHeight: '100%' }}>
-          <div style={{ position: 'absolute', top: 8, right: 8 }}>
-            <AccionesCabecera compact onHistorial={abrirHistorial} onOrganigrama={irAlOrganigrama} />
-          </div>
-          <img src={viaBebe} alt="Mascota" style={{ width: 60, marginBottom: 10 }} />
-          <h1 style={{ fontSize: 14, fontWeight: 800, color: '#0C2D40', margin: '0 0 4px' }}>¡Hola, {firstName}!</h1>
-          <p style={{ fontSize: 8, color: '#64748b', margin: '0 0 12px', lineHeight: 1.4 }}>
-            Tu aventura comienza aquí. Recorrido paso a paso para integrarte.
-          </p>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-            {[
-              { val: etapas.length, label: 'etapas', bg: '#0C2D40' },
-              { val: totalAll, label: 'tareas', bg: '#00E091' },
-              { val: etapas.flatMap(e => flatTareas(e)).reduce((s, t) => s + t.puntos, 0), label: 'Puntos', bg: '#f59e0b' },
-            ].map(p => (
-              <div key={p.label} style={{
-                background: p.bg, borderRadius: 8, padding: '6px 10px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 48,
-              }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{p.val}</span>
-                <span style={{ fontSize: 6, fontWeight: 600, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.label}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button
-              onClick={() => setStarted(true)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                background: '#0C2D40', color: '#fff', border: 'none',
-                borderRadius: 8, padding: '8px 16px',
-                fontSize: 9, fontWeight: 700, cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              <Rocket size={10} />
-              Empezar mi onboarding
-            </button>
-          </div>
-        </div>
+        <PortadaOnb cabecera={cabeceraPhone} mascota={viaBebe} titulo={`¡Hola, ${firstName}!`}
+          texto="Su recorrido para integrarse al equipo, paso a paso."
+          cifras={[[etapas.length, 'etapas'], [totalAll, 'tareas'], [puntosRuta, 'puntos']]}
+          boton={<button type="button" onClick={() => setStarted(true)} style={{ ...PILDORA, height: 30, padding: '0 20px', marginTop: 8 }}><Rocket size={11} />Empezar mi onboarding</button>} />
       )
     }
     return (
@@ -594,6 +523,15 @@ export default function MiOnboarding({ forcePhone = false }) {
   }
 
   if (!started && totalDone > 0) {
+    /* En el teléfono antes caía la portada de escritorio (mascota de 90 px, títulos de 22). */
+    if (isMobile) {
+      return (
+        <PortadaOnb cabecera={cabeceraPhone} mascota={viaContinuar} titulo={`¡Hola de nuevo, ${firstName}!`}
+          texto="Así va su recorrido."
+          tarjeta={<SiguientePaso siguiente={siguiente} etapa={siguiente && ubicacion(siguiente)?.etapa} hechas={totalDone} total={totalAll} puntos={totalPuntos} onAbrir={abrirTarea} />}
+          boton={<button type="button" onClick={() => setStarted(true)} style={{ ...PILDORA, height: 30, padding: '0 20px', background: 'var(--in-carta)', color: 'var(--in-texto)', boxShadow: 'var(--in-sombra)' }}><Route size={11} />Ver toda mi ruta</button>} />
+      )
+    }
     const nextTarea = etapas.flatMap(e => flatTareas(e)).find(t => !t.done)
     const NextIcon = nextTarea ? (iconMap[nextTarea.tipo] || FileText) : null
     const nextColor = nextTarea ? (colorMap[nextTarea.tipo] || '#94a3b8') : null
@@ -669,8 +607,6 @@ export default function MiOnboarding({ forcePhone = false }) {
   }
 
   if (selTarea && isMobile) {
-    const Icon = iconMap[selTarea.tipo] || FileText
-    const color = colorMap[selTarea.tipo] || '#94a3b8'
 
     const renderMobileContent = () => {
       switch (selTarea.tipo) {
@@ -713,7 +649,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                   {/* Describe el estado y da una salida; no promete cuándo ni explica por qué.
                       El "por qué" es de la plataforma y al colaborador no le sirve de nada. */}
                   <div style={{ fontSize: 8.5, color: '#64748b', marginTop: 4, lineHeight: 1.5 }}>
-                    Este video aún no está disponible. Avisa a Recursos Humanos si necesitas verlo.
+                    Este video aún no está disponible. Avise a Recursos Humanos si necesita verlo.
                   </div>
                 </div>
               ) : (
@@ -733,14 +669,14 @@ export default function MiOnboarding({ forcePhone = false }) {
               )}
 
               {hasQuiz && !isQuizStarted && !isQuizDone && (
-                <div style={{ border: '1px solid #fde68a', borderRadius: 8, padding: 10, background: '#fffbeb', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <HelpCircle size={16} style={{ color: '#d97706' }} />
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#92400e' }}>Prueba de verificación</div>
-                  <p style={{ fontSize: 7, color: '#b45309', margin: 0, lineHeight: 1.4 }}>Responde para verificar que comprendiste el video.</p>
+                <div style={{ borderRadius: 8, padding: 10, background: '#fff', boxShadow: '0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <HelpCircle size={16} style={{ color: '#0A7F55' }} />
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40' }}>Prueba de verificación</div>
+                  <p style={{ fontSize: 7, color: '#62788A', margin: 0, lineHeight: 1.4 }}>Responda para confirmar que entendió el video.</p>
                   <div style={{ fontSize: 6.5, color: '#94a3b8' }}>{quizQuestions.length} preguntas · 70% para aprobar</div>
                   <button onClick={() => setQuizStarted(prev => ({ ...prev, [tid]: true }))} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '4px 10px', borderRadius: 5,
-                    background: '#d97706', color: '#fff', border: 'none', fontSize: 7.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '4px 10px', borderRadius: 99,
+                    background: '#00E091', color: '#0C2D40', border: 'none', fontSize: 7.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
                   }}>
                     <HelpCircle size={9} /> Empezar prueba
                   </button>
@@ -748,13 +684,13 @@ export default function MiOnboarding({ forcePhone = false }) {
               )}
 
               {hasQuiz && isQuizStarted && !isQuizDone && (
-                <div style={{ border: '1px solid #fde68a', borderRadius: 8, overflow: 'hidden' }}>
-                  <div style={{ padding: '5px 8px', background: '#fffbeb', borderBottom: '1px solid #fde68a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ padding: '5px 8px', background: '#fff', boxShadow: '0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06)', borderBottom: '1px solid #EEF2F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <HelpCircle size={9} style={{ color: '#d97706' }} />
-                      <span style={{ fontSize: 8, fontWeight: 700, color: '#92400e' }}>Cuest.</span>
+                      <HelpCircle size={9} style={{ color: '#0A7F55' }} />
+                      <span style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>Cuest.</span>
                     </div>
-                    <span style={{ fontSize: 7, color: '#b45309' }}>{Object.keys(answers).length}/{quizQuestions.length}</span>
+                    <span style={{ fontSize: 7, color: '#62788A' }}>{Object.keys(answers).length}/{quizQuestions.length}</span>
                   </div>
                   <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {quizQuestions.map((q, qIdx) => (
@@ -767,7 +703,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                               <button key={oIdx} onClick={() => setQuizAnswers(prev => ({ ...prev, [tid]: { ...(prev[tid] || {}), [qIdx]: oIdx } }))} style={{
                                 display: 'flex', alignItems: 'center', gap: 6, padding: '4px 6px', borderRadius: 5,
                                 border: selected ? '1.5px solid #d97706' : '1px solid #f1f5f9',
-                                background: selected ? '#fef3c7' : '#fff',
+                                background: selected ? '#E3FAF0' : '#fff',
                                 cursor: 'pointer', fontSize: 8, color: '#475569', fontFamily: 'inherit', textAlign: 'left', width: '100%',
                               }}>
                                 <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, border: selected ? '3px solid #d97706' : '1.5px solid #cbd5e1', background: '#fff' }} />
@@ -782,8 +718,8 @@ export default function MiOnboarding({ forcePhone = false }) {
                       const correct = quizQuestions.filter((q, i) => answers[i] === q.correcta).length
                       setQuizSubmitted(prev => ({ ...prev, [tid]: { correct, total: quizQuestions.length } }))
                     }} disabled={!allAnswered} style={{
-                      padding: '5px 12px', borderRadius: 6, background: allAnswered ? '#d97706' : '#e2e8f0',
-                      color: allAnswered ? '#fff' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700,
+                      padding: '5px 12px', borderRadius: 99, background: allAnswered ? '#00E091' : '#e2e8f0',
+                      color: allAnswered ? '#0C2D40' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700,
                       cursor: allAnswered ? 'pointer' : 'default', fontFamily: 'inherit',
                     }}>Enviar respuestas</button>
                   </div>
@@ -819,7 +755,7 @@ export default function MiOnboarding({ forcePhone = false }) {
         }
         case 'audio':
           return (
-            <div style={{ padding: 10, borderRadius: 8, background: 'linear-gradient(135deg, #0e7490 0%, #155e75 100%)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: 10, borderRadius: 8, background: 'linear-gradient(135deg, #0A7F55 0%, #0C2D40 100%)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Play size={12} style={{ color: '#fff', marginLeft: 1 }} />
               </div>
@@ -835,7 +771,7 @@ export default function MiOnboarding({ forcePhone = false }) {
           const hasDocQuiz = selTarea.verificarQuiz !== false
           const docQuizQs = [
             { id: 1, texto: '¿Cuál es el horario de trabajo del manual?', opciones: ['6:00 a 14:00', '8:00 a 17:00 con almuerzo', '9:00 a 18:00', 'Horario libre'], correcta: 1 },
-            { id: 2, texto: '¿A quién reportar una ausencia?', opciones: ['A cualquier compañero', 'A tu líder y RRHH', 'No es necesario', 'Solo a RRHH'], correcta: 1 },
+            { id: 2, texto: '¿A quién reportar una ausencia?', opciones: ['A cualquier compañero', 'A su líder y RR.HH.', 'No es necesario', 'Solo a RRHH'], correcta: 1 },
           ]
           const tid = selTarea.id
           const isDocQuizStarted = !!quizStarted[tid]
@@ -845,18 +781,18 @@ export default function MiOnboarding({ forcePhone = false }) {
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ border: '1px solid #fed7aa', borderRadius: 8, overflow: 'hidden', background: '#fffbf5' }}>
-                <div style={{ padding: '6px 10px', background: '#fff7ed', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ border: '1px solid #EEF2F6', borderRadius: 8, overflow: 'hidden', background: '#ffffff' }}>
+                <div style={{ padding: '6px 10px', background: '#F2F5FC', borderBottom: '1px solid #EEF2F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <FileText size={10} style={{ color: '#ea580c' }} />
-                    <span style={{ fontSize: 8, fontWeight: 700, color: '#9a3412' }}>{selTarea.name}.pdf</span>
+                    <FileText size={10} style={{ color: '#0C2D40' }} />
+                    <span style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>{selTarea.name}.pdf</span>
                   </div>
                   {pdfUrl ? (
-                    <a href={pdfUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 7, fontWeight: 700, color: '#ea580c', background: '#fff', border: '1px solid #fed7aa', borderRadius: 4, padding: '2px 6px', textDecoration: 'none' }}>
+                    <a href={pdfUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 7, fontWeight: 700, color: '#0C2D40', background: '#fff', border: '1px solid #EEF2F6', borderRadius: 4, padding: '2px 6px', textDecoration: 'none' }}>
                       <Download size={8} /> PDF
                     </a>
                   ) : (
-                    <button style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 7, fontWeight: 700, color: '#ea580c', background: '#fff', border: '1px solid #fed7aa', borderRadius: 4, padding: '2px 6px', cursor: 'pointer' }}>
+                    <button style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 7, fontWeight: 700, color: '#0C2D40', background: '#fff', border: '1px solid #EEF2F6', borderRadius: 4, padding: '2px 6px', cursor: 'pointer' }}>
                       <Download size={8} /> PDF
                     </button>
                   )}
@@ -873,14 +809,14 @@ export default function MiOnboarding({ forcePhone = false }) {
               </div>
 
               {hasDocQuiz && !isDocQuizStarted && !isDocQuizDone && (
-                <div style={{ border: '1px solid #fde68a', borderRadius: 8, padding: 10, background: '#fffbeb', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <HelpCircle size={16} style={{ color: '#d97706' }} />
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#92400e' }}>Prueba de verificación</div>
-                  <p style={{ fontSize: 7, color: '#b45309', margin: 0, lineHeight: 1.4 }}>Verifica que comprendiste el documento.</p>
+                <div style={{ borderRadius: 8, padding: 10, background: '#fff', boxShadow: '0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <HelpCircle size={16} style={{ color: '#0A7F55' }} />
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40' }}>Prueba de verificación</div>
+                  <p style={{ fontSize: 7, color: '#62788A', margin: 0, lineHeight: 1.4 }}>Confirme que entendió el documento.</p>
                   <div style={{ fontSize: 6.5, color: '#94a3b8' }}>{docQuizQs.length} preguntas</div>
                   <button onClick={() => setQuizStarted(prev => ({ ...prev, [tid]: true }))} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '4px 10px', borderRadius: 5,
-                    background: '#d97706', color: '#fff', border: 'none', fontSize: 7.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '4px 10px', borderRadius: 99,
+                    background: '#00E091', color: '#0C2D40', border: 'none', fontSize: 7.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
                   }}>
                     <HelpCircle size={9} /> Empezar prueba
                   </button>
@@ -888,13 +824,13 @@ export default function MiOnboarding({ forcePhone = false }) {
               )}
 
               {hasDocQuiz && isDocQuizStarted && !isDocQuizDone && (
-                <div style={{ border: '1px solid #fde68a', borderRadius: 8, overflow: 'hidden' }}>
-                  <div style={{ padding: '5px 8px', background: '#fffbeb', borderBottom: '1px solid #fde68a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ padding: '5px 8px', background: '#fff', boxShadow: '0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06)', borderBottom: '1px solid #EEF2F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <HelpCircle size={9} style={{ color: '#d97706' }} />
-                      <span style={{ fontSize: 8, fontWeight: 700, color: '#92400e' }}>Cuest.</span>
+                      <HelpCircle size={9} style={{ color: '#0A7F55' }} />
+                      <span style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>Cuest.</span>
                     </div>
-                    <span style={{ fontSize: 7, color: '#b45309' }}>{Object.keys(docAns).length}/{docQuizQs.length}</span>
+                    <span style={{ fontSize: 7, color: '#62788A' }}>{Object.keys(docAns).length}/{docQuizQs.length}</span>
                   </div>
                   <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {docQuizQs.map((q, qIdx) => (
@@ -907,7 +843,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                               <button key={oIdx} onClick={() => setQuizAnswers(prev => ({ ...prev, [tid]: { ...(prev[tid] || {}), [qIdx]: oIdx } }))} style={{
                                 display: 'flex', alignItems: 'center', gap: 6, padding: '4px 6px', borderRadius: 5,
                                 border: selected ? '1.5px solid #d97706' : '1px solid #f1f5f9',
-                                background: selected ? '#fef3c7' : '#fff',
+                                background: selected ? '#E3FAF0' : '#fff',
                                 cursor: 'pointer', fontSize: 8, color: '#475569', fontFamily: 'inherit', textAlign: 'left', width: '100%',
                               }}>
                                 <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, border: selected ? '3px solid #d97706' : '1.5px solid #cbd5e1', background: '#fff' }} />
@@ -922,8 +858,8 @@ export default function MiOnboarding({ forcePhone = false }) {
                       const correct = docQuizQs.filter((q, i) => docAns[i] === q.correcta).length
                       setQuizSubmitted(prev => ({ ...prev, [tid]: { correct, total: docQuizQs.length } }))
                     }} disabled={!allDocAns} style={{
-                      padding: '5px 12px', borderRadius: 6, background: allDocAns ? '#d97706' : '#e2e8f0',
-                      color: allDocAns ? '#fff' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700,
+                      padding: '5px 12px', borderRadius: 99, background: allDocAns ? '#00E091' : '#e2e8f0',
+                      color: allDocAns ? '#0C2D40' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700,
                       cursor: allDocAns ? 'pointer' : 'default', fontFamily: 'inherit',
                     }}>Enviar respuestas</button>
                   </div>
@@ -944,30 +880,30 @@ export default function MiOnboarding({ forcePhone = false }) {
           )
         }
         case 'pulso': {
-          const preguntas = selTarea.pulsoPreguntas?.length ? selTarea.pulsoPreguntas : ['¿Cómo te sientes con tu proceso de onboarding hasta ahora?']
+          const preguntas = selTarea.pulsoPreguntas?.length ? selTarea.pulsoPreguntas : ['¿Cómo se siente con su proceso de onboarding hasta ahora?']
           const tid = selTarea.id
           const isPulsoDone = readOnly || !!pulsoSubmitted[tid]
           const respuestas = pulsoRespuestas[tid] || {}
           const allAns = preguntas.every((_, i) => respuestas[i] !== undefined)
           if (isPulsoDone) {
             return (
-              <div style={{ border: '1px solid #fbcfe8', borderRadius: 8, padding: 10, textAlign: 'center', background: '#fdf2f8' }}>
+              <div style={{ border: '1px solid #EEF2F6', borderRadius: 8, padding: 10, textAlign: 'center', background: '#F2F5FC' }}>
                 <CheckCircle2 size={16} style={{ color: '#db2777' }} />
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#9d174d', marginTop: 2 }}>¡Gracias por contarnos!</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40', marginTop: 2 }}>¡Gracias por contarnos!</div>
               </div>
             )
           }
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {preguntas.map((p, qi) => (
-                <div key={qi} style={{ border: '1px solid #fbcfe8', borderRadius: 8, padding: 8, background: '#fdf2f8' }}>
-                  <p style={{ fontSize: 8, fontWeight: 600, color: '#831843', margin: '0 0 5px' }}>{p}</p>
+                <div key={qi} style={{ border: '1px solid #EEF2F6', borderRadius: 8, padding: 8, background: '#F2F5FC' }}>
+                  <p style={{ fontSize: 8, fontWeight: 600, color: '#0C2D40', margin: '0 0 5px' }}>{p}</p>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     {['😞', '😕', '😐', '🙂', '😄'].map((emoji, vi) => (
                       <button key={vi} onClick={() => setPulsoRespuestas(prev => ({ ...prev, [tid]: { ...(prev[tid] || {}), [qi]: vi } }))} style={{
                         width: 26, height: 26, borderRadius: '50%', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        border: respuestas[qi] === vi ? '2px solid #db2777' : '1px solid #f5d0e0',
-                        background: respuestas[qi] === vi ? '#fce7f3' : '#fff', cursor: 'pointer',
+                        border: respuestas[qi] === vi ? '2px solid #db2777' : '1px solid #EEF2F6',
+                        background: respuestas[qi] === vi ? '#E3FAF0' : '#fff', cursor: 'pointer',
                       }}>{emoji}</button>
                     ))}
                   </div>
@@ -982,7 +918,7 @@ export default function MiOnboarding({ forcePhone = false }) {
               <button
                 disabled={!allAns}
                 onClick={() => { setPulsoSubmitted(prev => ({ ...prev, [tid]: true })); toggleDone(tid); setSelTarea(prev => ({ ...prev, done: true })) }}
-                style={{ padding: '6px 12px', borderRadius: 6, background: allAns ? '#db2777' : '#e2e8f0', color: allAns ? '#fff' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700, cursor: allAns ? 'pointer' : 'default', fontFamily: 'inherit' }}
+                style={{ padding: '6px 12px', borderRadius: 99, background: allAns ? '#00E091' : '#e2e8f0', color: allAns ? '#0C2D40' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700, cursor: allAns ? 'pointer' : 'default', fontFamily: 'inherit' }}
               >Enviar</button>
             </div>
           )
@@ -990,7 +926,7 @@ export default function MiOnboarding({ forcePhone = false }) {
         case 'recorrido': {
           const stops = [
             { name: 'Recepción y entrada principal', guia: 'Carlos Méndez', rol: 'Seguridad' },
-            { name: 'Tu área de trabajo', guia: 'Nicolás Zapata', rol: 'Líder de área' },
+            { name: 'Su área de trabajo', guia: 'Nicolás Zapata', rol: 'Líder de área' },
             { name: 'Sala de reuniones', guia: 'Nicolás Zapata', rol: 'Líder de área' },
             { name: 'Comedor y áreas comunes', guia: 'Paola Arce', rol: 'RRHH' },
             { name: 'Área de impresoras', guia: 'Paola Arce', rol: 'RRHH' },
@@ -1012,7 +948,7 @@ export default function MiOnboarding({ forcePhone = false }) {
           return (
             <>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 7, fontWeight: 600, padding: '2px 5px', borderRadius: 4, background: '#eff6ff', color: '#2563eb' }}>Recorrido libre</span>
+                <span style={{ fontSize: 7, fontWeight: 600, padding: '2px 5px', borderRadius: 4, background: '#F2F5FC', color: '#0C2D40' }}>Recorrido libre</span>
                 <span style={{ fontSize: 7, color: '#94a3b8' }}>{doneCount}/{stops.length}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1021,19 +957,19 @@ export default function MiOnboarding({ forcePhone = false }) {
                   return (
                     <div key={i} onClick={() => !selTarea.done && toggleStop(i)} style={{
                       display: 'flex', alignItems: 'center', gap: 6, padding: '5px 6px', borderRadius: 6,
-                      background: isDone ? '#faf5ff' : '#f8fafc', border: '1px solid #f1f5f9',
+                      background: isDone ? '#E3FAF0' : '#f8fafc', border: '1px solid #f1f5f9',
                       cursor: selTarea.done ? 'default' : 'pointer',
                     }}>
                       <div style={{
                         width: 12, height: 12, borderRadius: 3, flexShrink: 0,
-                        background: isDone ? '#7c3aed' : '#fff',
+                        background: isDone ? '#00E091' : '#fff',
                         border: isDone ? 'none' : '1.5px solid #d1d5db',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {isDone && <CheckCircle2 size={7} style={{ color: '#fff' }} />}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 8, fontWeight: isDone ? 600 : 400, color: isDone ? '#7c3aed' : '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stop.name}</div>
+                        <div style={{ fontSize: 8, fontWeight: isDone ? 600 : 400, color: isDone ? '#0A7F55' : '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stop.name}</div>
                         <div style={{ fontSize: 6.5, color: '#94a3b8' }}>{stop.guia} · {stop.rol}</div>
                       </div>
                     </div>
@@ -1041,7 +977,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                 })}
               </div>
               <div style={{ fontSize: 7, color: allStopsDone ? '#16a34a' : '#94a3b8', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
-                {allStopsDone ? <><CheckCircle2 size={8} /> Recorrido completado</> : <><MapPin size={8} /> Marca cada lugar cuando lo visites</>}
+                {allStopsDone ? <><CheckCircle2 size={8} /> Recorrido completado</> : <><MapPin size={8} /> Marque cada lugar cuando lo visite</>}
               </div>
             </>
           )
@@ -1050,20 +986,20 @@ export default function MiOnboarding({ forcePhone = false }) {
           const docs = (selTarea.documentos || []).filter(d => d.nombre?.trim())
           if (docs.length === 0) {
             return (
-              <div style={{ border: '2px dashed #f9a8d4', borderRadius: 8, padding: 14, textAlign: 'center', background: '#fdf2f8' }}>
-                <Upload size={18} style={{ color: '#ec4899', marginBottom: 4 }} />
-                <p style={{ fontSize: 9, fontWeight: 700, color: '#9d174d', margin: '0 0 2px' }}>Arrastra tu archivo aquí</p>
-                <p style={{ fontSize: 7, color: '#be185d', margin: 0 }}>o haz clic para seleccionar</p>
+              <div style={{ border: '2px dashed #f9a8d4', borderRadius: 8, padding: 14, textAlign: 'center', background: '#F2F5FC' }}>
+                <Upload size={18} style={{ color: '#0A7F55', marginBottom: 4 }} />
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40', margin: '0 0 2px' }}>Arrastre su archivo aquí</p>
+                <p style={{ fontSize: 7, color: '#0C2D40', margin: 0 }}>o toque para elegirlo</p>
               </div>
             )
           }
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {docs.map((doc, i) => (
-                <div key={doc.id ?? i} style={{ border: '2px dashed #f9a8d4', borderRadius: 8, padding: 10, textAlign: 'center', background: '#fdf2f8' }}>
-                  <Upload size={14} style={{ color: '#ec4899', marginBottom: 3 }} />
-                  <p style={{ fontSize: 8, fontWeight: 700, color: '#9d174d', margin: '0 0 1px' }}>{doc.nombre}</p>
-                  <p style={{ fontSize: 6.5, color: '#be185d', margin: 0 }}>{doc.formato ? doc.formato : 'Clic para seleccionar'}</p>
+                <div key={doc.id ?? i} style={{ border: '2px dashed #f9a8d4', borderRadius: 8, padding: 10, textAlign: 'center', background: '#F2F5FC' }}>
+                  <Upload size={14} style={{ color: '#0A7F55', marginBottom: 3 }} />
+                  <p style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40', margin: '0 0 1px' }}>{doc.nombre}</p>
+                  <p style={{ fontSize: 6.5, color: '#0C2D40', margin: 0 }}>{doc.formato ? doc.formato : 'Clic para seleccionar'}</p>
                 </div>
               ))}
             </div>
@@ -1135,7 +1071,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                     )}
                     {campo.tipo === 'desplegable' && (
                       <select value={frs[campo.id] || ''} onChange={e => setFormRespuestas(prev => ({ ...prev, [tid]: { ...(prev[tid] || {}), [campo.id]: e.target.value } }))} style={{ width: '100%', fontSize: 7, padding: 5, borderRadius: 5, border: '1px solid #e2e8f0', fontFamily: 'inherit', background: '#fff' }}>
-                        <option value="">Selecciona...</option>
+                        <option value="">Elija una opción</option>
                         {campo.opciones.map(opt => <option key={opt.id} value={opt.texto}>{opt.texto}</option>)}
                       </select>
                     )}
@@ -1144,7 +1080,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                 <button
                   disabled={!allReq}
                   onClick={() => { setFormSubmitted(prev => ({ ...prev, [tid]: true })); toggleDone(tid); setSelTarea(prev => ({ ...prev, done: true })) }}
-                  style={{ padding: '5px 12px', borderRadius: 6, background: allReq ? '#059669' : '#e2e8f0', color: allReq ? '#fff' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700, cursor: allReq ? 'pointer' : 'default', fontFamily: 'inherit' }}
+                  style={{ padding: '5px 12px', borderRadius: 99, background: allReq ? '#00E091' : '#e2e8f0', color: allReq ? '#0C2D40' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700, cursor: allReq ? 'pointer' : 'default', fontFamily: 'inherit' }}
                 >Enviar formulario</button>
               </div>
             </div>
@@ -1165,17 +1101,17 @@ export default function MiOnboarding({ forcePhone = false }) {
           }
           if (isPerfilDone) {
             return (
-              <div style={{ border: '1px solid #ddd6fe', borderRadius: 8, padding: 10, textAlign: 'center', background: '#f5f3ff' }}>
-                <CheckCircle2 size={14} style={{ color: '#7c3aed' }} />
-                <div style={{ fontSize: 8, fontWeight: 700, color: '#5b21b6', marginTop: 2 }}>Perfil completado</div>
+              <div style={{ border: '1px solid #EEF2F6', borderRadius: 8, padding: 10, textAlign: 'center', background: '#f5f3ff' }}>
+                <CheckCircle2 size={14} style={{ color: '#0A7F55' }} />
+                <div style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40', marginTop: 2 }}>Perfil completado</div>
               </div>
             )
           }
           return (
-            <div style={{ border: '1px solid #ddd6fe', borderRadius: 8, overflow: 'hidden' }}>
-              <div style={{ padding: '6px 8px', background: '#f5f3ff', borderBottom: '1px solid #ddd6fe', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 8, fontWeight: 700, color: '#5b21b6' }}>Completar perfil</span>
-                <span style={{ fontSize: 7, color: '#7c3aed' }}>{doneCount}/{PERFIL_TOTAL_SECCIONES}</span>
+            <div style={{ border: '1px solid #EEF2F6', borderRadius: 8, overflow: 'hidden' }}>
+              <div style={{ padding: '6px 8px', background: '#f5f3ff', borderBottom: '1px solid #EEF2F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>Completar perfil</span>
+                <span style={{ fontSize: 7, color: '#0A7F55' }}>{doneCount}/{PERFIL_TOTAL_SECCIONES}</span>
               </div>
               <div style={{ display: 'flex', overflowX: 'auto' }}>
                 {PERFIL_TABS.map(t => (
@@ -1183,7 +1119,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                     flex: '1 0 auto', padding: '5px 4px', fontSize: 6.5, fontWeight: 700,
                     border: 'none', borderBottom: tab === t.key ? '2px solid #7c3aed' : '2px solid transparent',
                     background: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
-                    color: tab === t.key ? '#5b21b6' : '#94a3b8',
+                    color: tab === t.key ? '#0C2D40' : '#94a3b8',
                   }}>{t.label}</button>
                 ))}
               </div>
@@ -1194,11 +1130,11 @@ export default function MiOnboarding({ forcePhone = false }) {
                   return (
                     <div key={key} onClick={() => toggleSeccion(key)} style={{
                       display: 'flex', alignItems: 'center', gap: 6, padding: '5px 6px', borderRadius: 6,
-                      background: done ? '#f5f3ff' : '#f8fafc', border: '1px solid #f1f5f9', cursor: 'pointer',
+                      background: done ? '#E3FAF0' : '#f8fafc', border: '1px solid #f1f5f9', cursor: 'pointer',
                     }}>
                       <div style={{
                         width: 12, height: 12, borderRadius: 3, flexShrink: 0,
-                        background: done ? '#7c3aed' : '#fff',
+                        background: done ? '#00E091' : '#fff',
                         border: done ? 'none' : '1.5px solid #d1d5db',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
@@ -1211,7 +1147,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                 <button
                   disabled={!allDone}
                   onClick={() => { setPerfilSubmitted(prev => ({ ...prev, [tid]: true })); toggleDone(tid); setSelTarea(prev => ({ ...prev, done: true })) }}
-                  style={{ marginTop: 4, padding: '5px 12px', borderRadius: 6, background: allDone ? '#7c3aed' : '#e2e8f0', color: allDone ? '#fff' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700, cursor: allDone ? 'pointer' : 'default', fontFamily: 'inherit', alignSelf: 'flex-start' }}
+                  style={{ marginTop: 4, padding: '5px 12px', borderRadius: 99, background: allDone ? '#00E091' : '#e2e8f0', color: allDone ? '#0C2D40' : '#94a3b8', border: 'none', fontSize: 8, fontWeight: 700, cursor: allDone ? 'pointer' : 'default', fontFamily: 'inherit', alignSelf: 'flex-start' }}
                 >Enviar perfil</button>
               </div>
             </div>
@@ -1229,10 +1165,10 @@ export default function MiOnboarding({ forcePhone = false }) {
           )
         case 'enlace':
           return (
-            <div style={{ border: '1px solid #c7d2fe', borderRadius: 8, padding: 12, textAlign: 'center', background: '#eef2ff' }}>
-              <ExternalLink size={16} style={{ color: '#6366f1', marginBottom: 4 }} />
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#3730a3', margin: '0 0 6px' }}>Recurso externo</p>
-              <button style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, background: '#6366f1', color: '#fff', border: 'none', fontSize: 8, fontWeight: 700, cursor: 'pointer' }}>
+            <div style={{ border: '1px solid #EEF2F6', borderRadius: 8, padding: 12, textAlign: 'center', background: '#F2F5FC' }}>
+              <ExternalLink size={16} style={{ color: '#0A7F55', marginBottom: 4 }} />
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40', margin: '0 0 6px' }}>Recurso externo</p>
+              <button style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, background: '#0A7F55', color: '#fff', border: 'none', fontSize: 8, fontWeight: 700, cursor: 'pointer' }}>
                 <ExternalLink size={9} /> Abrir enlace
               </button>
             </div>
@@ -1254,10 +1190,10 @@ export default function MiOnboarding({ forcePhone = false }) {
           }
           if (!isStarted && !isDone) {
             return (
-              <div style={{ border: '1px solid #fde68a', borderRadius: 8, padding: 12, background: '#fffbeb', textAlign: 'center' }}>
-                <HelpCircle size={16} style={{ color: '#d97706', marginBottom: 4 }} />
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>Evaluación</div>
-                <button onClick={() => setQuizStarted(prev => ({ ...prev, [tid]: true }))} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 6, background: '#d97706', color: '#fff', border: 'none', fontSize: 8, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <div style={{ borderRadius: 8, padding: 12, background: '#fff', boxShadow: '0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06)', textAlign: 'center' }}>
+                <HelpCircle size={16} style={{ color: '#0A7F55', marginBottom: 4 }} />
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#0C2D40', marginBottom: 6 }}>Evaluación</div>
+                <button onClick={() => setQuizStarted(prev => ({ ...prev, [tid]: true }))} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 99, background: '#00E091', color: '#0C2D40', border: 'none', fontSize: 8, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                   <HelpCircle size={9} /> Empezar
                 </button>
               </div>
@@ -1265,10 +1201,10 @@ export default function MiOnboarding({ forcePhone = false }) {
           }
           if (isStarted && !isDone) {
             return (
-              <div style={{ border: '1px solid #fde68a', borderRadius: 8, overflow: 'hidden' }}>
-                <div style={{ padding: '5px 8px', background: '#fffbeb', borderBottom: '1px solid #fde68a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 8, fontWeight: 700, color: '#92400e' }}>Evaluación</span>
-                  <span style={{ fontSize: 7, color: '#b45309' }}>{Object.keys(ans).length}/{quizQs.length}</span>
+              <div style={{ borderRadius: 8, overflow: 'hidden' }}>
+                <div style={{ padding: '5px 8px', background: '#fff', boxShadow: '0 6px 16px -8px rgba(12,45,64,.22), 0 1px 2px rgba(12,45,64,.06)', borderBottom: '1px solid #EEF2F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40' }}>Evaluación</span>
+                  <span style={{ fontSize: 7, color: '#62788A' }}>{Object.keys(ans).length}/{quizQs.length}</span>
                 </div>
                 <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {quizQs.map((q, qIdx) => (
@@ -1278,7 +1214,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                         <textarea
                           value={ans[qIdx] || ''}
                           onChange={e => setQuizAnswers(prev => ({ ...prev, [tid]: { ...(prev[tid] || {}), [qIdx]: e.target.value } }))}
-                          placeholder="Escribe tu respuesta"
+                          placeholder="Escriba su respuesta"
                           style={{ width: '100%', fontSize: 8, padding: 6, borderRadius: 5, border: '1px solid #e2e8f0', fontFamily: 'inherit', resize: 'none', minHeight: 32 }}
                         />
                       ) : (
@@ -1289,7 +1225,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                             <button key={opt.id ?? oIdx} onClick={() => setQuizAnswers(prev => ({ ...prev, [tid]: { ...(prev[tid] || {}), [qIdx]: oIdx } }))} style={{
                               display: 'flex', alignItems: 'center', gap: 6, padding: '4px 6px', borderRadius: 5,
                               border: selected ? '1.5px solid #d97706' : '1px solid #f1f5f9',
-                              background: selected ? '#fef3c7' : '#fff',
+                              background: selected ? '#E3FAF0' : '#fff',
                               cursor: 'pointer', fontSize: 8, color: '#475569', fontFamily: 'inherit', textAlign: 'left', width: '100%',
                             }}>
                               <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, border: selected ? '3px solid #d97706' : '1.5px solid #cbd5e1', background: '#fff' }} />
@@ -1306,7 +1242,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                     const correct = mcQs.filter(q => { const qi = quizQs.indexOf(q); return q.opciones[ans[qi]]?.correcta }).length
                     setQuizSubmitted(prev => ({ ...prev, [tid]: { correct, total: mcQs.length } }))
                   }} disabled={!allAns} style={{
-                    padding: '5px 12px', borderRadius: 6, background: allAns ? '#d97706' : '#e2e8f0', color: allAns ? '#fff' : '#94a3b8',
+                    padding: '5px 12px', borderRadius: 99, background: allAns ? '#00E091' : '#e2e8f0', color: allAns ? '#0C2D40' : '#94a3b8',
                     border: 'none', fontSize: 8, fontWeight: 700, cursor: allAns ? 'pointer' : 'default', fontFamily: 'inherit',
                   }}>Enviar</button>
                 </div>
@@ -1329,10 +1265,10 @@ export default function MiOnboarding({ forcePhone = false }) {
         }
         case 'confirmacion':
           return (
-            <div style={{ borderRadius: 8, padding: 14, textAlign: 'center', background: 'linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%)', border: '1px solid #fde68a' }}>
-              <Award size={22} style={{ color: '#d97706', marginBottom: 4 }} />
-              <p style={{ fontSize: 10, fontWeight: 800, color: '#92400e', margin: '0 0 3px' }}>Certificado de graduación</p>
-              <div style={{ fontSize: 7, fontWeight: 700, color: '#d97706' }}>+{selTarea.puntos} Pts al completar</div>
+            <div style={{ borderRadius: 8, padding: 14, textAlign: 'center', background: 'linear-gradient(135deg, #E3FAF0 0%, #F2F5FC 100%)', border: '1px solid #EEF2F6' }}>
+              <Award size={22} style={{ color: '#0A7F55', marginBottom: 4 }} />
+              <p style={{ fontSize: 10, fontWeight: 800, color: '#0C2D40', margin: '0 0 3px' }}>Certificado de graduación</p>
+              <div style={{ fontSize: 7, fontWeight: 700, color: '#0A7F55' }}>+{selTarea.puntos} Pts al completar</div>
             </div>
           )
         case 'form-custom':
@@ -1349,7 +1285,7 @@ export default function MiOnboarding({ forcePhone = false }) {
                     <div style={{ height: 22, borderRadius: 5, border: '1px solid #e2e8f0', background: '#f8fafc' }} />
                   </div>
                 ))}
-                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, background: '#059669', color: '#fff', border: 'none', fontSize: 8, fontWeight: 700, cursor: 'pointer' }}>
+                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '4px 10px', borderRadius: 99, background: '#00E091', color: '#0C2D40', border: 'none', fontSize: 8, fontWeight: 700, cursor: 'pointer' }}>
                   <Send size={9} /> Enviar
                 </button>
               </div>
@@ -1361,69 +1297,31 @@ export default function MiOnboarding({ forcePhone = false }) {
     }
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', padding: '0 2px' }}>
-        {/* Mobile topbar */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '6px 2px', marginBottom: 4,
-        }}>
-          <button onClick={() => { setSelTarea(null); setSelContext(null) }} style={{
-            width: 22, height: 22, borderRadius: 6, border: '1px solid #e2e8f0',
-            background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', flexShrink: 0,
-          }}>
-            <ArrowLeft size={10} />
-          </button>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{selTarea.name}</div>
-            {selContext && (
-              <div style={{ fontSize: 6.5, color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {selContext.etapa} › {selContext.actividad}
-              </div>
-            )}
-          </div>
-          {selTarea.done ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 5, background: '#f0fdf4', border: '1px solid #bbf7d0', flexShrink: 0 }}>
-              <CheckCircle2 size={8} style={{ color: '#16a34a' }} />
-              <span style={{ fontSize: 7, fontWeight: 600, color: '#166534' }}>Hecha</span>
-            </div>
-          ) : selTarea.tipo === 'video' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 5, background: '#eff6ff', border: '1px solid #dbeafe', flexShrink: 0 }}>
-              <Info size={8} style={{ color: '#3b82f6' }} />
-              <span style={{ fontSize: 6.5, fontWeight: 600, color: '#1e40af' }}>Se completa sola</span>
-            </div>
-          ) : selTarea.tipo === 'pulso' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 5, background: '#fdf2f8', border: '1px solid #fbcfe8', flexShrink: 0 }}>
-              <Info size={8} style={{ color: '#db2777' }} />
-              <span style={{ fontSize: 6.5, fontWeight: 600, color: '#9d174d' }}>Envía tus respuestas</span>
-            </div>
-          ) : selTarea.tipo === 'completar-perfil' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 5, background: '#ecfdf5', border: '1px solid #a7f3d0', flexShrink: 0 }}>
-              <Info size={8} style={{ color: '#059669' }} />
-              <span style={{ fontSize: 6.5, fontWeight: 600, color: '#065f46' }}>Envía el formulario</span>
-            </div>
-          ) : (
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
+        {/* ── Cabecera de la tarea, con las piezas del Inicio: «‹ Mi onboarding», la etapa en menta, el
+           nombre una sola vez y una línea con el tipo. Lo que hay que hacer va a la derecha: «Hecha»
+           (etiqueta verde de siempre) o la píldora menta «Completar». Las tareas que se completan solas
+           lo dicen en la línea de ayuda, no con un chip de color. ── */}
+        <VolverOnb texto="Mi onboarding" onVolver={() => { setSelTarea(null); setSelContext(null) }} derecha={
+          selTarea.done ? (
+            <em style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontStyle: 'normal', fontSize: 7, fontWeight: 700, borderRadius: 99, padding: '3px 9px', color: 'var(--tx-verde)', background: 'var(--tn-verde)' }}><CheckCircle2 size={9} />Hecha</em>
+          ) : ['video', 'pulso', 'completar-perfil'].includes(selTarea.tipo) ? null : (
             <button onClick={() => {
               if (selTarea.tipo === 'recorrido') {
                 const doneSet = recorridoStops[selTarea.id] || {}
                 const doneCount = typeof doneSet === 'object' ? Object.keys(doneSet).filter(k => doneSet[k]).length : 0
-                if (doneCount < 10) { setShowAlert('Completa todas las paradas'); setTimeout(() => setShowAlert(false), 2500); return }
+                if (doneCount < 10) { setShowAlert('Complete todas las paradas'); setTimeout(() => setShowAlert(false), 2500); return }
               }
               if (selTarea.tipo === 'documento' && selTarea.verificarQuiz !== false) {
-                if (!quizSubmitted[selTarea.id]) { setShowAlert('Completa la prueba primero'); setTimeout(() => setShowAlert(false), 2500); return }
+                if (!quizSubmitted[selTarea.id]) { setShowAlert('Primero complete la prueba'); setTimeout(() => setShowAlert(false), 2500); return }
               }
               toggleDone(selTarea.id); setSelTarea(prev => ({ ...prev, done: !prev.done }))
-            }} style={{
-              display: 'flex', alignItems: 'center', gap: 3,
-              background: '#0C2D40', color: '#fff', border: 'none',
-              borderRadius: 6, padding: '4px 8px',
-              fontSize: 7, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0,
-            }}>
-              <CheckCircle2 size={8} />
+            }} style={{ ...PILDORA, height: 24, padding: '0 12px', fontSize: 7.8 }}>
+              <CheckCircle2 size={9} />
               Completar
             </button>
-          )}
-        </div>
+          )
+        } />
 
         {/* Alert */}
         {showAlert && (
@@ -1434,39 +1332,25 @@ export default function MiOnboarding({ forcePhone = false }) {
             display: 'flex', alignItems: 'center', gap: 4,
             boxShadow: '0 4px 16px rgba(0,0,0,.2)',
           }}>
-            <MapPin size={9} style={{ color: '#f59e0b' }} />
+            <MapPin size={9} style={{ color: '#00E091' }} />
             {showAlert}
           </div>
         )}
 
-        {/* Task header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 7, background: `${color}12`, color,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <Icon size={13} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: '#0C2D40' }}>{selTarea.name}</div>
-            <div style={{ display: 'flex', gap: 3, marginTop: 2, flexWrap: 'wrap' }}>
-              {selTarea.obligatoria && (
-                <span style={{ fontSize: 6, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: '#fef3c7', color: '#92400e', textTransform: 'uppercase' }}>Obligatoria</span>
-              )}
-              <span style={{ fontSize: 6, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: `${color}12`, color }}>{selTarea.tipo.replace('-', ' ')}</span>
-              {selTarea.puntos > 0 && (
-                <span style={{ fontSize: 6, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: '#fef3c7', color: '#d97706' }}>+{selTarea.puntos} Pts</span>
-              )}
-            </div>
-          </div>
+        <div style={{ display: 'grid', gap: 2, marginBottom: 10 }}>
+          {selContext && <span style={{ fontSize: 7.2, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: 'var(--in-acento-txt)' }}>{selContext.etapa}</span>}
+          <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>{selTarea.name}</b>
+          <small style={{ fontSize: 7.8, color: 'var(--in-mute)', lineHeight: 1.45 }}>
+            {[TIPO_TEXTO[selTarea.tipo] || 'Tarea', selTarea.obligatoria && 'obligatoria', selTarea.puntos > 0 && `${selTarea.puntos} pts`].filter(Boolean).join(' · ')}
+          </small>
+          {selTarea.desc && <span style={{ fontSize: 8, color: 'var(--in-texto)', lineHeight: 1.5, marginTop: 4 }}>{selTarea.desc}</span>}
+          {!selTarea.done && ['video', 'pulso', 'completar-perfil'].includes(selTarea.tipo) && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 7.4, color: 'var(--in-mute)', marginTop: 4 }}>
+              <Info size={9} />
+              {selTarea.tipo === 'video' ? 'Se marca sola cuando termina el video.' : selTarea.tipo === 'pulso' ? 'Se marca hecha cuando envía sus respuestas.' : 'Se marca hecha cuando envía el formulario.'}
+            </span>
+          )}
         </div>
-
-        {/* Description */}
-        {selTarea.desc && (
-          <div style={{ padding: '6px 8px', borderRadius: 6, background: '#f8fafc', border: '1px solid #f1f5f9', marginBottom: 8 }}>
-            <p style={{ fontSize: 7.5, color: '#475569', lineHeight: 1.5, margin: 0 }}>{selTarea.desc}</p>
-          </div>
-        )}
 
         {/* Content */}
         {renderMobileContent()}
@@ -2478,44 +2362,16 @@ export default function MiOnboarding({ forcePhone = false }) {
       {modalHistorial}
       {/* BARRA SUPERIOR */}
       {isMobile ? (
-        <div style={{ marginBottom: 8 }}>
-          {/* Fila 1: título + organigrama */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 2px 6px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <button
-                onClick={() => setStarted(false)}
-                title="Volver al resumen de mi ruta"
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: 17, height: 17, borderRadius: 6, padding: 0, flexShrink: 0,
-                  background: '#fff', border: '1px solid #e2e8f0', color: '#0C2D40', cursor: 'pointer',
-                }}
-              >
-                <ArrowLeft size={9} />
-              </button>
-              <span style={{ fontSize: 12, fontWeight: 800, color: '#0C2D40' }}>Mi Onboarding</span>
-            </div>
-            <AccionesCabecera compact onHistorial={abrirHistorial} onOrganigrama={irAlOrganigrama} />
-          </div>
-          {/* Fila 2: tarjeta de progreso */}
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 11px' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 8.5, fontWeight: 700, color: '#0C2D40' }}>{totalDone} de {totalAll} tareas</span>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#00E091' }}>{pct}%</span>
-            </div>
-            <div style={{ height: 5, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden', marginBottom: 8 }}>
-              <div style={{ height: '100%', width: `${pct}%`, background: '#00E091', borderRadius: 99, transition: 'width .4s' }} />
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fef3c7', padding: '3px 8px', borderRadius: 12 }}>
-                <Star size={8} style={{ color: '#d97706' }} />
-                <span style={{ fontSize: 7.5, fontWeight: 800, color: '#92400e' }}>{totalPuntos} pts</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '3px 8px', borderRadius: 12 }}>
-                <Trophy size={8} style={{ color: '#16a34a' }} />
-                <span style={{ fontSize: 7.5, fontWeight: 800, color: '#166534' }}>{totalDone}/{totalAll} listas</span>
-              </div>
-            </div>
+        <div style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)', padding: '2px 2px 0' }}>
+          {/* Título en una línea con botones redondos, y la tarjeta destacada con el avance y el
+             siguiente paso: lo que hay que hacer ahora, sin recorrer el mapa para encontrarlo. */}
+          <CabeceraOnb titulo="Mi onboarding" sub={ruta?.nombre} onHistorial={abrirHistorial} onOrganigrama={irAlOrganigrama} onAgente={asistenteIA ? () => setChatOpen(true) : null} />
+          <SiguientePaso siguiente={readOnly ? null : siguiente} etapa={siguiente && ubicacion(siguiente)?.etapa} hechas={totalDone} total={totalAll} puntos={totalPuntos} onAbrir={abrirTarea} />
+          <MapaRutaOnb etapas={etapas} flatTareas={flatTareas} iconoDe={tipo => iconMap[tipo] || FileText} siguienteId={readOnly ? null : siguiente?.id} onAbrir={(t, ctx) => abrirTarea(t, ctx)} />
+          <div style={{ display: 'grid', justifyItems: 'center', gap: 3, textAlign: 'center', padding: '8px 0 70px' }}>
+            <img src={trofeoImg} alt="" style={{ width: 44, height: 'auto' }} />
+            <b style={{ fontSize: 9.5, fontWeight: 600 }}>Fin del onboarding</b>
+            <span style={{ fontSize: 7.6, color: 'var(--in-mute)' }}>{readOnly ? 'Completó todo su recorrido.' : 'Complete todas las tareas para graduarse.'}</span>
           </div>
         </div>
       ) : (
@@ -2558,7 +2414,8 @@ export default function MiOnboarding({ forcePhone = false }) {
         </div>
       )}
 
-      <div className="jb-panels">
+      {/* En el teléfono la ruta ya se dibujó arriba (MapaRutaOnb); el lienzo es solo del escritorio. */}
+      {!isMobile && <div className="jb-panels">
         <div className="jb-canvas">
           <div className="jb-canvas-body jb-pizarra">
 
@@ -2777,7 +2634,7 @@ export default function MiOnboarding({ forcePhone = false }) {
 
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* CONFETTI */}
       {confettiPieces.length > 0 && (
@@ -2860,10 +2717,11 @@ export default function MiOnboarding({ forcePhone = false }) {
       {asistenteIA && (
         <>
           {/* BURBUJA FLOTANTE */}
-          {!chatOpen && (
+          {/* En el teléfono el agente es un botón redondo de la cabecera: el flotante tapaba tareas del mapa. */}
+          {!chatOpen && !isMobile && (
             <button onClick={() => setChatOpen(true)} style={{
-              position: isMobile ? 'absolute' : 'fixed', bottom: isMobile ? 54 : 24, right: isMobile ? 12 : 24,
-              width: isMobile ? 48 : 56, height: isMobile ? 48 : 56, borderRadius: '50%',
+              position: 'fixed', bottom: 24, right: 24,
+              width: 56, height: 56, borderRadius: '50%',
               background: '#0C2D40', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 4px 20px rgba(12,45,64,0.3)', zIndex: 40,
@@ -2872,7 +2730,7 @@ export default function MiOnboarding({ forcePhone = false }) {
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <Bot size={isMobile ? 22 : 26} style={{ color: '#00E091' }} />
+              <Bot size={26} style={{ color: '#00E091' }} />
             </button>
           )}
 

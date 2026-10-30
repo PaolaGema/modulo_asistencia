@@ -55,6 +55,15 @@ import DocAtender from './pages/documentacion/Atender'
 import DocEnvios from './pages/documentacion/Envios'
 import DocEnvio from './pages/documentacion/Envio'
 import DocConfiguracion from './pages/documentacion/Configuracion'
+import { AsistenciaProvider } from './context/AsistenciaContext'
+import AtHoy from './pages/asistencia/Hoy'
+import AtRegistro from './pages/asistencia/Registro'
+import AtPersona from './pages/asistencia/Persona'
+import AtIncidencias from './pages/asistencia/Incidencias'
+import AtCierre from './pages/asistencia/Cierre'
+import AtSolicitudes from './pages/asistencia/Solicitudes'
+import AtConfiguracion from './pages/asistencia/Configuracion'
+import MiAsistencia from './pages/colaborador/MiAsistencia'
 
 /* Lleva un enlace viejo de Seguimiento (?pila=…) a donde quedó: lo que espera revisión tiene su
    pantalla; lo demás es Colaboradores visto por documento. */
@@ -86,6 +95,7 @@ export default function App() {
       <RutaActivaProvider>
       <UnsavedChangesProvider>
       <DocumentacionProvider>
+      <AsistenciaProvider>
       <BrowserRouter>
         <Routes>
           {/* Lo personal vive junto y aparte de lo administrativo: Inicio y Onboarding
@@ -99,6 +109,7 @@ export default function App() {
                 desde donde ya se entraba. El personal del colaborador irá dentro de Zona HR. */}
             <Route path="calendario" element={<Navigate to="/inicio/calendario" replace />} />
             <Route path="mi-onboarding" element={<MiOnboarding />} />
+            <Route path="mi-asistencia" element={<MiAsistencia />} />
             <Route path="acompanados" element={<MisAcompanados />} />
             {/* Las tres pestañas que el colaborador ya tenía en el móvil y no en escritorio.
                 Ahora las tres existen aquí con su propia pantalla. */}
@@ -235,6 +246,19 @@ export default function App() {
             <Route path="configuracion/requisitos" element={<Navigate to="/documentos/expedientes" replace />} />
             <Route path="configuracion/parametros" element={<Navigate to="/documentos/configuracion?ver=avisos" replace />} />
           </Route>
+          {/* ASISTENCIA. Marca contra los lugares de Organización —sucursales y centros de trabajo— y
+              agrupa por unidad organizacional. «Hoy» abre el módulo porque es lo que se mira todos
+              los días; el libro, las incidencias y el cierre son el trabajo de RR.HH. con lo que pasó. */}
+          <Route path="/asistencia" element={<Layout />}>
+            <Route index element={<AtHoy />} />
+            <Route path="registro" element={<AtRegistro />} />
+            <Route path="persona/:id" element={<AtPersona />} />
+            <Route path="incidencias" element={<AtIncidencias />} />
+            <Route path="solicitudes" element={<AtSolicitudes />} />
+            <Route path="horas-extra" element={<Navigate to="/asistencia/solicitudes?ver=horas-extra" replace />} />
+            <Route path="cierre" element={<AtCierre />} />
+            <Route path="configuracion" element={<AtConfiguracion />} />
+          </Route>
           <Route path="/archivos" element={<Layout />}>
             <Route index element={<MisArchivos />} />
             <Route path="onboarding" element={<Conocimiento />} />
@@ -256,6 +280,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/onboarding" replace />} />
         </Routes>
       </BrowserRouter>
+      </AsistenciaProvider>
       </DocumentacionProvider>
       </UnsavedChangesProvider>
       </RutaActivaProvider>
