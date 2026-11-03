@@ -315,9 +315,12 @@ function MiniDia({ p, j, ahora }) {
     if (t.sinCierre != null) segs.push(['inc', t.sinCierre, prog ? prog[1] : t.sinCierre + 8 * 60])
     if (j.anticipada > 0 && prog && j.salida != null) segs.push(['tarde', j.salida, prog[1]])
   }
+  /* Sin números en la cabecera: la marca gris es el mediodía y el globito dice las horas exactas. */
+  const globo = `${j.entrada != null ? `${hhmm(j.entrada)} → ${j.salida != null ? hhmm(j.salida) : ahora != null ? 'ahora' : 'sin salida'}` : ESTADOS[j.estado]?.label || ''}${prog ? ` · horario ${hhmm(prog[0])}–${hhmm(prog[1])}` : ''}`
   return (
-    <div className="at-minidia" role="img" aria-label={`${p.name}: ${prog ? `horario ${hhmm(prog[0])} a ${hhmm(prog[1])}, ` : ''}entrada ${hhmm(j.entrada)}, salida ${hhmm(j.salida)}`}>
+    <div className="at-minidia" role="img" title={globo} aria-label={`${p.name}: ${globo}`}>
       {segs.map(([tono, a, b], i) => <i key={i} className={`s-${tono}`} style={{ left: x(a), width: w(a, b) }} />)}
+      <i className="s-tick" style={{ left: x(12 * 60) }} />
       {ahora != null && <i className="s-ahora" style={{ left: x(ahora) }} />}
     </div>
   )
@@ -336,7 +339,6 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
               <th className="r">Salida</th>
               <th className="at-minidia-h">
                 <span>Su día</span>
-                <span className="at-minidia-esc" aria-hidden="true">{[6, 12, 18].map(h => <b key={h} style={{ left: `${((h * 60 - ESCALA[0]) / (ESCALA[1] - ESCALA[0])) * 100}%` }}>{String(h).padStart(2, '0')}</b>)}</span>
               </th>
               <th className="r">Horas trabajadas</th>
               <th>Estado</th>

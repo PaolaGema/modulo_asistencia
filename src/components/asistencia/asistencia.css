@@ -1273,3 +1273,8 @@ i.at-mes-c { font-style: normal; }
 .at-minidia-esc b { font-size: 10px; }
 .at-minidia-esc b:last-child { transform: translateX(-50%); }
 .at-minidia-h > span:first-child { display: block; text-align: right; }
+/* X1: «Su día» sin escala; una marca gris al mediodía dentro de cada barra. */
+.at-minidia-h > span:first-child { text-align: left; }
+.at-minidia .s-tick { top: -2px; bottom: -2px; width: 1px; border-radius: 0; background: var(--border-soft); }
+.at-minidia { cursor: default; }
+.at-minidia .s-tick { background: rgba(12,45,64,.18); } .dark .at-minidia .s-tick { background: rgba(255,255,255,.22); }
