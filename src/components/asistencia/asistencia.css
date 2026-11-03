@@ -1234,3 +1234,18 @@ i.at-mes-c { font-style: normal; }
 .at-dia-hor small { white-space: nowrap; }
 .at-dia-limpia td.at-dia-num small { white-space: normal; max-width: 112px; margin-left: auto; }
 .at-dia-limpia .at-minidia-h, .at-dia-limpia .at-minidia-c { width: 170px; }
+
+/* ── El estado en una píldora y una línea (S2) ── */
+.at-estado-s2 { display: grid; gap: 3px; justify-items: start; }
+.at-estado-s2 small { font-size: 11px; color: var(--text-muted); white-space: nowrap; line-height: 1.3; padding-left: 2px; }
+.at-estado-s2 small.t-ambar { color: var(--dc-ambar); }
+.at-estado-s2 small.t-rojo { color: var(--dc-rojo); }
+.at-pl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 10px 3px 8px; border-radius: 999px; white-space: nowrap; }
+.at-pl i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.at-pl.t-verde { background: var(--dc-verde-bg); color: var(--dc-verde); }
+.at-pl.t-ambar { background: var(--dc-ambar-bg); color: var(--dc-ambar); }
+.at-pl.t-rojo { background: var(--dc-rojo-bg); color: var(--dc-rojo); }
+.at-pl.t-azul { background: var(--dc-azul-bg); color: var(--dc-azul); }
+.at-pl.t-violeta { background: var(--dc-violeta-bg); color: var(--dc-violeta); }
+.at-pl.t-gris { background: var(--dc-gris-bg); color: var(--dc-gris); }
+.at-dia-limpia td.at-dia-num { min-width: 92px; }
