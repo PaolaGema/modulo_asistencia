@@ -34,7 +34,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | roles con su vista | 3 |
 | estados de un día | 13 |
 | reglas de negocio | 58 |
-| requisitos funcionales | 74 |
+| requisitos funcionales | 77 |
 | historias de usuario | 20 |
 | pantallas | 22 |
 | decisiones abiertas | 11 |
@@ -266,19 +266,27 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 
 ### 3.3 La asistencia de una persona
 
-Su mes como un calendario que se lee como un mapa de calor, al lado de su saldo.
+Su mes con el mismo lenguaje del Libro: seis cifras arriba y el calendario grande abajo.
 
-- **Cabecera**: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro enrolado. Sin asignación, «Asignar horario».
-- **Calendario** del mes con la entrada y la salida de cada día en el color de su estado; flechas de mes; «Mes cerrado»; **CSV**.
-- **Saldo del mes**: lo trabajado contra lo programado, sin contar el día en curso; días trabajados, ausencias, justificadas, tardanza acumulada, horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.
-- **Puntualidad**: el porcentaje de días a tiempo de los que marcó, la racha de días seguidos a tiempo y su tolerancia.
-- **Últimos días**: los seis días anteriores con su horario y su estado.
+- **Cabecera**: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro enrolado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, **CSV** y **PDF**.
+- **Seis cifras**: días trabajados (de los que tenía jornada, sin contar el día en curso), retrasos, tiempo de retraso, faltas, horas del mes (lo trabajado de lo programado, «completas» o «faltan») y puntualidad, con la racha de días seguidos a tiempo.
+- **Calendario** del mes a todo el ancho, con la entrada y la salida de cada día en el color de su estado; un clic abre la jornada.
+- Debajo, las horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.
+
+**El reporte en PDF.** **PDF** abre una ventana y baja un archivo A4 con el logo de SoulyHR, la empresa, el período, los datos de la persona, la fecha en que se generó y el número de página:
+
+- **Página 1**: las seis cifras y el calendario en colores, igual que la pantalla.
+- **Página 2**: cada día con su entrada, salida, horas, estado y la observación en palabras («Llegó 26 min tarde», «Salió 23 min antes», «Fuera de horario 17 min»), y las líneas para la firma de RR.HH. y de la persona.
+- Con **«Incluir las marcaciones al segundo»**, se suman hojas en horizontal con la entrada, el descanso y la salida al segundo, la tardanza y cómo marcó; es el documento para una auditoría o una inspección del trabajo.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑ASI‑014 | El saldo del mes es lo trabajado menos lo programado de los días cerrados | Oblig. | Un día de 7 h 30 con 8 h programadas resta 30 min |
 | RF‑ASI‑015 | La puntualidad se calcula sobre los días que marcó | Import. | 18 a tiempo de 20 marcados: 90 % |
 | RF‑ASI‑016 | La persona ve en su app el mismo saldo y la misma puntualidad | Oblig. | Los números de Mi asistencia coinciden con esta pantalla |
+| RF‑ASI‑075 | El reporte en PDF trae las mismas cifras y el mismo calendario que la pantalla | Oblig. | «20 de 21» en pantalla es «20 de 21» en el papel |
+| RF‑ASI‑076 | El PDF lleva el detalle de cada día y lugar para dos firmas | Import. | Un mes de 22 días hábiles trae 22 filas y las firmas de RR.HH. y de la persona |
+| RF‑ASI‑077 | Las marcaciones al segundo van en el PDF solo si se piden | Opc. | Sin la casilla, el archivo tiene dos páginas |
 
 ### 3.4 El detalle de una jornada
 

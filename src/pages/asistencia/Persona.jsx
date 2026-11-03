@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ShieldCheck, ScanFace, MapPin, Laptop, Download } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ShieldCheck, ScanFace, MapPin, Laptop, Download, FileText, Loader2 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { Cabecera, Vacio } from '../../components/documentacion/comunes'
+import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
+import { useOnboardingData } from '../../context/OnboardingDataContext'
+import ReportePDF from '../../components/asistencia/ReportePDF'
 import Avatar from '../../components/personas/Avatar'
 import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
-import { ESTADOS, MODALIDADES, DIAS_CORTOS, diasDelMes, diaISO, mesVecino, mesDe, nombreMes, hhmm, duracion, aFecha, descargarCSV } from '../../data/asistenciaData'
+import { ESTADOS, MODALIDADES, DIAS_CORTOS, diasDelMes, diaISO, mesVecino, mesDe, nombreMes, hhmm, duracion, aFecha, descargarCSV, fechaLarga, minutosAhora } from '../../data/asistenciaData'
 
 /* ── LA ASISTENCIA DE UNA PERSONA, MES A MES (P1) ─────────────────────────
    Con el lenguaje del Libro: arriba, las mismas cifras que la ventana del mes —días trabajados,
@@ -25,6 +27,12 @@ export default function Persona() {
   const p = at.personaPorId.get(String(id))
   const mes = params.get('mes') || mesDe(at.hoy)
   const [detalle, setDetalle] = useState(null)
+  const { empresa } = useOnboardingData()
+  /* El PDF: «pidiendo» abre la ventana con la opción; «armando» dibuja las hojas fuera de la pantalla. */
+  const [pidiendo, setPidiendo] = useState(false)
+  const [conMarcas, setConMarcas] = useState(false)
+  const [armando, setArmando] = useState(false)
+  const [errorPdf, setErrorPdf] = useState(null)
 
   const dias = useMemo(() => (p ? diasDelMes(mes).map(d => ({ d, j: d <= at.hoy ? at.jornadaDe(p, d) : null })) : []), [p, mes, at])  
 
@@ -108,6 +116,7 @@ export default function Persona() {
             <button type="button" aria-label="Mes siguiente" disabled={mes >= mesDe(at.hoy)} onClick={() => setParams({ mes: mesVecino(mes, 1) }, { replace: true })}><ChevronRight size={16} /></button>
           </div>
           <button type="button" className="dc-btn dc-btn-sm" onClick={exportar}><Download size={13} /> CSV</button>
+          <button type="button" className="dc-btn dc-btn-sm" onClick={() => { setErrorPdf(null); setPidiendo(true) }} disabled={armando}>{armando ? <Loader2 size={13} className="at-gira" /> : <FileText size={13} />} PDF</button>
         </div>
       </section>
 
@@ -146,6 +155,35 @@ export default function Persona() {
       </section>
 
       {detalle && <DetalleJornada persona={p} fecha={detalle} onCerrar={() => setDetalle(null)} />}
+      {pidiendo && (
+        <Modal titulo={`Reporte de ${nombreMes(mes)} en PDF`} Icono={FileText} onCerrar={() => setPidiendo(false)} ancho={480}
+          pie={<>
+            <button type="button" className="dc-btn" onClick={() => setPidiendo(false)}>Cancelar</button>
+            <button type="button" className="pl-btn-new" onClick={() => { setPidiendo(false); setArmando(true) }}><Download size={14} /> Descargar PDF</button>
+          </>}>
+          <p className="at-ayuda" style={{ marginTop: 0 }}>Dos páginas: el resumen del mes con su calendario y el detalle de cada día, con lugar para las firmas de RR.HH. y de {p.name.split(' ')[0]}.</p>
+          <label className="at-pdf-op">
+            <input type="checkbox" checked={conMarcas} onChange={e => setConMarcas(e.target.checked)} />
+            <span><b>Incluir las marcaciones al segundo</b><small>Suma hojas en horizontal con la entrada, el descanso y la salida al segundo, y cómo marcó. Para una auditoría o una inspección del trabajo.</small></span>
+          </label>
+          {errorPdf && <p className="at-ayuda" style={{ color: 'var(--dc-rojo, #B42318)' }}>No se pudo armar el PDF. Probá de nuevo.</p>}
+        </Modal>
+      )}
+      {armando && (
+        <ReportePDF p={p} mes={mes} dias={dias} conMarcas={conMarcas} empresa={empresa}
+          lugar={p.lugar ? `${p.lugar.nombre}${p.lugar.tipo === 'centro' ? ` · ${at.lugarPorId.get(p.lugar.sucursalId)?.nombre || ''}` : ''}${p.asig ? ` · ${MODALIDADES[p.asig.modalidad].label}` : ''}` : ''}
+          generado={`${fechaLarga(at.hoy).toLowerCase()}, ${hhmm(minutosAhora())}`}
+          cifras={[
+            { t: 'Días trabajados', v: conJornada ? `${trabajados} de ${conJornada}` : '—' },
+            { t: 'Retrasos', v: tardes.length || '—', s: tardes.length ? (tardes.length === 1 ? 'vez' : 'veces') : '', tono: tardes.length ? 'tarde' : '' },
+            { t: 'Tiempo de retraso', v: tardes.length ? duracion(tardanza) : '—', s: tardes.length ? (tardanzaInj <= 0 ? 'justificado' : tardanzaInj >= tardanza ? 'sin justificar' : `${duracion(tardanza - tardanzaInj)} justificados`) : '', tono: tardes.length ? 'tarde' : '' },
+            { t: 'Faltas', v: faltas || (justificadas ? 0 : '—'), s: justificadas ? `+ ${justificadas} con permiso` : faltas ? 'sin justificar' : '', tono: faltas ? 'falta' : '' },
+            { t: 'Horas del mes', v: programado ? duracion(trabajado, { corto: true }) : '—', s: programado ? `de ${duracion(programado, { corto: true })} · ${saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}` : '' },
+            { t: 'Puntualidad', v: puntualidad == null ? '—' : `${puntualidad} %`, s: `tolerancia de ${p.politica?.tolerancia ?? 10} min`, tono: puntualidad != null && puntualidad >= 90 ? 'bien' : puntualidad != null ? 'tarde' : '' },
+          ]}
+          pie={<><b>Horas extra:</b> {duracion(extraTrabajada)} de {duracion(extraAutorizada)} autorizadas · <b>Fuera de horario, sin autorización:</b> {duracion(fueraHorario)}</>}
+          onListo={e => { setArmando(false); if (e) { setErrorPdf(e); setPidiendo(true) } }} />
+      )}
     </div>
   )
 }

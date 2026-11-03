@@ -986,7 +986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>3</b><span>roles con su vista</span></div>
     <div><b>13</b><span>estados de un día</span></div>
     <div><b>58</b><span>reglas de negocio</span></div>
-    <div><b>74</b><span>requisitos funcionales</span></div>
+    <div><b>77</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
     <div><b>22</b><span>pantallas</span></div>
     <div><b>11</b><span>decisiones abiertas</span></div>
@@ -1665,13 +1665,18 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </table></div>
 <div class="nota al"><p><strong>En la maqueta:</strong> la vista Día es la opción E1 de la ronda 4 de propuestas —tabla limpia— con la barrita del día como columna; reemplaza a la de medias horas —ABIERTA‑ASI‑11, resuelta—.</p></div>
 <h3 id="p3-3">3.3 La asistencia de una persona</h3>
-<p>Su mes como un calendario que se lee como un mapa de calor, al lado de su saldo.</p>
+<p>Su mes con el mismo lenguaje del Libro: seis cifras arriba y el calendario grande abajo.</p>
 <ul>
-<li><strong>Cabecera</strong>: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro enrolado. Sin asignación, «Asignar horario».</li>
-<li><strong>Calendario</strong> del mes con la entrada y la salida de cada día en el color de su estado; flechas de mes; «Mes cerrado»; <strong>CSV</strong>.</li>
-<li><strong>Saldo del mes</strong>: lo trabajado contra lo programado, sin contar el día en curso; días trabajados, ausencias, justificadas, tardanza acumulada, horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.</li>
-<li><strong>Puntualidad</strong>: el porcentaje de días a tiempo de los que marcó, la racha de días seguidos a tiempo y su tolerancia.</li>
-<li><strong>Últimos días</strong>: los seis días anteriores con su horario y su estado.</li>
+<li><strong>Cabecera</strong>: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro enrolado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, <strong>CSV</strong> y <strong>PDF</strong>.</li>
+<li><strong>Seis cifras</strong>: días trabajados (de los que tenía jornada, sin contar el día en curso), retrasos, tiempo de retraso, faltas, horas del mes (lo trabajado de lo programado, «completas» o «faltan») y puntualidad, con la racha de días seguidos a tiempo.</li>
+<li><strong>Calendario</strong> del mes a todo el ancho, con la entrada y la salida de cada día en el color de su estado; un clic abre la jornada.</li>
+<li>Debajo, las horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.</li>
+</ul>
+<p><strong>El reporte en PDF.</strong> <strong>PDF</strong> abre una ventana y baja un archivo A4 con el logo de SoulyHR, la empresa, el período, los datos de la persona, la fecha en que se generó y el número de página:</p>
+<ul>
+<li><strong>Página 1</strong>: las seis cifras y el calendario en colores, igual que la pantalla.</li>
+<li><strong>Página 2</strong>: cada día con su entrada, salida, horas, estado y la observación en palabras («Llegó 26 min tarde», «Salió 23 min antes», «Fuera de horario 17 min»), y las líneas para la firma de RR.HH. y de la persona.</li>
+<li>Con <strong>«Incluir las marcaciones al segundo»</strong>, se suman hojas en horizontal con la entrada, el descanso y la salida al segundo, la tardanza y cómo marcó; es el documento para una auditoría o una inspección del trabajo.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
@@ -1679,6 +1684,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-014">RF‑ASI‑014</td><td>El saldo del mes es lo trabajado menos lo programado de los días cerrados</td><td>Oblig.</td><td>Un día de 7 h 30 con 8 h programadas resta 30 min</td></tr>
 <tr><td class="id" id="RF-ASI-015">RF‑ASI‑015</td><td>La puntualidad se calcula sobre los días que marcó</td><td>Import.</td><td>18 a tiempo de 20 marcados: 90 %</td></tr>
 <tr><td class="id" id="RF-ASI-016">RF‑ASI‑016</td><td>La persona ve en su app el mismo saldo y la misma puntualidad</td><td>Oblig.</td><td>Los números de Mi asistencia coinciden con esta pantalla</td></tr>
+<tr><td class="id" id="RF-ASI-075">RF‑ASI‑075</td><td>El reporte en PDF trae las mismas cifras y el mismo calendario que la pantalla</td><td>Oblig.</td><td>«20 de 21» en pantalla es «20 de 21» en el papel</td></tr>
+<tr><td class="id" id="RF-ASI-076">RF‑ASI‑076</td><td>El PDF lleva el detalle de cada día y lugar para dos firmas</td><td>Import.</td><td>Un mes de 22 días hábiles trae 22 filas y las firmas de RR.HH. y de la persona</td></tr>
+<tr><td class="id" id="RF-ASI-077">RF‑ASI‑077</td><td>Las marcaciones al segundo van en el PDF solo si se piden</td><td>Opc.</td><td>Sin la casilla, el archivo tiene dos páginas</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-4">3.4 El detalle de una jornada</h3>
