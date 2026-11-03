@@ -336,7 +336,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
               <th className="r">Salida</th>
               <th className="at-minidia-h">
                 <span>Su día</span>
-                <span className="at-minidia-esc" aria-hidden="true">{[6, 10, 14, 18, 22].map(h => <b key={h} style={{ left: `${((h * 60 - ESCALA[0]) / (ESCALA[1] - ESCALA[0])) * 100}%` }}>{String(h).padStart(2, '0')}</b>)}</span>
+                <span className="at-minidia-esc" aria-hidden="true">{[6, 12, 18].map(h => <b key={h} style={{ left: `${((h * 60 - ESCALA[0]) / (ESCALA[1] - ESCALA[0])) * 100}%` }}>{String(h).padStart(2, '0')}</b>)}</span>
               </th>
               <th className="r">Horas trabajadas</th>
               <th>Estado</th>
