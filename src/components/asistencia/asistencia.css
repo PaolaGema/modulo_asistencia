@@ -1272,3 +1272,4 @@ i.at-mes-c { font-style: normal; }
 .at-minidia-esc { height: 13px; margin-top: 4px; }
 .at-minidia-esc b { font-size: 10px; }
 .at-minidia-esc b:last-child { transform: translateX(-50%); }
+.at-minidia-h > span:first-child { display: block; text-align: right; }
