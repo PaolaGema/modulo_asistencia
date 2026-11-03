@@ -158,8 +158,13 @@ export default function Registro() {
                         )
                       })}
                       <td className="num" style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
-                        {duracion(total, { corto: true })}
-                        <small style={{ display: 'block', fontWeight: 500, fontSize: 11, color: total - prog >= 0 ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{duracion(total - prog, { signo: true, corto: true })}</small>
+                        {/* El saldo en palabras y no con signo: «+0:12» o «−3:20» no se entendían. */}
+                        {prog > 0 ? (
+                          <>
+                            {duracion(total, { corto: true })}<span style={{ fontWeight: 500, color: 'var(--text-muted)' }}> de {duracion(prog, { corto: true })}</span>
+                            <small style={{ display: 'block', fontWeight: 500, fontSize: 11, color: total >= prog ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{total >= prog ? 'completas' : `faltan ${duracion(prog - total, { corto: true })}`}</small>
+                          </>
+                        ) : <span className="dc-muted" title="El día en curso suma cuando la persona marca la salida">—</span>}
                       </td>
                     </tr>
                   )
