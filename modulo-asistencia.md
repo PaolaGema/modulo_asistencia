@@ -223,7 +223,7 @@ La pantalla con la que RR.HH. empieza la mañana. Contesta, en orden: ¿cómo va
 - **Saludo** con el nombre y una línea: «El **N %** de tu gente ya está trabajando: llegaron X de Y», cuántos todavía no marcan y si eso es normal para ese día a esa hora —el promedio de las cuatro semanas anteriores—. Botones **«Ver a los N que faltan»** y **«Marcación manual»**.
 - **Tres cifras** que filtran la lista: **Sin marcar** («Lo normal a esta hora: N»), **Llegaron tarde** (puntualidad del día contra la de hace una semana) y **Ausencias justificadas** (por motivo).
 - **«Requiere tu atención»**, hasta cinco cosas en orden de gravedad: lugares que no abrieron, lugares bajo su mínimo, marcaciones rechazadas hoy, faltas sin justificar de los últimos 10 días, solicitudes de horas extra, gente fuera de horario y jornadas sin salida. Cada una con su botón: «Ver quiénes», «Revisar», «Justificar», «Responder», «Completar».
-- **Personas**: pestañas Sin marcar, Llegaron tarde, Trabajando, Por llegar, Justificados y Todos, con su número; buscador; la barra del día de cada uno. Un clic abre el detalle de la jornada.
+- **Colaboradores**: el estado en una lista desplegable junto al buscador, con su punto de color y su número —No han llegado, Llegaron tarde, Trabajando, Aún no les toca, Vacaciones y permisos y Todos—; la barra del día de cada uno. Un clic abre el detalle de la jornada.
 - **Al costado**: el reloj y cuánto va de la jornada; la curva de presencia; el calendario del módulo; **Lugares en riesgo** con su medidor contra el mínimo; **Justificadas hoy** por motivo y quién vuelve mañana; y **Mañana**, con lo ya aprobado y el lugar que quedaría bajo su mínimo.
 - **Marcación manual**: se elige a la persona y se abre su día para «Agregar marcación», con motivo obligatorio.
 - Filtros de sucursal, centro de trabajo y unidad en la cabecera.
@@ -333,7 +333,7 @@ Lo que antes era Incidencias, dentro del Libro de asistencia, **como un filtro**
 
 Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una vista por tipo: **Vacaciones**, **Permisos y licencias**, **Horas extra**, **Justificaciones**, **Correcciones de marcación**, **Trabajo remoto** y **Cambios de turno**.
 
-- **Estado** en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Por responder (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. En Vacaciones, arriba a la derecha, **Solicitudes · Saldos** cambia de vista.
+- **Estado** en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Pendientes (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. Una solicitud sin respuesta dice **Pendiente**. En Vacaciones, arriba a la derecha, **Solicitudes · Saldos** cambia de vista.
 - **Tabla**: Colaborador, qué pide (Fechas y motivo, Permiso o licencia, Qué justifica…), **A tener en cuenta** —hasta dos datos que hacen falta para responder—, cuándo la pidió y su estado. «Revisar» o «Ver».
 - **«Para decidir»** según el tipo: el saldo de vacaciones que le queda («Pide 5 y le quedan 3»); si su lugar sigue cubierto esos días («Su lugar quedaría con 6 de 9»); si la licencia trae respaldo; cuántas justificaciones lleva en el mes.
 - **Revisar** abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y **«Si apruebas:»** con lo que va a pasar. «Decidir después» la deja como estaba.
@@ -369,8 +369,7 @@ Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una
 
 Solo cuentan las autorizadas; quedarse más tiempo no las genera.
 
-- **Cuatro cifras** que llevan a su pestaña: Por responder, Esperando que acepten, Autorizadas en el mes y Trabajadas este mes.
-- **Pestañas**: Por responder, Programadas, Resumen del mes e Historial.
+- **Qué listar** en una lista desplegable junto al buscador: Pendientes (por defecto), Programadas y Todas, con su número. Arriba a la derecha, **Solicitudes · Resumen del mes** cambia de vista.
 - **Asignar horas extra**: fecha, desde, hasta, motivo que la persona verá, proyecto o centro de costo opcional y a quién, con buscador. «Conversa antes con cada persona»: la verá en su app y tendrá que aceptarla.
 - **Revisar**: el día y la franja, el motivo, el proyecto, cuántas lleva autorizadas en el mes y a qué hora termina su horario. Se puede cancelar una autorizada de hoy en adelante.
 - **Resumen del mes**: por persona, los días, las horas autorizadas, las trabajadas dentro y el uso; CSV con los totales en horas.
@@ -2871,7 +2870,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ### 7.5 Responder una vacación
 
-1. En Solicitudes › Vacaciones, «Por responder».
+1. En Solicitudes › Vacaciones, «Pendientes».
 2. La fila dice cuántos días le quedan y si su lugar sigue cubierto.
 3. «Revisar»: «Si apruebas: … le quedarán N».
 4. «Aprobar», con una nota opcional; o «Rechazar…» con el motivo y la confirmación.

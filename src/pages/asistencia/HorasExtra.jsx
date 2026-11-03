@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Plus, Check, Inbox, CalendarClock, Clock, TrendingUp, Search, ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { Plus, Check, Search, ChevronLeft, ChevronRight, Download, Clock, CalendarClock } from 'lucide-react'
+import Desplegable from '../../components/layout/Desplegable'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio, Etiqueta } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
-import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar, Cifra } from '../../components/asistencia/comunes'
+import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import { ESTADOS_EXTRA, ORIGENES_EXTRA, PROYECTOS_DEMO, esAutorizada, fechaLarga, fechaCorta, aMin, duracion, sumarDias, mesDe, mesVecino, nombreMes, diasDelMes, descargarCSV } from '../../data/asistenciaData'
 
 /* ── HORAS EXTRA ───────────────────────────────────────────────────────────
@@ -19,11 +20,13 @@ import { ESTADOS_EXTRA, ORIGENES_EXTRA, PROYECTOS_DEMO, esAutorizada, fechaLarga
    cuántas horas se autorizaron y cuántas se trabajaron, por día y por mes. */
 
 const POR_PAGINA = 10
+/* Qué se lista: en una lista desplegable junto al buscador, como en Solicitudes. «Resumen del mes» no
+   es un estado: es otra vista, arriba a la derecha. */
 const PESTANAS = [
-  { key: 'responder', label: 'Por responder' },
-  { key: 'proximas', label: 'Programadas' },
+  { key: 'responder', label: 'Pendientes', punto: '#F5B04F' },
+  { key: 'proximas', label: 'Programadas', punto: '#7C8CF0' },
+  { key: 'historial', label: 'Todas', punto: '' },
   { key: 'mes', label: 'Resumen del mes' },
-  { key: 'historial', label: 'Historial' },
 ]
 const horas = x => `${x.desde}–${x.hasta}`
 const largo = x => aMin(x.hasta) - aMin(x.desde)
@@ -50,7 +53,6 @@ export default function HorasExtra() {
     .filter(x => x.persona && (!texto || `${x.persona.name} ${x.motivo}`.toLowerCase().includes(texto)))
 
   const porResponder = todas.filter(x => x.estado === 'pendiente').sort((a, b) => (a.fecha < b.fecha ? -1 : 1))
-  const esperando = todas.filter(x => x.estado === 'asignada')
   const proximas = todas.filter(x => x.fecha >= at.hoy && (esAutorizada(x) || x.estado === 'asignada')).sort((a, b) => (a.fecha < b.fecha ? -1 : 1))
   const historial = [...todas].sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
 
@@ -84,26 +86,32 @@ export default function HorasExtra() {
   return (
     <div className="content-scroll">
       <Cabecera titulo="Horas extra" sub="Solo cuentan las autorizadas. Quedarse más tiempo no las genera.">
+        <div className="at-segmento" role="tablist" aria-label="Vista">
+          <button type="button" role="tab" aria-selected={ver !== 'mes'} className={ver !== 'mes' ? 'on' : ''} onClick={() => irA('responder')}>Solicitudes</button>
+          <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => irA('mes')}>Resumen del mes</button>
+        </div>
         <button type="button" className="pl-btn-new" onClick={() => setAsignar(true)}><Plus size={14} aria-hidden="true" /> Asignar horas extra</button>
       </Cabecera>
 
-      <div className="at-cifras">
-        <Cifra Icono={Inbox} tono="ambar" rotulo="Por responder" valor={porResponder.length} detalle="Pedidas desde la app" onClick={() => irA('responder')} activo={ver === 'responder'} />
-        <Cifra Icono={CalendarClock} tono="azul" rotulo="Esperando que acepten" valor={esperando.length} detalle="Asignadas por RR.HH." onClick={() => irA('proximas')} activo={ver === 'proximas'} />
-        <Cifra Icono={Clock} tono="violeta" rotulo={`Autorizadas en ${nombreMes(mesDe(at.hoy)).split(' ')[0]}`} valor={duracion(todas.filter(x => esAutorizada(x) && mesDe(x.fecha) === mesDe(at.hoy)).reduce((s, x) => s + largo(x), 0), { corto: true })} detalle="horas : minutos" onClick={() => irA('mes')} activo={ver === 'mes'} />
-        <Cifra Icono={TrendingUp} tono="verde" rotulo="Trabajadas este mes" valor={duracion(mes === mesDe(at.hoy) ? totMes('trabajado') : 0, { corto: true })} detalle="Dentro de lo autorizado" onClick={() => irA('mes')} />
-      </div>
-
-      <div className="at-barra-herr">
-        <div className="at-pestanas" role="tablist" aria-label="Vista">
-          {PESTANAS.map(t => (
-            <button key={t.key} type="button" role="tab" aria-selected={ver === t.key} className={`at-pestana${ver === t.key ? ' on' : ''}`} onClick={() => irA(t.key)}>
-              {t.label}{t.key === 'responder' && porResponder.length > 0 && <b>{porResponder.length}</b>}
-            </button>
-          ))}
-        </div>
-      </div>
-      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar persona o motivo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas} />
+      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar colaborador o motivo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas}>
+        {ver !== 'mes' && (
+          <div className="dc-filtro at-filtro-estado on">
+            <Desplegable valor={ver} ariaLabel="Qué horas extra ver" anchoMenu={250} claseBoton="at-dd-estados"
+              opciones={PESTANAS.filter(t => t.key !== 'mes').map(t => {
+                const n = (t.key === 'responder' ? porResponder : t.key === 'proximas' ? proximas : historial).length
+                return { valor: t.key, etiqueta: t.label, punto: t.punto || undefined, lateral: String(n), apagada: !n, separada: t.key === 'proximas' }
+              })}
+              contenido={o => (
+                <span className="pl-dd-trigger-estado">
+                  {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                  <span>{o?.etiqueta}</span>
+                  <b>{o?.lateral}</b>
+                </span>
+              )}
+              onCambio={v => irA(v)} />
+          </div>
+        )}
+      </BarraBusqueda>
 
       {ver === 'mes' ? (
         <section className="at-card">
@@ -169,7 +177,7 @@ export default function HorasExtra() {
       ) : (
         <div className="dc-tarjeta">
           <Vacio Icono={ver === 'responder' ? Check : CalendarClock}
-            titulo={ver === 'responder' ? 'No hay solicitudes por responder' : ver === 'proximas' ? 'No hay horas extra programadas' : 'Todavía no hay horas extra'}
+            titulo={ver === 'responder' ? 'No hay horas extra pendientes' : ver === 'proximas' ? 'No hay horas extra programadas' : 'Todavía no hay horas extra'}
             texto={ver === 'responder' ? 'Cuando alguien pida horas extra desde la app, aparece aquí para revisarla.' : 'Asigne horas extra a quien las necesite: la persona las acepta desde su app.'}>
             {ver !== 'responder' && <button type="button" className="pl-btn-new" onClick={() => setAsignar(true)}><Plus size={14} /> Asignar horas extra</button>}
           </Vacio>

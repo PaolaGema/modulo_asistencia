@@ -34,11 +34,11 @@ const MINIMO = 0.8
 const POR_PAGINA = 10
 const MAX_LISTA = 5
 const PESTANAS = [
-  { key: 'sinMarcar', label: 'No han llegado', filtro: f => f.j.estado === 'sinMarcar' },
-  { key: 'tarde', label: 'Llegaron tarde', filtro: f => f.j.llegoTarde },
-  { key: 'trabajando', label: 'Trabajando', filtro: f => ['trabajando', 'pausa'].includes(f.j.estado) },
-  { key: 'porLlegar', label: 'Aún no les toca', filtro: f => f.j.estado === 'porLlegar' },
-  { key: 'aviso', label: 'Vacaciones y permisos', filtro: f => f.j.estado === 'justificada' },
+  { key: 'sinMarcar', label: 'No han llegado', punto: '#E5484D', filtro: f => f.j.estado === 'sinMarcar' },
+  { key: 'tarde', label: 'Llegaron tarde', punto: '#F5B04F', filtro: f => f.j.llegoTarde },
+  { key: 'trabajando', label: 'Trabajando', punto: '#2FCB8B', filtro: f => ['trabajando', 'pausa'].includes(f.j.estado) },
+  { key: 'porLlegar', label: 'Aún no les toca', punto: '#94A3B8', filtro: f => f.j.estado === 'porLlegar' },
+  { key: 'aviso', label: 'Vacaciones y permisos', punto: '#C9D3DC', filtro: f => f.j.estado === 'justificada' },
   { key: 'todos', label: 'Todos', filtro: () => true },
 ]
 
@@ -341,19 +341,28 @@ export default function Hoy() {
 
       <section className="at-q-card" id="at-q-personas">
         <div className="at-q-card-cab">
-          <h2>Personas{lugarSel && <> · {at.lugarPorId.get(lugarSel)?.nombre} <button type="button" className="at-q-link" onClick={() => setLugarSel('')}>quitar</button></>}</h2>
+          <h2>Colaboradores{lugarSel && <> · {at.lugarPorId.get(lugarSel)?.nombre} <button type="button" className="at-q-link" onClick={() => setLugarSel('')}>quitar</button></>}</h2>
         </div>
         {/* El buscador a la izquierda, como en el resto del producto; los estados a su lado. */}
         <div className="at-barra-busca" style={{ marginBottom: 12 }}>
           <div className="pl-search-wrap at-busca">
             <Search size={13} className="pl-search-ico" />
-            <input type="search" className="pl-search" placeholder="Buscar persona…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar persona" />
+            <input type="search" className="pl-search" placeholder="Buscar colaborador…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar colaborador" />
           </div>
-        <div className="at-pestanas" role="tablist" aria-label="Filtrar por estado">
-          {PESTANAS.map(t => {
-            const n = filas.filter(f => f.j.estado !== 'libre').filter(t.filtro).filter(f => !lugarSel || f.p.lugar?.id === lugarSel).length
-            return <button key={t.key} type="button" role="tab" aria-selected={pestana === t.key} className={`at-pestana${pestana === t.key ? ' on' : ''}`} onClick={() => { setPestana(t.key); setPag(1) }}>{t.label} <b>{n}</b></button>
-          })}
+        <div className="dc-filtro at-filtro-estado on">
+          <Desplegable valor={pestana} ariaLabel="Filtrar por estado" anchoMenu={260} claseBoton="at-dd-estados"
+            opciones={PESTANAS.map(t => {
+              const n = filas.filter(f => f.j.estado !== 'libre').filter(t.filtro).filter(f => !lugarSel || f.p.lugar?.id === lugarSel).length
+              return { valor: t.key, etiqueta: t.label, punto: t.punto, lateral: String(n), apagada: !n && t.key !== 'todos', separada: t.key === 'aviso' }
+            })}
+            contenido={o => (
+              <span className="pl-dd-trigger-estado">
+                {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                <span>{o?.etiqueta}</span>
+                <b>{o?.lateral}</b>
+              </span>
+            )}
+            onCambio={v => { setPestana(v); setPag(1) }} />
         </div>
         </div>
         {visibles.length ? (

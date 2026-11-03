@@ -101,7 +101,7 @@ export default function ListaTema({ tema, lista, hayAlgo, periodo }) {
                       <td>{i.justificada
                         ? <span className="dc-chip dc-chip-sm dc-t-verde"><Check size={11} /> Justificado{i.alertas[0]?.justificacion?.categoria ? ` · ${i.alertas[0].justificacion.categoria}` : ''}</span>
                         : i.pedido?.estado === 'pendiente'
-                          ? <button type="button" className="dc-chip dc-chip-sm dc-t-azul" style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }} onClick={e => { e.stopPropagation(); navigate('/asistencia/solicitudes?ver=justificaciones') }}><MessageSquareQuote size={11} /> {i.pedido.categoria} · por responder</button>
+                          ? <button type="button" className="dc-chip dc-chip-sm dc-t-azul" style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }} onClick={e => { e.stopPropagation(); navigate('/asistencia/solicitudes?ver=justificaciones') }}><MessageSquareQuote size={11} /> {i.pedido.categoria} · pendiente</button>
                           : i.pedido?.estado === 'rechazada'
                             ? <span className="dc-chip dc-chip-sm dc-t-gris"><X size={11} /> Motivo no aceptado</span>
                             : i.avisada

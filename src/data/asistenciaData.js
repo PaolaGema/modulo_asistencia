@@ -278,7 +278,7 @@ export const SUBTIPOS_PERMISO = [
   { key: 'cumpleanos', label: 'Día libre de cumpleaños', licencia: false, beneficio: true },
 ]
 export const ESTADOS_SOLICITUD = {
-  pendiente: { label: 'Por responder', tono: 'ambar' },
+  pendiente: { label: 'Pendiente', tono: 'ambar' },
   aprobada: { label: 'Aprobada', tono: 'verde' },
   rechazada: { label: 'Rechazada', tono: 'gris' },
   /* La persona la retiró antes de que RR.HH. respondiera: sus días vuelven al saldo. */
@@ -415,7 +415,7 @@ export function historialDemo(p, h = hoyISO()) {
    Si se pagan o se compensan con tiempo libre lo decide cada empresa: el módulo solo dice cuántas
    se autorizaron y cuántas se trabajaron. */
 export const ESTADOS_EXTRA = {
-  pendiente: { label: 'Por responder', tono: 'ambar' },
+  pendiente: { label: 'Pendiente', tono: 'ambar' },
   asignada: { label: 'Esperando que acepte', tono: 'azul' },
   aprobada: { label: 'Aprobada', tono: 'verde' },
   aceptada: { label: 'Aceptada', tono: 'verde' },

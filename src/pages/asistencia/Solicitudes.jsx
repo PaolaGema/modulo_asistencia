@@ -34,10 +34,10 @@ const VISTAS = {
   remoto: { tipo: 'remoto', titulo: 'Trabajo remoto', Icono: House },
   cambios: { tipo: 'cambio', titulo: 'Cambios de turno', Icono: Repeat },
 }
-/* El estado es un filtro más, en una lista desplegable junto al buscador; arranca en «Por responder»,
+/* El estado es un filtro más, en una lista desplegable junto al buscador; arranca en «Pendientes»,
    que es lo que hay que hacer. «Saldos» no es un estado: es otra vista, arriba a la derecha. */
 const ESTADOS = [
-  { key: 'pendiente', label: 'Por responder', punto: '#F5B04F' },
+  { key: 'pendiente', label: 'Pendientes', punto: '#F5B04F' },
   { key: 'aprobada', label: 'Aprobadas', punto: '#2FCB8B' },
   { key: 'rechazada', label: 'Rechazadas', punto: '#94A3B8' },
   { key: 'cancelada', label: 'Canceladas', punto: '#C9D3DC' },
@@ -167,7 +167,7 @@ function Lista({ ver }) {
       ) : (
         <div className="dc-tarjeta">
           <Vacio Icono={estado === 'pendiente' ? Check : vista.Icono}
-            titulo={estado === 'pendiente' ? 'Nada por responder' : 'Sin solicitudes aquí'}
+            titulo={estado === 'pendiente' ? 'Nada pendiente' : 'Sin solicitudes aquí'}
             texto={estado === 'pendiente' ? 'Cuando alguien pida algo desde la app, aparece aquí para revisarlo.' : 'Pruebe con otro estado u otros filtros.'} />
         </div>
       )}
