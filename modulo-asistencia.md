@@ -68,21 +68,21 @@ La **jornada** es el día de una persona calculado de sus marcas válidas: entra
 
 | Estado | Cuándo | Solo hoy |
 | --- | --- | --- |
-| **Por llegar** | Todavía no es su hora de entrada más la tolerancia | Sí |
-| **Sin marcar** | Ya pasó su hora de entrada y la tolerancia, y no marcó | Sí |
+| **Aún no le toca** | Todavía no es su hora de entrada más la tolerancia | Sí |
+| **No ha llegado** | Ya pasó su hora de entrada y la tolerancia, y no marcó | Sí |
 | **Trabajando** | Marcó la entrada y está en su jornada | Sí |
-| **En pausa** | Marcó el inicio de su pausa | Sí |
-| **Terminó** | Marcó entrada y salida hoy | Sí |
-| **Presente** | Cumplió su jornada | No |
+| **En descanso** | Marcó el inicio de su descanso | Sí |
+| **Terminó su jornada** | Marcó entrada y salida; hoy, aunque haya llegado tarde | Sí |
+| **Terminó su jornada** (un día pasado) | Cumplió su jornada | No |
 | **Llegó tarde** | Entró después de su hora de entrada más la tolerancia | No |
-| **Salida anticipada** | Salió antes de su hora de salida, pasada la tolerancia | No |
+| **Salió antes** | Salió antes de su hora de salida, pasada la tolerancia | No |
 | **Horas extra** | Trabajó horas extra autorizadas | No |
-| **Sin salida** | Marcó la entrada y nunca la salida | No |
-| **Ausente** | Tenía jornada y no marcó | No |
-| **Justificada** | Ausencia con permiso, licencia o vacaciones | No |
+| **Salida sin marcar** | Marcó la entrada y nunca la salida | No |
+| **Faltó** | Tenía jornada y no marcó | No |
+| **De vacaciones · Con permiso · Con licencia** | Ausencia justificada; se muestra su motivo | No |
 | **Día libre** | No tiene jornada programada ese día | No |
 
-Cada estado tiene palabra y color; nunca solo color.
+Cada estado tiene palabra y color; nunca solo color. En las tablas va en una píldora de color con una línea que dice qué pasa: «Trabajando · desde 08:34», «No ha llegado · debía entrar 08:30». El atraso no cambia el estado: va en ámbar junto a la hora de entrada.
 
 ### 0.4 Tardanza, tolerancia y redondeo
 

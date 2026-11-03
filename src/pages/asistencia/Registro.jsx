@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Download, Lock, BookOpen } from 'lucide-reac
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
-import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
+import { PersonaAt, BarraBusqueda, EstadoDia, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import Desplegable from '../../components/layout/Desplegable'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa } from '../../data/asistenciaData'
@@ -281,44 +281,6 @@ const GRUPOS_DIA = [
   { key: 'justificada', label: 'De vacaciones o con permiso', tono: 'just', f: j => j.estado === 'justificada' },
 ]
 
-/* ── EL ESTADO, EN UNA PÍLDORA Y UNA LÍNEA (S2) ──
-   El color avisa y la línea explica: desde cuándo trabaja, cuánto llegó tarde, cuándo vuelve del
-   descanso, a qué hora debía entrar. Las palabras dicen lo que pasa, no cómo lo guarda el sistema:
-   «No ha llegado» y no «Sin marcar»; lo justificado dice su motivo —«De vacaciones»—. */
-function motivoJustificado(j) {
-  const t = `${j.justificacion?.tipo || ''}`.toLowerCase()
-  if (t.includes('vacac')) return 'De vacaciones'
-  if (t.includes('licencia')) return 'Con licencia'
-  return 'Con permiso'
-}
-function estadoDelDia(p, j, ahora) {
-  const h = p.horario
-  const fijo = h?.modo === 'fijo'
-  const tarde = j.tardanza > 0 ? `${duracion(j.tardanza)} tarde` : ''
-  switch (j.estado) {
-    case 'trabajando': return { tono: j.llegoTarde ? 'ambar' : 'verde', label: 'Trabajando', linea: j.llegoTarde ? `llegó ${tarde}` : `desde ${hhmm(j.entrada)}` }
-    case 'pausa': {
-      const fr = fijo ? franjaPausa(h) : null
-      if (fr && ahora != null && ahora > fr.hasta) return { tono: 'ambar', label: 'En descanso', linea: `se pasó ${duracion(ahora - fr.hasta)}` }
-      return { tono: 'azul', label: 'En descanso', linea: fr ? `vuelve ${hhmm(fr.hasta)}` : '' }
-    }
-    case 'termino': return { tono: 'gris', label: 'Terminó su jornada', linea: `salió ${hhmm(j.salida)}${j.anticipada > 0 ? ` · ${duracion(j.anticipada)} antes` : ''}` }
-    case 'presente': return { tono: 'verde', label: 'Terminó su jornada', linea: `de ${hhmm(j.entrada)} a ${hhmm(j.salida)}` }
-    case 'tarde': return { tono: 'ambar', label: 'Llegó tarde', linea: tarde }
-    case 'anticipada': return { tono: 'ambar', label: 'Salió antes', linea: `${duracion(j.anticipada)} antes de su hora` }
-    case 'extra': return { tono: 'azul', label: 'Horas extra', linea: `+${duracion(j.extra)} autorizadas` }
-    case 'incompleta': return { tono: 'violeta', label: 'Salida sin marcar', linea: `entró ${hhmm(j.entrada)} · falta completarla` }
-    case 'sinMarcar': return { tono: 'rojo', label: 'No ha llegado', linea: fijo ? `debía entrar ${h.entrada}` : 'todavía no marca' }
-    case 'ausente': return { tono: 'rojo', label: 'Faltó', linea: 'no marcó en todo el día' }
-    case 'porLlegar': return { tono: 'gris', label: 'Aún no le toca', linea: fijo ? `entra a las ${h.entrada}` : '' }
-    case 'justificada': {
-      const m = motivoJustificado(j)
-      const tipo = j.justificacion?.tipo || ''
-      return { tono: 'gris', label: m, linea: tipo && !tipo.toLowerCase().startsWith('vacac') ? tipo : '' }
-    }
-    default: return { tono: 'gris', label: ESTADOS[j.estado]?.label || '—', linea: '' }
-  }
-}
 const LEYENDA_DIA = [['vivo', 'Trabajó'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'Falta'], ['just', 'Vacación, permiso o licencia'], ['inc', 'Sin salida']]
 const ESCALA = [6 * 60, 22 * 60]
 
@@ -390,7 +352,6 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
               const notaSalida = alerta ? `${ALERTAS[alerta.tipo].corto}${alerta.tipo !== 'sinPausa' ? ` · ${duracion(alerta.min)}` : ''}`
                 : j.salida != null ? (j.anticipada > 0 ? `${duracion(j.anticipada)} antes` : j.extra > 0 ? `+${duracion(j.extra)} extra` : '')
                   : j.entrada != null ? (j.estado === 'pausa' ? 'en pausa' : ahora != null ? 'en turno' : 'sin salida') : ''
-              const est = estadoDelDia(p, j, ahora)
               return (
                 <tr key={p.id} tabIndex={0} className="at-dia-fila" onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
                   <td><PersonaAt persona={p} size={30} sub={`${p.unidad} · ${remoto ? 'Remoto' : p.lugar?.nombre || 'Sin lugar'}`} /></td>
@@ -399,7 +360,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
                   <td className="at-dia-num"><b>{hhmm(j.salida)}</b>{notaSalida && <small className={alerta && !alerta.justificacion ? 'alerta' : ''}>{notaSalida}</small>}</td>
                   <td className="at-minidia-c"><MiniDia p={p} j={j} ahora={ahora} /></td>
                   <td className="at-dia-num"><b>{j.entrada != null ? duracion(j.trabajado, { corto: true }) : '—'}</b><small>de {h?.modo === 'flexible' ? duracion(h.meta, { corto: true }) : duracion(j.programado, { corto: true })}</small></td>
-                  <td><div className="at-estado-s2"><span className={`at-pl t-${est.tono}`}><i />{est.label}</span>{est.linea && <small className={est.tono === 'ambar' || est.tono === 'rojo' ? `t-${est.tono}` : ''}>{est.linea}</small>}</div></td>
+                  <td><EstadoDia persona={p} jornada={j} ahora={ahora} /></td>
                 </tr>
               )
             })}

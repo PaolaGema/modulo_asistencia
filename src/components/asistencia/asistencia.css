@@ -1249,3 +1249,14 @@ i.at-mes-c { font-style: normal; }
 .at-pl.t-violeta { background: var(--dc-violeta-bg); color: var(--dc-violeta); }
 .at-pl.t-gris { background: var(--dc-gris-bg); color: var(--dc-gris); }
 .at-dia-limpia td.at-dia-num { min-width: 92px; }
+.at-pl.at-pl-sm { font-size: 11px; padding: 2px 8px 2px 7px; }
+.at-pl.at-pl-sm { font-size: 11px; padding: 2px 8px 2px 7px; }
+.at-dia-limpia td.at-dia-num small { white-space: nowrap; max-width: none; }
+.at-dia-limpia .at-minidia-h, .at-dia-limpia .at-minidia-c { width: 150px; }
+.at-dia-limpia .at-minidia { min-width: 130px; }
+.at-tabla .at-estado-s2 small { white-space: normal; }
+.at-dia-limpia td.at-dia-num small { white-space: normal; max-width: 118px; margin-left: auto; }
+.at-tabla .col-barra { width: 20%; min-width: 120px; }
+.at-tabla td:last-child { min-width: 150px; }
+.at-tabla .dc-persona-txt { min-width: 0; }
+.at-tabla .dc-persona-sub { display: block; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

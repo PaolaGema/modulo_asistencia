@@ -80,18 +80,18 @@ export const mesVecino = (ym, n) => { const [y, m] = ym.split('-').map(Number); 
    «por llegar»; y una ausencia con vacaciones aprobadas no es una falta. Cada uno con ícono y
    palabra, nunca sólo color. */
 export const ESTADOS = {
-  presente:   { label: 'Presente',          tono: 'verde',   icono: 'check',  desc: 'Cumplió su jornada.' },
+  presente:   { label: 'Terminó su jornada',          tono: 'verde',   icono: 'check',  desc: 'Cumplió su jornada.' },
   tarde:      { label: 'Llegó tarde',       tono: 'ambar',   icono: 'reloj',  desc: 'Entró después de su hora de entrada más la tolerancia.' },
-  anticipada: { label: 'Salida anticipada', tono: 'ambar',   icono: 'reloj',  desc: 'Salió antes de su hora de salida, pasada la tolerancia.' },
+  anticipada: { label: 'Salió antes', tono: 'ambar',   icono: 'reloj',  desc: 'Salió antes de su hora de salida, pasada la tolerancia.' },
   extra:      { label: 'Horas extra',       tono: 'azul',    icono: 'subir',  desc: 'Trabajó horas extra autorizadas por RR.HH.' },
-  incompleta: { label: 'Sin salida',        tono: 'violeta', icono: 'medio',  desc: 'Marcó la entrada y nunca la salida.' },
-  ausente:    { label: 'Ausente',           tono: 'rojo',    icono: 'cruz',   desc: 'Tenía jornada y no marcó.' },
-  justificada:{ label: 'Justificada',       tono: 'gris',    icono: 'escudo', desc: 'Ausencia con permiso, licencia o vacaciones.' },
+  incompleta: { label: 'Salida sin marcar',        tono: 'violeta', icono: 'medio',  desc: 'Marcó la entrada y nunca la salida.' },
+  ausente:    { label: 'Faltó',           tono: 'rojo',    icono: 'cruz',   desc: 'Tenía jornada y no marcó.' },
+  justificada:{ label: 'Ausencia justificada',       tono: 'gris',    icono: 'escudo', desc: 'Ausencia con permiso, licencia o vacaciones.' },
   trabajando: { label: 'Trabajando',        tono: 'verde',   icono: 'vivo',   desc: 'Marcó la entrada y está en su jornada.' },
-  pausa:      { label: 'En pausa',          tono: 'azul',    icono: 'cafe',   desc: 'Marcó el inicio de su pausa.' },
-  porLlegar:  { label: 'Por llegar',        tono: 'gris',    icono: 'espera', desc: 'Todavía no es su hora de entrada.' },
-  sinMarcar:  { label: 'Sin marcar',        tono: 'rojo',    icono: 'alerta', desc: 'Ya pasó su hora de entrada y la tolerancia, y no marcó.' },
-  termino:    { label: 'Terminó',           tono: 'verde',   icono: 'check',  desc: 'Marcó entrada y salida hoy.' },
+  pausa:      { label: 'En descanso',          tono: 'azul',    icono: 'cafe',   desc: 'Marcó el inicio de su pausa.' },
+  porLlegar:  { label: 'Aún no le toca',        tono: 'gris',    icono: 'espera', desc: 'Todavía no es su hora de entrada.' },
+  sinMarcar:  { label: 'No ha llegado',        tono: 'rojo',    icono: 'alerta', desc: 'Ya pasó su hora de entrada y la tolerancia, y no marcó.' },
+  termino:    { label: 'Terminó su jornada',           tono: 'verde',   icono: 'check',  desc: 'Marcó entrada y salida hoy.' },
   libre:      { label: 'Día libre',         tono: 'gris',    icono: 'luna',   desc: 'No tiene jornada programada este día.' },
 }
 

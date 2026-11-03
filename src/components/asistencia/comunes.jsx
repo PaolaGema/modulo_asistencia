@@ -1,25 +1,30 @@
-import { Search, CheckCircle2, Clock, TrendingUp, CircleDashed, XCircle, ShieldCheck, Coffee, Hourglass, AlertTriangle, Moon, ScanFace, MapPinCheck, MapPinX, House, Building2, Warehouse, X } from 'lucide-react'
+import { Search, ScanFace, MapPinCheck, MapPinX, House, Building2, Warehouse, X } from 'lucide-react'
 import Avatar from '../personas/Avatar'
 import Desplegable from '../layout/Desplegable'
 import { fotoDe } from '../../pages/personas/colaboradoresData'
 import { ESTADOS, aMin, hhmm } from '../../data/asistenciaData'
+import { estadoDelDia } from './estadoDia'
 import './asistencia.css'
 
 /* ── ASISTENCIA · EL VOCABULARIO VISUAL ────────────────────────────────────
    Las piezas que se repiten en todas las pantallas del módulo. Prefijo `at-`; los tonos son los de
    Documentación (`--dc-*`), que ya tienen su versión oscura y contraste AA. */
 
-const ICONOS = { check: CheckCircle2, reloj: Clock, subir: TrendingUp, medio: CircleDashed, cruz: XCircle, escudo: ShieldCheck, cafe: Coffee, espera: Hourglass, alerta: AlertTriangle, luna: Moon }
 
+/* El estado solo, en la píldora de color: calendarios, listas cortas y leyendas. */
 export function EstadoChip({ estado, pequeno }) {
   const e = ESTADOS[estado]
   if (!e) return null
-  const Icono = ICONOS[e.icono]
+  return <span className={`at-pl t-${e.tono}${pequeno ? ' at-pl-sm' : ''}`} title={e.desc}><i aria-hidden="true" />{e.label}</span>
+}
+
+export function EstadoDia({ persona, jornada, ahora }) {
+  const est = estadoDelDia(persona, jornada, ahora)
   return (
-    <span className={`dc-chip dc-t-${e.tono}${pequeno ? ' dc-chip-sm' : ''}`} title={e.desc}>
-      {e.icono === 'vivo' ? <span className="at-vivo" aria-hidden="true" /> : <Icono size={pequeno ? 11 : 12} strokeWidth={2.4} aria-hidden="true" />}
-      {e.label}
-    </span>
+    <div className="at-estado-s2">
+      <span className={`at-pl t-${est.tono}`}><i aria-hidden="true" />{est.label}</span>
+      {est.linea && <small className={est.tono === 'ambar' || est.tono === 'rojo' ? `t-${est.tono}` : ''}>{est.linea}</small>}
+    </div>
   )
 }
 

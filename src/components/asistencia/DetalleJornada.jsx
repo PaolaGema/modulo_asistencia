@@ -5,7 +5,7 @@ import { Modal, MenuAcciones } from '../documentacion/comunes'
 import Desplegable from '../layout/Desplegable'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { TIPOS_MARCA, TIPOS_JUSTIFICACION, ESTADOS_EXTRA, ORIGENES_EXTRA, ALERTAS, esAutorizada, fechaLarga, hhmm, hhmmss, aMin, duracion, mesDe, minutosAhora } from '../../data/asistenciaData'
-import { EstadoChip, PersonaAt, Selfie, Verificacion, BarraDia, Radar } from './comunes'
+import { EstadoDia, PersonaAt, Selfie, Verificacion, BarraDia, Radar } from './comunes'
 
 /* ── EL DETALLE DE UN DÍA ──────────────────────────────────────────────────
    Se abre desde cualquier pantalla del módulo: la fila del libro, una celda del calendario, una
@@ -35,7 +35,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
           <PersonaAt persona={persona} size={44} sub={`${persona.cargo} · ${persona.unidad}`} />
           <div className="at-det-fecha">
             <span>{fechaLarga(fecha)}{esHoy && ' · hoy'}</span>
-            <EstadoChip estado={j.estado} />
+            <EstadoDia persona={persona} jornada={j} ahora={esHoy ? minutosAhora() : null} />
           </div>
         </div>
 

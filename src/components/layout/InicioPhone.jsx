@@ -54,7 +54,7 @@ function HoyCompacto({ onMarcar }) {
   const turno = !h ? 'Sin horario asignado' : h.modo === 'fijo' ? `Turno ${h.entrada}–${h.salida}` : `Turno flexible · ${duracion(h.meta)}`
   const detalle = !h ? 'Pídeselo a RR.HH.'
     : j.salida != null ? `Saliste ${hhmm(j.salida)} · ${duracion(j.trabajado)}`
-      : j.enPausa ? 'En pausa'
+      : j.enPausa ? 'En descanso'
         : j.entrada != null ? `Entraste ${hhmm(j.entrada)} · ${duracion(j.trabajado)}`
           : 'Sin marcar'
   const enTurno = j.entrada != null && j.salida == null

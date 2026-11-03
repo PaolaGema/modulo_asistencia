@@ -7,7 +7,7 @@ import { Vacio, Modal } from '../../components/documentacion/comunes'
 import Avatar from '../../components/personas/Avatar'
 import Desplegable from '../../components/layout/Desplegable'
 import Paginacion from '../../components/layout/Paginacion'
-import { EstadoChip, PersonaAt, BarraDia, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
+import { EstadoDia, PersonaAt, BarraDia, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import CalendarioAsistencia from '../../components/asistencia/CalendarioAsistencia'
 import { CurvaPresencia, LoQueConviene } from '../../components/asistencia/HoyPulso'
@@ -34,11 +34,11 @@ const MINIMO = 0.8
 const POR_PAGINA = 10
 const MAX_LISTA = 5
 const PESTANAS = [
-  { key: 'sinMarcar', label: 'Sin marcar', filtro: f => f.j.estado === 'sinMarcar' },
+  { key: 'sinMarcar', label: 'No han llegado', filtro: f => f.j.estado === 'sinMarcar' },
   { key: 'tarde', label: 'Llegaron tarde', filtro: f => f.j.llegoTarde },
   { key: 'trabajando', label: 'Trabajando', filtro: f => ['trabajando', 'pausa'].includes(f.j.estado) },
-  { key: 'porLlegar', label: 'Por llegar', filtro: f => f.j.estado === 'porLlegar' },
-  { key: 'aviso', label: 'Justificados', filtro: f => f.j.estado === 'justificada' },
+  { key: 'porLlegar', label: 'Aún no les toca', filtro: f => f.j.estado === 'porLlegar' },
+  { key: 'aviso', label: 'Vacaciones y permisos', filtro: f => f.j.estado === 'justificada' },
   { key: 'todos', label: 'Todos', filtro: () => true },
 ]
 
@@ -297,7 +297,7 @@ export default function Hoy() {
 
       <div className="at-q-cifras">
         <button type="button" className="at-q-cifra" onClick={() => verLista('sinMarcar')}>
-          <span className="cab"><span className="ico t-rojo"><UserX size={17} /></span>Sin marcar</span>
+          <span className="cab"><span className="ico t-rojo"><UserX size={17} /></span>No han llegado</span>
           <span className="val rojo">{sinMarcar.length}</span>
           <span className="ctx">{normal.hay ? `Lo normal a esta hora: ${normal.faltan}` : 'Pasaron su hora y su tolerancia'}</span>
           <span className="barra"><span style={{ flex: sinMarcar.length, background: 'var(--at-rojo)' }} /><span style={{ flex: Math.max(1, esperadas.length - sinMarcar.length), background: 'transparent' }} /></span>
@@ -366,7 +366,7 @@ export default function Hoy() {
                     <td><PersonaAt persona={p} size={30} /></td>
                     <td className={`num${j.llegoTarde ? ' tarde' : ''}`}>{hhmm(j.entrada)}<small>{p.horario?.modo === 'fijo' ? `Entra ${p.horario.entrada}` : 'Flexible'}</small></td>
                     <td className="col-barra"><BarraDia jornada={j} horario={p.horario} ahora={ahora} /></td>
-                    <td>{j.justificacion && j.estado === 'justificada' ? <span className="dc-chip dc-chip-sm dc-t-violeta">{j.justificacion.tipo}</span> : <EstadoChip estado={j.estado} pequeno />}</td>
+                    <td><EstadoDia persona={p} jornada={j} ahora={ahora} /></td>
                   </tr>
                 ))}
               </tbody>

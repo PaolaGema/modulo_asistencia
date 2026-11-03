@@ -1460,22 +1460,22 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="tbl"><table>
 <thead><tr><th>Estado</th><th>Cuándo</th><th>Solo hoy</th></tr></thead>
 <tbody>
-<tr><td><strong>Por llegar</strong></td><td>Todavía no es su hora de entrada más la tolerancia</td><td>Sí</td></tr>
-<tr><td><strong>Sin marcar</strong></td><td>Ya pasó su hora de entrada y la tolerancia, y no marcó</td><td>Sí</td></tr>
+<tr><td><strong>Aún no le toca</strong></td><td>Todavía no es su hora de entrada más la tolerancia</td><td>Sí</td></tr>
+<tr><td><strong>No ha llegado</strong></td><td>Ya pasó su hora de entrada y la tolerancia, y no marcó</td><td>Sí</td></tr>
 <tr><td><strong>Trabajando</strong></td><td>Marcó la entrada y está en su jornada</td><td>Sí</td></tr>
-<tr><td><strong>En pausa</strong></td><td>Marcó el inicio de su pausa</td><td>Sí</td></tr>
-<tr><td><strong>Terminó</strong></td><td>Marcó entrada y salida hoy</td><td>Sí</td></tr>
-<tr><td><strong>Presente</strong></td><td>Cumplió su jornada</td><td>No</td></tr>
+<tr><td><strong>En descanso</strong></td><td>Marcó el inicio de su descanso</td><td>Sí</td></tr>
+<tr><td><strong>Terminó su jornada</strong></td><td>Marcó entrada y salida; hoy, aunque haya llegado tarde</td><td>Sí</td></tr>
+<tr><td><strong>Terminó su jornada</strong> (un día pasado)</td><td>Cumplió su jornada</td><td>No</td></tr>
 <tr><td><strong>Llegó tarde</strong></td><td>Entró después de su hora de entrada más la tolerancia</td><td>No</td></tr>
-<tr><td><strong>Salida anticipada</strong></td><td>Salió antes de su hora de salida, pasada la tolerancia</td><td>No</td></tr>
+<tr><td><strong>Salió antes</strong></td><td>Salió antes de su hora de salida, pasada la tolerancia</td><td>No</td></tr>
 <tr><td><strong>Horas extra</strong></td><td>Trabajó horas extra autorizadas</td><td>No</td></tr>
-<tr><td><strong>Sin salida</strong></td><td>Marcó la entrada y nunca la salida</td><td>No</td></tr>
-<tr><td><strong>Ausente</strong></td><td>Tenía jornada y no marcó</td><td>No</td></tr>
-<tr><td><strong>Justificada</strong></td><td>Ausencia con permiso, licencia o vacaciones</td><td>No</td></tr>
+<tr><td><strong>Salida sin marcar</strong></td><td>Marcó la entrada y nunca la salida</td><td>No</td></tr>
+<tr><td><strong>Faltó</strong></td><td>Tenía jornada y no marcó</td><td>No</td></tr>
+<tr><td><strong>De vacaciones · Con permiso · Con licencia</strong></td><td>Ausencia justificada; se muestra su motivo</td><td>No</td></tr>
 <tr><td><strong>Día libre</strong></td><td>No tiene jornada programada ese día</td><td>No</td></tr>
 </tbody>
 </table></div>
-<p>Cada estado tiene palabra y color; nunca solo color.</p>
+<p>Cada estado tiene palabra y color; nunca solo color. En las tablas va en una píldora de color con una línea que dice qué pasa: «Trabajando · desde 08:34», «No ha llegado · debía entrar 08:30». El atraso no cambia el estado: va en ámbar junto a la hora de entrada.</p>
 <h3 id="p0-4">0.4 Tardanza, tolerancia y redondeo</h3>
 <p>La <strong>tolerancia de entrada</strong> son los minutos de gracia de la política: con entrada 08:30 y 10 min, quien marca hasta las 08:40 llega a tiempo. La <strong>tardanza</strong> es lo que pasa de la entrada más la tolerancia, al segundo: quien marca 08:40:59 suma 59 s. El <strong>redondeo</strong> de la política puede contarla por minuto completo o en bloques de 5 min, siempre hacia abajo, a favor de la persona. Hay una sola tardanza por día y todas las pantallas leen esa.</p>
 <h3 id="p0-5">0.5 Alerta y justificación</h3>
