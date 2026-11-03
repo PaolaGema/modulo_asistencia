@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, BellRing, Clock } from 'lucide-react'
+import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, Clock } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -16,7 +16,7 @@ const sectionInfo = {
   'Empresa': 'Quién es la empresa, dónde está y cómo se organiza por dentro. Se define una vez y casi no se toca.',
   'Puestos y personas': 'Los cargos, las plazas y el dibujo. De aquí sacan Onboarding y Evaluación el área y el cargo de cada persona.',
   'Sistema': 'Cómo se comporta Souly para toda la empresa. Se decide una vez y afecta a todos los módulos.',
-  'Asistencia': 'Hoy: lo que pasa en vivo. Libro: cada jornada. Incidencias: lo que espera una decisión. Solicitudes: vacaciones, permisos, horas extra y correcciones.',
+  'Asistencia': 'Hoy: lo que pasa en vivo. Libro: cada jornada y, por tema, faltas, retrasos, salidas sin marcar, marcaciones rechazadas y fuera de horario. Solicitudes: vacaciones, permisos, horas extra y correcciones.',
   'Documentación': 'Expedientes: lo de cada persona. Solicitudes: lo que la gente pide a RR.HH. Documentos emitidos: lo que la empresa le envió. Configuración: carpetas y plantillas.',
 }
 const sectionInfoTitle = {
@@ -232,7 +232,7 @@ const personasNav = [
    colaborador (Mis solicitudes, De RR.HH.). El contador dice dónde hay trabajo: lo que espera
    revisión en Expedientes y los pedidos sin responder en Solicitudes. */
 /* Las entradas que tienen subsecciones fijas (`subs`), para abrirlas al entrar. */
-const RUTAS_CON_SUBS = ['/documentos/configuracion', '/asistencia/configuracion', '/asistencia/solicitudes']
+const RUTAS_CON_SUBS = ['/documentos/configuracion', '/asistencia/configuracion', '/asistencia/solicitudes', '/asistencia/registro']
 
 const documentacionNav = (cuentas = {}) => [
   { section: 'Documentación', items: [
@@ -254,8 +254,15 @@ const documentacionNav = (cuentas = {}) => [
 const asistenciaNav = (cuentas = {}) => [
   { section: 'Asistencia', items: [
     { label: 'Hoy', path: '/asistencia', icon: Radio, end: true },
-    { label: 'Libro de asistencia', path: '/asistencia/registro', icon: BookOpenCheck },
-    { label: 'Incidencias', path: '/asistencia/incidencias', icon: BellRing, cuenta: cuentas.incidencias },
+    /* EL LIBRO SE DESPLIEGA: todas las jornadas y, por tema, lo que antes era Incidencias. */
+    { label: 'Libro de asistencia', path: '/asistencia/registro', icon: BookOpenCheck, subs: [
+      { label: 'Todas las jornadas', ruta: '/asistencia/registro' },
+      { label: 'Faltas', ruta: '/asistencia/registro/faltas' },
+      { label: 'Retrasos y descansos', ruta: '/asistencia/registro/retrasos' },
+      { label: 'Salidas sin marcar', ruta: '/asistencia/registro/salidas' },
+      { label: 'Marcaciones rechazadas', ruta: '/asistencia/registro/rechazos' },
+      { label: 'Fuera de horario', ruta: '/asistencia/registro/fuera' },
+    ] },
     /* SOLICITUDES SE DESPLIEGA: lo que la gente pide sobre su tiempo, una sub-vista por tipo. */
     { label: 'Solicitudes', path: '/asistencia/solicitudes', icon: Inbox, cuenta: cuentas.solicitudes, subs: [
       { label: 'Vacaciones', ver: 'vacaciones' },
@@ -362,7 +369,8 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
   useEffect(() => {
     const dentro = Object.values(EJES).find(e => e.ruta === location.pathname)
     /* Una entrada con subsecciones fijas se abre igual al entrar: su clave es su ruta. */
-    const clave = dentro?.key || (RUTAS_CON_SUBS.includes(location.pathname) ? location.pathname : null)
+    /* Los temas del Libro viven debajo de su ruta (/asistencia/registro/faltas): abren su grupo. */
+    const clave = dentro?.key || RUTAS_CON_SUBS.find(r => location.pathname === r || location.pathname.startsWith(`${r}/`)) || null
     if (clave) setEjesAbiertos(prev => (prev.has(clave) ? prev : new Set(prev).add(clave)))
   }, [location.pathname])
 
@@ -587,6 +595,8 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
                     <div className="mn-sub">
                     {(subs
                       ? subs.map((sb, i) => {
+                          /* Un sub-ítem con su propia dirección (los temas del Libro) se marca por la ruta. */
+                          if (sb.ruta) return { label: sb.label, path: sb.ruta, activa: location.pathname === sb.ruta }
                           const ver = new URLSearchParams(location.search).get('ver')
                           return { label: sb.label, path: `${path}?ver=${sb.ver}`, activa: location.pathname === path && (ver === sb.ver || (!subs.some(x => x.ver === ver) && i === 0)) }
                         })

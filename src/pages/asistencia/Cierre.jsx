@@ -93,7 +93,7 @@ export default function Cierre() {
             ? <span className="dc-chip dc-t-gris"><Lock size={11} /> Cerrado por {cierre.por}</span>
             : mes === mesDe(at.hoy) ? <span className="dc-chip dc-t-azul">En curso</span> : <span className="dc-chip dc-t-ambar">Sin cerrar</span>}
           {!cierre && pendientes > 0 && (
-            <button type="button" className="dc-chip dc-t-ambar" style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => navigate('/asistencia/incidencias')}>
+            <button type="button" className="dc-chip dc-t-ambar" style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => navigate('/asistencia/registro/faltas')}>
               <AlertTriangle size={11} /> {pendientes} incidencias sin resolver
             </button>
           )}

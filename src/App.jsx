@@ -60,7 +60,7 @@ import { AsistenciaProvider } from './context/AsistenciaContext'
 import AtHoy from './pages/asistencia/Hoy'
 import AtRegistro from './pages/asistencia/Registro'
 import AtPersona from './pages/asistencia/Persona'
-import AtIncidencias from './pages/asistencia/Incidencias'
+import AtLibroTema from './pages/asistencia/LibroTema'
 import AtSolicitudes from './pages/asistencia/Solicitudes'
 import AtConfiguracion from './pages/asistencia/Configuracion'
 import MiAsistencia from './pages/colaborador/MiAsistencia'
@@ -252,7 +252,10 @@ export default function App() {
             <Route index element={<AtHoy />} />
             <Route path="registro" element={<AtRegistro />} />
             <Route path="persona/:id" element={<AtPersona />} />
-            <Route path="incidencias" element={<AtIncidencias />} />
+            {/* Incidencias pasó a ser los temas del Libro: Faltas, Retrasos y descansos, Salidas sin marcar,
+                Marcaciones rechazadas y Fuera de horario. La dirección vieja lleva a Faltas. */}
+            <Route path="registro/:tema" element={<AtLibroTema />} />
+            <Route path="incidencias" element={<Navigate to="/asistencia/registro/faltas" replace />} />
             <Route path="solicitudes" element={<AtSolicitudes />} />
             <Route path="horas-extra" element={<Navigate to="/asistencia/solicitudes?ver=horas-extra" replace />} />
             <Route path="cierre" element={<Navigate to="/asistencia" replace />} />

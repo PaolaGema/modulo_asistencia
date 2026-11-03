@@ -211,13 +211,13 @@ export default function Hoy() {
       tono: 'ambar', Icono: ScanFace, accion: 'Revisar',
       titulo: `${plural(rechazosHoy.length, 'marcación rechazada', 'marcaciones rechazadas')} hoy`,
       detalle: [['rostro', 'por rostro'], ['geocerca', 'fuera de la geocerca']].map(([k, t]) => [rechazosHoy.filter(m => m.rechazada === k).length, t]).filter(([n]) => n).map(([n, t]) => `${n} ${t}`).join(', '),
-      ir: () => navigate('/asistencia/incidencias?ver=rechazo'),
+      ir: () => navigate('/asistencia/registro/rechazos'),
     },
     faltas.length > 0 && {
       tono: 'violeta', Icono: Inbox, accion: 'Justificar',
       titulo: `${plural(faltas.length, 'falta', 'faltas')} sin justificar`,
       detalle: 'De los últimos 10 días. Las que tengan permiso no deberían contar.',
-      ir: () => navigate('/asistencia/incidencias?ver=ausente'),
+      ir: () => navigate('/asistencia/registro/faltas'),
     },
     solicitudesExtra.length > 0 && {
       tono: 'azul', Icono: TrendingUp, accion: 'Responder',
@@ -229,13 +229,13 @@ export default function Hoy() {
       tono: 'gris', Icono: Clock, accion: 'Revisar',
       titulo: `${plural(fueraHorario.length, 'persona se quedó', 'veces se quedaron')} fuera de horario`,
       detalle: 'Sin horas extra autorizadas: no cuenta, salvo que lo autorices',
-      ir: () => navigate('/asistencia/incidencias?ver=fuera'),
+      ir: () => navigate('/asistencia/registro/fuera'),
     },
     incompletas.length > 0 && {
       tono: 'gris', Icono: CircleDashed, accion: 'Completar',
       titulo: `${plural(incompletas.length, 'jornada', 'jornadas')} sin salida`,
       detalle: 'Marcaron la entrada y nunca la salida',
-      ir: () => navigate('/asistencia/incidencias?ver=incompleta'),
+      ir: () => navigate('/asistencia/registro/salidas'),
     },
   ].filter(Boolean)
 
@@ -321,7 +321,7 @@ export default function Hoy() {
           <div className="sc-hd">
             <TriangleAlert size={15} style={{ color: 'var(--red)' }} aria-hidden="true" />
             <h3>Requiere tu atención <span className="sc-hd-count">{atencion.length}</span></h3>
-            <VerTodos total={atencion.length} texto="las" accion="Ir a incidencias" onClick={() => navigate('/asistencia/incidencias')} />
+            <VerTodos total={atencion.length} texto="las" accion="Ir al Libro" onClick={() => navigate('/asistencia/registro/faltas')} />
           </div>
           <div className="sc-body at-q-lista">
             {atencion.length ? atencion.slice(0, MAX_LISTA).map(a => (
@@ -331,7 +331,7 @@ export default function Hoy() {
                 <button type="button" className={a.fuerte ? 'at-q-btn-fuerte chico' : 'at-q-btn chico'} onClick={a.ir}>{a.accion}</button>
               </div>
             )) : <div className="at-q-ok"><Check size={17} aria-hidden="true" /> Nada que resolver por ahora</div>}
-            <Truncado total={atencion.length} donde="Incidencias" />
+            <Truncado total={atencion.length} donde="el Libro de asistencia" />
           </div>
         </section>
       </div>
