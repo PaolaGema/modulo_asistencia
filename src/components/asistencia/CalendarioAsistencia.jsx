@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, ChevronLeft, ChevronRight, PartyPopper, Luggage, UserX, TrendingUp, Lock, Clock } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, PartyPopper, Luggage, UserX, TrendingUp, Clock } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { MESES, DIAS_SEMANA, buildCalendarCells } from '../../utils/calendarEvents'
 import { sumarDias, hoyISO, esAutorizada } from '../../data/asistenciaData'
@@ -9,7 +9,7 @@ import { sumarDias, hoyISO, esAutorizada } from '../../data/asistenciaData'
    El mismo dibujo que el calendario del dashboard de Inicio —la cuadrícula, los puntos de color, la
    leyenda y el detalle del día elegido— pero con lo que le importa a asistencia: los feriados, quién
    sale de vacaciones o con permiso, los días con faltas sin justificar o con horas extra por aprobar,
-   y el cierre del mes para nómina.
+   (el cierre del mes ya no existe).
 
    LOS FERIADOS SON LOS DE FECHA FIJA de Bolivia. Los que se mueven (Carnaval, Viernes Santo, Corpus
    Christi) los tendrá que cargar cada empresa cuando exista el catálogo de feriados. */
@@ -23,7 +23,6 @@ const TIPOS = {
   aviso: { label: 'Vacaciones y permisos', color: 'var(--at-azul)', Icon: Luggage },
   falta: { label: 'Faltas', color: 'var(--at-rojo)', Icon: UserX },
   extra: { label: 'Horas extra', color: 'var(--at-ambar)', Icon: TrendingUp },
-  cierre: { label: 'Cierre', color: 'var(--navy)', Icon: Lock },
 }
 const MAX_LISTA = 5
 const flecha = { width: 22, height: 22, borderRadius: 6, border: '1px solid var(--border-soft)', background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)' }
