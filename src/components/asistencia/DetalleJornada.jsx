@@ -58,7 +58,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
         <div className="at-det-cifras">
           <div><span>Entrada</span><b className={j.llegoTarde ? 'tarde' : ''}>{hhmmss(j.entrada)}</b></div>
           <div><span>Salida</span><b>{hhmmss(j.salida)}</b></div>
-          <div><span>Trabajado</span><b>{duracion(j.trabajado, { corto: true, seg: true })}</b></div>
+          <div><span>Horas trabajadas</span><b>{duracion(j.trabajado, { corto: true, seg: true })}</b></div>
           <div><span>Programado</span><b>{persona.horario?.modo === 'flexible' ? `Meta ${duracion(persona.horario.meta)}` : duracion(j.programado)}</b></div>
           <div><span>{j.tardanza ? 'Tardanza' : 'Extra aprobada'}</span><b className={j.tardanza ? 'tarde' : j.extra ? 'extra' : ''}>{j.tardanza ? duracion(j.tardanza, { seg: true }) : duracion(j.extra)}</b></div>
         </div>

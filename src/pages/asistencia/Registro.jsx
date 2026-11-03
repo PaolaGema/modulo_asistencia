@@ -128,7 +128,7 @@ export default function Registro() {
                 <tr>
                   <th>Colaborador</th>
                   {semana.map(d => <th key={d} className={`dia${d === at.hoy ? ' hoy' : ''}`}>{DIAS_CORTOS[diaISO(d)]} {aFecha(d).getDate()}</th>)}
-                  <th style={{ textAlign: 'right' }}>Semana</th>
+                  <th style={{ textAlign: 'right' }}>Horas de la semana</th>
                 </tr>
               </thead>
               <tbody>
@@ -352,7 +352,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
               </th>
               <th className="at-mes-acc at-dia-acc">Entrada</th>
               <th className="at-mes-acc at-dia-acc">Salida</th>
-              <th className="at-mes-acc at-dia-acc">Trabajado</th>
+              <th className="at-mes-acc at-dia-acc">Horas trabajadas</th>
             </tr>
           </thead>
           <tbody>

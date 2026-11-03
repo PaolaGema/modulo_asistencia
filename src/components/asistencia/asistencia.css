@@ -1182,3 +1182,7 @@ i.at-mes-c { font-style: normal; }
 .at-dia-tabla .at-mes-persona .dc-persona-txt { min-width: 0; }
 .at-dia-tabla .at-mes-persona .dc-persona-sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
 .at-dia-acc { width: 84px; }
+.at-dia-tabla th.at-dia-acc { white-space: normal; line-height: 1.25; }
+.at-dia-tabla td.at-mes-acc { white-space: normal; }
+.at-dia-tabla .at-dia-acc { width: 96px; }
+.at-dia-tabla td.at-mes-acc small { line-height: 1.3; }
