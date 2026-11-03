@@ -1,19 +1,21 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ShieldCheck, ScanFace, MapPin, Laptop, Flame, Download } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ShieldCheck, ScanFace, MapPin, Laptop, Download } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio } from '../../components/documentacion/comunes'
 import Avatar from '../../components/personas/Avatar'
-import { EstadoChip, COLOR_ESTADO, Anillo } from '../../components/asistencia/comunes'
+import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import { ESTADOS, MODALIDADES, DIAS_CORTOS, diasDelMes, diaISO, mesVecino, mesDe, nombreMes, hhmm, duracion, aFecha, descargarCSV } from '../../data/asistenciaData'
 
-/* ── LA ASISTENCIA DE UNA PERSONA, MES A MES ──────────────────────────────
-   Un calendario que se lee como un mapa de calor: verde a tiempo, ámbar tarde, azul con extra, rojo
-   falta. Al lado, el saldo del mes —cuánto trabajó contra cuánto debía— que es lo que pide nómina, y
-   lo que la persona ve en su propia app: los mismos números de los dos lados. */
+/* ── LA ASISTENCIA DE UNA PERSONA, MES A MES (P1) ─────────────────────────
+   Con el lenguaje del Libro: arriba, las mismas cifras que la ventana del mes —días trabajados,
+   retrasos, tiempo de retraso, faltas, horas del mes— y la puntualidad; abajo, el calendario a todo el
+   ancho en los colores llenos del Mes, con la entrada y la salida de cada día. Son los mismos números
+   que la persona ve en su app. */
 
-const LEYENDA = ['presente', 'tarde', 'extra', 'incompleta', 'ausente', 'justificada']
+const TONO = { presente: 'ok', termino: 'ok', trabajando: 'hoy', pausa: 'hoy', porLlegar: 'hoy', tarde: 'tarde', anticipada: 'tarde', ausente: 'falta', sinMarcar: 'falta', justificada: 'just', extra: 'extra', incompleta: 'inc', libre: 'libre' }
+const LEYENDA = [['ok', 'A tiempo'], ['tarde', 'Tarde o salió antes'], ['falta', 'Faltó'], ['just', 'Vacaciones o permiso'], ['extra', 'Horas extra'], ['inc', 'Salida sin marcar']]
 
 export default function Persona() {
   const { id } = useParams()
@@ -37,14 +39,21 @@ export default function Persona() {
     )
   }
 
+
+  /* Lo acumulado cuenta días cerrados: el de hoy suma cuando marca la salida. Lo justificado no tiene
+     horas programadas (no «faltan» horas a quien estuvo de vacaciones). */
   const pasados = dias.filter(x => x.j && x.j.estado !== 'libre')
   const cerrados = pasados.filter(x => x.d !== at.hoy || x.j.salida != null)
-  const sum = k => cerrados.reduce((s, x) => s + (x.j[k] || 0), 0)
-  const trabajado = sum('trabajado'); const programado = sum('programado'); const tardanza = sum('tardanza')
+  const sum = (lista, k) => lista.reduce((s, x) => s + (x.j[k] || 0), 0)
+  const trabajado = sum(cerrados, 'trabajado'); const programado = sum(cerrados, 'programado')
+  const tardes = cerrados.filter(x => x.j.llegoTarde)
+  const tardanza = sum(tardes, 'tardanza'); const tardanzaInj = sum(tardes, 'tardanzaInjustificada')
   /* Horas extra = lo trabajado dentro de lo autorizado; quedarse sin autorización va aparte. */
-  const extraTrabajada = sum('extra'); const extraAutorizada = sum('autorizado'); const fueraHorario = sum('fueraDeHorario')
-  const cuenta = e => pasados.filter(x => x.j.estado === e).length
+  const extraTrabajada = sum(cerrados, 'extra'); const extraAutorizada = sum(cerrados, 'autorizado'); const fueraHorario = sum(cerrados, 'fueraDeHorario')
+  const faltas = cerrados.filter(x => x.j.estado === 'ausente').length
+  const justificadas = cerrados.filter(x => x.j.estado === 'justificada').length
   const conEntrada = pasados.filter(x => x.j.entrada != null)
+  const conJornada = cerrados.filter(x => x.j.programado > 0).length
   const aTiempo = conEntrada.filter(x => !x.j.llegoTarde).length
   const puntualidad = conEntrada.length ? Math.round((aTiempo / conEntrada.length) * 100) : null
   const saldo = trabajado - programado
@@ -61,6 +70,16 @@ export default function Persona() {
     ['Fecha', 'Entrada', 'Salida', 'Trabajado (min)', 'Programado (min)', 'Tardanza (min)', 'Extra (min)', 'Estado', 'Justificación'],
     ...pasados.map(({ d, j }) => [d, hhmm(j.entrada), hhmm(j.salida), Math.round(j.trabajado), j.programado, Math.round(j.tardanza), Math.round(j.extra), ESTADOS[j.estado].label, j.justificacion ? `${j.justificacion.tipo}: ${j.justificacion.motivo}` : '']),
   ])
+
+  /* P1: las mismas cifras que la ventana del mes del Libro, más la puntualidad. */
+  const cifras = [
+    ['Días trabajados', conJornada ? <>{conEntrada.length} <em>de {conJornada}</em></> : '—', '', ''],
+    ['Retrasos', tardes.length || '—', tardes.length ? (tardes.length === 1 ? 'vez' : 'veces') : '', tardes.length ? 'tarde' : ''],
+    ['Tiempo de retraso', tardes.length ? duracion(tardanza) : '—', tardes.length ? (tardanzaInj <= 0 ? 'justificado' : tardanzaInj >= tardanza ? 'sin justificar' : `${duracion(tardanza - tardanzaInj)} justificados`) : '', tardes.length ? 'tarde' : ''],
+    ['Faltas', faltas || (justificadas ? 0 : '—'), justificadas ? `+ ${justificadas} con permiso` : faltas ? 'sin justificar' : '', faltas ? 'falta' : ''],
+    ['Horas del mes', programado ? duracion(trabajado, { corto: true }) : '—', programado ? <>de {duracion(programado, { corto: true })} · <em className={saldo >= 0 ? 'bien' : 'falta'}>{saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}</em></> : '', ''],
+    ['Puntualidad', puntualidad == null ? '—' : `${puntualidad} %`, racha > 1 ? `${racha} días seguidos a tiempo` : `tolerancia de ${p.politica?.tolerancia ?? 10} min`, puntualidad != null && puntualidad >= 90 ? 'bien' : puntualidad != null ? 'tarde' : ''],
+  ]
 
   return (
     <div className="content-scroll">
@@ -82,95 +101,50 @@ export default function Persona() {
           </div>
         </div>
         {!p.asig && <button type="button" className="pl-btn-new" onClick={() => navigate('/asistencia/configuracion?ver=asignaciones')}>Asignar horario</button>}
+        <div className="at-periodo at-pv-per">
+          {cerrado && <span className="dc-chip dc-t-gris">Mes cerrado</span>}
+          <div className="at-dia-nav">
+            <button type="button" aria-label="Mes anterior" onClick={() => setParams({ mes: mesVecino(mes, -1) }, { replace: true })}><ChevronLeft size={16} /></button>
+            <span>{nombreMes(mes)}</span>
+            <button type="button" aria-label="Mes siguiente" disabled={mes >= mesDe(at.hoy)} onClick={() => setParams({ mes: mesVecino(mes, 1) }, { replace: true })}><ChevronRight size={16} /></button>
+          </div>
+          <button type="button" className="dc-btn dc-btn-sm" onClick={exportar}><Download size={13} /> CSV</button>
+        </div>
       </section>
 
-      <div className="at-ficha-grid">
-        <section className="at-card">
-          <div className="at-card-cab">
-            <div className="at-dia-nav">
-              <button type="button" aria-label="Mes anterior" onClick={() => setParams({ mes: mesVecino(mes, -1) }, { replace: true })}><ChevronLeft size={16} /></button>
-              <span>{nombreMes(mes)}</span>
-              <button type="button" aria-label="Mes siguiente" disabled={mes >= mesDe(at.hoy)} onClick={() => setParams({ mes: mesVecino(mes, 1) }, { replace: true })}><ChevronRight size={16} /></button>
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              {cerrado && <span className="dc-chip dc-t-gris">Mes cerrado</span>}
-              <button type="button" className="dc-btn dc-btn-sm" onClick={exportar}><Download size={13} /> CSV</button>
-            </div>
-          </div>
-          <div className="at-card-cuerpo">
-            <div className="at-cal">
-              {[1, 2, 3, 4, 5, 6, 7].map(d => <div key={d} className="at-cal-dow">{DIAS_CORTOS[d]}</div>)}
-              {huecos.map((_, i) => <div key={`h${i}`} className="at-cal-dia fuera" />)}
-              {dias.map(({ d, j }) => {
-                const futuro = !j
-                const est = futuro ? 'libre' : j.estado
-                return (
-                  <button key={d} type="button" disabled={futuro} className={`at-cal-dia e-${est}${futuro ? ' futuro' : ''}${d === at.hoy ? ' hoy' : ''}${detalle === d ? ' sel' : ''}`}
-                    onClick={() => setDetalle(d)} title={futuro ? '' : ESTADOS[est].label}>
-                    <span className="at-cal-num">{aFecha(d).getDate()}</span>
-                    {j && j.entrada != null && <span className="at-cal-h">{hhmm(j.entrada)}<br />{j.salida != null ? hhmm(j.salida) : '…'}</span>}
-                    {j && j.entrada == null && est !== 'libre' && <span className="at-cal-h">{ESTADOS[est].label}</span>}
-                  </button>
-                )
-              })}
-            </div>
-            <div className="at-cal-ley">
-              {LEYENDA.map(e => <span key={e}><i style={{ background: COLOR_ESTADO[e] }} /> {ESTADOS[e].label}</span>)}
-            </div>
-          </div>
-        </section>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <section className="at-card">
-            <div className="at-card-cab"><div><h2>Saldo del mes</h2><p>Lo trabajado contra lo programado, sin contar el día en curso.</p></div></div>
-            <div className="at-card-cuerpo">
-              <div className="at-saldo"><b className={saldo >= 0 ? 'pos' : 'neg'}>{duracion(saldo, { signo: true, corto: true })}</b><span className="dc-muted" style={{ fontSize: 13 }}>horas</span></div>
-              <div className="at-progreso"><span style={{ width: `${programado ? Math.min(100, (trabajado / programado) * 100) : 0}%` }} /></div>
-              <div className="dc-muted" style={{ fontSize: 12 }}>{duracion(trabajado)} de {duracion(programado)} programadas</div>
-              <dl className="at-lista-datos">
-                <dt>Días trabajados</dt><dd>{conEntrada.length}</dd>
-                <dt>Ausencias</dt><dd style={{ color: cuenta('ausente') ? 'var(--dc-rojo)' : undefined }}>{cuenta('ausente')}</dd>
-                <dt>Vacaciones y permisos</dt><dd>{cuenta('justificada')}</dd>
-                <dt>Tardanza acumulada</dt><dd style={{ color: tardanza ? 'var(--dc-ambar)' : undefined }}>{duracion(tardanza)}</dd>
-                <dt>Horas extra</dt><dd style={{ color: 'var(--dc-azul)' }}>{duracion(extraTrabajada)} <span className="dc-muted" style={{ fontWeight: 500 }}>de {duracion(extraAutorizada)} autorizadas</span></dd>
-                <dt>Fuera de horario, sin autorización</dt><dd className="dc-muted">{duracion(fueraHorario)}</dd>
-              </dl>
-            </div>
-          </section>
-
-          <section className="at-card">
-            <div className="at-card-cab"><div><h2>Puntualidad</h2><p>Días que llegó a tiempo, de los que marcó.</p></div></div>
-            <div className="at-card-cuerpo" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <Anillo size={120} grosor={12} total={conEntrada.length || 1} partes={[
-                { key: 'a', valor: aTiempo, color: 'var(--at-verde)' },
-                { key: 't', valor: conEntrada.length - aTiempo, color: 'var(--at-ambar)' },
-              ]}>
-                <b style={{ fontSize: 26 }}>{puntualidad == null ? '—' : `${puntualidad}%`}</b>
-              </Anillo>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {racha > 1 && <span className="dc-chip dc-t-verde" style={{ alignSelf: 'flex-start' }}><Flame size={12} /> {racha} días seguidos a tiempo</span>}
-                <span style={{ fontSize: 13, color: 'var(--text-heading)' }}><b>{aTiempo}</b> a tiempo · <b>{conEntrada.length - aTiempo}</b> tarde</span>
-                <span className="dc-muted" style={{ fontSize: 12 }}>Tolerancia de {p.politica?.tolerancia ?? 10} min</span>
-              </div>
-            </div>
-          </section>
-
-          <section className="at-card">
-            <div className="at-card-cab"><div><h2>Últimos días</h2></div></div>
-            <ul className="at-feed" style={{ maxHeight: 260 }}>
-              {[...pasados].reverse().slice(0, 6).map(({ d, j }) => (
-                <li key={d} className="at-feed-item" onClick={() => setDetalle(d)} style={{ gridTemplateColumns: '1fr auto' }}>
-                  <div>
-                    <span className="at-feed-nom" style={{ textTransform: 'capitalize' }}>{DIAS_CORTOS[diaISO(d)]} {aFecha(d).getDate()}</span>
-                    <span className="at-feed-sub">{j.entrada != null ? `${hhmm(j.entrada)} – ${hhmm(j.salida)} · ${duracion(j.trabajado)}` : j.justificacion?.tipo || 'Sin marcaciones'}</span>
-                  </div>
-                  <EstadoChip estado={j.estado} pequeno />
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
+      <div className="at-pv-cifras">
+        {cifras.map(([t, v, s, tono]) => (
+          <div key={t}><span>{t}</span><b className={tono}>{v}</b>{s && <small>{s}</small>}</div>
+        ))}
       </div>
+
+      {/* El calendario a todo el ancho, en los colores llenos del Mes, con la entrada y la salida. */}
+      <section className="at-card at-pv-card at-mes">
+        <div className="at-pv-cal">
+          {[1, 2, 3, 4, 5, 6, 7].map(d => <div key={d} className="at-pv-dow">{DIAS_CORTOS[d]}</div>)}
+          {huecos.map((_, i) => <div key={`h${i}`} />)}
+          {dias.map(({ d, j }) => {
+            const n = aFecha(d).getDate()
+            if (!j) return <div key={d} className="at-pv-c t-futuro"><b>{n}</b></div>
+            const tono = TONO[j.estado] || 'libre'
+            const texto = j.entrada != null
+              ? <small>{hhmm(j.entrada)}<br />{j.salida != null ? hhmm(j.salida) : '…'}</small>
+              : j.estado === 'libre' ? null : <small>{j.estado === 'justificada' ? motivoJustificado(j).replace(/^(De|Con) /, '').replace(/^./, c => c.toUpperCase()) : ESTADOS[j.estado].label}</small>
+            return (
+              <button key={d} type="button" className={`at-pv-c t-${tono}${d === at.hoy ? ' hoy' : ''}`} onClick={() => setDetalle(d)}
+                title={`${ESTADOS[j.estado].label}${j.llegoTarde ? ` · ${duracion(j.tardanza)} tarde` : ''}`}>
+                <b>{n}</b>{texto}
+              </button>
+            )
+          })}
+        </div>
+        <div className="at-pv-pie">
+          <div className="at-mes-leyenda" style={{ padding: 0 }}>
+            {LEYENDA.map(([k, t]) => <span key={k}><i className={`at-mes-c t-${k}`} />{t}</span>)}
+          </div>
+          <span className="dc-muted">Horas extra: <b>{duracion(extraTrabajada)}</b> de {duracion(extraAutorizada)} autorizadas · Fuera de horario, sin autorización: <b>{duracion(fueraHorario)}</b></span>
+        </div>
+      </section>
 
       {detalle && <DetalleJornada persona={p} fecha={detalle} onCerrar={() => setDetalle(null)} />}
     </div>

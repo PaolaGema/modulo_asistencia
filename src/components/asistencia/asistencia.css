@@ -1417,3 +1417,34 @@ button.at-cal-d:focus-visible { outline: 2px solid var(--dc-verde); outline-offs
 .at-cal-m-busca { max-width: 360px; }
 .at-cal-modal .as-table-wrap { box-shadow: none; border: 1px solid var(--border-soft); }
 @media (max-width: 900px) { .at-cal-m-cifras { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* ── La asistencia de una persona (P1): seis cifras y el calendario grande ── */
+.at-pv-per { margin-left: auto; align-self: flex-start; }
+.at-pv-cifras { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.at-pv-cifras > div { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 14px; padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.at-pv-cifras span { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.at-pv-cifras b { font-size: 22px; font-weight: 700; color: var(--text-heading); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.at-pv-cifras b em { font-style: normal; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.at-pv-cifras b.tarde { color: var(--dc-ambar); } .at-pv-cifras b.falta { color: var(--dc-rojo); } .at-pv-cifras b.bien { color: var(--dc-verde); }
+.at-pv-cifras small { font-size: 11.5px; color: var(--text-muted); line-height: 1.35; }
+.at-pv-cifras small em { font-style: normal; font-weight: 600; } .at-pv-cifras small em.falta { color: var(--dc-rojo); } .at-pv-cifras small em.bien { color: var(--dc-verde); }
+@media (max-width: 1100px) { .at-pv-cifras { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.at-pv-card { padding: 16px; display: grid; gap: 14px; }
+.at-pv-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.at-pv-dow { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); text-align: center; }
+.at-pv-c { min-height: 78px; border-radius: 12px; border: none; padding: 9px 11px; display: grid; align-content: space-between; justify-items: start; text-align: left; font-family: inherit; background: var(--m-libre); color: var(--text-muted); }
+button.at-pv-c { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px); box-shadow: 0 0 0 2px var(--text-heading); outline: none; }
+.at-pv-c b { font-size: 14px; font-weight: 700; }
+.at-pv-c small { font-size: 11.5px; line-height: 1.25; font-variant-numeric: tabular-nums; font-weight: 500; }
+.at-pv-c.t-ok { background: var(--m-ok); color: #0C2D40; }
+.at-pv-c.t-tarde { background: var(--m-tarde); color: #3D2504; }
+.at-pv-c.t-falta { background: var(--m-falta); color: #fff; }
+.at-pv-c.t-just { background: var(--m-just); color: #334155; }
+.at-pv-c.t-extra { background: var(--m-extra); color: #0C2D40; }
+.at-pv-c.t-inc { background: var(--m-inc); color: #2E1A66; }
+.at-pv-c.t-hoy { background: transparent; box-shadow: inset 0 0 0 1.5px var(--dc-verde); color: var(--text-heading); }
+.at-pv-c.t-libre { background: transparent; border: 1px dashed var(--border-soft); }
+.at-pv-c.t-futuro { background: transparent; border: 1px solid var(--border-soft); color: var(--text-muted); }
+.at-pv-pie { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 12px; }
+.at-pv-pie b { color: var(--text-heading); }
