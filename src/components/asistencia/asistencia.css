@@ -1286,3 +1286,15 @@ i.at-mes-c { font-style: normal; }
 .at-mes-tabla th.at-mes-acc { white-space: normal; line-height: 1.25; }
 .at-mes-tabla th.at-mes-acc .at-mes-orden { text-align: right; }
 .at-mes-tabla .at-mes-acc { width: 96px; }
+/* N1: el período a la derecha de la fila del buscador y los filtros. */
+.at-periodo { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+.dc-cabecera-acc .at-segmento { margin-right: 4px; }
+/* Libro: el buscador, los filtros y el período entran en una sola fila. */
+.at-libro .at-barra-busca { gap: 8px; flex-wrap: nowrap; }
+.at-libro .at-barra-busca .at-busca { flex: 1 1 170px; min-width: 150px; max-width: 260px; }
+.at-libro .at-barra-busca .at-filtros .dc-filtro { width: 160px; }
+.at-libro .at-barra-busca .at-filtro-estado { width: 176px; flex: none; }
+.at-libro .at-barra-busca .at-filtros { flex: none; }
+.at-libro .at-periodo .at-dia-nav span { min-width: 108px; font-size: 12.5px; }
+.at-libro .at-periodo { flex: none; }
+@media (max-width: 1280px) { .at-libro .at-barra-busca { flex-wrap: wrap; } }

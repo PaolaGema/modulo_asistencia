@@ -71,27 +71,17 @@ export default function Registro() {
   const cerrado = !!at.cierres[mes]
 
   return (
-    <div className="content-scroll">
+    <div className="content-scroll at-libro">
+      {/* N1: la vista —que cambia toda la pantalla— va en la cabecera, junto a Exportar; el período,
+          a la derecha de la fila del buscador y los filtros. */}
       <Cabecera titulo="Libro de asistencia" sub="Cada jornada con su entrada, su salida y su evidencia.">
+        <div className="at-segmento" role="tablist" aria-label="Vista">
+          <button type="button" role="tab" aria-selected={ver === 'dia'} className={ver === 'dia' ? 'on' : ''} onClick={() => ir({ ver: null })}>Día</button>
+          <button type="button" role="tab" aria-selected={ver === 'semana'} className={ver === 'semana' ? 'on' : ''} onClick={() => ir({ ver: 'semana' })}>Semana</button>
+          <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => ir({ ver: 'mes' })}>Mes</button>
+        </div>
         <button type="button" className="dc-btn" onClick={exportar}><Download size={14} aria-hidden="true" /> Exportar CSV</button>
       </Cabecera>
-
-      <div className="at-barra-herr">
-        <div className="at-barra-herr-izq">
-          <div className="at-dia-nav">
-            <button type="button" aria-label="Anterior" onClick={anterior}><ChevronLeft size={16} /></button>
-            <span>{ver === 'mes' ? nombreMes(mes) : ver === 'semana' ? `${fechaCorta(semana[0])} – ${fechaCorta(semana[6])}` : esHoy ? `Hoy · ${fechaCorta(fecha)}` : fechaLarga(fecha)}</span>
-            <button type="button" aria-label="Siguiente" disabled={sinSiguiente} onClick={siguiente}><ChevronRight size={16} /></button>
-          </div>
-          {!esHoy && <button type="button" className="dc-btn dc-btn-sm" onClick={() => ir({ fecha: null })}>{ver === 'mes' ? 'Ir a este mes' : 'Ir a hoy'}</button>}
-          <div className="at-segmento" role="tablist" aria-label="Vista">
-            <button type="button" role="tab" aria-selected={ver === 'dia'} className={ver === 'dia' ? 'on' : ''} onClick={() => ir({ ver: null })}>Día</button>
-            <button type="button" role="tab" aria-selected={ver === 'semana'} className={ver === 'semana' ? 'on' : ''} onClick={() => ir({ ver: 'semana' })}>Semana</button>
-            <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => ir({ ver: 'mes' })}>Mes</button>
-          </div>
-          {cerrado && <span className="dc-chip dc-t-gris"><Lock size={11} aria-hidden="true" /> Mes cerrado</span>}
-        </div>
-      </div>
 
       <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar persona o cargo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas}>
         {/* El estado es un filtro más: en una lista desplegable, con su cuenta, junto a los de lugar y unidad. */}
@@ -115,6 +105,15 @@ export default function Registro() {
               onCambio={v => { setEstado(v); setPag(1) }} />
           </div>
         )}
+        <div className="at-periodo">
+          {cerrado && <span className="dc-chip dc-t-gris"><Lock size={11} aria-hidden="true" /> Mes cerrado</span>}
+          {!esHoy && <button type="button" className="dc-btn dc-btn-sm" onClick={() => ir({ fecha: null })}>{ver === 'mes' ? 'Ir a este mes' : 'Ir a hoy'}</button>}
+          <div className="at-dia-nav">
+            <button type="button" aria-label="Anterior" onClick={anterior}><ChevronLeft size={16} /></button>
+            <span>{ver === 'mes' ? nombreMes(mes) : ver === 'semana' ? `${fechaCorta(semana[0])} – ${fechaCorta(semana[6])}` : esHoy ? `Hoy · ${fechaCorta(fecha)}` : fechaLarga(fecha)}</span>
+            <button type="button" aria-label="Siguiente" disabled={sinSiguiente} onClick={siguiente}><ChevronRight size={16} /></button>
+          </div>
+        </div>
       </BarraBusqueda>
 
       {ver === 'mes' ? (
