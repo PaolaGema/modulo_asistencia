@@ -4,6 +4,7 @@ import { Check, Luggage, Stethoscope, PencilLine, House, Repeat, AlarmClockPlus,
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Etiqueta } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
+import Desplegable from '../../components/layout/Desplegable'
 import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import HorasExtra from './HorasExtra'
@@ -28,13 +29,17 @@ const VISTAS = {
   remoto: { tipo: 'remoto', titulo: 'Trabajo remoto', Icono: House },
   cambios: { tipo: 'cambio', titulo: 'Cambios de turno', Icono: Repeat },
 }
+/* El estado es un filtro más, en una lista desplegable junto al buscador; arranca en «Por responder»,
+   que es lo que hay que hacer. «Saldos» no es un estado: es otra vista, arriba a la derecha. */
 const ESTADOS = [
-  { key: 'pendiente', label: 'Por responder' },
-  { key: 'aprobada', label: 'Aprobadas' },
-  { key: 'rechazada', label: 'Rechazadas' },
-  { key: 'todas', label: 'Todas' },
+  { key: 'pendiente', label: 'Por responder', punto: '#F5B04F' },
+  { key: 'aprobada', label: 'Aprobadas', punto: '#2FCB8B' },
+  { key: 'rechazada', label: 'Rechazadas', punto: '#94A3B8' },
+  { key: 'cancelada', label: 'Canceladas', punto: '#C9D3DC' },
 ]
 const POR_PAGINA = 10
+/* Qué dice la segunda columna, según lo que se pide. */
+const COL_PIDE = { vacaciones: 'Fechas y motivo', permiso: 'Permiso o licencia', justificacion: 'Qué justifica', correccion: 'Qué corrige', remoto: 'Días y motivo', cambio: 'Qué turno cambia' }
 const rango = (a, b) => (a === b ? fechaCorta(a) : `${fechaCorta(a)} al ${fechaCorta(b)}`)
 const hace = (desde, hoy) => { const d = Math.round((aFecha(hoy) - aFecha(desde)) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días` }
 
@@ -91,24 +96,41 @@ function Lista({ ver }) {
 
   return (
     <div className="content-scroll">
-      <Cabecera titulo={vista.titulo} sub={vista.sub || TIPOS_SOLICITUD[vista.tipo]?.desc} />
+      <Cabecera titulo={vista.titulo} sub={vista.sub || TIPOS_SOLICITUD[vista.tipo]?.desc}>
+        {ver === 'vacaciones' && (
+          <div className="at-segmento" role="tablist" aria-label="Vista">
+            <button type="button" role="tab" aria-selected={estado !== 'saldos'} className={estado !== 'saldos' ? 'on' : ''} onClick={() => { setEstado('pendiente'); setPag(1) }}>Solicitudes</button>
+            <button type="button" role="tab" aria-selected={estado === 'saldos'} className={estado === 'saldos' ? 'on' : ''} onClick={() => { setEstado('saldos'); setPag(1) }}>Saldos</button>
+          </div>
+        )}
+      </Cabecera>
 
-      <div className="at-barra-herr">
-        <div className="at-pestanas" role="tablist" aria-label="Estado">
-          {[...ESTADOS, ...(ver === 'vacaciones' ? [{ key: 'saldos', label: 'Saldos' }] : [])].map(e => {
-            const n = e.key === 'pendiente' ? delTipo.filter(s => s.estado === 'pendiente').length : null
-            return <button key={e.key} type="button" role="tab" aria-selected={estado === e.key} className={`at-pestana${estado === e.key ? ' on' : ''}`} onClick={() => { setEstado(e.key); setPag(1) }}>{e.label}{n ? <b>{n}</b> : null}</button>
-          })}
-        </div>
-      </div>
-      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar persona o motivo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas} />
+      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar colaborador o motivo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas}>
+        {estado !== 'saldos' && (
+          <div className={`dc-filtro at-filtro-estado${estado !== 'todas' ? ' on' : ''}`}>
+            <Desplegable valor={estado === 'todas' ? '' : estado} ariaLabel="Filtrar por estado" placeholder="Todos los estados" anchoMenu={250} claseBoton="at-dd-estados"
+              onCambio={v => { setEstado(v || 'todas'); setPag(1) }}
+              opciones={[
+                { valor: '', etiqueta: 'Todos los estados', lateral: String(delTipo.length), separada: true },
+                ...ESTADOS.map(e => { const n = delTipo.filter(s => s.estado === e.key).length; return { valor: e.key, etiqueta: e.label, punto: e.punto, lateral: String(n), apagada: !n } }),
+              ]}
+              contenido={o => (
+                <span className="pl-dd-trigger-estado">
+                  {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                  <span>{o ? o.etiqueta : 'Todos los estados'}</span>
+                  <b>{o ? o.lateral : delTipo.length}</b>
+                </span>
+              )} />
+          </div>
+        )}
+      </BarraBusqueda>
 
       {estado === 'saldos' ? (
         <Saldos gente={gente.filter(p => p.asig && (!texto || p.name.toLowerCase().includes(texto)))} saldoDe={saldoDe} navigate={navigate} />
       ) : lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
           <table className="as-table at-tabla at-tabla-sol">
-            <thead><tr><th>Persona</th><th>Solicitud</th><th>Para decidir</th><th>Pedida</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
+            <thead><tr><th>Colaborador</th><th>{COL_PIDE[vista.tipo] || 'Qué pide'}</th><th>A tener en cuenta</th><th>Cuándo la pidió</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(s => {
                 const d = describir(s, saldoDe, coberturaDe, historialDe)
@@ -151,7 +173,7 @@ function Lista({ ver }) {
           <RevisarSolicitud
             titulo={`Revisar · ${d.tipo}`} persona={revisar.persona} estado={ESTADOS_SOLICITUD[revisar.estado]}
             datos={d.datos} contexto={[...d.chips, ...d.extra]} efecto={d.efecto}
-            efectoRechazo={esJust ? `Seguirá contando como ${ALERTAS[revisar.alerta]?.label.toLowerCase() || 'incidencia'} injustificada en el cierre. La persona verá el motivo en su app.` : 'No se aplica nada: el día sigue como estaba. La persona verá el motivo en su app.'}
+            efectoRechazo={esJust ? `Seguirá contando como ${ALERTAS[revisar.alerta]?.label.toLowerCase() || 'incidencia'} injustificada en el Libro de asistencia. La persona verá el motivo en su app.` : 'No se aplica nada: el día sigue como estaba. La persona verá el motivo en su app.'}
             respondio={revisar.respondio} nota={revisar.nota}
             onAprobar={pendiente ? nota => at.responderSolicitud(revisar.id, 'aprobada', nota) : null}
             onRechazar={pendiente ? motivo => at.responderSolicitud(revisar.id, 'rechazada', motivo) : null}
@@ -244,7 +266,7 @@ function Saldos({ gente, saldoDe, navigate }) {
       <div className="at-card-cab"><div><h2>Saldos de vacaciones</h2><p>Días por año según la antigüedad (15 de 1 a 5 años, 20 de 5 a 10, 30 desde los 10), menos lo aprobado en los últimos 12 meses.</p></div></div>
       <div style={{ overflowX: 'auto' }}>
         <table className="as-table at-tabla">
-          <thead><tr><th>Persona</th><th>Ingreso</th><th>Derecho</th><th>Usados</th><th>Saldo</th><th style={{ width: '24%' }} /></tr></thead>
+          <thead><tr><th>Colaborador</th><th>Fecha de ingreso</th><th>Días por año</th><th>Días usados</th><th>Días disponibles</th><th style={{ width: '24%' }} /></tr></thead>
           <tbody>
             {filas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(f => (
               <tr key={f.p.id} tabIndex={0} onClick={() => navigate(`/asistencia/persona/${f.p.id}`)}>

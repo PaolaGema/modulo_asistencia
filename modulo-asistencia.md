@@ -330,7 +330,7 @@ Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo
 
 Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una vista por tipo: **Vacaciones**, **Permisos y licencias**, **Horas extra**, **Justificaciones**, **Correcciones de marcación**, **Trabajo remoto** y **Cambios de turno**.
 
-- **Pestañas** Por responder (con su número), Aprobadas, Rechazadas y Todas; en Vacaciones, además, **Saldos**.
+- **Estado** en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Por responder (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. En Vacaciones, arriba a la derecha, **Solicitudes · Saldos** cambia de vista.
 - **Tabla**: la persona, qué pide, **«Para decidir»** —hasta dos datos que hacen falta para responder—, cuándo lo pidió y su estado. «Revisar» o «Ver».
 - **«Para decidir»** según el tipo: el saldo de vacaciones que le queda («Pide 5 y le quedan 3»); si su lugar sigue cubierto esos días («Su lugar quedaría con 6 de 9»); si la licencia trae respaldo; cuántas justificaciones lleva en el mes.
 - **Revisar** abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y **«Si apruebas:»** con lo que va a pasar. Aprobar admite una nota; **rechazar pide un motivo** y se confirma en un segundo paso. «Decidir después» la deja como estaba.

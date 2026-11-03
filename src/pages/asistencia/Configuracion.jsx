@@ -467,7 +467,7 @@ function Asignaciones() {
           <table className="as-table at-tabla">
             <thead><tr>
               <th style={{ width: 36 }}><input type="checkbox" className="at-check" checked={todos} onChange={() => setSel(todos ? new Set() : new Set(lista.map(p => p.id)))} aria-label="Seleccionar todos" /></th>
-              <th>Persona</th><th>Horario</th><th>Lugar</th><th>Modalidad</th><th>Política</th>
+              <th>Colaborador</th><th>Horario</th><th>Lugar de trabajo</th><th>Modalidad</th><th>Política de marcación</th>
             </tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => (
@@ -578,7 +578,7 @@ function Biometria() {
       <FiltrosOrg valor={filtro} onCambio={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas} />
       <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
         <table className="as-table at-tabla">
-          <thead><tr><th>Persona</th><th>Consentimiento</th><th>Rostro</th><th /></tr></thead>
+          <thead><tr><th>Colaborador</th><th>Consentimiento</th><th>Rostro registrado</th><th /></tr></thead>
           <tbody>
             {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => {
               const b = p.bio || {}

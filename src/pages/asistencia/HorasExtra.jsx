@@ -121,7 +121,7 @@ export default function HorasExtra() {
           {resumen.length ? (
             <div style={{ overflowX: 'auto' }}>
               <table className="as-table at-tabla">
-                <thead><tr><th>Persona</th><th>Días</th><th>Autorizadas</th><th>Trabajadas</th><th style={{ width: '28%' }}>Uso</th></tr></thead>
+                <thead><tr><th>Colaborador</th><th>Días</th><th>Horas autorizadas</th><th>Horas trabajadas</th><th style={{ width: '28%' }}>Uso</th></tr></thead>
                 <tbody>
                   {deLaPagina.map(g => (
                     <tr key={g.persona.id} tabIndex={0} onClick={() => navigate(`/asistencia/persona/${g.persona.id}?mes=${mes}`)}>
@@ -141,7 +141,7 @@ export default function HorasExtra() {
       ) : lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
           <table className="as-table at-tabla at-tabla-sol">
-            <thead><tr><th>Persona</th><th>Cuándo</th><th>Motivo</th><th>Origen</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
+            <thead><tr><th>Colaborador</th><th>Día y horario</th><th>Motivo</th><th>Quién la originó</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
             <tbody>
               {deLaPagina.map(x => {
                 const abrir = () => setRevisar(x)

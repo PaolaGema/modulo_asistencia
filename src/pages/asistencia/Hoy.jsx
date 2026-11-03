@@ -359,7 +359,7 @@ export default function Hoy() {
         {visibles.length ? (
           <div style={{ overflowX: 'auto' }}>
             <table className="as-table at-tabla">
-              <thead><tr><th>Persona</th><th>Entrada</th><th className="col-barra">Su día</th><th>Estado</th></tr></thead>
+              <thead><tr><th>Colaborador</th><th>Entrada</th><th className="col-barra">Su día</th><th>Estado</th></tr></thead>
               <tbody>
                 {visibles.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, j }) => (
                   <tr key={p.id} tabIndex={0} onClick={() => setDetalle({ persona: p, fecha: at.hoy })} onKeyDown={e => { if (e.key === 'Enter') setDetalle({ persona: p, fecha: at.hoy }) }}>
