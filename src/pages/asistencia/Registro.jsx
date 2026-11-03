@@ -188,6 +188,7 @@ export default function Registro() {
 const LEYENDA_MES = [['ok', 'A tiempo'], ['tarde', 'Tarde o salió antes'], ['falta', 'Faltó'], ['just', 'De vacaciones o con permiso'], ['extra', 'Horas extra'], ['inc', 'Salida sin marcar'], ['libre', 'Día libre']]
 const TONO_MES = { presente: 'ok', termino: 'ok', trabajando: 'hoy', pausa: 'hoy', porLlegar: 'hoy', tarde: 'tarde', anticipada: 'tarde', ausente: 'falta', sinMarcar: 'falta', justificada: 'just', extra: 'extra', incompleta: 'inc', libre: 'libre' }
 const ORDENES = {
+  veces: (a, b) => b.tarde.veces - a.tarde.veces || b.tarde.min - a.tarde.min,
   tardanza: (a, b) => b.tarde.min - a.tarde.min || b.tarde.veces - a.tarde.veces,
   faltas: (a, b) => b.faltas - a.faltas || b.justificadas - a.justificadas,
   saldo: (a, b) => (a.saldo ?? 0) - (b.saldo ?? 0),
@@ -236,7 +237,8 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                   })}
                 </div>
               </th>
-              {cab('tardanza', 'Retrasos')}
+              {cab('veces', 'Retrasos')}
+              {cab('tardanza', 'Tiempo de retraso')}
               {cab('faltas', 'Faltas')}
               {cab('saldo', 'Horas del mes')}
             </tr>
@@ -255,12 +257,13 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                     })}
                   </div>
                 </td>
+                {/* R1: las veces y el tiempo, cada uno en su columna y con su orden. Lo justificado va debajo del tiempo. */}
+                <td className="at-mes-acc num">{tarde.veces ? <b className="tarde">{tarde.veces}</b> : <span className="dc-muted">—</span>}</td>
                 <td className="at-mes-acc num">
                   {tarde.veces ? (
                     <>
-                      {/* Lo que importa es cuánto tiempo suma; las veces y lo sin justificar, debajo. */}
                       <b className="tarde">{duracion(tarde.min)}</b>
-                      <small>{tarde.veces} {tarde.veces === 1 ? 'vez' : 'veces'}{tarde.injust <= 0 ? ' · justificados' : tarde.injust < tarde.min ? ` · ${duracion(tarde.injust)} sin justificar` : ' · sin justificar'}</small>
+                      <small>{tarde.injust <= 0 ? 'justificado' : tarde.injust >= tarde.min ? (tarde.veces > 1 ? 'todo sin justificar' : 'sin justificar') : `${duracion(tarde.min - tarde.injust)} justificados`}</small>
                     </>
                   ) : <span className="dc-muted">—</span>}
                 </td>

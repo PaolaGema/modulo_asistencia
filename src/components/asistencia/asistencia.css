@@ -1282,3 +1282,7 @@ i.at-mes-c { font-style: normal; }
 .at-mes-tabla .at-mes-acc { width: 112px; }
 .at-mes-tabla .at-mes-dias { min-width: 440px; }
 .at-mes-tabla .at-mes-persona { width: 190px; }
+.at-mes-tabla .at-mes-acc { width: 104px; }
+.at-mes-tabla th.at-mes-acc { white-space: normal; line-height: 1.25; }
+.at-mes-tabla th.at-mes-acc .at-mes-orden { text-align: right; }
+.at-mes-tabla .at-mes-acc { width: 96px; }
