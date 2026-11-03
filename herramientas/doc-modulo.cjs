@@ -260,7 +260,7 @@ let portada = '<img src="assets/imagenes/via_rrhh_proyectos.png" width="460" hei
 if (fs.existsSync(propia)) {
   const png = fs.readFileSync(propia)
   const an = png.readUInt32BE(16); const al = png.readUInt32BE(20)
-  portada = `<img src="assets/imagenes/via_${modulo}.png" width="${an}" height="${al}" alt="${esc(ALT_PORTADA[modulo] || 'VIA, la mascota de Souly')}"${al > an ? ' style="max-width:150px"' : ''}>`
+  portada = `<img src="assets/imagenes/via_${modulo}.png" width="${an}" height="${al}" alt="${esc(ALT_PORTADA[modulo] || 'VIA, la mascota de Souly')}"${al > an ? ' style="max-width:220px"' : ''}>`
 }
 
 /* ── Se arma con la plantilla de Onboarding ── */
