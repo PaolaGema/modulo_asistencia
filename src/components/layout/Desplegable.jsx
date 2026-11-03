@@ -255,7 +255,7 @@ export default function Desplegable({
                 aria-disabled={agotada || undefined}
                 disabled={agotada}
                 title={agotada ? o.motivo : undefined}
-                className={`pl-dropdown-item${puesta ? ' selected' : ''}${agotada ? ' agotada' : ''}`}
+                className={`pl-dropdown-item${puesta ? ' selected' : ''}${agotada ? ' agotada' : ''}${o.apagada ? ' apagada' : ''}${o.separada ? ' separada' : ''}`}
                 /* El resaltado del teclado se pinta a mano: `:hover` no sabe nada de las
                    flechas, y sin esto no se ve por dónde va uno al bajar con el teclado.
 
@@ -282,6 +282,8 @@ export default function Desplegable({
                 {!!o.nivel && !escrito && <span className="pl-dd-rama" aria-hidden="true" />}
                 {/* La sigla del país antes y su código al final: se lee «BO Bolivia +591». */}
                 {o.sigla && <span className="pl-dd-sigla">{o.sigla}</span>}
+                {/* EL PUNTO DE COLOR de un estado —el mismo de la tabla— antes de su nombre. */}
+                {o.punto && <span className="pl-dd-punto" style={{ background: o.punto }} aria-hidden="true" />}
                 {/* Y en la lista, igual: foto, nombre y el cargo debajo. */}
                 {o.persona && <Avatar persona={o.persona} size={32} />}
                 <span className={o.lateral ? 'pl-dd-crece' : o.persona ? 'pl-dd-persona-txt' : undefined}>

@@ -97,8 +97,21 @@ export default function Registro() {
         {/* El estado es un filtro más: en una lista desplegable, con su cuenta, junto a los de lugar y unidad. */}
         {ver === 'dia' && (
           <div className={`dc-filtro at-filtro-estado${estado ? ' on' : ''}`}>
-            <Desplegable valor={estado} ariaLabel="Filtrar por estado" placeholder={`Todos los estados (${filasDia.length})`}
-              opciones={[{ valor: '', etiqueta: `Todos los estados (${filasDia.length})` }, ...GRUPOS_DIA.map(g => ({ g, n: filasDia.filter(f => g.f(f.j)).length })).filter(x => x.n).map(({ g, n }) => ({ valor: g.key, etiqueta: `${esHoy ? g.hoy || g.label : g.label} (${n})` }))]}
+            <Desplegable valor={estado} ariaLabel="Filtrar por estado" placeholder="Todos los estados" anchoMenu={270} claseBoton="at-dd-estados"
+              opciones={[
+                { valor: '', etiqueta: 'Todos los estados', lateral: String(filasDia.length), separada: true },
+                ...GRUPOS_DIA.filter(g => !g.cuando || g.cuando === (esHoy ? 'hoy' : 'pasado')).map(g => {
+                  const n = filasDia.filter(f => g.f(f.j)).length
+                  return { valor: g.key, etiqueta: esHoy ? g.hoy || g.label : g.label, punto: g.punto, lateral: String(n), apagada: !n }
+                }),
+              ]}
+              contenido={o => (
+                <span className="pl-dd-trigger-estado">
+                  {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                  <span>{o ? o.etiqueta : 'Todos los estados'}</span>
+                  <b>{o ? o.lateral : filasDia.length}</b>
+                </span>
+              )}
               onCambio={v => { setEstado(v); setPag(1) }} />
           </div>
         )}
@@ -271,14 +284,17 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
    comparar sin pensar, el atraso en naranja junto a la hora y el estado con el punto de color del
    Mes. Y una barrita del día, chica, para leerlo sin números: el riel es su horario, el verde lo que
    trabajó, el naranja el atraso, el hueco el descanso y la rayita, ahora. */
+/* Los grupos del filtro, con el punto de color de la tabla (D1). «cuando» dice si el grupo tiene
+   sentido hoy, en un día pasado o en los dos: «Aún no les toca» solo existe hoy, «Salida sin
+   marcar» solo en un día que ya pasó. Los que están en cero se ven apagados, no desaparecen. */
 const GRUPOS_DIA = [
-  { key: 'tarde', label: 'Llegaron tarde', tono: 'tarde', f: j => j.llegoTarde },
-  { key: 'falta', label: 'Faltaron', hoy: 'No han llegado', tono: 'falta', f: j => j.estado === 'ausente' || j.estado === 'sinMarcar' },
-  { key: 'trabajando', label: 'Trabajando', tono: 'vivo', f: j => j.estado === 'trabajando' || j.estado === 'pausa' },
-  { key: 'porLlegar', label: 'Aún no les toca', tono: 'fut', f: j => j.estado === 'porLlegar' },
-  { key: 'termino', label: 'Terminaron su jornada', tono: 'ok', f: j => j.salida != null },
-  { key: 'incompleta', label: 'Salida sin marcar', tono: 'inc', f: j => j.estado === 'incompleta' },
-  { key: 'justificada', label: 'De vacaciones o con permiso', tono: 'just', f: j => j.estado === 'justificada' },
+  { key: 'falta', label: 'Faltaron', hoy: 'No han llegado', punto: '#E5484D', f: j => j.estado === 'ausente' || j.estado === 'sinMarcar' },
+  { key: 'tarde', label: 'Llegaron tarde', punto: '#F5B04F', f: j => j.llegoTarde },
+  { key: 'trabajando', label: 'Trabajando', punto: '#2FCB8B', cuando: 'hoy', f: j => j.estado === 'trabajando' || j.estado === 'pausa' },
+  { key: 'porLlegar', label: 'Aún no les toca', punto: '#94A3B8', cuando: 'hoy', f: j => j.estado === 'porLlegar' },
+  { key: 'termino', label: 'Terminaron su jornada', punto: '#8FE3BF', f: j => j.salida != null },
+  { key: 'incompleta', label: 'Salida sin marcar', punto: '#A78BEA', cuando: 'pasado', f: j => j.estado === 'incompleta' },
+  { key: 'justificada', label: 'De vacaciones o con permiso', punto: '#C9D3DC', f: j => j.estado === 'justificada' },
 ]
 
 /* La leyenda dibuja cada muestra igual que en la barrita: liso lo que pasó, rayado lo que no se trabajó. */

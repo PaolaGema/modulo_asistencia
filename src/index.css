@@ -11593,3 +11593,21 @@ html.vt-volver::view-transition-old(telefono) { z-index: 3; }
 .og-cel .og-zoom-val { min-width: 30px; font-size: 8px; }
 .og-card-yo { box-shadow: 0 0 0 3px #00E091, 0 10px 24px -8px rgba(0,184,118,.7) !important; }
 .og-card-buscado { box-shadow: 0 0 0 3px #00E091, 0 0 0 9px rgba(0,224,145,.22), 0 10px 24px -8px rgba(0,184,118,.7) !important; }
+
+/* ── UN ESTADO EN EL DESPLEGABLE: su punto de color y su número a la derecha ──
+   Para filtrar por estado (Asistencia › Libro). `punto` pinta el círculo; `lateral` lleva el
+   número; `apagada` atenúa los que están en cero sin esconderlos; `separada` pone una línea
+   debajo de «Todos». Quien no los manda no cambia en nada. */
+.pl-dropdown-item > span.pl-dd-punto { flex: none; width: 8px; height: 8px; border-radius: 50%; }
+.pl-dropdown-item.apagada { color: var(--text-muted); }
+.pl-dropdown-item.apagada .pl-dd-punto { opacity: .4; }
+.pl-dropdown-item.separada { margin-bottom: 9px; position: relative; }
+.pl-dropdown-item.separada::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -5px; height: 1px; background: var(--border-soft); }
+.pl-dropdown-item .pl-dd-lateral { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 12px; }
+.pl-dropdown-item.selected .pl-dd-lateral { color: var(--green-dark, var(--navy-txt)); }
+.pl-dd-trigger-estado { display: inline-flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.pl-dd-trigger-estado > i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.pl-dd-trigger-estado > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-dd-trigger-estado > b { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-muted); }
+/* El filtro de estados entra entero, sin scroll: son pocas opciones y se leen de un vistazo. */
+.pl-dropdown-menu:has(.pl-dd-punto) { max-height: 340px; }
