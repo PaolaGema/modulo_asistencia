@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, BookOpen, CalendarDays, Table2, Search, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, BookOpen, CalendarDays, Table2, Search, FileText, LayoutGrid, List } from 'lucide-react'
+import ListaTema from '../../components/asistencia/ListaTema'
+import { TEMAS, SITUACIONES, hechosPorTema, segunSituacion, exportarTema } from '../../components/asistencia/temasLibro'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
@@ -56,10 +58,23 @@ export default function Registro() {
   const filasDia = useMemo(() => gente.map(p => ({ p, j: at.jornadaDe(p, fecha) })).filter(f => f.j.estado !== 'libre'), [gente, fecha, at])  
   const grupoSel = GRUPOS_DIA.find(g => g.key === estado)
   const filas = grupoSel ? filasDia.filter(f => grupoSel.f(f.j)) : filasDia
-  const paginas = Math.max(1, Math.ceil((ver === 'dia' ? filas.length : gente.length) / POR_PAGINA))
+  /* LOS TEMAS COMO FILTRO (Ronda 15 · T2): en la Semana y el Mes, «Faltas», «Retrasos y descansos»…
+     dejan solo a quienes tuvieron eso en el período y apagan los demás días; ☰ los muestra en lista. */
+  const conTemas = ver === 'semana' || ver === 'mes'
+  const tema = conTemas && TEMAS[params.get('tema')] ? params.get('tema') : ''
+  const situacion = params.get('sit') || ''
+  const enLista = !!tema && params.get('lista') === '1'
+  const fechasPeriodo = useMemo(() => (ver === 'semana' ? semana : diasDelMes(mes)), [ver, mes, semana[0]]) // eslint-disable-line react-hooks/exhaustive-deps
+  const hechos = useMemo(() => (conTemas ? hechosPorTema(at, fechasPeriodo, gente) : null), [conTemas, at, fechasPeriodo, gente])
+  const delTema = tema ? segunSituacion(tema, hechos[tema], situacion) : []
+  const foco = tema ? new Set(delTema.map(i => `${i.persona.id}|${i.fecha}`)) : null
+  const genteTema = tema ? gente.filter(p => delTema.some(i => i.persona.id === p.id)) : gente
+  const periodo = ver === 'semana' ? `${fechaCorta(semana[0])} al ${fechaCorta(semana[6])}` : nombreMes(mes)
+  const paginas = Math.max(1, Math.ceil((ver === 'dia' ? filas.length : genteTema.length) / POR_PAGINA))
   const pagina = Math.min(pag, paginas)
 
   const exportar = () => {
+    if (tema) { exportarTema(tema, ver === 'semana' ? `${semana[0]}_a_${semana[6]}` : mes, delTema); return }
     if (porMes) { setExportando(true); return }
     exportarJornadas()
   }
@@ -142,17 +157,52 @@ export default function Registro() {
               onCambio={v => { setEstado(v); setPag(1) }} />
           </div>
         )}
+        {conTemas && (
+          <div className={`dc-filtro at-filtro-estado${tema ? ' on' : ''}`}>
+            <Desplegable valor={tema} ariaLabel="Ver un tema" placeholder="Todas las jornadas" anchoMenu={270} claseBoton="at-dd-estados"
+              opciones={[
+                { valor: '', etiqueta: 'Todas las jornadas', separada: true },
+                ...Object.entries(TEMAS).map(([k, t]) => {
+                  const n = segunSituacion(k, hechos[k], k === tema ? situacion : '').length
+                  return { valor: k, etiqueta: t.titulo, punto: t.punto, lateral: String(n), apagada: !n }
+                }),
+              ]}
+              contenido={o => (
+                <span className="pl-dd-trigger-estado">
+                  {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                  <span>{o ? o.etiqueta : 'Todas las jornadas'}</span>
+                  {o && <b>{delTema.length}</b>}
+                </span>
+              )}
+              onCambio={v => ir({ tema: v, lista: v && enLista ? '1' : null })} />
+          </div>
+        )}
+        {tema && TEMAS[tema].situacion && (
+          <div className="dc-filtro at-filtro-estado on">
+            <Desplegable valor={situacion} ariaLabel="Filtrar por justificación" opciones={SITUACIONES} onCambio={v => ir({ sit: v })} />
+          </div>
+        )}
+        {tema && (
+          <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver el tema">
+            <button type="button" role="tab" aria-selected={!enLista} aria-label="Cuadritos" title="Cuadritos" className={!enLista ? 'on' : ''} onClick={() => ir({ lista: null })}><LayoutGrid size={15} aria-hidden="true" /></button>
+            <button type="button" role="tab" aria-selected={enLista} aria-label="Lista" title="Lista de cada caso" className={enLista ? 'on' : ''} onClick={() => ir({ lista: '1' })}><List size={15} aria-hidden="true" /></button>
+          </div>
+        )}
         {/* Exportar baja lo que muestran los filtros: va en su fila, al final. */}
         <button type="button" className="dc-btn at-exportar" onClick={exportar}><Download size={14} aria-hidden="true" /> Exportar CSV</button>
       </BarraBusqueda>
 
-      {ver === 'calendario' ? (
+      {enLista ? (
+        <ListaTema key={`${tema}|${periodo}|${situacion}`} tema={tema} lista={delTema} hayAlgo={hechos[tema].length > 0} periodo={periodo} />
+      ) : tema && !genteTema.length ? (
+        <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo={`Nada en ${periodo}`} texto={hechos[tema].length ? 'Pruebe con otros filtros.' : `No hay ${TEMAS[tema].titulo.toLowerCase()} en este período.`} /></div>
+      ) : ver === 'calendario' ? (
         gente.length
           ? <LibroCalendario gente={gente} mes={mes} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onAbrirDia={d => ir({ ver: null, fecha: d })} />
           : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otros filtros." /></div>
       ) : ver === 'mes' ? (
         gente.length
-          ? <LibroMes gente={gente} mes={mes} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onPersona={p => navigate(`/asistencia/persona/${p.id}?mes=${mes}`)} />
+          ? <LibroMes gente={genteTema} foco={foco} mes={mes} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onPersona={p => navigate(`/asistencia/persona/${p.id}?mes=${mes}`)} />
           : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otros filtros." /></div>
       ) : ver === 'dia' ? (
         filas.length ? (
@@ -162,7 +212,7 @@ export default function Registro() {
         )
       ) : (
         gente.length ? (
-          <LibroSemana gente={gente} semana={semana} pagina={pagina} setPag={setPag} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onPersona={p => navigate(`/asistencia/persona/${p.id}?mes=${mesDe(fecha)}`)} />
+          <LibroSemana gente={genteTema} foco={foco} semana={semana} pagina={pagina} setPag={setPag} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onPersona={p => navigate(`/asistencia/persona/${p.id}?mes=${mesDe(fecha)}`)} />
         ) : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otros filtros." /></div>
       )}
 
@@ -197,7 +247,7 @@ const ORDENES = {
   saldo: (a, b) => (a.saldo ?? 0) - (b.saldo ?? 0),
 }
 
-function LibroMes({ gente, mes, onDia, onPersona }) {
+function LibroMes({ gente, foco, mes, onDia, onPersona }) {
   const navigate = useNavigate()
   const at = useAsistencia()
   const [orden, setOrden] = useState('')
@@ -249,7 +299,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                       const j = js[i]
                       if (!j) return <span key={d} className="at-mes-c t-futuro" />
                       const det = `${fechaLarga(d)} · ${ESTADOS[j.estado].label}${j.llegoTarde ? ` · ${duracion(j.tardanza)} tarde` : ''}`
-                      return <button key={d} type="button" className={`at-mes-c t-${TONO_MES[j.estado] || 'libre'}${d === at.hoy ? ' hoy' : ''}`} title={det} aria-label={`${p.name}, ${det}`} onClick={() => onDia(p, d)} />
+                      return <button key={d} type="button" className={`at-mes-c t-${TONO_MES[j.estado] || 'libre'}${d === at.hoy ? ' hoy' : ''}${foco && !foco.has(`${p.id}|${d}`) ? ' apagado' : ''}`} title={det} aria-label={`${p.name}, ${det}`} onClick={() => onDia(p, d)} />
                     })}
                   </div>
                 </td>
@@ -496,7 +546,7 @@ function CeldasAcumulado({ r, rotuloHoras }) {
 /* ── LA SEMANA, CON EL LENGUAJE DEL MES (W1) ──
    Cada día en el color lleno del Mes, con la hora de entrada y de salida; el fin de semana, apagado.
    A la derecha, lo mismo que el Mes: retrasos, tiempo de retraso, faltas y horas de la semana. */
-function LibroSemana({ gente, semana, pagina, setPag, onDia, onPersona }) {
+function LibroSemana({ gente, foco, semana, pagina, setPag, onDia, onPersona }) {
   const at = useAsistencia()
   const [orden, setOrden] = useState('')
   const filas = useMemo(() => gente.map(p => {
@@ -537,7 +587,7 @@ function LibroSemana({ gente, semana, pagina, setPag, onDia, onPersona }) {
                     : <span>{j.estado === 'libre' ? 'Libre' : j.estado === 'justificada' ? CORTO_JUSTIFICADO[motivoJustificado(j)] : ESTADOS[j.estado].label}</span>
                   return (
                     <td key={d} className="at-sem-td">
-                      <button type="button" className={`at-sem-c t-${tono}${d === at.hoy ? ' hoy' : ''}`} title={det} aria-label={`${r.p.name}, ${det}`} onClick={() => onDia(r.p, d)}>{texto}</button>
+                      <button type="button" className={`at-sem-c t-${tono}${d === at.hoy ? ' hoy' : ''}${foco && !foco.has(`${r.p.id}|${d}`) ? ' apagado' : ''}`} title={det} aria-label={`${r.p.name}, ${det}`} onClick={() => onDia(r.p, d)}>{texto}</button>
                     </td>
                   )
                 })}

@@ -986,7 +986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>3</b><span>roles con su vista</span></div>
     <div><b>13</b><span>estados de un día</span></div>
     <div><b>58</b><span>reglas de negocio</span></div>
-    <div><b>80</b><span>requisitos funcionales</span></div>
+    <div><b>81</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
     <div><b>22</b><span>pantallas</span></div>
     <div><b>11</b><span>decisiones abiertas</span></div>
@@ -1712,10 +1712,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </tbody>
 </table></div>
 <h3 id="p3-5">3.5 Los temas del Libro</h3>
-<p>Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo de asistencia —no paga sueldos ni arma planillas—, así que no es una bandeja de pendientes: es el registro visto por tema, para consultar, filtrar y exportar.</p>
+<p>Lo que antes era Incidencias, dentro del Libro de asistencia, <strong>como un filtro</strong> y no como páginas aparte. El módulo es solo de asistencia —no paga sueldos ni arma planillas—, así que no es una bandeja de pendientes: es el registro visto por tema, para consultar, filtrar y exportar.</p>
 <ul>
-<li><strong>El submenú del Libro</strong>: Todas las jornadas, <strong>Faltas</strong>, <strong>Retrasos y descansos</strong>, <strong>Salidas sin marcar</strong>, <strong>Marcaciones rechazadas</strong> y <strong>Fuera de horario</strong>. La entrada Incidencias sale del menú y su dirección lleva a Faltas.</li>
-<li><strong>Cada tema es una lista de un mes</strong>, con flechas de mes e «Ir a este mes», el buscador y los filtros de lugar y unidad, y uno propio en Faltas y en Retrasos: «Sin justificar», «Justificadas» o «Todas». Exportar CSV baja la lista.</li>
+<li><strong>Sin submenú</strong>: el Libro es una sola entrada del menú. En la <strong>Semana</strong> y el <strong>Mes</strong>, una lista desplegable junto a los filtros elige el tema: Todas las jornadas, <strong>Faltas</strong>, <strong>Retrasos y descansos</strong>, <strong>Salidas sin marcar</strong>, <strong>Marcaciones rechazadas</strong> o <strong>Fuera de horario</strong>, cada uno con su punto de color y cuántos casos hay en el período.</li>
+<li><strong>Con un tema elegido</strong>, la grilla deja solo a quienes tuvieron eso en el período y apaga los demás días. En Faltas y en Retrasos aparece además «Sin justificar», «Justificadas» o «Todas».</li>
+<li><strong>Cuadritos o lista</strong>: dos íconos cambian la grilla por <strong>la lista de cada caso</strong>. Exportar CSV baja la lista del tema.</li>
+<li>Las direcciones viejas (/asistencia/registro/faltas, Incidencias) y los enlaces de Hoy abren el Mes con el tema elegido y la lista.</li>
 <li><strong>Las columnas de cada tema</strong>: en Faltas, su horario, su lugar y la situación («Sin justificar», «Vacaciones»); en Retrasos y descansos, qué pasó y su motivo («Avisada · sin motivo», «Justificado · Transporte»); en Salidas sin marcar, a qué hora entró y debía salir; en Marcaciones rechazadas, por qué —rostro o distancia— y si después marcó bien; en Fuera de horario, a qué hora debía salir, salió y cuánto se quedó.</li>
 <li><strong>«Ver el día»</strong> abre el detalle, con una línea que dice qué se vino a mirar; ahí se justifica, se completa la salida o se autoriza como extra.</li>
 <li>Hoy entra solo en lo que ya se sabe —un retraso, una marca rechazada—: una falta o una salida sin marcar recién se sabe al día siguiente.</li>
@@ -1724,6 +1726,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
 <tr><td class="id" id="RF-ASI-022">RF‑ASI‑022</td><td>Cada tema muestra el mes elegido, no los últimos 10 días</td><td>Oblig.</td><td>Una falta de hace 12 días aparece en su mes</td></tr>
+<tr><td class="id" id="RF-ASI-081">RF‑ASI‑081</td><td>Elegir un tema en el Mes deja solo a quienes lo tuvieron y apaga los demás días</td><td>Oblig.</td><td>Con «Faltas», quien no faltó en el mes no aparece</td></tr>
 <tr><td class="id" id="RF-ASI-023">RF‑ASI‑023</td><td>Retrasos y descansos muestra las alertas del mes y separa lo justificado</td><td>Oblig.</td><td>Con «Sin justificar», una tardanza justificada no aparece</td></tr>
 <tr><td class="id" id="RF-ASI-024">RF‑ASI‑024</td><td>Quedarse 30 min o más sin autorización aparece en Fuera de horario</td><td>Oblig.</td><td>25 min no aparece; 35, sí</td></tr>
 <tr><td class="id" id="RF-ASI-025">RF‑ASI‑025</td><td><strong>Retirado:</strong> ya no hay contador ni «pendientes»; las acciones están en el detalle del día</td><td>—</td><td>—</td></tr>

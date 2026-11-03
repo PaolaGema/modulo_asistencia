@@ -34,7 +34,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | roles con su vista | 3 |
 | estados de un día | 13 |
 | reglas de negocio | 58 |
-| requisitos funcionales | 80 |
+| requisitos funcionales | 81 |
 | historias de usuario | 20 |
 | pantallas | 22 |
 | decisiones abiertas | 11 |
@@ -311,10 +311,12 @@ Todo lo de un día de una persona, y el único lugar donde se corrige.
 
 ### 3.5 Los temas del Libro
 
-Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo de asistencia —no paga sueldos ni arma planillas—, así que no es una bandeja de pendientes: es el registro visto por tema, para consultar, filtrar y exportar.
+Lo que antes era Incidencias, dentro del Libro de asistencia, **como un filtro** y no como páginas aparte. El módulo es solo de asistencia —no paga sueldos ni arma planillas—, así que no es una bandeja de pendientes: es el registro visto por tema, para consultar, filtrar y exportar.
 
-- **El submenú del Libro**: Todas las jornadas, **Faltas**, **Retrasos y descansos**, **Salidas sin marcar**, **Marcaciones rechazadas** y **Fuera de horario**. La entrada Incidencias sale del menú y su dirección lleva a Faltas.
-- **Cada tema es una lista de un mes**, con flechas de mes e «Ir a este mes», el buscador y los filtros de lugar y unidad, y uno propio en Faltas y en Retrasos: «Sin justificar», «Justificadas» o «Todas». Exportar CSV baja la lista.
+- **Sin submenú**: el Libro es una sola entrada del menú. En la **Semana** y el **Mes**, una lista desplegable junto a los filtros elige el tema: Todas las jornadas, **Faltas**, **Retrasos y descansos**, **Salidas sin marcar**, **Marcaciones rechazadas** o **Fuera de horario**, cada uno con su punto de color y cuántos casos hay en el período.
+- **Con un tema elegido**, la grilla deja solo a quienes tuvieron eso en el período y apaga los demás días. En Faltas y en Retrasos aparece además «Sin justificar», «Justificadas» o «Todas».
+- **Cuadritos o lista**: dos íconos cambian la grilla por **la lista de cada caso**. Exportar CSV baja la lista del tema.
+- Las direcciones viejas (/asistencia/registro/faltas, Incidencias) y los enlaces de Hoy abren el Mes con el tema elegido y la lista.
 - **Las columnas de cada tema**: en Faltas, su horario, su lugar y la situación («Sin justificar», «Vacaciones»); en Retrasos y descansos, qué pasó y su motivo («Avisada · sin motivo», «Justificado · Transporte»); en Salidas sin marcar, a qué hora entró y debía salir; en Marcaciones rechazadas, por qué —rostro o distancia— y si después marcó bien; en Fuera de horario, a qué hora debía salir, salió y cuánto se quedó.
 - **«Ver el día»** abre el detalle, con una línea que dice qué se vino a mirar; ahí se justifica, se completa la salida o se autoriza como extra.
 - Hoy entra solo en lo que ya se sabe —un retraso, una marca rechazada—: una falta o una salida sin marcar recién se sabe al día siguiente.
@@ -322,6 +324,7 @@ Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑ASI‑022 | Cada tema muestra el mes elegido, no los últimos 10 días | Oblig. | Una falta de hace 12 días aparece en su mes |
+| RF‑ASI‑081 | Elegir un tema en el Mes deja solo a quienes lo tuvieron y apaga los demás días | Oblig. | Con «Faltas», quien no faltó en el mes no aparece |
 | RF‑ASI‑023 | Retrasos y descansos muestra las alertas del mes y separa lo justificado | Oblig. | Con «Sin justificar», una tardanza justificada no aparece |
 | RF‑ASI‑024 | Quedarse 30 min o más sin autorización aparece en Fuera de horario | Oblig. | 25 min no aparece; 35, sí |
 | RF‑ASI‑025 | **Retirado:** ya no hay contador ni «pendientes»; las acciones están en el detalle del día | — | — |

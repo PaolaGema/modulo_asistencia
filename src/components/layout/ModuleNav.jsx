@@ -232,7 +232,7 @@ const personasNav = [
    colaborador (Mis solicitudes, De RR.HH.). El contador dice dónde hay trabajo: lo que espera
    revisión en Expedientes y los pedidos sin responder en Solicitudes. */
 /* Las entradas que tienen subsecciones fijas (`subs`), para abrirlas al entrar. */
-const RUTAS_CON_SUBS = ['/documentos/configuracion', '/asistencia/configuracion', '/asistencia/solicitudes', '/asistencia/registro']
+const RUTAS_CON_SUBS = ['/documentos/configuracion', '/asistencia/configuracion', '/asistencia/solicitudes']
 
 const documentacionNav = (cuentas = {}) => [
   { section: 'Documentación', items: [
@@ -254,15 +254,8 @@ const documentacionNav = (cuentas = {}) => [
 const asistenciaNav = (cuentas = {}) => [
   { section: 'Asistencia', items: [
     { label: 'Hoy', path: '/asistencia', icon: Radio, end: true },
-    /* EL LIBRO SE DESPLIEGA: todas las jornadas y, por tema, lo que antes era Incidencias. */
-    { label: 'Libro de asistencia', path: '/asistencia/registro', icon: BookOpenCheck, subs: [
-      { label: 'Todas las jornadas', ruta: '/asistencia/registro' },
-      { label: 'Faltas', ruta: '/asistencia/registro/faltas' },
-      { label: 'Retrasos y descansos', ruta: '/asistencia/registro/retrasos' },
-      { label: 'Salidas sin marcar', ruta: '/asistencia/registro/salidas' },
-      { label: 'Marcaciones rechazadas', ruta: '/asistencia/registro/rechazos' },
-      { label: 'Fuera de horario', ruta: '/asistencia/registro/fuera' },
-    ] },
+    /* EL LIBRO, SIN SUBMENÚ: los temas (faltas, retrasos…) son un filtro dentro del Libro. */
+    { label: 'Libro de asistencia', path: '/asistencia/registro', icon: BookOpenCheck },
     /* SOLICITUDES SE DESPLIEGA: lo que la gente pide sobre su tiempo, una sub-vista por tipo. */
     { label: 'Solicitudes', path: '/asistencia/solicitudes', icon: Inbox, cuenta: cuentas.solicitudes, subs: [
       { label: 'Vacaciones', ver: 'vacaciones' },

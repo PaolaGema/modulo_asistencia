@@ -1510,3 +1510,12 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-rev-palabra { font-family: ui-monospace, monospace; letter-spacing: .08em; background: var(--surface-card); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--border-soft); }
 .at-rev-confirma .pl-input { background: var(--surface-card); font-weight: 600; letter-spacing: .06em; }
 @media (max-width: 1000px) { .at-rev-con-doc { grid-template-columns: 1fr; } .at-rev-doc { position: static; display: grid; justify-items: center; } }
+
+/* Un tema elegido en el Libro: lo que no es de ese tema queda apagado */
+.at-mes-c.apagado, .at-sem-c.apagado { opacity: .16; filter: grayscale(.6); }
+/* El Libro con un tema: la fila de filtros baja de línea entera en vez de apilar sucursal, centro y unidad */
+.at-libro .at-barra-busca { flex-wrap: wrap; row-gap: 10px; }
+.at-libro .at-barra-busca .at-filtros { display: flex; flex-wrap: nowrap; gap: 8px; flex: none; }
+.at-libro .at-barra-busca .at-filtros .dc-filtro { width: 170px; }
+.at-libro .at-barra-busca .at-filtro-estado { width: 230px; }
+.at-libro .at-barra-busca .at-filtro-estado + .at-filtro-estado { width: 180px; }

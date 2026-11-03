@@ -211,13 +211,13 @@ export default function Hoy() {
       tono: 'ambar', Icono: ScanFace, accion: 'Revisar',
       titulo: `${plural(rechazosHoy.length, 'marcación rechazada', 'marcaciones rechazadas')} hoy`,
       detalle: [['rostro', 'por rostro'], ['geocerca', 'fuera de la geocerca']].map(([k, t]) => [rechazosHoy.filter(m => m.rechazada === k).length, t]).filter(([n]) => n).map(([n, t]) => `${n} ${t}`).join(', '),
-      ir: () => navigate('/asistencia/registro/rechazos'),
+      ir: () => navigate('/asistencia/registro?ver=mes&tema=rechazos&lista=1'),
     },
     faltas.length > 0 && {
       tono: 'violeta', Icono: Inbox, accion: 'Justificar',
       titulo: `${plural(faltas.length, 'falta', 'faltas')} sin justificar`,
       detalle: 'De los últimos 10 días. Las que tengan permiso no deberían contar.',
-      ir: () => navigate('/asistencia/registro/faltas'),
+      ir: () => navigate('/asistencia/registro?ver=mes&tema=faltas&lista=1'),
     },
     solicitudesExtra.length > 0 && {
       tono: 'azul', Icono: TrendingUp, accion: 'Responder',
@@ -229,13 +229,13 @@ export default function Hoy() {
       tono: 'gris', Icono: Clock, accion: 'Revisar',
       titulo: `${plural(fueraHorario.length, 'persona se quedó', 'veces se quedaron')} fuera de horario`,
       detalle: 'Sin horas extra autorizadas: no cuenta, salvo que lo autorices',
-      ir: () => navigate('/asistencia/registro/fuera'),
+      ir: () => navigate('/asistencia/registro?ver=mes&tema=fuera&lista=1'),
     },
     incompletas.length > 0 && {
       tono: 'gris', Icono: CircleDashed, accion: 'Completar',
       titulo: `${plural(incompletas.length, 'jornada', 'jornadas')} sin salida`,
       detalle: 'Marcaron la entrada y nunca la salida',
-      ir: () => navigate('/asistencia/registro/salidas'),
+      ir: () => navigate('/asistencia/registro?ver=mes&tema=salidas&lista=1'),
     },
   ].filter(Boolean)
 
@@ -321,7 +321,7 @@ export default function Hoy() {
           <div className="sc-hd">
             <TriangleAlert size={15} style={{ color: 'var(--red)' }} aria-hidden="true" />
             <h3>Requiere tu atención <span className="sc-hd-count">{atencion.length}</span></h3>
-            <VerTodos total={atencion.length} texto="las" accion="Ir al Libro" onClick={() => navigate('/asistencia/registro/faltas')} />
+            <VerTodos total={atencion.length} texto="las" accion="Ir al Libro" onClick={() => navigate('/asistencia/registro?ver=mes&tema=faltas&lista=1')} />
           </div>
           <div className="sc-body at-q-lista">
             {atencion.length ? atencion.slice(0, MAX_LISTA).map(a => (
