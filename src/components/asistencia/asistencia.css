@@ -1232,3 +1232,5 @@ i.at-mes-c { font-style: normal; }
 .at-leyenda-ahora { width: 2px; height: 12px; border-radius: 1px; background: var(--text-heading); }
 .at-mes-c.t-vivo { background: #2FCB8B; }
 .at-dia-hor small { white-space: nowrap; }
+.at-dia-limpia td.at-dia-num small { white-space: normal; max-width: 112px; margin-left: auto; }
+.at-dia-limpia .at-minidia-h, .at-dia-limpia .at-minidia-c { width: 170px; }

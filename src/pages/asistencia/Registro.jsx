@@ -5,6 +5,7 @@ import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
+import Desplegable from '../../components/layout/Desplegable'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa } from '../../data/asistenciaData'
 
@@ -92,23 +93,16 @@ export default function Registro() {
         </div>
       </div>
 
-      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar persona o cargo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas} />
-
-      {/* El estado se filtra con la franja de conteos: todo a la vista, con el color de la grilla. */}
-      {ver === 'dia' && (
-        <div className="at-franja at-pal" role="group" aria-label="Filtrar por estado">
-          <button type="button" className={!estado ? 'on' : ''} aria-pressed={!estado} onClick={() => { setEstado(''); setPag(1) }}><b>{filasDia.length}</b> Todos</button>
-          {GRUPOS_DIA.map(g => {
-            const n = filasDia.filter(f => g.f(f.j)).length
-            if (!n) return null
-            return (
-              <button key={g.key} type="button" className={estado === g.key ? 'on' : ''} aria-pressed={estado === g.key} onClick={() => { setEstado(estado === g.key ? '' : g.key); setPag(1) }}>
-                <i className={`at-mes-c t-${g.tono}`} aria-hidden="true" /><b>{n}</b> {esHoy ? g.hoy || g.label : g.label}
-              </button>
-            )
-          })}
-        </div>
-      )}
+      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar persona o cargo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas}>
+        {/* El estado es un filtro más: en una lista desplegable, con su cuenta, junto a los de lugar y unidad. */}
+        {ver === 'dia' && (
+          <div className={`dc-filtro at-filtro-estado${estado ? ' on' : ''}`}>
+            <Desplegable valor={estado} ariaLabel="Filtrar por estado" placeholder={`Todos los estados (${filasDia.length})`}
+              opciones={[{ valor: '', etiqueta: `Todos los estados (${filasDia.length})` }, ...GRUPOS_DIA.map(g => ({ g, n: filasDia.filter(f => g.f(f.j)).length })).filter(x => x.n).map(({ g, n }) => ({ valor: g.key, etiqueta: `${esHoy ? g.hoy || g.label : g.label} (${n})` }))]}
+              onCambio={v => { setEstado(v); setPag(1) }} />
+          </div>
+        )}
+      </BarraBusqueda>
 
       {ver === 'mes' ? (
         gente.length
