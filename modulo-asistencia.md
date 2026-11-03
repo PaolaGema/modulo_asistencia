@@ -2,7 +2,7 @@ Souly HR · Módulo de asistencia · Documentación de producto
 
 # Módulo de asistencia
 
-> **Módulo de asistencia — versión en Markdown.** Reúne completo el documento de producto `public/modulo-asistencia.html` (versión 1.0, 3 de noviembre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Se apoya en el análisis de RR.HH. (`REQUERIMIENTOS_ASISTENCIA.md`, 27 requerimientos) y en la arquitectura del backend (`ASISTENCIA_ARQUITECTURA.md`).
+> **Módulo de asistencia — versión en Markdown.** Reúne completo el documento de producto `public/modulo-asistencia.html` (versión 1.0, 29 de octubre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Se apoya en el análisis de RR.HH. (`REQUERIMIENTOS_ASISTENCIA.md`, 27 requerimientos) y en la arquitectura del backend (`ASISTENCIA_ARQUITECTURA.md`).
 
 ## Índice
 
@@ -24,7 +24,7 @@ Souly HR · Módulo de asistencia · Documentación de producto
 La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un registro que se escribe solo, al segundo, con la prueba de cada marca, y que RR.HH. y la persona leen con los mismos números*. Este documento define qué es el módulo, qué reglas cumple, qué tiene que hacer el producto y cómo se opera.
 
 - **Versión:** 1.0
-- **Fecha:** 3 de noviembre de 2026
+- **Fecha:** 29 de octubre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
 - **Estado:** Borrador
@@ -3009,7 +3009,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
-| **1.0** | 3 nov 2026 | **Primera versión con el formato de los demás módulos.** Reúne lo construido en la maqueta hasta el 3 de noviembre: Hoy; el Libro de asistencia por día, semana y mes, con las tardanzas, faltas y saldo acumulados por persona; la asistencia de una persona; el detalle de la jornada con ajustar, anular, marcar a mano y justificar; Incidencias; Solicitudes en siete tipos con saldos de vacaciones y cobertura; Horas extra pedidas, asignadas y autorizadas después; el Cierre del mes con el archivo fijo para planillas; la Configuración en seis partes, con la tolerancia a la vista al crear un horario; y lo del colaborador: marcar con confirmación, rostro y ubicación, sus avisos y Mi asistencia. Las reglas de cálculo siguen la prioridad 1 de RR.HH.: descanso como franja (#2, #5, #6), al segundo (#8), horas extra solo autorizadas (#9, #10), justificaciones (#13, #15) y el cierre para planillas (#27). 58 reglas BR‑ASI, 74 requisitos, 20 historias y 22 pantallas |
+| **1.0** | 29 oct 2026 | **Primera versión con el formato de los demás módulos.** Reúne lo construido en la maqueta hasta el 29 de octubre: Hoy; el Libro de asistencia por día, semana y mes, con las tardanzas, faltas y saldo acumulados por persona; la asistencia de una persona; el detalle de la jornada con ajustar, anular, marcar a mano y justificar; Incidencias; Solicitudes en siete tipos con saldos de vacaciones y cobertura; Horas extra pedidas, asignadas y autorizadas después; el Cierre del mes con el archivo fijo para planillas; la Configuración en seis partes, con la tolerancia a la vista al crear un horario; y lo del colaborador: marcar con confirmación, rostro y ubicación, sus avisos y Mi asistencia. Las reglas de cálculo siguen la prioridad 1 de RR.HH.: descanso como franja (#2, #5, #6), al segundo (#8), horas extra solo autorizadas (#9, #10), justificaciones (#13, #15) y el cierre para planillas (#27). 58 reglas BR‑ASI, 74 requisitos, 20 historias y 22 pantallas |
 
 ## Anexo · Por qué decidimos así
 
@@ -3047,7 +3047,7 @@ Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por
 
 ## Anexo · El módulo en el prototipo, hoy
 
-*Cómo está construido el módulo de asistencia en el prototipo al 3 de noviembre de 2026 (versión 1.0), y en qué se aparta de este documento. Todo sale del código de este repositorio.*
+*Cómo está construido el módulo de asistencia en el prototipo al 29 de octubre de 2026 (versión 1.0), y en qué se aparta de este documento. Todo sale del código de este repositorio.*
 
 ### Las pantallas y sus rutas
 
