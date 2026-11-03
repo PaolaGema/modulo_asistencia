@@ -5,7 +5,7 @@ import { useAsistencia } from '../../context/AsistenciaContext'
 import { fotoDe } from '../../pages/personas/colaboradoresData'
 import { avatarUrl } from '../../utils/calendarEvents'
 import viaSaludando from '../../assets/imagenes/via_saludando.png'
-import { TIPOS_MARCA, ESTADOS_EXTRA, esAutorizada, fechaLarga, fechaCorta, nombreMes, mesVecino, hhmm, aMin, duracion, hoyISO, diasDelMes, mesDe, sumarDias, accionDelMomento, ETIQUETA_MARCA, ESTADOS, DIAS_CORTOS, diaISO, aFecha } from '../../data/asistenciaData'
+import { ahora, TIPOS_MARCA, ESTADOS_EXTRA, esAutorizada, fechaLarga, fechaCorta, nombreMes, mesVecino, hhmm, aMin, duracion, hoyISO, diasDelMes, mesDe, sumarDias, accionDelMomento, ETIQUETA_MARCA, ESTADOS, DIAS_CORTOS, diaISO, aFecha, semanasDe } from '../../data/asistenciaData'
 import ConfirmarMarca from './ConfirmarMarca'
 import BarraVolver from '../layout/BarraVolver'
 import FechaCel from '../layout/FechaCel'
@@ -27,8 +27,8 @@ import HoraCel from '../layout/HoraCel'
 const PASO_MS = 1700
 
 function useHora() {
-  const [t, setT] = useState(() => new Date())
-  useEffect(() => { const i = setInterval(() => setT(new Date()), 1000); return () => clearInterval(i) }, [])
+  const [t, setT] = useState(() => ahora())
+  useEffect(() => { const i = setInterval(() => setT(ahora()), 1000); return () => clearInterval(i) }, [])
   return t
 }
 
@@ -98,10 +98,10 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
     const vuelve = iniPausa && dur ? iniPausa.min + dur : null
     const chip = momento === 'pausa' ? `En pausa desde las ${hhmm(iniPausa?.min ?? ahoraMin)}`
       : momento === 'turno' ? `En turno desde las ${hhmm(j.entrada)}`
-        : !j.laboral ? 'Hoy no tienes jornada' : fijo && ahoraMin >= B ? `Tu turno ya terminó · ${hr.entrada} a ${hr.salida}` : fijo && ahoraMin > A + (yo.politica?.tolerancia ?? 10) ? `Tu entrada era a las ${hr.entrada}` : fijo ? `Tu entrada es a las ${hr.entrada}` : 'Horario flexible'
-    const datos = momento === 'fin' ? [['Trabajaste', duracion(j.trabajado)], ['Pausa', duracion(j.pausas || 0)], ['Saldo del mes', duracion(saldo, { signo: true, corto: true }), saldo >= 0 ? 'bien' : 'mal']]
-      : momento === 'pausa' ? [['Llevas de pausa', duracion(ahoraMin - (iniPausa?.min ?? ahoraMin)), 'ojo'], ['Vuelve a las', vuelve != null ? hhmm(vuelve) : '—'], vuelve != null && ahoraMin > vuelve ? ['Te pasaste', duracion(ahoraMin - vuelve), 'mal'] : ['Te quedan', vuelve != null ? duracion(vuelve - ahoraMin) : '—']]
-        : momento === 'turno' ? [['Llevas', duracion(j.trabajado)], ['Te quedan', duracion(acc.falta)], ['Sales', fijo ? hr.salida : '—']]
+        : !j.laboral ? 'Hoy no tiene jornada' : fijo && ahoraMin >= B ? `Su turno ya terminó · ${hr.entrada} a ${hr.salida}` : fijo && ahoraMin > A + (yo.politica?.tolerancia ?? 10) ? `Su entrada era a las ${hr.entrada}` : fijo ? `Su entrada es a las ${hr.entrada}` : 'Horario flexible'
+    const datos = momento === 'fin' ? [['Trabajó', duracion(j.trabajado)], ['Pausa', duracion(j.pausas || 0)], ['Saldo del mes', duracion(saldo, { signo: true, corto: true }), saldo >= 0 ? 'bien' : 'mal']]
+      : momento === 'pausa' ? [['Lleva de pausa', duracion(ahoraMin - (iniPausa?.min ?? ahoraMin)), 'ojo'], ['Vuelve a las', vuelve != null ? hhmm(vuelve) : '—'], vuelve != null && ahoraMin > vuelve ? ['Se pasó', duracion(ahoraMin - vuelve), 'mal'] : ['Le quedan', vuelve != null ? duracion(vuelve - ahoraMin) : '—']]
+        : momento === 'turno' ? [['Lleva', duracion(j.trabajado)], ['Le quedan', duracion(acc.falta)], ['Sale', fijo ? hr.salida : '—']]
           : [['Entrada', fijo ? hr.entrada : 'Libre'], ['Pausa', dur ? `${dur} min` : '—'], ['Salida', fijo ? hr.salida : '—']]
 
     const tol = yo.politica?.tolerancia ?? 10
@@ -115,7 +115,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
         : [momento === 'turno' && dur ? 'ahora' : 'despues', Coffee, 'Pausa', dur ? `Sugerida · ${dur} min` : 'Sin pausa', pausaPlan ? hhmm(pausaPlan[0]) : '—'],
       j.salida != null
         ? ['ok', LogOut, 'Salida', 'Jornada completa', hhmm(j.salida)]
-        : ['despues', LogOut, 'Salida', 'Fin de tu turno', fijo ? hr.salida : '—'],
+        : ['despues', LogOut, 'Salida', 'Fin de su turno', fijo ? hr.salida : '—'],
     ]
     return { momento, chip, pausa, lleno, ahora, marcasHora, datos, recorrido, desde: fijo ? hr.entrada : '09:00', hasta: fijo ? hr.salida : '18:00' }
   })()
@@ -191,7 +191,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
       </div>
 
       {!yo.asig || !yo.horario ? (
-        <section className="at-k1"><p className="at-k1-nota">Todavía no tienes un horario asignado. Pídeselo a RR.HH.</p></section>
+        <section className="at-k1"><p className="at-k1-nota">Todavía no tiene un horario asignado. Pídaselo a RR.HH.</p></section>
       ) : (
         <section className={`at-k1 ${k1.momento}`}>
           <div className="at-k1-centro">
@@ -199,7 +199,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
               <>
                 <span className="at-k1-check"><Check size="1.4em" strokeWidth={3} /></span>
                 <b className="at-k1-titulo">Jornada completa</b>
-                <span className="at-k1-sub">Saliste a las {hhmm(j.salida)} · ¡que descanses!</span>
+                <span className="at-k1-sub">Salió a las {hhmm(j.salida)} · ¡que descanse!</span>
               </>
             ) : (
               <>
@@ -221,7 +221,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
             <div className="at-k1-datos">
               {k1.datos.map(([r, v, tono]) => <span key={r}><small>{r}</small><b className={tono || ''}>{v}</b></span>)}
             </div>
-            {extraHoy && <span className="at-k1-extra">Hoy tienes horas extra autorizadas de {extraHoy.desde} a {extraHoy.hasta}</span>}
+            {extraHoy && <span className="at-k1-extra">Hoy tiene horas extra autorizadas de {extraHoy.desde} a {extraHoy.hasta}</span>}
 
             {siguiente ? (
               <div className={`at-k1-botones${acc.secundaria ? '' : ' uno'}`}>
@@ -241,7 +241,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
       {/* «Tu día» como recorrido: lo hecho en menta, lo que viene en gris. */}
       {yo.horario && (
         <section className="at-k1-dia">
-          <div className="cab"><b>Tu día</b><span>{ex.remotoHoy ? 'Remoto' : yo.lugar?.nombre}</span></div>
+          <div className="cab"><b>Su día</b><span>{ex.remotoHoy ? 'Remoto' : yo.lugar?.nombre}</span></div>
           {k1.recorrido.map(([est, Icono, titulo, detalle, horaTxt], i) => (
             <div key={titulo} className={`paso ${est}`}>
               {i < k1.recorrido.length - 1 && <span className="hilo" />}
@@ -630,7 +630,8 @@ function MesCel({ onVolver, onCorregir }) {
   const [ym, setYm] = useState(mesDe(at.hoy))
   const [sel, setSel] = useState(null)
   const dias = diasDelMes(ym).map(fecha => ({ fecha, j: fecha <= at.hoy ? at.jornadaDe(yo, fecha) : null, laboral: !!yo.horario?.dias.includes(diaISO(fecha)) }))
-  const vacios = diaISO(dias[0].fecha) - 1
+  // Las semanas completas, como el calendario de la vacación: los días del mes vecino, más claros.
+  const semanas = semanasDe(ym)
   const hechos = dias.filter(d => d.j && d.j.estado !== 'libre' && (d.fecha < at.hoy || d.j.salida != null))
   const trabajado = dias.reduce((t, d) => t + (d.j?.trabajado || 0), 0)
   const aTiempo = hechos.filter(d => ['presente', 'justificada'].includes(d.j.estado)).length
@@ -643,7 +644,7 @@ function MesCel({ onVolver, onCorregir }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       <BarraVolver texto="Mi asistencia" onVolver={onVolver} conTema />
-      <b style={{ fontSize: 12.5, fontWeight: 800, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>Mi mes</b>
+      <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>Mi mes</b>
       <div style={{ ...TARJETA_CEL, display: 'grid', gap: 7 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {flecha(-1, ChevronLeft, false)}
@@ -651,9 +652,10 @@ function MesCel({ onVolver, onCorregir }) {
           {flecha(1, ChevronRight, ym >= mesDe(at.hoy))}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3, textAlign: 'center' }}>
-          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((x, i) => <small key={i} style={{ fontSize: 5.6, fontWeight: 700, color: 'var(--in-suave)' }}>{x}</small>)}
-          {Array.from({ length: vacios }, (_, i) => <span key={`v${i}`} />)}
-          {dias.map(({ fecha, j, laboral }) => {
+          {['lu', 'ma', 'mi', 'ju', 'vi', 'sá', 'do'].map(x => <small key={x} style={{ fontSize: 6.6, fontWeight: 600, letterSpacing: '.06em', color: 'var(--in-suave)' }}>{x}</small>)}
+          {semanas.map(fecha => {
+            if (!fecha.startsWith(ym)) return <span key={fecha} style={{ height: 22, display: 'grid', placeItems: 'center', fontSize: 7.4, color: 'var(--in-campo)' }}>{aFecha(fecha).getDate()}</span>
+            const { j, laboral } = dias.find(d => d.fecha === fecha)
             const hoy = fecha === at.hoy
             const listo = j && j.estado !== 'libre' && laboral && (fecha < at.hoy || j.salida != null)
             const [bg, tx] = listo ? ETIQ_DIA[(ESTADOS[j.estado] || ESTADOS.presente).tono] || ETIQ_DIA.gris : ['transparent', laboral ? 'var(--in-texto)' : 'var(--in-suave)']
@@ -667,15 +669,19 @@ function MesCel({ onVolver, onCorregir }) {
             )
           })}
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 5.8, color: 'var(--in-mute)' }}>
-          {[['#C9F5E2', 'A tiempo'], ['#FBE3B3', 'Tarde'], ['#F9CFCB', 'Ausente'], ['var(--tn-violeta-borde)', 'Sin salida'], ['var(--in-campo)', 'Justificado'], ['#D7E4F8', 'Horas extra']].map(([c, t]) => (
+        {/* La leyenda, solo con lo que aparece en el mes: «Horas extra» o «Justificado» sin ningún día así
+            sobraban. */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, fontSize: 6.4, color: 'var(--in-mute)' }}>
+          {[['verde', '#C9F5E2', 'A tiempo'], ['ambar', '#FBE3B3', 'Tarde'], ['rojo', '#F9CFCB', 'Ausente'], ['violeta', 'var(--tn-violeta-borde)', 'Sin salida'], ['gris', 'var(--in-campo)', 'Justificado'], ['azul', '#D7E4F8', 'Horas extra']]
+            .filter(([tono]) => hechos.some(d => d.laboral && (ESTADOS[d.j.estado] || ESTADOS.presente).tono === tono))
+            .map(([, c, t]) => (
             <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><i style={{ width: 6, height: 6, borderRadius: 2, background: c }} />{t}</span>
           ))}
         </div>
       </div>
       {elegido ? <DiaElegido {...elegido} yo={yo} hoy={at.hoy} onCorregir={onCorregir} /> : <span style={{ textAlign: 'center', fontSize: 6.4, color: 'var(--in-suave)', marginTop: -3 }}>Toque un día para ver a qué hora marcó.</span>}
       <div style={{ ...TARJETA_CEL, padding: '7px 4px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center' }}>
-        <span style={{ gridColumn: '1 / -1', fontSize: 6.4, fontWeight: 700, color: 'var(--in-mute)', textAlign: 'center', marginBottom: 5 }}>Resumen de {nombreMes(ym)}</span>
+        <span style={{ gridColumn: '1 / -1', fontSize: 6.8, fontWeight: 600, color: 'var(--in-mute)', textAlign: 'center', marginBottom: 5 }}>Resumen de {nombreMes(ym)}</span>
         {[[duracion(trabajado), 'Trabajadas'], [`${aTiempo} de ${hechos.length}`, 'Días a tiempo'], [String(tardes), tardes === 1 ? 'Llegada tarde' : 'Llegadas tarde']].map(([v, k], i) => (
           <span key={k} style={{ display: 'grid', borderLeft: i ? '1px solid var(--in-linea)' : 'none' }}>
             <b style={{ fontSize: 9.4, letterSpacing: '-.01em' }}>{v}</b>
@@ -725,7 +731,7 @@ function MisHorasExtra() {
           <span style={{ color: esAutorizada(x) ? 'var(--dc-verde)' : 'var(--dc-ambar)', fontWeight: 600 }}>{ESTADOS_EXTRA[x.estado].label}</span>
         </div>
       ))}
-      {!porAceptar.length && !proximas.length && !pedir && <div style={{ fontSize: '.74em', color: 'var(--text-muted)' }}>No tienes horas extra programadas. Quedarte más tiempo no cuenta como hora extra.</div>}
+      {!porAceptar.length && !proximas.length && !pedir && <div style={{ fontSize: '.74em', color: 'var(--text-muted)' }}>No tiene horas extra programadas. Quedarse más tiempo no cuenta como hora extra.</div>}
       {pedir ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '.45em', marginTop: '.6em', fontSize: '.78em' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '.2em' }}>Día<input type="date" className="pl-input" value={fecha} min={at.hoy} onChange={e => setFecha(e.target.value)} /></label>
@@ -764,7 +770,7 @@ function DiasPasados() {
   const tol = yo.politica?.tolerancia ?? 10
   return (
     <section className="at-k1-pasados">
-      <div className="cab"><b>Tus días anteriores</b><span>Lo mismo que ve RR.HH.</span></div>
+      <div className="cab"><b>Sus días anteriores</b><span>Lo mismo que ve RR.HH.</span></div>
       {dias.map(({ fecha, j }) => {
         const e = ESTADOS[j.estado] || ESTADOS.presente
         const [bg, fg] = TONO_DIA[e.tono] || TONO_DIA.gris
@@ -853,18 +859,18 @@ function Flujo({ tipo, onCerrar }) {
   const pasos = ex.rostro ? ['ubicacion', 'rostro', 'listo'] : ['ubicacion', 'listo']
   const idx = paso === 'consent' ? -1 : paso === 'fuera' ? 0 : paso === 'listo' ? pasos.length : pasos.indexOf(paso)
   const IconoTipo = tipo === 'entrada' ? LogIn : tipo === 'salida' ? LogOut : Coffee
-  const lugar = yo.lugar?.nombre || 'tu lugar'
-  const enc = paso === 'consent' ? { titulo: 'Antes de usar tu rostro', sub: 'Lo que pasa con tu cara y tu ubicación.' }
-    : paso === 'fuera' ? { titulo: 'Estás fuera de tu lugar', sub: `A ${pos?.distancia} m de ${lugar} · se puede hasta ${radio} m` }
-      : paso === 'ubicacion' ? (ex.remotoHoy ? { titulo: pos ? 'Ubicación lista' : 'Buscando tu ubicación', sub: 'Hoy es día remoto: vale cualquier lugar.' }
-        : pos ? { titulo: 'Estás en tu lugar', sub: `${lugar} · a ${pos.distancia} m` } : { titulo: 'Buscando tu ubicación', sub: `${lugar} · hasta ${radio} m` })
-        : paso === 'rostro' ? (score != null ? { titulo: 'Eres tú', sub: 'Rostro verificado' }
-          : enrolando ? { titulo: 'Registrando tu rostro', sub: 'Es la primera vez: quieto, de frente y con buena luz.' }
-            : { titulo: 'Mira la cámara', sub: 'Un segundo, quédate quieto · sin lentes oscuros ni gorra' })
+  const lugar = yo.lugar?.nombre || 'su lugar'
+  const enc = paso === 'consent' ? { titulo: 'Antes de usar su rostro', sub: 'Lo que pasa con su cara y su ubicación.' }
+    : paso === 'fuera' ? { titulo: 'Está fuera de su lugar', sub: `A ${pos?.distancia} m de ${lugar} · se puede hasta ${radio} m` }
+      : paso === 'ubicacion' ? (ex.remotoHoy ? { titulo: pos ? 'Ubicación lista' : 'Buscando su ubicación', sub: 'Hoy es día remoto: vale cualquier lugar.' }
+        : pos ? { titulo: 'Está en su lugar', sub: `${lugar} · a ${pos.distancia} m` } : { titulo: 'Buscando su ubicación', sub: `${lugar} · hasta ${radio} m` })
+        : paso === 'rostro' ? (score != null ? { titulo: 'Es usted', sub: 'Rostro verificado' }
+          : enrolando ? { titulo: 'Registrando su rostro', sub: 'Es la primera vez: quieto, de frente y con buena luz.' }
+            : { titulo: 'Mire la cámara', sub: 'Un segundo, quédese quieto · sin lentes oscuros ni gorra' })
           : null
   /* Al volver de la pausa, cuánto duró: lo único que le importa saber. */
   const pausaDuro = (() => { if (tipo !== 'pausa_fin' || !hecha) return null; const ini = [...at.jornadaDe(yo, at.hoy).marcas].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada && m.min <= hecha.min); return ini ? hecha.min - ini.min : null })()
-  const LISTO = { entrada: 'Entrada registrada', pausa_inicio: 'Pausa iniciada', pausa_fin: 'Volviste de tu pausa', salida: 'Salida registrada' }
+  const LISTO = { entrada: 'Entrada registrada', pausa_inicio: 'Pausa iniciada', pausa_fin: 'Volvió de su pausa', salida: 'Salida registrada' }
   const diferencia = tipo === 'entrada' && yo.horario?.modo === 'fijo' && hecha ? hecha.min - aMin(yo.horario.entrada) : null
 
   return (
@@ -885,10 +891,10 @@ function Flujo({ tipo, onCerrar }) {
         {paso === 'consent' && (
           <>
             <ul className="at-consent">
-              <li>Tu teléfono convierte tu cara en un código numérico. <b>La empresa nunca compara fotos</b>, compara ese código.</li>
+              <li>Su teléfono convierte su cara en un código numérico. <b>La empresa nunca compara fotos</b>, compara ese código.</li>
               <li>En cada marcación se envía una <b>selfie reducida</b> como evidencia. Se borra a los {at.ajustesGenerales.retencionSelfies} días.</li>
-              <li>También se guarda <b>dónde marcaste</b>, sólo en el momento de marcar.</li>
-              <li>Puedes pedir que se borre tu rostro cuando quieras desde RR.HH.</li>
+              <li>También se guarda <b>dónde marcó</b>, solo en el momento de marcar.</li>
+              <li>Puede pedir que se borre su rostro cuando quiera, desde RR.HH.</li>
             </ul>
             <div style={{ width: '100%' }}>
               <button type="button" className="at-flujo-btn" onClick={() => { at.actualizarBio(yo.id, { consentimiento: { version: '2026-08-v1', aceptado: hoyISO() } }); setPaso('ubicacion') }}>Acepto y continúo</button>
@@ -907,7 +913,7 @@ function Flujo({ tipo, onCerrar }) {
             {ex.remotoHoy && pos && paso === 'ubicacion' && (
               <div className="at-remoto-nota">
                 <span className="ico"><Check size="1.1em" strokeWidth={3} /></span>
-                <div><b>Remoto · no se revisa la oficina</b><span>Tu ubicación queda sólo como registro</span></div>
+                <div><b>Remoto · no se revisa la oficina</b><span>Su ubicación queda solo como registro</span></div>
               </div>
             )}
             {paso === 'fuera' ? (
@@ -933,7 +939,7 @@ function Flujo({ tipo, onCerrar }) {
         {paso === 'rostro' && (
           <>
             <div className="at-flujo-centro"><Camara persona={yo} listo={score != null} /></div>
-            <Globo via={viaSaludando} titulo={score != null ? '¡Eres tú! 🙌' : `Sonríe, ${yo.name.split(' ')[0]} 😄`} sub={score != null ? 'Guardando tu marca…' : 'Quédate quieto un segundo.'} />
+            <Globo via={viaSaludando} titulo={score != null ? '¡Es usted! 🙌' : `Sonría, ${yo.name.split(' ')[0]} 😄`} sub={score != null ? 'Guardando su marca…' : 'Quédese quieto un segundo.'} />
             <div className="at-flujo-pie doble">
               <span><Check size="1.15em" strokeWidth={3} /> Ubicación</span>
               <span className={score != null ? '' : 'ahora'}><ScanFace size="1.15em" /> {score != null ? 'Rostro reconocido' : 'Reconociendo…'}</span>
@@ -955,7 +961,7 @@ function Flujo({ tipo, onCerrar }) {
                 )}
                 {tipo === 'pausa_inicio' && yo.horario?.pausa > 0 && <div><span><Clock size="1.15em" /> Vuelve a las</span><b>{hhmm(hecha.min + yo.horario.pausa)}</b></div>}
                 {tipo === 'salida' && <div><span><Clock size="1.15em" /> Trabajaste</span><b>{duracion(at.jornadaDe(yo, at.hoy).trabajado)}</b></div>}
-                {tipo === 'pausa_fin' && pausaDuro != null && <div><span><Clock size="1.15em" /> Tu pausa duró</span><b>{duracion(pausaDuro)}</b></div>}
+                {tipo === 'pausa_fin' && pausaDuro != null && <div><span><Clock size="1.15em" /> Su pausa duró</span><b>{duracion(pausaDuro)}</b></div>}
               </div>
             )}
             <button type="button" className="at-flujo-btn" onClick={onCerrar} style={{ marginTop: '.4em' }}>Listo</button>
@@ -977,10 +983,10 @@ function Globo({ via, titulo, sub }) {
   )
 }
 function despedida(tipo, hecha, yo) {
-  if (tipo === 'entrada') return { titulo: '¡Que tengas un gran día! ☀️', sub: 'Tu entrada ya quedó guardada.' }
-  if (tipo === 'pausa_inicio') return { titulo: '¡Disfruta tu pausa! ☕', sub: yo.horario?.pausa ? `Te espero a las ${hhmm(hecha.min + yo.horario.pausa)}.` : 'Aquí te espero.' }
-  if (tipo === 'pausa_fin') return { titulo: '¡Qué bueno verte de vuelta! 💪', sub: 'Seguimos con tu jornada.' }
-  return { titulo: '¡Buen trabajo hoy! 🌙', sub: 'Descansa, nos vemos en tu próxima jornada.' }
+  if (tipo === 'entrada') return { titulo: '¡Que tenga un gran día! ☀️', sub: 'Su entrada ya quedó guardada.' }
+  if (tipo === 'pausa_inicio') return { titulo: '¡Disfrute su pausa! ☕', sub: yo.horario?.pausa ? `Lo esperamos a las ${hhmm(hecha.min + yo.horario.pausa)}.` : 'Aquí lo esperamos.' }
+  if (tipo === 'pausa_fin') return { titulo: '¡Qué bueno verlo de vuelta! 💪', sub: 'Seguimos con su jornada.' }
+  return { titulo: '¡Buen trabajo hoy! 🌙', sub: 'Descanse, nos vemos en su próxima jornada.' }
 }
 
 /* EL MAPA QUE BUSCA: calles, la zona de la sucursal y un haz de luz que gira mientras se busca la
@@ -993,7 +999,7 @@ function MapaBusqueda({ buscando, dentro, remoto }) {
       {!remoto && <span className="at-mapa-zona" />}
       {buscando && <span className="at-mapa-haz" />}
       {buscando ? <span className="at-mapa-centro" />
-        : remoto ? <><span className="at-mapa-casa"><House size="1.3em" /></span><span className="at-mapa-aqui">Estás aquí</span></>
+        : remoto ? <><span className="at-mapa-casa"><House size="1.3em" /></span><span className="at-mapa-aqui">Está aquí</span></>
           : <span className={`at-mapa-punto${dentro === false ? ' fuera' : ''}`} />}
     </div>
   )

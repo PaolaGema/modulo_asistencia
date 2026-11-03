@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, Pencil, Plus, ShieldCheck, Ban, Lock, Check, X, ArrowUpRight, Smartphone, MonitorCog } from 'lucide-react'
+import { CalendarDays, Pencil, Plus, ShieldCheck, Ban, Lock, Check, X, ArrowUpRight, Smartphone, MonitorCog, BellRing, MessageSquareQuote, Coffee } from 'lucide-react'
 import { Modal, MenuAcciones } from '../documentacion/comunes'
 import Desplegable from '../layout/Desplegable'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { TIPOS_MARCA, TIPOS_JUSTIFICACION, ESTADOS_EXTRA, ORIGENES_EXTRA, esAutorizada, fechaLarga, hhmm, aMin, duracion, mesDe, minutosAhora } from '../../data/asistenciaData'
+import { TIPOS_MARCA, TIPOS_JUSTIFICACION, ESTADOS_EXTRA, ORIGENES_EXTRA, ALERTAS, esAutorizada, fechaLarga, hhmm, hhmmss, aMin, duracion, mesDe, minutosAhora } from '../../data/asistenciaData'
 import { EstadoChip, PersonaAt, Selfie, Verificacion, BarraDia, Radar } from './comunes'
 
 /* ── EL DETALLE DE UN DÍA ──────────────────────────────────────────────────
@@ -56,14 +56,21 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
         )}
 
         <div className="at-det-cifras">
-          <div><span>Entrada</span><b className={j.llegoTarde ? 'tarde' : ''}>{hhmm(j.entrada)}</b></div>
-          <div><span>Salida</span><b>{hhmm(j.salida)}</b></div>
-          <div><span>Trabajado</span><b>{duracion(j.trabajado)}</b></div>
+          <div><span>Entrada</span><b className={j.llegoTarde ? 'tarde' : ''}>{hhmmss(j.entrada)}</b></div>
+          <div><span>Salida</span><b>{hhmmss(j.salida)}</b></div>
+          <div><span>Trabajado</span><b>{duracion(j.trabajado, { corto: true, seg: true })}</b></div>
           <div><span>Programado</span><b>{persona.horario?.modo === 'flexible' ? `Meta ${duracion(persona.horario.meta)}` : duracion(j.programado)}</b></div>
-          <div><span>{j.tardanza ? 'Tardanza' : 'Extra'}</span><b className={j.tardanza ? 'tarde' : j.extra ? 'extra' : ''}>{j.tardanza ? duracion(j.tardanza) : duracion(j.extra)}</b></div>
+          <div><span>{j.tardanza ? 'Tardanza' : 'Extra aprobada'}</span><b className={j.tardanza ? 'tarde' : j.extra ? 'extra' : ''}>{j.tardanza ? duracion(j.tardanza, { seg: true }) : duracion(j.extra)}</b></div>
         </div>
 
         <BarraDia jornada={j} horario={persona.horario} ahora={esHoy ? minutosAhora() : null} grande />
+
+        {j.franja && (
+          <p className="at-det-franja"><Coffee size={13} aria-hidden="true" /> Descanso de {hhmm(j.franja.desde)} a {hhmm(j.franja.hasta)}{j.pausas > 0 ? ` · tomó ${duracion(j.pausas, { seg: true })}` : ''}{j.descontado > 0 ? ` · se descontaron ${duracion(j.descontado)} por no marcarlo` : ''}</p>
+        )}
+
+        {/* LAS ALERTAS DEL DÍA (#5, #6, #7, #13, #15): qué pasó, si se le avisó y qué respondió. */}
+        {j.alertas.length > 0 && <Alertas j={j} persona={persona} fecha={fecha} />}
 
         {/* LAS HORAS EXTRA DEL DÍA: solo las autorizadas cuentan. Lo demás es «fuera de horario». */}
         {j.horasExtra.map(x => (
@@ -107,8 +114,8 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
           {j.marcas.map(m => (
             <li key={m.id} className={`at-tl-item${m.rechazada ? ' rech' : ''}${m.anulada ? ' anul' : ''}`}>
               <span className="at-tl-hora">
-                <b>{hhmm(m.min)}</b>
-                {m.ajuste && !m.anulada && <s title="Hora original">{hhmm(m.original)}</s>}
+                <b>{hhmmss(m.min)}</b>
+                {m.ajuste && !m.anulada && <s title="Hora original">{hhmmss(m.original)}</s>}
               </span>
               <span className={`at-tl-nodo t-${m.tipo}`} aria-hidden="true" />
               <div className="at-tl-cuerpo">
@@ -163,10 +170,44 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
   )
 }
 
+/* Cada alerta con su estado frente a la persona: avisada y sin respuesta, con motivo por revisar,
+   aceptada o no aceptada. RR.HH. no justifica por ella: la justificación la manda la persona y la
+   acepta su jefe (Solicitudes › Justificaciones). */
+function Alertas({ j, persona, fecha }) {
+  const at = useAsistencia()
+  const avisar = at.ajustesGenerales.avisar || {}
+  const grupo = t => (t.startsWith('pausa') ? 'pausa' : t)
+  const pedidos = at.solicitudes.filter(s => s.tipo === 'justificacion' && s.fecha === fecha && String(s.personaId) === String(persona.id) && s.estado !== 'cancelada')
+  return (
+    <ul className="at-alertas">
+      {j.alertas.map(a => {
+        const al = ALERTAS[a.tipo]
+        const pedido = pedidos.find(s => s.alerta === a.tipo || (grupo(s.alerta) === 'pausa' && grupo(a.tipo) === 'pausa'))
+        const estado = a.justificacion
+          ? { tono: 'verde', Icono: ShieldCheck, txt: `Justificada · ${a.justificacion.categoria || ''}${a.justificacion.motivo ? ` «${a.justificacion.motivo}»` : ''}` }
+          : pedido?.estado === 'pendiente' ? { tono: 'azul', Icono: MessageSquareQuote, txt: `Mandó su motivo: ${pedido.categoria} · por revisar en Justificaciones` }
+            : pedido?.estado === 'rechazada' ? { tono: 'gris', Icono: X, txt: `Motivo no aceptado${pedido.nota ? `: «${pedido.nota}»` : ''}` }
+              : avisar[grupo(a.tipo)] !== false && fecha <= at.hoy ? { tono: 'ambar', Icono: BellRing, txt: `Se le avisó en la app${fecha < at.hoy ? ' · sin motivo todavía' : ''}` }
+                : null
+        return (
+          <li key={a.tipo} className={`at-alerta t-${al.tono}${a.justificacion ? ' ok' : ''}`}>
+            <span className={`dc-chip dc-chip-sm dc-t-${a.justificacion ? 'verde' : al.tono}`}>{al.corto} · {duracion(a.min, { seg: true })}</span>
+            <div>
+              <b>{al.label}</b>
+              <span>{a.detalle}</span>
+              {estado && <em className={`t-${estado.tono}`}><estado.Icono size={12} aria-hidden="true" /> {estado.txt}</em>}
+            </div>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
 function FormCorreccion({ form, persona, fecha, onListo }) {
   const at = useAsistencia()
   const j = at.jornadaDe(persona, fecha)
-  const sugerido = form.marca ? hhmm(form.marca.min) : !j.marcas.some(m => m.tipo === 'salida') && j.entrada != null ? persona.horario?.salida || '18:00' : persona.horario?.entrada || '08:30'
+  const sugerido = form.marca ? hhmmss(form.marca.min) : !j.marcas.some(m => m.tipo === 'salida') && j.entrada != null ? persona.horario?.salida || '18:00' : persona.horario?.entrada || '08:30'
   const [hora, setHora] = useState(sugerido)
   const [tipo, setTipo] = useState(j.entrada == null ? 'entrada' : 'salida')
   const [jtipo, setJtipo] = useState(TIPOS_JUSTIFICACION[0])
@@ -194,7 +235,7 @@ function FormCorreccion({ form, persona, fecha, onListo }) {
         )}
         {(form.modo === 'ajustar' || form.modo === 'agregar') && (
           <label className="at-campo at-campo-hora"><span>Hora</span>
-            <input type="time" className="pl-input" value={hora} onChange={e => setHora(e.target.value)} />
+            <input type="time" step="1" className="pl-input" value={hora} onChange={e => setHora(e.target.value)} />
           </label>
         )}
         {form.modo === 'justificar' && (

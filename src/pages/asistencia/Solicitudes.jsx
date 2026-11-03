@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Check, Luggage, Stethoscope, PencilLine, House, Repeat, AlarmClockPlus } from 'lucide-react'
+import { Check, Luggage, Stethoscope, PencilLine, House, Repeat, AlarmClockPlus, MessageSquareQuote } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Etiqueta } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
@@ -8,7 +8,7 @@ import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../component
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import HorasExtra from './HorasExtra'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
-import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, TIPOS_MARCA, diasHabiles, saldoVacaciones, fechaCorta, aFecha } from '../../data/asistenciaData'
+import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, TIPOS_MARCA, ALERTAS, diasHabiles, saldoVacaciones, fechaCorta, aFecha, duracion, mesDe } from '../../data/asistenciaData'
 
 /* ── SOLICITUDES ───────────────────────────────────────────────────────────
    Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar y con sub-vistas por tipo
@@ -23,6 +23,7 @@ const VISTAS = {
   vacaciones: { tipo: 'vacaciones', titulo: 'Vacaciones', Icono: Luggage },
   permisos: { tipo: 'permiso', titulo: 'Permisos y licencias', Icono: Stethoscope },
   'horas-extra': { titulo: 'Horas extra', Icono: AlarmClockPlus },
+  justificaciones: { tipo: 'justificacion', titulo: 'Justificaciones', Icono: MessageSquareQuote },
   correcciones: { tipo: 'correccion', titulo: 'Correcciones de marcación', Icono: PencilLine },
   remoto: { tipo: 'remoto', titulo: 'Trabajo remoto', Icono: House },
   cambios: { tipo: 'cambio', titulo: 'Cambios de turno', Icono: Repeat },
@@ -72,6 +73,11 @@ function Lista({ ver }) {
 
   /* SALDO DE VACACIONES: el derecho del año según su antigüedad, menos lo ya aprobado en los últimos 12 meses. */
   const saldoDe = p => saldoVacaciones(p, at.solicitudes, at.hoy)
+  /* LO QUE YA JUSTIFICÓ ESE MES: para que el jefe vea si es la primera vez o la quinta. */
+  const historialDe = s => {
+    const delMes = at.solicitudes.filter(x => x.tipo === 'justificacion' && x.id !== s.id && String(x.personaId) === String(s.personaId) && mesDe(x.fecha) === mesDe(s.fecha))
+    return { aceptadas: delMes.filter(x => x.estado === 'aprobada').length, rechazadas: delMes.filter(x => x.estado === 'rechazada').length, pendientes: delMes.filter(x => x.estado === 'pendiente').length }
+  }
   /* COBERTURA: cuánta gente de su mismo lugar ya estará fuera esos días (aprobado o pedido). */
   const coberturaDe = s => {
     const lugar = s.persona.lugar?.id
@@ -105,7 +111,7 @@ function Lista({ ver }) {
             <thead><tr><th>Persona</th><th>Solicitud</th><th>Para decidir</th><th>Pedida</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(s => {
-                const d = describir(s, saldoDe, coberturaDe)
+                const d = describir(s, saldoDe, coberturaDe, historialDe)
                 const abrir = () => setRevisar(s)
                 return (
                   <tr key={s.id} tabIndex={0} onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
@@ -138,18 +144,20 @@ function Lista({ ver }) {
       )}
 
       {revisar && (() => {
-        const d = describir(revisar, saldoDe, coberturaDe)
+        const d = describir(revisar, saldoDe, coberturaDe, historialDe)
         const pendiente = revisar.estado === 'pendiente'
+        const esJust = revisar.tipo === 'justificacion'
         return (
           <RevisarSolicitud
             titulo={`Revisar · ${d.tipo}`} persona={revisar.persona} estado={ESTADOS_SOLICITUD[revisar.estado]}
             datos={d.datos} contexto={[...d.chips, ...d.extra]} efecto={d.efecto}
-            efectoRechazo="No se aplica nada: el día sigue como estaba. La persona verá el motivo en su app."
+            efectoRechazo={esJust ? `Seguirá contando como ${ALERTAS[revisar.alerta]?.label.toLowerCase() || 'incidencia'} injustificada en el cierre. La persona verá el motivo en su app.` : 'No se aplica nada: el día sigue como estaba. La persona verá el motivo en su app.'}
             respondio={revisar.respondio} nota={revisar.nota}
             onAprobar={pendiente ? nota => at.responderSolicitud(revisar.id, 'aprobada', nota) : null}
             onRechazar={pendiente ? motivo => at.responderSolicitud(revisar.id, 'rechazada', motivo) : null}
-            onVerDia={revisar.tipo === 'correccion' ? () => { setDetalle({ persona: revisar.persona, fecha: revisar.fecha }); setRevisar(null) } : null}
-            accionAprobar={d.sinSaldo ? 'Aprobar igual' : 'Aprobar'}
+            onVerDia={revisar.tipo === 'correccion' || esJust ? () => { setDetalle({ persona: revisar.persona, fecha: revisar.fecha }); setRevisar(null) } : null}
+            accionAprobar={d.sinSaldo ? 'Aprobar igual' : esJust ? 'Aceptar el motivo' : 'Aprobar'}
+            accionRechazar={esJust ? 'No aceptar' : 'Rechazar'}
             onCerrar={() => setRevisar(null)}
           />
         )
@@ -164,7 +172,7 @@ const inicio = s => s.desde || s.fecha || s.cuando
 
 /* LO QUE SE DICE DE UNA SOLICITUD, en un solo lugar: la fila de la tabla y la ventana de revisión
    leen lo mismo, así que nunca cuentan dos cosas distintas. */
-function describir(s, saldoDe, coberturaDe) {
+function describir(s, saldoDe, coberturaDe, historialDe) {
   const sub = SUBTIPOS_PERMISO.find(t => t.key === s.subtipo)
   const chips = []
   const extra = []
@@ -203,6 +211,17 @@ function describir(s, saldoDe, coberturaDe) {
     titulo = `Desde casa · ${rango(s.desde, s.hasta)}`
     datos.push(['Días', rango(s.desde, s.hasta)], ['Motivo', s.motivo || '—'])
     efecto = 'esos días marcará desde donde esté: se controla el rostro y el horario, pero no se exige estar en su lugar de trabajo.'
+  } else if (s.tipo === 'justificacion') {
+    const al = ALERTAS[s.alerta]
+    const cuanto = s.minutos ? duracion(s.minutos, { seg: true }) : ''
+    tipo = 'Justificación'
+    titulo = `${al?.label || 'Incidencia'}${cuanto ? ` · ${cuanto}` : ''} · ${fechaCorta(s.fecha)}`
+    datos.push(['Qué pasó', `${al?.label || 'Incidencia'}${cuanto ? `: ${cuanto}` : ''} el ${fechaCorta(s.fecha)}`], ['Motivo', s.categoria || '—'], ['En sus palabras', s.motivo ? `«${s.motivo}»` : '—'], s.avisada && ['Aviso', `La app le avisó el mismo día y respondió ${s.cuando === s.fecha ? 'ese día' : `el ${fechaCorta(s.cuando)}`}`])
+    const h = historialDe?.(s)
+    if (h) chips.push(h.aceptadas + h.rechazadas ? { tono: h.rechazadas || h.aceptadas >= 3 ? 'ambar' : 'gris', texto: `Este mes: ${h.aceptadas} aceptadas, ${h.rechazadas} no aceptadas` } : { tono: 'verde', texto: 'Primera justificación del mes' })
+    if (s.categoria) chips.push({ tono: 'azul', texto: s.categoria })
+    extra.push({ tono: 'gris', texto: 'Mira su día: la hora de cada marcación, al segundo, y si fue algo puntual.' })
+    efecto = `${(al?.label || 'la incidencia').toLowerCase()} del ${fechaCorta(s.fecha)} queda justificada: no cuenta como injustificada en el cierre ni en los reportes de puntualidad.`
   } else if (s.tipo === 'cambio') {
     titulo = `${fechaCorta(s.fecha)} · de ${s.turnoDe} a ${s.turnoA}`
     datos.push(['Día', fechaCorta(s.fecha)], ['Cambio', `De ${s.turnoDe} a ${s.turnoA}`], ['Con', s.con || '—'], ['Motivo', s.motivo || '—'])

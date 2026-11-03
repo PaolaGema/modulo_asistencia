@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Clock, CircleDashed, UserX, ScanFace, MapPinX, PartyPopper, Inbox } from 'lucide-react'
+import { Clock, CircleDashed, UserX, ScanFace, MapPinX, PartyPopper, Inbox, Timer, BellRing, MessageSquareQuote, X } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import { BarraBusqueda, FILTRO_VACIO, filtrar, PersonaAt, Selfie } from '../../components/asistencia/comunes'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
-import { fechaCorta, DIAS_CORTOS, diaISO, hhmm, duracion } from '../../data/asistenciaData'
+import { fechaCorta, DIAS_CORTOS, diaISO, hhmm, duracion, ALERTAS } from '../../data/asistenciaData'
 
 /* ── INCIDENCIAS ───────────────────────────────────────────────────────────
    Lo que salió raro en las marcaciones de los últimos 10 días y que alguien tiene que mirar antes
@@ -19,6 +19,7 @@ import { fechaCorta, DIAS_CORTOS, diaISO, hhmm, duracion } from '../../data/asis
 
 const TIPOS = [
   { key: 'ausente', label: 'Faltas sin justificar', Icono: UserX, desc: 'Tenían jornada y no marcaron en todo el día. Si tenían permiso, justifíquelo; si no, déjelo como falta.' },
+  { key: 'alerta', label: 'Tardanzas y descansos', Icono: Timer, desc: 'Llegadas tarde, descansos excedidos o no marcados y salidas anticipadas sin justificar. La app ya le avisó a cada persona y le pidió el motivo; lo que mande llega a Solicitudes › Justificaciones. Lo que quede así cuenta como injustificado en el cierre.' },
   { key: 'incompleta', label: 'Jornadas sin salida', Icono: CircleDashed, desc: 'Marcaron la entrada y nunca la salida. Sin salida no se pueden contar las horas del día.' },
   { key: 'rechazo', label: 'Marcaciones rechazadas', Icono: ScanFace, desc: 'El rostro no coincidió o estaban lejos de su lugar. Mire la evidencia: puede ser la luz de la entrada o un intento indebido.' },
   { key: 'fuera', label: 'Fuera de horario', Icono: Clock, desc: 'Se quedaron más de 30 minutos después de su jornada sin horas extra autorizadas. No cuenta como hora extra, salvo que lo autorice.' },
@@ -55,6 +56,7 @@ export default function Incidencias() {
       incompleta: { titulo: `Entró a las ${hhmm(j.entrada)} y no marcó la salida`, texto: 'Usa «Agregar marcación» abajo para cargar la salida, con el motivo.', accion: null },
       rechazo: { titulo: i.marca?.rechazada === 'rostro' ? `El rostro coincidió solo ${Math.round((i.marca.score || 0) * 100)} %` : `Marcó a ${i.marca?.distancia} m de su lugar`, texto: j.entrada != null ? `Después marcó bien a las ${hhmm(j.entrada)}. Mira la selfie y la distancia abajo.` : 'Mira la selfie y la distancia abajo.', accion: 'Ya la revisé' },
       fuera: { titulo: `Se quedó ${duracion(j.fueraDeHorario)} sin horas extra autorizadas`, texto: 'Si correspondía, usa «Autorizar como horas extra» abajo. Si no, no cuenta.', accion: 'No es extra' },
+      alerta: { titulo: i.alertas?.map(a => `${ALERTAS[a.tipo].label} (${duracion(a.min)})`).join(' · '), texto: i.pedido?.estado === 'pendiente' ? 'Ya mandó su motivo: respóndelo en Solicitudes › Justificaciones.' : i.avisada ? 'Se le avisó en la app y no mandó motivo. Si lo dejas así, cuenta como injustificado en el cierre.' : 'La app no avisa este caso (Configuración › Avisos al colaborador). Si lo dejas así, cuenta como injustificado en el cierre.', accion: 'Dejar como injustificada' },
     }[i.tipo]
     setDetalle({ persona: i.persona, fecha: i.fecha, incidencia: { ...aviso, onAccion: () => at.descartar(i.id) } })
   }
@@ -91,6 +93,7 @@ export default function Incidencias() {
                 {tipo === 'incompleta' && <><th>Entró</th><th>Debía salir</th><th>Lugar</th></>}
                 {tipo === 'rechazo' && <><th>Por qué</th><th>Después</th></>}
                 {tipo === 'fuera' && <><th>Debía salir</th><th>Salió</th><th>Tiempo de más</th></>}
+                {tipo === 'alerta' && <><th>Qué pasó</th><th>Su motivo</th></>}
                 <th aria-label="Acción" />
               </tr>
             </thead>
@@ -133,6 +136,16 @@ export default function Incidencias() {
                       <td className="num">{h?.salida || '—'}</td>
                       <td className="num">{hhmm(j.salida)}</td>
                       <td className="num" style={{ color: 'var(--dc-azul)' }}>{duracion(j.fueraDeHorario)}</td>
+                    </>}
+                    {tipo === 'alerta' && <>
+                      <td><span className="at-sol-chips">{i.alertas.map(a => <span key={a.tipo} className={`dc-chip dc-chip-sm dc-t-${ALERTAS[a.tipo].tono}`}>{ALERTAS[a.tipo].corto} · {duracion(a.min)}</span>)}</span></td>
+                      <td>{i.pedido?.estado === 'pendiente'
+                        ? <button type="button" className="dc-chip dc-chip-sm dc-t-azul" style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }} onClick={e => { e.stopPropagation(); navigate('/asistencia/solicitudes?ver=justificaciones') }}><MessageSquareQuote size={11} /> {i.pedido.categoria} · por responder</button>
+                        : i.pedido?.estado === 'rechazada'
+                          ? <span className="dc-chip dc-chip-sm dc-t-gris"><X size={11} /> Motivo no aceptado</span>
+                          : i.avisada
+                            ? <span className="dc-chip dc-chip-sm dc-t-ambar"><BellRing size={11} /> Avisada · sin motivo</span>
+                            : <span className="dc-chip dc-chip-sm dc-t-gris">Sin aviso a la persona</span>}</td>
                     </>}
                     <td style={{ textAlign: 'right' }}>
                       <button type="button" className="at-btn-revisar" onClick={e => { e.stopPropagation(); abrir(i) }}>Revisar</button>

@@ -6,7 +6,7 @@ import { Cabecera, Modal, Vacio, Etiqueta } from '../../components/documentacion
 import Paginacion from '../../components/layout/Paginacion'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
 import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar, Cifra } from '../../components/asistencia/comunes'
-import { ESTADOS_EXTRA, ORIGENES_EXTRA, esAutorizada, fechaLarga, fechaCorta, aMin, duracion, sumarDias, mesDe, mesVecino, nombreMes, diasDelMes, descargarCSV } from '../../data/asistenciaData'
+import { ESTADOS_EXTRA, ORIGENES_EXTRA, PROYECTOS_DEMO, esAutorizada, fechaLarga, fechaCorta, aMin, duracion, sumarDias, mesDe, mesVecino, nombreMes, diasDelMes, descargarCSV } from '../../data/asistenciaData'
 
 /* ── HORAS EXTRA ───────────────────────────────────────────────────────────
    Quedarse no es trabajar horas extra. Una hora extra existe solo si se autorizó:
@@ -184,7 +184,7 @@ export default function HorasExtra() {
         return (
           <RevisarSolicitud
             titulo="Revisar · Horas extra" persona={x.persona} estado={ESTADOS_EXTRA[x.estado]}
-            datos={[['Día', fechaLarga(x.fecha)], ['Horario', `${horas(x)} (${duracion(largo(x))})`], ['Motivo', x.motivo], ['Origen', ORIGENES_EXTRA[x.origen]]]}
+            datos={[['Día', fechaLarga(x.fecha)], ['Horario', `${horas(x)} (${duracion(largo(x))})`], ['Motivo', x.motivo], x.proyecto && ['Proyecto', x.proyecto], ['Origen', ORIGENES_EXTRA[x.origen]], ['Aprueba', x.respondio || x.aprobador || 'RR.HH.']]}
             contexto={[
               { tono: 'azul', texto: `Ya tiene ${duracion(yaTiene)} de horas extra autorizadas en ${nombreMes(mesDe(x.fecha)).split(' ')[0]}` },
               x.persona.horario?.modo === 'fijo' && { tono: 'gris', texto: `Su horario ese día termina a las ${x.persona.horario.salida}` },
@@ -213,6 +213,7 @@ function ModalAsignar({ gente, onCerrar }) {
   const [desde, setDesde] = useState('18:00')
   const [hasta, setHasta] = useState('20:00')
   const [motivo, setMotivo] = useState('')
+  const [proyecto, setProyecto] = useState('')
   const texto = busca.trim().toLowerCase()
   const visibles = gente.filter(p => !texto || `${p.name} ${p.unidad} ${p.lugar?.nombre || ''}`.toLowerCase().includes(texto)).slice(0, 60)
   const alternar = id => setSel(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
@@ -221,7 +222,7 @@ function ModalAsignar({ gente, onCerrar }) {
     <Modal titulo="Asignar horas extra" Icono={CalendarClock} onCerrar={onCerrar} ancho={620}
       pie={<>
         <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
-        <button type="button" className="pl-btn-save" disabled={!valido} onClick={() => { at.asignarExtra([...sel], { fecha, desde, hasta, motivo: motivo.trim() }); onCerrar() }}>
+        <button type="button" className="pl-btn-save" disabled={!valido} onClick={() => { at.asignarExtra([...sel], { fecha, desde, hasta, motivo: motivo.trim(), proyecto: proyecto.trim() || null, aprobador: at.yo?.name }); onCerrar() }}>
           Asignar{sel.size ? ` a ${sel.size}` : ''}
         </button>
       </>}>
@@ -232,7 +233,11 @@ function ModalAsignar({ gente, onCerrar }) {
           <label className="at-campo"><span>Desde</span><input type="time" className="pl-input" value={desde} onChange={e => setDesde(e.target.value)} /></label>
           <label className="at-campo"><span>Hasta</span><input type="time" className="pl-input" value={hasta} onChange={e => setHasta(e.target.value)} /></label>
         </div>
-        <label className="at-campo"><span>Motivo <em>lo verá la persona</em></span><input className="pl-input" value={motivo} onChange={e => setMotivo(e.target.value)} placeholder="Ej.: cierre de inventario del mes" /></label>
+        <div className="at-dos">
+          <label className="at-campo"><span>Motivo <em>lo verá la persona</em></span><input className="pl-input" value={motivo} onChange={e => setMotivo(e.target.value)} placeholder="Ej.: cierre de inventario del mes" /></label>
+          <label className="at-campo"><span>Proyecto o centro de costo <em>opcional</em></span><input className="pl-input" list="at-proyectos" value={proyecto} onChange={e => setProyecto(e.target.value)} placeholder="Ej.: Proyecto X" /></label>
+          <datalist id="at-proyectos">{PROYECTOS_DEMO.map(p => <option key={p} value={p} />)}</datalist>
+        </div>
         <div className="at-campo">
           <span>¿Para quién? {sel.size > 0 && <em>{sel.size} {sel.size === 1 ? 'persona elegida' : 'personas elegidas'}</em>}</span>
           <div className="pl-search-wrap" style={{ maxWidth: 'none' }}>
@@ -250,7 +255,7 @@ function ModalAsignar({ gente, onCerrar }) {
           </div>
         </div>
         {aMin(hasta) <= aMin(desde) && <div className="at-aviso-linea" style={{ background: 'var(--dc-ambar-bg)', color: 'var(--dc-ambar)' }}>La hora «hasta» tiene que ser después de «desde».</div>}
-        <p className="at-ayuda">{fechaCorta(fecha)} de {desde} a {hasta}: {duracion(Math.max(0, aMin(hasta) - aMin(desde)))} por persona.</p>
+        <p className="at-ayuda">{fechaCorta(fecha)} de {desde} a {hasta}: {duracion(Math.max(0, aMin(hasta) - aMin(desde)))} por persona. Al marcar la salida se valida contra esta franja: solo lo trabajado dentro de ella cuenta como hora extra.</p>
       </div>
     </Modal>
   )

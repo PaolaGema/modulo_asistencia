@@ -1,6 +1,6 @@
 import { Clock, MapPin, ScanFace, House, Coffee, ArrowRight } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { aMin, hhmm, duracion, accionDelMomento } from '../../data/asistenciaData'
+import { ahora as relojAhora, aMin, hhmm, duracion, accionDelMomento } from '../../data/asistenciaData'
 import './asistencia.css'
 
 /* ── ¿MARCAR? — LA VENTANA ANTES DE ESCANEAR (propuesta V2 del lienzo, «la hora manda») ──
@@ -18,24 +18,24 @@ import './asistencia.css'
    Se mide en `em`: vive dentro del teléfono de la demo y en Mi asistencia de escritorio. Ocupa todo su
    contenedor (el teléfono, o la pantalla con `position: fixed`) y se centra en él. */
 
-const QUE = { entrada: 'Vas a marcar tu entrada', pausa_inicio: 'Vas a iniciar tu pausa', pausa_fin: 'Vas a volver de tu pausa', salida: 'Vas a marcar tu salida' }
+const QUE = { entrada: 'Va a marcar su entrada', pausa_inicio: 'Va a iniciar su pausa', pausa_fin: 'Va a volver de su pausa', salida: 'Va a marcar su salida' }
 
 function estadoDe(tipo, { h, j, ahora, tolerancia, acc, pausaPendiente }) {
   if (tipo === 'entrada') {
-    if (h?.modo === 'fijo' && ahora >= aMin(h.salida)) return { tono: 'ojo', chip: `Fuera de tu horario · ${h.entrada} a ${h.salida}`, nota: 'Tu turno ya terminó. Si estás con horas extra autorizadas, márcala igual: RR.HH. la va a revisar.', prin: 'Marcar igual', navy: true }
+    if (h?.modo === 'fijo' && ahora >= aMin(h.salida)) return { tono: 'ojo', chip: `Fuera de su horario · ${h.entrada} a ${h.salida}`, nota: 'Su turno ya terminó. Si tiene horas extra autorizadas, márquela igual: RR.HH. la va a revisar.', prin: 'Marcar igual' }
     const tarde = h?.modo === 'fijo' ? ahora - aMin(h.entrada) : 0
-    if (tarde > tolerancia) return { tono: 'ojo', chip: `Llegas ${duracion(tarde)} tarde`, nota: 'Se registra como atraso. Si tuviste un motivo, puedes justificarlo después.' }
-    return { tono: 'bien', chip: h?.modo === 'fijo' ? `Llegas a tiempo · tu entrada es ${h.entrada}` : 'Horario flexible' }
+    if (tarde > tolerancia) return { tono: 'ojo', chip: `Llega ${duracion(tarde)} tarde`, nota: 'Se registra como atraso. Si tuvo un motivo, puede justificarlo después.' }
+    return { tono: 'bien', chip: h?.modo === 'fijo' ? `Llega a tiempo · su entrada es ${h.entrada}` : 'Horario flexible' }
   }
-  if (tipo === 'pausa_inicio') return { tono: 'bien', icono: Coffee, chip: h?.pausa ? `Tu horario tiene ${h.pausa} min · vuelve ${hhmm(ahora + h.pausa)}` : 'Inicio de pausa' }
+  if (tipo === 'pausa_inicio') return { tono: 'bien', icono: Coffee, chip: h?.pausa ? `Su horario tiene ${h.pausa} min · vuelve ${hhmm(ahora + h.pausa)}` : 'Inicio de pausa' }
   if (tipo === 'pausa_fin') {
     const inicio = [...(j.marcas || [])].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada)
     const dura = inicio ? ahora - inicio.min : 0
-    if (h?.pausa && dura > h.pausa) return { tono: 'ojo', icono: Coffee, chip: `Te pasaste ${duracion(dura - h.pausa)} de tu pausa`, nota: 'Se descuentan de tu jornada.' }
-    return { tono: 'bien', icono: Coffee, chip: `Llevas ${duracion(dura)} de pausa` }
+    if (h?.pausa && dura > h.pausa) return { tono: 'ojo', icono: Coffee, chip: `Se pasó ${duracion(dura - h.pausa)} de su pausa`, nota: 'Se descuentan de su jornada.' }
+    return { tono: 'bien', icono: Coffee, chip: `Lleva ${duracion(dura)} de pausa` }
   }
-  if (acc.temprano) return { tono: 'ojo', chip: `Te faltan ${duracion(acc.falta)} de jornada`, nota: 'Si marcas salida, tu día se cierra y ya no podrás volver a marcar hoy.', antes: pausaPendiente }
-  return { tono: 'bien', chip: `Trabajaste ${duracion(j.trabajado)} · jornada completa` }
+  if (acc.temprano) return { tono: 'ojo', chip: `Le faltan ${duracion(acc.falta)} de jornada`, nota: 'Si marca la salida, su día se cierra y ya no podrá volver a marcar hoy.', antes: pausaPendiente }
+  return { tono: 'bien', chip: `Trabajó ${duracion(j.trabajado)} · jornada completa` }
 }
 
 export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
@@ -44,7 +44,7 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
   const j = at.jornadaDe(yo, at.hoy)
   const ex = at.exigenciasDe(yo, at.hoy)
   const h = yo.horario
-  const t = new Date()
+  const t = relojAhora()
   const ahora = t.getHours() * 60 + t.getMinutes()
   const acc = accionDelMomento(j, h, ahora)
   const pausaPendiente = (h?.pausa || 0) > 0 && !(j.marcas || []).some(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada)
@@ -52,7 +52,7 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
   const Icono = e.icono || Clock
 
   const linea = ex.remotoHoy ? 'Hoy en remoto · sin verificar ubicación'
-    : `${yo.lugar?.nombre || 'Tu lugar de trabajo'}${ex.rostro ? ' · con tu rostro' : ex.geocerca ? ' · con tu ubicación' : ''}`
+    : `${yo.lugar?.nombre || 'Su lugar de trabajo'}${ex.rostro ? ' · con su rostro' : ex.geocerca ? ' · con su ubicación' : ''}`
   const accion = ex.rostro ? <><ScanFace size="1.2em" /> Escanear rostro</> : <><ArrowRight size="1.2em" /> Marcar ahora</>
 
   return (
@@ -71,7 +71,7 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
               <button type="button" className="sec" onClick={() => onConfirmar('salida')}>Sí, terminar jornada</button>
             </>
           ) : (
-            <button type="button" className={`prin${e.navy ? ' navy' : ''}`} onClick={() => onConfirmar(tipo)} autoFocus>
+            <button type="button" className="prin" onClick={() => onConfirmar(tipo)} autoFocus>
               {e.prin ? <><ScanFace size="1.2em" /> {e.prin}</> : tipo === 'salida' && acc.temprano ? 'Sí, terminar jornada' : accion}
             </button>
           )}

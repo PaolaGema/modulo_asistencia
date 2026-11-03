@@ -72,10 +72,6 @@ export default function CalendarioAsistencia({ gente }) {
       if (autorizadas.length) lista.push({ tipo: 'extra', titulo: `${autorizadas.length} ${autorizadas.length === 1 ? 'persona con' : 'personas con'} horas extra autorizadas`, sub: autorizadas.slice(0, 3).map(x => `${personaPorId.get(String(x.personaId))?.name.split(' ')[0]} ${x.desde}–${x.hasta}`).join(' · '), ir: '/asistencia/solicitudes?ver=horas-extra' })
       if (esperan.length) lista.push({ tipo: 'extra', titulo: `${esperan.length} ${esperan.length === 1 ? 'hora extra espera' : 'horas extra esperan'} respuesta`, sub: 'Una solicitud por aprobar o una asignación por aceptar', ir: '/asistencia/solicitudes?ver=horas-extra' })
 
-      if (dia === ultimo) {
-        const cerrado = !!cierres[mesDe(fecha)]
-        lista.push({ tipo: 'cierre', titulo: cerrado ? 'Mes cerrado para nómina' : 'Cierre del mes para nómina', sub: cerrado ? 'Ya no se puede corregir' : 'Revisa las incidencias antes de cerrar', ir: '/asistencia/cierre' })
-      }
       if (lista.length) porDia[dia] = lista
     }
     return porDia

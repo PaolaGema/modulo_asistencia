@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Star, Building2, Warehouse, Users, CheckCircle2, AlertTriangle,
-  ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, Ruler, CalendarClock, RotateCcw, Check, Copy,
+  ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, Ruler, CalendarClock, RotateCcw, Check, Copy, Coffee, LogOut, BellRing, Smartphone,
 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio, MenuAcciones } from '../../components/documentacion/comunes'
@@ -10,7 +10,7 @@ import Desplegable from '../../components/layout/Desplegable'
 import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
-import { MODALIDADES, DIAS_CORTOS, aMin, duracion, minutosProgramados, fechaCorta, hoyISO } from '../../data/asistenciaData'
+import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
    Cinco partes, en el orden en que se arma el módulo la primera vez: los HORARIOS (cuándo), las
@@ -20,7 +20,7 @@ import { MODALIDADES, DIAS_CORTOS, aMin, duracion, minutosProgramados, fechaCort
    ARRIBA, LA PUESTA A PUNTO: el `readiness` del backend —sin sede, sin horario, sin política,
    consentimiento pendiente— dicho como una lista de lo que falta, con su enlace. */
 
-const SECCIONES = ['horarios', 'politicas', 'lugares', 'asignaciones', 'biometria']
+const SECCIONES = ['horarios', 'politicas', 'avisos', 'lugares', 'asignaciones', 'biometria']
 const COLORES = ['#00B876', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444', '#0C2D40']
 
 export default function Configuracion() {
@@ -44,7 +44,8 @@ export default function Configuracion() {
 
   const titulos = {
     horarios: ['Horarios', 'Cuándo trabaja cada quien. Un horario fijo calcula tardanzas y horas extra; uno flexible sólo pide cumplir la meta del día.'],
-    politicas: ['Políticas de marcación', 'Qué se exige en cada marcación: rostro, ubicación, cuánta tolerancia. La de por defecto se aplica a quien no tenga otra.'],
+    politicas: ['Políticas de marcación', 'Qué se exige en cada marcación y cómo se calcula el día: rostro, ubicación, tolerancias de entrada, descanso y salida, y redondeo. La de por defecto se aplica a quien no tenga otra.'],
+    avisos: ['Avisos al colaborador', 'Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánto tiempo tiene para mandar su motivo.'],
     lugares: ['Lugares de marcación', 'Las sucursales y los centros de trabajo de Organización, con la geocerca dentro de la cual se puede marcar.'],
     asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué política tiene cada persona. Se puede asignar a toda una unidad o sucursal de una vez.'],
     biometria: ['Biometría y privacidad', 'Quién aceptó el consentimiento y enroló su rostro, y cuánto tiempo se guardan las selfies.'],
@@ -73,6 +74,7 @@ export default function Configuracion() {
 
       {ver === 'horarios' && <Horarios />}
       {ver === 'politicas' && <Politicas />}
+      {ver === 'avisos' && <Avisos />}
       {ver === 'lugares' && <Lugares />}
       {ver === 'asignaciones' && <Asignaciones />}
       {ver === 'biometria' && <Biometria />}
@@ -87,22 +89,23 @@ function Horarios() {
   const uso = id => Object.values(at.asignaciones).filter(a => a?.horarioId === id).length
   return (
     <>
-      <div><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', pausa: 60, meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button></div>
+      <div><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button></div>
       <div className="at-config-grid">
         {at.horarios.map(h => {
           const n = uso(h.id)
           const e = h.modo === 'fijo' ? aMin(h.entrada) : 0; const s = h.modo === 'fijo' ? aMin(h.salida) : 0
           const pos = m => `${(m / 1440) * 100}%`
+          const fr = franjaPausa(h)
           return (
             <article key={h.id} className="at-item">
               <div className="at-item-cab">
                 <span className="at-item-color" style={{ background: h.color }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 className="at-item-nom">{h.nombre} {h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</h3>
-                  <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${h.pausa ? ` · ${h.pausa} min de pausa` : ''}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
+                  <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${fr ? ` · descanso de ${hhmm(fr.desde)} a ${hhmm(fr.hasta)}` : ' · sin descanso'}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
                 </div>
                 <MenuAcciones items={[
-                  { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...h }) },
+                  { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...h, conPausa: !!fr, pausaDesde: fr ? hhmm(fr.desde) : '13:00', pausaHasta: fr ? hhmm(fr.hasta) : '14:00' }) },
                   { label: 'Duplicar', Icono: Copy, onClick: () => at.setHorarios(prev => [...prev, { ...h, id: `h-${Date.now().toString(36)}`, nombre: `${h.nombre} (copia)` }]) },
                   { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: n > 0, titulo: n > 0 ? 'Está asignado a personas: reasígnelas primero' : undefined, onClick: () => at.setHorarios(prev => prev.filter(x => x.id !== h.id)) },
                 ]} />
@@ -114,7 +117,7 @@ function Horarios() {
                 <div>
                   <div className="at-dia-24">
                     <span className="trab" style={{ left: pos(e), width: `calc(${pos(s)} - ${pos(e)})`, background: h.color }} />
-                    {h.pausa > 0 && <span className="pausa" style={{ left: pos(13 * 60), width: `${(h.pausa / 1440) * 100}%` }} />}
+                    {fr && <span className="pausa" style={{ left: pos(fr.desde), width: `${(fr.largo / 1440) * 100}%` }} title={`Descanso ${hhmm(fr.desde)}–${hhmm(fr.hasta)}`} />}
                     <span className="lbl" style={{ left: pos(e) }}>{h.entrada}</span>
                   </div>
                   <div className="at-dia-24-esc"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
@@ -139,10 +142,19 @@ function ModalHorario({ inicial, onCerrar }) {
   const at = useAsistencia()
   const [h, setH] = useState(inicial)
   const pon = (k, v) => setH(prev => ({ ...prev, [k]: v }))
+  const [, setParams] = useSearchParams()
+  const tol = at.politicaDefecto?.tolerancia ?? 10
+  const otras = at.politicas.filter(p => p.id !== at.politicaDefecto?.id && p.tolerancia !== tol)
+  const irPoliticas = () => { onCerrar(); setParams({ ver: 'politicas' }, { replace: true }) }
   const cruza = h.modo === 'fijo' && aMin(h.salida) <= aMin(h.entrada)
-  const valido = h.nombre.trim() && h.dias.length && (h.modo === 'flexible' ? h.meta > 0 : !cruza)
+  /* La franja de descanso tiene que caer dentro de la jornada y terminar después de empezar. */
+  const pd = aMin(h.pausaDesde); const ph = aMin(h.pausaHasta)
+  const pausaMal = h.modo === 'fijo' && h.conPausa && !cruza && (ph <= pd || pd <= aMin(h.entrada) || ph >= aMin(h.salida))
+  const valido = h.nombre.trim() && h.dias.length && (h.modo === 'flexible' ? h.meta > 0 : !cruza && !pausaMal)
+  const vista = { ...h, pausa: h.conPausa ? ph - pd : 0, pausaDesde: h.conPausa ? h.pausaDesde : null, pausaHasta: h.conPausa ? h.pausaHasta : null }
   const guardar = () => {
-    const limpio = { ...h, nombre: h.nombre.trim(), pausa: Number(h.pausa) || 0, meta: Number(h.meta) || 0 }
+    const { conPausa, ...resto } = vista // eslint-disable-line no-unused-vars
+    const limpio = { ...resto, nombre: h.nombre.trim(), meta: Number(h.meta) || 0 }
     if (h.id) at.setHorarios(prev => prev.map(x => (x.id === h.id ? limpio : x)))
     else at.setHorarios(prev => [...prev, { ...limpio, id: `h-${Date.now().toString(36)}` }])
     onCerrar()
@@ -164,21 +176,45 @@ function ModalHorario({ inicial, onCerrar }) {
           </div>
         </div>
         {h.modo === 'fijo' ? (
-          <div className="at-tres">
-            <label className="at-campo"><span>Entrada</span><input type="time" className="pl-input" value={h.entrada} onChange={e => pon('entrada', e.target.value)} /></label>
-            <label className="at-campo"><span>Salida</span><input type="time" className="pl-input" value={h.salida} onChange={e => pon('salida', e.target.value)} /></label>
-            <label className="at-campo"><span>Pausa (min)</span><input type="number" min="0" step="5" className="pl-input" value={h.pausa} onChange={e => pon('pausa', e.target.value)} /></label>
-          </div>
+          <>
+            <div className="at-dos">
+              <label className="at-campo"><span>Entrada</span><input type="time" className="pl-input" value={h.entrada} onChange={e => pon('entrada', e.target.value)} /></label>
+              <label className="at-campo"><span>Salida</span><input type="time" className="pl-input" value={h.salida} onChange={e => pon('salida', e.target.value)} /></label>
+            </div>
+            {/* LA TOLERANCIA NO ES DEL HORARIO sino de la política (un mismo 08:30 puede tener 10 min para
+                unos y 20 para otros). Pero quien arma el horario la busca acá, así que se le dice cuánto es
+                y dónde se cambia. */}
+            {!cruza && (
+              <div className="at-aviso-linea" style={{ alignItems: 'flex-start', lineHeight: 1.45 }}>
+                <Timer size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+                <span style={{ flex: 1 }}>
+                  Tolerancia de entrada: <b>{tol} min</b> ({at.politicaDefecto.nombre}), así que cuenta como atraso después de las <b>{hhmm(aMin(h.entrada) + tol)}</b>.
+                  {otras.length > 0 && <> {otras.map(p => `${p.nombre}: ${p.tolerancia} min`).join(' · ')}.</>}
+                  {' '}<button type="button" onClick={irPoliticas} style={{ border: 'none', background: 'none', padding: 0, font: 'inherit', fontWeight: 600, color: 'var(--text-heading)', textDecoration: 'underline', cursor: 'pointer' }}>Cambiar en Políticas</button>
+                </span>
+              </div>
+            )}
+            {/* EL DESCANSO ES UNA FRANJA (#2), no una cantidad de minutos: así se sabe si salió antes,
+                si volvió tarde o si se excedió. La tolerancia de cada cosa va en la política. */}
+            <Interruptor on={h.conPausa} onCambio={v => pon('conPausa', v)} titulo="Tiene descanso" texto="Una franja fija para almorzar o descansar. Se marca al salir y al volver, y no cuenta como trabajada." />
+            {h.conPausa && (
+              <div className="at-dos">
+                <label className="at-campo"><span>Descanso desde</span><input type="time" className="pl-input" value={h.pausaDesde} onChange={e => pon('pausaDesde', e.target.value)} /></label>
+                <label className="at-campo"><span>Hasta</span><input type="time" className="pl-input" value={h.pausaHasta} onChange={e => pon('pausaHasta', e.target.value)} /></label>
+              </div>
+            )}
+          </>
         ) : (
           <label className="at-campo"><span>Meta diaria (horas)</span><input type="number" min="1" max="12" step="0.5" className="pl-input" value={h.meta / 60} onChange={e => pon('meta', Math.round(Number(e.target.value) * 60))} /></label>
         )}
+        {pausaMal && <div className="at-aviso-linea" style={{ background: 'var(--dc-ambar-bg)', color: 'var(--dc-ambar)' }}><AlertTriangle size={14} /> El descanso tiene que empezar después de la entrada, terminar antes de la salida y durar algo.</div>}
         {cruza && <div className="at-aviso-linea" style={{ background: 'var(--dc-ambar-bg)', color: 'var(--dc-ambar)' }}><AlertTriangle size={14} /> La salida es antes que la entrada. Los turnos que cruzan la medianoche todavía no se calculan bien (riesgo K1): divídalo en dos días por ahora.</div>}
         <div className="at-campo"><span>Color</span>
           <div style={{ display: 'flex', gap: 8 }}>
             {COLORES.map(c => <button key={c} type="button" aria-label={`Color ${c}`} aria-pressed={h.color === c} onClick={() => pon('color', c)} style={{ width: 26, height: 26, borderRadius: 8, border: 'none', background: c, cursor: 'pointer', boxShadow: h.color === c ? '0 0 0 2px var(--surface-card), 0 0 0 4px var(--text-heading)' : 'none' }} />)}
           </div>
         </div>
-        <p className="at-ayuda">{h.modo === 'fijo' && !cruza ? `${duracion(minutosProgramados(h))} programadas al día, ${duracion(minutosProgramados(h) * h.dias.length)} a la semana.` : h.modo === 'flexible' ? `${duracion(h.meta * h.dias.length)} a la semana.` : ''}</p>
+        <p className="at-ayuda">{h.modo === 'fijo' && !cruza && !pausaMal ? `${duracion(minutosProgramados(vista))} programadas al día${vista.pausa ? ` (sin contar ${duracion(vista.pausa)} de descanso)` : ''}, ${duracion(minutosProgramados(vista) * h.dias.length)} a la semana.` : h.modo === 'flexible' ? `${duracion(h.meta * h.dias.length)} a la semana.` : ''}</p>
       </div>
     </Modal>
   )
@@ -191,7 +227,7 @@ function Politicas() {
   const uso = id => at.personas.filter(p => p.politica?.id === id).length
   return (
     <>
-      <div><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, tolerancia: 10, radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button></div>
+      <div><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, ...reglasDe(null), radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button></div>
       <div className="at-config-grid">
         {at.politicas.map(p => (
           <article key={p.id} className="at-item">
@@ -201,7 +237,7 @@ function Politicas() {
                 <div className="at-item-sub">{p.desc}</div>
               </div>
               <MenuAcciones items={[
-                { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...p }) },
+                { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...reglasDe(p), ...p }) },
                 !p.porDefecto && { label: 'Usar por defecto', Icono: Star, onClick: () => at.setPoliticas(prev => prev.map(x => ({ ...x, porDefecto: x.id === p.id }))) },
                 { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: p.porDefecto || uso(p.id) > 0, titulo: p.porDefecto ? 'Es la de por defecto' : uso(p.id) ? 'Está en uso' : undefined, onClick: () => at.setPoliticas(prev => prev.filter(x => x.id !== p.id)) },
               ]} />
@@ -209,7 +245,10 @@ function Politicas() {
             <div className="at-reglas">
               <span className={`at-regla${p.rostro ? '' : ' off'}`}><ScanFace size={15} style={{ color: p.rostro ? 'var(--dc-verde)' : undefined }} /> {p.rostro ? `Rostro ≥ ${Math.round(p.umbral * 100)}%` : 'Sin rostro'}</span>
               <span className={`at-regla${p.geocerca ? '' : ' off'}`}>{p.geocerca ? <MapPin size={15} style={{ color: 'var(--dc-verde)' }} /> : <MapPinOff size={15} />} {p.geocerca ? 'Con geocerca' : 'Sin geocerca'}</span>
-              <span className="at-regla"><Timer size={15} style={{ color: 'var(--dc-ambar)' }} /> {p.tolerancia} min de tolerancia</span>
+              <span className="at-regla"><Timer size={15} style={{ color: 'var(--dc-ambar)' }} /> Entrada: {p.tolerancia} min de tolerancia</span>
+              <span className="at-regla"><Coffee size={15} style={{ color: 'var(--dc-ambar)' }} /> Descanso: {reglasDe(p).toleranciaPausa} min · sin marcar, {SIN_PAUSA[reglasDe(p).sinPausa].label.toLowerCase()}</span>
+              <span className="at-regla"><LogOut size={15} style={{ color: 'var(--dc-ambar)' }} /> Salida: {reglasDe(p).toleranciaSalida} min antes</span>
+              <span className="at-regla"><Clock size={15} style={{ color: 'var(--dc-azul)' }} /> {REDONDEOS.find(r => r.valor === reglasDe(p).redondeo)?.label}</span>
               <span className="at-regla"><Ruler size={15} style={{ color: 'var(--dc-azul)' }} /> {p.radio ? `Radio de ${p.radio} m` : 'Radio del lugar'}</span>
             </div>
             <div className="at-item-pie"><span>Horario flexible: nunca pide geocerca</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Users size={13} /> {uso(p.id)}</span></div>
@@ -235,7 +274,7 @@ function ModalPolitica({ inicial, onCerrar }) {
   const [p, setP] = useState(inicial)
   const pon = (k, v) => setP(prev => ({ ...prev, [k]: v }))
   const guardar = () => {
-    const limpio = { ...p, nombre: p.nombre.trim(), tolerancia: Number(p.tolerancia) || 0, radio: p.radio ? Number(p.radio) : null }
+    const limpio = { ...p, nombre: p.nombre.trim(), tolerancia: Number(p.tolerancia) || 0, toleranciaPausa: Number(p.toleranciaPausa) || 0, toleranciaSalida: Number(p.toleranciaSalida) || 0, redondeo: Number(p.redondeo) || 0, radio: p.radio ? Number(p.radio) : null }
     at.setPoliticas(prev => {
       let lista = p.id ? prev.map(x => (x.id === p.id ? limpio : x)) : [...prev, { ...limpio, id: `p-${Date.now().toString(36)}` }]
       if (limpio.porDefecto) { const id = limpio.id || lista[lista.length - 1].id; lista = lista.map(x => ({ ...x, porDefecto: x.id === id })) }
@@ -257,13 +296,73 @@ function ModalPolitica({ inicial, onCerrar }) {
           </label>
         )}
         <Interruptor on={p.geocerca} onCambio={v => pon('geocerca', v)} titulo="Exigir estar en el lugar" texto="Si está apagado, la ubicación se guarda pero no bloquea la marcación." />
-        <div className="at-dos">
+        <label className="at-campo"><span>Radio propio (m) <em>opcional</em></span><input type="number" min="30" max="2000" className="pl-input" value={p.radio || ''} placeholder="El del lugar" onChange={e => pon('radio', e.target.value)} disabled={!p.geocerca} /></label>
+
+        {/* CÓMO SE CALCULA EL DÍA (#2, #5, #6, #7, #8, #26). */}
+        <div className="at-form-sep">Cómo se calcula el día</div>
+        <div className="at-tres">
           <label className="at-campo"><span>Tolerancia de entrada (min)</span><input type="number" min="0" max="60" className="pl-input" value={p.tolerancia} onChange={e => pon('tolerancia', e.target.value)} /></label>
-          <label className="at-campo"><span>Radio propio (m) <em>opcional</em></span><input type="number" min="30" max="2000" className="pl-input" value={p.radio || ''} placeholder="El del lugar" onChange={e => pon('radio', e.target.value)} disabled={!p.geocerca} /></label>
+          <label className="at-campo"><span>Tolerancia de descanso (min)</span><input type="number" min="0" max="30" className="pl-input" value={p.toleranciaPausa} onChange={e => pon('toleranciaPausa', e.target.value)} /></label>
+          <label className="at-campo"><span>Tolerancia de salida (min)</span><input type="number" min="0" max="60" className="pl-input" value={p.toleranciaSalida} onChange={e => pon('toleranciaSalida', e.target.value)} /></label>
+        </div>
+        <p className="at-ayuda" style={{ marginTop: -6 }}>Descanso: minutos de gracia al salir antes de la franja, al volver después o al excederse. Salida: minutos antes de la hora de salida que todavía no son «salida anticipada».</p>
+        <div className="at-campo"><span>Si no marca el descanso</span>
+          <div className="at-segmento" role="radiogroup">
+            {Object.entries(SIN_PAUSA).map(([k, v]) => <button key={k} type="button" role="radio" aria-checked={p.sinPausa === k} className={p.sinPausa === k ? 'on' : ''} onClick={() => pon('sinPausa', k)}>{v.label}</button>)}
+          </div>
+          <span className="at-ayuda">{SIN_PAUSA[p.sinPausa]?.desc}</span>
+        </div>
+        <div className="at-campo"><span>Redondeo de la tardanza y la salida anticipada</span>
+          <div className="at-segmento" role="radiogroup">
+            {REDONDEOS.map(r => <button key={r.valor} type="button" role="radio" aria-checked={Number(p.redondeo) === r.valor} className={Number(p.redondeo) === r.valor ? 'on' : ''} onClick={() => pon('redondeo', r.valor)}>{r.label}</button>)}
+          </div>
+          <span className="at-ayuda">{REDONDEOS.find(r => r.valor === Number(p.redondeo))?.desc} Las marcaciones siempre se guardan al segundo, con la hora del servidor.</span>
         </div>
         <Interruptor on={p.porDefecto} onCambio={v => pon('porDefecto', v)} titulo="Usar por defecto" texto="Se aplica a quien no tenga otra política asignada. Sólo puede haber una." />
       </div>
     </Modal>
+  )
+}
+
+/* ── AVISOS AL COLABORADOR (#14, #15) ──
+   Cuando el día de alguien sale con una alerta, la app se lo avisa en el momento —«Hoy llegaste
+   45 min tarde»— con un botón para agregar el motivo. Lo que mande llega a Solicitudes ›
+   Justificaciones; su jefe o RR.HH. lo acepta o no. */
+const AVISOS = [
+  { key: 'tarde', tit: 'Llegó tarde', ejemplo: 'Hoy llegaste 45 min tarde. ¿Quieres contarnos qué pasó?' },
+  { key: 'pausa', tit: 'Descanso excedido o fuera de su franja', ejemplo: 'Volviste 18 min tarde de tu descanso. ¿Agregas el motivo?' },
+  { key: 'anticipada', tit: 'Salida anticipada', ejemplo: 'Marcaste tu salida 25 min antes de tu horario. ¿Agregas el motivo?' },
+  { key: 'sinPausa', tit: 'No marcó su descanso', ejemplo: 'Hoy no marcaste tu descanso de 13:00 a 14:00. ¿Lo tomaste?' },
+  { key: 'ausente', tit: 'Faltó sin aviso', ejemplo: 'Ayer no registramos tu asistencia. ¿Nos cuentas el motivo?' },
+]
+function Avisos() {
+  const at = useAsistencia()
+  const g = at.ajustesGenerales
+  const pon = (k, v) => at.setAjustesGenerales({ ...g, [k]: v })
+  return (
+    <div className="at-config-grid at-avisos">
+      <article className="at-item" style={{ gridColumn: '1 / -1' }}>
+        <div className="at-item-cab"><div><h3 className="at-item-nom"><BellRing size={16} /> Qué se le avisa</h3><div className="at-item-sub">Una notificación en su teléfono, en el momento, con el botón «Agregar motivo».</div></div></div>
+        {AVISOS.map(a => (
+          <div key={a.key} className="at-aviso-fila">
+            <Interruptor on={g.avisar?.[a.key] !== false} onCambio={v => pon('avisar', { ...g.avisar, [a.key]: v })} titulo={a.tit} texto="" />
+            <div className="at-aviso-ejemplo"><Smartphone size={13} aria-hidden="true" /> «{a.ejemplo}» <b>Agregar motivo</b></div>
+          </div>
+        ))}
+      </article>
+      <article className="at-item">
+        <div className="at-item-cab"><div><h3 className="at-item-nom"><Timer size={16} /> Desde cuánto se avisa</h3><div className="at-item-sub">Para no avisar por un minuto suelto. Lo que quede debajo igual se calcula y se ve en el día.</div></div></div>
+        <label className="at-campo"><span>Avisar desde {g.avisarDesde} min</span>
+          <input type="range" className="at-rango" min="0" max="30" step="1" value={g.avisarDesde} onChange={e => pon('avisarDesde', Number(e.target.value))} />
+        </label>
+      </article>
+      <article className="at-item">
+        <div className="at-item-cab"><div><h3 className="at-item-nom"><CalendarClock size={16} /> Plazo para justificar</h3><div className="at-item-sub">Si no manda su motivo en este plazo, se le recuerda una vez y queda como injustificado. Se puede aceptar después mientras el mes no esté cerrado.</div></div></div>
+        <label className="at-campo"><span>{g.plazoJustificar} {g.plazoJustificar === 1 ? 'día hábil' : 'días hábiles'}</span>
+          <input type="range" className="at-rango" min="1" max="10" step="1" value={g.plazoJustificar} onChange={e => pon('plazoJustificar', Number(e.target.value))} />
+        </label>
+      </article>
+    </div>
   )
 }
 

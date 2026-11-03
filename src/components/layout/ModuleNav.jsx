@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, MessagesSquare, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, BellRing, Wallet, ScanFace } from 'lucide-react'
+import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, BellRing, Clock } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -16,7 +16,7 @@ const sectionInfo = {
   'Empresa': 'Quién es la empresa, dónde está y cómo se organiza por dentro. Se define una vez y casi no se toca.',
   'Puestos y personas': 'Los cargos, las plazas y el dibujo. De aquí sacan Onboarding y Evaluación el área y el cargo de cada persona.',
   'Sistema': 'Cómo se comporta Souly para toda la empresa. Se decide una vez y afecta a todos los módulos.',
-  'Asistencia': 'Hoy: lo que pasa en vivo. Libro: cada jornada. Incidencias: lo que espera una decisión. Solicitudes: vacaciones, permisos, horas extra y correcciones. Cierre: el saldo para nómina.',
+  'Asistencia': 'Hoy: lo que pasa en vivo. Libro: cada jornada. Incidencias: lo que espera una decisión. Solicitudes: vacaciones, permisos, horas extra y correcciones.',
   'Documentación': 'Expedientes: lo de cada persona. Solicitudes: lo que la gente pide a RR.HH. Documentos emitidos: lo que la empresa le envió. Configuración: carpetas y plantillas.',
 }
 const sectionInfoTitle = {
@@ -47,14 +47,15 @@ const inicioNav = [
 const miEspacioPropio = [
   { label: 'Mi día', path: '/mi-espacio/mi-dia', icon: Sun },
   { label: 'Mi Onboarding', path: '/mi-espacio/mi-onboarding', icon: Rocket },
-  { label: 'Mi asistencia', path: '/mi-espacio/mi-asistencia', icon: ScanFace },
+  { label: 'Mi asistencia', path: '/mi-espacio/mi-asistencia', icon: Clock },
+  { label: 'Mi calendario', path: '/mi-espacio/calendario', icon: Calendar },
 ]
 
 /* Las tres últimas son las pestañas que el colaborador ya tiene en la barra de abajo del móvil
    —Chat, Zona HR y Perfil— y que en escritorio no aparecían por ningún lado. Van al final y en
    ese mismo orden para que las dos vistas se lean igual. */
 const miEspacioApp = [
-  { label: 'Chats', path: '/mi-espacio/chats', icon: MessageCircleMore },
+  { label: 'Mis chats', path: '/mi-espacio/chats', icon: MessageCircleMore },
   { label: 'Zona HR', path: '/mi-espacio/zona-hr', icon: LayoutGrid },
   { label: 'Mi perfil', path: '/mi-espacio/perfil', icon: UserRound },
 ]
@@ -190,15 +191,16 @@ const organizacionNav = () => [
   ]},
 ]
 
-/* COMUNICACIÓN: el lado administrativo del muro. Aquí se REDACTA lo que en Mi día se lee, y por
-   eso «Mis chats» abre la lista: es lo único de este módulo que se usa todos los días. */
+/* COMUNICACIÓN: el lado administrativo del muro. Aquí se REDACTA lo que en Mi día se lee y se arman
+   los canales y grupos oficiales. Los chats de cada uno no están aquí: viven en Mi espacio, también
+   los de quien es de RR.HH. (decisión «dividir», 30 oct 2026). */
 const comunicacionNav = [
   { section: 'Administración', items: [
-    { label: 'Mis chats', path: '/comunicacion/chats', icon: MessagesSquare },
     { label: 'Gestión de anuncios', path: '/comunicacion/anuncios', icon: Megaphone },
     { label: 'Reconocimientos', path: '/comunicacion/reconocimientos', icon: Award },
     { label: 'Gestión de eventos', path: '/comunicacion/eventos', icon: CalendarClock },
     { label: 'Mensajes programados', path: '/comunicacion/programados', icon: Send },
+    { label: 'Canales y grupos', path: '/comunicacion/canales', icon: Radio },
   ]},
 ]
 
@@ -259,14 +261,15 @@ const asistenciaNav = (cuentas = {}) => [
       { label: 'Vacaciones', ver: 'vacaciones' },
       { label: 'Permisos y licencias', ver: 'permisos' },
       { label: 'Horas extra', ver: 'horas-extra' },
+      { label: 'Justificaciones', ver: 'justificaciones' },
       { label: 'Correcciones de marcación', ver: 'correcciones' },
       { label: 'Trabajo remoto', ver: 'remoto' },
       { label: 'Cambios de turno', ver: 'cambios' },
     ] },
-    { label: 'Cierre del mes', path: '/asistencia/cierre', icon: Wallet },
     { label: 'Configuración', path: '/asistencia/configuracion', icon: Settings, subs: [
       { label: 'Horarios', ver: 'horarios' },
       { label: 'Políticas de marcación', ver: 'politicas' },
+      { label: 'Avisos al colaborador', ver: 'avisos' },
       { label: 'Lugares y geocercas', ver: 'lugares' },
       { label: 'Asignaciones', ver: 'asignaciones' },
       { label: 'Biometría y privacidad', ver: 'biometria' },

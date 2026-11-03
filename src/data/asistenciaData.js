@@ -9,33 +9,57 @@
    están escritas como las del backend (`recomputeJornada`): puras, sin estado, y son lo único que
    decide el estado de un día. Las pantallas sólo las leen. */
 
-/* ── EL RELOJ ── */
-export const ahora = () => new Date()
+/* ── EL RELOJ ──
+   EL RELOJ DE LA DEMO. «Cargar datos de ejemplo» pone a Asistencia en un viernes por la tarde: la
+   semana completa a la vista, el mes casi cerrado, gente trabajando y gente que ya salió. Cada vez
+   que se abre la página el reloj arranca en ese viernes a esa hora y avanza con el tiempo real
+   mientras se mira. «Resetear demo» lo borra (vive con las demás claves `onb_demo_`) y vuelve el
+   reloj de verdad. Se lee una vez al cargar: las dos acciones recargan la página. */
+const CLAVE_RELOJ = 'onb_demo_at_reloj'
+const ARRANQUE = Date.now()
+const leerReloj = () => { try { return JSON.parse(localStorage.getItem(CLAVE_RELOJ)) || null } catch { return null } }
+export const relojDemo = typeof localStorage !== 'undefined' ? leerReloj() : null
+const BASE_DEMO = relojDemo ? (() => {
+  const [y, m, d] = relojDemo.fecha.split('-').map(Number); const [hh, mm] = relojDemo.hora.split(':').map(Number)
+  return new Date(y, m - 1, d, hh, mm, 0).getTime()
+})() : null
+export const ahora = () => (BASE_DEMO != null ? new Date(BASE_DEMO + (Date.now() - ARRANQUE)) : new Date())
 export const iso = d => {
   const x = new Date(d)
   return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`
 }
-export const hoyISO = () => iso(new Date())
+export const hoyISO = () => iso(ahora())
 /* 'AAAA-MM-DD' partido a mano: `new Date(cadena)` lo lee como UTC y en Bolivia da el día anterior. */
 export const aFecha = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d) }
 export const sumarDias = (s, n) => { const d = aFecha(s); d.setDate(d.getDate() + n); return iso(d) }
 /* Lunes = 1 … domingo = 7, como `dias_semana` en el backend (ISO). */
 export const diaISO = s => { const d = aFecha(s).getDay(); return d === 0 ? 7 : d }
-export const minutosAhora = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60 }
+export const minutosAhora = () => { const d = ahora(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60 }
 
-export const aMin = hhmm => { const [h, m] = (hhmm || '0:0').split(':').map(Number); return h * 60 + m }
+/* AL SEGUNDO (#8). El tiempo se guarda en minutos con decimales: 08:30:01 es 510,0167 y 08:30:59 es
+   510,983. Nada se redondea al guardar; cada pantalla TRUNCA al mostrar —08:30:59 se lee 08:30 en
+   una lista y 08:30:59 en el detalle, nunca 08:31— y el cálculo usa los segundos de verdad. */
+export const aMin = hhmm => { const [h, m, s = 0] = (hhmm || '0:0').split(':').map(Number); return h * 60 + m + s / 60 }
+/* Segundos enteros, para no arrastrar los 0,99999 de la coma flotante. */
+const segDe = min => Math.round(min * 60)
+export const alSegundo = min => segDe(min) / 60
 export const hhmm = min => {
   if (min == null) return '—'
-  const m = Math.round(min)
+  const m = Math.floor(segDe(min) / 60)
   return `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
 }
-/* «7 h 45 min», «45 min», «0 min». Con signo cuando se pide, para los saldos. */
-export function duracion(min, { signo = false, corto = false } = {}) {
+export const hhmmss = min => (min == null ? '—' : `${hhmm(min)}:${String(segDe(min) % 60).padStart(2, '0')}`)
+/* «7 h 45 min», «45 min», «0 min». Con signo cuando se pide, para los saldos. `seg` agrega los
+   segundos («1 h 8 min 12 s»): el detalle de un día los muestra; las sumas del mes, no. Siempre
+   trunca: nunca dice más tiempo del que hubo. */
+export function duracion(min, { signo = false, corto = false, seg = false } = {}) {
   if (min == null) return '—'
   const s = min < 0 ? '−' : signo && min > 0 ? '+' : ''
-  const a = Math.round(Math.abs(min))
+  const t = Math.abs(segDe(min))
+  const a = Math.floor(t / 60); const ss = t % 60
   const h = Math.floor(a / 60); const m = a % 60
-  if (corto) return `${s}${h}:${String(m).padStart(2, '0')}`
+  if (corto) return `${s}${h}:${String(m).padStart(2, '0')}${seg ? `:${String(ss).padStart(2, '0')}` : ''}`
+  if (seg) return `${s}${[h && `${h} h`, (h || m) && `${m} min`, (ss || (!h && !m)) && `${ss} s`].filter(Boolean).join(' ')}`
   if (!h) return `${s}${m} min`
   return `${s}${h} h${m ? ` ${m} min` : ''}`
 }
@@ -58,6 +82,7 @@ export const mesVecino = (ym, n) => { const [y, m] = ym.split('-').map(Number); 
 export const ESTADOS = {
   presente:   { label: 'Presente',          tono: 'verde',   icono: 'check',  desc: 'Cumplió su jornada.' },
   tarde:      { label: 'Llegó tarde',       tono: 'ambar',   icono: 'reloj',  desc: 'Entró después de su hora de entrada más la tolerancia.' },
+  anticipada: { label: 'Salida anticipada', tono: 'ambar',   icono: 'reloj',  desc: 'Salió antes de su hora de salida, pasada la tolerancia.' },
   extra:      { label: 'Horas extra',       tono: 'azul',    icono: 'subir',  desc: 'Trabajó horas extra autorizadas por RR.HH.' },
   incompleta: { label: 'Sin salida',        tono: 'violeta', icono: 'medio',  desc: 'Marcó la entrada y nunca la salida.' },
   ausente:    { label: 'Ausente',           tono: 'rojo',    icono: 'cruz',   desc: 'Tenía jornada y no marcó.' },
@@ -88,21 +113,68 @@ export const TIPOS_JUSTIFICACION = ['Permiso con goce', 'Licencia médica', 'Vac
 /* ── LO QUE SE SIEMBRA ── */
 
 export const HORARIOS_SEED = [
-  { id: 'h-oficina', nombre: 'Oficina', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', pausa: 60, color: '#00B876' },
-  { id: 'h-tienda', nombre: 'Atención al público', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '09:00', salida: '17:00', pausa: 30, color: '#3B82F6' },
-  { id: 'h-deposito', nombre: 'Depósito · turno mañana', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '07:00', salida: '15:00', pausa: 30, color: '#F59E0B' },
+  { id: 'h-oficina', nombre: 'Oficina', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', pausa: 60, pausaDesde: '13:00', pausaHasta: '14:00', color: '#00B876' },
+  { id: 'h-tienda', nombre: 'Atención al público', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '09:00', salida: '17:00', pausa: 30, pausaDesde: '13:00', pausaHasta: '13:30', color: '#3B82F6' },
+  { id: 'h-deposito', nombre: 'Depósito · turno mañana', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '07:00', salida: '15:00', pausa: 30, pausaDesde: '11:30', pausaHasta: '12:00', color: '#F59E0B' },
   { id: 'h-flexible', nombre: 'Flexible por objetivos', modo: 'flexible', dias: [1, 2, 3, 4, 5], meta: 480, color: '#8B5CF6' },
   { id: 'h-medio', nombre: 'Medio tiempo', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:00', salida: '12:00', pausa: 0, color: '#EC4899' },
 ]
 
 export const POLITICAS_SEED = [
-  { id: 'p-estandar', nombre: 'Estándar', rostro: true, geocerca: true, umbral: 0.78, tolerancia: 10, radio: null, porDefecto: true,
+  { id: 'p-estandar', nombre: 'Estándar', rostro: true, geocerca: true, umbral: 0.78, tolerancia: 10, toleranciaPausa: 2, toleranciaSalida: 5, sinPausa: 'ambas', redondeo: 0, radio: null, porDefecto: true,
     desc: 'Rostro y ubicación en cada marcación. La que se aplica si nadie eligió otra.' },
-  { id: 'p-remoto', nombre: 'Trabajo remoto', rostro: true, geocerca: false, umbral: 0.8, tolerancia: 10, radio: null, porDefecto: false,
+  { id: 'p-remoto', nombre: 'Trabajo remoto', rostro: true, geocerca: false, umbral: 0.8, tolerancia: 10, toleranciaPausa: 2, toleranciaSalida: 5, sinPausa: 'ambas', redondeo: 0, radio: null, porDefecto: false,
     desc: 'El rostro prueba quién marca y el horario cuándo. La ubicación se guarda, pero no bloquea.' },
-  { id: 'p-confianza', nombre: 'Cargos de confianza', rostro: false, geocerca: true, umbral: 0.78, tolerancia: 20, radio: 300, porDefecto: false,
+  { id: 'p-confianza', nombre: 'Cargos de confianza', rostro: false, geocerca: true, umbral: 0.78, tolerancia: 20, toleranciaPausa: 10, toleranciaSalida: 15, sinPausa: 'alertar', redondeo: 0, radio: 300, porDefecto: false,
     desc: 'Sin rostro y con una geocerca más amplia, para quien entra y sale de reuniones todo el día.' },
 ]
+
+/* LAS REGLAS DE CÁLCULO DE UNA POLÍTICA, con sus valores por defecto (las políticas guardadas antes
+   de que existieran estos campos siguen funcionando):
+     · toleranciaPausa: minutos de gracia al salir al descanso o al volver de él.
+     · toleranciaSalida: minutos antes de la hora de salida que todavía no son «salida anticipada».
+     · sinPausa: si no marcó el descanso, 'descontar' la franja, solo 'alertar' o 'ambas' (#6).
+     · redondeo: 0 = al segundo; 1 o 5 = la tardanza se cuenta por minutos completos o bloques de 5,
+       hacia abajo, a favor de la persona (#8). */
+export const SIN_PAUSA = {
+  ambas: { label: 'Descontar y alertar', desc: 'Se resta la franja de lo trabajado y queda la alerta «sin descanso» para revisarla.' },
+  descontar: { label: 'Solo descontar', desc: 'Se resta la franja de lo trabajado, sin alerta.' },
+  alertar: { label: 'Solo alertar', desc: 'Se cuenta todo como trabajado y queda la alerta «sin descanso».' },
+}
+export const REDONDEOS = [
+  { valor: 0, label: 'Al segundo', desc: 'Entrada 08:30, tolerancia 10 min: quien marca 08:40:59 suma 59 s de tardanza.' },
+  { valor: 1, label: 'Por minuto completo', desc: 'Los segundos sueltos no cuentan: 3 min 59 s de tardanza son 3 min.' },
+  { valor: 5, label: 'En bloques de 5 min', desc: '7 min 30 s de tardanza cuentan como 5 min.' },
+]
+export const reglasDe = pol => ({
+  tolerancia: pol?.tolerancia ?? 10,
+  toleranciaPausa: pol?.toleranciaPausa ?? 2,
+  toleranciaSalida: pol?.toleranciaSalida ?? 5,
+  sinPausa: pol?.sinPausa || 'ambas',
+  redondeo: pol?.redondeo ?? 0,
+})
+const redondear = (min, bloque) => (bloque ? Math.floor(min / bloque + 1e-9) * bloque : min)
+
+/* LA FRANJA DE DESCANSO DE UN HORARIO (#2), en minutos. Los horarios guardados con solo «pausa en
+   minutos» la toman desde las 13:00, que es donde la pantalla se la dibujaba. */
+export function franjaPausa(h) {
+  if (!h || h.modo !== 'fijo' || !(h.pausa > 0 || h.pausaDesde)) return null
+  const desde = aMin(h.pausaDesde || '13:00')
+  const hasta = h.pausaHasta ? aMin(h.pausaHasta) : desde + (Number(h.pausa) || 0)
+  return hasta > desde ? { desde, hasta, largo: hasta - desde } : null
+}
+
+/* LAS ALERTAS DE UN DÍA: lo que se le avisa a la persona y lo que puede justificar (#5, #6, #7, #15). */
+export const ALERTAS = {
+  tarde: { label: 'Llegó tarde', corto: 'Tarde', tono: 'ambar' },
+  pausaAnticipada: { label: 'Salió antes al descanso', corto: 'Descanso antes', tono: 'ambar' },
+  pausaRetorno: { label: 'Volvió tarde del descanso', corto: 'Volvió tarde', tono: 'ambar' },
+  pausaExceso: { label: 'Excedió su descanso', corto: 'Descanso excedido', tono: 'rojo' },
+  sinPausa: { label: 'No marcó su descanso', corto: 'Sin descanso', tono: 'violeta' },
+  anticipada: { label: 'Salida anticipada', corto: 'Salió antes', tono: 'ambar' },
+}
+/* El motivo que la persona elige al justificar (#13): un catálogo corto y una línea propia. */
+export const MOTIVOS_JUSTIFICACION = ['Transporte o tráfico', 'Bloqueo o marcha', 'Salud', 'Trámite personal', 'Asunto familiar', 'Clima', 'Pedido de mi jefe', 'Problema con la app', 'Otro']
 
 /* La geocerca de cada lugar de Organización, por su id. Coordenadas aproximadas de cada sitio. */
 export const GEOCERCAS_SEED = {
@@ -186,6 +258,10 @@ export const TIPOS_SOLICITUD = {
   correccion: { label: 'Corrección de marcación', plural: 'Correcciones de marcación', desc: 'Olvidó marcar o marcó mal. Al aprobarse, se carga la marcación con su motivo.' },
   remoto: { label: 'Trabajo remoto', plural: 'Trabajo remoto', desc: 'Pide trabajar desde casa. Al aprobarse, ese día no se exige estar en la geocerca.' },
   cambio: { label: 'Cambio de turno', plural: 'Cambios de turno', desc: 'Cambia el turno de un día, a veces con un compañero.' },
+  /* JUSTIFICAR UNA ALERTA (#13). La app le avisa a la persona («Hoy llegaste 45 min tarde») y ella
+     agrega el motivo; su jefe o RR.HH. lo acepta o lo rechaza. Aceptado, deja de contar en contra en
+     el cierre; rechazado, sigue contando. `alerta` es una clave de ALERTAS. */
+  justificacion: { label: 'Justificación', plural: 'Justificaciones', desc: 'Tardanzas, descansos excedidos y salidas anticipadas que la persona explicó desde la app. Al aceptarlas, dejan de contar como injustificadas en el cierre.' },
 }
 export const SUBTIPOS_PERMISO = [
   { key: 'medico', label: 'Cita médica', licencia: false },
@@ -197,6 +273,9 @@ export const SUBTIPOS_PERMISO = [
   { key: 'paternidad', label: 'Licencia por paternidad', licencia: true },
   { key: 'duelo', label: 'Licencia por duelo', licencia: true },
   { key: 'matrimonio', label: 'Licencia por matrimonio', licencia: true },
+  /* Un beneficio de la empresa, no de la ley: se pide desde Mis beneficios con el día ya puesto, y por
+     eso no aparece en la lista de «¿Qué necesita?». RR.HH. lo ve y lo aprueba como cualquier permiso. */
+  { key: 'cumpleanos', label: 'Día libre de cumpleaños', licencia: false, beneficio: true },
 ]
 export const ESTADOS_SOLICITUD = {
   pendiente: { label: 'Por responder', tono: 'ambar' },
@@ -349,11 +428,15 @@ export const ORIGENES_EXTRA = {
 }
 export const esAutorizada = x => x.estado === 'aprobada' || x.estado === 'aceptada'
 
+/* El proyecto o centro de costo al que se cargan las horas extra (#10). */
+export const PROYECTOS_DEMO = ['Inventario anual', 'Cliente Hipermaxi', 'Proyecto X', 'Cierre contable', 'Apertura El Alto']
+
 export function horasExtraSeed(personas) {
   const h = hoyISO()
   const lista = []
   const pon = (p, fecha, desde, hasta, origen, estado, motivo) => lista.push({
     id: `hx-${p.id}-${fecha}`, personaId: p.id, fecha, desde, hasta, origen, estado, motivo,
+    proyecto: PROYECTOS_DEMO[p.id % PROYECTOS_DEMO.length], aprobador: 'Juan Pérez Gómez',
     por: origen === 'asignacion' ? 'Juan Pérez Gómez' : p.name, cuando: sumarDias(fecha, -2),
   })
   const motivos = ['Cierre de inventario', 'Pedido grande de un cliente', 'Cobertura por vacaciones', 'Entrega del mes', 'Apoyo en la apertura']
@@ -396,7 +479,7 @@ function rng(semilla) {
 const entre = (r, a, b) => a + r() * (b - a)
 
 /* ── HORARIOS ── */
-export const minutosProgramados = h => (h.modo === 'flexible' ? h.meta || 0 : Math.max(0, aMin(h.salida) - aMin(h.entrada) - (h.pausa || 0)))
+export const minutosProgramados = h => (h.modo === 'flexible' ? h.meta || 0 : Math.max(0, aMin(h.salida) - aMin(h.entrada) - (franjaPausa(h)?.largo || 0)))
 
 /* ── QUÉ TOCA MARCAR AHORA ──
    El orden del día es entrada → pausa → vuelta de la pausa → salida. Después de entrar, el botón
@@ -421,14 +504,15 @@ export function accionDelMomento(j, horario, minAhora) {
   if (j.salida != null) return { principal: null, secundaria: null, temprano: false, falta: 0, deshacer }
   if (j.entrada == null) return { principal: 'entrada', secundaria: null, temprano: false, falta: 0, deshacer: null }
   if (j.enPausa) return { principal: 'pausa_fin', secundaria: null, temprano, falta, deshacer: null }
-  const pausaPendiente = (horario.pausa || 0) > 0 && !validas.some(m => m.tipo === 'pausa_inicio')
+  const pausaPendiente = !!franjaPausa(horario) && !validas.some(m => m.tipo === 'pausa_inicio')
   const tocaPausa = pausaPendiente && falta > 60
   return tocaPausa
     ? { principal: 'pausa_inicio', secundaria: 'salida', temprano, falta, deshacer: null }
     : { principal: 'salida', secundaria: 'pausa_inicio', temprano, falta, deshacer: null }
 }
 export const ETIQUETA_MARCA = { entrada: 'Marcar entrada', pausa_inicio: 'Iniciar pausa', pausa_fin: 'Volver de la pausa', salida: 'Marcar salida' }
-export const esDiaLaboral = (h, fecha) => !!h && h.dias.includes(diaISO(fecha))
+/* Los feriados nacionales no son días laborales: nadie llega tarde ni falta en Todos Santos. */
+export const esDiaLaboral = (h, fecha) => !!h && h.dias.includes(diaISO(fecha)) && !FERIADOS[fecha]
 
 /* ¿Qué se exige el día de hoy? La regla del backend (`service.ts:657`), más la modalidad: un
    híbrido fuera de sus días de oficina marca como remoto. */
@@ -461,7 +545,7 @@ export function marcasSembradas(p, asig, horario, politica, lugar, fecha, hasta 
     const punto = sitio ? desplazar(sitio, ex.remotoHoy ? entre(r, 0, 25) : entre(r, 4, (lugar.geo.radio || 150) * 0.6), entre(r, 0, 6.28)) : null
     const dist = geo && punto ? distanciaM(punto, geo) : null
     marcas.push({
-      id: `m-${p.id}-${fecha}-${tipo}`, personaId: p.id, fecha, tipo, min: Math.round(min),
+      id: `m-${p.id}-${fecha}-${tipo}`, personaId: p.id, fecha, tipo, min: alSegundo(min),
       lat: punto?.lat ?? null, lng: punto?.lng ?? null,
       distancia: dist != null ? Math.round(dist) : null,
       dentro: ex.geocerca ? dist != null && dist <= (politica?.radio || geo?.radio || 150) : null,
@@ -484,7 +568,8 @@ export function marcasSembradas(p, asig, horario, politica, lugar, fecha, hasta 
     entrada = dado < 0.11 ? e + ex.tolerancia + entre(r, 2, 42) : e - entre(r, 0, 18) + entre(r, 0, 7)
     const d2 = r()
     /* Algunos se quedan sin autorización: eso es «fuera de horario», no horas extra. */
-    salida = d2 < 0.08 ? s + entre(r, 35, 125) : s + entre(r, -4, 14)
+    /* Y unos pocos se van antes: salida anticipada (#7). */
+    salida = d2 < 0.08 ? s + entre(r, 35, 125) : d2 > 0.965 ? s - entre(r, 12, 55) : s + entre(r, -4, 14)
     if (ventana && ventana.hasta > s) salida = ventana.hasta + entre(r, -6, 9)
   }
 
@@ -493,14 +578,23 @@ export function marcasSembradas(p, asig, horario, politica, lugar, fecha, hasta 
   if (intento < 0.012 && ex.rostro) pon('entrada', entrada - 1.5, { id: `m-${p.id}-${fecha}-rech`, rechazada: 'rostro', score: +entre(r, 0.5, 0.7).toFixed(2) })
   else if (intento < 0.022 && ex.geocerca && geo) {
     const lejos = desplazar(geo, entre(r, 320, 950), entre(r, 0, 6.28))
-    if (entrada - 6 <= hasta) marcas.push({ id: `m-${p.id}-${fecha}-rech`, personaId: p.id, fecha, tipo: 'entrada', min: Math.round(entrada - 6), lat: lejos.lat, lng: lejos.lng, distancia: Math.round(distanciaM(lejos, geo)), dentro: false, score: ex.rostro ? 0.9 : null, origen: 'app', rechazada: 'geocerca' })
+    if (entrada - 6 <= hasta) marcas.push({ id: `m-${p.id}-${fecha}-rech`, personaId: p.id, fecha, tipo: 'entrada', min: alSegundo(entrada - 6), lat: lejos.lat, lng: lejos.lng, distancia: Math.round(distanciaM(lejos, geo)), dentro: false, score: ex.rostro ? 0.9 : null, origen: 'app', rechazada: 'geocerca' })
   }
 
   pon('entrada', entrada)
-  if (laboral && (horario.pausa || horario.modo === 'flexible') && salida - entrada > 300) {
-    const pi = Math.max(entrada + 180, entre(r, 12.6 * 60, 13.4 * 60))
-    pon('pausa_inicio', pi)
-    pon('pausa_fin', pi + (horario.pausa || 45) + entre(r, -6, 12))
+  /* EL DESCANSO, DENTRO DE SU FRANJA (#2). Casi todos salen a la hora y vuelven a tiempo; algunos
+     salen antes, otros vuelven tarde o se exceden, y unos pocos no lo marcan (#5, #6). */
+  const franja = franjaPausa(horario)
+  if (laboral && (franja || horario.modo === 'flexible') && salida - entrada > 300) {
+    const d3 = r()
+    const ini = franja ? franja.desde : 13 * 60
+    const largo = franja ? franja.largo : 45
+    if (!(franja && d3 < 0.025)) {
+      const pi = Math.max(entrada + 120, d3 < 0.055 ? ini - entre(r, 8, 25) : ini + entre(r, -1.5, 1.8))
+      const pf = d3 > 0.94 ? pi + largo + entre(r, 6, 28) : pi + largo + entre(r, -5, 1.5)
+      pon('pausa_inicio', pi)
+      pon('pausa_fin', pf)
+    }
   }
   /* Sin salida: sólo en días pasados (hoy, todavía puede marcarla). */
   if (r() > 0.015 || ventana) pon('salida', salida)
@@ -511,7 +605,10 @@ export function marcasSembradas(p, asig, horario, politica, lugar, fecha, hasta 
    `recomputeJornada` del backend: entrada = la primera, salida = la última, pausas emparejadas por
    posición, tardanza contra la hora de entrada más la tolerancia. Y encima lo que sólo se sabe
    mirando HOY (si todavía puede llegar) y cruzando con ausencias aprobadas. */
-export function recomputar({ marcas, horario, tolerancia = 10, fecha, justificacion, esHoy = false, minAhora = 0, ventanas = [] }) {
+/* `reglas` = reglasDe(política). `justificadas` = { tarde: {...}, pausaExceso: {...} }: las alertas
+   del día que la persona justificó y su jefe aceptó (#13). */
+export function recomputar({ marcas, horario, tolerancia, reglas: reglasIn, fecha, justificacion, esHoy = false, minAhora = 0, ventanas = [], justificadas = {} }) {
+  const reglas = reglasIn || reglasDe({ tolerancia })
   const validas = marcas.filter(m => !m.rechazada && !m.anulada).sort((a, b) => a.min - b.min)
   const entradas = validas.filter(m => m.tipo === 'entrada')
   const salidas = validas.filter(m => m.tipo === 'salida')
@@ -525,8 +622,46 @@ export function recomputar({ marcas, horario, tolerancia = 10, fecha, justificac
   const laboral = esDiaLaboral(horario, fecha)
   const programado = laboral ? minutosProgramados(horario) : 0
   const fin = salida ?? (esHoy && entrada != null ? minAhora : null)
-  const trabajado = entrada != null && fin != null ? Math.max(0, fin - entrada - pausas - (enPausa && esHoy && salida == null ? minAhora - pi[pi.length - 1].min : 0)) : 0
-  const tardanza = laboral && horario?.modo === 'fijo' && entrada != null ? Math.max(0, entrada - (aMin(horario.entrada) + tolerancia)) : 0
+  let trabajado = entrada != null && fin != null ? Math.max(0, fin - entrada - pausas - (enPausa && esHoy && salida == null ? minAhora - pi[pi.length - 1].min : 0)) : 0
+  const fijo = laboral && horario?.modo === 'fijo'
+  const tol = reglas.tolerancia
+  /* UNA SOLA TARDANZA (#4): al segundo, contra la entrada + la tolerancia, redondeada según la
+     política. Todas las pantallas leen esta; ninguna la vuelve a calcular. */
+  const tardanza = fijo && entrada != null ? redondear(Math.max(0, entrada - (aMin(horario.entrada) + tol)), reglas.redondeo) : 0
+
+  /* EL DESCANSO EN SU FRANJA (#2, #5, #6): la primera pausa, contra la franja del horario. */
+  const franja = fijo ? franjaPausa(horario) : null
+  const alertas = []
+  const tolP = reglas.toleranciaPausa
+  let descontado = 0
+  if (franja && pi[0]) {
+    /* UNA ALERTA POR HECHO. Si se excedió, eso es lo que cuenta (y el detalle dice a qué hora salió
+       y volvió). Si no se excedió pero corrió su descanso fuera de la franja —salió antes o volvió
+       después—, se dice eso: dejó su puesto en un horario que no era de descanso. */
+    const ini = pi[0].min; const vuelta = pf[0]?.min
+    if (vuelta != null && pausas > franja.largo + tolP) alertas.push({ tipo: 'pausaExceso', min: redondear(pausas - franja.largo, reglas.redondeo), detalle: `Salió a las ${hhmmss(ini)} y volvió a las ${hhmmss(vuelta)}: tomó ${duracion(pausas, { seg: true })} de descanso y le corresponden ${duracion(franja.largo)}, de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.` })
+    else {
+      if (ini < franja.desde - tolP) alertas.push({ tipo: 'pausaAnticipada', min: redondear(franja.desde - ini, reglas.redondeo), detalle: `Salió a las ${hhmmss(ini)}; su descanso empieza a las ${hhmm(franja.desde)}.` })
+      if (vuelta != null && vuelta > franja.hasta + tolP) alertas.push({ tipo: 'pausaRetorno', min: redondear(vuelta - franja.hasta, reglas.redondeo), detalle: `Volvió a las ${hhmmss(vuelta)}; su descanso termina a las ${hhmm(franja.hasta)}.` })
+    }
+  } else if (franja && entrada != null && entrada < franja.desde && salida != null && salida > franja.hasta) {
+    /* Trabajó de corrido sin marcar el descanso: la política dice si se descuenta, se alerta o ambas. */
+    if (reglas.sinPausa !== 'alertar') descontado = franja.largo
+    if (reglas.sinPausa !== 'descontar') alertas.push({ tipo: 'sinPausa', min: franja.largo, detalle: `No marcó su descanso de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.${descontado ? ` Se descontaron ${duracion(descontado)} de lo trabajado.` : ' No se descontó.'}` })
+  }
+  trabajado = Math.max(0, trabajado - descontado)
+  /* SALIDA ANTICIPADA (#7): antes de la hora de salida menos su tolerancia. Hoy, solo si ya marcó. */
+  const anticipada = fijo && salida != null ? redondear(Math.max(0, aMin(horario.salida) - reglas.toleranciaSalida - salida), reglas.redondeo) : 0
+  if (anticipada > 0) alertas.unshift({ tipo: 'anticipada', min: anticipada, detalle: `Salió a las ${hhmmss(salida)}; su salida es a las ${horario.salida}.` })
+  if (tardanza > 0) alertas.unshift({ tipo: 'tarde', min: tardanza, detalle: `Entró a las ${hhmmss(entrada)}; su entrada es a las ${horario.entrada}, con ${tol} min de tolerancia.` })
+  /* Lo que la persona justificó y su jefe aceptó ya no cuenta en contra; lo rechazado, sí. */
+  alertas.forEach(a => { if (justificadas[a.tipo]) a.justificacion = justificadas[a.tipo] })
+  const injust = t => alertas.filter(a => a.tipo === t && !a.justificacion).reduce((s, a) => s + a.min, 0)
+  const tardanzaInjustificada = injust('tarde')
+  const anticipadaInjustificada = injust('anticipada')
+  /* Lo que cuesta en tiempo es el exceso: correr el descanso sin alargarlo se alerta, pero no se descuenta. */
+  const excesoPausa = alertas.filter(a => a.tipo === 'pausaExceso').reduce((s, a) => s + a.min, 0)
+  const excesoPausaInjustificado = injust('pausaExceso')
   /* LAS HORAS EXTRA SE AUTORIZAN, NO SE DEDUCEN. Quedarse no es trabajar horas extra: solo cuenta
      lo trabajado DENTRO de una ventana que RR.HH. aprobó (a pedido de la persona) o asignó (y la
      persona aceptó). Lo demás que pase de la jornada es «fuera de horario»: se informa, no se paga. */
@@ -546,18 +681,35 @@ export function recomputar({ marcas, horario, tolerancia = 10, fecha, justificac
     if (justificacion && entrada == null) estado = 'justificada'
     else if (!laboral && entrada == null) estado = 'libre'
     else if (entrada == null) {
-      const limite = horario?.modo === 'fijo' ? aMin(horario.entrada) + tolerancia : 11 * 60
+      const limite = horario?.modo === 'fijo' ? aMin(horario.entrada) + tol : 11 * 60
       estado = minAhora < limite ? 'porLlegar' : 'sinMarcar'
-    } else if (salida != null) estado = tardanza > 0 ? 'tarde' : extra > 0 ? 'extra' : 'termino'
+    } else if (salida != null) estado = tardanza > 0 ? 'tarde' : anticipada > 0 ? 'anticipada' : extra > 0 ? 'extra' : 'termino'
     else estado = enPausa ? 'pausa' : 'trabajando'
   } else if (!laboral && entrada == null) estado = ventanas.length ? 'ausente' : 'libre'
   else if (entrada == null) estado = justificacion ? 'justificada' : 'ausente'
   else if (salida == null) estado = 'incompleta'
   else if (tardanza > 0) estado = 'tarde'
+  else if (anticipada > 0) estado = 'anticipada'
   else if (extra > 0) estado = 'extra'
   else estado = 'presente'
 
-  return { entrada, salida, pausas, trabajado, programado, tardanza, extra, fueraDeHorario, autorizado: ventanas.reduce((t, v) => t + v.hasta - v.desde, 0), estado, enPausa, llegoTarde: tardanza > 0, laboral }
+  return {
+    entrada, salida, pausas, trabajado, programado, tardanza, extra, fueraDeHorario,
+    tardanzaInjustificada, anticipada, anticipadaInjustificada, excesoPausa, excesoPausaInjustificado, descontado, alertas, franja, autorizado: ventanas.reduce((t, v) => t + v.hasta - v.desde, 0), estado, enPausa, llegoTarde: tardanza > 0, laboral }
+}
+
+/* ── CARGAR LA DEMO DE ASISTENCIA ──
+   Borra todo lo de Asistencia (se vuelve a sembrar al abrir, con el reloj nuevo) y deja el reloj en
+   el último viernes hábil a las 16:10. Lo propio de la persona de la sesión (sus marcas de hoy) lo
+   siembra el contexto, que es el que sabe quién es. */
+export function cargarDemoAsistencia() {
+  const borrar = []
+  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('onb_demo_at_')) borrar.push(k) }
+  borrar.forEach(k => localStorage.removeItem(k))
+  let f = iso(new Date())
+  while (diaISO(f) !== 5 || FERIADOS[f]) f = sumarDias(f, -1)
+  localStorage.setItem(CLAVE_RELOJ, JSON.stringify({ fecha: f, hora: '16:10' }))
+  localStorage.setItem('onb_demo_at_demo_yo', 'false')
 }
 
 /* ── CSV QUE NO SE PUEDE ENVENENAR ──
@@ -574,4 +726,14 @@ export function descargarCSV(nombre, filas) {
   const a = Object.assign(document.createElement('a'), { href: url, download: nombre })
   document.body.appendChild(a); a.click(); a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/* LAS SEMANAS COMPLETAS DEL MES: los días del mes vecino se ven y se pueden tocar, más claros. Así un
+   pedido que cruza de un mes al otro —del 30 al 3— se elige y se ve en la misma pantalla, y el dedo
+   puede arrastrar de uno a otro. Antes el mes empezaba con huecos y había que adivinar lo de al lado. */
+export function semanasDe(ym) {
+  const primero = `${ym}-01`
+  const antes = diaISO(primero) - 1
+  const total = Math.ceil((antes + diasDelMes(ym).length) / 7) * 7
+  return Array.from({ length: total }, (_, i) => sumarDias(primero, i - antes))
 }

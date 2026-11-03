@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, Lock, LockOpen, AlertTriangle, Wallet, Clock, CalendarX, Timer, TrendingUp } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, Lock, LockOpen, AlertTriangle, Wallet, Clock, CalendarX, Timer, TrendingUp, Coffee } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
@@ -14,7 +14,14 @@ import { diasDelMes, mesDe, mesVecino, nombreMes, duracion, descargarCSV } from 
 
    CERRAR CONGELA. Un mes cerrado ya no se corrige —ni ajustes ni marcas manuales— porque lo que
    salió a nómina tiene que seguir diciendo lo mismo mañana. Se puede reabrir, y queda dicho quién lo
-   cerró. Antes de cerrar, la pantalla avisa lo que sigue pendiente en Incidencias. */
+   cerró. Antes de cerrar, la pantalla avisa lo que sigue pendiente en Incidencias.
+
+   PARA PLANILLAS, UN FORMATO FIJO (#27): siempre las mismas columnas, en el mismo orden, con los
+   tiempos EN SEGUNDOS (#8). Solo cuenta en contra lo INJUSTIFICADO —tardanza, descanso excedido,
+   salida anticipada, ausencias— y solo se pagan las horas extra APROBADAS (#9). Mientras el mes no
+   esté cerrado, el archivo sale marcado como borrador. */
+
+const seg = min => Math.round((min || 0) * 60)
 
 const POR_PAGINA = 12
 
@@ -38,7 +45,10 @@ export default function Cierre() {
         dias: js.filter(j => j.entrada != null).length,
         ausencias: js.filter(j => j.estado === 'ausente').length,
         justificadas: js.filter(j => j.estado === 'justificada').length,
+        diasProgramados: js.filter(j => j.programado > 0).length,
         trabajado: s('trabajado'), programado: s('programado'), tardanza: s('tardanza'),
+        tardanzaInj: s('tardanzaInjustificada'), pausaInj: s('excesoPausaInjustificado'), anticipadaInj: s('anticipadaInjustificada'),
+        sinPausa: js.filter(j => j.alertas.some(a => a.tipo === 'sinPausa')).length,
         /* Solo lo trabajado DENTRO de horas extra autorizadas; quedarse sin autorización va aparte. */
         extra: s('extra'), autorizado: s('autorizado'), fuera: s('fueraDeHorario'),
       }
@@ -52,15 +62,21 @@ export default function Cierre() {
   const tot = k => filas.reduce((s, f) => s + f[k], 0)
   const pendientes = at.incidencias.filter(i => mesDe(i.fecha) === mes).length
 
-  const exportar = () => descargarCSV(`cierre_asistencia_${mes}.csv`, [
-    ['Código', 'Colaborador', 'Unidad organizacional', 'Sucursal', 'Centro de trabajo', 'Días trabajados', 'Ausencias', 'Justificadas', 'Trabajado (h)', 'Programado (h)', 'Saldo (h)', 'Tardanza (min)', 'Horas extra autorizadas (h)', 'Horas extra trabajadas (h)', 'Fuera de horario sin autorización (h)'],
-    ...filas.map(f => [f.p.codigo, f.p.name, f.p.unidad, at.lugarPorId.get(f.p.sucursalId)?.nombre || '', f.p.centroId ? f.p.lugar.nombre : '', f.dias, f.ausencias, f.justificadas, (f.trabajado / 60).toFixed(2), (f.programado / 60).toFixed(2), ((f.trabajado - f.programado) / 60).toFixed(2), Math.round(f.tardanza), (f.autorizado / 60).toFixed(2), (f.extra / 60).toFixed(2), (f.fuera / 60).toFixed(2)]),
+  const exportar = () => descargarCSV(`planilla_asistencia_${mes}${cierre ? '' : '_BORRADOR'}.csv`, [
+    ['Período', 'Estado del período', 'Código', 'Colaborador', 'Unidad organizacional', 'Sucursal', 'Centro de trabajo',
+      'Días programados', 'Días trabajados', 'Ausencias injustificadas', 'Ausencias justificadas',
+      'Trabajado (s)', 'Programado (s)', 'Tardanza total (s)', 'Tardanza injustificada (s)', 'Descanso excedido injustificado (s)', 'Salida anticipada injustificada (s)', 'Días sin marcar descanso',
+      'Horas extra aprobadas trabajadas (s)', 'Horas extra autorizadas (s)', 'Fuera de horario sin autorización (s)', 'Compensación en tiempo (s)'],
+    ...filas.map(f => [mes, cierre ? `Cerrado por ${cierre.por}` : 'Borrador', f.p.codigo, f.p.name, f.p.unidad, at.lugarPorId.get(f.p.sucursalId)?.nombre || '', f.p.centroId ? f.p.lugar.nombre : '',
+      f.diasProgramados, f.dias, f.ausencias, f.justificadas,
+      seg(f.trabajado), seg(f.programado), seg(f.tardanza), seg(f.tardanzaInj), seg(f.pausaInj), seg(f.anticipadaInj), f.sinPausa,
+      seg(f.extra), seg(f.autorizado), seg(f.fuera), 0]),
   ])
 
   return (
     <div className="content-scroll">
       <Cabecera titulo="Cierre del mes" sub="El saldo para nómina. Al cerrar el mes, ya no se corrige.">
-        <button type="button" className="dc-btn" onClick={exportar}><Download size={14} aria-hidden="true" /> Exportar para nómina</button>
+        <button type="button" className="dc-btn" onClick={exportar} title={cierre ? 'Formato fijo para planillas, en segundos' : 'Sale como borrador hasta que cierres el mes'}><Download size={14} aria-hidden="true" /> {cierre ? 'Exportar para planillas' : 'Exportar borrador'}</button>
         {cierre
           ? <button type="button" className="dc-btn" onClick={() => at.reabrirMes(mes)}><LockOpen size={14} aria-hidden="true" /> Reabrir el mes</button>
           : <button type="button" className="pl-btn-new" onClick={() => setConfirmar(true)}><Lock size={14} aria-hidden="true" /> Cerrar {nombreMes(mes).split(' ')[0]}</button>}
@@ -89,14 +105,15 @@ export default function Cierre() {
       <div className="at-cifras">
         <Cifra Icono={Clock} tono="verde" rotulo="Horas trabajadas" valor={duracion(tot('trabajado'), { corto: true })} detalle={`de ${duracion(tot('programado'), { corto: true })} programadas`} />
         <Cifra Icono={CalendarX} tono="rojo" rotulo="Ausencias" valor={tot('ausencias')} detalle={`${tot('justificadas')} justificadas aparte`} />
-        <Cifra Icono={Timer} tono="ambar" rotulo="Tardanza acumulada" valor={duracion(tot('tardanza'), { corto: true })} detalle="horas : minutos" />
+        <Cifra Icono={Timer} tono="ambar" rotulo="Tardanza injustificada" valor={duracion(tot('tardanzaInj'), { corto: true })} detalle={`de ${duracion(tot('tardanza'), { corto: true })} en total · horas : minutos`} />
+        <Cifra Icono={Coffee} tono="rojo" rotulo="Descanso excedido" valor={duracion(tot('pausaInj'), { corto: true })} detalle={`injustificado · ${duracion(tot('anticipadaInj'), { corto: true })} de salidas anticipadas`} />
         <Cifra Icono={TrendingUp} tono="azul" rotulo="Horas extra" valor={duracion(tot('extra'), { corto: true })} detalle={`trabajadas de ${duracion(tot('autorizado'), { corto: true })} autorizadas · ${duracion(tot('fuera'), { corto: true })} fuera de horario no cuentan`} />
       </div>
 
       {visibles.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
           <table className="as-table at-tabla">
-            <thead><tr><th>Persona</th><th>Días</th><th>Ausencias</th><th>Trabajado</th><th>Saldo</th><th>Tardanza</th><th>Horas extra</th></tr></thead>
+            <thead><tr><th>Persona</th><th>Días</th><th>Ausencias</th><th>Trabajado</th><th>Saldo</th><th>Tardanza</th><th>Descanso y salida</th><th>Horas extra</th></tr></thead>
             <tbody>
               {visibles.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(f => {
                 const saldo = f.trabajado - f.programado
@@ -108,7 +125,8 @@ export default function Cierre() {
                     <td className="num" style={{ color: f.ausencias ? 'var(--dc-rojo)' : undefined }}>{f.ausencias}{f.justificadas > 0 && <small>+{f.justificadas} justificadas</small>}</td>
                     <td className="num">{duracion(f.trabajado, { corto: true })}<small>de {duracion(f.programado, { corto: true })}</small></td>
                     <td className="num" style={{ color: saldo >= 0 ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{duracion(saldo, { signo: true, corto: true })}</td>
-                    <td className="num" style={{ color: f.tardanza ? 'var(--dc-ambar)' : undefined }}>{f.tardanza ? duracion(f.tardanza) : '—'}</td>
+                    <td className="num" style={{ color: f.tardanzaInj ? 'var(--dc-ambar)' : undefined }}>{f.tardanza ? duracion(f.tardanzaInj) : '—'}{f.tardanza > f.tardanzaInj && <small>{duracion(f.tardanza - f.tardanzaInj)} justificada</small>}</td>
+                    <td className="num" style={{ color: f.pausaInj + f.anticipadaInj ? 'var(--dc-rojo)' : undefined }}>{f.pausaInj + f.anticipadaInj ? duracion(f.pausaInj + f.anticipadaInj) : '—'}{f.pausaInj > 0 && <small>{duracion(f.pausaInj)} de descanso</small>}{f.anticipadaInj > 0 && <small>{duracion(f.anticipadaInj)} salió antes</small>}{f.sinPausa > 0 && <small style={{ color: 'var(--dc-violeta)' }}>{f.sinPausa} {f.sinPausa === 1 ? 'día' : 'días'} sin descanso</small>}</td>
                     <td className="num" style={{ color: 'var(--dc-azul)' }}>{f.autorizado ? duracion(f.extra) : '—'}{f.autorizado > 0 && <small>de {duracion(f.autorizado)} autorizadas</small>}{f.fuera > 0 && <small style={{ color: 'var(--text-muted)' }}>{duracion(f.fuera)} fuera de horario</small>}</td>
                   </tr>
                 )

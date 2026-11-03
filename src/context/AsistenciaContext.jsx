@@ -7,6 +7,7 @@ import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM, mesDe,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
+  reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo,
 } from '../data/asistenciaData'
 
 /* ── EL ESTADO DEL MÓDULO DE ASISTENCIA ───────────────────────────────────
@@ -70,7 +71,17 @@ export function AsistenciaProvider({ children }) {
   /* A quién ya se le sembró su historial de ejemplo (ver historialDemo). */
   const [conHistorial, setConHistorial] = useLocalStorage('at_historial_demo', {})
   const [cierres, setCierres] = useLocalStorage('at_cierres', {})
-  const [ajustesGenerales, setAjustesGenerales] = useLocalStorage('at_generales', { retencionSelfies: 90, plazoRespuesta: 48, exigirMotivoManual: true })
+  const [generalesGuardados, setAjustesGenerales] = useLocalStorage('at_generales', {})
+  /* Los avisos al colaborador (#15) y el plazo para justificar (#14) se agregaron después: quien ya
+     tenía ajustes guardados recibe estos valores por defecto. */
+  const ajustesGenerales = useMemo(() => ({
+    retencionSelfies: 90, plazoRespuesta: 48, exigirMotivoManual: true,
+    avisar: { tarde: true, pausa: true, anticipada: true, sinPausa: false, ausente: true },
+    avisarDesde: 5, plazoJustificar: 2,
+    ...generalesGuardados,
+  }), [generalesGuardados])
+  /* Quién ya recibió sus justificaciones de ejemplo. */
+  const [justSembradas, setJustSembradas] = useLocalStorage('at_just_demo', false)
 
   /* Las semillas se escriben la primera vez que hay gente que sembrar. */
   useEffect(() => {
@@ -137,6 +148,18 @@ export function AsistenciaProvider({ children }) {
     .filter(x => String(x.personaId) === String(pid) && x.fecha === fecha && esAutorizada(x))
     .map(x => ({ desde: aMin(x.desde), hasta: aMin(x.hasta) })), [horasExtra])
 
+  /* LO QUE LA PERSONA JUSTIFICÓ Y SU JEFE ACEPTÓ, por alerta, para un día (#13). */
+  const justificadasDe = useCallback((pid, fecha) => {
+    const r = {}
+    for (const s of solicitudes || []) {
+      if (s.tipo !== 'justificacion' || s.estado !== 'aprobada' || s.fecha !== fecha || String(s.personaId) !== String(pid)) continue
+      r[s.alerta] = { motivo: s.motivo, categoria: s.categoria, por: s.respondio, solicitudId: s.id }
+      /* Justificar el descanso cubre las dos caras del mismo hecho: salir/volver fuera de la franja y excederse. */
+      if (s.alerta === 'pausaExceso' || s.alerta === 'pausaRetorno') { r.pausaExceso = r[s.alerta]; r.pausaRetorno = r[s.alerta] }
+    }
+    return r
+  }, [solicitudes])
+
   /* ── LAS MARCAS DE UN DÍA: sembradas + manuales, con los ajustes aplicados ── */
   const marcasDe = useCallback((p, fecha) => {
     if (!p) return []
@@ -161,12 +184,13 @@ export function AsistenciaProvider({ children }) {
     const marcas = marcasDe(p, fecha)
     const esHoy = fecha === hoy
     const j = recomputar({
-      marcas, horario: p?.horario, tolerancia: p?.politica?.tolerancia ?? 10, fecha,
+      marcas, horario: p?.horario, reglas: reglasDe(p?.politica), fecha,
       justificacion: justificacionDe(p?.id, fecha), esHoy, minAhora: minutosAhora(), ventanas: ventanasDe(p?.id, fecha),
+      justificadas: justificadasDe(p?.id, fecha),
     })
     if (!p?.asig || !p?.horario) j.estado = 'libre'
     return { ...j, marcas, fecha, persona: p, justificacion: justificacionDe(p?.id, fecha), horasExtra: (horasExtra || []).filter(x => String(x.personaId) === String(p?.id) && x.fecha === fecha), rechazadas: marcas.filter(m => m.rechazada) }
-  }, [marcasDe, hoy, justificacionDe, ventanasDe, horasExtra, tic]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [marcasDe, hoy, justificacionDe, justificadasDe, ventanasDe, horasExtra, tic]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Sin ficha en el directorio, una de paso con el horario de oficina en la casa matriz. */
   const yo = useMemo(() => {
@@ -196,7 +220,7 @@ export function AsistenciaProvider({ children }) {
     const geo = p.lugar?.geo
     const dist = geo && lat != null ? Math.round(distanciaM({ lat, lng }, geo)) : null
     const m = {
-      id: nuevaId(), personaId: p.id, fecha: hoyISO(), tipo, min: Math.round(minutosAhora()),
+      id: nuevaId(), personaId: p.id, fecha: hoyISO(), tipo, min: alSegundo(minutosAhora()),
       lat: lat ?? null, lng: lng ?? null, distancia: dist,
       dentro: ex.geocerca ? dist != null && dist <= (p.politica?.radio || geo?.radio || 150) : null,
       score: ex.rostro ? score ?? null : null, origen: 'app', remoto: ex.remotoHoy, nueva: true,
@@ -248,6 +272,44 @@ export function AsistenciaProvider({ children }) {
   const setGeocerca = useCallback((id, geo) => setGeocercas(prev => ({ ...prev, [id]: geo })), [setGeocercas])
   const actualizarBio = useCallback((pid, datos) => setBiometria(prev => ({ ...(prev || {}), [pid]: { ...((prev || {})[pid] || {}), ...datos } })), [setBiometria])
 
+  /* LA DEMO DEL VIERNES: la persona de la sesión ya marcó su entrada y su descanso hoy, como
+     cualquiera a las 16:10. Solo con el reloj de demo y una vez (la marca la deja `cargarDemoAsistencia`). */
+  const [demoYo, setDemoYo] = useLocalStorage('at_demo_yo', true)
+  useEffect(() => {
+    if (demoYo !== false || !relojDemo || !yo?.horario) return
+    setDemoYo(true)
+    const geo = yo.lugar?.geo
+    const m = (tipo, hms, dist) => ({ id: `mx-demo-yo-${tipo}`, personaId: yo.id, fecha: hoy, tipo, min: aMin(hms), lat: geo?.lat ?? null, lng: geo?.lng ?? null, distancia: dist, dentro: true, score: 0.93, origen: 'app', remoto: false })
+    setMarcasExtra(prev => [...prev.filter(x => !String(x.id).startsWith('mx-demo-yo-')), m('entrada', '08:27:41', 14), m('pausa_inicio', '13:01:12', 22), m('pausa_fin', '13:57:30', 9)])
+  }, [demoYo, yo, hoy, setDemoYo, setMarcasExtra])
+
+  /* JUSTIFICACIONES DE EJEMPLO: unas cuantas tardanzas y descansos excedidos de los últimos días ya
+     tienen su motivo enviado desde la app, para que la bandeja tenga qué mostrar. Se siembran una vez. */
+  useEffect(() => {
+    if (justSembradas || !solicitudes || !personas.some(p => p.horario)) return
+    const nuevas = []
+    for (let i = 1; i <= 4 && nuevas.length < 9; i++) {
+      const fecha = sumarDias(hoy, -i)
+      for (const p of personas) {
+        if (nuevas.length >= 9 || !p.asig || p.id % 3) continue
+        const a = jornadaDe(p, fecha).alertas.find(x => ['tarde', 'pausaExceso', 'anticipada'].includes(x.tipo) && x.min >= 5)
+        if (!a) continue
+        const n = nuevas.length
+        const categoria = MOTIVOS_JUSTIFICACION[(p.id + i) % 7]
+        const textos = { 'Transporte o tráfico': 'El micro se quedó en el puente', 'Bloqueo o marcha': 'Había bloqueo en la avenida', Salud: 'Fui a la farmacia por un remedio', 'Trámite personal': 'Pasé por el banco', 'Asunto familiar': 'Dejé a mi hijo en el colegio', Clima: 'Llovió fuerte y no había transporte', 'Pedido de mi jefe': 'Mi jefe me pidió pasar por un cliente' }
+        nuevas.push({
+          id: `so-just-${p.id}-${fecha}`, tipo: 'justificacion', personaId: p.id, fecha, alerta: a.tipo, minutos: a.min,
+          categoria, motivo: textos[categoria], cuando: sumarDias(fecha, 1), canal: 'app', avisada: fecha,
+          estado: n < 6 ? 'pendiente' : n < 8 ? 'aprobada' : 'rechazada',
+          ...(n >= 6 ? { respondio: 'Juan Pérez Gómez', respondida: sumarDias(fecha, 1), nota: n >= 8 ? 'Es la tercera vez este mes; queda como tardanza.' : '' } : {}),
+        })
+      }
+    }
+    setJustSembradas(true)
+    /* En modo estricto el efecto corre dos veces antes de guardar la marca: no se repite ninguna. */
+    if (nuevas.length) setSolicitudes(prev => [...nuevas.filter(x => !(prev || []).some(y => y.id === x.id)), ...(prev || [])])
+  }, [justSembradas, solicitudes, personas, hoy, jornadaDe, setJustSembradas, setSolicitudes])
+
   /* ── LO QUE ESPERA A RR.HH. ── los últimos 10 días, sin contar hoy: lo más viejo ya lo resolvió
      cada jefe en su momento (en la demo, se da por revisado). */
   const incidencias = useMemo(() => {
@@ -263,18 +325,28 @@ export function AsistenciaProvider({ children }) {
         if (j.fueraDeHorario >= 30) lista.push({ id: `fuera|${k}`, tipo: 'fuera', persona: p, fecha, jornada: j })
         if (j.estado === 'incompleta') lista.push({ id: `incompleta|${k}`, tipo: 'incompleta', persona: p, fecha, jornada: j })
         if (j.estado === 'ausente') lista.push({ id: `ausente|${k}`, tipo: 'ausente', persona: p, fecha, jornada: j })
+        /* TARDANZAS, DESCANSOS Y SALIDAS ANTICIPADAS SIN JUSTIFICAR (#5, #6, #7, #13). Se le avisó a la
+           persona; mientras no mande su motivo o su jefe no lo acepte, cuentan como injustificadas. */
+        const pendientes = j.alertas.filter(a => !a.justificacion && a.min >= (ajustesGenerales.avisarDesde || 0))
+        if (pendientes.length) {
+          const pedido = (solicitudes || []).find(s => s.tipo === 'justificacion' && s.fecha === fecha && String(s.personaId) === String(p.id) && s.estado !== 'cancelada')
+          /* ¿Se le avisó? Depende de Configuración › Avisos: «sin descanso» viene apagado. */
+          const grupo = t => (t.startsWith('pausa') ? 'pausa' : t)
+          const avisada = pendientes.some(a => ajustesGenerales.avisar?.[grupo(a.tipo)] !== false)
+          lista.push({ id: `alerta|${k}`, tipo: 'alerta', persona: p, fecha, jornada: j, alertas: pendientes, pedido, avisada })
+        }
         for (const r of j.rechazadas) lista.push({ id: `rechazo|${r.id}`, tipo: 'rechazo', persona: p, fecha, jornada: j, marca: r })
       }
     }
     return lista.filter(x => !descartadas[x.id]).sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
-  }, [personas, jornadaDe, hoy, descartadas, cierres])
+  }, [personas, jornadaDe, hoy, descartadas, cierres, solicitudes, ajustesGenerales.avisarDesde, ajustesGenerales.avisar])
 
   const value = {
     hoy, tic, lugares, lugarPorId, centros, personas, personaPorId, yo,
     horarios, setHorarios, horarioPorId, politicas, setPoliticas, politicaPorId, politicaDefecto,
     asignaciones: asignaciones || {}, asignar, quitarAsignacion, geocercas, setGeocerca,
     biometria: biometria || {}, actualizarBio, ajustesGenerales, setAjustesGenerales,
-    marcasDe, jornadaDe, justificacionDe, incidencias, cierres, cerrarMes, reabrirMes,
+    marcasDe, jornadaDe, justificacionDe, justificadasDe, incidencias, cierres, cerrarMes, reabrirMes,
     marcar, marcaManual, ajustar, anular, justificar, descartar, marcasExtra,
     solicitudes: solicitudes || [], crearSolicitud, responderSolicitud, cancelarSolicitud, exigenciasDe,
     horasExtra: horasExtra || [], solicitarExtra, asignarExtra, responderExtra, autorizarDespues,

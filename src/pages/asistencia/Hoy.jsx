@@ -12,7 +12,7 @@ import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import CalendarioAsistencia from '../../components/asistencia/CalendarioAsistencia'
 import { CurvaPresencia, LoQueConviene } from '../../components/asistencia/HoyPulso'
 import viaSaludando from '../../assets/imagenes/via_saludando.png'
-import { fechaLarga, hhmm, minutosAhora, aMin, duracion, sumarDias, esDiaLaboral } from '../../data/asistenciaData'
+import { ahora, relojDemo, fechaLarga, hhmm, minutosAhora, aMin, duracion, sumarDias, esDiaLaboral } from '../../data/asistenciaData'
 
 /* ── HOY ───────────────────────────────────────────────────────────────────
    La pantalla con la que RR.HH. empieza la mañana (propuesta Q del lienzo de diseño). Responde, en
@@ -58,8 +58,8 @@ function Truncado({ total, donde }) {
 }
 
 function useReloj() {
-  const [t, setT] = useState(() => new Date())
-  useEffect(() => { const i = setInterval(() => setT(new Date()), 1000); return () => clearInterval(i) }, [])
+  const [t, setT] = useState(() => ahora())
+  useEffect(() => { const i = setInterval(() => setT(ahora()), 1000); return () => clearInterval(i) }, [])
   return t
 }
 
@@ -393,6 +393,7 @@ export default function Hoy() {
           <div className="at-q-hora">
             <div>{String(hora).padStart(2, '0')}:{String(reloj.getMinutes()).padStart(2, '0')}<span>:{String(reloj.getSeconds()).padStart(2, '0')}</span></div>
             <small>{fechaLarga(at.hoy)}</small>
+            {relojDemo && <span className="at-demo-chip" title="Cargaste los datos de ejemplo: Asistencia simula este día. «Resetear demo» vuelve a la fecha real.">Simulación de la demo</span>}
           </div>
           <span className="at-q-jornada"><i />{jornadaTxt}</span>
       </section>

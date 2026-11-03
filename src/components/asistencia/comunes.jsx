@@ -241,6 +241,6 @@ export function Cifra({ valor, rotulo, detalle, tono, Icono, onClick, activo }) 
 // eslint-disable-next-line react-refresh/only-export-components
 export const COLOR_ESTADO = {
   trabajando: 'var(--at-verde)', termino: 'var(--at-verde-2)', presente: 'var(--at-verde)', pausa: 'var(--at-azul)', extra: 'var(--at-azul)',
-  tarde: 'var(--at-ambar)', porLlegar: 'var(--at-gris)', sinMarcar: 'var(--at-rojo)', ausente: 'var(--at-rojo)',
+  tarde: 'var(--at-ambar)', anticipada: 'var(--at-ambar)', porLlegar: 'var(--at-gris)', sinMarcar: 'var(--at-rojo)', ausente: 'var(--at-rojo)',
   justificada: 'var(--at-violeta)', incompleta: 'var(--at-violeta)', libre: 'var(--bg-canal)',
 }
