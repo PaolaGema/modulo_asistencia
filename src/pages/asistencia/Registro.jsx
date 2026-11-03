@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, Lock, BookOpen } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, Lock, BookOpen, CalendarDays } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { Cabecera, Vacio } from '../../components/documentacion/comunes'
+import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, BarraBusqueda, EstadoDia, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import Desplegable from '../../components/layout/Desplegable'
@@ -197,6 +197,8 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
   const at = useAsistencia()
   const [orden, setOrden] = useState('')
   const [pag, setPag] = useState(1)
+  /* Un clic en la persona abre el resumen de su mes en una ventana, sin salir del Libro. */
+  const [abierta, setAbierta] = useState(null)
   const dias = useMemo(() => diasDelMes(mes), [mes])
   const filas = useMemo(() => gente.map(p => {
     const js = dias.map(d => (d <= at.hoy ? at.jornadaDe(p, d) : null))
@@ -210,6 +212,8 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
       justificadas: cerradas.filter(j => j.estado === 'justificada').length,
       saldo: cerradas.length ? sum(cerradas, 'trabajado') - sum(cerradas, 'programado') : null,
       trabajado: sum(cerradas, 'trabajado'), programado: sum(cerradas, 'programado'),
+      diasTrabajados: cerradas.filter(j => j.entrada != null).length,
+      diasConJornada: cerradas.filter(j => j.programado > 0 || j.estado === 'justificada').length,
     }
   }), [gente, dias, at])
   const ordenadas = orden ? [...filas].sort(ORDENES[orden]) : filas
@@ -245,7 +249,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
           <tbody>
             {ordenadas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, js, tarde, faltas, justificadas, saldo, trabajado, programado }) => (
               <tr key={p.id}>
-                <td className="at-mes-persona"><PersonaAt persona={p} size={28} sub={p.unidad} onClick={() => onPersona(p)} /></td>
+                <td className="at-mes-persona"><PersonaAt persona={p} size={28} sub={p.unidad} onClick={() => setAbierta(ordenadas.find(x => x.p.id === p.id))} /></td>
                 <td>
                   <div className="at-mes-dias" style={columnas}>
                     {dias.map((d, i) => {
@@ -291,6 +295,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
         {LEYENDA_MES.map(([k, t]) => <span key={k}><i className={`at-mes-c t-${k}`} />{t}</span>)}
       </div>
       <Paginacion page={pagina} setPage={setPag} total={ordenadas.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
+      {abierta && <ModalMesPersona fila={abierta} mes={mes} dias={dias} hoy={at.hoy} onCerrar={() => setAbierta(null)} onDia={onDia} onCompleta={() => onPersona(abierta.p)} />}
     </div>
   )
 }
@@ -409,5 +414,53 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
       </div>
       <Paginacion page={pagina} setPage={setPag} total={filas.length} perPage={POR_PAGINA} nombre="jornadas" nombreUno="jornada" />
     </div>
+  )
+}
+
+/* ── EL MES DE UNA PERSONA, EN UNA VENTANA ──
+   Un clic en la persona del Mes abre su resumen sin salir del Libro: las mismas cifras de la fila,
+   más grandes, y su calendario con el color de cada día. Un clic en un día abre esa jornada; la
+   página entera de la persona queda a un botón. */
+function ModalMesPersona({ fila, mes, dias, hoy, onCerrar, onDia, onCompleta }) {
+  const { p, js, tarde, faltas, justificadas, saldo, trabajado, programado, diasTrabajados, diasConJornada } = fila
+  const huecos = diaISO(dias[0]) - 1
+  const injustificado = tarde.injust <= 0 ? 'justificado' : tarde.injust >= tarde.min ? 'sin justificar' : `${duracion(tarde.min - tarde.injust)} justificados`
+  const cifras = [
+    ['Días trabajados', diasConJornada ? `${diasTrabajados} de ${diasConJornada}` : '—', '', ''],
+    ['Retrasos', tarde.veces || '—', tarde.veces ? (tarde.veces === 1 ? 'vez' : 'veces') : '', tarde.veces ? 'tarde' : ''],
+    ['Tiempo de retraso', tarde.veces ? duracion(tarde.min) : '—', tarde.veces ? injustificado : '', tarde.veces ? 'tarde' : ''],
+    ['Faltas', faltas || (justificadas ? 0 : '—'), justificadas ? `+ ${justificadas} con permiso` : faltas ? 'sin justificar' : '', faltas ? 'falta' : ''],
+    ['Horas del mes', saldo == null ? '—' : duracion(trabajado, { corto: true }), saldo == null ? '' : `de ${duracion(programado, { corto: true })} · ${saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}`, saldo != null && saldo < 0 ? 'falta' : ''],
+  ]
+  return (
+    <Modal titulo={`Su mes · ${nombreMes(mes)}`} Icono={CalendarDays} onCerrar={onCerrar} ancho={660}
+      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button><button type="button" className="pl-btn-save" onClick={onCompleta}>Ver su asistencia completa</button></>}>
+      <div className="at-mm at-mes">
+        <PersonaAt persona={p} size={44} sub={`${p.cargo} · ${p.unidad}`} />
+        <div className="at-mm-cifras">
+          {cifras.map(([t, v, s, tono]) => (
+            <div key={t}><span>{t}</span><b className={tono}>{v}</b>{s && <small>{s}</small>}</div>
+          ))}
+        </div>
+        <div className="at-mm-cal" role="grid" aria-label={`Calendario de ${nombreMes(mes)}`}>
+          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => <span key={`h${i}`} className="cab">{d}</span>)}
+          {Array.from({ length: huecos }, (_, i) => <span key={`v${i}`} />)}
+          {dias.map((d, i) => {
+            const j = js[i]
+            const n = aFecha(d).getDate()
+            if (!j) return <span key={d} className="at-mm-dia t-futuro"><b>{n}</b></span>
+            const det = `${fechaLarga(d)} · ${ESTADOS[j.estado].label}${j.llegoTarde ? ` · ${duracion(j.tardanza)} tarde` : ''}`
+            return (
+              <button key={d} type="button" className={`at-mm-dia t-${TONO_MES[j.estado] || 'libre'}${d === hoy ? ' hoy' : ''}`} title={det} aria-label={det} onClick={() => onDia(p, d)}>
+                <b>{n}</b>{j.entrada != null && <small>{hhmm(j.entrada)}</small>}
+              </button>
+            )
+          })}
+        </div>
+        <div className="at-mes-leyenda" style={{ padding: 0 }}>
+          {LEYENDA_MES.map(([k, t]) => <span key={k}><i className={`at-mes-c t-${k}`} />{t}</span>)}
+        </div>
+      </div>
+    </Modal>
   )
 }
