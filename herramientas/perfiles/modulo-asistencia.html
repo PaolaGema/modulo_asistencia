@@ -1,0 +1,72 @@
+  <div class="perfiles">
+    <p class="perf-cap">Guía de lectura por rol</p>
+    <div class="perf-tabs" role="tablist" aria-label="Por dónde empezar según el rol">
+      <button type="button" class="perf-tab on" role="tab" id="pt-ux" aria-controls="pp-ux" aria-selected="true">Diseño UX</button>
+      <button type="button" class="perf-tab" role="tab" id="pt-dev" aria-controls="pp-dev" aria-selected="false" tabindex="-1">Desarrollo</button>
+      <button type="button" class="perf-tab" role="tab" id="pt-neg" aria-controls="pp-neg" aria-selected="false" tabindex="-1">Negocio y RR.HH.</button>
+    </div>
+
+    <div class="perf-panel" role="tabpanel" id="pp-ux" aria-labelledby="pt-ux" tabindex="0">
+      <figure class="perf-fig"><img src="assets/imagenes/via_ux_ui.png" width="463" height="539" alt="VIA con anteojos redondos y una bufanda de colores, sosteniendo un portátil donde se ve un tablero de wireframes conectados entre sí"></figure>
+      <div class="perf-txt">
+        <p class="perf-mision"><b>Tu misión</b>Que marcar tome segundos y que RR.HH. entienda el día de su gente de un vistazo, sin contar cajitas ni sumar en Excel.</p>
+        <p class="perf-lead">El colaborador marca de pie, en la puerta, con una mano: un toque abre una ventana que confirma, y recién ahí se escanea. RR.HH. lee el mismo dato de cuatro maneras —en vivo, por día, por semana y por mes— y la persona ve los mismos números en su app. El documento dice qué tiene que respetar cada pantalla y de dónde sale cada palabra; la vista Día del Libro sigue en revisión.</p>
+        <dl class="perf-l">
+          <div><dt>Empezar por</dt><dd><a href="#s0">00 · Glosario</a> · <a href="#p1-4">1.4 · Principios de diseño</a> · <a href="#s8">08 · Recursos visuales</a></dd></div>
+          <div><dt>No omitir</dt><dd><a href="#s4">04 · Reglas de negocio</a>: lo que la maqueta debe cumplir, con el escenario que lo verifica. Y <a href="#p6-7">ABIERTA‑ASI‑11</a>, la vista Día</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="perf-panel" role="tabpanel" id="pp-dev" aria-labelledby="pt-dev" tabindex="0" hidden>
+      <figure class="perf-fig"><img src="assets/imagenes/via_developer.png" width="463" height="539" alt="VIA con anteojos de marco grueso, sosteniendo un portátil con código en pantalla"></figure>
+      <div class="perf-txt">
+        <p class="perf-mision"><b>Tu misión</b>Llevar al servidor un solo cálculo del día —al segundo, con el descanso como franja y las horas extra por ventana— y cubrir cada regla con pruebas.</p>
+        <p class="perf-lead">El backend que ya existe (<code>ASISTENCIA_ARQUITECTURA.md</code>) calcula la jornada más simple que estas reglas: no tiene la franja de descanso, ni el redondeo, ni las horas extra por ventana. El punto <span class="id">5.3</span> es la especificación del cálculo y las cincuenta y ocho reglas dicen qué tiene que pasar y qué tiene que estar impedido; cada escenario sirve como caso de prueba.</p>
+        <dl class="perf-l">
+          <div><dt>Empezar por</dt><dd><a href="#s0">00 · Glosario</a> · <a href="#s5">05 · Modelo de datos</a> · <a href="#g-el-calculo-del-dia">El cálculo del día</a></dd></div>
+          <div><dt>No omitir</dt><dd><a href="#p6-6">6.6 · Riesgos</a> y <a href="#ax2">El módulo en el prototipo, hoy</a>: el candado del mes cerrado hoy lo aplican solo las pantallas</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="perf-panel" role="tabpanel" id="pp-neg" aria-labelledby="pt-neg" tabindex="0" hidden>
+      <figure class="perf-fig"><img src="assets/imagenes/via_asistencia.png" width="409" height="610" alt="VIA abrazando un reloj despertador, con un calendario detrás"></figure>
+      <div class="perf-txt">
+        <p class="perf-mision"><b>Tu misión</b>Confirmar que las reglas son las de la empresa y la ley —tolerancias, descanso, horas extra, vacaciones— y cerrar las decisiones que siguen abiertas.</p>
+        <p class="perf-lead">El módulo parte de los veintisiete requerimientos de RR.HH. y ya cumple la prioridad uno: descanso como franja, cálculo al segundo, horas extra solo autorizadas, justificaciones y el cierre para planillas. Quedan doce decisiones, varias de negocio y no de pantalla: quién acepta una justificación, si las horas extra se pagan o se compensan, y cuál es el mínimo de gente para operar.</p>
+        <dl class="perf-l">
+          <div><dt>Empezar por</dt><dd><a href="#s1">01 · Contexto</a> · <a href="#s7">07 · Flujos de usuario</a></dd></div>
+          <div><dt>No omitir</dt><dd><a href="#p6-7">6.7 · Decisiones abiertas</a>: las doce que siguen pendientes</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ══ Por dónde empezar ══ Tres pestañas de verdad: se recorren con las flechas y solo la activa entra con el tabulador. */
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.perf-tab'));
+  if (!tabs.length) return;
+  function abrir(t, foco){
+    tabs.forEach(function(o){
+      var activo = o === t;
+      o.classList.toggle('on', activo);
+      o.setAttribute('aria-selected', activo ? 'true' : 'false');
+      o.tabIndex = activo ? 0 : -1;
+      var panel = document.getElementById(o.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !activo;
+    });
+    if (foco) t.focus();
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ abrir(t); });
+    t.addEventListener('keydown', function(ev){
+      var salto = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (salto) { ev.preventDefault(); abrir(tabs[(i + salto + tabs.length) % tabs.length], true); }
+      if (ev.key === 'Home') { ev.preventDefault(); abrir(tabs[0], true); }
+      if (ev.key === 'End') { ev.preventDefault(); abrir(tabs[tabs.length - 1], true); }
+    });
+  });
+})();
+</script>

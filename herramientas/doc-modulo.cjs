@@ -274,6 +274,10 @@ const scripts = plantilla.slice(plantilla.indexOf('<script>', plantilla.indexOf(
 /* El diagrama de la portada (opcional): herramientas/taxo/<nombre del md>.html, entre las cifras y el índice. */
 const taxoPath = path.join(raiz, 'herramientas/taxo', path.basename(mdPath).replace(/\.md$/, '.html'))
 const taxo = fs.existsSync(taxoPath) ? fs.readFileSync(taxoPath, 'utf8').replace(/\r\n/g, '\n') : ''
+/* La guía de lectura por rol (opcional): herramientas/perfiles/<nombre del md>.html, al comienzo del cuerpo,
+   como en Organización y Gestión de personas. Trae su propio script de pestañas. */
+const perfilesPath = path.join(raiz, 'herramientas/perfiles', path.basename(mdPath).replace(/\.md$/, '.html'))
+const perfiles = fs.existsSync(perfilesPath) ? fs.readFileSync(perfilesPath, 'utf8').replace(/\r\n/g, '\n') : ''
 const version = (ficha.find(([k]) => k === 'Versión') || [])[1] || ''
 const fecha = (ficha.find(([k]) => k === 'Fecha') || [])[1] || ''
 
@@ -308,6 +312,7 @@ ${rail.join('\n')}
   </aside>
 
   <main class="cuerpo">
+${perfiles ? `\n${perfiles}` : ''}
 
 ${cuerpo.join('\n')}
   </main>

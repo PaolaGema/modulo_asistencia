@@ -993,6 +993,106 @@ td.rg{color:var(--tinta-3);font-weight:700}
   </div>
 </div>
 
+<div class="taxo">
+  <div class="taxo-head">
+    <div>
+      <p class="taxo-cap">El módulo, de un vistazo</p>
+      <p class="taxo-sub">Asistencia son <strong>tres capas sobre un solo dato, la marcación</strong>. Arriba, la <strong>configuración</strong>, que se arma una vez: cuándo, qué se exige, dónde y a quién. En el medio, el <strong>cálculo del día</strong>, que se deduce siempre de las marcas. Abajo, <strong>lo que se hace con el día</strong>: se mira, se consulta, se revisa, se autoriza y se cierra. Lo que se corrige o se aprueba vuelve a cambiar el día, sin borrar nada. Al pie, el colaborador, que marca y ve los mismos números.</p>
+    </div>
+    <div class="leyenda">
+      <div>
+        <p class="ley-t">Colores</p>
+        <div class="ley-i">
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--estructural)" stroke-width="2"/></svg> Configuración</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--funcional)" stroke-width="2"/></svg> Cálculo del día</span>
+          <span class="ly"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="2" y="5" width="18" height="12" rx="4" fill="none" stroke="var(--aprobacion)" stroke-width="2"/></svg> Colaborador</span>
+        </div>
+      </div>
+      <div>
+        <p class="ley-t">En el menú</p>
+        <div class="ley-i">
+          <span class="ly">Hoy · Libro de asistencia · Incidencias · Solicitudes · Configuración</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="lienzo">
+    <svg class="gp-dgm" viewBox="0 0 900 636" role="img" aria-labelledby="as-d0-t as-d0-d">
+      <title id="as-d0-t">Mapa del módulo de asistencia: la configuración, el cálculo del día, lo que se hace con él y lo que ve el colaborador</title>
+      <desc id="as-d0-d">Arriba, el módulo Asistencia con la marcación como único dato; a la izquierda, Organización, de donde salen los lugares y las unidades; a la derecha, la ficha del colaborador, de donde salen el alta y la fecha de ingreso. Debajo, la configuración: Horarios, Políticas de marcación, Lugares y geocercas, y Asignaciones. En el medio, el cálculo del día: la marcación, con la hora del servidor, el rostro y la ubicación, da la jornada, con su entrada, salida, descanso, tardanza, alertas, horas extra y estado. Abajo, lo que se hace con el día: Hoy, Libro de asistencia, Incidencias, Solicitudes y Cierre del mes, que va a Planillas. Una flecha sube de Solicitudes a la jornada: corregir, justificar y autorizar cambian el día. Al pie, el colaborador: marca, ve su día, su semana y su mes, y pide horas extra, corrige y justifica.</desc>
+      <defs><marker id="as-m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="gp-punta fuerte" d="M0 0L10 5L0 10z"/></marker></defs>
+
+      <rect class="gp-caja" x="20" y="20" width="220" height="48" rx="10"/>
+      <text class="gp-t" x="36" y="41">Organización</text><text class="gp-s" x="36" y="58">Lugares y unidades; se leen</text>
+      <rect x="330" y="16" width="240" height="56" rx="12" class="gp-lleno"/>
+      <text class="gp-t" x="450" y="41" text-anchor="middle" style="fill:var(--sobre-acento)">ASISTENCIA</text>
+      <text class="gp-s" x="450" y="59" text-anchor="middle" style="fill:var(--sobre-acento)">La marcación, un solo dato</text>
+      <rect class="gp-caja" x="660" y="20" width="220" height="48" rx="10"/>
+      <text class="gp-t" x="676" y="41">Ficha del colaborador</text><text class="gp-s" x="676" y="58">El alta y el ingreso; se lee</text>
+      <path class="gp-lin" d="M240 44 H330 M570 44 H660 M450 72 V100"/>
+
+      <rect class="gp-caja p1" x="20" y="100" width="860" height="122" rx="14"/>
+      <rect class="gp-banda p1" x="20" y="100" width="860" height="6" rx="3"/>
+      <text class="gp-e gp-azul" x="40" y="128">CAPA 1</text>
+      <text class="gp-t" x="96" y="128" font-size="15">Configuración</text>
+      <text class="gp-s" x="220" y="128">Se arma una vez, en este orden; arriba, la puesta a punto dice qué falta</text>
+      <rect class="gp-caja" x="40" y="146" width="196" height="58" rx="9"/>
+      <text class="gp-t" x="54" y="168">Horarios</text><text class="gp-s" x="54" y="186">Cuándo: fijo con franja</text><text class="gp-s" x="54" y="198">o flexible por meta</text>
+      <rect class="gp-caja" x="248" y="146" width="196" height="58" rx="9"/>
+      <text class="gp-t" x="262" y="168">Políticas de marcación</text><text class="gp-s" x="262" y="186">Qué se exige y cómo se</text><text class="gp-s" x="262" y="198">calcula: tolerancias, redondeo</text>
+      <rect class="gp-caja" x="456" y="146" width="196" height="58" rx="9"/>
+      <text class="gp-t" x="470" y="168">Lugares y geocercas</text><text class="gp-s" x="470" y="186">Dónde: un punto y un radio</text><text class="gp-s" x="470" y="198">sobre cada lugar</text>
+      <rect class="gp-caja" x="664" y="146" width="196" height="58" rx="9"/>
+      <text class="gp-t" x="678" y="168">Asignaciones</text><text class="gp-s" x="678" y="186">A quién: horario, lugar,</text><text class="gp-s" x="678" y="198">modalidad y política</text>
+
+      <path class="gp-lin" d="M450 222 V252"/>
+
+      <rect class="gp-caja p2" x="20" y="252" width="860" height="102" rx="14"/>
+      <rect class="gp-banda p2" x="20" y="252" width="860" height="6" rx="3"/>
+      <text class="gp-e gp-verde" x="40" y="280">CAPA 2</text>
+      <text class="gp-t" x="96" y="280" font-size="15">El cálculo del día</text>
+      <text class="gp-s" x="250" y="280">Se deduce siempre de nuevo, al segundo; las pantallas solo leen</text>
+      <rect class="gp-caja" x="40" y="292" width="300" height="48" rx="9"/>
+      <text class="gp-t" x="56" y="313">Marcación</text><text class="gp-s" x="56" y="330">Hora del servidor, rostro y ubicación</text>
+      <path class="gp-flecha fuerte" d="M340 316 H392" marker-end="url(#as-m0)"/>
+      <rect class="gp-caja" x="400" y="292" width="460" height="48" rx="9"/>
+      <text class="gp-t" x="416" y="313">Jornada</text><text class="gp-s" x="416" y="330">Entrada, salida, descanso, tardanza, alertas, horas extra y estado</text>
+
+      <path class="gp-lin" d="M450 354 V414"/>
+      <path class="gp-flecha fuerte" d="M616 454 V358" marker-end="url(#as-m0)"/>
+      <text class="gp-s" x="628" y="382" font-weight="700" style="fill:var(--estructural)">Corregir, justificar y autorizar</text>
+      <text class="gp-s" x="628" y="398" font-weight="700" style="fill:var(--estructural)">cambian el día; nada se borra</text>
+
+      <rect class="gp-caja" x="20" y="414" width="860" height="110" rx="14"/>
+      <text class="gp-e gp-gris" x="40" y="440">CAPA 3 · LO QUE SE HACE CON EL DÍA</text>
+      <rect class="gp-caja" x="40" y="454" width="156" height="56" rx="9"/>
+      <text class="gp-t" x="54" y="476">Hoy</text><text class="gp-s" x="54" y="494">Se mira en vivo</text>
+      <rect class="gp-caja" x="206" y="454" width="156" height="56" rx="9"/>
+      <text class="gp-t" x="220" y="476">Libro de asistencia</text><text class="gp-s" x="220" y="494">Día, semana y mes</text>
+      <rect class="gp-caja" x="372" y="454" width="156" height="56" rx="9"/>
+      <text class="gp-t" x="386" y="476">Incidencias</text><text class="gp-s" x="386" y="494">Lo raro, antes del cierre</text>
+      <rect class="gp-caja" x="538" y="454" width="156" height="56" rx="9"/>
+      <text class="gp-t" x="552" y="476">Solicitudes</text><text class="gp-s" x="552" y="494">Se pide y se autoriza</text>
+      <rect class="gp-caja" x="704" y="454" width="156" height="56" rx="9"/>
+      <text class="gp-t" x="718" y="476">Cierre del mes</text><text class="gp-s" x="718" y="494">Se congela → Planillas</text>
+
+      <rect class="gp-caja p3" x="20" y="542" width="860" height="80" rx="14"/>
+      <text class="gp-e" x="40" y="564" style="fill:var(--aprobacion)">COLABORADOR · CELULAR Y MI ASISTENCIA</text>
+      <text class="gp-s" x="860" y="564" text-anchor="end" style="fill:var(--tinta-3)">→ la marcación · ← los mismos números · → Solicitudes</text>
+      <rect class="gp-caja" x="40" y="576" width="266" height="32" rx="8"/><text class="gp-s" x="173" y="597" text-anchor="middle" font-weight="700">Marcar: confirmar, ubicación y rostro</text>
+      <rect class="gp-caja" x="317" y="576" width="266" height="32" rx="8"/><text class="gp-s" x="450" y="597" text-anchor="middle" font-weight="700">Su día, su semana y su mes</text>
+      <rect class="gp-caja" x="594" y="576" width="266" height="32" rx="8"/><text class="gp-s" x="727" y="597" text-anchor="middle" font-weight="700">Pedir horas extra, corregir y justificar</text>
+    </svg>
+  </div>
+  <dl class="dgm-lista">
+    <div><dt>Configuración</dt><dd>Responde «¿cuándo, cómo, dónde y a quién?». Horarios con su franja de descanso, políticas con sus tolerancias y redondeo, la geocerca de cada lugar de Organización y la asignación de cada persona, también desde su alta.</dd></div>
+    <div><dt>El cálculo del día</dt><dd>De las marcas válidas sale la jornada de cada persona: lo trabajado, la tardanza contra la entrada más la tolerancia, las alertas del descanso, las horas extra dentro de lo autorizado y su estado. No se guarda: se calcula una sola vez y todas las pantallas leen ese resultado.</dd></div>
+    <div><dt>Lo que se hace con el día</dt><dd>Hoy lo mira en vivo; el Libro lo consulta por día, semana o mes, con las tardanzas, faltas y saldo de cada persona; Incidencias junta lo raro de los últimos 10 días; Solicitudes responde lo que pide la gente; el Cierre congela el mes y lo entrega a Planillas.</dd></div>
+    <div><dt>La flecha</dt><dd>Aprobar una corrección, aceptar una justificación o autorizar horas extra cambia el día que se calcula: una corrección carga la marca, una justificación saca la alerta del cierre. Nada se borra: un ajuste deja la hora original tachada —BR‑ASI‑023—.</dd></div>
+    <div><dt>El colaborador</dt><dd>Marca desde el celular, ve su día, su semana y su mes con los mismos números que RR.HH. —BR‑ASI‑057—, y pide horas extra, corrige una marca o explica un atraso, que llegan a Solicitudes.</dd></div>
+  </dl>
+</div>
+
 <div class="doc">
   <aside class="rail">
     <details open>
@@ -1258,6 +1358,80 @@ td.rg{color:var(--tinta-3);font-weight:700}
   </aside>
 
   <main class="cuerpo">
+
+  <div class="perfiles">
+    <p class="perf-cap">Guía de lectura por rol</p>
+    <div class="perf-tabs" role="tablist" aria-label="Por dónde empezar según el rol">
+      <button type="button" class="perf-tab on" role="tab" id="pt-ux" aria-controls="pp-ux" aria-selected="true">Diseño UX</button>
+      <button type="button" class="perf-tab" role="tab" id="pt-dev" aria-controls="pp-dev" aria-selected="false" tabindex="-1">Desarrollo</button>
+      <button type="button" class="perf-tab" role="tab" id="pt-neg" aria-controls="pp-neg" aria-selected="false" tabindex="-1">Negocio y RR.HH.</button>
+    </div>
+
+    <div class="perf-panel" role="tabpanel" id="pp-ux" aria-labelledby="pt-ux" tabindex="0">
+      <figure class="perf-fig"><img src="assets/imagenes/via_ux_ui.png" width="463" height="539" alt="VIA con anteojos redondos y una bufanda de colores, sosteniendo un portátil donde se ve un tablero de wireframes conectados entre sí"></figure>
+      <div class="perf-txt">
+        <p class="perf-mision"><b>Tu misión</b>Que marcar tome segundos y que RR.HH. entienda el día de su gente de un vistazo, sin contar cajitas ni sumar en Excel.</p>
+        <p class="perf-lead">El colaborador marca de pie, en la puerta, con una mano: un toque abre una ventana que confirma, y recién ahí se escanea. RR.HH. lee el mismo dato de cuatro maneras —en vivo, por día, por semana y por mes— y la persona ve los mismos números en su app. El documento dice qué tiene que respetar cada pantalla y de dónde sale cada palabra; la vista Día del Libro sigue en revisión.</p>
+        <dl class="perf-l">
+          <div><dt>Empezar por</dt><dd><a href="#s0">00 · Glosario</a> · <a href="#p1-4">1.4 · Principios de diseño</a> · <a href="#s8">08 · Recursos visuales</a></dd></div>
+          <div><dt>No omitir</dt><dd><a href="#s4">04 · Reglas de negocio</a>: lo que la maqueta debe cumplir, con el escenario que lo verifica. Y <a href="#p6-7">ABIERTA‑ASI‑11</a>, la vista Día</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="perf-panel" role="tabpanel" id="pp-dev" aria-labelledby="pt-dev" tabindex="0" hidden>
+      <figure class="perf-fig"><img src="assets/imagenes/via_developer.png" width="463" height="539" alt="VIA con anteojos de marco grueso, sosteniendo un portátil con código en pantalla"></figure>
+      <div class="perf-txt">
+        <p class="perf-mision"><b>Tu misión</b>Llevar al servidor un solo cálculo del día —al segundo, con el descanso como franja y las horas extra por ventana— y cubrir cada regla con pruebas.</p>
+        <p class="perf-lead">El backend que ya existe (<code>ASISTENCIA_ARQUITECTURA.md</code>) calcula la jornada más simple que estas reglas: no tiene la franja de descanso, ni el redondeo, ni las horas extra por ventana. El punto <span class="id">5.3</span> es la especificación del cálculo y las cincuenta y ocho reglas dicen qué tiene que pasar y qué tiene que estar impedido; cada escenario sirve como caso de prueba.</p>
+        <dl class="perf-l">
+          <div><dt>Empezar por</dt><dd><a href="#s0">00 · Glosario</a> · <a href="#s5">05 · Modelo de datos</a> · <a href="#g-el-calculo-del-dia">El cálculo del día</a></dd></div>
+          <div><dt>No omitir</dt><dd><a href="#p6-6">6.6 · Riesgos</a> y <a href="#ax2">El módulo en el prototipo, hoy</a>: el candado del mes cerrado hoy lo aplican solo las pantallas</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="perf-panel" role="tabpanel" id="pp-neg" aria-labelledby="pt-neg" tabindex="0" hidden>
+      <figure class="perf-fig"><img src="assets/imagenes/via_asistencia.png" width="409" height="610" alt="VIA abrazando un reloj despertador, con un calendario detrás"></figure>
+      <div class="perf-txt">
+        <p class="perf-mision"><b>Tu misión</b>Confirmar que las reglas son las de la empresa y la ley —tolerancias, descanso, horas extra, vacaciones— y cerrar las decisiones que siguen abiertas.</p>
+        <p class="perf-lead">El módulo parte de los veintisiete requerimientos de RR.HH. y ya cumple la prioridad uno: descanso como franja, cálculo al segundo, horas extra solo autorizadas, justificaciones y el cierre para planillas. Quedan doce decisiones, varias de negocio y no de pantalla: quién acepta una justificación, si las horas extra se pagan o se compensan, y cuál es el mínimo de gente para operar.</p>
+        <dl class="perf-l">
+          <div><dt>Empezar por</dt><dd><a href="#s1">01 · Contexto</a> · <a href="#s7">07 · Flujos de usuario</a></dd></div>
+          <div><dt>No omitir</dt><dd><a href="#p6-7">6.7 · Decisiones abiertas</a>: las doce que siguen pendientes</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ══ Por dónde empezar ══ Tres pestañas de verdad: se recorren con las flechas y solo la activa entra con el tabulador. */
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.perf-tab'));
+  if (!tabs.length) return;
+  function abrir(t, foco){
+    tabs.forEach(function(o){
+      var activo = o === t;
+      o.classList.toggle('on', activo);
+      o.setAttribute('aria-selected', activo ? 'true' : 'false');
+      o.tabIndex = activo ? 0 : -1;
+      var panel = document.getElementById(o.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !activo;
+    });
+    if (foco) t.focus();
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ abrir(t); });
+    t.addEventListener('keydown', function(ev){
+      var salto = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (salto) { ev.preventDefault(); abrir(tabs[(i + salto + tabs.length) % tabs.length], true); }
+      if (ev.key === 'Home') { ev.preventDefault(); abrir(tabs[0], true); }
+      if (ev.key === 'End') { ev.preventDefault(); abrir(tabs[tabs.length - 1], true); }
+    });
+  });
+})();
+</script>
+
 
   <section id="s0" class="first">
     <header class="sec-h">
