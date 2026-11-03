@@ -37,7 +37,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | requisitos funcionales | 74 |
 | historias de usuario | 20 |
 | pantallas | 22 |
-| decisiones abiertas | 12 |
+| decisiones abiertas | 11 |
 
 > **El módulo, de un vistazo.** Asistencia tiene tres capas sobre un solo dato, la **marcación**. Arriba, la **configuración**: horarios (cuándo), políticas (qué se exige y cómo se calcula), lugares con su geocerca (dónde, tomados de Organización) y asignaciones (a quién le toca qué). En el medio, el **cálculo del día**: de las marcas válidas salen la entrada, la salida, lo trabajado, la tardanza, las alertas del descanso, las horas extra autorizadas y el estado. Abajo, lo que se hace con eso: **Hoy** lo mira en vivo, el **Libro** lo consulta por día, semana o mes, **Incidencias** y **Solicitudes** lo corrigen y el **Cierre** lo congela para planillas. El colaborador marca desde el celular y ve los mismos números en Mi asistencia.
 
@@ -245,7 +245,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 
 - **Cabecera**: flechas para el día, la semana o el mes anterior y siguiente —nunca pasan de hoy—, «Ir a hoy» o «Ir a este mes», el selector **Día · Semana · Mes** y el chip «Mes cerrado» si corresponde. **Exportar CSV** a la derecha.
 - **Buscador** por nombre o cargo y filtros de sucursal, centro de trabajo y unidad en la misma fila.
-- **Día**: una franja de conteos que filtra —Todos, Llegaron tarde, Sin marcar o Faltaron, Trabajando, Por llegar, Terminaron, Sin salida, Con permiso— y una fila por colaborador con su día en medias horas de 06:00 a 20:00 (verde trabajó, naranja llegó tarde o salió antes, rojo falta, gris permiso, violeta sin salida, rayado descanso), y a la derecha Entrada, Salida y Trabajado con una nota corta: «+26 min», «a tiempo», «en turno», «40 min antes». La escala se estira si alguien entra antes o sale después.
+- **Día**: una franja de conteos que filtra —Todos, Llegaron tarde, Sin marcar o Faltaron, Trabajando, Por llegar, Terminaron, Sin salida, Con permiso— y una tabla limpia, como el timesheet de BambooHR: el colaborador con su unidad y su lugar; su **horario** con el descanso, para comparar con la entrada sin pensar; la **entrada** con el atraso en naranja («+12 min tarde»); la **salida** con su nota («en turno», «40 min antes», «Descanso antes · 16 min»); **«Su día»**, una barrita de 06:00 a 22:00 —el riel es su horario, el verde lo que trabajó, el naranja el atraso o la salida antes, el rayado rojo la falta, el gris el permiso, el violeta sin salida y una rayita marca «ahora»—; las **horas trabajadas** de las programadas; y el **estado** con el punto de color del Mes.
 - **Semana**: una grilla de lunes a domingo con la entrada y la salida de cada día en el color de su estado, y la columna Semana con lo trabajado y el saldo. El día en curso no suma al saldo hasta que termina.
 - **Mes**: la planilla clásica. Una fila por colaborador, un cuadrito por día con el color de su estado y, a la derecha, lo acumulado: **Tardanzas** (veces, tiempo y cuánto está sin justificar), **Faltas** (las ausentes; las con permiso aparte, «+ 1 con permiso») y **Saldo** (trabajado contra programado). Las tres columnas se ordenan de mayor a menor.
 - Un clic en un día abre el detalle de la jornada; en el nombre, la asistencia de esa persona.
@@ -261,7 +261,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 | RF‑ASI‑012 | El Día filtra por estado con una franja de conteos | Import. | «6 Llegaron tarde» deja solo a esas seis |
 | RF‑ASI‑013 | El CSV trae una fila por persona y día, con las duraciones en segundos | Oblig. | La tardanza de 59 s figura como 59 |
 
-> **En la maqueta:** la vista Día en medias horas está en revisión de diseño; hay una ronda de propuestas abierta con una línea de tiempo por persona —ABIERTA‑ASI‑11—.
+> **En la maqueta:** la vista Día es la opción E1 de la ronda 4 de propuestas —tabla limpia— con la barrita del día como columna; reemplaza a la de medias horas —ABIERTA‑ASI‑11, resuelta—.
 
 ### 3.3 La asistencia de una persona
 
@@ -2817,7 +2817,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | ABIERTA‑ASI‑08 | ¿Marcar sin conexión y vincular el celular a la persona? | Arquitectura · R5, R6 |
 | ABIERTA‑ASI‑09 | La zona horaria fija en UTC−4, ¿se configura por empresa? | Arquitectura · R1 |
 | ABIERTA‑ASI‑10 | Los feriados móviles y los de cada departamento, ¿quién los carga? | Nueva |
-| ABIERTA‑ASI‑11 | La vista Día del Libro: medias horas, una línea de tiempo por persona o una tabla limpia | Nueva |
+| ABIERTA‑ASI‑11 | **Resuelta:** la vista Día es una tabla limpia con el horario al lado y una barrita del día en una columna (opción E1) | Nueva |
 | ABIERTA‑ASI‑12 | ¿Reportes por área, día de la semana y motivo de tardanza? | REQ #24 |
 
 ## 07 · Flujos de usuario
@@ -3084,5 +3084,4 @@ Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por
 - **Pedir horas extra** desde el celular no pide el proyecto.
 - **El «plazo para responder»** de RR.HH. se guarda pero no se muestra en ninguna pantalla.
 - **El calendario** de Hoy usa la fecha real y no la del reloj de la demo, y su leyenda tiene «Cierre» sin eventos.
-- **La vista Día** del Libro está en revisión de diseño —ABIERTA‑ASI‑11—.
 - **No existen**: la bolsa de horas, marcar sin conexión, el domicilio autorizado, horarios por día o con vigencia, ni turnos de noche.

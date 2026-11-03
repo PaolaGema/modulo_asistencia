@@ -272,11 +272,11 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
   )
 }
 
-/* ── EL DÍA EN CUADRITOS DE MEDIA HORA ──
-   El mismo idioma que el Mes: una fila por persona, la escala arriba y los números a la derecha.
-   Cada cuadrito es media hora: verde trabajó (más intenso si sigue trabajando), naranja el tiempo de
-   su horario en que no estuvo (llegó tarde o salió antes), rojo falta, rayado el descanso, gris el
-   permiso, y con borde lo que todavía le queda del día. */
+/* ── EL DÍA COMO TABLA LIMPIA (E1) ──
+   Solo números, bien ordenados, como el timesheet de BambooHR: el horario al lado de la entrada para
+   comparar sin pensar, el atraso en naranja junto a la hora y el estado con el punto de color del
+   Mes. Y una barrita del día, chica, para leerlo sin números: el riel es su horario, el verde lo que
+   trabajó, el naranja el atraso, el hueco el descanso y la rayita, ahora. */
 const GRUPOS_DIA = [
   { key: 'tarde', label: 'Llegaron tarde', tono: 'tarde', f: j => j.llegoTarde },
   { key: 'falta', label: 'Faltaron', hoy: 'Sin marcar', tono: 'falta', f: j => j.estado === 'ausente' || j.estado === 'sinMarcar' },
@@ -286,101 +286,89 @@ const GRUPOS_DIA = [
   { key: 'incompleta', label: 'Sin salida', tono: 'inc', f: j => j.estado === 'incompleta' },
   { key: 'justificada', label: 'Con permiso', tono: 'just', f: j => j.estado === 'justificada' },
 ]
-const LEYENDA_DIA = [['ok', 'Trabajó'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'Falta'], ['just', 'Vacación, permiso o licencia'], ['inc', 'Sin salida'], ['pausa', 'Descanso'], ['fut', 'Por trabajar']]
+/* El punto del estado, con los colores del Mes. */
+const PUNTO = { presente: 'ok', termino: 'ok', extra: 'extra', trabajando: 'vivo', pausa: 'pausa', porLlegar: 'fut', tarde: 'tarde', anticipada: 'tarde', ausente: 'falta', sinMarcar: 'falta', justificada: 'just', incompleta: 'inc', libre: 'libre' }
+const LEYENDA_DIA = [['vivo', 'Trabajó'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'Falta'], ['just', 'Vacación, permiso o licencia'], ['inc', 'Sin salida']]
+const ESCALA = [6 * 60, 22 * 60]
 
 /* Los tramos trabajados salen de las marcas, igual que la barra del día. */
 function tramosDe(j, ahora) {
   const marcas = j.marcas.filter(m => !m.rechazada && !m.anulada)
-  const trabajo = []; const pausas = []
-  let abierto = null; let pausa = null
+  const trabajo = []
+  let abierto = null
   for (const m of marcas) {
-    if (m.tipo === 'entrada' || m.tipo === 'pausa_fin') { if (pausa != null) { pausas.push([pausa, m.min]); pausa = null } if (abierto == null) abierto = m.min }
-    if (m.tipo === 'pausa_inicio' || m.tipo === 'salida') { if (abierto != null) { trabajo.push([abierto, m.min]); abierto = null } if (m.tipo === 'pausa_inicio') pausa = m.min }
+    if (m.tipo === 'entrada' || m.tipo === 'pausa_fin') { if (abierto == null) abierto = m.min }
+    if ((m.tipo === 'pausa_inicio' || m.tipo === 'salida') && abierto != null) { trabajo.push([abierto, m.min]); abierto = null }
   }
   if (abierto != null && ahora != null) trabajo.push([abierto, ahora, true])
-  if (pausa != null && ahora != null) pausas.push([pausa, ahora])
-  /* Un día pasado sin salida: desde la entrada hasta el fin de su horario queda «sin salida». */
-  const sinCierre = abierto != null && ahora == null ? abierto : null
-  return { trabajo, pausas, sinCierre }
+  return { trabajo, sinCierre: abierto != null && ahora == null ? abierto : null }
 }
 
-function tonoSlot(j, p, a, ahora, t) {
-  const mid = a + 15
-  const dentro = lista => lista.find(([x, y]) => mid >= x && mid < y)
+function MiniDia({ p, j, ahora }) {
+  const [ini, fin] = ESCALA
+  const x = m => `${Math.max(0, Math.min(100, ((m - ini) / (fin - ini)) * 100))}%`
+  const w = (a, b) => `${Math.max(0, Math.min(100, ((Math.min(b, fin) - Math.max(a, ini)) / (fin - ini)) * 100))}%`
   const fijo = p.horario?.modo === 'fijo' && j.laboral
   const prog = fijo ? [aMin(p.horario.entrada), aMin(p.horario.salida)] : null
-  const enProg = prog && mid >= prog[0] && mid < prog[1]
-  const fr = fijo ? franjaPausa(p.horario) : null
-  const enFranja = fr && mid >= fr.desde && mid < fr.hasta
-  const limite = ahora ?? 24 * 60
-  if (j.estado === 'justificada') return enProg ? 'just' : ''
-  const w = dentro(t.trabajo)
-  if (w) return w[2] ? 'vivo' : 'ok'
-  if (dentro(t.pausas)) return 'pausa'
-  if (t.sinCierre != null && mid >= t.sinCierre && (prog ? mid < prog[1] : mid < t.sinCierre + 8 * 60)) return 'inc'
-  if (enProg && mid >= limite) return 'fut'
-  if (enProg && enFranja) return 'pausa'
-  if (enProg) return j.entrada == null ? 'falta' : 'tarde'
-  return ''
+  const t = tramosDe(j, ahora)
+  const segs = []
+  if (prog) segs.push(['riel', ...prog])
+  if (j.estado === 'justificada' && prog) segs.push(['just', ...prog])
+  else if ((j.estado === 'sinMarcar' || j.estado === 'ausente') && prog) segs.push(['falta', prog[0], ahora ?? prog[1]])
+  else {
+    if (j.llegoTarde && prog) segs.push(['tarde', prog[0], j.entrada])
+    t.trabajo.forEach(([a, b, vivo]) => segs.push([vivo ? 'vivo' : 'ok', a, b]))
+    if (t.sinCierre != null) segs.push(['inc', t.sinCierre, prog ? prog[1] : t.sinCierre + 8 * 60])
+    if (j.anticipada > 0 && prog && j.salida != null) segs.push(['tarde', j.salida, prog[1]])
+  }
+  return (
+    <div className="at-minidia" role="img" aria-label={`${p.name}: ${prog ? `horario ${hhmm(prog[0])} a ${hhmm(prog[1])}, ` : ''}entrada ${hhmm(j.entrada)}, salida ${hhmm(j.salida)}`}>
+      {segs.map(([tono, a, b], i) => <i key={i} className={`s-${tono}`} style={{ left: x(a), width: w(a, b) }} />)}
+      {ahora != null && <i className="s-ahora" style={{ left: x(ahora) }} />}
+    </div>
+  )
 }
 
 function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
-  /* La escala va de 06:00 a 20:00 y se estira si alguien entra antes o sale después. */
-  const [desde, hasta] = useMemo(() => {
-    let a = 6 * 60; let b = 20 * 60
-    filas.forEach(({ p, j }) => {
-      const pts = [j.entrada, j.salida]
-      if (p.horario?.modo === 'fijo') pts.push(aMin(p.horario.entrada), aMin(p.horario.salida))
-      pts.filter(x => x != null).forEach(x => { a = Math.min(a, Math.floor(x / 60) * 60); b = Math.max(b, Math.ceil(x / 60) * 60) })
-    })
-    return [a, Math.min(b, 24 * 60)]
-  }, [filas])
-  const n = (hasta - desde) / 30
-  const columnas = { gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }
-  const horas = Array.from({ length: Math.ceil(n / 4) }, (_, i) => desde + i * 120)
   return (
     <div className="as-table-wrap at-mes">
       <div style={{ overflowX: 'auto' }}>
-        <table className="as-table at-mes-tabla at-dia-tabla">
+        <table className="as-table at-dia-limpia">
           <thead>
             <tr>
-              <th className="at-mes-persona">Colaborador</th>
-              <th>
-                <div className="at-mes-dias at-dia-horas" style={columnas}>
-                  {horas.map(h => <span key={h} style={{ gridColumn: `span ${Math.min(4, (hasta - h) / 30)}` }}>{hhmm(h)}</span>)}
-                </div>
+              <th>Colaborador</th>
+              <th>Horario</th>
+              <th className="r">Entrada</th>
+              <th className="r">Salida</th>
+              <th className="at-minidia-h">
+                <span>Su día</span>
+                <span className="at-minidia-esc" aria-hidden="true">{[6, 10, 14, 18, 22].map(h => <b key={h} style={{ left: `${((h * 60 - ESCALA[0]) / (ESCALA[1] - ESCALA[0])) * 100}%` }}>{String(h).padStart(2, '0')}</b>)}</span>
               </th>
-              <th className="at-mes-acc at-dia-acc">Entrada</th>
-              <th className="at-mes-acc at-dia-acc">Salida</th>
-              <th className="at-mes-acc at-dia-acc">Horas trabajadas</th>
+              <th className="r">Horas trabajadas</th>
+              <th>Estado</th>
             </tr>
           </thead>
           <tbody>
             {filas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, j }) => {
               const remoto = j.marcas.some(m => m.remoto && !m.rechazada)
-              const t = tramosDe(j, ahora)
+              const h = p.horario
+              const fr = h?.modo === 'fijo' ? franjaPausa(h) : null
               const alerta = j.alertas.find(a => a.tipo !== 'tarde' && a.tipo !== 'anticipada')
               const abrir = () => onAbrir(p)
-              const notaEntrada = j.tardanza > 0 ? `+${duracion(j.tardanza)}` : j.entrada != null ? 'a tiempo' : { sinMarcar: 'sin marcar', ausente: 'falta', justificada: 'permiso', porLlegar: 'por llegar' }[j.estado] || ''
+              const notaEntrada = j.tardanza > 0 ? `+${duracion(j.tardanza)} tarde` : j.entrada != null ? 'a tiempo' : { sinMarcar: 'sin marcar', ausente: 'falta', justificada: 'permiso', porLlegar: 'por llegar' }[j.estado] || ''
               const notaSalida = alerta ? `${ALERTAS[alerta.tipo].corto}${alerta.tipo !== 'sinPausa' ? ` · ${duracion(alerta.min)}` : ''}`
-                : j.salida != null ? (j.anticipada > 0 ? `${duracion(j.anticipada)} antes` : j.extra > 0 ? `+${duracion(j.extra)} extra` : 'salió')
+                : j.salida != null ? (j.anticipada > 0 ? `${duracion(j.anticipada)} antes` : j.extra > 0 ? `+${duracion(j.extra)} extra` : '')
                   : j.entrada != null ? (j.estado === 'pausa' ? 'en pausa' : ahora != null ? 'en turno' : 'sin salida') : ''
+              const etiqueta = j.estado === 'justificada' && j.justificacion?.tipo ? j.justificacion.tipo : ESTADOS[j.estado].label
               return (
                 <tr key={p.id} tabIndex={0} className="at-dia-fila" onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
-                  <td className="at-mes-persona"><PersonaAt persona={p} size={28} sub={`${p.unidad} · ${remoto ? 'Remoto' : p.lugar?.nombre || 'Sin lugar'}`} /></td>
-                  <td>
-                    <div className="at-mes-dias" style={columnas} role="img" aria-label={`${p.name}: entrada ${hhmm(j.entrada)}, salida ${hhmm(j.salida)}, ${ESTADOS[j.estado].label}`}>
-                      {Array.from({ length: n }, (_, i) => {
-                        const a = desde + i * 30
-                        const tono = tonoSlot(j, p, a, ahora, t)
-                        const ya = ahora != null && ahora >= a && ahora < a + 30
-                        return <i key={a} className={`at-mes-c${tono ? ` t-${tono}` : ''}${ya ? ' ahora' : ''}`} />
-                      })}
-                    </div>
-                  </td>
-                  <td className="at-mes-acc num"><b className={j.llegoTarde ? 'tarde' : j.estado === 'sinMarcar' || j.estado === 'ausente' ? 'falta' : ''}>{hhmm(j.entrada)}</b><small>{notaEntrada}</small></td>
-                  <td className="at-mes-acc num"><b>{hhmm(j.salida)}</b><small className={alerta && !alerta.justificacion ? 'alerta' : ''}>{notaSalida}</small></td>
-                  <td className="at-mes-acc num"><b>{j.entrada != null ? duracion(j.trabajado, { corto: true }) : '—'}</b><small>de {p.horario?.modo === 'flexible' ? duracion(p.horario.meta, { corto: true }) : duracion(j.programado, { corto: true })}</small></td>
+                  <td><PersonaAt persona={p} size={30} sub={`${p.unidad} · ${remoto ? 'Remoto' : p.lugar?.nombre || 'Sin lugar'}`} /></td>
+                  <td className="at-dia-hor">{h?.modo === 'fijo' ? <><b>{h.entrada} – {h.salida}</b><small>{fr ? `descanso ${hhmm(fr.desde)}–${hhmm(fr.hasta)}` : 'sin descanso'}</small></> : h ? <><b>Flexible</b><small>meta {duracion(h.meta, { corto: true })}</small></> : '—'}</td>
+                  <td className="at-dia-num"><b className={j.llegoTarde ? 'tarde' : j.estado === 'sinMarcar' || j.estado === 'ausente' ? 'falta' : ''}>{hhmm(j.entrada)}</b><small className={j.llegoTarde ? 'tarde' : ''}>{notaEntrada}</small></td>
+                  <td className="at-dia-num"><b>{hhmm(j.salida)}</b>{notaSalida && <small className={alerta && !alerta.justificacion ? 'alerta' : ''}>{notaSalida}</small>}</td>
+                  <td className="at-minidia-c"><MiniDia p={p} j={j} ahora={ahora} /></td>
+                  <td className="at-dia-num"><b>{j.entrada != null ? duracion(j.trabajado, { corto: true }) : '—'}</b><small>de {h?.modo === 'flexible' ? duracion(h.meta, { corto: true }) : duracion(j.programado, { corto: true })}</small></td>
+                  <td><span className="at-estado-pt"><i className={`p-${PUNTO[j.estado] || 'libre'}`} />{etiqueta}</span></td>
                 </tr>
               )
             })}
@@ -388,7 +376,9 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
         </table>
       </div>
       <div className="at-mes-leyenda">
+        <span><i className="at-leyenda-riel" />Su horario</span>
         {LEYENDA_DIA.map(([k, txt]) => <span key={k}><i className={`at-mes-c t-${k}`} />{txt}</span>)}
+        <span><i className="at-leyenda-ahora" />Ahora</span>
       </div>
       <Paginacion page={pagina} setPage={setPag} total={filas.length} perPage={POR_PAGINA} nombre="jornadas" nombreUno="jornada" />
     </div>
