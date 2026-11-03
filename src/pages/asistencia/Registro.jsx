@@ -167,7 +167,7 @@ export default function Registro() {
    Cada cuadrito es una jornada, con el color de su estado; un clic la abre. Lo acumulado cuenta sólo
    días cerrados (el de hoy suma cuando la persona marca la salida), igual que la ficha de la persona.
    Faltas: «ausente» es la que cuenta; la ausencia con vacación, permiso o licencia va aparte. */
-const LEYENDA_MES = [['ok', 'A tiempo'], ['tarde', 'Tarde o salió antes'], ['falta', 'Falta'], ['just', 'Vacación, permiso o licencia'], ['extra', 'Horas extra'], ['inc', 'Sin salida'], ['libre', 'Libre']]
+const LEYENDA_MES = [['ok', 'A tiempo'], ['tarde', 'Tarde o salió antes'], ['falta', 'Faltó'], ['just', 'De vacaciones o con permiso'], ['extra', 'Horas extra'], ['inc', 'Salida sin marcar'], ['libre', 'Día libre']]
 const TONO_MES = { presente: 'ok', termino: 'ok', trabajando: 'hoy', pausa: 'hoy', porLlegar: 'hoy', tarde: 'tarde', anticipada: 'tarde', ausente: 'falta', sinMarcar: 'falta', justificada: 'just', extra: 'extra', incompleta: 'inc', libre: 'libre' }
 const ORDENES = {
   tardanza: (a, b) => b.tarde.min - a.tarde.min || b.tarde.veces - a.tarde.veces,
@@ -281,7 +281,8 @@ const GRUPOS_DIA = [
   { key: 'justificada', label: 'De vacaciones o con permiso', tono: 'just', f: j => j.estado === 'justificada' },
 ]
 
-const LEYENDA_DIA = [['vivo', 'Trabajó'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'Falta'], ['just', 'Vacación, permiso o licencia'], ['inc', 'Sin salida']]
+/* La leyenda dibuja cada muestra igual que en la barrita: liso lo que pasó, rayado lo que no se trabajó. */
+const LEYENDA_DIA = [['ok', 'Trabajó'], ['vivo', 'Trabajando ahora'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'No vino'], ['just', 'De vacaciones o con permiso'], ['inc', 'Salida sin marcar']]
 const ESCALA = [6 * 60, 22 * 60]
 
 /* Los tramos trabajados salen de las marcas, igual que la barra del día. */
@@ -369,7 +370,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
       </div>
       <div className="at-mes-leyenda">
         <span><i className="at-leyenda-riel" />Su horario</span>
-        {LEYENDA_DIA.map(([k, txt]) => <span key={k}><i className={`at-mes-c t-${k}`} />{txt}</span>)}
+        {LEYENDA_DIA.map(([k, txt]) => <span key={k}><i className={`at-ley-seg s-${k}`} />{txt}</span>)}
         <span><i className="at-leyenda-ahora" />Ahora</span>
       </div>
       <Paginacion page={pagina} setPage={setPag} total={filas.length} perPage={POR_PAGINA} nombre="jornadas" nombreUno="jornada" />
