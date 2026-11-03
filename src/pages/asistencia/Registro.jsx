@@ -5,6 +5,7 @@ import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, BarraBusqueda, EstadoDia, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
+import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import Desplegable from '../../components/layout/Desplegable'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa } from '../../data/asistenciaData'
@@ -129,50 +130,7 @@ export default function Registro() {
         )
       ) : (
         gente.length ? (
-          <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-            <table className="as-table at-semana">
-              <thead>
-                <tr>
-                  <th>Colaborador</th>
-                  {semana.map(d => <th key={d} className={`dia${d === at.hoy ? ' hoy' : ''}`}>{DIAS_CORTOS[diaISO(d)]} {aFecha(d).getDate()}</th>)}
-                  <th style={{ textAlign: 'right' }}>Horas de la semana</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gente.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => {
-                  let total = 0; let prog = 0
-                  return (
-                    <tr key={p.id}>
-                      <td><PersonaAt persona={p} size={30} onClick={() => navigate(`/asistencia/persona/${p.id}?mes=${mesDe(fecha)}`)} /></td>
-                      {semana.map(d => {
-                        if (d > at.hoy) return <td key={d}><span className="at-celda futuro e-libre" /></td>
-                        const j = at.jornadaDe(p, d)
-                        /* El día en curso no suma al saldo hasta que termina: a media mañana todos «deben» horas. */
-                        if (d < at.hoy || j.salida != null) { total += j.trabajado; prog += j.programado }
-                        return (
-                          <td key={d} style={{ padding: '6px 4px' }}>
-                            <button type="button" className={`at-celda e-${j.estado}`} onClick={() => setDetalle({ persona: p, fecha: d })} title={`${fechaLarga(d)} · ${ESTADOS[j.estado].label}`}>
-                              {j.entrada != null ? <><b>{hhmm(j.entrada)}</b><span>{j.salida != null ? hhmm(j.salida) : '…'}</span></> : <span>{j.estado === 'libre' ? 'Libre' : ESTADOS[j.estado].label}</span>}
-                            </button>
-                          </td>
-                        )
-                      })}
-                      <td className="num" style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
-                        {/* El saldo en palabras y no con signo: «+0:12» o «−3:20» no se entendían. */}
-                        {prog > 0 ? (
-                          <>
-                            {duracion(total, { corto: true })}<span style={{ fontWeight: 500, color: 'var(--text-muted)' }}> de {duracion(prog, { corto: true })}</span>
-                            <small style={{ display: 'block', fontWeight: 500, fontSize: 11, color: total >= prog ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{total >= prog ? 'completas' : `faltan ${duracion(prog - total, { corto: true })}`}</small>
-                          </>
-                        ) : <span className="dc-muted" title="El día en curso suma cuando la persona marca la salida">—</span>}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            <Paginacion page={pagina} setPage={setPag} total={gente.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
-          </div>
+          <LibroSemana gente={gente} semana={semana} pagina={pagina} setPag={setPag} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onPersona={p => navigate(`/asistencia/persona/${p.id}?mes=${mesDe(fecha)}`)} />
         ) : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otros filtros." /></div>
       )}
 
@@ -203,19 +161,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
   const dias = useMemo(() => diasDelMes(mes), [mes])
   const filas = useMemo(() => gente.map(p => {
     const js = dias.map(d => (d <= at.hoy ? at.jornadaDe(p, d) : null))
-    const cerradas = js.filter((j, i) => j && j.estado !== 'libre' && (dias[i] !== at.hoy || j.salida != null))
-    const tardes = cerradas.filter(j => j.llegoTarde)
-    const sum = (lista, k) => lista.reduce((s, j) => s + (j[k] || 0), 0)
-    return {
-      p, js,
-      tarde: { veces: tardes.length, min: sum(tardes, 'tardanza'), injust: sum(tardes, 'tardanzaInjustificada') },
-      faltas: cerradas.filter(j => j.estado === 'ausente').length,
-      justificadas: cerradas.filter(j => j.estado === 'justificada').length,
-      saldo: cerradas.length ? sum(cerradas, 'trabajado') - sum(cerradas, 'programado') : null,
-      trabajado: sum(cerradas, 'trabajado'), programado: sum(cerradas, 'programado'),
-      diasTrabajados: cerradas.filter(j => j.entrada != null).length,
-      diasConJornada: cerradas.filter(j => j.programado > 0 || j.estado === 'justificada').length,
-    }
+    return { p, js, ...resumenDe(js, dias, at.hoy) }
   }), [gente, dias, at])
   const ordenadas = orden ? [...filas].sort(ORDENES[orden]) : filas
   const paginas = Math.max(1, Math.ceil(ordenadas.length / POR_PAGINA))
@@ -248,7 +194,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
             </tr>
           </thead>
           <tbody>
-            {ordenadas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, js, tarde, faltas, justificadas, saldo, trabajado, programado }) => (
+            {ordenadas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(fila => { const { p, js } = fila; return (
               <tr key={p.id}>
                 <td className="at-mes-persona"><PersonaAt persona={p} size={28} sub={p.unidad} onClick={() => setAbierta(ordenadas.find(x => x.p.id === p.id))} /></td>
                 <td>
@@ -261,34 +207,9 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                     })}
                   </div>
                 </td>
-                {/* R1: las veces y el tiempo, cada uno en su columna y con su orden. Lo justificado va debajo del tiempo. */}
-                <td className="at-mes-acc num">{tarde.veces ? <b className="tarde">{tarde.veces}</b> : <span className="dc-muted">—</span>}</td>
-                <td className="at-mes-acc num">
-                  {tarde.veces ? (
-                    <>
-                      <b className="tarde">{duracion(tarde.min)}</b>
-                      <small>{tarde.injust <= 0 ? 'justificado' : tarde.injust >= tarde.min ? (tarde.veces > 1 ? 'todo sin justificar' : 'sin justificar') : `${duracion(tarde.min - tarde.injust)} justificados`}</small>
-                    </>
-                  ) : <span className="dc-muted">—</span>}
-                </td>
-                <td className="at-mes-acc num">
-                  {faltas || justificadas ? (
-                    <>
-                      <b className={faltas ? 'falta' : ''}>{faltas}</b>
-                      <small>{justificadas ? `+ ${justificadas} con permiso` : 'sin justificar'}</small>
-                    </>
-                  ) : <span className="dc-muted">—</span>}
-                </td>
-                <td className="at-mes-acc num">{saldo == null ? <span className="dc-muted">—</span> : (
-                  /* Como en la Semana: lo trabajado «de» lo programado, y el saldo en palabras. */
-                  <>
-                    <b>{duracion(trabajado, { corto: true })}</b>
-                    <small>de {duracion(programado, { corto: true })}</small>
-                    <small style={{ color: saldo >= 0 ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}</small>
-                  </>
-                )}</td>
+                <CeldasAcumulado r={fila} rotuloHoras="Horas del mes" />
               </tr>
-            ))}
+            ) })}
           </tbody>
         </table>
       </div>
@@ -463,5 +384,127 @@ function ModalMesPersona({ fila, mes, dias, hoy, onCerrar, onDia, onCompleta }) 
         </div>
       </div>
     </Modal>
+  )
+}
+
+/* ── LO ACUMULADO DE UN PERÍODO, IGUAL EN LA SEMANA Y EN EL MES ──
+   Cuenta solo días cerrados (el de hoy suma cuando marca la salida). Retrasos: cuántas veces y
+   cuánto tiempo, con lo sin justificar. Faltas: las ausentes; las de vacaciones, permiso o licencia
+   van aparte. Y LO JUSTIFICADO NO ES HORA QUE FALTA: un día de vacaciones no suma a lo programado,
+   si no «faltaban» 22 horas a quien estuvo cuatro días de vacaciones. */
+function resumenDe(js, dias, hoy) {
+  const cerradas = js.filter((j, i) => j && j.estado !== 'libre' && (dias[i] !== hoy || j.salida != null))
+  const conJornada = cerradas.filter(j => j.estado !== 'justificada')
+  const tardes = cerradas.filter(j => j.llegoTarde)
+  const sum = (lista, k) => lista.reduce((s, j) => s + (j[k] || 0), 0)
+  const trabajado = sum(cerradas, 'trabajado')
+  const programado = sum(conJornada, 'programado')
+  return {
+    tarde: { veces: tardes.length, min: sum(tardes, 'tardanza'), injust: sum(tardes, 'tardanzaInjustificada') },
+    faltas: cerradas.filter(j => j.estado === 'ausente').length,
+    justificadas: cerradas.filter(j => j.estado === 'justificada').length,
+    saldo: conJornada.length ? trabajado - programado : null,
+    trabajado, programado,
+    diasTrabajados: cerradas.filter(j => j.entrada != null).length,
+    diasConJornada: conJornada.filter(j => j.programado > 0).length,
+  }
+}
+
+const CORTO_JUSTIFICADO = { 'De vacaciones': 'Vacaciones', 'Con permiso': 'Permiso', 'Con licencia': 'Licencia' }
+
+/* Las celdas de lo acumulado, las mismas en la Semana y en el Mes. */
+function CeldasAcumulado({ r, rotuloHoras }) {
+  const { tarde, faltas, justificadas, saldo, trabajado, programado } = r
+  return (
+    <>
+      <td className="at-mes-acc num">{tarde.veces ? <b className="tarde">{tarde.veces}</b> : <span className="dc-muted">—</span>}</td>
+      <td className="at-mes-acc num">
+        {tarde.veces ? (
+          <>
+            <b className="tarde">{duracion(tarde.min)}</b>
+            <small>{tarde.injust <= 0 ? 'justificado' : tarde.injust >= tarde.min ? (tarde.veces > 1 ? 'todo sin justificar' : 'sin justificar') : `${duracion(tarde.min - tarde.injust)} justificados`}</small>
+          </>
+        ) : <span className="dc-muted">—</span>}
+      </td>
+      <td className="at-mes-acc num">
+        {faltas || justificadas ? (
+          <>
+            <b className={faltas ? 'falta' : ''}>{faltas}</b>
+            <small>{justificadas ? `+ ${justificadas} con permiso` : 'sin justificar'}</small>
+          </>
+        ) : <span className="dc-muted">—</span>}
+      </td>
+      <td className="at-mes-acc num" aria-label={rotuloHoras}>
+        {saldo == null ? <span className="dc-muted" title="El día en curso suma cuando la persona marca la salida">—</span> : (
+          <>
+            <b>{duracion(trabajado, { corto: true })}</b>
+            <small>de {duracion(programado, { corto: true })}</small>
+            <small style={{ color: saldo >= 0 ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}</small>
+          </>
+        )}
+      </td>
+    </>
+  )
+}
+
+/* ── LA SEMANA, CON EL LENGUAJE DEL MES (W1) ──
+   Cada día en el color lleno del Mes, con la hora de entrada y de salida; el fin de semana, apagado.
+   A la derecha, lo mismo que el Mes: retrasos, tiempo de retraso, faltas y horas de la semana. */
+function LibroSemana({ gente, semana, pagina, setPag, onDia, onPersona }) {
+  const at = useAsistencia()
+  const [orden, setOrden] = useState('')
+  const filas = useMemo(() => gente.map(p => {
+    const js = semana.map(d => (d <= at.hoy ? at.jornadaDe(p, d) : null))
+    return { p, js, ...resumenDe(js, semana, at.hoy) }
+  }), [gente, semana, at])
+  const ordenadas = orden ? [...filas].sort(ORDENES[orden]) : filas
+  const cab = (k, txt) => (
+    <th className="at-mes-acc">
+      <button type="button" className={`at-mes-orden${orden === k ? ' on' : ''}`} aria-pressed={orden === k} onClick={() => { setOrden(orden === k ? '' : k); setPag(1) }} title={orden === k ? 'Quitar el orden' : 'Ordenar de mayor a menor'}>{txt}{orden === k ? ' ↓' : ''}</button>
+    </th>
+  )
+  return (
+    <div className="as-table-wrap at-mes">
+      <div style={{ overflowX: 'auto' }}>
+        <table className="as-table at-mes-tabla at-sem-tabla">
+          <thead>
+            <tr>
+              <th className="at-mes-persona">Colaborador</th>
+              {semana.map(d => <th key={d} className={`at-sem-dia${d === at.hoy ? ' hoy' : ''}${diaISO(d) >= 6 ? ' finde' : ''}`}>{DIAS_CORTOS[diaISO(d)]} {aFecha(d).getDate()}</th>)}
+              {cab('veces', 'Retrasos')}
+              {cab('tardanza', 'Tiempo de retraso')}
+              {cab('faltas', 'Faltas')}
+              {cab('saldo', 'Horas de la semana')}
+            </tr>
+          </thead>
+          <tbody>
+            {ordenadas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(r => (
+              <tr key={r.p.id}>
+                <td className="at-mes-persona"><PersonaAt persona={r.p} size={28} sub={r.p.unidad} onClick={() => onPersona(r.p)} /></td>
+                {semana.map((d, i) => {
+                  const j = r.js[i]
+                  if (!j) return <td key={d}><span className="at-sem-c t-futuro" /></td>
+                  const tono = TONO_MES[j.estado] || 'libre'
+                  const det = `${fechaLarga(d)} · ${ESTADOS[j.estado].label}${j.llegoTarde ? ` · ${duracion(j.tardanza)} tarde` : ''}`
+                  const texto = j.entrada != null
+                    ? <><b>{hhmm(j.entrada)}</b><span>{j.salida != null ? hhmm(j.salida) : '…'}</span></>
+                    : <span>{j.estado === 'libre' ? 'Libre' : j.estado === 'justificada' ? CORTO_JUSTIFICADO[motivoJustificado(j)] : ESTADOS[j.estado].label}</span>
+                  return (
+                    <td key={d} className="at-sem-td">
+                      <button type="button" className={`at-sem-c t-${tono}${d === at.hoy ? ' hoy' : ''}`} title={det} aria-label={`${r.p.name}, ${det}`} onClick={() => onDia(r.p, d)}>{texto}</button>
+                    </td>
+                  )
+                })}
+                <CeldasAcumulado r={r} rotuloHoras="Horas de la semana" />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="at-mes-leyenda">
+        {LEYENDA_MES.map(([k, t]) => <span key={k}><i className={`at-mes-c t-${k}`} />{t}</span>)}
+      </div>
+      <Paginacion page={pagina} setPage={setPag} total={ordenadas.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
+    </div>
   )
 }

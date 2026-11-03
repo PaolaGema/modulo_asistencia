@@ -1340,3 +1340,22 @@ button.at-mm-dia:hover, button.at-mm-dia:focus-visible { transform: translateY(-
 .at-libro .at-barra-busca .at-filtros .dc-filtro { width: 178px; }
 .at-libro .at-barra-busca .at-filtro-estado { width: 186px; flex: none; }
 @media (max-width: 1280px) { .at-libro .at-barra-busca { flex-wrap: wrap; } }
+
+/* ── Libro › Semana con el lenguaje del Mes (W1) ── */
+.at-sem-tabla .at-sem-dia { text-align: center; }
+.at-sem-tabla .at-sem-dia.hoy { color: var(--dc-verde); }
+.at-sem-tabla .at-sem-dia.finde { color: var(--text-muted); }
+.at-sem-td { padding: 6px 3px !important; }
+.at-sem-c { width: 100%; min-width: 64px; height: 42px; border: none; border-radius: 9px; display: grid; place-content: center; justify-items: center; gap: 1px; font-family: inherit; font-size: 10.5px; line-height: 1.15; font-variant-numeric: tabular-nums; background: var(--m-libre); color: var(--text-muted); }
+button.at-sem-c { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+button.at-sem-c:hover, button.at-sem-c:focus-visible { transform: translateY(-1px); box-shadow: 0 0 0 2px var(--text-heading); outline: none; }
+.at-sem-c b { font-size: 12px; font-weight: 700; }
+.at-sem-c.t-ok { background: var(--m-ok); color: #0C2D40; }
+.at-sem-c.t-tarde { background: var(--m-tarde); color: #3D2504; }
+.at-sem-c.t-falta { background: var(--m-falta); color: #fff; }
+.at-sem-c.t-just { background: var(--m-just); color: #334155; }
+.at-sem-c.t-extra { background: var(--m-extra); color: #0C2D40; }
+.at-sem-c.t-inc { background: var(--m-inc); color: #2E1A66; }
+.at-sem-c.t-hoy { background: transparent; box-shadow: inset 0 0 0 1.5px var(--dc-verde); color: var(--text-heading); }
+.at-sem-c.t-futuro { display: block; background: transparent; box-shadow: inset 0 0 0 1px var(--border-soft); }
+.at-sem-c.t-libre { font-weight: 500; }

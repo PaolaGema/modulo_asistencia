@@ -693,8 +693,11 @@ export function recomputar({ marcas, horario, tolerancia, reglas: reglasIn, fech
   else if (extra > 0) estado = 'extra'
   else estado = 'presente'
 
+  /* LO JUSTIFICADO NO ES HORA QUE FALTA. Un día de vacaciones, permiso o licencia no tiene horas que
+     cumplir: si sumara a lo programado, a quien estuvo cuatro días de vacaciones le «faltarían» 22
+     horas en el Libro, en su ficha, en su app y en el cierre. */
   return {
-    entrada, salida, pausas, trabajado, programado, tardanza, extra, fueraDeHorario,
+    entrada, salida, pausas, trabajado, programado: estado === 'justificada' ? 0 : programado, tardanza, extra, fueraDeHorario,
     tardanzaInjustificada, anticipada, anticipadaInjustificada, excesoPausa, excesoPausaInjustificado, descontado, alertas, franja, autorizado: ventanas.reduce((t, v) => t + v.hasta - v.desde, 0), estado, enPausa, llegoTarde: tardanza > 0, laboral }
 }
 

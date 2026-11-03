@@ -246,7 +246,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 - **Cabecera**: flechas para el día, la semana o el mes anterior y siguiente —nunca pasan de hoy—, «Ir a hoy» o «Ir a este mes», el selector **Día · Semana · Mes** y el chip «Mes cerrado» si corresponde. **Exportar CSV** a la derecha.
 - **Buscador** por nombre o cargo y filtros de sucursal, centro de trabajo y unidad en la misma fila.
 - **Día**: una franja de conteos que filtra —Todos, Llegaron tarde, Sin marcar o Faltaron, Trabajando, Por llegar, Terminaron, Sin salida, Con permiso— y una tabla limpia, como el timesheet de BambooHR: el colaborador con su unidad y su lugar; su **horario** con el descanso, para comparar con la entrada sin pensar; la **entrada** con el atraso en naranja («+12 min tarde»); la **salida** con su nota («en turno», «40 min antes», «Descanso antes · 16 min»); **«Su día»**, una barrita de 06:00 a 22:00 —el riel es su horario, el verde lo que trabajó, el naranja el atraso o la salida antes, el rayado rojo la falta, el gris el permiso, el violeta sin salida y una rayita marca «ahora»—; las **horas trabajadas** de las programadas; y el **estado** en una píldora de color con una línea que dice qué pasa: «Trabajando · llegó 26 min tarde», «En descanso · vuelve 14:00», «No ha llegado · debía entrar 08:30», «Terminó su jornada · salió 15:04», «Salida sin marcar», «Aún no le toca · entra a las 09:00», y lo justificado con su motivo: «De vacaciones», «Con permiso» o «Con licencia».
-- **Semana**: una grilla de lunes a domingo con la entrada y la salida de cada día en el color de su estado, y la columna Semana con lo trabajado y el saldo. El día en curso no suma al saldo hasta que termina.
+- **Semana**: con el lenguaje del Mes. Cada día en el color lleno de su estado, con la hora de entrada y de salida; el fin de semana, apagado. A la derecha, las mismas columnas que el Mes —Retrasos, Tiempo de retraso, Faltas y **Horas de la semana**—. El día en curso no suma hasta que termina.
 - **Mes**: la planilla clásica. Una fila por colaborador, un cuadrito por día con el color de su estado y, a la derecha, lo acumulado: **Retrasos** y **Tiempo de retraso** (las veces que llegó tarde y el tiempo acumulado, cada uno en su columna, con lo justificado debajo del tiempo), **Faltas** (las ausentes; las con permiso aparte, «+ 1 con permiso») y **Horas del mes** (las trabajadas de las programadas, y debajo «completas» o «faltan 4:00»). Las tres columnas se ordenan de mayor a menor.
 - Un clic en un día abre el detalle de la jornada; en el nombre, la asistencia de esa persona.
 - **Exportar CSV** baja el día, la semana o el mes hasta hoy, una fila por persona y día, con las horas al segundo y las duraciones en segundos.
@@ -1993,7 +1993,7 @@ Aprobar ya aplica lo pedido: la vacación o la licencia saca esos días de las f
 
 *Descripción general*
 
-Una **vacación**, un **permiso de día completo** o una **licencia** aprobados vuelven el día **Justificada**: no cuenta como falta, la persona no marca y sale de los **esperados** de Hoy. Así «Sin marcar» son solo las faltas de verdad.
+Una **vacación**, un **permiso de día completo** o una **licencia** aprobados vuelven el día **Justificada**: no cuenta como falta, la persona no marca, sale de los **esperados** de Hoy y **no suma horas programadas**: a quien estuvo de vacaciones no le «faltan» horas en el Libro, en su ficha, en su app ni en el cierre. Así «Sin marcar» son solo las faltas de verdad.
 
 **2. Escenarios ágiles de ejecución**
 
