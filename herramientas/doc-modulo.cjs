@@ -251,6 +251,18 @@ ${html.join('\n')}
 `)
 })
 
+/* La imagen de la portada: la del módulo si existe (public/assets/imagenes/via_<módulo>.png, p. ej. via_asistencia.png
+   para modulo-asistencia.md); si no, los tres VIA de siempre. Una imagen vertical se muestra más angosta. */
+const ALT_PORTADA = { asistencia: 'VIA abrazando un reloj despertador, con un calendario detrás' }
+const modulo = path.basename(mdPath, '.md').replace(/^modulo-/, '')
+const propia = path.join(raiz, 'public/assets/imagenes', `via_${modulo}.png`)
+let portada = '<img src="assets/imagenes/via_rrhh_proyectos.png" width="460" height="374" alt="Tres VIA juntos: uno con planilla y traje, otro con planos y chaleco de obra, y otro con una tableta de indicadores">'
+if (fs.existsSync(propia)) {
+  const png = fs.readFileSync(propia)
+  const an = png.readUInt32BE(16); const al = png.readUInt32BE(20)
+  portada = `<img src="assets/imagenes/via_${modulo}.png" width="${an}" height="${al}" alt="${esc(ALT_PORTADA[modulo] || 'VIA, la mascota de Souly')}"${al > an ? ' style="max-width:150px"' : ''}>`
+}
+
 /* ── Se arma con la plantilla de Onboarding ── */
 const head = plantilla.slice(0, plantilla.indexOf('<header class="masthead">'))
   .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="Documentación de producto del ${esc(titulo)} de Souly HR. Uso interno.">`)
@@ -274,7 +286,7 @@ const salida = `${head}<header class="masthead">
         <p class="mh-sub">${inline(bajada)}</p>
       </div>
       <figure class="mh-fig">
-        <img src="assets/imagenes/via_rrhh_proyectos.png" width="460" height="374" alt="Tres VIA juntos: uno con planilla y traje, otro con planos y chaleco de obra, y otro con una tableta de indicadores">
+        ${portada}
       </figure>
     </div>
     <dl class="ficha">
