@@ -1325,3 +1325,10 @@ button.at-mm-dia:hover, button.at-mm-dia:focus-visible { transform: translateY(-
 .at-mm-dia.t-futuro { background: transparent; box-shadow: inset 0 0 0 1px var(--border-soft); color: var(--text-muted); }
 .at-mm-dia.t-libre { color: var(--text-muted); }
 @media (max-width: 640px) { .at-mm-cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* El período vuelve a la cabecera, junto a la vista: la fila de filtros recupera su ancho. */
+.at-libro .at-barra-busca { flex-wrap: wrap; gap: 10px; }
+.at-libro .at-barra-busca .at-busca { flex: 1 1 220px; min-width: 200px; max-width: 320px; }
+.at-libro .at-barra-busca .at-filtros .dc-filtro { width: 200px; }
+.at-libro .at-barra-busca .at-filtro-estado { width: 210px; }
+.dc-cabecera-acc .at-periodo { margin-left: 0; }
+.dc-cabecera-acc { flex-wrap: wrap; justify-content: flex-end; }
