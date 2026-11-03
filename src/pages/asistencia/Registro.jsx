@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, BookOpen, CalendarDays, Table2, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, BookOpen, CalendarDays, Table2, Search, FileText } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
@@ -198,6 +198,7 @@ const ORDENES = {
 }
 
 function LibroMes({ gente, mes, onDia, onPersona }) {
+  const navigate = useNavigate()
   const at = useAsistencia()
   const [orden, setOrden] = useState('')
   const [pag, setPag] = useState(1)
@@ -262,7 +263,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
         {LEYENDA_MES.map(([k, t]) => <span key={k}><i className={`at-mes-c t-${k}`} />{t}</span>)}
       </div>
       <Paginacion page={pagina} setPage={setPag} total={ordenadas.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
-      {abierta && <ModalMesPersona fila={abierta} mes={mes} dias={dias} hoy={at.hoy} onCerrar={() => setAbierta(null)} onDia={onDia} onCompleta={() => onPersona(abierta.p)} />}
+      {abierta && <ModalMesPersona fila={abierta} mes={mes} dias={dias} hoy={at.hoy} onCerrar={() => setAbierta(null)} onDia={onDia} onCompleta={() => onPersona(abierta.p)} onPdf={() => navigate(`/asistencia/persona/${abierta.p.id}?mes=${mes}&pdf=1`)} />}
     </div>
   )
 }
@@ -388,7 +389,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
    Un clic en la persona del Mes abre su resumen sin salir del Libro: las mismas cifras de la fila,
    más grandes, y su calendario con el color de cada día. Un clic en un día abre esa jornada; la
    página entera de la persona queda a un botón. */
-function ModalMesPersona({ fila, mes, dias, hoy, onCerrar, onDia, onCompleta }) {
+function ModalMesPersona({ fila, mes, dias, hoy, onCerrar, onDia, onCompleta, onPdf }) {
   const { p, js, tarde, faltas, justificadas, saldo, trabajado, programado, diasTrabajados, diasConJornada } = fila
   const huecos = diaISO(dias[0]) - 1
   const injustificado = tarde.injust <= 0 ? 'justificado' : tarde.injust >= tarde.min ? 'sin justificar' : `${duracion(tarde.min - tarde.injust)} justificados`
@@ -401,7 +402,7 @@ function ModalMesPersona({ fila, mes, dias, hoy, onCerrar, onDia, onCompleta }) 
   ]
   return (
     <Modal titulo={`Su mes · ${nombreMes(mes)}`} Icono={CalendarDays} onCerrar={onCerrar} ancho={660}
-      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button><button type="button" className="pl-btn-save" onClick={onCompleta}>Ver su asistencia completa</button></>}>
+      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button><span style={{ flex: 1 }} /><button type="button" className="dc-btn" onClick={onPdf}><FileText size={14} aria-hidden="true" /> Descargar PDF</button><button type="button" className="pl-btn-save" onClick={onCompleta}>Ver su asistencia completa</button></>}>
       <div className="at-mm at-mes">
         <PersonaAt persona={p} size={44} sub={`${p.cargo} · ${p.unidad}`} />
         <div className="at-mm-cifras">

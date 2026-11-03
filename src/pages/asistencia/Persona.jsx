@@ -29,7 +29,7 @@ export default function Persona() {
   const [detalle, setDetalle] = useState(null)
   const { empresa } = useOnboardingData()
   /* El PDF: «pidiendo» abre la ventana con la opción; «armando» dibuja las hojas fuera de la pantalla. */
-  const [pidiendo, setPidiendo] = useState(false)
+  const [pidiendo, setPidiendo] = useState(params.get('pdf') === '1')
   const [conMarcas, setConMarcas] = useState(false)
   const [armando, setArmando] = useState(false)
   const [errorPdf, setErrorPdf] = useState(null)
@@ -116,7 +116,7 @@ export default function Persona() {
             <button type="button" aria-label="Mes siguiente" disabled={mes >= mesDe(at.hoy)} onClick={() => setParams({ mes: mesVecino(mes, 1) }, { replace: true })}><ChevronRight size={16} /></button>
           </div>
           <button type="button" className="dc-btn dc-btn-sm" onClick={exportar}><Download size={13} /> CSV</button>
-          <button type="button" className="dc-btn dc-btn-sm" onClick={() => { setErrorPdf(null); setPidiendo(true) }} disabled={armando}>{armando ? <Loader2 size={13} className="at-gira" /> : <FileText size={13} />} PDF</button>
+          <button type="button" className="dc-btn dc-btn-sm" onClick={() => { setErrorPdf(null); setPidiendo(true) }} disabled={armando}>{armando ? <Loader2 size={13} className="at-gira" /> : <FileText size={13} />} Descargar PDF</button>
         </div>
       </section>
 
