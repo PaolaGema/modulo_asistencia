@@ -1397,3 +1397,23 @@ button.at-cal-d:focus-visible { outline: 2px solid var(--dc-verde); outline-offs
 .at-cal-p-f em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .at-cal-p-mas { justify-self: start; border: none; background: none; padding: 2px 6px; font: inherit; font-size: 12px; font-weight: 600; color: var(--dc-verde); cursor: pointer; }
 .at-cal-p-btn { width: 100%; justify-content: center; }
+
+/* ── Calendario a toda la pantalla; cada día se abre en una ventana ── */
+.at-cal-libro { grid-template-columns: minmax(0, 1fr); }
+.at-cal-libro .at-cal-d { min-height: 118px; padding: 10px 11px; }
+.at-cal-libro .at-cal-d b { font-size: 15px; }
+.at-modo button { display: grid; place-items: center; padding: 6px 10px; }
+.at-cal-modal { display: grid; gap: 12px; }
+.at-cal-m-cifras { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.at-cal-m-cifras button { border: 1.5px solid var(--border-soft); background: var(--surface-card); border-radius: 12px; padding: 9px 12px; display: grid; gap: 2px; text-align: left; font-family: inherit; cursor: pointer; color: var(--text-heading); transition: border-color .15s, box-shadow .15s; }
+.at-cal-m-cifras button:hover:not(:disabled) { border-color: var(--text-muted); }
+.at-cal-m-cifras button.on { border-color: var(--text-heading); box-shadow: 0 0 0 1px var(--text-heading); }
+.at-cal-m-cifras button:disabled { opacity: .45; cursor: default; }
+.at-cal-m-cifras b { display: flex; align-items: center; gap: 7px; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.at-cal-m-cifras b i { width: 9px; height: 9px; border-radius: 50%; }
+.at-cal-m-cifras span { font-size: 11.5px; color: var(--text-muted); font-weight: 500; line-height: 1.25; }
+.at-cal-m-barra { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--surface-hover); }
+.at-cal-m-barra i { display: block; height: 100%; }
+.at-cal-m-busca { max-width: 360px; }
+.at-cal-modal .as-table-wrap { box-shadow: none; border: 1px solid var(--border-soft); }
+@media (max-width: 900px) { .at-cal-m-cifras { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

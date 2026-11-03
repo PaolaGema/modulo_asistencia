@@ -1160,7 +1160,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#p3-2">3.2 Libro de asistencia</a></li>
     <li><a href="#p3-3">3.3 La asistencia de una persona</a></li>
     <li><a href="#p3-4">3.4 El detalle de una jornada</a></li>
-    <li><a href="#p3-5">3.5 Incidencias</a></li>
+    <li><a href="#p3-5">3.5 Los temas del Libro</a></li>
     <li><a href="#p3-6">3.6 Solicitudes</a></li>
     <li><a href="#p3-7">3.7 Saldos de vacaciones</a></li>
     <li><a href="#p3-8">3.8 Horas extra</a></li>
@@ -1241,8 +1241,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#BR-ASI-043">043 · La cobertura del lugar se mira al aprobar</a></li>
     <li><a href="#BR-ASI-044">044 · La persona cancela solo lo pendiente</a></li>
     <li class="rail-g"><a href="#g-las-incidencias-y-el-cierre">Las incidencias y el cierre</a></li>
-    <li><a href="#BR-ASI-045">045 · Las incidencias son de los últimos diez días</a></li>
-    <li><a href="#BR-ASI-046">046 · Resolver una incidencia no cambia el día</a></li>
+    <li><a href="#BR-ASI-045">045 · Cada tema del Libro muestra un mes</a></li>
+    <li><a href="#BR-ASI-046">046 · Las acciones están en el día, no en la lista</a></li>
     <li><a href="#BR-ASI-047">047 · Cerrar congela el mes; reabrir queda registrad…</a></li>
     <li><a href="#BR-ASI-048">048 · En el cierre solo cuenta en contra lo injustif…</a></li>
     <li><a href="#BR-ASI-049">049 · El archivo para planillas tiene un formato fij…</a></li>
@@ -1290,7 +1290,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#p7-1">7.1 Empezar la mañana</a></li>
     <li><a href="#p7-2">7.2 Cargar una marca para quien no pudo</a></li>
     <li><a href="#p7-3">7.3 Ver los atrasos y las faltas del mes</a></li>
-    <li><a href="#p7-4">7.4 Revisar las incidencias</a></li>
+    <li><a href="#p7-4">7.4 Revisar las faltas del mes</a></li>
     <li><a href="#p7-5">7.5 Responder una vacación</a></li>
     <li><a href="#p7-6">7.6 Asignar horas extra</a></li>
     <li><a href="#p7-7">7.7 Cerrar el mes</a></li>
@@ -1538,7 +1538,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tbody>
 <tr><td>Marcaciones desde la app</td><td>Más del 95 % de las marcas con origen app, no cargadas por RR.HH.</td></tr>
 <tr><td>Tiempo para cerrar el mes</td><td>Que RR.HH. cierre en el primer día hábil del mes siguiente</td></tr>
-<tr><td>Incidencias sin resolver al cierre</td><td>Cero</td></tr>
+<tr><td>Faltas y salidas sin marcar sin revisar al cierre</td><td>Cero</td></tr>
 <tr><td>Horas extra sin autorización pagadas</td><td>Cero</td></tr>
 <tr><td>Discusiones por la asistencia en la liquidación</td><td>Que bajen mes a mes</td></tr>
 </tbody>
@@ -1614,7 +1614,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 
 
 <h3 class="rol-h" id="s3-rol-recursos-humanos"><span class="rol-k">Para</span>Recursos Humanos</h3>
-<p class="rol-d">Las pantallas del módulo Asistencia del menú lateral: Hoy, Libro de asistencia, Incidencias, Solicitudes —que se despliega en sus siete tipos— y Configuración —que se despliega en sus seis partes—.</p>
+<p class="rol-d">Las pantallas del módulo Asistencia del menú lateral: Hoy, Libro de asistencia —que se despliega en Todas las jornadas y sus temas: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas y Fuera de horario—, Solicitudes —que se despliega en sus siete tipos— y Configuración —que se despliega en sus seis partes—.</p>
 
 <h3 id="p3-1">3.1 Hoy</h3>
 <p>La pantalla con la que RR.HH. empieza la mañana. Contesta, en orden: ¿cómo vamos?, ¿es un día normal?, ¿qué tengo que resolver?, ¿dónde?, ¿quién falta justificado?, ¿qué viene mañana? y ¿quiénes son?</p>
@@ -1647,7 +1647,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li><strong>Día</strong>: una franja de conteos que filtra —Todos, Llegaron tarde, Sin marcar o Faltaron, Trabajando, Por llegar, Terminaron, Sin salida, Con permiso— y una tabla limpia, como el timesheet de BambooHR: el colaborador con su unidad y su lugar; su <strong>horario</strong> con el descanso, para comparar con la entrada sin pensar; la <strong>entrada</strong> con el atraso en naranja («+12 min tarde»); la <strong>salida</strong> con su nota («en turno», «40 min antes», «Descanso antes · 16 min»); <strong>«Su día»</strong>, una barrita de 06:00 a 22:00 —el riel es su horario, el verde lo que trabajó, el naranja el atraso o la salida antes, el rayado rojo la falta, el gris el permiso, el violeta sin salida y una rayita marca «ahora»—; las <strong>horas trabajadas</strong> de las programadas; y el <strong>estado</strong> en una píldora de color con una línea que dice qué pasa: «Trabajando · llegó 26 min tarde», «En descanso · vuelve 14:00», «No ha llegado · debía entrar 08:30», «Terminó su jornada · salió 15:04», «Salida sin marcar», «Aún no le toca · entra a las 09:00», y lo justificado con su motivo: «De vacaciones», «Con permiso» o «Con licencia».</li>
 <li><strong>Semana</strong>: con el lenguaje del Mes. Cada día en el color lleno de su estado, con la hora de entrada y de salida; el fin de semana, apagado. A la derecha, las mismas columnas que el Mes —Retrasos, Tiempo de retraso, Faltas y <strong>Horas de la semana</strong>—. El día en curso no suma hasta que termina.</li>
 <li><strong>Mes</strong>: la planilla clásica. Una fila por colaborador, un cuadrito por día con el color de su estado y, a la derecha, lo acumulado: <strong>Retrasos</strong> y <strong>Tiempo de retraso</strong> (las veces que llegó tarde y el tiempo acumulado, cada uno en su columna, con lo justificado debajo del tiempo), <strong>Faltas</strong> (las ausentes; las con permiso aparte, «+ 1 con permiso») y <strong>Horas del mes</strong> (las trabajadas de las programadas, y debajo «completas» o «faltan 4:00»). Las tres columnas se ordenan de mayor a menor.</li>
-<li><strong>Calendario</strong>: la vista gráfica del mes. Cada día muestra las caras de quienes hay que mirar —aro rojo si faltó, ámbar si llegó tarde—, hasta cuatro y «+N», y debajo cuántos; los días sin jornada se apagan. Al tocar un día, un panel al costado lista a todas las personas de ese día agrupadas: faltaron, llegaron tarde, de vacaciones o con permiso, salida sin marcar y a tiempo (plegado, «Ver las 56 personas»). Cada persona abre su jornada y «Abrir este día en el Libro» lleva a la vista Día.</li>
+<li><strong>Calendario</strong>: la vista gráfica del mes, a toda la pantalla. Arriba a la derecha, dos íconos eligen la forma de ver: <strong>tabla</strong> (Día · Semana · Mes) o <strong>calendario</strong>. Cada día muestra las caras de quienes hay que mirar —aro rojo si faltó, ámbar si llegó tarde—, hasta cinco y «+N», y debajo cuántos; los días sin jornada se apagan. Al tocar un día se abre una ventana con todo ese día: seis cifras que también filtran (con jornada, faltaron, llegaron tarde, de vacaciones o con permiso, salida sin marcar y a tiempo), un buscador y la tabla del Día de esa fecha. Cada persona abre su jornada y «Abrir este día en el Libro» lleva a la vista Día.</li>
 <li>Un clic en un día abre el detalle de la jornada; en el nombre, la asistencia de esa persona.</li>
 <li><strong>Exportar CSV</strong> baja el día, la semana o el mes hasta hoy, una fila por persona y día, con las horas al segundo y las duraciones en segundos.</li>
 </ul>
@@ -1703,22 +1703,22 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-021">RF‑ASI‑021</td><td>«Autorizar como horas extra» convierte lo trabajado fuera de horario en una ventana aprobada</td><td>Import.</td><td>Se quedó 1 h 10 sin autorización: al autorizar, cuenta como 1 h 10 de extra</td></tr>
 </tbody>
 </table></div>
-<h3 id="p3-5">3.5 Incidencias</h3>
-<p>Lo que salió raro en las marcaciones de los últimos 10 días y que alguien tiene que mirar antes del cierre. No son pedidos de nadie: son hechos que el sistema vio.</p>
+<h3 id="p3-5">3.5 Los temas del Libro</h3>
+<p>Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo de asistencia —no paga sueldos ni arma planillas—, así que no es una bandeja de pendientes: es el registro visto por tema, para consultar, filtrar y exportar.</p>
 <ul>
-<li><strong>Cinco pestañas</strong>, de la más grave a la menos, con su número: <strong>Faltas sin justificar</strong>, <strong>Tardanzas y descansos</strong>, <strong>Jornadas sin salida</strong>, <strong>Marcaciones rechazadas</strong> y <strong>Fuera de horario</strong>. Debajo, una línea que explica qué hacer con cada una.</li>
-<li><strong>Tabla</strong> con la persona, el día y lo propio de cada pestaña: su horario, a qué hora entró y debía salir, por qué se rechazó y si después marcó bien, cuánto se quedó de más, o qué pasó y en qué está su motivo.</li>
-<li><strong>«Revisar»</strong> abre el día entero con un aviso arriba que dice qué hacer: «Dejar como falta», «Ya la revisé», «No es extra» o «Dejar como injustificada». En la fila no se resuelve nada.</li>
-<li>Arriba, <strong>«Solicitudes (N)»</strong> lleva a lo que pidió la gente.</li>
-<li>Lo resuelto sale de la lista y el menú cuenta lo que queda.</li>
+<li><strong>El submenú del Libro</strong>: Todas las jornadas, <strong>Faltas</strong>, <strong>Retrasos y descansos</strong>, <strong>Salidas sin marcar</strong>, <strong>Marcaciones rechazadas</strong> y <strong>Fuera de horario</strong>. La entrada Incidencias sale del menú y su dirección lleva a Faltas.</li>
+<li><strong>Cada tema es una lista de un mes</strong>, con flechas de mes e «Ir a este mes», el buscador y los filtros de lugar y unidad, y uno propio en Faltas y en Retrasos: «Sin justificar», «Justificadas» o «Todas». Exportar CSV baja la lista.</li>
+<li><strong>Las columnas de cada tema</strong>: en Faltas, su horario, su lugar y la situación («Sin justificar», «Vacaciones»); en Retrasos y descansos, qué pasó y su motivo («Avisada · sin motivo», «Justificado · Transporte»); en Salidas sin marcar, a qué hora entró y debía salir; en Marcaciones rechazadas, por qué —rostro o distancia— y si después marcó bien; en Fuera de horario, a qué hora debía salir, salió y cuánto se quedó.</li>
+<li><strong>«Ver el día»</strong> abre el detalle, con una línea que dice qué se vino a mirar; ahí se justifica, se completa la salida o se autoriza como extra.</li>
+<li>Hoy entra solo en lo que ya se sabe —un retraso, una marca rechazada—: una falta o una salida sin marcar recién se sabe al día siguiente.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
-<tr><td class="id" id="RF-ASI-022">RF‑ASI‑022</td><td>Las incidencias son de los últimos 10 días, sin hoy y sin meses cerrados</td><td>Oblig.</td><td>Una falta de hace 12 días ya no aparece</td></tr>
-<tr><td class="id" id="RF-ASI-023">RF‑ASI‑023</td><td>Una alerta es incidencia si no está justificada y supera el «Avisar desde»</td><td>Oblig.</td><td>Con 5 min, una tardanza de 3 min no aparece</td></tr>
-<tr><td class="id" id="RF-ASI-024">RF‑ASI‑024</td><td>Quedarse 30 min o más sin autorización es incidencia</td><td>Oblig.</td><td>25 min fuera de horario no aparece; 35, sí</td></tr>
-<tr><td class="id" id="RF-ASI-025">RF‑ASI‑025</td><td>El menú muestra cuántas incidencias quedan</td><td>Import.</td><td>Resolver una baja el contador</td></tr>
+<tr><td class="id" id="RF-ASI-022">RF‑ASI‑022</td><td>Cada tema muestra el mes elegido, no los últimos 10 días</td><td>Oblig.</td><td>Una falta de hace 12 días aparece en su mes</td></tr>
+<tr><td class="id" id="RF-ASI-023">RF‑ASI‑023</td><td>Retrasos y descansos muestra las alertas del mes y separa lo justificado</td><td>Oblig.</td><td>Con «Sin justificar», una tardanza justificada no aparece</td></tr>
+<tr><td class="id" id="RF-ASI-024">RF‑ASI‑024</td><td>Quedarse 30 min o más sin autorización aparece en Fuera de horario</td><td>Oblig.</td><td>25 min no aparece; 35, sí</td></tr>
+<tr><td class="id" id="RF-ASI-025">RF‑ASI‑025</td><td><strong>Retirado:</strong> ya no hay contador ni «pendientes»; las acciones están en el detalle del día</td><td>—</td><td>—</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-6">3.6 Solicitudes</h3>
@@ -1778,7 +1778,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <ul>
 <li><strong>Cifras</strong> del mes: horas trabajadas contra programadas, ausencias (las justificadas aparte), tardanza injustificada, descanso excedido y salidas anticipadas, y horas extra trabajadas de las autorizadas.</li>
 <li><strong>Tabla</strong> por persona: días, ausencias, trabajado, saldo, tardanza injustificada, descanso y salida, y horas extra.</li>
-<li><strong>Cerrar el mes</strong> avisa lo que sigue pendiente en Incidencias; cerrado, nadie puede ajustar, marcar a mano ni justificar días de ese mes. <strong>Reabrir el mes</strong> queda registrado.</li>
+<li><strong>Cerrar el mes</strong> avisa las faltas y salidas sin marcar del mes; cerrado, nadie puede ajustar, marcar a mano ni justificar días de ese mes. <strong>Reabrir el mes</strong> queda registrado.</li>
 <li><strong>Exportar para planillas</strong>: formato fijo, en segundos. Antes de cerrar sale como <strong>borrador</strong>.</li>
 </ul>
 <div class="tbl"><table>
@@ -1833,7 +1833,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
 <tr><td class="id" id="RF-ASI-049">RF‑ASI‑049</td><td>Cada aviso se enciende o se apaga</td><td>Oblig.</td><td>Con «No marcó su descanso» apagado, la incidencia dice «Sin aviso a la persona»</td></tr>
-<tr><td class="id" id="RF-ASI-050">RF‑ASI‑050</td><td>«Avisar desde» filtra lo que se avisa y lo que llega a Incidencias</td><td>Oblig.</td><td>Con 5 min, una tardanza de 4 min no se avisa</td></tr>
+<tr><td class="id" id="RF-ASI-050">RF‑ASI‑050</td><td>«Avisar desde» filtra lo que se le avisa a la persona</td><td>Oblig.</td><td>Con 5 min, una tardanza de 4 min no se avisa</td></tr>
 </tbody>
 </table></div>
 <div class="nota al"><p><strong>En la maqueta:</strong> el aviso con «Agregar motivo» se configura pero todavía no aparece en el celular, y el plazo para justificar no vence solo —ABIERTA‑ASI‑06—.</p></div>
@@ -2099,7 +2099,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <ul class="br-cond">
 <li>Con la geocerca apagada en la política, la ubicación se guarda pero no bloquea.</li>
 <li>Un horario flexible nunca pide geocerca.</li>
-<li>Una marca rechazada queda registrada y llega a Incidencias › Marcaciones rechazadas.</li>
+<li>Una marca rechazada queda registrada y aparece en Libro › Marcaciones rechazadas.</li>
 </ul>
 <h4 class="br-h"><em>4</em>Trazabilidad</h4>
 <dl class="br-traza">
@@ -2161,7 +2161,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Con «Pedir el rostro», la marca vale si la <strong>similitud</strong> llega a la mínima de su política: 78 % en la Estándar. El mínimo <strong>nunca baja del 60 %</strong>: con 0 el rostro dejaría de comprobarse.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>El rostro no coincide</div><ul><li><b>Dado que</b>la política pide 78 %</li><li><b>Cuando</b>el rostro coincide 64 %</li><li><b>Entonces</b>la marca se rechaza «por rostro» y llega a Incidencias con la selfie</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>El rostro no coincide</div><ul><li><b>Dado que</b>la política pide 78 %</li><li><b>Cuando</b>el rostro coincide 64 %</li><li><b>Entonces</b>la marca se rechaza «por rostro» y aparece en Libro › Marcaciones rechazadas con la selfie</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -3038,7 +3038,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Se avisa solo lo que pasa del <strong>«Avisar desde»</strong> —5 min por defecto— para no avisar por un minuto suelto; lo de abajo igual se calcula. Cada aviso se enciende o se apaga. La persona tiene un <strong>plazo</strong> —2 días hábiles por defecto— para mandar su motivo; si no, se le recuerda una vez y queda injustificado.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Cuatro minutos</div><ul><li><b>Dado que</b>«Avisar desde» es 5 min</li><li><b>Cuando</b>alguien llega 4 min tarde</li><li><b>Entonces</b>no recibe aviso, no aparece en Incidencias, y su tardanza de 4 min igual cuenta</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Cuatro minutos</div><ul><li><b>Dado que</b>«Avisar desde» es 5 min</li><li><b>Cuando</b>alguien llega 4 min tarde</li><li><b>Entonces</b>no recibe aviso, su tardanza de 4 min igual cuenta</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -3138,10 +3138,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Lo que alguien trabaja de más <strong>sin autorización</strong> es <strong>fuera de horario</strong>: se informa desde 15 min y llega a Incidencias desde <strong>30 min</strong>. No es hora extra.</p>
+<p>Lo que alguien trabaja de más <strong>sin autorización</strong> es <strong>fuera de horario</strong>: se informa desde 15 min y aparece en Libro › Fuera de horario desde <strong>30 min</strong>. No es hora extra.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Se quedó una hora</div><ul><li><b>Dado que</b>alguien sale a las 19:05 con salida 18:00 y sin horas extra</li><li><b>Cuando</b>termina el día</li><li><b>Entonces</b>figura 1 h 5 fuera de horario y una incidencia «Fuera de horario»</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Se quedó una hora</div><ul><li><b>Dado que</b>alguien sale a las 19:05 con salida 18:00 y sin horas extra</li><li><b>Cuando</b>termina el día</li><li><b>Entonces</b>figura 1 h 5 fuera de horario y aparece en Libro › Fuera de horario</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -3152,7 +3152,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
 <div><dt>Requisitos</dt><dd>RF‑ASI‑024</dd></div>
 <div><dt>Historia de usuario</dt><dd>HU‑ASI‑07</dd></div>
-<div><dt>Pantalla</dt><dd>W‑ASI‑08 Incidencias; W‑ASI‑07 Detalle de la jornada</dd></div>
+<div><dt>Pantalla</dt><dd>W‑ASI‑08 Temas del Libro; W‑ASI‑07 Detalle de la jornada</dd></div>
 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
 </dl>
 </div>
@@ -3500,7 +3500,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <span class="br-n">4.45</span>
 <div>
 <div class="br-cab"><span class="br-id">BR-ASI-045</span><span class="br-estado">Borrador</span></div>
-<h3 id="BR-ASI-045">Las incidencias son de los últimos diez días</h3>
+<h3 id="BR-ASI-045">Cada tema del Libro muestra un mes</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
 <div><dt>Código</dt><dd>BR-ASI-045</dd></div>
@@ -3510,10 +3510,10 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Incidencias junta lo raro de los <strong>10 días anteriores a hoy</strong>, sin meses cerrados: faltas sin justificar, alertas sin justificar que pasan el «Avisar desde», jornadas sin salida, marcas rechazadas y lo que se quedó 30 min o más fuera de horario. Van de la más nueva a la más vieja.</p>
+<p>Los temas del Libro —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— muestran <strong>el mes elegido</strong>, como el resto del Libro. Antes, como Incidencias, mostraban los 10 días anteriores a hoy (cambia en la 1.1).</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Una falta vieja</div><ul><li><b>Dado que</b>una falta fue hace 12 días</li><li><b>Cuando</b>se abre Incidencias</li><li><b>Entonces</b>ya no aparece; sigue en el Libro y en el cierre</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Una falta vieja</div><ul><li><b>Dado que</b>una falta fue hace 12 días</li><li><b>Cuando</b>se abre Libro › Faltas en ese mes</li><li><b>Entonces</b>ya no aparece; sigue en el Libro y en el cierre</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -3524,7 +3524,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
 <div><dt>Requisitos</dt><dd>RF‑ASI‑022, RF‑ASI‑023, RF‑ASI‑024</dd></div>
 <div><dt>Historia de usuario</dt><dd>HU‑ASI‑07</dd></div>
-<div><dt>Pantalla</dt><dd>W‑ASI‑08 Incidencias</dd></div>
+<div><dt>Pantalla</dt><dd>W‑ASI‑08 Temas del Libro</dd></div>
 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
 </dl>
 </div>
@@ -3533,7 +3533,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <span class="br-n">4.46</span>
 <div>
 <div class="br-cab"><span class="br-id">BR-ASI-046</span><span class="br-estado">Borrador</span></div>
-<h3 id="BR-ASI-046">Resolver una incidencia no cambia el día</h3>
+<h3 id="BR-ASI-046">Las acciones están en el día, no en la lista</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
 <div><dt>Código</dt><dd>BR-ASI-046</dd></div>
@@ -3546,7 +3546,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>En la fila no se resuelve nada: «Revisar» abre el día. Lo que corrige el día se hace ahí —agregar la salida, justificar, autorizar—. «Dejar como falta», «Ya la revisé», «No es extra» o «Dejar como injustificada» solo la sacan de la lista.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
-<div class="esc ok"><div class="esc-t"><i></i>Dejar como falta</div><ul><li><b>Dado que</b>una falta sin permiso</li><li><b>Cuando</b>RR.HH. toca «Dejar como falta»</li><li><b>Entonces</b>sale de Incidencias y el día sigue «Ausente»</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Dejar como falta</div><ul><li><b>Dado que</b>una falta sin permiso</li><li><b>Cuando</b>RR.HH. toca «Dejar como falta»</li><li><b>Entonces</b>el día sigue «Ausente» y la falta sigue en la lista: no hay que «vaciarla»</li></ul></div>
 </div>
 <h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
 <ul class="br-cond">
@@ -3557,7 +3557,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Ticket</dt><dd>Pendiente</dd></div>
 <div><dt>Requisitos</dt><dd>RF‑ASI‑025</dd></div>
 <div><dt>Historia de usuario</dt><dd>HU‑ASI‑07</dd></div>
-<div><dt>Pantalla</dt><dd>W‑ASI‑08 Incidencias; W‑ASI‑07 Detalle de la jornada</dd></div>
+<div><dt>Pantalla</dt><dd>W‑ASI‑08 Temas del Libro; W‑ASI‑07 Detalle de la jornada</dd></div>
 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
 </dl>
 </div>
@@ -3994,7 +3994,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td><strong>Justificación de un día</strong></td><td>Lo que RR.HH. justificó de un día</td><td>persona, fecha, tipo, motivo, por, cuándo</td></tr>
 <tr><td><strong>Solicitud</strong></td><td>Un pedido de la persona</td><td>tipo (vacaciones, permiso, corrección, remoto, cambio, justificación), persona, estado (por responder, aprobada, rechazada, cancelada), cuándo, canal, motivo, respondió, respondida, nota; y lo propio de cada tipo: desde y hasta, subtipo y horas, respaldo, marca y hora, turno de y a, alerta, minutos y categoría</td></tr>
 <tr><td><strong>Horas extra</strong></td><td>Una ventana de horas extra</td><td>persona, fecha, desde, hasta, origen (pedida, asignada, autorizada después), estado (por responder, esperando que acepte, aprobada, aceptada, rechazada), motivo, proyecto o centro de costo, aprobador, por, cuándo, respondió, nota</td></tr>
-<tr><td><strong>Incidencia descartada</strong></td><td>Una incidencia que alguien ya revisó</td><td>id de la incidencia</td></tr>
+<tr><td><strong>Incidencia descartada</strong></td><td><strong>Ya no se usa:</strong> era lo que se sacaba de la bandeja de Incidencias</td><td>id</td></tr>
 <tr><td><strong>Cierre</strong></td><td>Un mes congelado</td><td>mes, por, cuándo</td></tr>
 <tr><td><strong>Ajustes generales</strong></td><td>Los valores de la empresa</td><td>días de retención de selfies, avisos encendidos por tipo, avisar desde (min), plazo para justificar (días hábiles), plazo para responder (h), motivo obligatorio en la marca manual</td></tr>
 </tbody>
@@ -4033,7 +4033,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <thead><tr><th>Entrega</th><th>Qué incluye</th></tr></thead>
 <tbody>
 <tr><td><strong>1 · Marcar y calcular</strong></td><td>Lugares y geocercas, horarios con franja, políticas con tolerancias y redondeo, asignaciones, biometría y consentimiento, marcar desde el celular, el cálculo del día al segundo, Hoy y el Libro</td></tr>
-<tr><td><strong>2 · Corregir y justificar</strong></td><td>El detalle de la jornada con ajustar, anular y marcar a mano; Incidencias; los avisos al colaborador con «Agregar motivo»; Justificaciones y Correcciones</td></tr>
+<tr><td><strong>2 · Corregir y justificar</strong></td><td>El detalle de la jornada con ajustar, anular y marcar a mano; los temas del Libro (faltas, retrasos, salidas sin marcar, rechazadas, fuera de horario); los avisos al colaborador con «Agregar motivo»; Justificaciones y Correcciones</td></tr>
 <tr><td><strong>3 · Pedir y autorizar</strong></td><td>Vacaciones con saldos y cobertura, permisos y licencias, trabajo remoto, cambios de turno, horas extra pedidas, asignadas y autorizadas después, y Mi asistencia completa</td></tr>
 <tr><td><strong>4 · Cerrar</strong></td><td>El cierre del mes, el archivo fijo para planillas y los reportes de tardanza por persona, semana y mes</td></tr>
 </tbody>
@@ -4067,7 +4067,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td>Similitud del rostro mal calibrada</td><td>Mínimo del 60 %, umbral por política y la selfie como evidencia</td></tr>
 <tr><td>Turnos que cruzan la medianoche</td><td>No se permiten hasta resolverlo (riesgo K1)</td></tr>
 <tr><td>Marcar sin señal</td><td>Hoy, la marcación manual con motivo; marcar sin conexión es una entrega futura</td></tr>
-<tr><td>Que nadie revise antes de cerrar</td><td>Incidencias con contador en el menú y el aviso al cerrar</td></tr>
+<tr><td>Que nadie revise lo raro</td><td>Los temas del Libro a un clic desde Hoy, y el aviso al cerrar</td></tr>
 </tbody>
 </table></div>
 <h3 id="p6-7">6.7 Decisiones abiertas</h3>
@@ -4121,12 +4121,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li>«Retrasos ↓» ordena de quien más tiempo suma a quien menos.</li>
 <li>Un clic en un día abre esa jornada; en el nombre, todo su mes.</li>
 </ol>
-<h3 id="p7-4">7.4 Revisar las incidencias</h3>
+<h3 id="p7-4">7.4 Revisar las faltas del mes</h3>
 <ol>
-<li>En Incidencias, la pestaña más grave con algo: Faltas sin justificar.</li>
-<li>«Revisar» abre el día con el aviso de qué hacer.</li>
-<li>Si tenía permiso, «Justificar» abajo; si no, «Dejar como falta».</li>
-<li>Sale de la lista y el menú cuenta lo que queda.</li>
+<li>En el menú, Libro de asistencia › Faltas. Muestra el mes, «Sin justificar».</li>
+<li>Se filtra por sucursal o unidad, o se busca a alguien.</li>
+<li>«Ver el día» abre su jornada: si tenía permiso, «Justificar».</li>
+<li>«Exportar CSV» baja la lista del mes.</li>
 </ol>
 <h3 id="p7-5">7.5 Responder una vacación</h3>
 <ol>
@@ -4209,8 +4209,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="W-ASI-04">W‑ASI‑04</td><td>Libro de asistencia · Semana</td><td>/asistencia/registro?ver=semana</td></tr>
 <tr><td class="id" id="W-ASI-05">W‑ASI‑05</td><td>Libro de asistencia · Mes</td><td>/asistencia/registro?ver=mes</td></tr>
 <tr><td class="id" id="W-ASI-06">W‑ASI‑06</td><td>Asistencia de una persona</td><td>/asistencia/persona/:id?mes=</td></tr>
-<tr><td class="id" id="W-ASI-07">W‑ASI‑07</td><td>Detalle de la jornada</td><td>sobre Hoy, el Libro, Incidencias y la persona</td></tr>
-<tr><td class="id" id="W-ASI-08">W‑ASI‑08</td><td>Incidencias</td><td>/asistencia/incidencias?ver=</td></tr>
+<tr><td class="id" id="W-ASI-07">W‑ASI‑07</td><td>Detalle de la jornada</td><td>sobre Hoy, el Libro, sus temas y la persona</td></tr>
+<tr><td class="id" id="W-ASI-08">W‑ASI‑08</td><td>Temas del Libro: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas, Fuera de horario</td><td>/asistencia/registro/:tema?mes=</td></tr>
 <tr><td class="id" id="W-ASI-09">W‑ASI‑09</td><td>Solicitudes, por tipo</td><td>/asistencia/solicitudes?ver=</td></tr>
 <tr><td class="id" id="W-ASI-10">W‑ASI‑10</td><td>Revisar una solicitud</td><td>sobre Solicitudes</td></tr>
 <tr><td class="id" id="W-ASI-11">W‑ASI‑11</td><td>Saldos de vacaciones</td><td>/asistencia/solicitudes?ver=vacaciones, pestaña Saldos</td></tr>
@@ -4362,7 +4362,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td><code>/asistencia/registro</code></td><td><code>Registro.jsx</code> (<code>LibroDia</code>, <code>LibroMes</code>)</td><td>Libro de asistencia por día, semana y mes</td></tr>
 <tr><td><code>/asistencia/persona/:id</code></td><td><code>Persona.jsx</code></td><td>La asistencia de una persona</td></tr>
 <tr><td>sobre las anteriores</td><td><code>components/asistencia/DetalleJornada.jsx</code></td><td>El detalle de la jornada y sus correcciones</td></tr>
-<tr><td><code>/asistencia/incidencias</code></td><td><code>Incidencias.jsx</code></td><td>Incidencias</td></tr>
+<tr><td><code>/asistencia/registro/:tema</code></td><td><code>LibroTema.jsx</code></td><td>Los temas del Libro (lo que era Incidencias); <code>/asistencia/incidencias</code> lleva a Faltas</td></tr>
 <tr><td><code>/asistencia/solicitudes</code></td><td><code>Solicitudes.jsx</code>, <code>components/asistencia/RevisarSolicitud.jsx</code></td><td>Solicitudes por tipo, revisar y saldos</td></tr>
 <tr><td><code>/asistencia/solicitudes?ver=horas-extra</code></td><td><code>HorasExtra.jsx</code></td><td>Horas extra (la vieja <code>/asistencia/horas-extra</code> redirige aquí)</td></tr>
 <tr><td>sin ruta</td><td><code>Cierre.jsx</code></td><td>Cierre del mes; <code>/asistencia/cierre</code> vuelve a Hoy</td></tr>

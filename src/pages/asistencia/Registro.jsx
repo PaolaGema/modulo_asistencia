@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, Lock, BookOpen, CalendarDays } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, Lock, BookOpen, CalendarDays, Table2, Search } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
@@ -88,11 +88,18 @@ export default function Registro() {
             <button type="button" aria-label="Siguiente" disabled={sinSiguiente} onClick={siguiente}><ChevronRight size={16} /></button>
           </div>
         </div>
-        <div className="at-segmento" role="tablist" aria-label="Vista">
-          <button type="button" role="tab" aria-selected={ver === 'dia'} className={ver === 'dia' ? 'on' : ''} onClick={() => ir({ ver: null })}>Día</button>
-          <button type="button" role="tab" aria-selected={ver === 'semana'} className={ver === 'semana' ? 'on' : ''} onClick={() => ir({ ver: 'semana' })}>Semana</button>
-          <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => ir({ ver: 'mes' })}>Mes</button>
-          <button type="button" role="tab" aria-selected={ver === 'calendario'} className={ver === 'calendario' ? 'on' : ''} onClick={() => ir({ ver: 'calendario' })}>Calendario</button>
+        {ver !== 'calendario' && (
+          <div className="at-segmento" role="tablist" aria-label="Vista">
+            <button type="button" role="tab" aria-selected={ver === 'dia'} className={ver === 'dia' ? 'on' : ''} onClick={() => ir({ ver: null })}>Día</button>
+            <button type="button" role="tab" aria-selected={ver === 'semana'} className={ver === 'semana' ? 'on' : ''} onClick={() => ir({ ver: 'semana' })}>Semana</button>
+            <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => ir({ ver: 'mes' })}>Mes</button>
+          </div>
+        )}
+        {/* TABLA O CALENDARIO: dos formas de ver el Libro. El calendario usa la pantalla entera y cada
+            día se abre en una ventana con todo. */}
+        <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver">
+          <button type="button" role="tab" aria-selected={ver !== 'calendario'} aria-label="Tabla" title="Tabla" className={ver !== 'calendario' ? 'on' : ''} onClick={() => ir({ ver: ver === 'calendario' ? 'mes' : ver === 'dia' ? null : ver })}><Table2 size={16} aria-hidden="true" /></button>
+          <button type="button" role="tab" aria-selected={ver === 'calendario'} aria-label="Calendario" title="Calendario" className={ver === 'calendario' ? 'on' : ''} onClick={() => ir({ ver: 'calendario' })}><CalendarDays size={16} aria-hidden="true" /></button>
         </div>
       </Cabecera>
 
@@ -540,12 +547,10 @@ function LibroCalendario({ gente, mes, onDia, onAbrirDia }) {
     const grupos = Object.fromEntries(GRUPOS_CAL.map(g => [g.key, filas.filter(x => g.f(x.j))]))
     return { d, filas, grupos, libre: !filas.length }
   }), [dias, gente, at])
-  const ultimo = [...porDia].reverse().find(x => !x.futuro && !x.libre)
-  const [elegido, setElegido] = useState(null)
-  const [verTodos, setVerTodos] = useState(false)
-  const dia = porDia.find(x => x.d === elegido) || ultimo
+  /* Un clic en un día abre su ventana con todo: no hay panel al costado, el calendario usa la pantalla. */
+  const [abierto, setAbierto] = useState(null)
   const huecos = diaISO(dias[0]) - 1
-  const esHoy = dia?.d === at.hoy
+  const dia = porDia.find(x => x.d === abierto)
 
   return (
     <div className="at-cal-libro at-mes">
@@ -557,15 +562,15 @@ function LibroCalendario({ gente, mes, onDia, onAbrirDia }) {
           if (x.futuro || x.libre) return <div key={x.d} className={`at-cal-d ${x.futuro ? 'futuro' : 'libre'}`}><b>{n}</b></div>
           const faltas = x.grupos.falta; const tardes = x.grupos.tarde
           const caras = [...faltas.map(f => ({ ...f, tono: 'falta' })), ...tardes.map(f => ({ ...f, tono: 'tarde' }))]
-          const vistas = caras.slice(0, 4)
+          const vistas = caras.slice(0, 5)
           return (
-            <button key={x.d} type="button" className={`at-cal-d${dia?.d === x.d ? ' sel' : ''}${x.d === at.hoy ? ' hoy' : ''}`} onClick={() => { setElegido(x.d); setVerTodos(false) }}
-              aria-label={`${fechaLarga(x.d)}: ${tardes.length} llegaron tarde, ${faltas.length} ${x.d === at.hoy ? 'no han llegado' : 'faltaron'}`}>
+            <button key={x.d} type="button" className={`at-cal-d${x.d === at.hoy ? ' hoy' : ''}`} onClick={() => setAbierto(x.d)}
+              aria-label={`${fechaLarga(x.d)}: ${tardes.length} llegaron tarde, ${faltas.length} ${x.d === at.hoy ? 'no han llegado' : 'faltaron'}. Abrir el día`}>
               <b>{n}</b>
               {caras.length ? (
                 <span className="at-cal-caras">
-                  {vistas.map(c => <span key={c.p.id} className={`at-cal-cara t-${c.tono}`} title={`${c.p.name} · ${c.tono === 'falta' ? 'faltó' : `${duracion(c.j.tardanza)} tarde`}`}><Avatar persona={c.p} size={22} /></span>)}
-                  {caras.length > 4 && <span className="at-cal-mas">+{caras.length - 4}</span>}
+                  {vistas.map(c => <span key={c.p.id} className={`at-cal-cara t-${c.tono}`} title={`${c.p.name} · ${c.tono === 'falta' ? 'faltó' : `${duracion(c.j.tardanza)} tarde`}`}><Avatar persona={c.p} size={24} /></span>)}
+                  {caras.length > 5 && <span className="at-cal-mas">+{caras.length - 5}</span>}
                 </span>
               ) : <span className="at-cal-bien">Todos a tiempo</span>}
               <small>{[tardes.length && `${tardes.length} tarde`, faltas.length && `${faltas.length} ${x.d === at.hoy ? 'sin llegar' : 'faltó'}`].filter(Boolean).join(' · ') || `${x.grupos.ok.length} a tiempo`}</small>
@@ -573,37 +578,49 @@ function LibroCalendario({ gente, mes, onDia, onAbrirDia }) {
           )
         })}
       </div>
-
-      {dia && (
-        <aside className="at-cal-panel" aria-label={`Las personas del ${fechaLarga(dia.d)}`}>
-          <div className="at-cal-p-cab">
-            <b>{fechaLarga(dia.d)}{esHoy ? ' · hoy' : ''}</b>
-            <span>{dia.filas.length} con jornada · {dia.grupos.ok.length} a tiempo</span>
-          </div>
-          <div className="at-cal-p-barra" aria-hidden="true">
-            {GRUPOS_CAL.filter(g => g.key !== 'inc').map(g => <i key={g.key} style={{ width: `${(dia.grupos[g.key].length / Math.max(1, dia.filas.length)) * 100}%`, background: g.color }} />)}
-          </div>
-          {GRUPOS_CAL.map(g => {
-            const lista = dia.grupos[g.key]
-            if (!lista.length) return null
-            const plegado = g.plegado && !verTodos
-            return (
-              <div key={g.key} className="at-cal-p-g">
-                <span className="at-cal-p-t"><i style={{ background: g.color }} />{esHoy && g.hoy ? g.hoy : g.titulo} <em>{lista.length}</em></span>
-                {!plegado && lista.map(({ p, j }) => (
-                  <button key={p.id} type="button" className="at-cal-p-f" onClick={() => onDia(p, dia.d)}>
-                    <Avatar persona={p} size={26} />
-                    <span><b>{p.name}</b><small>{p.unidad}</small></span>
-                    <em>{g.key === 'tarde' ? `+${duracion(j.tardanza)}` : g.key === 'just' ? (j.justificacion?.tipo || 'Permiso') : g.key === 'falta' ? (esHoy ? `debía ${p.horario?.entrada || ''}` : 'sin aviso') : g.key === 'inc' ? `entró ${hhmm(j.entrada)}` : hhmm(j.entrada)}</em>
-                  </button>
-                ))}
-                {plegado && <button type="button" className="at-cal-p-mas" onClick={() => setVerTodos(true)}>Ver las {lista.length} personas ›</button>}
-              </div>
-            )
-          })}
-          <button type="button" className="pl-btn-save at-cal-p-btn" onClick={() => onAbrirDia(dia.d)}>Abrir este día en el Libro</button>
-        </aside>
-      )}
+      {dia && <ModalDiaCal dia={dia} hoy={at.hoy} onCerrar={() => setAbierto(null)} onDia={onDia} onAbrirDia={onAbrirDia} />}
     </div>
+  )
+}
+
+/* ── EL DÍA ENTERO, EN UNA VENTANA ──
+   Lo que se abre al tocar un día del calendario: las cifras del día, que también filtran, un
+   buscador y la misma tabla del Día —horario, entrada, salida, su barrita, horas y estado—. Un clic
+   en una persona abre su jornada encima; «Abrir este día en el Libro» lleva a la vista Día. */
+function ModalDiaCal({ dia, hoy, onCerrar, onDia, onAbrirDia }) {
+  const [grupo, setGrupo] = useState('')
+  const [busca, setBusca] = useState('')
+  const [pag, setPag] = useState(1)
+  const esHoy = dia.d === hoy
+  const texto = busca.trim().toLowerCase()
+  const base = grupo ? dia.grupos[grupo] : dia.filas
+  const filas = base.filter(({ p }) => !texto || `${p.name} ${p.cargo} ${p.unidad} ${p.lugar?.nombre || ''}`.toLowerCase().includes(texto))
+  const pagina = Math.min(pag, Math.max(1, Math.ceil(filas.length / POR_PAGINA)))
+  return (
+    <Modal titulo={`${fechaLarga(dia.d)}${esHoy ? ' · hoy' : ''}`} Icono={CalendarDays} onCerrar={onCerrar} ancho={1120}
+      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button><button type="button" className="pl-btn-save" onClick={() => onAbrirDia(dia.d)}>Abrir este día en el Libro</button></>}>
+      <div className="at-cal-modal">
+        <div className="at-cal-m-cifras" role="group" aria-label="Filtrar por lo que pasó">
+          <button type="button" className={!grupo ? 'on' : ''} aria-pressed={!grupo} onClick={() => { setGrupo(''); setPag(1) }}>
+            <b>{dia.filas.length}</b><span>Con jornada</span>
+          </button>
+          {GRUPOS_CAL.map(g => (
+            <button key={g.key} type="button" className={grupo === g.key ? 'on' : ''} aria-pressed={grupo === g.key} disabled={!dia.grupos[g.key].length} onClick={() => { setGrupo(grupo === g.key ? '' : g.key); setPag(1) }}>
+              <b><i style={{ background: g.color }} aria-hidden="true" />{dia.grupos[g.key].length}</b><span>{esHoy && g.hoy ? g.hoy : g.titulo}</span>
+            </button>
+          ))}
+        </div>
+        <div className="at-cal-m-barra" aria-hidden="true">
+          {GRUPOS_CAL.filter(g => g.key !== 'inc').map(g => <i key={g.key} style={{ width: `${(dia.grupos[g.key].length / Math.max(1, dia.filas.length)) * 100}%`, background: g.color }} />)}
+        </div>
+        <div className="pl-search-wrap at-busca at-cal-m-busca">
+          <Search size={13} className="pl-search-ico" />
+          <input type="search" className="pl-search" placeholder="Buscar persona, cargo o lugar…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar persona, cargo o lugar" />
+        </div>
+        {filas.length
+          ? <LibroDia filas={filas} pagina={pagina} setPag={setPag} ahora={esHoy ? minutosAhora() : null} onAbrir={p => onDia(p, dia.d)} />
+          : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otro grupo u otra palabra." /></div>}
+      </div>
+    </Modal>
   )
 }

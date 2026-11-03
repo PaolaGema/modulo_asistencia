@@ -39,7 +39,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | pantallas | 22 |
 | decisiones abiertas | 11 |
 
-> **El módulo, de un vistazo.** Asistencia tiene tres capas sobre un solo dato, la **marcación**. Arriba, la **configuración**: horarios (cuándo), políticas (qué se exige y cómo se calcula), lugares con su geocerca (dónde, tomados de Organización) y asignaciones (a quién le toca qué). En el medio, el **cálculo del día**: de las marcas válidas salen la entrada, la salida, lo trabajado, la tardanza, las alertas del descanso, las horas extra autorizadas y el estado. Abajo, lo que se hace con eso: **Hoy** lo mira en vivo, el **Libro** lo consulta por día, semana o mes, **Incidencias** y **Solicitudes** lo corrigen y el **Cierre** lo congela para planillas. El colaborador marca desde el celular y ve los mismos números en Mi asistencia.
+> **El módulo, de un vistazo.** Asistencia tiene tres capas sobre un solo dato, la **marcación**. Arriba, la **configuración**: horarios (cuándo), políticas (qué se exige y cómo se calcula), lugares con su geocerca (dónde, tomados de Organización) y asignaciones (a quién le toca qué). En el medio, el **cálculo del día**: de las marcas válidas salen la entrada, la salida, lo trabajado, la tardanza, las alertas del descanso, las horas extra autorizadas y el estado. Abajo, lo que se hace con eso: **Hoy** lo mira en vivo, el **Libro** lo consulta por día, semana, mes, en calendario y por tema —faltas, retrasos, salidas sin marcar—, **Solicitudes** lo corrige y el **Cierre** lo congela para planillas. El colaborador marca desde el celular y ve los mismos números en Mi asistencia.
 
 ## 00 · Glosario
 
@@ -151,7 +151,7 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 | --- | --- |
 | Marcaciones desde la app | Más del 95 % de las marcas con origen app, no cargadas por RR.HH. |
 | Tiempo para cerrar el mes | Que RR.HH. cierre en el primer día hábil del mes siguiente |
-| Incidencias sin resolver al cierre | Cero |
+| Faltas y salidas sin marcar sin revisar al cierre | Cero |
 | Horas extra sin autorización pagadas | Cero |
 | Discusiones por la asistencia en la liquidación | Que bajen mes a mes |
 
@@ -214,7 +214,7 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 
 ### Para Recursos Humanos
 
-Las pantallas del módulo Asistencia del menú lateral: Hoy, Libro de asistencia, Incidencias, Solicitudes —que se despliega en sus siete tipos— y Configuración —que se despliega en sus seis partes—.
+Las pantallas del módulo Asistencia del menú lateral: Hoy, Libro de asistencia —que se despliega en Todas las jornadas y sus temas: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas y Fuera de horario—, Solicitudes —que se despliega en sus siete tipos— y Configuración —que se despliega en sus seis partes—.
 
 ### 3.1 Hoy
 
@@ -248,7 +248,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 - **Día**: una franja de conteos que filtra —Todos, Llegaron tarde, Sin marcar o Faltaron, Trabajando, Por llegar, Terminaron, Sin salida, Con permiso— y una tabla limpia, como el timesheet de BambooHR: el colaborador con su unidad y su lugar; su **horario** con el descanso, para comparar con la entrada sin pensar; la **entrada** con el atraso en naranja («+12 min tarde»); la **salida** con su nota («en turno», «40 min antes», «Descanso antes · 16 min»); **«Su día»**, una barrita de 06:00 a 22:00 —el riel es su horario, el verde lo que trabajó, el naranja el atraso o la salida antes, el rayado rojo la falta, el gris el permiso, el violeta sin salida y una rayita marca «ahora»—; las **horas trabajadas** de las programadas; y el **estado** en una píldora de color con una línea que dice qué pasa: «Trabajando · llegó 26 min tarde», «En descanso · vuelve 14:00», «No ha llegado · debía entrar 08:30», «Terminó su jornada · salió 15:04», «Salida sin marcar», «Aún no le toca · entra a las 09:00», y lo justificado con su motivo: «De vacaciones», «Con permiso» o «Con licencia».
 - **Semana**: con el lenguaje del Mes. Cada día en el color lleno de su estado, con la hora de entrada y de salida; el fin de semana, apagado. A la derecha, las mismas columnas que el Mes —Retrasos, Tiempo de retraso, Faltas y **Horas de la semana**—. El día en curso no suma hasta que termina.
 - **Mes**: la planilla clásica. Una fila por colaborador, un cuadrito por día con el color de su estado y, a la derecha, lo acumulado: **Retrasos** y **Tiempo de retraso** (las veces que llegó tarde y el tiempo acumulado, cada uno en su columna, con lo justificado debajo del tiempo), **Faltas** (las ausentes; las con permiso aparte, «+ 1 con permiso») y **Horas del mes** (las trabajadas de las programadas, y debajo «completas» o «faltan 4:00»). Las tres columnas se ordenan de mayor a menor.
-- **Calendario**: la vista gráfica del mes. Cada día muestra las caras de quienes hay que mirar —aro rojo si faltó, ámbar si llegó tarde—, hasta cuatro y «+N», y debajo cuántos; los días sin jornada se apagan. Al tocar un día, un panel al costado lista a todas las personas de ese día agrupadas: faltaron, llegaron tarde, de vacaciones o con permiso, salida sin marcar y a tiempo (plegado, «Ver las 56 personas»). Cada persona abre su jornada y «Abrir este día en el Libro» lleva a la vista Día.
+- **Calendario**: la vista gráfica del mes, a toda la pantalla. Arriba a la derecha, dos íconos eligen la forma de ver: **tabla** (Día · Semana · Mes) o **calendario**. Cada día muestra las caras de quienes hay que mirar —aro rojo si faltó, ámbar si llegó tarde—, hasta cinco y «+N», y debajo cuántos; los días sin jornada se apagan. Al tocar un día se abre una ventana con todo ese día: seis cifras que también filtran (con jornada, faltaron, llegaron tarde, de vacaciones o con permiso, salida sin marcar y a tiempo), un buscador y la tabla del Día de esa fecha. Cada persona abre su jornada y «Abrir este día en el Libro» lleva a la vista Día.
 - Un clic en un día abre el detalle de la jornada; en el nombre, la asistencia de esa persona.
 - **Exportar CSV** baja el día, la semana o el mes hasta hoy, una fila por persona y día, con las horas al segundo y las duraciones en segundos.
 
@@ -301,22 +301,22 @@ Todo lo de un día de una persona, y el único lugar donde se corrige.
 | RF‑ASI‑020 | Con el mes cerrado no hay ninguna acción de corrección | Oblig. | No aparecen Ajustar, Anular, Justificar ni Agregar marcación |
 | RF‑ASI‑021 | «Autorizar como horas extra» convierte lo trabajado fuera de horario en una ventana aprobada | Import. | Se quedó 1 h 10 sin autorización: al autorizar, cuenta como 1 h 10 de extra |
 
-### 3.5 Incidencias
+### 3.5 Los temas del Libro
 
-Lo que salió raro en las marcaciones de los últimos 10 días y que alguien tiene que mirar antes del cierre. No son pedidos de nadie: son hechos que el sistema vio.
+Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo de asistencia —no paga sueldos ni arma planillas—, así que no es una bandeja de pendientes: es el registro visto por tema, para consultar, filtrar y exportar.
 
-- **Cinco pestañas**, de la más grave a la menos, con su número: **Faltas sin justificar**, **Tardanzas y descansos**, **Jornadas sin salida**, **Marcaciones rechazadas** y **Fuera de horario**. Debajo, una línea que explica qué hacer con cada una.
-- **Tabla** con la persona, el día y lo propio de cada pestaña: su horario, a qué hora entró y debía salir, por qué se rechazó y si después marcó bien, cuánto se quedó de más, o qué pasó y en qué está su motivo.
-- **«Revisar»** abre el día entero con un aviso arriba que dice qué hacer: «Dejar como falta», «Ya la revisé», «No es extra» o «Dejar como injustificada». En la fila no se resuelve nada.
-- Arriba, **«Solicitudes (N)»** lleva a lo que pidió la gente.
-- Lo resuelto sale de la lista y el menú cuenta lo que queda.
+- **El submenú del Libro**: Todas las jornadas, **Faltas**, **Retrasos y descansos**, **Salidas sin marcar**, **Marcaciones rechazadas** y **Fuera de horario**. La entrada Incidencias sale del menú y su dirección lleva a Faltas.
+- **Cada tema es una lista de un mes**, con flechas de mes e «Ir a este mes», el buscador y los filtros de lugar y unidad, y uno propio en Faltas y en Retrasos: «Sin justificar», «Justificadas» o «Todas». Exportar CSV baja la lista.
+- **Las columnas de cada tema**: en Faltas, su horario, su lugar y la situación («Sin justificar», «Vacaciones»); en Retrasos y descansos, qué pasó y su motivo («Avisada · sin motivo», «Justificado · Transporte»); en Salidas sin marcar, a qué hora entró y debía salir; en Marcaciones rechazadas, por qué —rostro o distancia— y si después marcó bien; en Fuera de horario, a qué hora debía salir, salió y cuánto se quedó.
+- **«Ver el día»** abre el detalle, con una línea que dice qué se vino a mirar; ahí se justifica, se completa la salida o se autoriza como extra.
+- Hoy entra solo en lo que ya se sabe —un retraso, una marca rechazada—: una falta o una salida sin marcar recién se sabe al día siguiente.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑ASI‑022 | Las incidencias son de los últimos 10 días, sin hoy y sin meses cerrados | Oblig. | Una falta de hace 12 días ya no aparece |
-| RF‑ASI‑023 | Una alerta es incidencia si no está justificada y supera el «Avisar desde» | Oblig. | Con 5 min, una tardanza de 3 min no aparece |
-| RF‑ASI‑024 | Quedarse 30 min o más sin autorización es incidencia | Oblig. | 25 min fuera de horario no aparece; 35, sí |
-| RF‑ASI‑025 | El menú muestra cuántas incidencias quedan | Import. | Resolver una baja el contador |
+| RF‑ASI‑022 | Cada tema muestra el mes elegido, no los últimos 10 días | Oblig. | Una falta de hace 12 días aparece en su mes |
+| RF‑ASI‑023 | Retrasos y descansos muestra las alertas del mes y separa lo justificado | Oblig. | Con «Sin justificar», una tardanza justificada no aparece |
+| RF‑ASI‑024 | Quedarse 30 min o más sin autorización aparece en Fuera de horario | Oblig. | 25 min no aparece; 35, sí |
+| RF‑ASI‑025 | **Retirado:** ya no hay contador ni «pendientes»; las acciones están en el detalle del día | — | — |
 
 ### 3.6 Solicitudes
 
@@ -372,7 +372,7 @@ El saldo de cada persona listo para planillas, y el candado del mes.
 
 - **Cifras** del mes: horas trabajadas contra programadas, ausencias (las justificadas aparte), tardanza injustificada, descanso excedido y salidas anticipadas, y horas extra trabajadas de las autorizadas.
 - **Tabla** por persona: días, ausencias, trabajado, saldo, tardanza injustificada, descanso y salida, y horas extra.
-- **Cerrar el mes** avisa lo que sigue pendiente en Incidencias; cerrado, nadie puede ajustar, marcar a mano ni justificar días de ese mes. **Reabrir el mes** queda registrado.
+- **Cerrar el mes** avisa las faltas y salidas sin marcar del mes; cerrado, nadie puede ajustar, marcar a mano ni justificar días de ese mes. **Reabrir el mes** queda registrado.
 - **Exportar para planillas**: formato fijo, en segundos. Antes de cerrar sale como **borrador**.
 
 | Código | Requisito | Prioridad | Criterio |
@@ -423,7 +423,7 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑ASI‑049 | Cada aviso se enciende o se apaga | Oblig. | Con «No marcó su descanso» apagado, la incidencia dice «Sin aviso a la persona» |
-| RF‑ASI‑050 | «Avisar desde» filtra lo que se avisa y lo que llega a Incidencias | Oblig. | Con 5 min, una tardanza de 4 min no se avisa |
+| RF‑ASI‑050 | «Avisar desde» filtra lo que se le avisa a la persona | Oblig. | Con 5 min, una tardanza de 4 min no se avisa |
 
 > **En la maqueta:** el aviso con «Agregar motivo» se configura pero todavía no aparece en el celular, y el plazo para justificar no vence solo —ABIERTA‑ASI‑06—.
 
@@ -683,7 +683,7 @@ Con una política que exige estar en el lugar, una marca a más distancia que el
 
 - Con la geocerca apagada en la política, la ubicación se guarda pero no bloquea.
 - Un horario flexible nunca pide geocerca.
-- Una marca rechazada queda registrada y llega a Incidencias › Marcaciones rechazadas.
+- Una marca rechazada queda registrada y aparece en Libro › Marcaciones rechazadas.
 
 **4. Trazabilidad**
 
@@ -751,7 +751,7 @@ Con «Pedir el rostro», la marca vale si la **similitud** llega a la mínima de
 
 - **Dado que** la política pide 78 %
 - **Cuando** el rostro coincide 64 %
-- **Entonces** la marca se rechaza «por rostro» y llega a Incidencias con la selfie
+- **Entonces** la marca se rechaza «por rostro» y aparece en Libro › Marcaciones rechazadas con la selfie
 
 **3. Condiciones y excepciones**
 
@@ -1706,7 +1706,7 @@ Se avisa solo lo que pasa del **«Avisar desde»** —5 min por defecto— para 
 
 - **Dado que** «Avisar desde» es 5 min
 - **Cuando** alguien llega 4 min tarde
-- **Entonces** no recibe aviso, no aparece en Incidencias, y su tardanza de 4 min igual cuenta
+- **Entonces** no recibe aviso, su tardanza de 4 min igual cuenta
 
 **3. Condiciones y excepciones**
 
@@ -1810,7 +1810,7 @@ La persona **pide** horas extra desde la app —día, desde, hasta y razón— y
 
 *Descripción general*
 
-Lo que alguien trabaja de más **sin autorización** es **fuera de horario**: se informa desde 15 min y llega a Incidencias desde **30 min**. No es hora extra.
+Lo que alguien trabaja de más **sin autorización** es **fuera de horario**: se informa desde 15 min y aparece en Libro › Fuera de horario desde **30 min**. No es hora extra.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1818,7 +1818,7 @@ Lo que alguien trabaja de más **sin autorización** es **fuera de horario**: se
 
 - **Dado que** alguien sale a las 19:05 con salida 18:00 y sin horas extra
 - **Cuando** termina el día
-- **Entonces** figura 1 h 5 fuera de horario y una incidencia «Fuera de horario»
+- **Entonces** figura 1 h 5 fuera de horario y aparece en Libro › Fuera de horario
 
 **3. Condiciones y excepciones**
 
@@ -1829,7 +1829,7 @@ Lo que alguien trabaja de más **sin autorización** es **fuera de horario**: se
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑024
 - **Historia de usuario:** HU‑ASI‑07
-- **Pantalla:** W‑ASI‑08 Incidencias; W‑ASI‑07 Detalle de la jornada
+- **Pantalla:** W‑ASI‑08 Temas del Libro; W‑ASI‑07 Detalle de la jornada
 - **Diseño:** Prototipado
 
 #### 4.35 · BR-ASI-035 · Se puede autorizar después del día
@@ -2201,7 +2201,7 @@ La persona retira una solicitud mientras está **por responder**; sus días vuel
 
 *Qué se revisa antes de cerrar y qué congela el cierre*
 
-#### 4.45 · BR-ASI-045 · Las incidencias son de los últimos diez días
+#### 4.45 · BR-ASI-045 · Cada tema del Libro muestra un mes
 
 *Estado: Borrador*
 
@@ -2215,14 +2215,14 @@ La persona retira una solicitud mientras está **por responder**; sus días vuel
 
 *Descripción general*
 
-Incidencias junta lo raro de los **10 días anteriores a hoy**, sin meses cerrados: faltas sin justificar, alertas sin justificar que pasan el «Avisar desde», jornadas sin salida, marcas rechazadas y lo que se quedó 30 min o más fuera de horario. Van de la más nueva a la más vieja.
+Los temas del Libro —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— muestran **el mes elegido**, como el resto del Libro. Antes, como Incidencias, mostraban los 10 días anteriores a hoy (cambia en la 1.1).
 
 **2. Escenarios ágiles de ejecución**
 
 *Una falta vieja*
 
 - **Dado que** una falta fue hace 12 días
-- **Cuando** se abre Incidencias
+- **Cuando** se abre Libro › Faltas en ese mes
 - **Entonces** ya no aparece; sigue en el Libro y en el cierre
 
 **3. Condiciones y excepciones**
@@ -2234,10 +2234,10 @@ Incidencias junta lo raro de los **10 días anteriores a hoy**, sin meses cerrad
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑022, RF‑ASI‑023, RF‑ASI‑024
 - **Historia de usuario:** HU‑ASI‑07
-- **Pantalla:** W‑ASI‑08 Incidencias
+- **Pantalla:** W‑ASI‑08 Temas del Libro
 - **Diseño:** Prototipado
 
-#### 4.46 · BR-ASI-046 · Resolver una incidencia no cambia el día
+#### 4.46 · BR-ASI-046 · Las acciones están en el día, no en la lista
 
 *Estado: Borrador*
 
@@ -2259,7 +2259,7 @@ En la fila no se resuelve nada: «Revisar» abre el día. Lo que corrige el día
 
 - **Dado que** una falta sin permiso
 - **Cuando** RR.HH. toca «Dejar como falta»
-- **Entonces** sale de Incidencias y el día sigue «Ausente»
+- **Entonces** el día sigue «Ausente» y la falta sigue en la lista: no hay que «vaciarla»
 
 **3. Condiciones y excepciones**
 
@@ -2270,7 +2270,7 @@ En la fila no se resuelve nada: «Revisar» abre el día. Lo que corrige el día
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑025
 - **Historia de usuario:** HU‑ASI‑07
-- **Pantalla:** W‑ASI‑08 Incidencias; W‑ASI‑07 Detalle de la jornada
+- **Pantalla:** W‑ASI‑08 Temas del Libro; W‑ASI‑07 Detalle de la jornada
 - **Diseño:** Prototipado
 
 #### 4.47 · BR-ASI-047 · Cerrar congela el mes; reabrir queda registrado
@@ -2736,7 +2736,7 @@ La app recuerda marcar: 10 min antes de la entrada, pasada la tolerancia si sigu
 | **Justificación de un día** | Lo que RR.HH. justificó de un día | persona, fecha, tipo, motivo, por, cuándo |
 | **Solicitud** | Un pedido de la persona | tipo (vacaciones, permiso, corrección, remoto, cambio, justificación), persona, estado (por responder, aprobada, rechazada, cancelada), cuándo, canal, motivo, respondió, respondida, nota; y lo propio de cada tipo: desde y hasta, subtipo y horas, respaldo, marca y hora, turno de y a, alerta, minutos y categoría |
 | **Horas extra** | Una ventana de horas extra | persona, fecha, desde, hasta, origen (pedida, asignada, autorizada después), estado (por responder, esperando que acepte, aprobada, aceptada, rechazada), motivo, proyecto o centro de costo, aprobador, por, cuándo, respondió, nota |
-| **Incidencia descartada** | Una incidencia que alguien ya revisó | id de la incidencia |
+| **Incidencia descartada** | **Ya no se usa:** era lo que se sacaba de la bandeja de Incidencias | id |
 | **Cierre** | Un mes congelado | mes, por, cuándo |
 | **Ajustes generales** | Los valores de la empresa | días de retención de selfies, avisos encendidos por tipo, avisar desde (min), plazo para justificar (días hábiles), plazo para responder (h), motivo obligatorio en la marca manual |
 
@@ -2770,7 +2770,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | Entrega | Qué incluye |
 | --- | --- |
 | **1 · Marcar y calcular** | Lugares y geocercas, horarios con franja, políticas con tolerancias y redondeo, asignaciones, biometría y consentimiento, marcar desde el celular, el cálculo del día al segundo, Hoy y el Libro |
-| **2 · Corregir y justificar** | El detalle de la jornada con ajustar, anular y marcar a mano; Incidencias; los avisos al colaborador con «Agregar motivo»; Justificaciones y Correcciones |
+| **2 · Corregir y justificar** | El detalle de la jornada con ajustar, anular y marcar a mano; los temas del Libro (faltas, retrasos, salidas sin marcar, rechazadas, fuera de horario); los avisos al colaborador con «Agregar motivo»; Justificaciones y Correcciones |
 | **3 · Pedir y autorizar** | Vacaciones con saldos y cobertura, permisos y licencias, trabajo remoto, cambios de turno, horas extra pedidas, asignadas y autorizadas después, y Mi asistencia completa |
 | **4 · Cerrar** | El cierre del mes, el archivo fijo para planillas y los reportes de tardanza por persona, semana y mes |
 
@@ -2802,7 +2802,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | Similitud del rostro mal calibrada | Mínimo del 60 %, umbral por política y la selfie como evidencia |
 | Turnos que cruzan la medianoche | No se permiten hasta resolverlo (riesgo K1) |
 | Marcar sin señal | Hoy, la marcación manual con motivo; marcar sin conexión es una entrega futura |
-| Que nadie revise antes de cerrar | Incidencias con contador en el menú y el aviso al cerrar |
+| Que nadie revise lo raro | Los temas del Libro a un clic desde Hoy, y el aviso al cerrar |
 
 ### 6.7 Decisiones abiertas
 
@@ -2848,12 +2848,12 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 3. «Retrasos ↓» ordena de quien más tiempo suma a quien menos.
 4. Un clic en un día abre esa jornada; en el nombre, todo su mes.
 
-### 7.4 Revisar las incidencias
+### 7.4 Revisar las faltas del mes
 
-1. En Incidencias, la pestaña más grave con algo: Faltas sin justificar.
-2. «Revisar» abre el día con el aviso de qué hacer.
-3. Si tenía permiso, «Justificar» abajo; si no, «Dejar como falta».
-4. Sale de la lista y el menú cuenta lo que queda.
+1. En el menú, Libro de asistencia › Faltas. Muestra el mes, «Sin justificar».
+2. Se filtra por sucursal o unidad, o se busca a alguien.
+3. «Ver el día» abre su jornada: si tenía permiso, «Justificar».
+4. «Exportar CSV» baja la lista del mes.
 
 ### 7.5 Responder una vacación
 
@@ -2930,8 +2930,8 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | W‑ASI‑04 | Libro de asistencia · Semana | /asistencia/registro?ver=semana |
 | W‑ASI‑05 | Libro de asistencia · Mes | /asistencia/registro?ver=mes |
 | W‑ASI‑06 | Asistencia de una persona | /asistencia/persona/:id?mes= |
-| W‑ASI‑07 | Detalle de la jornada | sobre Hoy, el Libro, Incidencias y la persona |
-| W‑ASI‑08 | Incidencias | /asistencia/incidencias?ver= |
+| W‑ASI‑07 | Detalle de la jornada | sobre Hoy, el Libro, sus temas y la persona |
+| W‑ASI‑08 | Temas del Libro: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas, Fuera de horario | /asistencia/registro/:tema?mes= |
 | W‑ASI‑09 | Solicitudes, por tipo | /asistencia/solicitudes?ver= |
 | W‑ASI‑10 | Revisar una solicitud | sobre Solicitudes |
 | W‑ASI‑11 | Saldos de vacaciones | /asistencia/solicitudes?ver=vacaciones, pestaña Saldos |
@@ -3058,7 +3058,7 @@ Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por
 | `/asistencia/registro` | `Registro.jsx` (`LibroDia`, `LibroMes`) | Libro de asistencia por día, semana y mes |
 | `/asistencia/persona/:id` | `Persona.jsx` | La asistencia de una persona |
 | sobre las anteriores | `components/asistencia/DetalleJornada.jsx` | El detalle de la jornada y sus correcciones |
-| `/asistencia/incidencias` | `Incidencias.jsx` | Incidencias |
+| `/asistencia/registro/:tema` | `LibroTema.jsx` | Los temas del Libro (lo que era Incidencias); `/asistencia/incidencias` lleva a Faltas |
 | `/asistencia/solicitudes` | `Solicitudes.jsx`, `components/asistencia/RevisarSolicitud.jsx` | Solicitudes por tipo, revisar y saldos |
 | `/asistencia/solicitudes?ver=horas-extra` | `HorasExtra.jsx` | Horas extra (la vieja `/asistencia/horas-extra` redirige aquí) |
 | sin ruta | `Cierre.jsx` | Cierre del mes; `/asistencia/cierre` vuelve a Hoy |
