@@ -1332,3 +1332,11 @@ button.at-mm-dia:hover, button.at-mm-dia:focus-visible { transform: translateY(-
 .at-libro .at-barra-busca .at-filtro-estado { width: 210px; }
 .dc-cabecera-acc .at-periodo { margin-left: 0; }
 .dc-cabecera-acc { flex-wrap: wrap; justify-content: flex-end; }
+/* Exportar, al final de la fila de filtros. */
+.at-libro .at-exportar { margin-left: auto; flex: none; }
+.at-libro .at-barra-busca { flex-wrap: nowrap; }
+.at-libro .at-barra-busca .at-busca { flex: 1 1 180px; min-width: 160px; max-width: 300px; }
+.at-libro .at-barra-busca .at-filtros { flex: 0 1 auto; min-width: 0; }
+.at-libro .at-barra-busca .at-filtros .dc-filtro { width: 178px; }
+.at-libro .at-barra-busca .at-filtro-estado { width: 186px; flex: none; }
+@media (max-width: 1280px) { .at-libro .at-barra-busca { flex-wrap: wrap; } }

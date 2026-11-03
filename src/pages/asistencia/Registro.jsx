@@ -89,7 +89,6 @@ export default function Registro() {
           <button type="button" role="tab" aria-selected={ver === 'semana'} className={ver === 'semana' ? 'on' : ''} onClick={() => ir({ ver: 'semana' })}>Semana</button>
           <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => ir({ ver: 'mes' })}>Mes</button>
         </div>
-        <button type="button" className="dc-btn" onClick={exportar}><Download size={14} aria-hidden="true" /> Exportar CSV</button>
       </Cabecera>
 
       <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar persona o cargo…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas}>
@@ -114,6 +113,8 @@ export default function Registro() {
               onCambio={v => { setEstado(v); setPag(1) }} />
           </div>
         )}
+        {/* Exportar baja lo que muestran los filtros: va en su fila, al final. */}
+        <button type="button" className="dc-btn at-exportar" onClick={exportar}><Download size={14} aria-hidden="true" /> Exportar CSV</button>
       </BarraBusqueda>
 
       {ver === 'mes' ? (
