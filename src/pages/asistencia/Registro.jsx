@@ -8,6 +8,7 @@ import { PersonaAt, BarraBusqueda, EstadoDia, FILTRO_VACIO, filtrar } from '../.
 import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import Desplegable from '../../components/layout/Desplegable'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
+import Avatar from '../../components/personas/Avatar'
 import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa } from '../../data/asistenciaData'
 
 /* ── EL LIBRO DE ASISTENCIA ────────────────────────────────────────────────
@@ -26,7 +27,9 @@ export default function Registro() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const fecha = params.get('fecha') || at.hoy
-  const ver = ['semana', 'mes'].includes(params.get('ver')) ? params.get('ver') : 'dia'
+  const ver = ['semana', 'mes', 'calendario'].includes(params.get('ver')) ? params.get('ver') : 'dia'
+  /* El Mes y el Calendario se recorren de a un mes. */
+  const porMes = ver === 'mes' || ver === 'calendario'
   const [filtro, setFiltro] = useState(FILTRO_VACIO)
   const [estado, setEstado] = useState('')
   const [busca, setBusca] = useState('')
@@ -38,14 +41,14 @@ export default function Registro() {
   const semana = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i))
   const paso = ver === 'semana' ? 7 : 1
   const mes = mesDe(fecha)
-  const esHoy = ver === 'mes' ? mes === mesDe(at.hoy) : fecha === at.hoy
+  const esHoy = porMes ? mes === mesDe(at.hoy) : fecha === at.hoy
   /* El mes se recorre de a uno; el siguiente nunca pasa de hoy. */
-  const anterior = () => ir({ fecha: ver === 'mes' ? `${mesVecino(mes, -1)}-01` : sumarDias(fecha, -paso) })
+  const anterior = () => ir({ fecha: porMes ? `${mesVecino(mes, -1)}-01` : sumarDias(fecha, -paso) })
   const siguiente = () => {
-    const n = ver === 'mes' ? `${mesVecino(mes, 1)}-01` : sumarDias(fecha, paso)
+    const n = porMes ? `${mesVecino(mes, 1)}-01` : sumarDias(fecha, paso)
     ir({ fecha: n > at.hoy ? at.hoy : n })
   }
-  const sinSiguiente = ver === 'mes' ? mesVecino(mes, 1) > mesDe(at.hoy) : sumarDias(fecha, paso) > at.hoy && (ver === 'dia' || semana[6] >= at.hoy)
+  const sinSiguiente = porMes ? mesVecino(mes, 1) > mesDe(at.hoy) : sumarDias(fecha, paso) > at.hoy && (ver === 'dia' || semana[6] >= at.hoy)
   const texto = busca.trim().toLowerCase()
 
   const gente = useMemo(() => filtrar(at.personas.filter(p => p.asig), filtro).filter(p => !texto || `${p.name} ${p.cargo} ${p.unidad}`.toLowerCase().includes(texto)), [at.personas, filtro, texto])
@@ -56,7 +59,7 @@ export default function Registro() {
   const pagina = Math.min(pag, paginas)
 
   const exportar = () => {
-    const dias = ver === 'semana' ? semana.filter(d => d <= at.hoy) : ver === 'mes' ? diasDelMes(mes).filter(d => d <= at.hoy) : [fecha]
+    const dias = ver === 'semana' ? semana.filter(d => d <= at.hoy) : porMes ? diasDelMes(mes).filter(d => d <= at.hoy) : [fecha]
     /* Al segundo (#8): las horas como HH:MM:SS y las duraciones en segundos. */
     const sg = min => Math.round((min || 0) * 60)
     const rows = [['Fecha', 'Colaborador', 'Código', 'Unidad organizacional', 'Sucursal', 'Centro de trabajo', 'Modalidad', 'Entrada', 'Salida', 'Descanso (s)', 'Trabajado (s)', 'Programado (s)', 'Tardanza (s)', 'Tardanza injustificada (s)', 'Descanso excedido (s)', 'Salida anticipada (s)', 'Horas extra aprobadas trabajadas (s)', 'Fuera de horario (s)', 'Alertas', 'Estado']]
@@ -78,10 +81,10 @@ export default function Registro() {
       <Cabecera titulo="Libro de asistencia" sub="Cada jornada con su entrada, su salida y su evidencia.">
         <div className="at-periodo">
           {cerrado && <span className="dc-chip dc-t-gris"><Lock size={11} aria-hidden="true" /> Mes cerrado</span>}
-          {!esHoy && <button type="button" className="dc-btn dc-btn-sm" onClick={() => ir({ fecha: null })}>{ver === 'mes' ? 'Ir a este mes' : 'Ir a hoy'}</button>}
+          {!esHoy && <button type="button" className="dc-btn dc-btn-sm" onClick={() => ir({ fecha: null })}>{porMes ? 'Ir a este mes' : 'Ir a hoy'}</button>}
           <div className="at-dia-nav">
             <button type="button" aria-label="Anterior" onClick={anterior}><ChevronLeft size={16} /></button>
-            <span>{ver === 'mes' ? nombreMes(mes) : ver === 'semana' ? `${fechaCorta(semana[0])} – ${fechaCorta(semana[6])}` : esHoy ? `Hoy · ${fechaCorta(fecha)}` : fechaLarga(fecha)}</span>
+            <span>{porMes ? nombreMes(mes) : ver === 'semana' ? `${fechaCorta(semana[0])} – ${fechaCorta(semana[6])}` : esHoy ? `Hoy · ${fechaCorta(fecha)}` : fechaLarga(fecha)}</span>
             <button type="button" aria-label="Siguiente" disabled={sinSiguiente} onClick={siguiente}><ChevronRight size={16} /></button>
           </div>
         </div>
@@ -89,6 +92,7 @@ export default function Registro() {
           <button type="button" role="tab" aria-selected={ver === 'dia'} className={ver === 'dia' ? 'on' : ''} onClick={() => ir({ ver: null })}>Día</button>
           <button type="button" role="tab" aria-selected={ver === 'semana'} className={ver === 'semana' ? 'on' : ''} onClick={() => ir({ ver: 'semana' })}>Semana</button>
           <button type="button" role="tab" aria-selected={ver === 'mes'} className={ver === 'mes' ? 'on' : ''} onClick={() => ir({ ver: 'mes' })}>Mes</button>
+          <button type="button" role="tab" aria-selected={ver === 'calendario'} className={ver === 'calendario' ? 'on' : ''} onClick={() => ir({ ver: 'calendario' })}>Calendario</button>
         </div>
       </Cabecera>
 
@@ -118,7 +122,11 @@ export default function Registro() {
         <button type="button" className="dc-btn at-exportar" onClick={exportar}><Download size={14} aria-hidden="true" /> Exportar CSV</button>
       </BarraBusqueda>
 
-      {ver === 'mes' ? (
+      {ver === 'calendario' ? (
+        gente.length
+          ? <LibroCalendario gente={gente} mes={mes} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onAbrirDia={d => ir({ ver: null, fecha: d })} />
+          : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otros filtros." /></div>
+      ) : ver === 'mes' ? (
         gente.length
           ? <LibroMes gente={gente} mes={mes} onDia={(persona, d) => setDetalle({ persona, fecha: d })} onPersona={p => navigate(`/asistencia/persona/${p.id}?mes=${mes}`)} />
           : <div className="dc-tarjeta"><Vacio Icono={BookOpen} titulo="Nadie coincide" texto="Pruebe con otros filtros." /></div>
@@ -505,6 +513,97 @@ function LibroSemana({ gente, semana, pagina, setPag, onDia, onPersona }) {
         {LEYENDA_MES.map(([k, t]) => <span key={k}><i className={`at-mes-c t-${k}`} />{t}</span>)}
       </div>
       <Paginacion page={pagina} setPage={setPag} total={ordenadas.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
+    </div>
+  )
+}
+
+/* ── EL LIBRO COMO CALENDARIO (C1) ──
+   La vista gráfica del mes. Cada día muestra las caras de quienes hay que mirar —aro rojo si faltó,
+   ámbar si llegó tarde—, hasta cuatro y «+N», y debajo cuántos. Al tocar un día, el panel del costado
+   lista a todas las personas de ese día agrupadas por lo que les pasó; cada una abre su jornada y el
+   día entero se abre en el Libro. Los fines de semana y feriados, sin nadie con jornada, se apagan. */
+const GRUPOS_CAL = [
+  { key: 'falta', titulo: 'Faltaron', hoy: 'No han llegado', color: '#E5484D', f: j => j.estado === 'ausente' || j.estado === 'sinMarcar' },
+  { key: 'tarde', titulo: 'Llegaron tarde', color: '#F5B04F', f: j => j.llegoTarde },
+  { key: 'just', titulo: 'De vacaciones o con permiso', color: '#C9D3DC', f: j => j.estado === 'justificada' },
+  { key: 'inc', titulo: 'Salida sin marcar', color: '#A78BEA', f: j => j.estado === 'incompleta' },
+  { key: 'ok', titulo: 'A tiempo', color: '#2FCB8B', plegado: true, f: j => j.entrada != null && !j.llegoTarde },
+]
+
+function LibroCalendario({ gente, mes, onDia, onAbrirDia }) {
+  const at = useAsistencia()
+  const dias = useMemo(() => diasDelMes(mes), [mes])
+  /* El resumen de cada día: quién faltó, quién llegó tarde, quién tiene permiso, quién llegó bien. */
+  const porDia = useMemo(() => dias.map(d => {
+    if (d > at.hoy) return { d, futuro: true }
+    const filas = gente.map(p => ({ p, j: at.jornadaDe(p, d) })).filter(x => x.j.estado !== 'libre')
+    const grupos = Object.fromEntries(GRUPOS_CAL.map(g => [g.key, filas.filter(x => g.f(x.j))]))
+    return { d, filas, grupos, libre: !filas.length }
+  }), [dias, gente, at])
+  const ultimo = [...porDia].reverse().find(x => !x.futuro && !x.libre)
+  const [elegido, setElegido] = useState(null)
+  const [verTodos, setVerTodos] = useState(false)
+  const dia = porDia.find(x => x.d === elegido) || ultimo
+  const huecos = diaISO(dias[0]) - 1
+  const esHoy = dia?.d === at.hoy
+
+  return (
+    <div className="at-cal-libro at-mes">
+      <div className="at-cal-grid" role="grid" aria-label={`Calendario de ${nombreMes(mes)}`}>
+        {['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'].map(x => <span key={x} className="at-cal-cab">{x}</span>)}
+        {Array.from({ length: huecos }, (_, i) => <span key={`h${i}`} />)}
+        {porDia.map(x => {
+          const n = aFecha(x.d).getDate()
+          if (x.futuro || x.libre) return <div key={x.d} className={`at-cal-d ${x.futuro ? 'futuro' : 'libre'}`}><b>{n}</b></div>
+          const faltas = x.grupos.falta; const tardes = x.grupos.tarde
+          const caras = [...faltas.map(f => ({ ...f, tono: 'falta' })), ...tardes.map(f => ({ ...f, tono: 'tarde' }))]
+          const vistas = caras.slice(0, 4)
+          return (
+            <button key={x.d} type="button" className={`at-cal-d${dia?.d === x.d ? ' sel' : ''}${x.d === at.hoy ? ' hoy' : ''}`} onClick={() => { setElegido(x.d); setVerTodos(false) }}
+              aria-label={`${fechaLarga(x.d)}: ${tardes.length} llegaron tarde, ${faltas.length} ${x.d === at.hoy ? 'no han llegado' : 'faltaron'}`}>
+              <b>{n}</b>
+              {caras.length ? (
+                <span className="at-cal-caras">
+                  {vistas.map(c => <span key={c.p.id} className={`at-cal-cara t-${c.tono}`} title={`${c.p.name} · ${c.tono === 'falta' ? 'faltó' : `${duracion(c.j.tardanza)} tarde`}`}><Avatar persona={c.p} size={22} /></span>)}
+                  {caras.length > 4 && <span className="at-cal-mas">+{caras.length - 4}</span>}
+                </span>
+              ) : <span className="at-cal-bien">Todos a tiempo</span>}
+              <small>{[tardes.length && `${tardes.length} tarde`, faltas.length && `${faltas.length} ${x.d === at.hoy ? 'sin llegar' : 'faltó'}`].filter(Boolean).join(' · ') || `${x.grupos.ok.length} a tiempo`}</small>
+            </button>
+          )
+        })}
+      </div>
+
+      {dia && (
+        <aside className="at-cal-panel" aria-label={`Las personas del ${fechaLarga(dia.d)}`}>
+          <div className="at-cal-p-cab">
+            <b>{fechaLarga(dia.d)}{esHoy ? ' · hoy' : ''}</b>
+            <span>{dia.filas.length} con jornada · {dia.grupos.ok.length} a tiempo</span>
+          </div>
+          <div className="at-cal-p-barra" aria-hidden="true">
+            {GRUPOS_CAL.filter(g => g.key !== 'inc').map(g => <i key={g.key} style={{ width: `${(dia.grupos[g.key].length / Math.max(1, dia.filas.length)) * 100}%`, background: g.color }} />)}
+          </div>
+          {GRUPOS_CAL.map(g => {
+            const lista = dia.grupos[g.key]
+            if (!lista.length) return null
+            const plegado = g.plegado && !verTodos
+            return (
+              <div key={g.key} className="at-cal-p-g">
+                <span className="at-cal-p-t"><i style={{ background: g.color }} />{esHoy && g.hoy ? g.hoy : g.titulo} <em>{lista.length}</em></span>
+                {!plegado && lista.map(({ p, j }) => (
+                  <button key={p.id} type="button" className="at-cal-p-f" onClick={() => onDia(p, dia.d)}>
+                    <Avatar persona={p} size={26} />
+                    <span><b>{p.name}</b><small>{p.unidad}</small></span>
+                    <em>{g.key === 'tarde' ? `+${duracion(j.tardanza)}` : g.key === 'just' ? (j.justificacion?.tipo || 'Permiso') : g.key === 'falta' ? (esHoy ? `debía ${p.horario?.entrada || ''}` : 'sin aviso') : g.key === 'inc' ? `entró ${hhmm(j.entrada)}` : hhmm(j.entrada)}</em>
+                  </button>
+                ))}
+                {plegado && <button type="button" className="at-cal-p-mas" onClick={() => setVerTodos(true)}>Ver las {lista.length} personas ›</button>}
+              </div>
+            )
+          })}
+          <button type="button" className="pl-btn-save at-cal-p-btn" onClick={() => onAbrirDia(dia.d)}>Abrir este día en el Libro</button>
+        </aside>
+      )}
     </div>
   )
 }

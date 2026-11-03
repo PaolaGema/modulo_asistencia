@@ -1359,3 +1359,41 @@ button.at-sem-c:hover, button.at-sem-c:focus-visible { transform: translateY(-1p
 .at-sem-c.t-hoy { background: transparent; box-shadow: inset 0 0 0 1.5px var(--dc-verde); color: var(--text-heading); }
 .at-sem-c.t-futuro { display: block; background: transparent; box-shadow: inset 0 0 0 1px var(--border-soft); }
 .at-sem-c.t-libre { font-weight: 500; }
+
+/* ── Libro › Calendario (C1): el mes con las caras de quienes hay que mirar ── */
+.at-cal-libro { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .at-cal-libro { grid-template-columns: minmax(0, 1fr); } }
+.at-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; background: var(--surface-card); border-radius: 16px; padding: 14px; border: 1px solid var(--border-soft); }
+.at-cal-cab { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); text-align: center; padding-bottom: 2px; }
+.at-cal-d { min-height: 104px; border-radius: 12px; background: var(--surface-hover); padding: 9px; display: grid; align-content: space-between; justify-items: start; gap: 6px; border: 1.5px solid transparent; font-family: inherit; text-align: left; color: var(--text-heading); }
+button.at-cal-d { cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .12s; }
+button.at-cal-d:hover { border-color: var(--border-soft); transform: translateY(-1px); }
+button.at-cal-d:focus-visible { outline: 2px solid var(--dc-verde); outline-offset: 2px; }
+.at-cal-d b { font-size: 14px; font-weight: 700; }
+.at-cal-d small { font-size: 11px; color: var(--text-muted); }
+.at-cal-d.sel { border-color: var(--text-heading); background: var(--surface-card); box-shadow: 0 0 0 3px rgba(12,45,64,.08); }
+.at-cal-d.hoy b { color: var(--dc-verde); }
+.at-cal-d.libre, .at-cal-d.futuro { background: transparent; border: 1px dashed var(--border-soft); }
+.at-cal-d.libre b, .at-cal-d.futuro b { color: var(--text-muted); font-weight: 600; }
+.at-cal-caras { display: flex; align-items: center; }
+.at-cal-cara { display: inline-flex; border-radius: 50%; margin-right: -5px; box-shadow: 0 0 0 2px var(--surface-card), 0 0 0 3.5px var(--m-tarde); }
+.at-cal-cara.t-falta { box-shadow: 0 0 0 2px var(--surface-card), 0 0 0 3.5px var(--m-falta); }
+.at-cal-mas { margin-left: 9px; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.at-cal-bien { font-size: 11px; font-weight: 600; color: var(--dc-verde); }
+.at-cal-panel { background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 16px; padding: 16px; display: grid; gap: 12px; position: sticky; top: 12px; max-height: calc(100vh - 140px); overflow-y: auto; }
+.at-cal-p-cab b { display: block; font-size: 15px; color: var(--text-heading); }
+.at-cal-p-cab b::first-letter { text-transform: uppercase; }
+.at-cal-p-cab span { font-size: 12px; color: var(--text-muted); }
+.at-cal-p-barra { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--surface-hover); }
+.at-cal-p-barra i { display: block; height: 100%; }
+.at-cal-p-g { display: grid; gap: 4px; }
+.at-cal-p-t { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--text-heading); margin-bottom: 2px; }
+.at-cal-p-t i { width: 9px; height: 9px; border-radius: 50%; }
+.at-cal-p-t em { font-style: normal; color: var(--text-muted); font-weight: 600; }
+.at-cal-p-f { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 9px; align-items: center; border: none; background: none; padding: 5px 6px; border-radius: 8px; text-align: left; font-family: inherit; cursor: pointer; color: var(--text-heading); }
+.at-cal-p-f:hover { background: var(--surface-hover); }
+.at-cal-p-f b { display: block; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.at-cal-p-f small { font-size: 11px; color: var(--text-muted); }
+.at-cal-p-f em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.at-cal-p-mas { justify-self: start; border: none; background: none; padding: 2px 6px; font: inherit; font-size: 12px; font-weight: 600; color: var(--dc-verde); cursor: pointer; }
+.at-cal-p-btn { width: 100%; justify-content: center; }
