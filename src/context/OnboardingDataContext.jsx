@@ -511,6 +511,9 @@ export function OnboardingDataProvider({ children }) {
       recursosEvaluacion, setRecursosEvaluacion,
       plantillas, setPlantillas,
       asignaciones, setAsignaciones,
+      /* Las de ejemplo, para que una pantalla de seguimiento no se abra vacía en una demo recién
+         empezada (la demo arranca sin asignaciones hasta que se cargan los datos de ejemplo). */
+      asignacionesEjemplo: sampleAsignaciones,
       feed, addFeedEntry,
       configToggles, setConfigToggles,
       organigrama, setOrganigrama,

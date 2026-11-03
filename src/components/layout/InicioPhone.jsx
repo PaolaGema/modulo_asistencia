@@ -3,10 +3,11 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import ConfirmarMarca from '../asistencia/ConfirmarMarca'
-import { hhmm, duracion, accionDelMomento, ETIQUETA_MARCA, saldoVacaciones, DIAS_LARGOS, diaISO, fechaCorta } from '../../data/asistenciaData'
+import { ahora, hhmm, duracion, accionDelMomento, ETIQUETA_MARCA, saldoVacaciones, DIAS_LARGOS, diaISO, fechaCorta } from '../../data/asistenciaData'
 import { avatarUrl } from '../../utils/calendarEvents'
 import { EVENTOS_INICIO, diaCorto } from '../../data/eventosInicio'
 import { useMisPedidos } from '../../hooks/useMisPedidos'
+import { PUBLICACIONES } from '../../data/publicacionesInicio'
 import { useTheme } from '../../context/ThemeContext'
 
 /* ── EL INICIO DEL TELÉFONO, ESTILO SUAVE (propuesta B1 del lienzo) ──
@@ -31,7 +32,7 @@ const carta = { background: C.carta, borderRadius: 14, boxShadow: C.sombra }
 const rotulo = { fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: C.texto }
 
 /* La misma lista que el calendario de «Ver más»: con la fecha corta para la fila. */
-const CUMPLES = EVENTOS_INICIO.map(e => ({ ...e, fecha: diaCorto(e.fecha) }))
+const CUMPLES = EVENTOS_INICIO.map(e => ({ ...e, dia: e.fecha, fecha: diaCorto(e.fecha) }))
 
 /* «HOY», COMPACTO (propuesta del inicio en 3 toques): una franja navy con el día, la hora, tu turno y
    el botón de lo que toca ahora. Reemplaza a la tarjeta grande «Hoy es» con sus tres fichas: el cargo
@@ -43,7 +44,7 @@ function HoyCompacto({ onMarcar }) {
   const yo = at.yo
   const j = at.jornadaDe(yo, at.hoy)
   const h = yo.horario
-  const hoy = new Date()
+  const hoy = ahora()
   const dia = `${DIAS_LARGOS[diaISO(at.hoy)]} ${fechaCorta(at.hoy)}`
 
   const acc = accionDelMomento(j, h, hoy.getHours() * 60 + hoy.getMinutes())
@@ -128,14 +129,15 @@ const H = { foto: 30, aro: 2.5, luz: 1 }
 const POR_PAGINA = 5
 const PAGINAS = Array.from({ length: Math.ceil(CUMPLES.length / POR_PAGINA) }, (_, i) => CUMPLES.slice(i * POR_PAGINA, (i + 1) * POR_PAGINA))
 
-function Cumpleanos() {
+/* Tocar un cumpleaños o un evento abre Eventos y cumpleaños en ese día. */
+function Cumpleanos({ onDia }) {
   return (
     <div style={{ marginBottom: 12 }}>
       <div className="phone-scroll" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', padding: '5px 0 4px', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {PAGINAS.map((caras, i) => (
           <div key={i} style={{ flex: '0 0 100%', scrollSnapAlign: 'start', display: 'grid', gridTemplateColumns: `repeat(${POR_PAGINA}, minmax(0, 1fr))` }}>
             {caras.map(c => (
-              <div key={c.nombre} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minWidth: 0 }}>
+              <button key={c.nombre} type="button" onClick={() => onDia?.(c.dia)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minWidth: 0, border: 'none', background: 'none', padding: 0, fontFamily: 'inherit', cursor: 'pointer' }}>
                 <span style={{ display: 'block', padding: H.luz, borderRadius: '50%', background: C.fondo, boxShadow: `0 0 0 ${H.aro}px ${c.tipo === 'Evento' ? C.texto : C.acento}, 0 6px 10px -7px rgba(12,45,64,.45)` }}>
                   {c.tipo === 'Evento'
                     ? <span style={{ width: H.foto, height: H.foto, borderRadius: '50%', background: C.banda, display: 'grid', placeItems: 'center' }}><PartyPopper size={14} style={{ color: '#00E091' }} /></span>
@@ -143,7 +145,7 @@ function Cumpleanos() {
                 </span>
                 <b style={{ marginTop: 6, maxWidth: '100%', fontSize: 9, fontWeight: 600, color: C.texto, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.nombre}</b>
                 <span style={{ fontSize: 7.4, color: C.mute }}>{c.fecha}</span>
-              </div>
+              </button>
             ))}
           </div>
         ))}
@@ -157,13 +159,16 @@ function Cumpleanos() {
    pierde: queda reservado hasta que RR.HH. responde, y vuelve si se rechaza o se cancela. */
 function SaldoMini({ s }) {
   return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, lineHeight: 1.2, borderTop: `1px solid ${C.linea}`, paddingTop: 5, alignSelf: 'stretch', margin: '0 7px' }}>
+    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 3, lineHeight: 1.2, alignSelf: 'stretch' }}>
       <span style={{ display: 'flex', gap: 1.5, alignSelf: 'stretch', height: 4, borderRadius: 99, overflow: 'hidden', background: C.linea }}>
         {s.disponible > 0 && <i style={{ flex: s.disponible, background: C.acento }} />}
         {s.pedidos > 0 && <i style={{ flex: s.pedidos, background: '#F5B544' }} />}
       </span>
-      <b style={{ fontSize: 9, fontWeight: 700, color: C.acentoTxt, fontVariantNumeric: 'tabular-nums' }}>{s.disponible} de {s.saldo}</b>
-      <span style={{ fontSize: 6.6, color: C.mute }}>{s.pedidos ? `libres · ${s.pedidos} por aprobar` : 'días libres'}</span>
+      <span style={{ fontSize: 6.8, color: C.mute }}>
+        <b style={{ fontSize: 10, fontWeight: 700, color: C.acentoTxt, fontVariantNumeric: 'tabular-nums' }}>{s.disponible} de {s.saldo}</b> disponibles
+      </span>
+      {/* Lo que espera aprobación, en su propio renglón: junto a «disponibles» no entraba y se cortaba. */}
+      {!!s.pedidos && <span style={{ fontSize: 6.8, color: C.mute, marginTop: -2 }}>{s.pedidos} por aprobar</span>}
     </span>
   )
 }
@@ -225,7 +230,7 @@ function LineaSolicitudes({ pedidos, onAbrir }) {
   )
 }
 
-export default function InicioPhone({ currentUser, onMarcar, onVacacion, onSolicitudes, onCalendario, onPerfil }) {
+export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermiso, onBeneficios, onSolicitudes, onCalendario, onPerfil }) {
   const pedidos = useMisPedidos(currentUser.name)
   const at = useAsistencia()
   const vacacion = saldoVacaciones(at.yo, at.solicitudes, at.hoy)
@@ -266,32 +271,41 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onSolic
 
       <LineaSolicitudes pedidos={pedidos} onAbrir={onSolicitudes} />
 
-      {/* Las acciones rápidas suben, justo debajo de «Hoy»: son lo que más se toca. El saldo de vacaciones
-          va en su botón, donde se decide pedirlas. */}
+      {/* Las acciones rápidas suben, justo debajo de «Hoy»: son lo que más se toca. EN MOSAICO (opción A3):
+          vacación en la tarjeta grande con su saldo, donde se decide pedirlas, y a su lado permiso y
+          beneficios apilados. Con tres tarjetas iguales, la de vacación crecía por el saldo y las otras
+          dos quedaban con un hueco blanco abajo. */}
       <span style={rotulo}>Acciones rápidas</span>
-      <div style={{ display: 'flex', gap: 7, margin: '6px 0 12px' }}>
-        {[
-          { Icono: Palmtree, label: 'Solicitar\nvacación', ir: onVacacion, saldo: vacacion },
-          { Icono: ScrollText, label: 'Solicitar\npermiso', ir: onSolicitudes },
-          { Icono: Gift, label: 'Ver\nbeneficios' },
-        ].map(a => (
-          <button key={a.label} type="button" onClick={a.ir} disabled={!a.ir} title={a.ir ? undefined : 'Todavía no está construido en el prototipo'} style={{
-            ...carta, flex: 1, minWidth: 0, border: 'none', padding: '10px 4px 9px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: 5,
-            fontFamily: 'inherit', cursor: a.ir ? 'pointer' : 'default',
-          }}>
-            <a.Icono size={20} strokeWidth={1.4} style={{ color: C.texto }} />
-            <span style={{ fontSize: 8.6, color: C.texto, lineHeight: 1.3, whiteSpace: 'pre-line' }}>{a.label}</span>
-            {/* El saldo en dos renglones, sin cápsula: en uno solo no cabía en el ancho de la tarjeta. */}
-            {a.saldo && <SaldoMini s={a.saldo} />}
-          </button>
-        ))}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 7, margin: '6px 0 12px' }}>
+        <button type="button" onClick={onVacacion} style={{
+          ...carta, border: 'none', padding: '11px 11px 10px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8,
+          fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', color: C.texto,
+        }}>
+          <Palmtree size={22} strokeWidth={1.4} />
+          <span style={{ fontSize: 9.4, fontWeight: 500, lineHeight: 1.3 }}>Solicitar vacación</span>
+          <SaldoMini s={vacacion} />
+        </button>
+        <span style={{ display: 'grid', gap: 7 }}>
+          {[
+            { Icono: ScrollText, label: 'Permiso o licencia', ir: onPermiso },
+            { Icono: Gift, label: 'Beneficios', ir: onBeneficios },
+          ].map(a => (
+            <button key={a.label} type="button" onClick={a.ir} style={{
+              ...carta, border: 'none', padding: '10px', display: 'flex', alignItems: 'center', gap: 8,
+              fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer', color: C.texto,
+            }}>
+              <a.Icono size={17} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: 8.6, lineHeight: 1.25 }}>{a.label}</span>
+            </button>
+          ))}
+        </span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
         <span style={rotulo}>Próximos eventos y cumpleaños</span>
         <button type="button" onClick={onCalendario} style={{ border: 'none', background: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 8.6, color: C.acentoTxt, fontWeight: 600 }}>Ver más →</button>
       </div>
-      <Cumpleanos />
+      <Cumpleanos onDia={onCalendario} />
 
       <Muro currentUser={currentUser} />
     </div>
@@ -301,13 +315,6 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onSolic
 /* ── NOTICIAS · MURO · MENCIONES ── las tres pestañas cambian lo que se ve; cada publicación se puede
    recomendar (el corazón suma y resta). Lo de la empresa va en Noticias, lo de la gente en el Muro, y en
    Menciones lo que nombra a la persona. */
-const PUBLICACIONES = [
-  { id: 'n1', tab: 'noticias', autor: 'Comunicación interna', cuando: 'Hoy · 9:10', titulo: 'Town Hall trimestral el lunes a las 10:00', texto: 'Revisamos los resultados del trimestre y presentamos el plan del próximo. Auditorio y transmisión para las sucursales.', likes: 12, comentarios: 2 },
-  { id: 'n2', tab: 'noticias', autor: 'Ana Martínez Ruiz', cuando: 'Ayer', titulo: 'Lanzamos «Innovación Verde»', texto: 'Abrimos mesas de trabajo por área para recoger ideas. Las tres mejores tienen presupuesto propio este año.', likes: 24, comentarios: 3 },
-  { id: 'm1', tab: 'muro', autor: 'Juan Pérez Gómez', cuando: 'Hace un momento', texto: '¡Hoy celebramos a Carlos Mendoza por cumplir su primer día con nosotros! Gracias por el compromiso y todo lo que aportas al equipo.', etiqueta: '#BienvenidaFarmaVida', bienvenida: true, likes: 24, comentarios: 3 },
-  { id: 'm2', tab: 'muro', autor: 'Recursos Humanos', cuando: 'Hace 2 días', titulo: '¡Meta comercial del trimestre cumplida!', texto: 'Felicidades al equipo de Ventas por cerrar por encima de la meta. Gracias por estos tres meses.', likes: 41, comentarios: 8 },
-  { id: 'c1', tab: 'menciones', autor: 'Nicolás Zapata', cuando: 'Hace 4 días', texto: 'Gracias @Carlos por ayudarnos con el reporte de ventas: salió en tiempo récord.', likes: 7, comentarios: 1 },
-]
 
 function Muro({ currentUser }) {
   const [tab, setTab] = useState('noticias')

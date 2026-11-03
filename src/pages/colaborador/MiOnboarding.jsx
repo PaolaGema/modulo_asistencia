@@ -102,7 +102,8 @@ function AccionesCabecera({ compact = false, onHistorial, onOrganigrama }) {
   )
 }
 
-export default function MiOnboarding({ forcePhone = false }) {
+/* `onOrganigrama`: en el teléfono el organigrama se abre dentro del marco; la ruta de la web rebota al colaborador. */
+export default function MiOnboarding({ forcePhone = false, onOrganigrama }) {
   const { currentUser } = useUser()
   const navigate = useNavigate()
   const { rutaActiva, rutaGraduado, rutaAdmin, actualizarEtapas } = useRutaActiva()
@@ -301,7 +302,7 @@ export default function MiOnboarding({ forcePhone = false }) {
 
   const procesos = historialDe(currentUser.id)
   const abrirHistorial = () => setHistorialAbierto(true)
-  const irAlOrganigrama = () => navigate('/personas/organigrama')
+  const irAlOrganigrama = onOrganigrama || (() => navigate('/personas/organigrama'))
 
   /* El siguiente paso del teléfono: la primera tarea sin hacer, con su etapa y actividad para abrirla. */
   const siguiente = etapas.flatMap(e => flatTareas(e)).find(t => !t.done) || null

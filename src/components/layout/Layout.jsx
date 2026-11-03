@@ -19,7 +19,10 @@ import MisDocumentosPhone, { MisSolicitudesPhone } from './MisDocumentosPhone'
 import Marcador from '../asistencia/Marcador'
 import InicioPhone from './InicioPhone'
 import SolicitarVacacionPhone from './VacacionPhone'
+import SolicitarPermisoPhone from './PermisoPhone'
+import BeneficiosPhone from './BeneficiosPhone'
 import CalendarioPhone from './CalendarioPhone'
+import ComunicacionPhone from './ComunicacionPhone'
 import AvisoPhone, { useAvisosMarca } from './AvisoPhone'
 import BarraVolver from './BarraVolver'
 import RedDeSeguridad from './RedDeSeguridad'
@@ -33,7 +36,7 @@ const FONDO_SOLICITUDES = 'var(--in-fondo)'
 // Destinos que cuelgan de la pestaña Onboarding.
 const SUB_ONBOARDING = ['mi-onboarding', 'seguimiento', 'acompanados']
 /* Las pantallas con el fondo del Inicio, franja de arriba incluida. */
-const CON_FONDO_INICIO = ['inicio', 'vacacion', 'solicitudes', 'asistencia', 'hr', 'perfil']
+const CON_FONDO_INICIO = ['inicio', 'vacacion', 'permiso', 'beneficios', 'calendario', 'solicitudes', 'asistencia', 'hr', 'perfil', 'organigrama', 'chat']
 /* Onboarding también lleva el fondo del Inicio (auditoría heurística: su franja navy lo hacía ver como
    otra app), pero siempre en claro con `papel-claro`: sus tareas todavía tienen colores fijos y en
    oscuro quedarían letras navy sobre navy. */
@@ -44,7 +47,7 @@ const FONDO_ONBOARDING = '#F2F5FC'
 const SIEMPRE_CLARO = [...ONBOARDING, 'documentos']
 
 export default function Layout() {
-  const { currentUser } = useUser()
+  const { currentUser, setCurrentUser, users } = useUser()
   const navigate = useNavigate()
   const location = useLocation()
   const { exitConfirmOpen, confirmDiscard, confirmSave, cancelExit, textos, guardNavigate } = useUnsavedChanges()
@@ -64,7 +67,11 @@ export default function Layout() {
      tiene una incorporación en curso, para que pueda ir a sus tareas de un toque. Quien ya
      se graduó — o nunca pasó por el módulo, como un líder de siempre — entra por Zona HR.
      Por eso la condición mira el dato del usuario y no su rol. */
-  const enOnboarding = !currentUser.onbNA && !currentUser.onbGraduado
+  const tieneOnboarding = !currentUser.onbNA && !currentUser.onbGraduado
+  /* El selector «Con onboarding · Sin onboarding» de afuera del teléfono simula si RR.HH. le asignó
+     una incorporación. Vale para el usuario con el que se eligió: al cambiar de usuario vuelve a su dato. */
+  const [simOnb, setSimOnb] = useState(null)
+  const enOnboarding = simOnb?.id === currentUser.id ? simOnb.valor : tieneOnboarding
 
   /* El buddy tampoco la tiene: acompañar no es una ruta propia en curso, así que entra por
      Zona HR como cualquier otro módulo. La regla de la pestaña sigue siendo una sola —
@@ -97,22 +104,27 @@ export default function Layout() {
   const [origenHR, setOrigenHR] = useState(false)
   /* `con`: pantallas que el módulo abre ya apiladas (el buscador de Zona HR lleva directo a un pedido o a una carpeta). */
   const [abrirCon, setAbrirCon] = useState(null)
-  const abrirDesdeHR = (key, con = null) => abrirCreciendo(() => { setAbrirCon(con); setDesdeInicio(false); setDesdePerfil(false); setOrigenHR(true); setMobileTab(key) })
+  // La vista con la que se abre Perfil: Documentación si se llega desde Mis documentos; si no, la portada.
+  const [perfilEn, setPerfilEn] = useState(null)
+  const abrirDesdeHR = (key, con = null) => abrirCreciendo(() => { setAbrirCon(con); setDesdeInicio(false); setOrgDesde(null); setOrigenHR(true); setMobileTab(key) })
   const volverAHR = () => volverEncogiendo(() => { setOrigenHR(false); setMobileTab('hr') })
   /* Lo que se abre desde el inicio (marcar, pedir vacaciones) vuelve al inicio, no a Zona HR.
      `marcarCon` es el paso que el botón del carrusel ya eligió: el marcador abre directo en él. */
   const [desdeInicio, setDesdeInicio] = useState(false)
+  /* El día que se tocó en los cumpleaños del Inicio: el calendario abre ahí. */
+  const [calendarioDia, setCalendarioDia] = useState(null)
   const [marcarCon, setMarcarCon] = useState(null)
   const abrirDesdeInicio = (key, paso = null) => abrirCreciendo(() => { setAbrirCon(null); setMarcarCon(paso); setDesdeInicio(true); setOrigenHR(true); setMobileTab(key) })
   const volverAInicio = () => volverEncogiendo(() => { setDesdeInicio(false); setOrigenHR(false); setMobileTab('inicio') })
   /* Los avisos de marcar bajan como notificación del teléfono; tocarlos lleva al inicio. */
   const avisos = useAvisosMarca(isMobile)
   const volverDeModulo = desdeInicio ? volverAInicio : volverAHR
-  /* El organigrama abierto desde Perfil vuelve a Perfil (antes ese botón no hacía nada). */
-  const [desdePerfil, setDesdePerfil] = useState(false)
-  const abrirDesdePerfil = key => abrirCreciendo(() => { setDesdePerfil(true); setOrigenHR(true); setMobileTab(key) })
-  const volverAPerfil = () => volverEncogiendo(() => { setDesdePerfil(false); setOrigenHR(false); setMobileTab('perfil') })
-  const irAPestana = key => guardNavigate(() => cambiarPestana(() => { setOrigenHR(false); setMobileTab(key) }))
+  /* El organigrama vuelve a donde se abrió: Perfil o Mi onboarding (antes esos botones no hacían
+     nada); desde Zona HR, a Zona HR. Se guarda la pestaña y si venía de Zona HR, para dejarla igual. */
+  const [orgDesde, setOrgDesde] = useState(null)
+  const abrirOrganigrama = texto => abrirCreciendo(() => { setOrgDesde({ tab: mobileTab, origen: origenHR, texto }); setOrigenHR(true); setMobileTab('organigrama') })
+  const volverDelOrganigrama = () => volverEncogiendo(() => { setOrigenHR(orgDesde.origen); setMobileTab(orgDesde.tab); setOrgDesde(null) })
+  const irAPestana = key => { setPerfilEn(null); guardNavigate(() => cambiarPestana(() => { setOrigenHR(false); setMobileTab(key) })) }
 
   /* El inicio ya no lleva el atajo «Continuar mi Onboarding» (ni el del líder o el buddy): se pidió
      quitarlo. El onboarding sigue en su pestaña de la barra de abajo. */
@@ -215,13 +227,37 @@ export default function Layout() {
         <div style={{
           position: 'absolute', top: 24, left: 28,
           color: '#94a3b8', fontSize: 11, fontWeight: 600,
-          display: 'flex', alignItems: 'center', gap: 8,
+          display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', maxWidth: 220,
         }}>
           <div style={{
             width: 8, height: 8, borderRadius: '50%', background: '#00E091',
           }} />
           Vista Mobile — Prototipo UX
-          <button type="button" onClick={avisos.probar} style={{ marginLeft: 6, padding: '4px 10px', borderRadius: 99, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 600, cursor: 'pointer' }}>
+          {/* Con o sin onboarding asignado: sin él, la barra de abajo queda Inicio · Comunicación · Zona HR · Perfil
+              y Onboarding no aparece en ningún lado hasta que se lo asignen. */}
+          {/* VER COMO: los tres usuarios del teléfono a un toque. Cada uno ve lo suyo —el líder, Seguimiento;
+              el buddy, Mis acompañados— y con el selector de arriba a la derecha costaba encontrarlos. */}
+          <span role="group" aria-label="Ver como" style={{ display: 'inline-flex', padding: 2, borderRadius: 99, border: '1px solid #334155' }}>
+            {[[4, 'Colaborador'], [8, 'Líder'], [9, 'Buddy']].map(([id, t]) => {
+              const u = users.find(x => x.id === id)
+              const on = currentUser.id === id
+              return u && (
+                <button key={id} type="button" aria-pressed={on} title={`${u.name} · ${u.roleLabel}`} onClick={() => setCurrentUser(u)} style={{
+                  padding: '3px 10px', borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 600, cursor: 'pointer',
+                  background: on ? '#00E091' : 'transparent', color: on ? '#0C2D40' : '#cbd5e1',
+                }}>{t}</button>
+              )
+            })}
+          </span>
+          <span role="group" aria-label="Simular onboarding" style={{ display: 'inline-flex', padding: 2, borderRadius: 99, border: '1px solid #334155' }}>
+            {[[true, 'Con onboarding'], [false, 'Sin onboarding']].map(([v, t]) => (
+              <button key={t} type="button" aria-pressed={enOnboarding === v} onClick={() => setSimOnb({ id: currentUser.id, valor: v })} style={{
+                padding: '3px 10px', borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 600, cursor: 'pointer',
+                background: enOnboarding === v ? '#00E091' : 'transparent', color: enOnboarding === v ? '#0C2D40' : '#cbd5e1',
+              }}>{t}</button>
+            ))}
+          </span>
+          <button type="button" onClick={avisos.probar} style={{ padding: '4px 10px', borderRadius: 99, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 600, cursor: 'pointer' }}>
             Probar aviso de marcación
           </button>
         </div>
@@ -272,25 +308,33 @@ export default function Layout() {
                 currentUser={currentUser}
                 onMarcar={paso => abrirDesdeInicio('asistencia', paso)}
                 onVacacion={() => abrirDesdeInicio('vacacion')}
+                onPermiso={() => abrirDesdeInicio('permiso')}
+                onBeneficios={() => abrirDesdeInicio('beneficios')}
                 onSolicitudes={() => abrirDesdeInicio('solicitudes')}
-                onCalendario={() => abrirDesdeInicio('calendario')}
+                onCalendario={d => { setCalendarioDia(typeof d === 'string' ? d : null); abrirDesdeInicio('calendario') }}
                 onPerfil={() => irAPestana('perfil')}
               />
+            ) : mobileTab === 'beneficios' ? (
+              <BeneficiosPhone currentUser={currentUser} onVolver={volverDeModulo} volverA={desdeInicio ? 'Inicio' : 'Zona HR'} />
+            ) : mobileTab === 'permiso' ? (
+              <SolicitarPermisoPhone onVolver={volverDeModulo} volverA={desdeInicio ? 'Inicio' : 'Zona HR'} listoTexto={desdeInicio ? undefined : 'Volver a Zona HR'} />
             ) : mobileTab === 'vacacion' ? (
               /* «Solicitar vacación» del inicio abre directo el formulario, sin pasar por Mis solicitudes. */
               <SolicitarVacacionPhone onVolver={volverDeModulo} volverA={desdeInicio ? 'Inicio' : 'Zona HR'} listoTexto={desdeInicio ? undefined : 'Volver a Zona HR'} />
             ) : mobileTab === 'hr' ? (
-              <ZonaHRPhone currentUser={currentUser} onNavegar={abrirDesdeHR} />
+              <ZonaHRPhone currentUser={currentUser} onNavegar={abrirDesdeHR} conOnboarding={enOnboarding || conHub || !!currentUser.onbGraduado} />
+            ) : mobileTab === 'chat' ? (
+              <ComunicacionPhone key={currentUser.id} currentUser={currentUser} />
             ) : mobileTab === 'perfil' ? (
-              <PerfilPhone key={currentUser.id} currentUser={currentUser} onOrganigrama={() => abrirDesdePerfil('organigrama')} />
+              <PerfilPhone key={currentUser.id} currentUser={currentUser} onOrganigrama={() => abrirOrganigrama('Perfil')} vistaInicial={perfilEn} onMisDocumentos={() => abrirDesdeHR('documentos')} />
             ) : mobileTab === 'organigrama' ? (
-              <OrganigramaPhone onSalir={desdePerfil ? volverAPerfil : volverAHR} />
+              <OrganigramaPhone currentUser={currentUser} onSalir={orgDesde ? volverDelOrganigrama : volverAHR} volverA={orgDesde?.texto || 'Zona HR'} onMiPerfil={() => irAPestana('perfil')} />
             ) : mobileTab === 'documentos' ? (
-              <MisDocumentosPhone currentUser={currentUser} onVolver={volverAHR} inicio={abrirCon} />
+              <MisDocumentosPhone currentUser={currentUser} onVolver={volverAHR} inicio={abrirCon} onPerfilDocs={() => { irAPestana('perfil'); setPerfilEn('documentos') }} />
             ) : mobileTab === 'solicitudes' ? (
               <MisSolicitudesPhone currentUser={currentUser} onVolver={volverDeModulo} inicio={desdeInicio ? null : abrirCon} />
             ) : mobileTab === 'calendario' ? (
-              <CalendarioPhone onVolver={volverDeModulo} />
+              <CalendarioPhone onVolver={volverDeModulo} volverA={desdeInicio ? 'Inicio' : 'Zona HR'} diaInicial={desdeInicio ? calendarioDia : null} />
             ) : mobileTab === 'asistencia' ? (
               <div className="at-cel"><Marcador key={marcarCon || 'marcador'} iniciar={marcarCon} onVolver={volverDeModulo} telefono volverA={desdeInicio ? 'Inicio' : 'Zona HR'} /></div>
             ) : mobileTab === 'seguimiento' ? (
@@ -308,7 +352,7 @@ export default function Layout() {
                 )}
                 {mobileTab === 'onboarding' && conHub
                   ? <OnboardingHubPhone currentUser={currentUser} onIr={setMobileTab} />
-                  : <MiOnboarding forcePhone />}
+                  : <MiOnboarding forcePhone onOrganigrama={() => abrirOrganigrama('Mi onboarding')} />}
               </>
             )}
           </div>
@@ -331,7 +375,7 @@ export default function Layout() {
               {[
                 { icon: Home, label: 'Inicio', key: 'inicio' },
                 ...(enOnboarding ? [{ icon: Route, label: 'Onboarding', key: 'onboarding' }] : []),
-                { icon: MessageCircle, label: 'Chat', key: 'chat' },
+                { icon: MessageCircle, label: 'Comunicación', key: 'chat' },
                 { icon: LayoutGrid, label: 'Zona HR', key: 'hr' },
                 { icon: User, label: 'Perfil', key: 'perfil' },
               ].map(tab => {
@@ -339,7 +383,7 @@ export default function Layout() {
                 // la mantienen encendida mientras estás adentro.
                 const active = mobileTab === tab.key
                   || (tab.key === 'onboarding' && SUB_ONBOARDING.includes(mobileTab))
-                const navegable = ['inicio', 'onboarding', 'hr', 'perfil'].includes(tab.key)
+                const navegable = ['inicio', 'onboarding', 'chat', 'hr', 'perfil'].includes(tab.key)
                 return (
                 <div key={tab.label}
                   onClick={() => navegable && irAPestana(tab.key)}

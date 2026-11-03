@@ -1,6 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Search, Plus, Archive, MessagesSquare, User, Users, EyeOff, Send, Paperclip, MoreVertical } from 'lucide-react'
+import { Search, Plus, Archive, MessagesSquare, User, Users, EyeOff, Send, Paperclip, MoreVertical, Bell } from 'lucide-react'
 import { conversacionesSeed } from './chatsData'
+import { useCanales, canalesPara } from '../../hooks/useCanales'
+import { useUser } from '../../context/UserContext'
+import { colaboradoresData } from '../personas/colaboradoresData'
 
 /* MIS CHATS — DOS COLUMNAS, NO UNA LISTA CON DETALLE APARTE.
    La lista de conversaciones y la conversación abierta se miran juntas: quien contesta mensajes
@@ -19,6 +22,7 @@ const FILTROS = [
   { key: 'todos', label: 'Todos', icon: MessagesSquare },
   { key: 'personales', label: 'Personales', icon: User },
   { key: 'grupos', label: 'Grupos', icon: Users },
+  { key: 'canales', label: 'Canales', icon: Bell },
   { key: 'no-vistos', label: 'No vistos', icon: EyeOff },
 ]
 
@@ -27,6 +31,13 @@ const FILTROS = [
 function Avatar({ conv, size = 42 }) {
   const [falló, setFalló] = useState(false)
   const esGrupo = conv.tipo === 'grupo'
+  if (conv.tipo === 'canal') {
+    return (
+      <div style={{ width: size, height: size, borderRadius: '50%', flexShrink: 0, background: 'var(--navy)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px var(--green)' }}>
+        <Bell size={size * 0.42} />
+      </div>
+    )
+  }
   const iniciales = conv.nombre.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
 
   if (esGrupo || falló) {
@@ -77,8 +88,29 @@ function IlustracionVacia() {
   )
 }
 
+/* Los canales y grupos que arma RR.HH. en Comunicación › Canales y grupos: los de toda la empresa
+   y los de su área. Un canal se lee y no se responde; un grupo es una conversación más. */
+function comoConversacion(c) {
+  const canal = c.tipo === 'canal'
+  const pubs = c.publicaciones || []
+  return {
+    id: `oficial-${c.id}`, tipo: canal ? 'canal' : 'grupo', oficial: true, nombre: c.nombre,
+    detalle: canal ? 'Canal oficial · solo publica Recursos Humanos' : `Grupo oficial · ${c.para}`,
+    color: '#0C2D40', hora: pubs.at(-1)?.hora || '', noLeidos: 0,
+    mensajes: pubs.map((p, i) => ({ id: `p${i}`, autor: 'Recursos Humanos', titulo: p.titulo, texto: p.texto, hora: `${p.dia} · ${p.hora}` })),
+  }
+}
+
 export default function Chats() {
-  const [conversaciones, setConversaciones] = useState(conversacionesSeed)
+  const { currentUser } = useUser()
+  const [canales] = useCanales()
+  const area = currentUser.area || colaboradoresData.find(p => p.name === currentUser.name)?.depto
+  const [propias, setConversaciones] = useState(conversacionesSeed)
+  // Lo que ya tiene mensajes de la persona (un grupo oficial donde escribió) manda sobre lo que llega de RR.HH.
+  const conversaciones = useMemo(() => [
+    ...canalesPara(canales, area).map(comoConversacion).filter(c => !propias.some(p => p.id === c.id)),
+    ...propias,
+  ], [canales, area, propias])
   const [activaId, setActivaId] = useState(null)
   const [filtro, setFiltro] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
@@ -92,6 +124,7 @@ export default function Chats() {
     return conversaciones.filter(c => {
       if (filtro === 'personales' && c.tipo !== 'personal') return false
       if (filtro === 'grupos' && c.tipo !== 'grupo') return false
+      if (filtro === 'canales' && c.tipo !== 'canal') return false
       if (filtro === 'no-vistos' && !c.noLeidos) return false
       if (!q) return true
       // Se busca también dentro de los mensajes: uno recuerda lo que le dijeron mucho antes
@@ -108,6 +141,9 @@ export default function Chats() {
     setActivaId(id)
     setBorrador('')
     setConversaciones(prev => prev.map(c => (c.id === id ? { ...c, noLeidos: 0 } : c)))
+    // Un grupo oficial pasa a ser suyo al abrirlo, para poder escribir en él.
+    const oficial = conversaciones.find(c => c.id === id && c.oficial && c.tipo === 'grupo')
+    if (oficial && !propias.some(p => p.id === id)) setConversaciones(prev => [oficial, ...prev])
   }
 
   function enviar(e) {
@@ -169,14 +205,15 @@ export default function Chats() {
 
         {/* Los cuatro recortes son el mismo control segmentado del resto del producto. */}
         <div className="pl-tipo-tabs" style={{ margin: '0 16px 12px' }}>
-          {FILTROS.map(({ key, label, icon: Icon }) => (
+          {FILTROS.map(({ key, label }) => (
             <button
               key={key}
               className={`pl-tipo-tab${filtro === key ? ' on' : ''}`}
               onClick={() => setFiltro(key)}
               style={{ padding: '7px 4px' }}
             >
-              <Icon size={12} /> {label}
+              {/* Cinco recortes en 340 px: sin ícono, para que entren todos. */}
+              {label}
             </button>
           ))}
         </div>
@@ -194,7 +231,7 @@ export default function Chats() {
               ? `Ninguna conversación coincide con «${busqueda}».`
               : 'No hay conversaciones en este filtro.'} />
           ) : visibles.map(conv => {
-            const ultimo = conv.mensajes[conv.mensajes.length - 1]
+            const ultimo = conv.mensajes[conv.mensajes.length - 1] || { texto: conv.tipo === 'canal' ? 'Todavía no hay publicaciones' : 'Grupo nuevo · escriba el primer mensaje', autor: '' }
             const puesta = conv.id === activaId
             return (
               <button
@@ -227,8 +264,8 @@ export default function Chats() {
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>
                       {/* En un grupo importa quién habló; en un chat de dos, ya se sabe. */}
-                      {conv.tipo === 'grupo' && !ultimo.mio ? `${ultimo.autor}: ` : ultimo.mio ? 'Tú: ' : ''}
-                      {ultimo.texto}
+                      {conv.tipo === 'grupo' && ultimo.autor && !ultimo.mio ? `${ultimo.autor}: ` : ultimo.mio ? 'Tú: ' : ''}
+                      {ultimo.titulo || ultimo.texto}
                     </span>
                     {conv.noLeidos > 0 && (
                       <span style={{
@@ -304,6 +341,7 @@ export default function Chats() {
                         color: m.mio ? '#fff' : 'var(--text-heading)',
                         fontSize: 12.5, lineHeight: 1.55, wordBreak: 'break-word',
                       }}>
+                        {m.titulo && <div style={{ fontWeight: 700, marginBottom: 2 }}>{m.titulo}</div>}
                         {m.texto}
                       </div>
                       <div style={{
@@ -317,6 +355,11 @@ export default function Chats() {
               <div ref={finDelHilo} />
             </div>
 
+            {activa.tipo === 'canal' ? (
+              <div style={{ padding: '14px 18px', borderTop: '1px solid var(--border-soft)', textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 }}>
+                Solo Recursos Humanos publica en este canal.
+              </div>
+            ) : (
             <form onSubmit={enviar} style={{
               display: 'flex', alignItems: 'center', gap: 8, padding: '12px 18px',
               borderTop: '1px solid var(--border-soft)', flexShrink: 0,
@@ -345,6 +388,7 @@ export default function Chats() {
                 <Send size={15} />
               </button>
             </form>
+            )}
           </>
         )}
       </div>

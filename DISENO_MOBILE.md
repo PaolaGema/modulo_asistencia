@@ -134,6 +134,10 @@ Poppins en todo. En unidades del código:
   con bolita blanca, encendido menta. «Modo oscuro» es un interruptor, no una fila con flecha. Lo rojo
   (cerrar sesión, eliminar la cuenta) va al final en un grupo «Cuenta»: filas como las demás con el aro
   `--in-rojo-borde` y el título e ícono `--in-rojo` (opción R1); nunca un botón rojo lleno.
+  «Mi empresa» es solo lectura: nombre y datos de la empresa y las sucursales activas, con la nota
+  «Estos datos los mantiene Recursos Humanos». «Eliminar mi cuenta» abre una ventana que pide escribir
+  «eliminar mi cuenta»; el botón rojo se activa solo entonces, y lo que se hace es enviar la solicitud a
+  RR.HH. (aviso «Enviamos su solicitud a RR.HH. Le avisaremos cuando la responda.»).
 - **Formularios** (horas extra, corregir marcación, el campo de «Revise su solicitud»): título 600, la etiqueta
   gris arriba (7.2, sin negrita) y el campo **sin borde** en `--in-fondo` (radio 10, texto 8.4/500) dentro de la
   tarjeta blanca. Opciones de una sola elección («¿Qué marca?») en **píldora**, la elegida en `--in-pill`. El botón
@@ -142,11 +146,25 @@ Poppins en todo. En unidades del código:
   solicitada» va en filas de dos columnas como Mi ficha (opción I2): desde, hasta, días hábiles (fila en menta),
   vuelve a trabajar, saldo después y el motivo si lo hay. Nada de recuadros sueltos ni borde navy. El motivo y
   «Solicitar» de abajo se quedan como estaban (se pidió no cambiarlos).
-- **Mis documentos** (Zona HR; opciones MD2 + C2): tarjeta destacada blanca con el anillo de avance y «Resolver»
+- **Mis documentos** (Zona HR; opciones MD2 + C2): (el anillo de avance y «Resolver» se fueron con lo de la ficha a Perfil)
   (nunca la franja navy); las carpetas en mosaicos de dos como Zona HR, dibujadas como **carpeta menta lisa**
   (pestaña, hoja asomando y frente en menta; sin sello, se pidió sin el iconito) y lo que hay que atender como
   etiqueta de estado arriba a la derecha. Filas con el círculo con aro menta; en «Por entregar» la etiqueta va
   junto al título y la píldora debajo del texto. Va siempre en claro (`papel-claro`) hasta pasar sus colores fijos.
+- **Cada documento en un solo lugar (D1 + DC1):** Zona HR › Mis documentos guarda solo lo que **entrega RR.HH.**:
+  carpetas Papeletas (vacaciones y permisos aprobados, por año; abren el detalle con la papeleta), Contratos
+  (el vigente destacado con aro menta y «Ver contrato»; debajo «Anteriores» y «Adendas»), y las carpetas de
+  RR.HH. (certificados, cartas, memorándums, por año). Lo que **entrega la persona** (lo de su ficha) vive en
+  Perfil › Documentación. Al final de cada uno, una tarjeta menta (`Puente`) lleva al otro.
+- **Comunicación (K1, como WhatsApp):** una sola lista en tarjeta blanca: canales de RR.HH. (círculo navy con
+  campana menta; el fijado arriba con 📌), el grupo del área, los grupos creados y los chats uno a uno. Chips
+  Todos · No leídos · Grupos · Canales y buscador fijo. No leídos: hora en verde y número en círculo menta. El
+  botón menta abajo a la derecha abre «Nuevo chat» (su equipo primero, buscador para toda la empresa,
+  «Nuevo grupo» con nombre y personas marcadas). En los canales solo publica RR.HH.; la gente reacciona.
+  Los mensajes propios en navy a la derecha; en grupos, el nombre de quien escribe en su color. El clip
+  adjunta **imágenes** (se achican y se abren grandes al tocarlas) y **documentos** (tarjeta con nombre y peso).
+- **Fechas de Editar perfil (F2):** tres ruedas día · mes · año (`FechaRueda`, las mismas columnas de
+  `HoraCel`), con la fecha escrita entera arriba y «Listo» menta.
 - **Buscador (Zona HR):** nunca abre otra pantalla (se sentía «otra ventana»). Píldora blanca fija debajo
   del título, alto 30, `--in-sombra`; al escribir o con foco, aro navy. Al escribir, la cuadrícula se
   **filtra** (quedan los módulos que coinciden, lo escrito en negrita) y debajo salen «Pedir» y «Lo que ya
@@ -195,6 +213,60 @@ Poppins en todo. En unidades del código:
   fuera de rango apagado; tocar un día lo elige y cierra). Hora: `HoraCel` (opción Q1: dos columnas
   que se deslizan, horas y minutos de 1 en 1, lo del centro en píldora navy; atajos como
   «08:30 · su entrada» o «Ahora»; se confirma con «Listo»). Si la tarjeta no entra, la pantalla baja sola.
+- **Organigrama (`OrganigramaPhone`, opción O2 «Un árbol que se despliega»):** el gerente arriba y las
+  áreas colgando de una línea. Al entrar todo cerrado menos el área de la persona, abierta, con ella
+  resaltada en menta y «Usted». Cada área: círculo con aro menta, nombre, «jefe · N personas · sub-áreas»
+  y la «v» a la derecha (círculo menta y girada al abrirse). Vacantes «Por cubrir», externos
+  «Tercerizado». Buscador siempre abierto, como el de Zona HR: los resultados caen en una lista sobre el contenido y elegir a alguien lleva hasta esa persona (abre su área y baja, o centra el gráfico) y la deja resaltada en menta con halo. Sin organigrama cargado usa el de ejemplo.
+  Vuelve a donde se abrió (Zona HR, Perfil, Mi onboarding). Tocar a otra persona abre un aviso al
+  centro (opción M2: foto, cargo, «Su compañero de equipo», «Enviar mensaje» menta y «Ver perfil»);
+  tocarse a uno mismo lleva a Perfil. `ColegaPhone`: perfil público (tarjeta con círculos menta,
+  «Mensaje» y «Correo», En la empresa, Su equipo, Regalos y Experiencias que le gustaría, Publicaciones;
+  nada de la ficha personal) y chat uno a uno (suyos en navy a la derecha, del otro en blanco; vacío
+  con dos frases para empezar). Arriba a la derecha, dos botones redondos —lista y gráfico—, el encendido en navy (se recuerda): el gráfico es el MISMO dibujo de
+  Organización (`OrgGrafico` con `telefono`), solo para mirar —sin panel, buscador ni acomodo—, con los
+  colores que eligió RR.HH., abierto centrado en la persona (o en la jefatura de su área) con aro menta;
+  zoom y «centrar en mí» abajo; un toque en un cuadro abre el mismo aviso.
+- **Permiso o licencia (`PermisoPhone`, opción P1 «Primero qué, después cuándo»):** el Inicio dice
+  «Solicitar permiso o licencia» y abre el pedido directo (también desde «¿Qué necesita?»). Paso 1: qué
+  necesita, en dos grupos (Permiso: cita médica, trámite, asunto familiar, estudio · Licencia: médica,
+  maternidad, paternidad, duelo, matrimonio; las que piden papel, chip «Respaldo»). Paso 2: el calendario
+  de la vacación con su cabecera menta: un permiso es un día con «Todo el día / Unas horas» (Desde y Hasta
+  con `HoraCel`) o varios días (entonces sin horas); una licencia es un rango, con los días de ley contados solos (3 hábiles paternidad, duelo
+  y matrimonio; 90 corridos maternidad; la médica la elige la persona y cuenta corridos) y el respaldo para subir ahora o
+  después. Paso 3: la misma papeleta I2 con el horario o los días en la fila menta y «Solicitar» fijo.
+- **Calendarios de pedir (vacación, permiso):** semanas completas; los días del mes vecino se ven más
+  claros y se pueden tocar o arrastrar, para elegir un rango que cruza de mes (`semanasDe`).
+- **Mis beneficios (`BeneficiosPhone`, opción B1 «Lo suyo primero»; datos en `beneficiosData.js`):** se
+  abre desde «Ver beneficios» del Inicio y «Mis beneficios» de Zona HR. Arriba, la tarjeta destacada «Para
+  usar ahora», calculada por persona (su cumpleaños si faltan 30 días o menos → «Pedir mi día»; si no, lo
+  que le queda del fondo en los últimos 3 meses del año → «Pedir un reembolso»; si no, el viernes corto).
+  Debajo, dos saldos (fondo con barra, código de descuento), chips por grupo (Salud, Tiempo, Desarrollo,
+  Familia, Descuentos) y las filas con círculo de aro menta y su estado. Cada beneficio abre su vista: la
+  destacada con qué es y su botón, «Cómo se usa» en pasos y «Condiciones» en dos columnas. «Pedir mi día»
+  abre el permiso con el día puesto (subtipo `cumpleanos`, día entero); el código de descuento, un QR.
+- **Acciones rápidas del Inicio (opción A3, mosaico):** vacación en la tarjeta grande de la izquierda
+  con su saldo («5 de 10 disponibles» y debajo «5 por aprobar», con la barra menta y ámbar); a su lado,
+  apiladas, «Permiso o licencia» y «Beneficios» (ícono y nombre en fila). Así ninguna queda con hueco.
+- **Eventos y cumpleaños (`CalendarioPhone`, opción C1):** la tarjeta de calendario de la vacación
+  (semanas completas, «lu ma mi», hoy con aro menta, elegido en navy) con un punto menta por cumpleaños
+  y uno navy por evento. Tocar un día muestra debajo quién cumple o qué pasa; sin día, la lista del mes
+  (foto con aro menta para cumpleaños, círculo navy con confeti para eventos). Sin botones de «Saludar»
+  ni «Agendar» (se pidió quitarlos). Se abre desde «Ver más» y el botón calendario del Inicio, desde un
+  cumpleaños tocado en el Inicio (ya en ese día) y desde «Calendario» de Zona HR.
+- **Marcar (aviso de confirmar, notificación y flujo de ubicación y rostro):** todo en «usted» («Va a
+  marcar su entrada», «No olvide marcar su entrada», «Mire la cámara», «¡Que tenga un gran día!»). El
+  botón principal es siempre la píldora menta, también en «Marcar igual» (antes era navy).
+- **Seguimiento del líder (opción S1):** como Mis acompañados: las tres cifras en una tarjeta (navy, sin
+  colores) y las personas por urgencia con rótulos del Inicio (foto, cargo y día del recorrido, barra y
+  estado); lo que necesita atención arriba, con un aviso rojo del porqué. Sin asignaciones cargadas usa
+  las de ejemplo. La ficha de la persona, en la tarjeta blanca destacada.
+- **El recorrido que ven el buddy y el líder (opción R1):** el mismo `MapaRutaOnb` de Mi onboarding,
+  solo para mirar (hecho con check, lo de ahora con halo menta, lo que falta en gris).
+- **Mi mes:** título en 600, «lu ma mi» con los días del mes vecino, y la leyenda solo con los estados
+  que aparecen en el mes. Todos los calendarios del teléfono dicen «lu ma mi», nunca una sola letra.
+- **Afuera del teléfono:** «Colaborador · Líder · Buddy» cambia de usuario de un toque (Carlos, Ana,
+  Diego), junto a «Con onboarding · Sin onboarding» y «Probar aviso de marcación».
 - **Íconos:** lucide-react, trazo fino. Mismo ícono por tipo: Palmtree, Clock, PencilLine, House,
   Repeat, Award, ScrollText, Flag.
 - **Modo oscuro:** el Inicio y la vacación ya lo siguen con las variables `--in-*` de `index.css`. Las

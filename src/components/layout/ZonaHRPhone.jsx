@@ -30,15 +30,16 @@ const MODULOS = [
   { icon: DollarSign, label: 'Mis remuneraciones', linea: 'Sus boletas de pago', palabras: 'boleta boletas sueldo pago salario planilla' },
   { icon: Bot, label: 'Agente de IA', linea: 'Pregúntele lo que necesite', palabras: 'asistente preguntas ayuda bot' },
   { icon: Folder, label: 'Archivos', linea: 'Archivos compartidos', palabras: 'carpetas compartidos' },
-  { icon: Calendar, label: 'Calendario', linea: 'Feriados, eventos y cumpleaños', palabras: 'feriados eventos cumpleanos fechas' },
-  { icon: Gift, label: 'Mis beneficios', linea: 'Lo que la empresa le ofrece', palabras: 'beneficios descuentos seguro' },
+  { icon: Calendar, label: 'Calendario', destino: 'calendario', linea: 'Feriados, eventos y cumpleaños', palabras: 'feriados eventos cumpleanos fechas' },
+  { icon: Gift, label: 'Mis beneficios', destino: 'beneficios', linea: 'Lo que la empresa le ofrece', palabras: 'beneficios descuentos seguro' },
   { icon: Globe, label: 'Página oficial', linea: 'El sitio de la empresa', palabras: 'web sitio empresa' },
 ]
 const NAVY = 'var(--in-texto)'
 const SOMBRA = 'var(--in-sombra)'
 const BOTON_REDONDO = { position: 'relative', width: 29, height: 29, borderRadius: '50%', border: 'none', background: 'var(--in-carta)', display: 'grid', placeItems: 'center', boxShadow: 'var(--in-sombra)', cursor: 'pointer', padding: 0, flexShrink: 0 }
 
-export default function ZonaHRPhone({ currentUser, onNavegar }) {
+/* `conOnboarding`: sin una incorporación asignada (ni en curso ni terminada) el módulo no se muestra. */
+export default function ZonaHRPhone({ currentUser, onNavegar, conOnboarding = true }) {
   const { theme, toggleTheme } = useTheme()
   const { pendientes, md } = useMisPedidos(currentUser.name)
   const [q, setQ] = useState('')
@@ -46,7 +47,8 @@ export default function ZonaHRPhone({ currentUser, onNavegar }) {
   const campo = useRef(null)
   const cuantos = { solicitudes: pendientes.length, documentos: md?.porHacer?.length || 0 }
   const palabras = palabrasDe(q)
-  const modulos = palabras.length ? MODULOS.filter(m => coincide(palabras, `${m.label} ${m.linea} ${m.palabras}`)) : MODULOS
+  const visibles = conOnboarding ? MODULOS : MODULOS.filter(m => m.destino !== 'onboarding')
+  const modulos = palabras.length ? visibles.filter(m => coincide(palabras, `${m.label} ${m.linea} ${m.palabras}`)) : visibles
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 7, padding: '2px 2px', fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>

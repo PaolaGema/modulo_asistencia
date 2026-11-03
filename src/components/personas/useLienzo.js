@@ -57,8 +57,11 @@ export function useLienzo({ tree, ignorarPan } = {}) {
       if (!canvas) return
       const c = canvas.getBoundingClientRect()
       const e = el.getBoundingClientRect()
-      const dx = (c.left + c.width / 2) - (e.left + e.width / 2)
-      const dy = (c.top + c.height / 2) - (e.top + e.height / 2)
+      /* Dentro del teléfono del prototipo el marco lleva `zoom` de CSS: las medidas en pantalla salen
+         agrandadas y el corrimiento se aplica sin agrandar, así que se descuenta. Afuera vale 1. */
+      const k = c.width / canvas.offsetWidth || 1
+      const dx = ((c.left + c.width / 2) - (e.left + e.width / 2)) / k
+      const dy = ((c.top + c.height / 2) - (e.top + e.height / 2)) / k
       setPan(p => ({ x: p.x + dx, y: p.y + dy }))
     })
   }, [])

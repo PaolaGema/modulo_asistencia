@@ -11583,3 +11583,13 @@ html.vt-volver::view-transition-old(telefono) { z-index: 3; }
    que ya trabaja. En oscuro el tramo de trabajo pasa a blanco para seguir separándose del fondo navy. */
 :root { --in-vac-tramo: #DDF9EE; --in-vac-tramo-rot: #0A7F55; --in-vac-trab: #0C2D40; --in-vac-trab-txt: #ffffff; --in-vac-trab-rot: #7DF5C6; }
 .dark { --in-vac-tramo: #1D5248; --in-vac-tramo-rot: #7DF5C6; --in-vac-trab: #F5F7FA; --in-vac-trab-txt: #0C2D40; --in-vac-trab-rot: #0A7F55; }
+
+/* EL ORGANIGRAMA GRÁFICO EN EL TELÉFONO (OrganigramaPhone › Gráfico): el mismo lienzo de Organización,
+   del alto de la pantalla, con el fondo del Inicio y el zoom en píldora chica. La persona, con el aro menta. */
+.og-page.og-cel { position: relative; height: 352px; margin: 0 -10px -10px; display: flex; flex-direction: row; border-top: 1px solid var(--in-linea); }
+.og-cel .og-canvas { background-color: var(--in-fondo); background-size: 16px 16px; }
+.og-cel .og-zoom { right: 10px; bottom: 12px; padding: 3px; border-radius: 99px; }
+.og-cel .og-zoom button { width: 22px; height: 22px; border-radius: 99px; }
+.og-cel .og-zoom-val { min-width: 30px; font-size: 8px; }
+.og-card-yo { box-shadow: 0 0 0 3px #00E091, 0 10px 24px -8px rgba(0,184,118,.7) !important; }
+.og-card-buscado { box-shadow: 0 0 0 3px #00E091, 0 0 0 9px rgba(0,224,145,.22), 0 10px 24px -8px rgba(0,184,118,.7) !important; }

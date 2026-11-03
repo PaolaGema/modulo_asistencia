@@ -8,6 +8,7 @@ import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
 import logoOscuro from '../../assets/imagenes/logo_souly_oscuro.png'
 import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 import { allNavItems } from './modulos'
+import { cargarDemoAsistencia } from '../../data/asistenciaData'
 
 /* Un punto arriba de los 14px de ModuleNav, no igual: colapsado el ícono es lo único
    clicable del rail, así que bajarlo hasta el tamaño de adentro lo dejaba flaco. Los dos
@@ -589,11 +590,12 @@ export default function Sidebar() {
             </div>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
               Se cargarán 10 rutas, 14 asignaciones, 8 recursos y la configuración activa de ejemplo.
+              Asistencia queda simulando un viernes a las 16:10, con la semana y el mes ya marcados: tardanzas, descansos, horas extra, solicitudes y justificaciones por responder, y el mes anterior cerrado.
             </p>
           </div>
           <div className="pl-modal-footer">
             <button className="pl-btn-cancel" onClick={() => setShowLoadConfirm(false)}>Cancelar</button>
-            <button onClick={() => { loadSampleData(); window.location.href = '/onboarding' }} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: '#3b82f6', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700 }}>
+            <button onClick={() => { loadSampleData(); cargarDemoAsistencia(); window.location.href = '/asistencia' }} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: '#3b82f6', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700 }}>
               Cargar datos
             </button>
           </div>

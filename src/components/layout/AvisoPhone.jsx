@@ -23,26 +23,26 @@ export function avisoDelMomento(at, { forzar = false } = {}) {
   const j = at.jornadaDe(yo, at.hoy)
   const t = new Date()
   const ahora = t.getHours() * 60 + t.getMinutes()
-  const lugar = yo.lugar?.nombre || 'tu lugar de trabajo'
+  const lugar = yo.lugar?.nombre || 'su lugar de trabajo'
   const fijo = h.modo === 'fijo'
   const ent = fijo ? aMin(h.entrada) : null
   const sal = fijo ? aMin(h.salida) : null
   const tol = yo.politica?.tolerancia ?? 10
 
-  if (j.salida != null) return forzar ? { id: 'listo', icono: LogOut, titulo: 'Tu jornada ya está cerrada', texto: `Saliste a las ${hhmm(j.salida)}. ¡Que descanses!` } : null
+  if (j.salida != null) return forzar ? { id: 'listo', icono: LogOut, titulo: 'Su jornada ya está cerrada', texto: `Salió a las ${hhmm(j.salida)}. ¡Que descanse!` } : null
   if (j.entrada == null) {
-    if (fijo && ahora >= ent + tol && ahora < sal) return { id: 'sin-entrada', icono: ScanFace, titulo: 'Aún no marcas tu entrada', texto: `Tu turno empezó a las ${h.entrada}. Marca al llegar a ${lugar}.`, urgente: true }
-    if (forzar || (fijo && ahora >= ent - 10 && ahora < ent + tol)) return { id: 'entrada', icono: ScanFace, titulo: fijo ? `Tu turno empieza a las ${h.entrada}` : 'Es hora de empezar tu jornada', texto: `No olvides marcar tu entrada al llegar a ${lugar}.` }
+    if (fijo && ahora >= ent + tol && ahora < sal) return { id: 'sin-entrada', icono: ScanFace, titulo: 'Aún no marca su entrada', texto: `Su turno empezó a las ${h.entrada}. Marque al llegar a ${lugar}.`, urgente: true }
+    if (forzar || (fijo && ahora >= ent - 10 && ahora < ent + tol)) return { id: 'entrada', icono: ScanFace, titulo: fijo ? `Su turno empieza a las ${h.entrada}` : 'Es hora de empezar su jornada', texto: `No olvide marcar su entrada al llegar a ${lugar}.` }
     return null
   }
   if (j.enPausa) {
     const ini = [...j.marcas].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada)
     const fin = ini && h.pausa ? ini.min + h.pausa : null
-    if (fin != null && ahora > fin) return { id: 'pausa-pasada', icono: Coffee, titulo: `Te pasaste ${duracion(ahora - fin)} de tu pausa`, texto: 'Marca tu vuelta cuanto antes.', urgente: true }
-    if (forzar || (fin != null && ahora >= fin - 5)) return { id: 'pausa-fin', icono: Coffee, titulo: fin != null ? `Tu pausa termina a las ${hhmm(fin)}` : 'Vuelve de tu pausa', texto: 'Recuerda marcar tu vuelta.' }
+    if (fin != null && ahora > fin) return { id: 'pausa-pasada', icono: Coffee, titulo: `Se pasó ${duracion(ahora - fin)} de su pausa`, texto: 'Marque su vuelta cuanto antes.', urgente: true }
+    if (forzar || (fin != null && ahora >= fin - 5)) return { id: 'pausa-fin', icono: Coffee, titulo: fin != null ? `Su pausa termina a las ${hhmm(fin)}` : 'Vuelva de su pausa', texto: 'Recuerde marcar su vuelta.' }
     return null
   }
-  if (forzar || (fijo && ahora >= sal)) return { id: 'salida', icono: LogOut, titulo: fijo && ahora >= sal ? 'Ya es tu hora de salida' : `Tu salida es a las ${h.salida}`, texto: 'No olvides marcar tu salida antes de irte.' }
+  if (forzar || (fijo && ahora >= sal)) return { id: 'salida', icono: LogOut, titulo: fijo && ahora >= sal ? 'Ya es su hora de salida' : `Su salida es a las ${h.salida}`, texto: 'No olvide marcar su salida antes de irse.' }
   return null
 }
 

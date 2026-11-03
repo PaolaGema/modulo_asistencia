@@ -1,7 +1,8 @@
-import { Check, Layers, ShieldOff, Calendar, UserCheck } from 'lucide-react'
+import { Check, ShieldOff, Calendar, UserCheck } from 'lucide-react'
 import { useConfig } from '../../context/ConfigContext'
 import { infoTipo } from '../../utils/tareaTipos'
 import BarraVolver from './BarraVolver'
+import { MapaRutaOnb } from '../../pages/colaborador/OnboardingPhonePiezas'
 
 /* El recorrido de una persona en el teléfono, de solo lectura: el mismo camino de nodos que
    ve el colaborador en su onboarding y Recursos Humanos en la ficha de la asignación. Vive
@@ -9,11 +10,6 @@ import BarraVolver from './BarraVolver'
    en un lado y un camino en el otro serían dos rutas distintas para la misma persona.
 
    Quien mira no actúa: los nodos abren la tarea para saber de qué se trata, nada más. */
-
-/* Zigzag del camino. Los valores son la mitad que en escritorio porque el nodo del teléfono
-   mide 40 px y la etiqueta 74: con el desplazamiento de la ficha de RH, los nombres se
-   cortarían contra el borde de la pantalla. */
-const OFFSETS = [0, 24, 34, 24, 0, -24, -34, -24]
 
 // Tipos cuyo contenido responde el colaborador: lo que contestó no se muestra aquí.
 const CON_RESPUESTAS = ['quiz', 'completar-perfil', 'form-custom', 'pulso', 'perfil']
@@ -153,125 +149,16 @@ export function TareaPhone({ tarea, nombre, volverA = 'Su recorrido', onVolver }
 
 /* El camino: cabecera de etapa, divisor de actividad y un nodo por tarea. Verde relleno es
    una tarea hecha; el círculo hueco, una pendiente. */
+/* EL MAPA DE MI ONBOARDING (opción R1): el buddy y el líder ven el recorrido igual que lo ve la
+   persona —el mismo `MapaRutaOnb`, con sus etapas y nodos—, solo para mirar. Lo hecho con check, lo
+   que le toca ahora con halo menta, lo que falta en gris. Tocar un nodo abre la tarea, de lectura.
+   Antes era otro mapa (círculos menta rellenos sobre un fondo gris, etapas en píldoras grises). */
 export default function RecorridoPhone({ etapas, onVerTarea }) {
+  const siguiente = etapas.flatMap(e => e.tareas).find(t => !t.done)
   return (
-    <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 }}>
-        {[
-          { t: 'Completada', bg: '#00E091', bd: 'none' },
-          { t: 'Pendiente', bg: '#fff', bd: '1.5px solid #cbd5e1' },
-        ].map(l => (
-          <span key={l.t} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 6.5, fontWeight: 600, color: '#94a3b8' }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: l.bg, border: l.bd }} />
-            {l.t}
-          </span>
-        ))}
-        <span style={{ marginLeft: 'auto', fontSize: 6.5, color: '#cbd5e1' }}>Toca una tarea</span>
-      </div>
-
-      <div className="det-path-phone" style={{
-        borderRadius: 12, overflow: 'hidden',
-        background: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef4 100%)',
-        padding: '11px 4px 4px',
-      }}>
-        {etapas.map((e, i) => {
-          const completa = e.tareas.length > 0 && e.doneLocal === e.tareas.length
-          /* El zigzag corre a lo largo de toda la etapa y no se reinicia en cada actividad:
-             si no, con dos o tres tareas por actividad el camino solo dobla hacia un lado. */
-          const offsetDe = new Map(e.tareas.map((t, k) => [t.id, OFFSETS[k % OFFSETS.length]]))
-          return (
-            <div key={i}>
-              {/* Cabecera de etapa: la misma píldora centrada de la ficha de RH, a escala. */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5, maxWidth: '100%',
-                  background: '#fff', border: '1px solid #e2e8f0', borderRadius: 20,
-                  boxShadow: '0 1px 4px rgba(12,45,64,.06)', padding: '4px 9px',
-                }}>
-                  <span style={{
-                    width: 14, height: 14, borderRadius: '50%', flexShrink: 0,
-                    background: completa ? '#00E091' : '#0C2D40', color: '#fff',
-                    fontSize: 7, fontWeight: 800,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {completa ? <Check size={8} strokeWidth={3} /> : i + 1}
-                  </span>
-                  <span style={{ fontSize: 8, fontWeight: 700, color: '#0C2D40', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.name}</span>
-                  {e.days && <span style={{ fontSize: 6.5, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>{e.days}</span>}
-                  <span style={{
-                    flexShrink: 0, fontSize: 6.5, fontWeight: 700, padding: '1px 6px', borderRadius: 20,
-                    background: completa ? '#f0fdf4' : '#f1f5f9',
-                    color: completa ? '#16a34a' : '#64748b',
-                  }}>
-                    {e.doneLocal}/{e.tareas.length}
-                  </span>
-                </div>
-              </div>
-
-              <div className="jb-duo-path" style={{ padding: '6px 0 2px' }}>
-                {e.actividades.map((act, ai) => (
-                  <div key={ai} style={{ width: '100%' }}>
-                    {/* Actividad: el nivel intermedio entre la etapa y las tareas. */}
-                    <div style={{ display: 'flex', justifyContent: 'center', margin: '9px 0 6px' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 4,
-                        background: 'rgba(12,45,64,.05)', border: '1px solid rgba(12,45,64,.08)',
-                        borderRadius: 7, padding: '2px 8px',
-                        fontSize: 6.5, fontWeight: 700, color: '#475569',
-                      }}>
-                        <Layers size={8} style={{ color: '#64748b' }} />
-                        {act.name || `Actividad ${ai + 1}`}
-                        <span style={{ background: '#fff', borderRadius: 20, padding: '0 4px', fontSize: 6, color: '#94a3b8' }}>
-                          {act.tareas.filter(t => t.done).length}/{act.tareas.length}
-                        </span>
-                      </span>
-                    </div>
-
-                    {act.tareas.map((t, ti) => {
-                      const tipo = infoTipo(t.tipo)
-                      const TIcon = tipo.icon
-                      return (
-                        <div key={t.id}>
-                          {ti > 0 && (
-                            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                              <div style={{ width: 2, height: 9, background: '#cbd5e1', borderRadius: 1 }} />
-                            </div>
-                          )}
-                          <div className="jb-duo-node-wrap" style={{ '--x-off': `${offsetDe.get(t.id)}px` }}>
-                            {/* El nodo y su nombre abren lo mismo: apuntarle a un círculo de
-                                40 px con el pulgar es de los blancos que más se fallan. */}
-                            <button
-                              className={`jb-duo-node ${t.done ? 'done' : 'det-pend'}`}
-                              onClick={() => onVerTarea(t)}
-                              title={t.name}
-                            >
-                              <div className="jb-duo-circle">
-                                <TIcon size={14} />
-                              </div>
-                              {t.done && <span className="det-node-check"><Check size={7} strokeWidth={3} /></span>}
-                            </button>
-                            <button className="det-node-labelbtn" onClick={() => onVerTarea(t)}>
-                              <span className={`jb-duo-label ${t.done ? 'done' : 'locked'}`}>{t.name}</span>
-                              <span style={{ fontSize: 6, fontWeight: 600, color: '#94a3b8', marginTop: 1 }}>{tipo.label}</span>
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                ))}
-              </div>
-
-              {/* Separador entre etapas: el mismo del camino del colaborador. */}
-              {i < etapas.length - 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '5px 0 9px' }}>
-                  <div style={{ width: 2, height: 14, background: '#cbd5e1', borderRadius: 1 }} />
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </>
+    <div style={{ marginTop: 4 }}>
+      <MapaRutaOnb etapas={etapas} flatTareas={e => e.tareas} iconoDe={tipo => infoTipo(tipo).icon} siguienteId={siguiente?.id}
+        onAbrir={t => onVerTarea(t)} />
+    </div>
   )
 }

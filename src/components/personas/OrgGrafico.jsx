@@ -96,6 +96,10 @@ const APOYOS = [
 export default function OrgGrafico({
   tree, org, onAbrirCargo, onAbrirUnidad, crear, desplazamientos, onMover, onAcomodar,
   atenuado, condenado, vista, ranuraBuscador,
+  /* EN EL TELÉFONO DEL COLABORADOR el mismo dibujo que arma RR.HH., solo para mirar: sin el panel
+     de qué se dibuja, sin buscador ni acomodo. `enfoque` es el cargo donde abre centrado y
+     marcado con el aro menta (el de la persona, o la jefatura de su área). */
+  telefono, enfoque, buscado,
 }) {
   const { canvasRef, stageRef, zoom, setZoom, arrastrando, empezarArrastre, ajustar, centrar, estiloStage } =
     useLienzo({ tree, ignorarPan: '[data-no-pan]' })
@@ -163,14 +167,19 @@ export default function OrgGrafico({
   }, [desplazamientos, vivo])
 
   const medidor = useCallback(() => {
-    const base = stageRef.current.getBoundingClientRect()
+    const stage = stageRef.current
+    const base = stage.getBoundingClientRect()
+    /* La escala real entre lo medido y lo dibujado. Afuera es el zoom del lienzo; dentro del teléfono
+       del prototipo se le suma el `zoom` de CSS del marco, y dividir solo por el del lienzo dejaba las
+       líneas agrandadas y corridas de sus cuadros. */
+    const k = (stage.offsetWidth && base.width / stage.offsetWidth) || zoom
     return el => {
       const r = el.getBoundingClientRect()
       return {
-        x: (r.left - base.left) / zoom,
-        y: (r.top - base.top) / zoom,
-        w: r.width / zoom,
-        h: r.height / zoom,
+        x: (r.left - base.left) / k,
+        y: (r.top - base.top) / k,
+        w: r.width / k,
+        h: r.height / k,
       }
     }
   }, [zoom, stageRef])
@@ -324,6 +333,28 @@ export default function OrgGrafico({
     }
   }, [onMover])
 
+  /* EN EL TELÉFONO, UN SOLO CENTRADO: al abrir, en la persona (`enfoque`, con su aro menta); después,
+     en lo que se buscó (`buscado`, marcado hasta la próxima búsqueda). Se espera a que las líneas
+     estén medidas para no centrar sobre un dibujo a medio armar, y cada pedido se cumple una vez. */
+  const centrado = useRef(null)
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage || !trazos.length) return
+    const pedido = buscado?.id ? `b${buscado.vez}` : enfoque ? `e${enfoque}` : null
+    if (!pedido || centrado.current === pedido) return
+    const yo = enfoque && stage.querySelector(`[data-cargo="${enfoque}"]`)
+    yo?.classList.add('og-card-yo')
+    let el = yo
+    if (buscado?.id) {
+      stage.querySelectorAll('.og-card-buscado').forEach(x => x.classList.remove('og-card-buscado'))
+      el = stage.querySelector(`[data-cargo="${buscado.id}"]`)
+      el?.classList.add('og-card-buscado')
+    }
+    if (!el) return
+    centrado.current = pedido
+    centrar(el, { zoomMin: 0.7 })
+  }, [enfoque, buscado, trazos, centrar, stageRef])
+
   const acomodo = onMover ? { corrimiento, tomar, enMano: vivo?.clave ?? null } : null
   const movidos = Object.keys(desplazamientos || {}).length
   const lienzoDim = stageRef.current
@@ -418,7 +449,7 @@ export default function OrgGrafico({
           ABAJO Y NO ARRIBA: el panel horizontal mide casi 700 px y arriba a la izquierda le
           tapaba la caja de la organización, que es la cabeza del dibujo. Abajo no hay nada que
           tapar, y es donde cualquier gráfico pone su leyenda. */}
-      <div className="og-esquina">
+      {!telefono && <div className="og-esquina">
         {(pliegue.plegados.size > 0 || movidos > 0) && (
           <div className="og-deshacer">
             {pliegue.plegados.size > 0 && (
@@ -497,16 +528,19 @@ export default function OrgGrafico({
             <Layers size={13} /> Qué se dibuja
           </button>
         )}
-      </div>
+      </div>}
       {/* Si la página dio ranura, el buscador se dibuja allá arriba; si no, se queda flotando
           en su rincón de siempre. */}
-      {ranuraBuscador ? createPortal(buscador, ranuraBuscador) : buscador}
+      {!telefono && (ranuraBuscador ? createPortal(buscador, ranuraBuscador) : buscador)}
 
       <div className="og-zoom">
         <button onClick={() => setZoom(z => Math.max(ZOOM_MIN, z - 0.1))} title="Alejar"><Minus size={13} /></button>
         <span className="og-zoom-val">{Math.round(zoom * 100)}%</span>
         <button onClick={() => setZoom(z => Math.min(ZOOM_MAX, z + 0.1))} title="Acercar"><Plus size={13} /></button>
         <button onClick={() => ajustar()} title="Ver todo el organigrama"><Home size={13} /></button>
+        {telefono && enfoque && (
+          <button onClick={() => centrar(stageRef.current?.querySelector(`[data-cargo="${enfoque}"]`), { zoomMin: 0.7 })} title="Centrar en mí"><Users size={13} /></button>
+        )}
       </div>
     </div>
   )

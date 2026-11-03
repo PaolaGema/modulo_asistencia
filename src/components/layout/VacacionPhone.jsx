@@ -6,7 +6,7 @@ import { useOnboardingData } from '../../context/OnboardingDataContext'
 import BarraVolver from './BarraVolver'
 import {
   FERIADOS, esHabil, diasHabiles, habilSiguiente, saldoVacaciones, sumarDias, diaISO, aFecha,
-  MESES, DIAS_LARGOS, mesDe, mesVecino, diasDelMes, nombreMes,
+  MESES, DIAS_LARGOS, mesDe, mesVecino, diasDelMes, nombreMes, semanasDe,
 } from '../../data/asistenciaData'
 
 /* ── SOLICITAR VACACIÓN, DESDE EL INICIO ──
@@ -31,7 +31,8 @@ const C = {
   cinta: 'var(--in-vac-cinta)', cintaTxt: 'var(--in-vac-cinta-txt)', etiqueta: 'var(--in-vac-etiqueta)', separador: 'var(--in-vac-separador)',
 }
 const BOTON = { height: 32, border: 'none', borderRadius: 99, background: C.acento, color: '#0C2D40', fontFamily: 'inherit', fontSize: 9.6, fontWeight: 600, cursor: 'pointer' }
-const INICIALES = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+// «lu ma mi» y no iniciales sueltas: con una letra, martes y miércoles son los dos «M».
+const INICIALES = ['lu', 'ma', 'mi', 'ju', 'vi', 'sá', 'do']
 
 const diaCorto = s => `${DIAS_LARGOS[diaISO(s)].slice(0, 3)} ${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
 const diaSemana = s => `${DIAS_LARGOS[diaISO(s)].slice(0, 3)} ${aFecha(s).getDate()}`
@@ -207,8 +208,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
     )
   }
 
-  const offset = diaISO(`${ym}-01`) - 1
-  const celdas = [...Array(offset).fill(null), ...diasDelMes(ym)]
+  const celdas = semanasDe(ym)
   const primerMes = ym <= mesDe(minimo)
   const ayuda = !desde ? 'Toque el día en que sale, o arrastre sobre los días.'
     : choca ? 'Ya pidió vacaciones en esas fechas.'
@@ -235,10 +235,10 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
           <div onPointerDown={empezar} onPointerMove={mover} onPointerUp={soltar} onPointerCancel={soltar}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center', touchAction: 'none' }}>
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
-            {celdas.map((d, i) => d
-              ? <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} regreso={regreso} habil={esHabil(d, h)} pasado={d < minimo} ocupado={ocupados.has(d)}
-                  fuera={eligiendo && d > limite} onTocar={clic} />
-              : <span key={`v${i}`} />)}
+            {celdas.map((d, i) => (
+              <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} regreso={regreso} habil={esHabil(d, h)} pasado={d < minimo} ocupado={ocupados.has(d)}
+                fuera={eligiendo && d > limite} vecino={!d.startsWith(ym)} onTocar={clic} />
+            ))}
           </div>
           {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: C.mute, textAlign: 'center' }}>{ayuda}</p>}
         </div>
@@ -249,7 +249,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, borderTop: `1px solid ${C.separador}`, paddingTop: 9 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span style={{ fontSize: 7.4, color: C.mute }}>{desde ? 'Le quedarán libres' : 'Puede pedir'}</span>
+            <span style={{ fontSize: 7.4, color: C.mute }}>{desde ? 'Le quedarán disponibles' : 'Puede pedir'}</span>
             <b style={{ fontSize: 10.4, fontWeight: 700, letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>{dias(desde ? saldo.disponible - n : saldo.disponible)}</b>
           </span>
           {/* Paso 1 de 2: elegir las fechas. Solicitar es después de ver la papeleta. */}
@@ -307,7 +307,7 @@ function Viaje({ desde, hasta, n, enTarjeta }) {
 
 /* La barra del saldo con su leyenda. Los tramos suman el saldo de la gestión. */
 function BarraSaldo({ libres, esta, reservados, total }) {
-  const tramos = [[libres, C.acento, `${libres} libres`], [esta, 'var(--in-vac-punta)', `${esta} esta solicitud`], [reservados, '#F5B544', `${reservados} por aprobar`]].filter(([v]) => v > 0)
+  const tramos = [[libres, C.acento, `${libres} disponibles`], [esta, 'var(--in-vac-punta)', `${esta} esta solicitud`], [reservados, '#F5B544', `${reservados} por aprobar`]].filter(([v]) => v > 0)
   return (
     <>
       <span style={{ display: 'flex', gap: 2, height: 6, borderRadius: 99, overflow: 'hidden', background: 'var(--in-linea)' }}>
@@ -326,7 +326,7 @@ function BarraSaldo({ libres, esta, reservados, total }) {
 /* Un día del calendario: un círculo. El rango, una cinta detrás, partida a la mitad en sus puntas y
    redondeada donde cambia la semana. Debajo de la salida dice «Sale»; el día que vuelve lleva un aro
    menta y «Vuelve». Lo que no se puede elegir (pasado, ya pedido, fuera del saldo), tenue. */
-function Dia({ d, col, desde, fin, regreso, habil, pasado, ocupado, fuera, onTocar }) {
+function Dia({ d, col, desde, fin, regreso, habil, pasado, ocupado, fuera, vecino, onTocar }) {
   const varios = desde && fin !== desde
   const punta = d === desde || d === fin
   const dentro = desde && d > desde && d < fin
@@ -346,7 +346,7 @@ function Dia({ d, col, desde, fin, regreso, habil, pasado, ocupado, fuera, onToc
         style={{
           position: 'relative', width: 23, height: 23, borderRadius: '50%', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 9,
           fontVariantNumeric: 'tabular-nums', fontWeight: punta || vuelve ? 700 : dentro ? 600 : 400, color,
-          opacity: off && !punta && !vuelve ? 0.28 : !habil && !punta && !vuelve ? 0.5 : 1, cursor: off ? 'default' : 'pointer',
+          opacity: off && !punta && !vuelve ? 0.28 : vecino && !punta && !dentro && !vuelve ? 0.4 : !habil && !punta && !vuelve ? 0.5 : 1, cursor: off ? 'default' : 'pointer',
           background: punta ? C.punta : 'transparent', boxShadow: punta ? C.puntaSombra : vuelve ? `inset 0 0 0 1.5px ${C.acento}` : 'none',
           transition: 'background .15s, color .15s, box-shadow .2s', textDecoration: ocupado ? 'line-through' : 'none',
         }}>

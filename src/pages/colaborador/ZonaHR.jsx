@@ -43,7 +43,7 @@ function modulos(rol) {
     { icon: CircleDollarSign, label: 'Mis remuneraciones' },
     { icon: Bot, label: 'Agente de IA' },
     { icon: Folder, label: 'Archivos', destino: rol === 'admin' && '/archivos' },
-    { icon: Calendar, label: 'Calendario', destino: admin && '/inicio/calendario' },
+    { icon: Calendar, label: 'Calendario', destino: '/mi-espacio/calendario' },
     { icon: Gift, label: 'Mis beneficios' },
     { icon: Globe, label: 'Página oficial' },
   ]

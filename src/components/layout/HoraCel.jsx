@@ -14,7 +14,7 @@ const MINUTOS = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'))
 const partir = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(v || ''); return m ? [+m[1], +m[2]] : [9, 0] }
 const ahoraHHMM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` }
 
-function Columna({ valores, elegido, onElegir, etiqueta }) {
+export function Columna({ valores, elegido, onElegir, etiqueta, ancho = 62, sinRotulo }) {
   const ref = useRef(null)
   const quieto = useRef(null)
   // Al abrir y al usar un atajo, la columna se pone en el número elegido.
@@ -32,8 +32,8 @@ function Columna({ valores, elegido, onElegir, etiqueta }) {
   useEffect(() => () => clearTimeout(quieto.current), [])
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 3 }}>
-      <small style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>{etiqueta}</small>
-      <div style={{ position: 'relative', width: 62, height: ALTO * 5 }}>
+      {!sinRotulo && <small style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>{etiqueta}</small>}
+      <div style={{ position: 'relative', width: ancho, height: ALTO * 5 }}>
         <i aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: ALTO * 2, height: ALTO, borderRadius: 99, background: 'var(--in-vac-punta)' }} />
         <div ref={ref} onScroll={alDeslizar} role="listbox" aria-label={etiqueta}
           style={{
@@ -42,7 +42,7 @@ function Columna({ valores, elegido, onElegir, etiqueta }) {
           }}>
           <div style={{ height: ALTO * 2 }} />
           {valores.map((v, i) => (
-            <button key={v} type="button" role="option" aria-selected={i === elegido}
+            <button key={i} type="button" role="option" aria-selected={i === elegido}
               onClick={() => { ref.current.scrollTo({ top: i * ALTO, behavior: 'smooth' }); onElegir(i) }}
               style={{
                 display: 'grid', placeItems: 'center', width: '100%', height: ALTO, scrollSnapAlign: 'center', border: 'none', background: 'none', padding: 0,

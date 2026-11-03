@@ -1,26 +1,77 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CalendarDays, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, CheckCircle2, Flag, Palmtree, Clock, House } from 'lucide-react'
 import {
   HOY, MESES, DIAS_SEMANA, buildCalendarCells, buildEventosDelMes, CALENDAR_LEGEND, avatarUrl,
 } from '../../utils/calendarEvents'
+import { colaboradores } from '../inicio/homeData'
+import { useUser } from '../../context/UserContext'
+import { useAsistencia } from '../../context/AsistenciaContext'
+import { FERIADOS, SUBTIPOS_PERMISO } from '../../data/asistenciaData'
 
-export default function Calendario() {
+/* DOS CALENDARIOS, UNA PANTALLA. En Inicio es el de TODA la empresa —cumpleaños, aniversarios,
+   evaluaciones y publicaciones de la plantilla—, la agenda de quien administra. Con `mio` es el de
+   la persona, en Mi espacio: sus vacaciones y permisos (aprobados o por aprobar), los feriados, los
+   cumpleaños y aniversarios de su área y las evaluaciones que le tocan. Quien es de RR.HH. tiene
+   los dos, cada uno en su puerta, sin botones según el rol. */
+const LEYENDA_MIA = [
+  { label: 'Mis vacaciones', color: '#00B876' },
+  { label: 'Mis permisos', color: '#7C5AD6' },
+  { label: 'Feriado', color: '#64748b' },
+  { label: 'Cumpleaños de su área', color: '#ec4899' },
+  { label: 'Aniversario', color: 'var(--green)' },
+  { label: 'Evaluación', color: 'var(--yellow)' },
+]
+const ESTADO_MIO = { aprobada: 'Aprobada', pendiente: 'Por aprobar' }
+const aISO = (y, m, d) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+
+function eventosMios(year, month, { nombre, area, yoId, solicitudes }) {
+  const base = buildEventosDelMes(year, month)
+  const mios = {}
+  const sumar = (d, e) => { (mios[d] = mios[d] || []).push(e) }
+  const ultimo = new Date(year, month + 1, 0).getDate()
+  for (let d = 1; d <= ultimo; d++) {
+    const dia = aISO(year, month, d)
+    if (FERIADOS[dia]) sumar(d, { kind: 'feriado', titulo: FERIADOS[dia], subtitulo: 'No se trabaja', tipo: 'Feriado', color: '#64748b', Icon: Flag })
+    solicitudes
+      .filter(x => String(x.personaId) === String(yoId) && ESTADO_MIO[x.estado] && ['vacaciones', 'permiso', 'remoto'].includes(x.tipo) && dia >= x.desde && dia <= (x.hasta || x.desde))
+      .forEach(x => {
+        const vac = x.tipo === 'vacaciones'
+        const titulo = vac ? 'De vacaciones' : x.tipo === 'remoto' ? 'Trabajo remoto' : SUBTIPOS_PERMISO.find(p => p.key === x.subtipo)?.label || 'Permiso'
+        sumar(d, { kind: 'mio', titulo, subtitulo: x.horaDesde ? `${x.horaDesde} – ${x.horaHasta}` : (x.motivo && x.motivo !== 'Vacaciones' ? x.motivo : 'Todo el día'), tipo: ESTADO_MIO[x.estado], color: vac ? '#00B876' : '#7C5AD6', Icon: vac ? Palmtree : x.tipo === 'remoto' ? House : Clock })
+      })
+    for (const e of base[d] || []) {
+      if (e.kind === 'persona' && !(e.titulo === nombre || e.subtitulo.startsWith(`${area} ·`))) continue
+      if (e.kind === 'publicacion' || (e.kind === 'reconocimiento' && e.titulo !== nombre)) continue
+      sumar(d, e)
+    }
+  }
+  return mios
+}
+
+export default function Calendario({ mio = false }) {
+  const { currentUser } = useUser()
+  const at = useAsistencia()
+  const area = colaboradores.find(c => c.nombre === currentUser.name)?.area || currentUser.area || at.yo?.unidad
+  // El de la empresa es una agenda de demo fija; el propio va con el día de hoy de Asistencia.
+  const hoy = mio ? new Date(`${at.hoy}T00:00`) : HOY
   const [searchParams] = useSearchParams()
   const mesOffset = Number(searchParams.get('mes')) || 0
   const diaInicial = Number(searchParams.get('dia')) || null
 
-  const [viewDate, setViewDate] = useState(() => new Date(HOY.getFullYear(), HOY.getMonth() + mesOffset, 1))
+  const [viewDate, setViewDate] = useState(() => new Date(hoy.getFullYear(), hoy.getMonth() + mesOffset, 1))
   const [selectedDay, setSelectedDay] = useState(diaInicial)
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
-  const isCurrentMonth = year === HOY.getFullYear() && month === HOY.getMonth()
-  const activeDay = selectedDay ?? (isCurrentMonth ? HOY.getDate() : 1)
-  const isTodaySelected = isCurrentMonth && activeDay === HOY.getDate()
+  const isCurrentMonth = year === hoy.getFullYear() && month === hoy.getMonth()
+  const activeDay = selectedDay ?? (isCurrentMonth ? hoy.getDate() : 1)
+  const isTodaySelected = isCurrentMonth && activeDay === hoy.getDate()
 
   const calendarCells = buildCalendarCells(year, month)
-  const eventosPorDia = buildEventosDelMes(year, month)
+  const eventosPorDia = mio
+    ? eventosMios(year, month, { nombre: currentUser.name, area, yoId: at.yo?.id, solicitudes: at.solicitudes })
+    : buildEventosDelMes(year, month)
   const eventosDelDia = eventosPorDia[activeDay] || []
 
   function goMonth(delta) {
@@ -52,7 +103,7 @@ export default function Calendario() {
                 <div key={d} style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', padding: '0 0 10px' }}>{d}</div>
               ))}
               {calendarCells.map((cell, i) => {
-                const isToday = cell.inMonth && isCurrentMonth && cell.day === HOY.getDate()
+                const isToday = cell.inMonth && isCurrentMonth && cell.day === hoy.getDate()
                 const isSelected = cell.inMonth && cell.day === activeDay
                 const eventos = cell.inMonth ? eventosPorDia[cell.day] : null
                 return (
@@ -82,7 +133,7 @@ export default function Calendario() {
               })}
             </div>
             <div style={{ display: 'flex', gap: 16, marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border-soft)', flexWrap: 'wrap' }}>
-              {CALENDAR_LEGEND.map(l => (
+              {(mio ? LEYENDA_MIA : CALENDAR_LEGEND).map(l => (
                 <span key={l.label} style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: l.color, display: 'inline-block' }} /> {l.label}
                 </span>

@@ -196,7 +196,7 @@ export default function MiDia() {
 
       {/* PRÓXIMOS EVENTOS Y CUMPLEAÑOS. Fuera de tarjeta, como en la app: son caras, y una
           caja alrededor las convierte en un widget más. */}
-      <EtiquetaSeccion alVerMas={() => navigate('/inicio/calendario')}>
+      <EtiquetaSeccion alVerMas={() => navigate('/mi-espacio/calendario')}>
         Próximos eventos y cumpleaños
       </EtiquetaSeccion>
       <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 4 }}>

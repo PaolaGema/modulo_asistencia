@@ -5,6 +5,8 @@ import {
   GraduationCap, Image as ImageIcon, Trash2, Upload, Search, IdCard, Car, Home, Shirt, Laptop,
 } from 'lucide-react'
 import BarraVolver from './BarraVolver'
+import FechaRueda from './FechaRueda'
+import { Puente } from './MisDocumentosPhone'
 import ConfiguracionPhone from './ConfiguracionPhone'
 import HojaDocumento from '../personas/HojaDocumento'
 import { useMiFicha } from '../../hooks/useMiFicha'
@@ -463,7 +465,7 @@ function PorRenovar({ docs, onSubir }) {
   )
 }
 
-function Documentos({ form, onSubir, onVer }) {
+function Documentos({ form, onSubir, onVer, onMisDocumentos }) {
   const [filtro, setFiltro] = useState('todos')
   const docs = documentosDe(form)
   const renovar = docs.filter(d => d.estado === 'por-vencer' || d.estado === 'vencido')
@@ -515,6 +517,7 @@ function Documentos({ form, onSubir, onVer }) {
       <p style={{ margin: '12px 2px 0', fontSize: 7.2, color: 'var(--in-mute)', lineHeight: 1.5 }}>
         Los documentos de su Información Personal puede cambiarlos en Configuración › Editar perfil de usuario. Los demás los sube RR.HH.
       </p>
+      {onMisDocumentos && <Puente titulo="Lo que RR.HH. le entrega" sub="Papeletas, certificados y contratos: en Zona HR › Mis documentos" onClick={onMisDocumentos} />}
     </>
   )
 }
@@ -699,7 +702,7 @@ function Entrada({ campo, valor, onCambiar, form, set }) {
   if (campo.tipo === 'texto') {
     return <textarea value={valor} rows={2} onChange={e => onCambiar(e.target.value)} placeholder={campo.ph} style={{ ...CAMPO, height: 'auto', padding: '5px 7px', resize: 'none' }} />
   }
-  if (campo.html === 'date') return <input type="date" value={valor} onChange={e => onCambiar(e.target.value)} style={CAMPO} />
+  if (campo.html === 'date') return <FechaRueda valor={valor} onCambio={onCambiar} estilo={CAMPO} titulo={campo.label} />
   const cifras = campo.max != null || campo.numero
   return (
     <input
@@ -1020,9 +1023,10 @@ function EditarPerfil({ form, onGuardar, onVolver, currentUser }) {
   )
 }
 
-export default function PerfilPhone({ currentUser, onOrganigrama }) {
+export default function PerfilPhone({ currentUser, onOrganigrama, onMisDocumentos, vistaInicial }) {
   const { ficha, guardar } = useMiFicha(currentUser.name)
-  const [vista, setVista] = useState('portada')
+  // Desde Mis documentos se llega directo a Documentación.
+  const [vista, setVista] = useState(vistaInicial || 'portada')
   /* El documento abierto es una pantalla propia: reemplaza a Documentación entera, con su «‹ Documentación». */
   const [doc, setDoc] = useState(null)
   const arriba = () => document.querySelector('.phone-scroll')?.scrollTo(0, 0)
@@ -1050,7 +1054,7 @@ export default function PerfilPhone({ currentUser, onOrganigrama }) {
         <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Mi ficha</small>
       </div>
       {vista === 'documentos'
-        ? <Documentos form={ficha.form} onSubir={() => abrir('misdatos')} onVer={d => { setDoc(d); arriba() }} />
+        ? <Documentos form={ficha.form} onSubir={() => abrir('misdatos')} onVer={d => { setDoc(d); arriba() }} onMisDocumentos={onMisDocumentos} />
         : <Datos key={vista} pestana={vista} form={ficha.form} />}
     </div>
   )

@@ -15,6 +15,7 @@ import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { VerPapeleta } from './VacacionPhone'
 import { armarPapeleta } from '../../utils/papeletaVacacion'
 import SolicitarVacacionPhone from './VacacionPhone'
+import SolicitarPermisoPhone from './PermisoPhone'
 import { PedirExtraCel, CorregirMarcaCel } from '../asistencia/Marcador'
 import { habilSiguiente, diaISO, DIAS_LARGOS, MESES, saldoVacaciones, aFecha, fechaCorta as fechaCortaAt } from '../../data/asistenciaData'
 import {
@@ -145,8 +146,12 @@ function Cabecera({ titulo, sub, children }) {
 const arriba = () => document.querySelector('.phone-scroll')?.scrollTo(0, 0)
 
 /* `inicio`: pantallas que se abren ya apiladas encima de la portada (el buscador de Zona HR lleva directo a una carpeta o a un documento). */
-export default function MisDocumentosPhone({ currentUser, onVolver, inicio }) {
+export default function MisDocumentosPhone({ currentUser, onVolver, inicio, onPerfilDocs }) {
   const md = useMisDocumentos(currentUser.name, 'app')
+  const pedidos = useMisPedidos(currentUser.name)
+  // Las papeletas: vacaciones y permisos que RR.HH. ya aprobó.
+  const papeletas = pedidos.todos.filter(p => p.origen === 'asistencia' && ['vacaciones', 'permiso'].includes(p.tipo) && p.estado === 'ok')
+  const nuevas = pedidos.nuevas.filter(p => papeletas.some(x => x.id === p.id)).length
   const { ficha } = useMiFicha(currentUser.name)
   const fotoUrl = useFotoPerfil(currentUser.name, ficha?.form?.['1.9'], 400)
   const perfil = { url: fotoUrl, archivo: ficha?.form?.['1.9']?.clave ? ficha.form['1.9'] : null }
@@ -186,7 +191,7 @@ export default function MisDocumentosPhone({ currentUser, onVolver, inicio }) {
     if (x.p === 'recibidos') return md.carpetasRrhh.find(([k]) => k === x.cat)?.[1] || 'Recibidos'
     if (x.p === 'elegir') return DOCUMENTO_PEDIDO[x.tipo].nombre
     if (x.p === 'leer') return md.recibidos.find(y => y.emitido.id === x.id)?.nombre || 'Documento'
-    return { contratos: 'Contratos', contrato: 'Contrato', pendientes: 'Por entregar' }[x.p] || 'Volver'
+    return { contratos: 'Contratos', contrato: 'Contrato', pendientes: 'Por entregar', papeletas: 'Papeletas', detalle: 'Papeleta' }[x.p] || 'Volver'
   }
   const atras = <BarraVolver texto={nombreDe(debajo)} onVolver={pila.length > 1 ? volver : onVolver} />
   const leer = id => ir({ p: 'leer', id })
@@ -213,6 +218,8 @@ export default function MisDocumentosPhone({ currentUser, onVolver, inicio }) {
       break
     }
     case 'pendientes': pantalla = <PendientesPhone md={md} atras={atras} onSubido={setAviso} />; break
+    case 'papeletas': pantalla = <PapeletasPhone papeletas={papeletas} atras={atras} ir={ir} />; break
+    case 'detalle': pantalla = <DetallePedido nombre={currentUser.name} id={actual.id} md={md} atras={atras} onLeer={leer} onAviso={setAviso} onCancelada={volver} />; break
     case 'subir': pantalla = <SubirPhone md={md} tipoId={actual.id} atras={atras} onSubido={subido} />; break
     case 'elegir': pantalla = <ElegirDocumento md={md} tipo={actual.tipo} atras={atras} onElegir={clave => ir({ p: 'revisar', tipo: actual.tipo, clave })} />; break
     // Al enviar vuelve a donde se pidió: si pasó por «elegir», salta también esa pantalla.
@@ -220,7 +227,7 @@ export default function MisDocumentosPhone({ currentUser, onVolver, inicio }) {
       pantalla = <RevisarDocumento md={md} tipo={actual.tipo} clave={actual.clave} atras={atras}
         onEnviada={() => { setAviso(avisoSolicitud); setPila(s => s.slice(0, s[s.length - 2]?.p === 'elegir' ? -2 : -1)); arriba() }} />
       break
-    default: pantalla = <InicioPhone md={md} atras={atras} ir={ir} />
+    default: pantalla = <InicioPhone md={md} papeletas={papeletas} nuevas={nuevas} atras={atras} ir={ir} onPerfilDocs={onPerfilDocs} />
   }
 
   return (
@@ -275,7 +282,7 @@ function Carpeta() {
 
 /* El mosaico de una carpeta (opción MD2, como la cuadrícula de Zona HR): lo que hay que atender va como la
    etiqueta de estado de siempre arriba a la derecha, no como un puntito. */
-const TONO_PISTA = { rojo: 'rojo', ambar: 'ambar', azul: 'gris' }
+const TONO_PISTA = { rojo: 'rojo', ambar: 'ambar', azul: 'gris', verde: 'verde' }
 function Mosaico({ titulo, sub, pista, onClick }) {
   return (
     <button onClick={onClick} style={{
@@ -290,25 +297,15 @@ function Mosaico({ titulo, sub, pista, onClick }) {
   )
 }
 
-function InicioPhone({ md, atras, ir }) {
+/* LA PORTADA (opción DC1, «carpetas en mosaico»): aquí solo se acumula lo que RR.HH. le entrega —las
+   papeletas de vacaciones y permisos aprobados, sus contratos, certificados, cartas y memorándums—.
+   Lo que entrega usted (lo de su ficha: carnet, títulos, licencias) vive en Perfil › Documentación,
+   y la tarjeta menta del final lleva allá. Así ningún archivo aparece en los dos lugares. */
+function InicioPhone({ md, papeletas, nuevas, atras, ir, onPerfilDocs }) {
   const [buscando, setBuscando] = useState(false)
   const [q, setQ] = useState('')
-  const total = md.propios.length + md.misContratos.length
-
-  /* Lo más urgente de adentro de cada carpeta: el punto del mosaico y una palabra en su línea.
-     Así se sabe a qué carpeta entrar sin abrirlas todas. */
-  const pista = tipoId => {
-    const docs = md.propios.filter(x => x.subtipo.tipoId === tipoId)
-    const deben = md.porHacer.filter(p => p.subtipo.tipoId === tipoId)
-    const n = e => docs.filter(x => x.estado === e).length
-    const cuenta = e => deben.filter(p => p.estado === e).length
-    if (cuenta('rechazado')) return [`${cuenta('rechazado')} rechazado${cuenta('rechazado') > 1 ? 's' : ''}`, 'rojo']
-    if (n('vencido')) return [`${n('vencido')} vencido${n('vencido') > 1 ? 's' : ''}`, 'rojo']
-    if (cuenta('faltante')) return [`falta${cuenta('faltante') > 1 ? 'n' : ''} ${cuenta('faltante')}`, 'ambar']
-    if (n('por_vencer')) return [`${n('por_vencer')} por vencer`, 'ambar']
-    if (n('en_revision')) return [`${n('en_revision')} en revisión`, 'azul']
-    return null
-  }
+  const total = papeletas.length + md.misContratos.length + md.recibidos.length
+  const vigentes = md.misContratos.filter(c => c.estado === 'vigente').length
 
   return (
     <div>
@@ -317,7 +314,7 @@ function InicioPhone({ md, atras, ir }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ flex: 1, display: 'grid', minWidth: 0 }}>
           <span style={TITULO}>Mis documentos</span>
-          <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>{archivos(total)}</small>
+          <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Lo que RR.HH. le entrega · {archivos(total).toLowerCase()}</small>
         </span>
         <button onClick={() => { setBuscando(b => !b); setQ('') }} aria-label={buscando ? 'Cerrar la búsqueda' : 'Buscar un documento'} style={{
           width: 29, height: 29, borderRadius: '50%', border: 'none', background: buscando ? NAVY : 'var(--in-carta)', color: buscando ? '#fff' : NAVY, boxShadow: 'var(--in-sombra)',
@@ -330,34 +327,21 @@ function InicioPhone({ md, atras, ir }) {
       {buscando && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 9, padding: '0 10px', height: 30, borderRadius: 99, background: 'var(--in-carta)', boxShadow: '0 0 0 1.4px var(--in-texto), var(--in-sombra)' }}>
           <Search size={12} style={{ color: 'var(--in-mute)', flexShrink: 0 }} />
-          <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Carnet, contrato, certificado…"
+          <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Papeleta, contrato, certificado…"
             style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'none', fontFamily: 'inherit', fontSize: 9, color: NAVY }} />
         </div>
       )}
 
-      {buscando && q.trim() ? <Resultados md={md} q={q} ir={ir} /> : <>
-        <Franja md={md} onClick={() => ir({ p: 'pendientes' })} />
-
-        <div style={{ ...ROTULO, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <span>Mis carpetas</span>
-          <span style={{ fontSize: 7.4, fontWeight: 500, textTransform: 'none', letterSpacing: 0, color: 'var(--in-mute)' }}>{archivos(total)}</span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 7 }}>
-          {md.tiposActivos.map(t => {
-            const n = md.propios.filter(x => x.subtipo.tipoId === t.id).length
-            return <Mosaico key={t.id} titulo={t.nombre} sub={archivos(n)} pista={pista(t.id)} onClick={() => ir({ p: 'carpeta', id: t.id })} />
-          })}
+      {buscando && q.trim() ? <Resultados md={md} papeletas={papeletas} q={q} ir={ir} /> : <>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 7, marginTop: 11 }}>
+          <Mosaico titulo="Papeletas" sub={`${archivos(papeletas.length)} · vacaciones y permisos`} onClick={() => ir({ p: 'papeletas' })}
+            pista={nuevas ? [`${nuevas} nueva${nuevas > 1 ? 's' : ''}`, 'verde'] : null} />
           <Mosaico titulo="Contratos" onClick={() => ir({ p: 'contratos' })}
-            sub={md.misContratos.some(c => c.estado === 'vigente') ? `${md.misContratos.filter(c => c.estado === 'vigente').length} vigente${md.misContratos.filter(c => c.estado === 'vigente').length > 1 ? 's' : ''}` : archivos(md.misContratos.length)} />
-        </div>
-
-        <div style={ROTULO}>De RR.HH.</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 7 }}>
-          {md.carpetasRrhh.map(([cat, nombre]) => {
-            const lista = md.recibidos.filter(x => md.carpetaDe(x.emitido) === cat)
-            return <Mosaico key={cat} titulo={nombre} onClick={() => ir({ p: 'recibidos', cat })}
-              sub={archivos(lista.length)} />
-          })}
+            sub={vigentes ? `${archivos(md.misContratos.length)} · ${vigentes} vigente${vigentes > 1 ? 's' : ''}` : archivos(md.misContratos.length)} />
+          {md.carpetasRrhh.map(([cat, nombre]) => (
+            <Mosaico key={cat} titulo={nombre} onClick={() => ir({ p: 'recibidos', cat })}
+              sub={archivos(md.recibidos.filter(x => md.carpetaDe(x.emitido) === cat).length)} />
+          ))}
         </div>
 
         <button onClick={() => ir({ p: 'elegir', tipo: 'certificacion' })} style={{
@@ -369,62 +353,77 @@ function InicioPhone({ md, atras, ir }) {
           <ChevronRight size={11} style={{ color: 'var(--in-suave)' }} />
         </button>
 
+        {onPerfilDocs && <Puente titulo="Sus documentos personales" sub="Carnet, títulos, licencias: están en Perfil › Documentación" onClick={onPerfilDocs} />}
       </>}
     </div>
   )
 }
 
-/* La franja oscura de arriba: el avance en un anillo y, si debe algo, cuánto y de qué tipo, con
-   «Resolver». Si sólo espera a RR.HH. o está al día, lo dice y no pide nada. */
-function Franja({ md, onClick }) {
-  const n = md.porHacer.length
-  const { pct, cumplidos, total } = md.avance
-  const cuenta = e => md.porHacer.filter(p => p.estado === e).length
-  const partes = [
-    cuenta('rechazado') && `${cuenta('rechazado')} rechazado${cuenta('rechazado') > 1 ? 's' : ''}`,
-    cuenta('vencido') && `${cuenta('vencido')} vencido${cuenta('vencido') > 1 ? 's' : ''}`,
-    cuenta('faltante') && `${cuenta('faltante')} falta${cuenta('faltante') > 1 ? 'n' : ''}`,
-    cuenta('por_vencer') && `${cuenta('por_vencer')} por vencer`,
-  ].filter(Boolean)
-  const [titulo, sub] = n
-    ? [`${n} documento${n === 1 ? '' : 's'} por entregar`, partes.join(' · ')]
-    : md.enRevision.length
-      ? [`${md.enRevision.length} en revisión`, 'RR.HH. los está mirando. No tiene que hacer nada.']
-      : ['Está al día', 'No le falta entregar nada.']
-  const p = pct ?? 100
+/* LA TARJETA MENTA que une Mis documentos con Perfil › Documentación. */
+export function Puente({ titulo, sub, onClick }) {
   return (
-    /* La tarjeta destacada de los módulos (la franja navy es solo del Inicio), con los círculos de Perfil. */
-    <button onClick={onClick} style={{
-      position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 10, width: '100%', marginTop: 11, padding: '12px 12px', borderRadius: 18,
-      border: 'none', background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', color: NAVY, fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer',
+    <button type="button" onClick={onClick} style={{
+      display: 'flex', alignItems: 'center', gap: 8, width: '100%', marginTop: 12, padding: '9px 11px', borderRadius: 14,
+      border: 'none', background: 'var(--in-ok-bg)', boxShadow: 'inset 0 0 0 1.2px rgba(0,224,145,.45)', fontFamily: 'inherit', color: 'var(--in-texto)', textAlign: 'left', cursor: 'pointer',
     }}>
-      <span aria-hidden="true" style={{ position: 'absolute', width: 110, height: 110, top: -55, right: -35, borderRadius: '50%', background: 'rgba(0,224,145,.10)' }} />
-      <span aria-label={total ? `${cumplidos} de ${total} requisitos al día` : 'Al día'} style={{
-        position: 'relative', width: 38, height: 38, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `conic-gradient(#00E091 0 ${p}%, var(--in-plomo) ${p}% 100%)`,
-      }}>
-        <span style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--in-carta)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700 }}>
-          {total ? `${cumplidos}/${total}` : <Check size={12} style={{ color: '#00B876' }} />}
-        </span>
+      <span style={{ flex: 1, display: 'grid', minWidth: 0 }}>
+        <b style={{ fontSize: 8.6, fontWeight: 600 }}>{titulo}</b>
+        <span style={{ fontSize: 7.2, color: 'var(--in-mute)' }}>{sub}</span>
       </span>
-      <span style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 9.8, fontWeight: 600 }}>{titulo}</span>
-        <span style={{ display: 'block', fontSize: 7.2, color: 'var(--in-mute)', marginTop: 1 }}>{sub}</span>
-      </span>
-      {n > 0 && <span style={{ ...BOTON, position: 'relative', height: 24 }}>Resolver</span>}
+      <ChevronRight size={11} style={{ color: '#0A7F55', flexShrink: 0 }} />
     </button>
+  )
+}
+
+/* Agrupa por año, el más nuevo primero. */
+const porAnio = (lista, fecha) => {
+  const grupos = new Map()
+  for (const x of lista) {
+    const a = String(fecha(x) || '').slice(0, 4) || '—'
+    if (!grupos.has(a)) grupos.set(a, [])
+    grupos.get(a).push(x)
+  }
+  return [...grupos.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1))
+}
+
+/* PAPELETAS: las vacaciones y permisos que RR.HH. aprobó, por año. Cada una abre su detalle, con la
+   papeleta para ver. */
+function PapeletasPhone({ papeletas, atras, ir }) {
+  return (
+    <div>
+      {atras}
+      <Cabecera titulo="Papeletas" sub="Sus vacaciones y permisos aprobados. Se suman aquí cuando RR.HH. los aprueba." />
+      {!papeletas.length ? (
+        <Vacio Icono={Palmtree} titulo="Todavía no hay papeletas" texto="Cuando RR.HH. apruebe una vacación o un permiso, su papeleta llegará aquí." />
+      ) : porAnio(papeletas, p => p.original?.desde || p.fecha).map(([anio, lista]) => (
+        <div key={anio}>
+          <div style={ROTULO}>{anio}</div>
+          <div style={TARJETA}>
+            {lista.map((p, i) => {
+              const [Icono] = tipoDe(p)
+              return (
+                <Fila key={p.id} primera={!i} Icono={Icono} titulo={p.titulo} flecha onClick={() => ir({ p: 'detalle', id: p.id })}
+                  sub={p.respondida ? `Aprobada el ${fechaCorta(p.respondida)}` : 'Aprobada'}>
+                  <Chip tono="verde">Aprobada</Chip>
+                </Fila>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 
 const DICHOS = { carnet: 'identidad', ci: 'identidad', cedula: 'identidad', carne: 'identidad', diploma: 'titulo', foto: 'fotografia', licencia: 'licencia' }
 
 /* Lo que se busca, en todas las carpetas a la vez: sus documentos, sus contratos y lo recibido. */
-function Resultados({ md, q, ir }) {
+function Resultados({ md, papeletas, q, ir }) {
   /* Como lo dice la gente: «carnet» o «CI» es el documento de identidad; «título», el diploma. */
   const t = sinTildes(q.trim())
   const dicho = t.length > 1 && Object.entries(DICHOS).find(([k]) => k.startsWith(t) || t.startsWith(k))?.[1]
   const hay = (...xs) => xs.some(x => sinTildes(x).includes(t) || (dicho && sinTildes(x).includes(dicho)))
-  const docs = md.propios.filter(x => hay(x.nombre, x.subtipo.nombre, x.subtipo.persona, x.version?.archivo?.nombre))
+  const docs = papeletas.filter(p => hay(p.titulo, 'papeleta'))
   const contratos = md.misContratos.filter(c => hay(c.nombre, c.contrato.numero, 'contrato'))
   const recibidos = md.recibidos.filter(r => hay(r.nombre, r.emitido.numero))
   if (!docs.length && !contratos.length && !recibidos.length) {
@@ -435,8 +434,8 @@ function Resultados({ md, q, ir }) {
       <div style={ROTULO}>{docs.length + contratos.length + recibidos.length === 1 ? '1 resultado' : `${docs.length + contratos.length + recibidos.length} resultados`}</div>
       <div style={TARJETA}>
         {docs.map((x, i) => (
-          <Fila key={x.doc.id} primera={!i} Icono={esImagen(x.version) ? FileImage : FileText} tono={iconoCarpeta(x.subtipo.tipoId)[1]} titulo={x.nombre}
-            sub={md.tiposActivos.find(tp => tp.id === x.subtipo.tipoId)?.nombre} flecha onClick={() => ir({ p: 'archivo', id: x.doc.id })} />
+          <Fila key={x.id} primera={!i} Icono={tipoDe(x)[0]} titulo={x.titulo}
+            sub="Papeletas" flecha onClick={() => ir({ p: 'detalle', id: x.id })} />
         ))}
         {contratos.map((c, i) => (
           <Fila key={c.contrato.id} primera={!docs.length && !i} Icono={ScrollText} tono="verde" titulo={c.nombre} sub={`Contratos · ${c.contrato.numero}`} flecha onClick={() => ir({ p: 'contrato', id: c.contrato.id })} />
@@ -742,23 +741,47 @@ function PendientesPhone({ md, atras, onSubido }) {
 }
 
 /* ── CONTRATOS ── */
+/* CONTRATOS (DC1): el vigente arriba, destacado; debajo quedan guardados los anteriores y las adendas. */
 function ContratosPhone({ md, atras, ir }) {
+  const esAdenda = c => c.contrato.tipo === 'adenda'
+  const vigente = md.misContratos.find(c => !esAdenda(c) && ['vigente', 'por_vencer'].includes(c.estado))
+  const anteriores = md.misContratos.filter(c => !esAdenda(c) && c !== vigente)
+  const adendas = md.misContratos.filter(esAdenda)
+  const lista = (titulo, items) => items.length > 0 && (
+    <>
+      <div style={ROTULO}>{titulo}</div>
+      <div style={TARJETA}>
+        {items.map((c, i) => (
+          <Fila key={c.contrato.id} primera={!i} Icono={esAdenda(c) ? FileText : ScrollText} titulo={c.nombre}
+            sub={c.contrato.fin ? `${fechaCorta(c.contrato.inicio)} – ${fechaCorta(c.contrato.fin)}` : `Desde el ${fechaCorta(c.contrato.inicio)}`} flecha onClick={() => ir({ p: 'contrato', id: c.contrato.id })}>
+            <Chip tono={ESTADOS_CONTRATO[c.estado]?.tono}>{ESTADOS_CONTRATO[c.estado]?.label}</Chip>
+          </Fila>
+        ))}
+      </div>
+    </>
+  )
   return (
     <div>
       {atras}
-      <Cabecera titulo="Contratos" sub="Sus contratos firmados. Los carga RR.HH." />
+      <Cabecera titulo="Contratos" sub={`${archivos(md.misContratos.length)} · los carga RR.HH.`} />
       {!md.misContratos.length ? (
         <Vacio Icono={ScrollText} titulo="Todavía no hay contratos" texto="Cuando RR.HH. registre su contrato, lo verá aquí." />
-      ) : (
-        <div style={{ ...TARJETA, marginTop: 9 }}>
-          {md.misContratos.map((c, i) => (
-            <Fila key={c.contrato.id} primera={!i} Icono={ScrollText} tono="verde" titulo={c.nombre}
-              sub={`${c.contrato.numero} · desde el ${fechaCorta(c.contrato.inicio)}`} flecha onClick={() => ir({ p: 'contrato', id: c.contrato.id })}>
-              <Chip tono={ESTADOS_CONTRATO[c.estado]?.tono}>{ESTADOS_CONTRATO[c.estado]?.label}</Chip>
-            </Fila>
-          ))}
-        </div>
-      )}
+      ) : <>
+        {vigente && (
+          <button type="button" onClick={() => ir({ p: 'contrato', id: vigente.contrato.id })} style={{
+            position: 'relative', overflow: 'hidden', display: 'grid', gap: 1, width: '100%', marginTop: 11, padding: '11px 12px', borderRadius: 16, border: 'none',
+            background: 'var(--in-carta)', boxShadow: 'var(--in-sombra), inset 0 0 0 1.4px #00E091', fontFamily: 'inherit', color: NAVY, textAlign: 'left', cursor: 'pointer',
+          }}>
+            <span aria-hidden="true" style={{ position: 'absolute', width: 90, height: 90, right: -30, top: -40, borderRadius: '50%', background: 'rgba(0,224,145,.10)' }} />
+            <span style={{ position: 'relative', fontSize: 6.8, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: '#0A7F55' }}>{ESTADOS_CONTRATO[vigente.estado]?.label}</span>
+            <b style={{ position: 'relative', fontSize: 11, fontWeight: 600 }}>{vigente.nombre}</b>
+            <span style={{ position: 'relative', fontSize: 7.4, color: 'var(--in-mute)' }}>{vigente.contrato.numero} · desde el {fechaCorta(vigente.contrato.inicio)}{vigente.contrato.fin ? ` hasta el ${fechaCorta(vigente.contrato.fin)}` : ''}</span>
+            <span style={{ ...BOTON, position: 'relative', justifySelf: 'start', height: 22, marginTop: 7, fontSize: 7.6 }}><FileText size={10} /> Ver contrato</span>
+          </button>
+        )}
+        {lista(vigente ? 'Anteriores' : 'Contratos', anteriores)}
+        {lista('Adendas', adendas)}
+      </>}
     </div>
   )
 }
@@ -811,12 +834,17 @@ function RecibidosPhone({ md, cat, atras, onLeer, onPedir }) {
           {cat === 'certificado' && <button onClick={onPedir} style={{ ...BOTON, marginTop: 9, height: 24 }}><Plus size={9} /> Pedir un certificado</button>}
         </Vacio>
       ) : (
-        <div style={{ ...TARJETA, marginTop: 9 }}>
-          {lista.map((r, i) => (
-            <Fila key={r.emitido.id} primera={!i} Icono={Icono} tono="rosa" titulo={r.nombre}
-              sub={`${r.emitido.numero} · ${fechaCorta(r.emitido.fecha)}`} flecha onClick={() => onLeer(r.emitido.id)} />
-          ))}
-        </div>
+        porAnio(lista, r => r.emitido.fecha).map(([anio, deAnio]) => (
+          <div key={anio}>
+            <div style={ROTULO}>{anio}</div>
+            <div style={TARJETA}>
+              {deAnio.map((r, i) => (
+                <Fila key={r.emitido.id} primera={!i} Icono={Icono} tono="rosa" titulo={r.nombre}
+                  sub={`${r.emitido.numero} · ${fechaCorta(r.emitido.fecha)}`} flecha onClick={() => onLeer(r.emitido.id)} />
+              ))}
+            </div>
+          </div>
+        ))
       )}
     </div>
   )
@@ -1081,7 +1109,7 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
       ? <LeerPhone r={r} atras={atras} />
       : <div>{atras}</div>
   } else if (actual.p === 'nueva') {
-    pantalla = <NuevaSolicitud atras={atras} onVacacion={() => ir({ p: 'vacacion' })} onExtra={() => ir({ p: 'extra' })} onCorregir={() => ir({ p: 'corregir' })} onDocumento={tipo => ir({ p: 'elegir', tipo })} />
+    pantalla = <NuevaSolicitud atras={atras} onVacacion={() => ir({ p: 'vacacion' })} onPermiso={() => ir({ p: 'permiso' })} onExtra={() => ir({ p: 'extra' })} onCorregir={() => ir({ p: 'corregir' })} onDocumento={tipo => ir({ p: 'elegir', tipo })} />
   } else if (actual.p === 'elegir') {
     pantalla = <ElegirDocumento md={md} tipo={actual.tipo} atras={atras} onElegir={clave => ir({ p: 'revisar', tipo: actual.tipo, clave })} />
   } else if (actual.p === 'revisar') {
@@ -1090,6 +1118,8 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
     pantalla = <PedirExtraCel volverA="¿Qué necesita?" onVolver={volver} onEnviada={() => { setAviso('Pidió horas extra a RR.HH.'); setPila([{ p: 'lista' }]); arriba() }} />
   } else if (actual.p === 'corregir') {
     pantalla = <CorregirMarcaCel volverA="¿Qué necesita?" onVolver={volver} onEnviada={() => { setAviso('Solicitud enviada a RR.HH.'); setPila([{ p: 'lista' }]); arriba() }} />
+  } else if (actual.p === 'permiso') {
+    pantalla = <SolicitarPermisoPhone volverA="¿Qué necesita?" onVolver={volver} onListo={() => { setPila([{ p: 'lista' }]); arriba() }} listoTexto="Ver mis solicitudes" />
   } else if (actual.p === 'vacacion') {
     pantalla = <SolicitarVacacionPhone volverA="¿Qué necesita?" onVolver={volver} onListo={() => { setPila([{ p: 'lista' }]); arriba() }} listoTexto="Ver mis solicitudes" />
   } else if (actual.p === 'detalle') {
@@ -1109,13 +1139,13 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
    RR.HH., en filas y en dos grupos, cada tipo con el ícono y el color de la lista y una línea que lo
    explica. Un tipo nuevo es una fila más. Permiso, trabajo remoto y corrección de marcación todavía
    no tienen formulario en el teléfono: se ven, marcados «Pronto», para que se sepa que vendrán. */
-function NuevaSolicitud({ atras, onVacacion, onExtra, onCorregir, onDocumento }) {
+function NuevaSolicitud({ atras, onVacacion, onPermiso, onExtra, onCorregir, onDocumento }) {
   const at = useAsistencia()
   const libres = saldoVacaciones(at.yo, at.solicitudes, at.hoy).disponible
   const grupos = [
     ['Su tiempo', [
       [Palmtree, 'verde', 'Vacación', libres ? `Le ${libres === 1 ? 'queda 1 día' : `quedan ${libres} días`}` : 'No le quedan días por ahora', onVacacion],
-      [Clock, 'violeta', 'Permiso', 'Por horas o por días'],
+      [Clock, 'violeta', 'Permiso o licencia', 'Por horas, por días o con respaldo', onPermiso],
       [House, 'cian', 'Trabajo remoto', 'Un día desde casa'],
       [Timer, 'azul', 'Horas extra', 'Para quedarse más tarde', onExtra],
       [PencilLine, 'ambar', 'Corregir una marcación', 'Olvidó marcar o marcó mal', onCorregir],

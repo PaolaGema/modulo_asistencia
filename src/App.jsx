@@ -19,6 +19,7 @@ import MiOnboarding from './pages/colaborador/MiOnboarding'
 import MisAcompanados from './pages/onboarding/MisAcompanados'
 import Chats from './pages/comunicacion/Chats'
 import { Anuncios, Reconocimientos, Eventos, MensajesProgramados } from './pages/comunicacion/Proximamente'
+import CanalesGrupos from './pages/comunicacion/CanalesGrupos'
 import ZonaHR from './pages/colaborador/ZonaHR'
 import Perfil from './pages/colaborador/Perfil'
 import MisDocumentos, { MisSolicitudes } from './pages/colaborador/MisDocumentos'
@@ -60,7 +61,6 @@ import AtHoy from './pages/asistencia/Hoy'
 import AtRegistro from './pages/asistencia/Registro'
 import AtPersona from './pages/asistencia/Persona'
 import AtIncidencias from './pages/asistencia/Incidencias'
-import AtCierre from './pages/asistencia/Cierre'
 import AtSolicitudes from './pages/asistencia/Solicitudes'
 import AtConfiguracion from './pages/asistencia/Configuracion'
 import MiAsistencia from './pages/colaborador/MiAsistencia'
@@ -104,10 +104,9 @@ export default function App() {
           <Route path="/mi-espacio" element={<Layout />}>
             <Route index element={<Navigate to="/mi-espacio/mi-dia" replace />} />
             <Route path="mi-dia" element={<MiDia />} />
-            {/* El calendario de la empresa —cumpleaños, aniversarios, evaluaciones, campañas—
-                no es «mi calendario»: se mudó a Inicio, que es donde vive lo administrativo y
-                desde donde ya se entraba. El personal del colaborador irá dentro de Zona HR. */}
-            <Route path="calendario" element={<Navigate to="/inicio/calendario" replace />} />
+            {/* MI CALENDARIO: el de la persona —sus vacaciones y permisos, feriados, cumpleaños de
+                su área—. El de toda la empresa sigue en Inicio, que es lo administrativo. */}
+            <Route path="calendario" element={<Calendario mio />} />
             <Route path="mi-onboarding" element={<MiOnboarding />} />
             <Route path="mi-asistencia" element={<MiAsistencia />} />
             <Route path="acompanados" element={<MisAcompanados />} />
@@ -175,12 +174,12 @@ export default function App() {
             <Route path="puestos" element={<Puestos />} />
             <Route path="organigrama" element={<Organigrama />} />
           </Route>
-          {/* COMUNICACIÓN. «Mis chats» es la MISMA pantalla que el colaborador tiene en su
-              espacio personal, montada en dos rutas: no es «el chat del administrador» y «el
-              chat del colaborador», es el mismo buzón visto desde dos puertas. */}
+          {/* COMUNICACIÓN: solo lo que RR.HH. administra. Los chats de cada uno viven en Mi espacio
+              (también los de quien es de RR.HH., que además es colaborador); la ruta vieja redirige. */}
           <Route path="/comunicacion" element={<Layout />}>
-            <Route index element={<Navigate to="/comunicacion/chats" replace />} />
-            <Route path="chats" element={<Chats />} />
+            <Route index element={<Navigate to="/comunicacion/anuncios" replace />} />
+            <Route path="chats" element={<Navigate to="/mi-espacio/chats" replace />} />
+            <Route path="canales" element={<CanalesGrupos />} />
             <Route path="anuncios" element={<Anuncios />} />
             <Route path="reconocimientos" element={<Reconocimientos />} />
             <Route path="eventos" element={<Eventos />} />
@@ -256,7 +255,7 @@ export default function App() {
             <Route path="incidencias" element={<AtIncidencias />} />
             <Route path="solicitudes" element={<AtSolicitudes />} />
             <Route path="horas-extra" element={<Navigate to="/asistencia/solicitudes?ver=horas-extra" replace />} />
-            <Route path="cierre" element={<AtCierre />} />
+            <Route path="cierre" element={<Navigate to="/asistencia" replace />} />
             <Route path="configuracion" element={<AtConfiguracion />} />
           </Route>
           <Route path="/archivos" element={<Layout />}>
