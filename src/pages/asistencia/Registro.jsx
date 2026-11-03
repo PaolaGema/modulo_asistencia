@@ -209,6 +209,7 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
       faltas: cerradas.filter(j => j.estado === 'ausente').length,
       justificadas: cerradas.filter(j => j.estado === 'justificada').length,
       saldo: cerradas.length ? sum(cerradas, 'trabajado') - sum(cerradas, 'programado') : null,
+      trabajado: sum(cerradas, 'trabajado'), programado: sum(cerradas, 'programado'),
     }
   }), [gente, dias, at])
   const ordenadas = orden ? [...filas].sort(ORDENES[orden]) : filas
@@ -235,13 +236,13 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                   })}
                 </div>
               </th>
-              {cab('tardanza', 'Tardanzas')}
+              {cab('tardanza', 'Retrasos')}
               {cab('faltas', 'Faltas')}
-              {cab('saldo', 'Saldo')}
+              {cab('saldo', 'Horas del mes')}
             </tr>
           </thead>
           <tbody>
-            {ordenadas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, js, tarde, faltas, justificadas, saldo }) => (
+            {ordenadas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, js, tarde, faltas, justificadas, saldo, trabajado, programado }) => (
               <tr key={p.id}>
                 <td className="at-mes-persona"><PersonaAt persona={p} size={28} sub={p.unidad} onClick={() => onPersona(p)} /></td>
                 <td>
@@ -257,8 +258,9 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                 <td className="at-mes-acc num">
                   {tarde.veces ? (
                     <>
-                      <b className="tarde">{tarde.veces} {tarde.veces === 1 ? 'vez' : 'veces'}</b>
-                      <small>{duracion(tarde.min, { corto: true })}{tarde.injust <= 0 ? ' · justificado' : tarde.injust < tarde.min ? ` · ${duracion(tarde.injust, { corto: true })} sin justificar` : ' sin justificar'}</small>
+                      {/* Lo que importa es cuánto tiempo suma; las veces y lo sin justificar, debajo. */}
+                      <b className="tarde">{duracion(tarde.min)}</b>
+                      <small>{tarde.veces} {tarde.veces === 1 ? 'vez' : 'veces'}{tarde.injust <= 0 ? ' · justificados' : tarde.injust < tarde.min ? ` · ${duracion(tarde.injust)} sin justificar` : ' · sin justificar'}</small>
                     </>
                   ) : <span className="dc-muted">—</span>}
                 </td>
@@ -270,7 +272,14 @@ function LibroMes({ gente, mes, onDia, onPersona }) {
                     </>
                   ) : <span className="dc-muted">—</span>}
                 </td>
-                <td className="at-mes-acc num">{saldo == null ? <span className="dc-muted">—</span> : <b style={{ color: saldo >= 0 ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{duracion(saldo, { signo: true, corto: true })}</b>}</td>
+                <td className="at-mes-acc num">{saldo == null ? <span className="dc-muted">—</span> : (
+                  /* Como en la Semana: lo trabajado «de» lo programado, y el saldo en palabras. */
+                  <>
+                    <b>{duracion(trabajado, { corto: true })}</b>
+                    <small>de {duracion(programado, { corto: true })}</small>
+                    <small style={{ color: saldo >= 0 ? 'var(--dc-verde)' : 'var(--dc-rojo)' }}>{saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}</small>
+                  </>
+                )}</td>
               </tr>
             ))}
           </tbody>

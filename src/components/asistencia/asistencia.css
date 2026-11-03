@@ -1278,3 +1278,7 @@ i.at-mes-c { font-style: normal; }
 .at-minidia .s-tick { top: -2px; bottom: -2px; width: 1px; border-radius: 0; background: var(--border-soft); }
 .at-minidia { cursor: default; }
 .at-minidia .s-tick { background: rgba(12,45,64,.18); } .dark .at-minidia .s-tick { background: rgba(255,255,255,.22); }
+.at-mes-tabla .at-mes-acc { width: 128px; }
+.at-mes-tabla .at-mes-acc { width: 112px; }
+.at-mes-tabla .at-mes-dias { min-width: 440px; }
+.at-mes-tabla .at-mes-persona { width: 190px; }
