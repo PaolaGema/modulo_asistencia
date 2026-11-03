@@ -1164,7 +1164,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#p3-6">3.6 Solicitudes</a></li>
     <li><a href="#p3-7">3.7 Saldos de vacaciones</a></li>
     <li><a href="#p3-8">3.8 Horas extra</a></li>
-    <li><a href="#p3-9">3.9 Cierre del mes</a></li>
+    <li><a href="#p3-9">3.9 Exportar para planillas</a></li>
     <li><a href="#p3-10">3.10 Configuración › Horarios</a></li>
     <li><a href="#p3-11">3.11 Configuración › Políticas de marcación</a></li>
     <li><a href="#p3-12">3.12 Configuración › Avisos al colaborador</a></li>
@@ -1245,7 +1245,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#BR-ASI-046">046 · Las acciones están en el día, no en la lista</a></li>
     <li><a href="#BR-ASI-047">047 · Cerrar congela el mes; reabrir queda registrad…</a></li>
     <li><a href="#BR-ASI-048">048 · En el cierre solo cuenta en contra lo injustif…</a></li>
-    <li><a href="#BR-ASI-049">049 · El archivo para planillas tiene un formato fij…</a></li>
+    <li><a href="#BR-ASI-049">049 · El resumen para planillas tiene un formato fij…</a></li>
     <li class="rail-g"><a href="#g-la-configuracion">La configuración</a></li>
     <li><a href="#BR-ASI-050">050 · La tolerancia es de la política, no del horari…</a></li>
     <li><a href="#BR-ASI-051">051 · Los lugares son los de Organización</a></li>
@@ -1773,24 +1773,23 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-037">RF‑ASI‑037</td><td>Cancelar una autorizada la deja sin efecto y la persona lo ve</td><td>Import.</td><td>Cancelada, lo que trabaje ese día no cuenta como extra</td></tr>
 </tbody>
 </table></div>
-<h3 id="p3-9">3.9 Cierre del mes</h3>
-<p>El saldo de cada persona listo para planillas, y el candado del mes.</p>
+<h3 id="p3-9">3.9 Exportar para planillas</h3>
+<p>El módulo es solo de asistencia: no paga sueldos ni cierra meses. Lo que pidió RR.HH. en el #27 —datos listos para planillas— se cumple con un archivo de formato fijo que la empresa lleva a su sistema de sueldos.</p>
 <ul>
-<li><strong>Cifras</strong> del mes: horas trabajadas contra programadas, ausencias (las justificadas aparte), tardanza injustificada, descanso excedido y salidas anticipadas, y horas extra trabajadas de las autorizadas.</li>
-<li><strong>Tabla</strong> por persona: días, ausencias, trabajado, saldo, tardanza injustificada, descanso y salida, y horas extra.</li>
-<li><strong>Cerrar el mes</strong> avisa las faltas y salidas sin marcar del mes; cerrado, nadie puede ajustar, marcar a mano ni justificar días de ese mes. <strong>Reabrir el mes</strong> queda registrado.</li>
-<li><strong>Exportar para planillas</strong>: formato fijo, en segundos. Antes de cerrar sale como <strong>borrador</strong>.</li>
+<li>En el Libro, en el <strong>Mes</strong> o el <strong>Calendario</strong>, <strong>Exportar CSV</strong> pregunta qué bajar: <strong>Las jornadas</strong> (una fila por persona y día, al segundo) o el <strong>Resumen para planillas</strong> (una fila por persona con el mes).</li>
+<li>El resumen trae: período, código, colaborador, unidad, sucursal y centro; días programados y trabajados; faltas injustificadas y ausencias justificadas; trabajado y programado; retrasos y tardanza total e injustificada; descanso excedido y salida anticipada injustificados; días sin marcar descanso; horas extra autorizadas y trabajadas dentro de lo autorizado; y fuera de horario. Los tiempos van <strong>en segundos</strong>.</li>
+<li>Bajan las personas que dejan pasar los filtros, y solo los días que ya pasaron.</li>
+<li><strong>Ya no hay cierre de mes</strong>: ningún mes se bloquea y siempre se puede corregir, con su motivo y su rastro.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
-<tr><td class="id" id="RF-ASI-038">RF‑ASI‑038</td><td>Cerrar congela el mes: no se corrige nada de ese mes</td><td>Oblig.</td><td>Con octubre cerrado, el detalle de un día de octubre no ofrece correcciones</td></tr>
-<tr><td class="id" id="RF-ASI-039">RF‑ASI‑039</td><td>Antes de cerrar se avisa cuántas incidencias quedan</td><td>Oblig.</td><td>«Quedan 4 incidencias sin resolver en este mes»</td></tr>
-<tr><td class="id" id="RF-ASI-040">RF‑ASI‑040</td><td>Solo cuenta en contra lo injustificado</td><td>Oblig.</td><td>Una tardanza justificada no suma a «Tardanza injustificada»</td></tr>
-<tr><td class="id" id="RF-ASI-041">RF‑ASI‑041</td><td>El archivo para planillas tiene un formato fijo en segundos y dice si es borrador</td><td>Oblig.</td><td>Sin cerrar, el nombre termina en «_BORRADOR»</td></tr>
+<tr><td class="id" id="RF-ASI-038">RF‑ASI‑038</td><td><strong>Retirado:</strong> ya no se cierra el mes; las correcciones quedan siempre con su motivo y su autor</td><td>—</td><td>—</td></tr>
+<tr><td class="id" id="RF-ASI-039">RF‑ASI‑039</td><td><strong>Retirado:</strong> sin cierre no hay aviso de pendientes al cerrar</td><td>—</td><td>—</td></tr>
+<tr><td class="id" id="RF-ASI-040">RF‑ASI‑040</td><td>En el resumen para planillas solo cuenta en contra lo injustificado</td><td>Oblig.</td><td>Una tardanza justificada no suma a «Tardanza injustificada»</td></tr>
+<tr><td class="id" id="RF-ASI-041">RF‑ASI‑041</td><td>El resumen para planillas tiene un formato fijo, en segundos</td><td>Oblig.</td><td>Las columnas son siempre las mismas y en el mismo orden</td></tr>
 </tbody>
 </table></div>
-<div class="nota al"><p><strong>En la maqueta:</strong> la pantalla Cierre está construida pero hoy no tiene entrada en el menú ni ruta; quien entra a su dirección vuelve a Hoy. El candado de los meses cerrados sí funciona en el Libro, la persona y el detalle —ABIERTA‑ASI‑04—.</p></div>
 <h3 id="p3-10">3.10 Configuración › Horarios</h3>
 <p>Cuándo trabaja cada quien. Arriba de toda la Configuración, la <strong>puesta a punto</strong>: lugares con geocerca, personas con horario, política por defecto, consentimiento biométrico y rostros enrolados, con lo que falta y su enlace.</p>
 <ul>
@@ -2888,7 +2887,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li class="br">
 <span class="br-n">4.27</span>
 <div>
-<div class="br-cab"><span class="br-id">BR-ASI-027</span><span class="br-estado">Borrador</span></div>
+<div class="br-cab"><span class="br-id">BR-ASI-027</span><span class="br-estado">Retirada · ya no hay cierre de mes: el módulo es solo de asistencia</span></div>
 <h3 id="BR-ASI-027">Con el mes cerrado no se corrige</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
@@ -3565,7 +3564,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li class="br">
 <span class="br-n">4.47</span>
 <div>
-<div class="br-cab"><span class="br-id">BR-ASI-047</span><span class="br-estado">Borrador</span></div>
+<div class="br-cab"><span class="br-id">BR-ASI-047</span><span class="br-estado">Retirada · ya no hay cierre de mes; lo que pedía el #27 lo cumple el resumen para planillas —BR‑ASI‑049—</span></div>
 <h3 id="BR-ASI-047">Cerrar congela el mes; reabrir queda registrado</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
@@ -3632,7 +3631,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <span class="br-n">4.49</span>
 <div>
 <div class="br-cab"><span class="br-id">BR-ASI-049</span><span class="br-estado">Borrador</span></div>
-<h3 id="BR-ASI-049">El archivo para planillas tiene un formato fijo</h3>
+<h3 id="BR-ASI-049">El resumen para planillas tiene un formato fijo</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
 <div><dt>Código</dt><dd>BR-ASI-049</dd></div>
@@ -3642,7 +3641,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Planillas recibe siempre las mismas columnas, una fila por persona, con los tiempos <strong>en segundos</strong>: período y su estado, días programados y trabajados, ausencias, trabajado, programado, tardanza total e injustificada, descanso excedido, salida anticipada, días sin descanso, horas extra autorizadas y trabajadas, fuera de horario y compensación. Sin cerrar, sale como <strong>borrador</strong>.</p>
+<p>Planillas recibe siempre las mismas columnas, una fila por persona, con los tiempos <strong>en segundos</strong>: período y su estado, días programados y trabajados, ausencias, trabajado, programado, tardanza total e injustificada, descanso excedido, salida anticipada, días sin descanso, horas extra autorizadas y trabajadas, fuera de horario y compensación. Se baja desde el Libro, en el Mes o el Calendario.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Un borrador</div><ul><li><b>Dado que</b>noviembre no está cerrado</li><li><b>Cuando</b>se exporta</li><li><b>Entonces</b>el archivo se llama «planilla_asistencia_2026-11_BORRADOR.csv» y el período dice «Borrador»</li></ul></div>

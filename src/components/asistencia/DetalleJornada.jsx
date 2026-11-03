@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, Pencil, Plus, ShieldCheck, Ban, Lock, Check, X, ArrowUpRight, Smartphone, MonitorCog, BellRing, MessageSquareQuote, Coffee } from 'lucide-react'
+import { CalendarDays, Pencil, Plus, ShieldCheck, Ban, Check, X, ArrowUpRight, Smartphone, MonitorCog, BellRing, MessageSquareQuote, Coffee } from 'lucide-react'
 import { Modal, MenuAcciones } from '../documentacion/comunes'
 import Desplegable from '../layout/Desplegable'
 import { useAsistencia } from '../../context/AsistenciaContext'
@@ -23,7 +23,6 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
   const at = useAsistencia()
   const navigate = useNavigate()
   const j = at.jornadaDe(persona, fecha)
-  const cerrado = !!at.cierres[mesDe(fecha)]
   const esHoy = fecha === at.hoy
   const [form, setForm] = useState(null) // { modo: 'ajustar'|'anular'|'agregar'|'justificar', marca? }
   const geo = persona.lugar?.geo
@@ -39,17 +38,13 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
           </div>
         </div>
 
-        {cerrado && (
-          <div className="at-aviso-linea"><Lock size={14} aria-hidden="true" /> El mes está cerrado para nómina: se puede mirar, pero no corregir.</div>
-        )}
-
         {incidencia && (
           <div className="at-incidencia-aviso">
             <div>
               <b>{incidencia.titulo}</b>
               <span>{incidencia.texto}</span>
             </div>
-            {incidencia.accion && !cerrado && (
+            {incidencia.accion && (
               <button type="button" className="dc-btn dc-btn-sm" onClick={() => { incidencia.onAccion(); onCerrar() }}>{incidencia.accion}</button>
             )}
           </div>
@@ -79,7 +74,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
               <b>Horas extra {x.desde}–{x.hasta} · {ESTADOS_EXTRA[x.estado].label.toLowerCase()}</b>
               <span>{ORIGENES_EXTRA[x.origen]} · {x.motivo}{esAutorizada(x) && fecha <= at.hoy ? ` · trabajó ${duracion(j.extra)} dentro de ellas` : ''}</span>
             </div>
-            {!cerrado && x.estado === 'pendiente' && (
+            {x.estado === 'pendiente' && (
               <div className="at-extra-acc">
                 <button type="button" className="dc-btn dc-btn-sm" onClick={() => at.responderExtra(x.id, 'rechazada')}><X size={13} /> Rechazar</button>
                 <button type="button" className="at-btn-ok" onClick={() => at.responderExtra(x.id, 'aprobada')}><Check size={13} /> Aprobar</button>
@@ -93,7 +88,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
               <b>{duracion(j.fueraDeHorario)} fuera de horario, sin autorización</b>
               <span>Se quedó después de su jornada sin horas extra autorizadas: no cuenta como hora extra.</span>
             </div>
-            {!cerrado && j.salida != null && persona.horario?.modo === 'fijo' && (
+            {j.salida != null && persona.horario?.modo === 'fijo' && (
               <div className="at-extra-acc">
                 <button type="button" className="at-btn-ok" onClick={() => at.autorizarDespues({ personaId: persona.id, fecha, desde: persona.horario.salida, hasta: hhmm(j.salida), motivo: 'Autorizada después del día por RR.HH.' })}>
                   <Check size={13} /> Autorizar como horas extra
@@ -134,7 +129,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
                     {(m.ajuste || m.motivo) && <span className="at-tl-motivo">«{m.ajuste?.motivo || m.motivo}» — {m.ajuste?.por || m.por}</span>}
                   </div>
                   {m.distancia != null && !m.remoto && geo && <Radar distancia={m.distancia} radio={persona.politica?.radio || geo.radio} dentro={m.dentro} size={64} />}
-                  {!cerrado && !m.rechazada && !m.anulada && (
+                  {!m.rechazada && !m.anulada && (
                     <MenuAcciones items={[
                       { label: 'Ajustar la hora', Icono: Pencil, onClick: () => setForm({ modo: 'ajustar', marca: m }) },
                       { label: 'Anular la marcación', Icono: Ban, peligro: true, onClick: () => setForm({ modo: 'anular', marca: m }) },
@@ -156,7 +151,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
           <button type="button" className="dc-btn" onClick={() => { onCerrar(); navigate(`/asistencia/persona/${persona.id}?mes=${mesDe(fecha)}`) }}>
             Ver su mes <ArrowUpRight size={13} aria-hidden="true" />
           </button>
-          {!cerrado && !form && (
+          {!form && (
             <div style={{ display: 'flex', gap: 8 }}>
               {['ausente', 'sinMarcar', 'incompleta', 'tarde'].includes(j.estado) && !j.justificacion && (
                 <button type="button" className="dc-btn" onClick={() => setForm({ modo: 'justificar' })}><ShieldCheck size={13} /> Justificar</button>

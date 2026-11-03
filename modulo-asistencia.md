@@ -366,23 +366,21 @@ Solo cuentan las autorizadas; quedarse más tiempo no las genera.
 | RF‑ASI‑036 | La hora extra guarda el proyecto o centro de costo | Import. | El resumen y el detalle lo muestran |
 | RF‑ASI‑037 | Cancelar una autorizada la deja sin efecto y la persona lo ve | Import. | Cancelada, lo que trabaje ese día no cuenta como extra |
 
-### 3.9 Cierre del mes
+### 3.9 Exportar para planillas
 
-El saldo de cada persona listo para planillas, y el candado del mes.
+El módulo es solo de asistencia: no paga sueldos ni cierra meses. Lo que pidió RR.HH. en el #27 —datos listos para planillas— se cumple con un archivo de formato fijo que la empresa lleva a su sistema de sueldos.
 
-- **Cifras** del mes: horas trabajadas contra programadas, ausencias (las justificadas aparte), tardanza injustificada, descanso excedido y salidas anticipadas, y horas extra trabajadas de las autorizadas.
-- **Tabla** por persona: días, ausencias, trabajado, saldo, tardanza injustificada, descanso y salida, y horas extra.
-- **Cerrar el mes** avisa las faltas y salidas sin marcar del mes; cerrado, nadie puede ajustar, marcar a mano ni justificar días de ese mes. **Reabrir el mes** queda registrado.
-- **Exportar para planillas**: formato fijo, en segundos. Antes de cerrar sale como **borrador**.
+- En el Libro, en el **Mes** o el **Calendario**, **Exportar CSV** pregunta qué bajar: **Las jornadas** (una fila por persona y día, al segundo) o el **Resumen para planillas** (una fila por persona con el mes).
+- El resumen trae: período, código, colaborador, unidad, sucursal y centro; días programados y trabajados; faltas injustificadas y ausencias justificadas; trabajado y programado; retrasos y tardanza total e injustificada; descanso excedido y salida anticipada injustificados; días sin marcar descanso; horas extra autorizadas y trabajadas dentro de lo autorizado; y fuera de horario. Los tiempos van **en segundos**.
+- Bajan las personas que dejan pasar los filtros, y solo los días que ya pasaron.
+- **Ya no hay cierre de mes**: ningún mes se bloquea y siempre se puede corregir, con su motivo y su rastro.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑ASI‑038 | Cerrar congela el mes: no se corrige nada de ese mes | Oblig. | Con octubre cerrado, el detalle de un día de octubre no ofrece correcciones |
-| RF‑ASI‑039 | Antes de cerrar se avisa cuántas incidencias quedan | Oblig. | «Quedan 4 incidencias sin resolver en este mes» |
-| RF‑ASI‑040 | Solo cuenta en contra lo injustificado | Oblig. | Una tardanza justificada no suma a «Tardanza injustificada» |
-| RF‑ASI‑041 | El archivo para planillas tiene un formato fijo en segundos y dice si es borrador | Oblig. | Sin cerrar, el nombre termina en «_BORRADOR» |
-
-> **En la maqueta:** la pantalla Cierre está construida pero hoy no tiene entrada en el menú ni ruta; quien entra a su dirección vuelve a Hoy. El candado de los meses cerrados sí funciona en el Libro, la persona y el detalle —ABIERTA‑ASI‑04—.
+| RF‑ASI‑038 | **Retirado:** ya no se cierra el mes; las correcciones quedan siempre con su motivo y su autor | — | — |
+| RF‑ASI‑039 | **Retirado:** sin cierre no hay aviso de pendientes al cerrar | — | — |
+| RF‑ASI‑040 | En el resumen para planillas solo cuenta en contra lo injustificado | Oblig. | Una tardanza justificada no suma a «Tardanza injustificada» |
+| RF‑ASI‑041 | El resumen para planillas tiene un formato fijo, en segundos | Oblig. | Las columnas son siempre las mismas y en el mismo orden |
 
 ### 3.10 Configuración › Horarios
 
@@ -1538,7 +1536,7 @@ RR.HH. justifica un día **ausente, sin marcar, sin salida o tarde** con un tipo
 
 #### 4.27 · BR-ASI-027 · Con el mes cerrado no se corrige
 
-*Estado: Borrador*
+*Estado: Retirada · ya no hay cierre de mes: el módulo es solo de asistencia*
 
 **1. Información básica**
 
@@ -2275,7 +2273,7 @@ En la fila no se resuelve nada: «Revisar» abre el día. Lo que corrige el día
 
 #### 4.47 · BR-ASI-047 · Cerrar congela el mes; reabrir queda registrado
 
-*Estado: Borrador*
+*Estado: Retirada · ya no hay cierre de mes; lo que pedía el #27 lo cumple el resumen para planillas —BR‑ASI‑049—*
 
 **1. Información básica**
 
@@ -2345,7 +2343,7 @@ Para planillas cuenta en contra solo lo **injustificado**: tardanza, descanso ex
 - **Pantalla:** W‑ASI‑14 Cierre del mes
 - **Diseño:** Prototipado
 
-#### 4.49 · BR-ASI-049 · El archivo para planillas tiene un formato fijo
+#### 4.49 · BR-ASI-049 · El resumen para planillas tiene un formato fijo
 
 *Estado: Borrador*
 
@@ -2359,7 +2357,7 @@ Para planillas cuenta en contra solo lo **injustificado**: tardanza, descanso ex
 
 *Descripción general*
 
-Planillas recibe siempre las mismas columnas, una fila por persona, con los tiempos **en segundos**: período y su estado, días programados y trabajados, ausencias, trabajado, programado, tardanza total e injustificada, descanso excedido, salida anticipada, días sin descanso, horas extra autorizadas y trabajadas, fuera de horario y compensación. Sin cerrar, sale como **borrador**.
+Planillas recibe siempre las mismas columnas, una fila por persona, con los tiempos **en segundos**: período y su estado, días programados y trabajados, ausencias, trabajado, programado, tardanza total e injustificada, descanso excedido, salida anticipada, días sin descanso, horas extra autorizadas y trabajadas, fuera de horario y compensación. Se baja desde el Libro, en el Mes o el Calendario.
 
 **2. Escenarios ágiles de ejecución**
 

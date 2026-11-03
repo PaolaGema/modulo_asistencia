@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { CalendarDays, ChevronLeft, ChevronRight, PartyPopper, Luggage, UserX, TrendingUp, Lock, Clock } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { MESES, DIAS_SEMANA, buildCalendarCells } from '../../utils/calendarEvents'
-import { sumarDias, hoyISO, mesDe, esAutorizada } from '../../data/asistenciaData'
+import { sumarDias, hoyISO, esAutorizada } from '../../data/asistenciaData'
 
 /* ── EL CALENDARIO DE ASISTENCIA ───────────────────────────────────────────
    El mismo dibujo que el calendario del dashboard de Inicio —la cuadrícula, los puntos de color, la
@@ -38,7 +38,7 @@ export default function CalendarioAsistencia({ gente }) {
   const anio = base.getFullYear(); const mes = base.getMonth()
   const iso = dia => `${anio}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
   const ultimo = new Date(anio, mes + 1, 0).getDate()
-  const { jornadaDe, justificacionDe, cierres, horasExtra, personaPorId } = at
+  const { jornadaDe, justificacionDe, horasExtra, personaPorId } = at
   const ids = useMemo(() => new Set(gente.map(p => String(p.id))), [gente])
 
   /* Los eventos de cada día del mes, calculados una vez por mes y por recorte de la organización. */
@@ -75,7 +75,7 @@ export default function CalendarioAsistencia({ gente }) {
       if (lista.length) porDia[dia] = lista
     }
     return porDia
-  }, [anio, mes, ultimo, gente, ids, jornadaDe, justificacionDe, cierres, horasExtra, personaPorId, hoy]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [anio, mes, ultimo, gente, ids, jornadaDe, justificacionDe, horasExtra, personaPorId, hoy]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const celdas = buildCalendarCells(anio, mes)
   const diaElegido = elegido.slice(0, 7) === iso(1).slice(0, 7) ? Number(elegido.slice(8)) : null

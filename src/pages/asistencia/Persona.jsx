@@ -53,6 +53,7 @@ export default function Persona() {
   const faltas = cerrados.filter(x => x.j.estado === 'ausente').length
   const justificadas = cerrados.filter(x => x.j.estado === 'justificada').length
   const conEntrada = pasados.filter(x => x.j.entrada != null)
+  const trabajados = cerrados.filter(x => x.j.entrada != null).length
   const conJornada = cerrados.filter(x => x.j.programado > 0).length
   const aTiempo = conEntrada.filter(x => !x.j.llegoTarde).length
   const puntualidad = conEntrada.length ? Math.round((aTiempo / conEntrada.length) * 100) : null
@@ -64,7 +65,6 @@ export default function Persona() {
   const primero = diaISO(`${mes}-01`)
   const huecos = Array.from({ length: primero - 1 })
   const Ico = p.lugar?.tipo === 'centro' ? Warehouse : Building2
-  const cerrado = !!at.cierres[mes]
 
   const exportar = () => descargarCSV(`asistencia_${p.name.replace(/\s+/g, '_')}_${mes}.csv`, [
     ['Fecha', 'Entrada', 'Salida', 'Trabajado (min)', 'Programado (min)', 'Tardanza (min)', 'Extra (min)', 'Estado', 'Justificación'],
@@ -73,7 +73,7 @@ export default function Persona() {
 
   /* P1: las mismas cifras que la ventana del mes del Libro, más la puntualidad. */
   const cifras = [
-    ['Días trabajados', conJornada ? <>{conEntrada.length} <em>de {conJornada}</em></> : '—', '', ''],
+    ['Días trabajados', conJornada ? <>{trabajados} <em>de {conJornada}</em></> : '—', '', ''],
     ['Retrasos', tardes.length || '—', tardes.length ? (tardes.length === 1 ? 'vez' : 'veces') : '', tardes.length ? 'tarde' : ''],
     ['Tiempo de retraso', tardes.length ? duracion(tardanza) : '—', tardes.length ? (tardanzaInj <= 0 ? 'justificado' : tardanzaInj >= tardanza ? 'sin justificar' : `${duracion(tardanza - tardanzaInj)} justificados`) : '', tardes.length ? 'tarde' : ''],
     ['Faltas', faltas || (justificadas ? 0 : '—'), justificadas ? `+ ${justificadas} con permiso` : faltas ? 'sin justificar' : '', faltas ? 'falta' : ''],
@@ -102,7 +102,6 @@ export default function Persona() {
         </div>
         {!p.asig && <button type="button" className="pl-btn-new" onClick={() => navigate('/asistencia/configuracion?ver=asignaciones')}>Asignar horario</button>}
         <div className="at-periodo at-pv-per">
-          {cerrado && <span className="dc-chip dc-t-gris">Mes cerrado</span>}
           <div className="at-dia-nav">
             <button type="button" aria-label="Mes anterior" onClick={() => setParams({ mes: mesVecino(mes, -1) }, { replace: true })}><ChevronLeft size={16} /></button>
             <span>{nombreMes(mes)}</span>

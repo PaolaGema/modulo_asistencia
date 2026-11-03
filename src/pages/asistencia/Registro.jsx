@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, Lock, BookOpen, CalendarDays, Table2, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, BookOpen, CalendarDays, Table2, Search } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
@@ -35,6 +35,7 @@ export default function Registro() {
   const [busca, setBusca] = useState('')
   const [pag, setPag] = useState(1)
   const [detalle, setDetalle] = useState(null)
+  const [exportando, setExportando] = useState(false)
 
   const ir = (cambios) => { const n = new URLSearchParams(params); Object.entries(cambios).forEach(([k, v]) => (v ? n.set(k, v) : n.delete(k))); setParams(n, { replace: true }); setPag(1) }
   const lunes = sumarDias(fecha, 1 - diaISO(fecha))
@@ -59,6 +60,10 @@ export default function Registro() {
   const pagina = Math.min(pag, paginas)
 
   const exportar = () => {
+    if (porMes) { setExportando(true); return }
+    exportarJornadas()
+  }
+  const exportarJornadas = () => {
     const dias = ver === 'semana' ? semana.filter(d => d <= at.hoy) : porMes ? diasDelMes(mes).filter(d => d <= at.hoy) : [fecha]
     /* Al segundo (#8): las horas como HH:MM:SS y las duraciones en segundos. */
     const sg = min => Math.round((min || 0) * 60)
@@ -71,8 +76,21 @@ export default function Registro() {
     }))
     descargarCSV(`asistencia_${dias[0]}${dias.length > 1 ? `_a_${dias[dias.length - 1]}` : ''}.csv`, rows)
   }
+  /* PARA PLANILLAS (#27): una fila por persona con el mes resumido, en un formato fijo y en segundos,
+     para llevarlo al sistema de sueldos de la empresa. Solo cuenta en contra lo injustificado y solo
+     las horas extra trabajadas dentro de lo autorizado. Cuenta los días que ya pasaron. */
+  const exportarPlanillas = () => {
+    const dias = diasDelMes(mes).filter(d => d < at.hoy)
+    const sg = min => Math.round((min || 0) * 60)
+    const rows = [['Período', 'Código', 'Colaborador', 'Unidad organizacional', 'Sucursal', 'Centro de trabajo', 'Días programados', 'Días trabajados', 'Faltas injustificadas', 'Ausencias justificadas', 'Trabajado (s)', 'Programado (s)', 'Retrasos (veces)', 'Tardanza total (s)', 'Tardanza injustificada (s)', 'Descanso excedido injustificado (s)', 'Salida anticipada injustificada (s)', 'Días sin marcar descanso', 'Horas extra aprobadas trabajadas (s)', 'Horas extra autorizadas (s)', 'Fuera de horario sin autorización (s)']]
+    gente.forEach(p => {
+      const js = dias.map(d => at.jornadaDe(p, d)).filter(j => j.estado !== 'libre')
+      const t = k => js.reduce((a, j) => a + (j[k] || 0), 0)
+      rows.push([mes, p.codigo, p.name, p.unidad, at.lugarPorId.get(p.sucursalId)?.nombre || '', p.centroId ? p.lugar.nombre : '', js.filter(j => j.programado > 0).length, js.filter(j => j.entrada != null).length, js.filter(j => j.estado === 'ausente').length, js.filter(j => j.estado === 'justificada').length, sg(t('trabajado')), sg(t('programado')), js.filter(j => j.llegoTarde).length, sg(t('tardanza')), sg(t('tardanzaInjustificada')), sg(t('excesoPausaInjustificado')), sg(t('anticipadaInjustificada')), js.filter(j => j.alertas.some(a => a.tipo === 'sinPausa')).length, sg(t('extra')), sg(t('autorizado')), sg(t('fueraDeHorario'))])
+    })
+    descargarCSV(`planillas_asistencia_${mes}.csv`, rows)
+  }
 
-  const cerrado = !!at.cierres[mes]
 
   return (
     <div className="content-scroll at-libro">
@@ -80,7 +98,6 @@ export default function Registro() {
           pantalla. La fila de abajo queda solo para el buscador y los filtros. */}
       <Cabecera titulo="Libro de asistencia" sub="Cada jornada con su entrada, su salida y su evidencia.">
         <div className="at-periodo">
-          {cerrado && <span className="dc-chip dc-t-gris"><Lock size={11} aria-hidden="true" /> Mes cerrado</span>}
           {!esHoy && <button type="button" className="dc-btn dc-btn-sm" onClick={() => ir({ fecha: null })}>{porMes ? 'Ir a este mes' : 'Ir a hoy'}</button>}
           <div className="at-dia-nav">
             <button type="button" aria-label="Anterior" onClick={anterior}><ChevronLeft size={16} /></button>
@@ -150,6 +167,19 @@ export default function Registro() {
       )}
 
       {detalle && <DetalleJornada persona={detalle.persona} fecha={detalle.fecha} onCerrar={() => setDetalle(null)} />}
+      {exportando && (
+        <Modal titulo={`Exportar ${nombreMes(mes)}`} Icono={Download} onCerrar={() => setExportando(false)} ancho={520}>
+          <div className="at-exp-ops">
+            <button type="button" onClick={() => { exportarJornadas(); setExportando(false) }}>
+              <b>Las jornadas</b><span>Una fila por persona y día: entrada, salida, descanso, horas, tardanza y estado, al segundo.</span>
+            </button>
+            <button type="button" onClick={() => { exportarPlanillas(); setExportando(false) }}>
+              <b>Resumen para planillas</b><span>Una fila por persona con el mes: días, faltas, horas trabajadas, retrasos, lo injustificado y las horas extra aprobadas. Formato fijo, en segundos, para el sistema de sueldos.</span>
+            </button>
+          </div>
+          <p className="at-ayuda" style={{ marginTop: 10 }}>Bajan las personas que dejan pasar los filtros. Los días que todavía no pasaron no cuentan.</p>
+        </Modal>
+      )}
     </div>
   )
 }

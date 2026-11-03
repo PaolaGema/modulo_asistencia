@@ -1448,3 +1448,8 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-pv-c.t-futuro { background: transparent; border: 1px solid var(--border-soft); color: var(--text-muted); }
 .at-pv-pie { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 12px; }
 .at-pv-pie b { color: var(--text-heading); }
+/* Exportar el mes: dos opciones grandes. */
+.at-exp-ops { display: grid; gap: 10px; }
+.at-exp-ops button { border: 1.5px solid var(--border-soft); background: var(--surface-card); border-radius: 12px; padding: 12px 14px; display: grid; gap: 3px; text-align: left; font-family: inherit; cursor: pointer; color: var(--text-heading); transition: border-color .15s, box-shadow .15s; }
+.at-exp-ops button:hover, .at-exp-ops button:focus-visible { border-color: var(--dc-verde); box-shadow: 0 0 0 3px rgba(0,224,145,.15); outline: none; }
+.at-exp-ops b { font-size: 14px; } .at-exp-ops span { font-size: 12.5px; color: var(--text-muted); line-height: 1.45; }

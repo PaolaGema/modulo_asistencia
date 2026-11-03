@@ -5,7 +5,7 @@ import { useDocumentacion } from './DocumentacionContext'
 import { useUser } from './UserContext'
 import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
-  unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM, mesDe,
+  unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
   reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo,
 } from '../data/asistenciaData'
@@ -70,7 +70,6 @@ export function AsistenciaProvider({ children }) {
   const [descartadas, setDescartadas] = useLocalStorage('at_descartadas', {})
   /* A quién ya se le sembró su historial de ejemplo (ver historialDemo). */
   const [conHistorial, setConHistorial] = useLocalStorage('at_historial_demo', {})
-  const [cierres, setCierres] = useLocalStorage('at_cierres', {})
   const [generalesGuardados, setAjustesGenerales] = useLocalStorage('at_generales', {})
   /* Los avisos al colaborador (#15) y el plazo para justificar (#14) se agregaron después: quien ya
      tenía ajustes guardados recibe estos valores por defecto. */
@@ -260,8 +259,6 @@ export function AsistenciaProvider({ children }) {
   /* Autorizar después del día: para lo que no se pudo pedir a tiempo. Queda dicho que fue posterior. */
   const autorizarDespues = useCallback(({ personaId, fecha, desde, hasta, motivo }) => setHorasExtra(prev => [nuevaExtra({ personaId, fecha, desde, hasta, motivo, por: currentUser.name, respondio: currentUser.name }, 'posterior', 'aprobada'), ...(prev || [])]), [setHorasExtra, currentUser.name])
   const descartar = useCallback(id => setDescartadas(prev => ({ ...prev, [id]: true })), [setDescartadas])
-  const cerrarMes = useCallback(ym => setCierres(prev => ({ ...prev, [ym]: { por: currentUser.name, cuando: new Date().toISOString() } })), [setCierres, currentUser.name])
-  const reabrirMes = useCallback(ym => setCierres(prev => { const n = { ...prev }; delete n[ym]; return n }), [setCierres])
 
   const asignar = useCallback((ids, datos) => setAsignaciones(prev => {
     const n = { ...(prev || {}) }
@@ -316,7 +313,6 @@ export function AsistenciaProvider({ children }) {
     const lista = []
     for (let i = 1; i <= DIAS_PENDIENTES; i++) {
       const fecha = sumarDias(hoy, -i)
-      if (cierres[mesDe(fecha)]) continue
       for (const p of personas) {
         if (!p.asig) continue
         const j = jornadaDe(p, fecha)
@@ -339,14 +335,14 @@ export function AsistenciaProvider({ children }) {
       }
     }
     return lista.filter(x => !descartadas[x.id]).sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
-  }, [personas, jornadaDe, hoy, descartadas, cierres, solicitudes, ajustesGenerales.avisarDesde, ajustesGenerales.avisar])
+  }, [personas, jornadaDe, hoy, descartadas, solicitudes, ajustesGenerales.avisarDesde, ajustesGenerales.avisar])
 
   const value = {
     hoy, tic, lugares, lugarPorId, centros, personas, personaPorId, yo,
     horarios, setHorarios, horarioPorId, politicas, setPoliticas, politicaPorId, politicaDefecto,
     asignaciones: asignaciones || {}, asignar, quitarAsignacion, geocercas, setGeocerca,
     biometria: biometria || {}, actualizarBio, ajustesGenerales, setAjustesGenerales,
-    marcasDe, jornadaDe, justificacionDe, justificadasDe, incidencias, cierres, cerrarMes, reabrirMes,
+    marcasDe, jornadaDe, justificacionDe, justificadasDe, incidencias,
     marcar, marcaManual, ajustar, anular, justificar, descartar, marcasExtra,
     solicitudes: solicitudes || [], crearSolicitud, responderSolicitud, cancelarSolicitud, exigenciasDe,
     horasExtra: horasExtra || [], solicitarExtra, asignarExtra, responderExtra, autorizarDespues,
