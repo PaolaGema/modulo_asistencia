@@ -130,7 +130,7 @@ export default function Persona() {
               <dl className="at-lista-datos">
                 <dt>Días trabajados</dt><dd>{conEntrada.length}</dd>
                 <dt>Ausencias</dt><dd style={{ color: cuenta('ausente') ? 'var(--dc-rojo)' : undefined }}>{cuenta('ausente')}</dd>
-                <dt>Justificadas</dt><dd>{cuenta('justificada')}</dd>
+                <dt>Vacaciones y permisos</dt><dd>{cuenta('justificada')}</dd>
                 <dt>Tardanza acumulada</dt><dd style={{ color: tardanza ? 'var(--dc-ambar)' : undefined }}>{duracion(tardanza)}</dd>
                 <dt>Horas extra</dt><dd style={{ color: 'var(--dc-azul)' }}>{duracion(extraTrabajada)} <span className="dc-muted" style={{ fontWeight: 500 }}>de {duracion(extraAutorizada)} autorizadas</span></dd>
                 <dt>Fuera de horario, sin autorización</dt><dd className="dc-muted">{duracion(fueraHorario)}</dd>

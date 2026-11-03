@@ -477,7 +477,7 @@ function DiaElegido({ fecha, j, laboral, yo, hoy, onCorregir }) {
       ) : fecha > hoy || (fecha === hoy && j?.entrada == null) ? (
         <span style={{ fontSize: 7, color: 'var(--in-mute)' }}>{hr.modo === 'fijo' ? <>Le toca de <b style={{ color: 'var(--in-texto)' }}>{hr.entrada}</b> a <b style={{ color: 'var(--in-texto)' }}>{hr.salida}</b>{hr.pausa ? `, con ${hr.pausa} min de pausa` : ''}.</> : 'Horario flexible.'}{fecha === hoy ? ' Todavía no marcó la entrada.' : ''}</span>
       ) : j?.entrada == null ? (
-        <span style={{ fontSize: 7, color: 'var(--in-mute)' }}>{j?.justificacion ? `${j.justificacion.tipo || 'Justificada'}${j.justificacion.motivo ? ` · ${j.justificacion.motivo}` : ''}` : 'Ese día no tiene marcas.'}</span>
+        <span style={{ fontSize: 7, color: 'var(--in-mute)' }}>{j?.justificacion ? `${j.justificacion.tipo || 'Ausencia justificada'}${j.justificacion.motivo ? ` · ${j.justificacion.motivo}` : ''}` : 'Ese día no tiene marcas.'}</span>
       ) : (
         <>
           <div style={{ display: 'flex', flexDirection: 'column' }}>{lineaDelDia()}</div>
@@ -672,7 +672,7 @@ function MesCel({ onVolver, onCorregir }) {
         {/* La leyenda, solo con lo que aparece en el mes: «Horas extra» o «Justificado» sin ningún día así
             sobraban. */}
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, fontSize: 6.4, color: 'var(--in-mute)' }}>
-          {[['verde', '#C9F5E2', 'A tiempo'], ['ambar', '#FBE3B3', 'Tarde'], ['rojo', '#F9CFCB', 'Faltó'], ['violeta', 'var(--tn-violeta-borde)', 'Sin salida'], ['gris', 'var(--in-campo)', 'Justificado'], ['azul', '#D7E4F8', 'Horas extra']]
+          {[['verde', '#C9F5E2', 'A tiempo'], ['ambar', '#FBE3B3', 'Tarde'], ['rojo', '#F9CFCB', 'Faltó'], ['violeta', 'var(--tn-violeta-borde)', 'Salida sin marcar'], ['gris', 'var(--in-campo)', 'Vacaciones o permiso'], ['azul', '#D7E4F8', 'Horas extra']]
             .filter(([tono]) => hechos.some(d => d.laboral && (ESTADOS[d.j.estado] || ESTADOS.presente).tono === tono))
             .map(([, c, t]) => (
             <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><i style={{ width: 6, height: 6, borderRadius: 2, background: c }} />{t}</span>
