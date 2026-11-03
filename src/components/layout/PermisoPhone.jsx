@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
-import { Award, Gift, Baby, BookOpen, ChevronLeft, ChevronRight, Clock, FileText, Heart, HeartHandshake, Paperclip, Stethoscope, Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, Paperclip } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import BarraVolver from './BarraVolver'
 import HoraCel from './HoraCel'
+import { Sello } from './VacacionPhone'
+import { INFO, numeroPermiso } from '../../utils/papeletaPermiso'
 import {
   SUBTIPOS_PERMISO, esHabil, diasHabiles, habilSiguiente, sumarDias, diaISO, aFecha, MESES, DIAS_LARGOS,
   mesDe, mesVecino, nombreMes, aMin, duracion, semanasDe,
@@ -30,22 +32,6 @@ const arriba = () => document.querySelector('#marco-telefono .phone-scroll')?.sc
 const dias = n => `${n} ${n === 1 ? 'día' : 'días'}`
 const corto = s => `${DIAS_LARGOS[diaISO(s)].slice(0, 3)} ${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
 const largo = s => { const t = `${DIAS_LARGOS[diaISO(s)]} ${aFecha(s).getDate()} de ${MESES[aFecha(s).getMonth()]}`; return t[0].toUpperCase() + t.slice(1) }
-
-/* Lo que la app sabe de cada tipo: su ícono, una línea, los días que da la ley (`habiles` cuenta solo
-   días de trabajo; si no, corridos) y el papel que lo respalda. Sin `dias`, el rango lo elige la persona. */
-const INFO = {
-  medico: { Icono: Stethoscope, linea: 'Unas horas, el día o varios días' },
-  tramite: { Icono: FileText, linea: 'Banco, notaría, carnet…' },
-  familiar: { Icono: Users, linea: 'Reunión del colegio, un familiar…' },
-  estudio: { Icono: BookOpen, linea: 'Clases o un examen' },
-  /* El reposo médico corre en días corridos, fines de semana y feriados incluidos. */
-  'lic-medica': { Icono: Heart, linea: 'Los días que indique el médico', corridos: true, respaldo: 'Certificado médico' },
-  maternidad: { Icono: Baby, linea: '90 días corridos', dias: 90, respaldo: 'Certificado médico prenatal' },
-  paternidad: { Icono: Baby, linea: '3 días hábiles', dias: 3, habiles: true, respaldo: 'Certificado de nacimiento' },
-  duelo: { Icono: HeartHandshake, linea: '3 días hábiles', dias: 3, habiles: true, respaldo: 'Certificado de defunción' },
-  matrimonio: { Icono: Award, linea: '3 días hábiles', dias: 3, habiles: true, respaldo: 'Certificado de matrimonio' },
-  cumpleanos: { Icono: Gift, linea: 'Un día libre en su mes de cumpleaños' },
-}
 
 /* El ejemplo del motivo, según lo que pide. */
 const EJEMPLO = { medico: 'control con el traumatólogo', tramite: 'renovar el carnet', familiar: 'reunión en el colegio de mi hijo', estudio: 'examen de la maestría', 'lic-medica': 'reposo indicado por el médico', maternidad: 'nacimiento previsto para el 20 de diciembre', paternidad: 'nacimiento de mi hija', duelo: 'fallecimiento de un familiar', matrimonio: 'mi matrimonio civil', cumpleanos: 'mi cumpleaños' }
@@ -110,7 +96,7 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
     at.crearSolicitud({
       tipo: 'permiso', subtipo: tipo, personaId: yo.id, desde, hasta: fin,
       ...(conHoras ? { horaDesde, horaHasta } : {}),
-      motivo: motivo.trim() || sub.label, ...(respaldo ? { respaldo } : {}), solicitada: new Date().toISOString(),
+      motivo: motivo.trim() || sub.label, ...(respaldo ? { respaldo } : {}), solicitada: new Date().toISOString(), papeleta: numeroPermiso(at),
     })
     setEnviada(true); arriba()
   }
@@ -177,7 +163,7 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto, minHeight: '100%' }}>
         <BarraVolver texto="Fechas" onVolver={() => ir('fechas')} conTema />
         <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Revise su solicitud</b>
-        <Hoja at={at} yo={yo} empresa={empresa} sub={sub} licencia={licencia} desde={desde} fin={fin} n={n} regreso={regreso}
+        <Hoja numero={numeroPermiso(at)} sucursal={at.lugarPorId.get(yo.sucursalId)?.nombre || yo.sedeNombre} yo={yo} empresa={empresa} sub={sub} licencia={licencia} desde={desde} fin={fin} n={n} regreso={regreso}
           porHoras={conHoras} corridos={corridos} horaDesde={horaDesde} horaHasta={horaHasta} respaldo={respaldo} info={info} motivo={motivo.trim()} />
         <label style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
           <span style={{ fontSize: 7.6, color: C.mute }}>Motivo (opcional)</span>
@@ -314,11 +300,9 @@ function Cabecera({ sub, info, licencia, desde, fin, n, porHoras, corridos, hora
 /* LA HOJA (la papeleta de la vacación, opción I2): datos del trabajador y lo pedido en filas de dos
    columnas, con el horario o los días en la fila menta. */
 const P = { navy: '#0C2D40', menta: '#00E091', mentaTxt: '#0A7F55', gris: '#6B7C8A', suave: '#9AABBB', borde: '#E6ECF1', linea: '#EEF2F5', fondoMenta: '#F3FBF7' }
-function Hoja({ at, yo, empresa, sub, licencia, desde, fin, n, regreso, porHoras, corridos, horaDesde, horaHasta, respaldo, info, motivo }) {
+export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin, n, regreso, porHoras, corridos, horaDesde, horaHasta, respaldo, info, motivo, firma }) {
   const nombreEmpresa = empresa?.razonSocial || empresa?.nombre || 'FarmaVida S.A.'
   const sigla = (nombreEmpresa.split(' ')[0].match(/[A-ZÁÉÍÓÚÑ]/g) || ['S']).slice(0, 2).join('')
-  const numero = `${at.hoy.slice(0, 4)}-${String(at.solicitudes.filter(s => s.tipo === 'permiso').length + 1).padStart(4, '0')}`
-  const sucursal = at.lugarPorId.get(yo.sucursalId)?.nombre || yo.sedeNombre
   const celda = (k, v, ancho, destacado) => (
     <div style={{ gridColumn: ancho ? '1 / -1' : undefined, display: 'flex', flexDirection: 'column', padding: '4px 7px', borderBottom: `1px solid ${P.linea}`, background: destacado ? '#F7FAFC' : 'transparent', minWidth: 0 }}>
       <span style={{ fontSize: 6.2, color: P.gris }}>{k}</span>
@@ -381,10 +365,10 @@ function Hoja({ at, yo, empresa, sub, licencia, desde, fin, n, regreso, porHoras
           </span>
           <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 1 }}>
             <span style={{ alignSelf: 'stretch', height: 20, borderBottom: `1px solid ${P.navy}`, display: 'grid', placeItems: 'center' }}>
-              <em style={{ fontStyle: 'normal', fontSize: 6.2, fontWeight: 700, color: '#9A5B06', background: '#FFF4DE', padding: '1px 6px', borderRadius: 99 }}>Pendiente</em>
+              <Sello firma={firma} />
             </span>
             <b style={{ fontSize: 7.6, marginTop: 3 }}>Recursos Humanos</b>
-            <span style={{ fontSize: 6.2, color: P.gris }}>Aprobación</span>
+            <span style={{ fontSize: 6.2, color: P.gris }}>{firma?.quien && firma.estado !== 'pendiente' ? `${firma.estado === 'aprobada' ? 'Aprobó' : 'Rechazó'} ${firma.quien}${firma.cuando ? ` · ${firma.cuando}` : ''}` : 'Aprobación'}</span>
           </span>
         </div>
       </div>

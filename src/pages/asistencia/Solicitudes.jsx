@@ -9,6 +9,11 @@ import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../component
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import HorasExtra from './HorasExtra'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
+import { Papeleta } from '../../components/layout/VacacionPhone'
+import { Hoja } from '../../components/layout/PermisoPhone'
+import { armarPapeleta } from '../../utils/papeletaVacacion'
+import { armarHojaPermiso } from '../../utils/papeletaPermiso'
+import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, TIPOS_MARCA, ALERTAS, diasHabiles, saldoVacaciones, fechaCorta, aFecha, duracion, mesDe } from '../../data/asistenciaData'
 
 /* ── SOLICITUDES ───────────────────────────────────────────────────────────
@@ -38,6 +43,7 @@ const ESTADOS = [
   { key: 'cancelada', label: 'Canceladas', punto: '#C9D3DC' },
 ]
 const POR_PAGINA = 10
+const QUE = { vacaciones: 'las vacaciones', justificacion: 'la justificación', correccion: 'la corrección', remoto: 'el trabajo remoto', cambio: 'el cambio de turno' }
 /* Qué dice la segunda columna, según lo que se pide. */
 const COL_PIDE = { vacaciones: 'Fechas y motivo', permiso: 'Permiso o licencia', justificacion: 'Qué justifica', correccion: 'Qué corrige', remoto: 'Días y motivo', cambio: 'Qué turno cambia' }
 const rango = (a, b) => (a === b ? fechaCorta(a) : `${fechaCorta(a)} al ${fechaCorta(b)}`)
@@ -60,6 +66,7 @@ function Lista({ ver }) {
   const [pag, setPag] = useState(1)
   const [detalle, setDetalle] = useState(null)
   const [revisar, setRevisar] = useState(null)
+  const { empresa } = useOnboardingData()
 
   const gente = useMemo(() => filtrar(at.personas, filtro), [at.personas, filtro])
   const ids = useMemo(() => new Set(gente.map(p => String(p.id))), [gente])
@@ -169,6 +176,15 @@ function Lista({ ver }) {
         const d = describir(revisar, saldoDe, coberturaDe, historialDe)
         const pendiente = revisar.estado === 'pendiente'
         const esJust = revisar.tipo === 'justificacion'
+        /* LA PAPELETA QUE FIRMÓ LA PERSONA, tal cual le llegó a RR.HH., con el sello de lo que se decidió.
+           Las solicitudes sembradas no guardaron su número: se numeran por orden de llegada. */
+        const delTipoTodas = at.solicitudes.filter(x => x.tipo === revisar.tipo).sort((a, b) => (a.cuando < b.cuando ? -1 : 1))
+        const numero = revisar.papeleta || `${(revisar.cuando || at.hoy).slice(0, 4)}-${String(delTipoTodas.findIndex(x => x.id === revisar.id) + 1).padStart(4, '0')}`
+        const firma = { estado: revisar.estado, quien: revisar.respondio, cuando: revisar.respondida ? fechaCorta(String(revisar.respondida).slice(0, 10)) : '' }
+        const ctx = { yo: revisar.persona, persona: revisar.persona, empresa, solicitudes: at.solicitudes, lugarPorId: at.lugarPorId, hoy: at.hoy, numero }
+        const documento = revisar.tipo === 'vacaciones' ? <Papeleta p={{ ...armarPapeleta({ ...revisar, papeleta: numero }, ctx) }} firma={firma} />
+          : revisar.tipo === 'permiso' ? <Hoja {...armarHojaPermiso(revisar, ctx)} firma={firma} /> : null
+        const lic = revisar.tipo === 'permiso' && SUBTIPOS_PERMISO.find(t => t.key === revisar.subtipo)?.licencia
         return (
           <RevisarSolicitud
             titulo={`Revisar · ${d.tipo}`} persona={revisar.persona} estado={ESTADOS_SOLICITUD[revisar.estado]}
@@ -180,6 +196,9 @@ function Lista({ ver }) {
             onVerDia={revisar.tipo === 'correccion' || esJust ? () => { setDetalle({ persona: revisar.persona, fecha: revisar.fecha }); setRevisar(null) } : null}
             accionAprobar={d.sinSaldo ? 'Aprobar igual' : esJust ? 'Aceptar el motivo' : 'Aprobar'}
             accionRechazar={esJust ? 'No aceptar' : 'Rechazar'}
+            documento={documento}
+            que={revisar.tipo === 'permiso' ? (lic ? 'la licencia' : 'el permiso') : QUE[revisar.tipo]}
+            excepcion={d.sinSaldo ? 'No le alcanza el saldo: aprobarla es una excepción y quedará registrada así.' : null}
             onCerrar={() => setRevisar(null)}
           />
         )

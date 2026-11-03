@@ -365,7 +365,7 @@ export function VerPapeleta({ papeleta, onCerrar }) {
       <div style={{ height: 34, flexShrink: 0 }} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px 10px 14px', scrollbarWidth: 'none' }}>
         <BarraVolver texto="Volver" onVolver={onCerrar} conTema />
-        <Papeleta p={papeleta} />
+        <Papeleta p={papeleta} firma={papeleta.firma} />
       </div>
     </div>
   )
@@ -378,7 +378,16 @@ export function VerPapeleta({ papeleta, onCerrar }) {
 const P = { navy: '#0C2D40', menta: '#00E091', mentaTxt: '#0A7F55', gris: '#6B7C8A', suave: '#9AABBB', borde: '#E6ECF1', linea: '#EEF2F5', fondoMenta: '#F3FBF7', bordeMenta: '#D3F5E6' }
 const iniciales = nombre => ((nombre || '').split(' ')[0].match(/[A-ZÁÉÍÓÚÑ]/g) || ['S']).slice(0, 2).join('')
 
-function Papeleta({ p }) {
+
+/* El sello de RR.HH. en la papeleta: «Pendiente» mientras nadie responde; después, lo que se decidió. */
+const SELLOS = { pendiente: ['Pendiente', '#9A5B06', '#FFF4DE'], aprobada: ['Aprobada', '#0A7F55', '#E6F9F1'], rechazada: ['Rechazada', '#B42318', '#FDECEA'], cancelada: ['Cancelada', '#475569', '#EEF2F5'] }
+export function Sello({ firma }) {
+  const [t, c, bg] = SELLOS[firma?.estado] || SELLOS.pendiente
+  return <em style={{ fontStyle: 'normal', fontSize: 6.2, fontWeight: 700, color: c, background: bg, padding: '1px 6px', borderRadius: 99 }}>{t}</em>
+}
+
+/* `firma`: { estado, quien, cuando } para mostrar la respuesta de RR.HH. (en Asistencia › Solicitudes). */
+export function Papeleta({ p, firma }) {
   const per = p.persona
   const horario = !p.horario?.dias?.length ? 'Lunes a viernes'
     : p.horario.dias.length === 6 ? 'Lunes a sábado' : p.horario.dias.length === 5 ? 'Lunes a viernes' : `${p.horario.dias.length} días por semana`
@@ -457,10 +466,10 @@ function Papeleta({ p }) {
           </span>
           <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 1 }}>
             <span style={{ alignSelf: 'stretch', height: 20, borderBottom: `1px solid ${P.navy}`, display: 'grid', placeItems: 'center' }}>
-              <em style={{ fontStyle: 'normal', fontSize: 6.2, fontWeight: 700, color: '#9A5B06', background: '#FFF4DE', padding: '1px 6px', borderRadius: 99 }}>Pendiente</em>
+              <Sello firma={firma} />
             </span>
             <b style={{ fontSize: 7.6, marginTop: 3 }}>Recursos Humanos</b>
-            <span style={{ fontSize: 6.2, color: P.gris }}>Aprobación</span>
+            <span style={{ fontSize: 6.2, color: P.gris }}>{firma?.quien && firma.estado !== 'pendiente' ? `${firma.estado === 'aprobada' ? 'Aprobó' : 'Rechazó'} ${firma.quien}${firma.cuando ? ` · ${firma.cuando}` : ''}` : 'Aprobación'}</span>
           </span>
         </div>
       </div>

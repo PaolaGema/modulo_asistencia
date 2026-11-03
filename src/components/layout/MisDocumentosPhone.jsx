@@ -1671,7 +1671,7 @@ function DetallePedido({ nombre, id, md, atras, onLeer, onAviso, onCancelada }) 
       </div>
       {vacacion && s.papeleta && (
         <button type="button" style={accion}
-          onClick={() => setViendo(armarPapeleta(s, { yo: at.yo, empresa, solicitudes: at.solicitudes, lugarPorId: at.lugarPorId, hoy: at.hoy }))}>
+          onClick={() => setViendo({ ...armarPapeleta(s, { yo: at.yo, empresa, solicitudes: at.solicitudes, lugarPorId: at.lugarPorId, hoy: at.hoy }), firma: { estado: s.estado, quien: s.respondio, cuando: s.respondida ? String(s.respondida).slice(0, 10).split('-').reverse().slice(0, 2).join('/') : '' } })}>
           <FileText size={13} style={{ color: 'var(--in-texto)' }} />
           <span style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><b style={{ fontSize: 7.8, color: 'var(--in-texto)' }}>Papeleta de vacación</b><span style={{ fontSize: 6.4, color: 'var(--in-mute)' }}>N° {s.papeleta}</span></span>
           <span style={{ fontSize: 7.2, fontWeight: 700, color: 'var(--tx-verde)' }}>Ver</span>

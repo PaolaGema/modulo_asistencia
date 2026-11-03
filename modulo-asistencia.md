@@ -34,7 +34,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | roles con su vista | 3 |
 | estados de un día | 13 |
 | reglas de negocio | 58 |
-| requisitos funcionales | 77 |
+| requisitos funcionales | 80 |
 | historias de usuario | 20 |
 | pantallas | 22 |
 | decisiones abiertas | 11 |
@@ -331,10 +331,12 @@ Lo que antes era Incidencias, dentro del Libro de asistencia. El módulo es solo
 Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una vista por tipo: **Vacaciones**, **Permisos y licencias**, **Horas extra**, **Justificaciones**, **Correcciones de marcación**, **Trabajo remoto** y **Cambios de turno**.
 
 - **Estado** en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Por responder (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. En Vacaciones, arriba a la derecha, **Solicitudes · Saldos** cambia de vista.
-- **Tabla**: la persona, qué pide, **«Para decidir»** —hasta dos datos que hacen falta para responder—, cuándo lo pidió y su estado. «Revisar» o «Ver».
+- **Tabla**: Colaborador, qué pide (Fechas y motivo, Permiso o licencia, Qué justifica…), **A tener en cuenta** —hasta dos datos que hacen falta para responder—, cuándo la pidió y su estado. «Revisar» o «Ver».
 - **«Para decidir»** según el tipo: el saldo de vacaciones que le queda («Pide 5 y le quedan 3»); si su lugar sigue cubierto esos días («Su lugar quedaría con 6 de 9»); si la licencia trae respaldo; cuántas justificaciones lleva en el mes.
-- **Revisar** abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y **«Si apruebas:»** con lo que va a pasar. Aprobar admite una nota; **rechazar pide un motivo** y se confirma en un segundo paso. «Decidir después» la deja como estaba.
-- **Aprobar aplica el efecto**: el día de vacaciones o de licencia deja de ser falta, la corrección carga la marcación, el trabajo remoto quita la geocerca esos días, la justificación saca la alerta del cierre.
+- **Revisar** abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y **«Si apruebas:»** con lo que va a pasar. «Decidir después» la deja como estaba.
+- **La papeleta a la vista**: en vacaciones y en permisos y licencias, a la izquierda de «Revisar» está la misma papeleta que la persona vio y solicitó desde su app, con su número. El recuadro de RR.HH. dice «Pendiente» y, al responder, «Aprobada» o «Rechazada» con quién y cuándo; la persona ve ese mismo sello en su papeleta, en Mis solicitudes.
+- **Aprobar se confirma escribiendo la palabra**: un segundo paso repite qué va a pasar —en rojo si es una excepción sin saldo— y pide escribir **APROBAR** (o **ACEPTAR** en una justificación) para activar «Sí, aprobar». Aprobar admite una nota; **rechazar pide un motivo** y también se confirma en un segundo paso.
+- **Aprobar aplica el efecto**: el día de vacaciones o de licencia deja de ser falta, la corrección carga la marcación, el trabajo remoto quita la geocerca esos días, la justificación deja de contar la alerta en contra.
 - Buscador y filtros de lugar y unidad; 10 por página.
 
 | Código | Requisito | Prioridad | Criterio |
@@ -343,6 +345,9 @@ Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una
 | RF‑ASI‑027 | Rechazar pide un motivo de al menos 6 caracteres, que la persona lee | Oblig. | Sin motivo, «Confirmar» no se activa |
 | RF‑ASI‑028 | Aprobar aplica el efecto en el día | Oblig. | Una corrección aprobada aparece como marca cargada por RR.HH. |
 | RF‑ASI‑029 | Aprobar sin saldo pide «Aprobar igual» y queda como excepción | Import. | Pide 5 y tiene 3: el botón dice «Aprobar igual» |
+| RF‑ASI‑078 | Aprobar pide escribir «APROBAR» en un segundo paso | Oblig. | Hasta escribir la palabra, «Sí, aprobar» no se activa |
+| RF‑ASI‑079 | Vacaciones y permisos muestran la papeleta que solicitó la persona | Oblig. | El número de la papeleta en «Revisar» es el mismo que ve la persona en su app |
+| RF‑ASI‑080 | La papeleta lleva el sello de la respuesta de RR.HH. | Import. | Aprobada, dice «Aprobó Juan Pérez Gómez · 3 nov» en los dos lados |
 | RF‑ASI‑030 | La cobertura avisa si el lugar quedaría bajo el 80 % | Import. | «Su lugar quedaría con 6 de 9» en ámbar |
 | RF‑ASI‑031 | El menú cuenta las solicitudes por responder, con las de horas extra | Oblig. | Una nueva desde la app suma uno |
 

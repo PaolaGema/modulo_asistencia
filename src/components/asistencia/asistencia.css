@@ -1499,3 +1499,14 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-pdf-op span { display: grid; gap: 3px; } .at-pdf-op b { font-size: 14px; color: var(--text-heading); } .at-pdf-op small { font-size: 12.5px; color: var(--text-muted); line-height: 1.45; }
 .at-gira { animation: at-gira 0.9s linear infinite; } @keyframes at-gira { to { transform: rotate(360deg) } }
 .at-tabla-sol th { white-space: nowrap; }
+
+/* Revisar con la papeleta al lado y aprobar escribiendo la palabra */
+.at-rev-con-doc { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 24px; align-items: start; }
+.at-rev-doc { background: var(--bg-canal); border-radius: 14px; padding: 16px; position: sticky; top: 0; }
+.at-rev-doc-papel { width: 268px; zoom: 1.45; }
+.at-rev-confirma { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 12px; border: 1.5px solid var(--dc-verde); background: var(--dc-verde-bg); font-size: 13px; line-height: 1.5; color: var(--text-heading); }
+.at-rev-confirma > b { display: flex; align-items: center; gap: 8px; font-size: 14.5px; }
+.at-rev-confirma > b svg { color: var(--green-fuerte); }
+.at-rev-palabra { font-family: ui-monospace, monospace; letter-spacing: .08em; background: var(--surface-card); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--border-soft); }
+.at-rev-confirma .pl-input { background: var(--surface-card); font-weight: 600; letter-spacing: .06em; }
+@media (max-width: 1000px) { .at-rev-con-doc { grid-template-columns: 1fr; } .at-rev-doc { position: static; display: grid; justify-items: center; } }

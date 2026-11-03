@@ -986,7 +986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>3</b><span>roles con su vista</span></div>
     <div><b>13</b><span>estados de un día</span></div>
     <div><b>58</b><span>reglas de negocio</span></div>
-    <div><b>77</b><span>requisitos funcionales</span></div>
+    <div><b>80</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
     <div><b>22</b><span>pantallas</span></div>
     <div><b>11</b><span>decisiones abiertas</span></div>
@@ -1733,10 +1733,12 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una vista por tipo: <strong>Vacaciones</strong>, <strong>Permisos y licencias</strong>, <strong>Horas extra</strong>, <strong>Justificaciones</strong>, <strong>Correcciones de marcación</strong>, <strong>Trabajo remoto</strong> y <strong>Cambios de turno</strong>.</p>
 <ul>
 <li><strong>Estado</strong> en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Por responder (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. En Vacaciones, arriba a la derecha, <strong>Solicitudes · Saldos</strong> cambia de vista.</li>
-<li><strong>Tabla</strong>: la persona, qué pide, <strong>«Para decidir»</strong> —hasta dos datos que hacen falta para responder—, cuándo lo pidió y su estado. «Revisar» o «Ver».</li>
+<li><strong>Tabla</strong>: Colaborador, qué pide (Fechas y motivo, Permiso o licencia, Qué justifica…), <strong>A tener en cuenta</strong> —hasta dos datos que hacen falta para responder—, cuándo la pidió y su estado. «Revisar» o «Ver».</li>
 <li><strong>«Para decidir»</strong> según el tipo: el saldo de vacaciones que le queda («Pide 5 y le quedan 3»); si su lugar sigue cubierto esos días («Su lugar quedaría con 6 de 9»); si la licencia trae respaldo; cuántas justificaciones lleva en el mes.</li>
-<li><strong>Revisar</strong> abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y <strong>«Si apruebas:»</strong> con lo que va a pasar. Aprobar admite una nota; <strong>rechazar pide un motivo</strong> y se confirma en un segundo paso. «Decidir después» la deja como estaba.</li>
-<li><strong>Aprobar aplica el efecto</strong>: el día de vacaciones o de licencia deja de ser falta, la corrección carga la marcación, el trabajo remoto quita la geocerca esos días, la justificación saca la alerta del cierre.</li>
+<li><strong>Revisar</strong> abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y <strong>«Si apruebas:»</strong> con lo que va a pasar. «Decidir después» la deja como estaba.</li>
+<li><strong>La papeleta a la vista</strong>: en vacaciones y en permisos y licencias, a la izquierda de «Revisar» está la misma papeleta que la persona vio y solicitó desde su app, con su número. El recuadro de RR.HH. dice «Pendiente» y, al responder, «Aprobada» o «Rechazada» con quién y cuándo; la persona ve ese mismo sello en su papeleta, en Mis solicitudes.</li>
+<li><strong>Aprobar se confirma escribiendo la palabra</strong>: un segundo paso repite qué va a pasar —en rojo si es una excepción sin saldo— y pide escribir <strong>APROBAR</strong> (o <strong>ACEPTAR</strong> en una justificación) para activar «Sí, aprobar». Aprobar admite una nota; <strong>rechazar pide un motivo</strong> y también se confirma en un segundo paso.</li>
+<li><strong>Aprobar aplica el efecto</strong>: el día de vacaciones o de licencia deja de ser falta, la corrección carga la marcación, el trabajo remoto quita la geocerca esos días, la justificación deja de contar la alerta en contra.</li>
 <li>Buscador y filtros de lugar y unidad; 10 por página.</li>
 </ul>
 <div class="tbl"><table>
@@ -1746,6 +1748,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-027">RF‑ASI‑027</td><td>Rechazar pide un motivo de al menos 6 caracteres, que la persona lee</td><td>Oblig.</td><td>Sin motivo, «Confirmar» no se activa</td></tr>
 <tr><td class="id" id="RF-ASI-028">RF‑ASI‑028</td><td>Aprobar aplica el efecto en el día</td><td>Oblig.</td><td>Una corrección aprobada aparece como marca cargada por RR.HH.</td></tr>
 <tr><td class="id" id="RF-ASI-029">RF‑ASI‑029</td><td>Aprobar sin saldo pide «Aprobar igual» y queda como excepción</td><td>Import.</td><td>Pide 5 y tiene 3: el botón dice «Aprobar igual»</td></tr>
+<tr><td class="id" id="RF-ASI-078">RF‑ASI‑078</td><td>Aprobar pide escribir «APROBAR» en un segundo paso</td><td>Oblig.</td><td>Hasta escribir la palabra, «Sí, aprobar» no se activa</td></tr>
+<tr><td class="id" id="RF-ASI-079">RF‑ASI‑079</td><td>Vacaciones y permisos muestran la papeleta que solicitó la persona</td><td>Oblig.</td><td>El número de la papeleta en «Revisar» es el mismo que ve la persona en su app</td></tr>
+<tr><td class="id" id="RF-ASI-080">RF‑ASI‑080</td><td>La papeleta lleva el sello de la respuesta de RR.HH.</td><td>Import.</td><td>Aprobada, dice «Aprobó Juan Pérez Gómez · 3 nov» en los dos lados</td></tr>
 <tr><td class="id" id="RF-ASI-030">RF‑ASI‑030</td><td>La cobertura avisa si el lugar quedaría bajo el 80 %</td><td>Import.</td><td>«Su lugar quedaría con 6 de 9» en ámbar</td></tr>
 <tr><td class="id" id="RF-ASI-031">RF‑ASI‑031</td><td>El menú cuenta las solicitudes por responder, con las de horas extra</td><td>Oblig.</td><td>Una nueva desde la app suma uno</td></tr>
 </tbody>
