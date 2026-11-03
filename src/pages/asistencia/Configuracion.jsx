@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Star, Building2, Warehouse, Users, CheckCircle2, AlertTriangle,
   ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, Ruler, CalendarClock, RotateCcw, Check, Copy, Coffee, LogOut, BellRing, Smartphone,
+  LayoutGrid, Table2,
 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio, MenuAcciones } from '../../components/documentacion/comunes'
@@ -83,13 +84,56 @@ export default function Configuracion() {
 }
 
 /* ── HORARIOS ── */
+/* TARJETAS O TABLA: las tarjetas dibujan el día; la tabla compara los horarios lado a lado. Eliminar
+   pide confirmación, como toda acción con consecuencias. */
 function Horarios() {
   const at = useAsistencia()
+  const [params, setParams] = useSearchParams()
+  const enTabla = params.get('forma') === 'tabla'
+  const ponForma = v => { const n = new URLSearchParams(params); if (v) n.set('forma', v); else n.delete('forma'); setParams(n, { replace: true }) }
   const [editar, setEditar] = useState(null)
+  const [borrar, setBorrar] = useState(null)
   const uso = id => Object.values(at.asignaciones).filter(a => a?.horarioId === id).length
+  const acciones = (h, n, fr) => [
+    { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...h, conPausa: !!fr, pausaDesde: fr ? hhmm(fr.desde) : '13:00', pausaHasta: fr ? hhmm(fr.hasta) : '14:00' }) },
+    { label: 'Duplicar', Icono: Copy, onClick: () => at.setHorarios(prev => [...prev, { ...h, id: `h-${Date.now().toString(36)}`, nombre: `${h.nombre} (copia)` }]) },
+    { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: n > 0, titulo: n > 0 ? 'Está asignado a colaboradores: reasígnelos primero' : undefined, onClick: () => setBorrar(h) },
+  ]
   return (
     <>
-      <div><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button></div>
+      <div className="at-hor-barra">
+        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
+        <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver">
+          <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma(null)}><LayoutGrid size={15} aria-hidden="true" /></button>
+          <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma('tabla')}><Table2 size={15} aria-hidden="true" /></button>
+        </div>
+      </div>
+      {enTabla ? (
+        <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
+          <table className="as-table at-tabla at-tabla-sol at-hor-tabla">
+            <thead><tr><th>Horario</th><th>Entrada y salida</th><th>Descanso</th><th>Días</th><th className="r">Al día</th><th className="r">A la semana</th><th className="r">Colaboradores</th><th aria-label="Acciones" /></tr></thead>
+            <tbody>
+              {at.horarios.map(h => {
+                const n = uso(h.id)
+                const fr = franjaPausa(h)
+                const dia = minutosProgramados(h)
+                return (
+                  <tr key={h.id}>
+                    <td><span className="at-hor-nom"><span className="at-item-color" style={{ background: h.color }} /><b>{h.nombre}</b>{h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</span></td>
+                    <td className="num">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}` : <span className="dc-muted">Libre</span>}</td>
+                    <td className="num">{h.modo === 'fijo' ? (fr ? `${hhmm(fr.desde)} a ${hhmm(fr.hasta)}` : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
+                    <td><span className="at-semana-chips at-semana-chips-sm">{[1, 2, 3, 4, 5, 6, 7].map(d => <span key={d} className={h.dias.includes(d) ? 'on' : ''}>{DIAS_CORTOS[d].slice(0, 2)}</span>)}</span></td>
+                    <td className="num r">{duracion(dia)}</td>
+                    <td className="num r">{duracion(dia * h.dias.length)}</td>
+                    <td className="num r">{n}</td>
+                    <td style={{ textAlign: 'right' }}><MenuAcciones items={acciones(h, n, fr)} /></td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
       <div className="at-config-grid">
         {at.horarios.map(h => {
           const n = uso(h.id)
@@ -104,11 +148,7 @@ function Horarios() {
                   <h3 className="at-item-nom">{h.nombre} {h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</h3>
                   <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${fr ? ` · descanso de ${hhmm(fr.desde)} a ${hhmm(fr.hasta)}` : ' · sin descanso'}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
                 </div>
-                <MenuAcciones items={[
-                  { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...h, conPausa: !!fr, pausaDesde: fr ? hhmm(fr.desde) : '13:00', pausaHasta: fr ? hhmm(fr.hasta) : '14:00' }) },
-                  { label: 'Duplicar', Icono: Copy, onClick: () => at.setHorarios(prev => [...prev, { ...h, id: `h-${Date.now().toString(36)}`, nombre: `${h.nombre} (copia)` }]) },
-                  { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: n > 0, titulo: n > 0 ? 'Está asignado a personas: reasígnelas primero' : undefined, onClick: () => at.setHorarios(prev => prev.filter(x => x.id !== h.id)) },
-                ]} />
+                <MenuAcciones items={acciones(h, n, fr)} />
               </div>
               <div className="at-semana-chips" aria-label="Días">
                 {[1, 2, 3, 4, 5, 6, 7].map(d => <span key={d} className={h.dias.includes(d) ? 'on' : ''}>{DIAS_CORTOS[d]}</span>)}
@@ -127,13 +167,20 @@ function Horarios() {
               )}
               <div className="at-item-pie">
                 <span>{duracion(minutosProgramados(h))} programadas al día</span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Users size={13} /> {n} {n === 1 ? 'persona' : 'personas'}</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Users size={13} /> {n} {n === 1 ? 'colaborador' : 'colaboradores'}</span>
               </div>
             </article>
           )
         })}
       </div>
+      )}
       {editar && <ModalHorario inicial={editar} onCerrar={() => setEditar(null)} />}
+      {borrar && (
+        <Modal titulo="Eliminar horario" Icono={Trash2} onCerrar={() => setBorrar(null)} ancho={460}
+          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setBorrar(null)}>Cancelar</button><button type="button" className="at-btn-peligro" style={{ height: 38 }} onClick={() => { at.setHorarios(prev => prev.filter(x => x.id !== borrar.id)); setBorrar(null) }}>Sí, eliminar</button></>}>
+          <p style={{ margin: 0, lineHeight: 1.55 }}>¿Eliminar el horario <b>{borrar.nombre}</b>? Nadie lo tiene asignado, así que no cambia la jornada de ningún colaborador. No se puede deshacer.</p>
+        </Modal>
+      )}
     </>
   )
 }

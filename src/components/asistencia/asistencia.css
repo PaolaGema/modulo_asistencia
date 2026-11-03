@@ -1519,3 +1519,15 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-libro .at-barra-busca .at-filtros .dc-filtro { width: 170px; }
 .at-libro .at-barra-busca .at-filtro-estado { width: 230px; }
 .at-libro .at-barra-busca .at-filtro-estado + .at-filtro-estado { width: 180px; }
+
+/* Horarios: tarjetas o tabla */
+.at-hor-barra { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.at-hor-nom { display: inline-flex; align-items: center; gap: 8px; } .at-hor-nom b { font-weight: 600; color: var(--text-heading); }
+.at-hor-tabla td.r, .at-hor-tabla th.r { text-align: right; }
+.at-semana-chips-sm { display: inline-flex; gap: 3px; } .at-semana-chips-sm span { min-width: 22px; height: 22px; font-size: 10.5px; padding: 0 4px; }
+.at-hor-tabla th, .at-hor-tabla td { padding-left: 10px; padding-right: 10px; white-space: nowrap; }
+.at-hor-tabla .at-semana-chips-sm span { width: auto; min-width: 20px; height: 20px; border-radius: 6px; font-size: 9.5px; }
+.at-hor-tabla .at-item-color { height: 18px; }
+.at-hor-tabla td:first-child { white-space: normal; min-width: 170px; }
+.at-hor-tabla .at-semana-chips-sm { gap: 2px; }
+.at-hor-tabla th:last-child, .at-hor-tabla td:last-child { width: 44px; padding-left: 0; }

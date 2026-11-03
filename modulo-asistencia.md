@@ -401,7 +401,8 @@ El módulo es solo de asistencia: no paga sueldos ni cierra meses. Lo que pidió
 
 Cuándo trabaja cada quien. Arriba de toda la Configuración, la **puesta a punto**: lugares con geocerca, personas con horario, política por defecto, consentimiento biométrico y rostros enrolados, con lo que falta y su enlace.
 
-- **Tarjeta** por horario: su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántas personas lo tienen. Menú: Editar, Duplicar, Eliminar (no si está asignado).
+- **Tarjetas o tabla**: dos íconos junto a «Nuevo horario». La **tarjeta** muestra su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántos colaboradores lo tienen. La **tabla** pone los horarios lado a lado: Horario, Entrada y salida, Descanso, Días, Al día, A la semana y Colaboradores.
+- Menú: Editar, Duplicar, Eliminar (no si está asignado). **Eliminar pide confirmación** en una ventana: «Sí, eliminar».
 - **Nuevo horario**: nombre; tipo **Fijo · con hora de entrada** o **Flexible · por meta de horas**; días que trabaja; entrada y salida; **«Tiene descanso»** con su franja desde–hasta; o la meta diaria si es flexible; color.
 - Debajo de la entrada: **la tolerancia de la política** y desde qué hora cuenta como atraso, con las otras políticas que tienen otra y «Cambiar en Políticas».
 - Abajo: las horas programadas al día y a la semana.
