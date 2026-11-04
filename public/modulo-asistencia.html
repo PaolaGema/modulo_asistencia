@@ -986,7 +986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>3</b><span>roles con su vista</span></div>
     <div><b>13</b><span>estados de un día</span></div>
     <div><b>58</b><span>reglas de negocio</span></div>
-    <div><b>84</b><span>requisitos funcionales</span></div>
+    <div><b>86</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
     <div><b>22</b><span>pantallas</span></div>
     <div><b>11</b><span>decisiones abiertas</span></div>
@@ -1166,7 +1166,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#p3-8">3.8 Horas extra</a></li>
     <li><a href="#p3-9">3.9 Exportar para planillas</a></li>
     <li><a href="#p3-10">3.10 Configuración › Horarios</a></li>
-    <li><a href="#p3-11">3.11 Configuración › Políticas de marcación</a></li>
+    <li><a href="#p3-11">3.11 Configuración › Modalidades</a></li>
     <li><a href="#p3-12">3.12 Configuración › Avisos al colaborador</a></li>
     <li><a href="#p3-13">3.13 Configuración › Lugares y geocercas</a></li>
     <li><a href="#p3-14">3.14 Configuración › Asignaciones</a></li>
@@ -1814,7 +1814,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li><strong>Nuevo horario</strong> (Ronda 19 · X1): una ventana ancha. Arriba, nombre, tipo (<strong>Fijo</strong> o <strong>Flexible</strong>) y color. A la izquierda, <strong>un renglón por día, de lunes a domingo</strong>: un interruptor para si trabaja ese día, su entrada y su salida, <strong>sus descansos</strong> —hasta dos, solo con su hora («☕ 13:00–14:00»)— como etiquetas; al tocar una se abre <strong>una tarjetita flotante</strong> (Ronda 20 · E2) con desde → hasta en grande, duraciones rápidas (15 min, 30 min, 45 min, 1 h) que calculan el «hasta», la barra del día con dónde cae y «Quitar descanso», sus horas y un menú ⋯ para copiar ese día a todos, de lunes a viernes o a un día libre. A la derecha, <strong>«Así queda su semana»</strong>: un calendario de lunes a domingo con un bloque por día en el color del horario y los descansos rayados. Abajo, la tolerancia de la política y las horas por grupo de días y de la semana. <strong>Un horario nuevo arranca de lunes a sábado</strong> (sábado de 08:30 a 12:30, sin descanso); cada empresa lo cambia. Cada día avisa si la salida es antes que la entrada o si un descanso cae fuera de la jornada o se pisa con el otro.</li>
 <li><strong>Cada descanso se mide por separado</strong>: la primera pausa que marca contra el primer descanso, la segunda contra el segundo; si se excede en el primero, el exceso aparece en el primero. Si no marca uno que su jornada incluye, cuenta como descanso sin marcar. Las horas del día descuentan los dos.</li>
 <li><strong>Un día distinto cuenta como jornada completa con sus propias horas</strong>: quien trabaja el sábado de 08:00 a 12:00 cumplió su día y no queda debiendo; la tardanza y la salida anticipada se miden contra el horario de ese día. Por dentro se guarda el horario más repetido como base y los demás días como excepciones. La tabla y la tarjeta muestran los días distintos debajo («Sá 09:00 a 13:00»).</li>
-<li>Debajo de la entrada: <strong>la tolerancia de la política</strong> y desde qué hora cuenta como atraso, con las otras políticas que tienen otra y «Cambiar en Políticas».</li>
+<li><strong>Cómo se cuenta</strong> (lo que antes era la política): tolerancia de entrada, del descanso y de salida con − y +, cada una con su efecto («Atraso desde las 08:40», «Salida anticipada antes de las 17:55»); qué pasa si no marca el descanso (descontar y alertar, solo descontar, solo alertar) y cómo se cuenta la tardanza (al segundo, por minuto completo, en bloques de 5 min). La tabla muestra la tolerancia debajo de la entrada y salida.</li>
 <li>Abajo: las horas programadas al día y a la semana.</li>
 </ul>
 <div class="tbl"><table>
@@ -1829,19 +1829,25 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-084">RF‑ASI‑084</td><td>Cada día del horario puede tener hasta dos descansos, cada uno medido por separado</td><td>Oblig.</td><td>Con descansos de 13:00 a 14:00 y de 16:00 a 16:15, el lunes de 08:30 a 18:00 programa 8:15</td></tr>
 </tbody>
 </table></div>
-<h3 id="p3-11">3.11 Configuración › Políticas de marcación</h3>
+<h3 id="p3-11">3.11 Configuración › Modalidades</h3>
+<p><strong>Antes era «Políticas de marcación»</strong> (una lista de políticas para asignar a cada persona). Desde el 3 de noviembre es una sola página, más sencilla: <strong>qué se le pide al colaborador al marcar, según cómo trabaja</strong>. Las tolerancias, qué pasa si no marca el descanso y cómo se cuenta la tardanza pasaron a <strong>cada horario</strong> («Cómo se cuenta», en la ventana del horario).</p>
 <ul>
-<li><strong>Tabla o tarjetas</strong>, como en Horarios: se abre en la <strong>tabla</strong> —Política, Rostro, Ubicación (geocerca y radio), Entrada, Descanso (y qué pasa si no lo marca), Salida, Tardanza (redondeo) y Colaboradores— y las <strong>tarjetas</strong> muestran las mismas reglas con su descripción.</li>
-<li>Menú: Editar, Usar por defecto (con confirmación) y Eliminar (escribiendo el nombre; no si es la de por defecto o está en uso).</li>
-<li><strong>Nueva política</strong>: «Pedir el rostro» y su similitud mínima (60 a 95 %); «Exigir estar en el lugar» y un radio propio opcional; <strong>Cómo se calcula el día</strong>: tolerancias de entrada (0–60 min), descanso (0–30) y salida (0–60); <strong>Si no marca el descanso</strong>: Descontar y alertar, Solo descontar o Solo alertar; <strong>Redondeo</strong>: al segundo, por minuto completo o en bloques de 5 min; «Usar por defecto».</li>
-<li>Vienen tres: <strong>Estándar</strong> (por defecto), <strong>Trabajo remoto</strong> y <strong>Cargos de confianza</strong>.</li>
+<li><strong>Una tarjeta por modalidad</strong>, con cuántos colaboradores la tienen:</li>
+</ul>
+<p>  - <strong>Presencial</strong>: «Pedir el rostro» y «Estar en su lugar» (dentro de la geocerca; si no, la marcación se rechaza).   - <strong>Híbrido</strong>: «Pedir el rostro» y «Estar en su lugar los días de oficina»; los otros días marca desde donde esté.   - <strong>Remoto</strong>: «Pedir el rostro»; marca desde donde esté, la ubicación se guarda pero no bloquea.</p>
+<ul>
+<li><strong>Parecido mínimo del rostro</strong>, para todos los que marcan con rostro: de 60 % a 95 % (78 % por defecto).</li>
+<li>El horario flexible nunca pide estar en el lugar.</li>
+<li>Las direcciones viejas (<code>?ver=politicas</code>) abren Modalidades. En Asignaciones y en la ficha del colaborador ya no se elige una política.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
-<tr><td class="id" id="RF-ASI-046">RF‑ASI‑046</td><td>Hay una sola política por defecto</td><td>Oblig.</td><td>Marcar otra como por defecto le quita la marca a la anterior</td></tr>
-<tr><td class="id" id="RF-ASI-047">RF‑ASI‑047</td><td>La similitud del rostro nunca baja del 60 %</td><td>Oblig.</td><td>El deslizador no permite menos</td></tr>
-<tr><td class="id" id="RF-ASI-048">RF‑ASI‑048</td><td>La política por defecto o en uso no se elimina</td><td>Oblig.</td><td>«Está en uso» desactiva Eliminar</td></tr>
+<tr><td class="id" id="RF-ASI-046">RF‑ASI‑046</td><td><strong>Retirado:</strong> ya no hay políticas ni una «por defecto»</td><td>—</td><td>—</td></tr>
+<tr><td class="id" id="RF-ASI-047">RF‑ASI‑047</td><td>El parecido del rostro nunca baja del 60 %</td><td>Oblig.</td><td>El deslizador no permite menos</td></tr>
+<tr><td class="id" id="RF-ASI-048">RF‑ASI‑048</td><td><strong>Retirado:</strong> ya no hay políticas que eliminar</td><td>—</td><td>—</td></tr>
+<tr><td class="id" id="RF-ASI-085">RF‑ASI‑085</td><td>Lo que se pide al marcar depende de la modalidad del colaborador</td><td>Oblig.</td><td>Con «Estar en su lugar» apagado para Presencial, una marca fuera de la geocerca no se rechaza</td></tr>
+<tr><td class="id" id="RF-ASI-086">RF‑ASI‑086</td><td>Cada horario tiene sus tolerancias, su regla de descanso sin marcar y su redondeo</td><td>Oblig.</td><td>Con 15 min en el horario Tienda, quien entra 08:44 a un horario de 08:30 no llega tarde</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-12">3.12 Configuración › Avisos al colaborador</h3>

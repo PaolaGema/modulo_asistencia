@@ -34,7 +34,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | roles con su vista | 3 |
 | estados de un día | 13 |
 | reglas de negocio | 58 |
-| requisitos funcionales | 84 |
+| requisitos funcionales | 86 |
 | historias de usuario | 20 |
 | pantallas | 22 |
 | decisiones abiertas | 11 |
@@ -407,7 +407,7 @@ Cuándo trabaja cada quien.
 - **Nuevo horario** (Ronda 19 · X1): una ventana ancha. Arriba, nombre, tipo (**Fijo** o **Flexible**) y color. A la izquierda, **un renglón por día, de lunes a domingo**: un interruptor para si trabaja ese día, su entrada y su salida, **sus descansos** —hasta dos, solo con su hora («☕ 13:00–14:00»)— como etiquetas; al tocar una se abre **una tarjetita flotante** (Ronda 20 · E2) con desde → hasta en grande, duraciones rápidas (15 min, 30 min, 45 min, 1 h) que calculan el «hasta», la barra del día con dónde cae y «Quitar descanso», sus horas y un menú ⋯ para copiar ese día a todos, de lunes a viernes o a un día libre. A la derecha, **«Así queda su semana»**: un calendario de lunes a domingo con un bloque por día en el color del horario y los descansos rayados. Abajo, la tolerancia de la política y las horas por grupo de días y de la semana. **Un horario nuevo arranca de lunes a sábado** (sábado de 08:30 a 12:30, sin descanso); cada empresa lo cambia. Cada día avisa si la salida es antes que la entrada o si un descanso cae fuera de la jornada o se pisa con el otro.
 - **Cada descanso se mide por separado**: la primera pausa que marca contra el primer descanso, la segunda contra el segundo; si se excede en el primero, el exceso aparece en el primero. Si no marca uno que su jornada incluye, cuenta como descanso sin marcar. Las horas del día descuentan los dos.
 - **Un día distinto cuenta como jornada completa con sus propias horas**: quien trabaja el sábado de 08:00 a 12:00 cumplió su día y no queda debiendo; la tardanza y la salida anticipada se miden contra el horario de ese día. Por dentro se guarda el horario más repetido como base y los demás días como excepciones. La tabla y la tarjeta muestran los días distintos debajo («Sá 09:00 a 13:00»).
-- Debajo de la entrada: **la tolerancia de la política** y desde qué hora cuenta como atraso, con las otras políticas que tienen otra y «Cambiar en Políticas».
+- **Cómo se cuenta** (lo que antes era la política): tolerancia de entrada, del descanso y de salida con − y +, cada una con su efecto («Atraso desde las 08:40», «Salida anticipada antes de las 17:55»); qué pasa si no marca el descanso (descontar y alertar, solo descontar, solo alertar) y cómo se cuenta la tardanza (al segundo, por minuto completo, en bloques de 5 min). La tabla muestra la tolerancia debajo de la entrada y salida.
 - Abajo: las horas programadas al día y a la semana.
 
 | Código | Requisito | Prioridad | Criterio |
@@ -420,18 +420,25 @@ Cuándo trabaja cada quien.
 | RF‑ASI‑083 | El día con otro horario cuenta como jornada completa con sus horas | Oblig. | Trabajar el sábado de 08:00 a 12:00 da «4:00 de 4:00» y «Terminó su jornada» |
 | RF‑ASI‑084 | Cada día del horario puede tener hasta dos descansos, cada uno medido por separado | Oblig. | Con descansos de 13:00 a 14:00 y de 16:00 a 16:15, el lunes de 08:30 a 18:00 programa 8:15 |
 
-### 3.11 Configuración › Políticas de marcación
+### 3.11 Configuración › Modalidades
 
-- **Tabla o tarjetas**, como en Horarios: se abre en la **tabla** —Política, Rostro, Ubicación (geocerca y radio), Entrada, Descanso (y qué pasa si no lo marca), Salida, Tardanza (redondeo) y Colaboradores— y las **tarjetas** muestran las mismas reglas con su descripción.
-- Menú: Editar, Usar por defecto (con confirmación) y Eliminar (escribiendo el nombre; no si es la de por defecto o está en uso).
-- **Nueva política**: «Pedir el rostro» y su similitud mínima (60 a 95 %); «Exigir estar en el lugar» y un radio propio opcional; **Cómo se calcula el día**: tolerancias de entrada (0–60 min), descanso (0–30) y salida (0–60); **Si no marca el descanso**: Descontar y alertar, Solo descontar o Solo alertar; **Redondeo**: al segundo, por minuto completo o en bloques de 5 min; «Usar por defecto».
-- Vienen tres: **Estándar** (por defecto), **Trabajo remoto** y **Cargos de confianza**.
+**Antes era «Políticas de marcación»** (una lista de políticas para asignar a cada persona). Desde el 3 de noviembre es una sola página, más sencilla: **qué se le pide al colaborador al marcar, según cómo trabaja**. Las tolerancias, qué pasa si no marca el descanso y cómo se cuenta la tardanza pasaron a **cada horario** («Cómo se cuenta», en la ventana del horario).
+
+- **Una tarjeta por modalidad**, con cuántos colaboradores la tienen:
+  - **Presencial**: «Pedir el rostro» y «Estar en su lugar» (dentro de la geocerca; si no, la marcación se rechaza).
+  - **Híbrido**: «Pedir el rostro» y «Estar en su lugar los días de oficina»; los otros días marca desde donde esté.
+  - **Remoto**: «Pedir el rostro»; marca desde donde esté, la ubicación se guarda pero no bloquea.
+- **Parecido mínimo del rostro**, para todos los que marcan con rostro: de 60 % a 95 % (78 % por defecto).
+- El horario flexible nunca pide estar en el lugar.
+- Las direcciones viejas (`?ver=politicas`) abren Modalidades. En Asignaciones y en la ficha del colaborador ya no se elige una política.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑ASI‑046 | Hay una sola política por defecto | Oblig. | Marcar otra como por defecto le quita la marca a la anterior |
-| RF‑ASI‑047 | La similitud del rostro nunca baja del 60 % | Oblig. | El deslizador no permite menos |
-| RF‑ASI‑048 | La política por defecto o en uso no se elimina | Oblig. | «Está en uso» desactiva Eliminar |
+| RF‑ASI‑046 | **Retirado:** ya no hay políticas ni una «por defecto» | — | — |
+| RF‑ASI‑047 | El parecido del rostro nunca baja del 60 % | Oblig. | El deslizador no permite menos |
+| RF‑ASI‑048 | **Retirado:** ya no hay políticas que eliminar | — | — |
+| RF‑ASI‑085 | Lo que se pide al marcar depende de la modalidad del colaborador | Oblig. | Con «Estar en su lugar» apagado para Presencial, una marca fuera de la geocerca no se rechaza |
+| RF‑ASI‑086 | Cada horario tiene sus tolerancias, su regla de descanso sin marcar y su redondeo | Oblig. | Con 15 min en el horario Tienda, quien entra 08:44 a un horario de 08:30 no llega tarde |
 
 ### 3.12 Configuración › Avisos al colaborador
 

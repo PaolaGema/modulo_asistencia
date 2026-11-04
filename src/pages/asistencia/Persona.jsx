@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ShieldCheck, ScanFace, MapPin, Laptop, Download, FileText, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ScanFace, MapPin, Laptop, Download, FileText, Loader2 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
@@ -104,7 +104,6 @@ export default function Persona() {
             {p.lugar && <span className="at-tag"><Ico size={12} /> {p.lugar.nombre}{p.lugar.tipo === 'centro' ? ` · ${at.lugarPorId.get(p.lugar.sucursalId)?.nombre || ''}` : ''}</span>}
             {p.asig && <span className="at-tag">{p.asig.modalidad === 'remoto' ? <House size={12} /> : p.asig.modalidad === 'hibrido' ? <Laptop size={12} /> : <MapPin size={12} />} {MODALIDADES[p.asig.modalidad].label}{p.asig.modalidad === 'hibrido' ? ` · oficina ${p.asig.diasOficina.map(d => DIAS_CORTOS[d]).join(', ')}` : ''}</span>}
             {p.horario && <span className="at-tag"><Clock size={12} /> {p.horario.nombre} · {p.horario.modo === 'fijo' ? `${p.horario.entrada}–${p.horario.salida}` : `meta ${duracion(p.horario.meta)}`}</span>}
-            {p.politica && <span className="at-tag"><ShieldCheck size={12} /> Política {p.politica.nombre}</span>}
             <span className="at-tag"><ScanFace size={12} /> {p.bio?.enrolado ? 'Rostro registrado' : 'Rostro sin registrar'}</span>
           </div>
         </div>

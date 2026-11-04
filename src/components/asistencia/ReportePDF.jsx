@@ -71,7 +71,7 @@ function Persona({ p, lugar }) {
       <div>
         <b>{p.name}</b>
         <small>{[p.cargo, p.unidad, p.codigo && `Código ${p.codigo}`].filter(Boolean).join(' · ')}</small>
-        <small>{[lugar, hr && `${hr.nombre} ${hr.modo === 'fijo' ? `${hr.entrada}–${hr.salida}` : `meta ${duracion(hr.meta)}`}`, p.politica && `Política ${p.politica.nombre}`].filter(Boolean).join(' · ')}</small>
+        <small>{[lugar, hr && `${hr.nombre} ${hr.modo === 'fijo' ? `${hr.entrada}–${hr.salida}` : `meta ${duracion(hr.meta)}`}`].filter(Boolean).join(' · ')}</small>
       </div>
     </div>
   )

@@ -56,8 +56,9 @@ export default function AsignacionAsistencia({ form, set }) {
   ]), [at.lugares])
   const horario = at.horarioPorId.get(v.horarioId)
   const lugar = at.lugarPorId.get(v.lugarId)
-  const politica = at.politicas.find(p => p.id === v.politicaId) || at.politicaDefecto
-  const controles = [politica?.rostro && 'su rostro', politica?.geocerca && v.modalidad !== 'remoto' && 'su ubicación'].filter(Boolean)
+  /* Lo que se le pide al marcar sale de su modalidad (Asistencia › Configuración › Modalidades). */
+  const reglas = at.ajustesGenerales.marcacion?.[v.modalidad] || {}
+  const controles = [reglas.rostro && 'su rostro', reglas.lugar && v.modalidad !== 'remoto' && 'su ubicación'].filter(Boolean)
 
   return (
     <div className="at-ficha-asig">
@@ -108,11 +109,6 @@ export default function AsignacionAsistencia({ form, set }) {
             </div>
           )}
 
-          <label className="at-campo"><span>Cómo marca</span>
-            <Desplegable valor={v.politicaId} onCambio={x => set('at.politica', x)} ariaLabel="Cómo marca"
-              opciones={[{ valor: '', etiqueta: `La de la empresa (${at.politicaDefecto?.nombre})` }, ...at.politicas.map(p => ({ valor: p.id, etiqueta: p.nombre }))]} />
-            <span className="at-ayuda">{politica?.desc}</span>
-          </label>
 
           {/* Lo elegido, dicho en una frase: así se revisa de un vistazo antes de dar de alta. */}
           <p className="at-ficha-resumen">

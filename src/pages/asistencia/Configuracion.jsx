@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Star, Building2, Warehouse, Users, CheckCircle2, AlertTriangle,
-  ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, Ruler, CalendarClock, RotateCcw, Check, Copy, Coffee, LogOut, BellRing, Smartphone,
+  Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Building2, Warehouse, Users, CheckCircle2, AlertTriangle,
+  ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, CalendarClock, RotateCcw, Check, Copy, Coffee, BellRing, Smartphone,
   LayoutGrid, Table2, X,
 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
@@ -24,16 +24,18 @@ import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, 
    ARRIBA, LA PUESTA A PUNTO: el `readiness` del backend —sin sede, sin horario, sin política,
    consentimiento pendiente— dicho como una lista de lo que falta, con su enlace. */
 
-const SECCIONES = ['horarios', 'politicas', 'avisos', 'lugares', 'asignaciones', 'biometria']
+const SECCIONES = ['horarios', 'modalidades', 'avisos', 'lugares', 'asignaciones', 'biometria']
 const COLORES = ['#00B876', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444', '#0C2D40']
 
 export default function Configuracion() {
   const [params] = useSearchParams()
-  const ver = SECCIONES.includes(params.get('ver')) ? params.get('ver') : 'horarios'
+  /* «politicas» era el nombre de antes: los enlaces viejos abren Modalidades. */
+  const pedido = ['politicas', 'reglas'].includes(params.get('ver')) ? 'modalidades' : params.get('ver')
+  const ver = SECCIONES.includes(pedido) ? pedido : 'horarios'
 
   const titulos = {
     horarios: ['Horarios', 'Cuándo trabaja cada quien. Un horario fijo calcula tardanzas y horas extra; uno flexible sólo pide cumplir la meta del día.'],
-    politicas: ['Políticas de marcación', 'Qué se exige en cada marcación y cómo se calcula el día: rostro, ubicación, tolerancias de entrada, descanso y salida, y redondeo. La de por defecto se aplica a quien no tenga otra.'],
+    modalidades: ['Modalidades', 'Qué se le pide al colaborador al marcar, según cómo trabaja: presencial, híbrido o remoto.'],
     avisos: ['Avisos al colaborador', 'Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánto tiempo tiene para mandar su motivo.'],
     lugares: ['Lugares de marcación', 'Las sucursales y los centros de trabajo de Organización, con la geocerca dentro de la cual se puede marcar.'],
     asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué política tiene cada persona. Se puede asignar a toda una unidad o sucursal de una vez.'],
@@ -45,7 +47,7 @@ export default function Configuracion() {
       <Cabecera titulo={titulos[ver][0]} sub={titulos[ver][1]} />
 
       {ver === 'horarios' && <Horarios />}
-      {ver === 'politicas' && <Politicas />}
+      {ver === 'modalidades' && <Reglas />}
       {ver === 'avisos' && <Avisos />}
       {ver === 'lugares' && <Lugares />}
       {ver === 'asignaciones' && <Asignaciones />}
@@ -93,7 +95,7 @@ function Horarios() {
                 return (
                   <tr key={h.id}>
                     <td><span className="at-hor-nom"><span className="at-item-color" style={{ background: h.color }} /><b>{h.nombre}</b>{h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</span></td>
-                    <td className="num">{h.modo === 'fijo' ? <>{h.entrada} a {h.salida}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</> : <span className="dc-muted">Libre{h.ventanaDesde ? ` · ${h.ventanaDesde} a ${h.ventanaHasta}` : ''}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</span>}</td>
+                    <td className="num">{h.modo === 'fijo' ? <>{h.entrada} a {h.salida}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}<small className="at-hor-otro">{reglasDe(h).tolerancia} min de tolerancia</small></> : <span className="dc-muted">Libre{h.ventanaDesde ? ` · ${h.ventanaDesde} a ${h.ventanaHasta}` : ''}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</span>}</td>
                     <td className="num">{h.modo === 'fijo' ? (fr ? franjasPausa(h).map(x => <span key={x.desde} style={{ display: 'block' }}>{hhmm(x.desde)} a {hhmm(x.hasta)}</span>) : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
                     <td><span className="at-semana-chips at-semana-chips-sm">{[1, 2, 3, 4, 5, 6, 7].map(d => <span key={d} className={h.dias.includes(d) ? 'on' : ''}>{DIAS_CORTOS[d].slice(0, 2)}</span>)}</span></td>
                     <td className="num r">{duracion(dia)}</td>
@@ -187,10 +189,9 @@ function ModalHorario({ inicial, onCerrar }) {
   const at = useAsistencia()
   const [h, setH] = useState(inicial)
   const pon = (k, v) => setH(prev => ({ ...prev, [k]: v }))
-  const [, setParams] = useSearchParams()
-  const tol = at.politicaDefecto?.tolerancia ?? 10
-  const otras = at.politicas.filter(p => p.id !== at.politicaDefecto?.id && p.tolerancia !== tol)
-  const irPoliticas = () => { onCerrar(); setParams({ ver: 'politicas' }, { replace: true }) }
+  /* CÓMO SE CUENTA: las tolerancias, el descanso sin marcar y el redondeo son del horario. */
+  const reglas = reglasDe(h)
+  const ponRegla = (k, v) => pon(k, v)
 
   const [filas, setFilas] = useState(() => Object.fromEntries(SEMANA.map(d => {
     const hd = inicial.modo === 'fijo' ? horarioDeDia(inicial, d) : inicial
@@ -239,7 +240,7 @@ function ModalHorario({ inicial, onCerrar }) {
     const primero = base.descansos[0]
     const porDia = Object.fromEntries(activos.filter(d => clave(d) !== clave(baseDia)).map(d => [d, { entrada: filas[d].entrada, salida: filas[d].salida, descansos: filas[d].descansos.map(x => ({ ...x })) }]))
     return {
-      ...h, dias: activos, entrada: base.entrada, salida: base.salida, descansos: base.descansos.map(x => ({ ...x })), porDia,
+      ...h, ...reglasDe(h), dias: activos, entrada: base.entrada, salida: base.salida, descansos: base.descansos.map(x => ({ ...x })), porDia,
       pausa: primero ? aMin(primero.hasta) - aMin(primero.desde) : 0, pausaDesde: primero?.desde || null, pausaHasta: primero?.hasta || null,
     }
   }
@@ -340,16 +341,31 @@ function ModalHorario({ inicial, onCerrar }) {
               </div>
             </div>
 
-            {primero && (
-              <div className="at-aviso-linea" style={{ alignItems: 'flex-start', lineHeight: 1.45 }}>
-                <Timer size={14} style={{ flexShrink: 0, marginTop: 2 }} />
-                <span style={{ flex: 1 }}>
-                  Tolerancia de entrada: <b>{tol} min</b> ({at.politicaDefecto.nombre}): el {DIAS_LARGOS_CAP[primero].toLowerCase()} cuenta como atraso después de las <b>{hhmm(aMin(filas[primero].entrada) + tol)}</b>.
-                  {otras.length > 0 && <> {otras.map(p => `${p.nombre}: ${p.tolerancia} min`).join(' · ')}.</>}
-                  {' '}<button type="button" onClick={irPoliticas} style={{ border: 'none', background: 'none', padding: 0, font: 'inherit', fontWeight: 600, color: 'var(--text-heading)', textDecoration: 'underline', cursor: 'pointer' }}>Cambiar en Políticas</button>
-                </span>
+            {/* CÓMO SE CUENTA (lo que antes era la política): tolerancias, descanso sin marcar y redondeo. */}
+            <div className="at-hz-cuenta">
+              <span className="at-hz-rot">Cómo se cuenta</span>
+              <div className="at-hz-tols">
+                {[['tolerancia', 'Tolerancia de entrada', primero ? `Atraso desde las ${hhmm(aMin(filas[primero].entrada) + reglas.tolerancia)}` : ''], ['toleranciaPausa', 'Tolerancia del descanso', 'Al salir, al volver o al excederse'], ['toleranciaSalida', 'Tolerancia de salida', primero ? `Salida anticipada antes de las ${hhmm(aMin(filas[primero].salida) - reglas.toleranciaSalida)}` : '']].map(([k, t, ayuda]) => (
+                  <div key={k} className="at-hz-tol">
+                    <small>{t}</small>
+                    <span className="at-hz-step">
+                      <button type="button" aria-label={`Menos ${t.toLowerCase()}`} disabled={reglas[k] <= 0} onClick={() => ponRegla(k, Math.max(0, reglas[k] - 1))}>−</button>
+                      <span>{reglas[k]} min</span>
+                      <button type="button" aria-label={`Más ${t.toLowerCase()}`} disabled={reglas[k] >= 60} onClick={() => ponRegla(k, Math.min(60, reglas[k] + 1))}>+</button>
+                    </span>
+                    <em>{ayuda}</em>
+                  </div>
+                ))}
               </div>
-            )}
+              <div className="at-hz-opc">
+                <div><small>Si no marca el descanso</small>
+                  <div className="at-segmento" role="radiogroup">{Object.entries(SIN_PAUSA).map(([k, v]) => <button key={k} type="button" role="radio" aria-checked={reglas.sinPausa === k} className={reglas.sinPausa === k ? 'on' : ''} title={v.desc} onClick={() => ponRegla('sinPausa', k)}>{v.label}</button>)}</div>
+                </div>
+                <div><small>La tardanza se cuenta</small>
+                  <div className="at-segmento" role="radiogroup">{REDONDEOS.map(r => <button key={r.valor} type="button" role="radio" aria-checked={reglas.redondeo === r.valor} className={reglas.redondeo === r.valor ? 'on' : ''} title={r.desc} onClick={() => ponRegla('redondeo', r.valor)}>{r.label}</button>)}</div>
+                </div>
+              </div>
+            </div>
             {activos.length > 0 && !conError.length && (
               <div className="at-hz-tot">
                 <span><b>{activos.length}</b> {activos.length === 1 ? 'día' : 'días'} de trabajo{libres.length ? <> · descansa {libres.map(d => DIAS_LARGOS_CAP[d].toLowerCase()).join(' y ')}</> : ''}</span>
@@ -477,92 +493,58 @@ function TarjetaDescanso({ pos, fila, k, color, onCambio, onQuitar, onCerrar }) 
   )
 }
 
-/* ── POLÍTICAS ── */
-function Politicas() {
+/* ── MODALIDADES ───────────────────────────────────────────────────────────
+   Antes eran «Políticas de marcación»: una lista de reglas para asignar a cada persona. Ahora es una sola página,
+   más sencilla: qué se le pide al marcar, según cómo trabaja —presencial, remoto o híbrido—, y el
+   parecido mínimo del rostro. Las tolerancias, qué pasa si no marca el descanso y el redondeo son de
+   cada horario. */
+const MODOS = [
+  { k: 'presencial', Icono: MapPin, titulo: 'Presencial', sub: 'Marca en su sucursal o centro de trabajo.', lugar: 'Estar en su lugar', lugarTxt: 'Dentro de la geocerca de su lugar. Si no, la marcación se rechaza.' },
+  { k: 'hibrido', Icono: Laptop, titulo: 'Híbrido', sub: 'Unos días en la oficina y otros desde casa.', lugar: 'Estar en su lugar los días de oficina', lugarTxt: 'Los otros días marca desde donde esté.' },
+  { k: 'remoto', Icono: House, titulo: 'Remoto', sub: 'Trabaja desde casa o donde esté.', lugar: null, lugarTxt: 'Marca desde donde esté: la ubicación se guarda, pero no bloquea.' },
+]
+function Reglas() {
   const at = useAsistencia()
-  const [editar, setEditar] = useState(null)
-  const [borrarP, setBorrarP] = useState(null)
-  const [defecto, setDefecto] = useState(null)
-  const uso = id => at.personas.filter(p => p.politica?.id === id).length
-  /* Tabla primero (se abre así) y las tarjetas después, como en Horarios. */
-  const [params, setParams] = useSearchParams()
-  const enTabla = params.get('forma') !== 'tarjetas'
-  const ponForma = v => { const n = new URLSearchParams(params); if (v) n.set('forma', v); else n.delete('forma'); setParams(n, { replace: true }) }
-  const acciones = p => [
-    { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...reglasDe(p), ...p }) },
-    !p.porDefecto && { label: 'Usar por defecto', Icono: Star, onClick: () => setDefecto(p) },
-    { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: p.porDefecto || uso(p.id) > 0, titulo: p.porDefecto ? 'Es la de por defecto' : uso(p.id) ? 'Está en uso' : undefined, onClick: () => setBorrarP(p) },
-  ]
+  const g = at.ajustesGenerales
+  const m = g.marcacion
+  const pon = (modo, cambios) => at.setAjustesGenerales({ ...g, marcacion: { ...m, [modo]: { ...m[modo], ...cambios } } })
+  const cuantos = k => at.personas.filter(p => p.asig?.modalidad === k).length
+  const [, setParams] = useSearchParams()
   return (
     <>
-      <div className="at-hor-barra">
-        <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver">
-          <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma(null)}><Table2 size={15} aria-hidden="true" /></button>
-          <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma('tarjetas')}><LayoutGrid size={15} aria-hidden="true" /></button>
-        </div>
-        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, ...reglasDe(null), radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button>
-      </div>
-      {enTabla ? (
-        <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-          <table className="as-table at-tabla at-tabla-sol at-pol-tabla">
-            <thead><tr><th>Política</th><th>Rostro</th><th>Ubicación</th><th title="Tolerancia de entrada">Entrada</th><th title="Tolerancia del descanso">Descanso</th><th title="Tolerancia de salida">Salida</th><th>Tardanza</th><th className="r">Colaboradores</th><th aria-label="Acciones" /></tr></thead>
-            <tbody>
-              {at.politicas.map(p => {
-                const r = reglasDe(p)
-                return (
-                  <tr key={p.id}>
-                    <td><span className="at-pol-nom"><b>{p.nombre}</b>{p.porDefecto && <span className="at-defecto"><Star size={10} /> Por defecto</span>}</span></td>
-                    <td>{p.rostro ? <span className="at-pl t-verde"><i aria-hidden="true" />≥ {Math.round(p.umbral * 100)} %</span> : <span className="at-pl t-gris"><i aria-hidden="true" />Sin rostro</span>}</td>
-                    <td>{p.geocerca ? <><span className="at-pl t-verde"><i aria-hidden="true" />Geocerca</span><small className="at-pol-desc">{p.radio ? `radio de ${p.radio} m` : 'radio del lugar'}</small></> : <span className="at-pl t-gris"><i aria-hidden="true" />Sin geocerca</span>}</td>
-                    <td className="num">{r.tolerancia} min<small className="at-pol-desc">de tolerancia</small></td>
-                    <td className="num">{r.toleranciaPausa} min<small className="at-pol-desc">sin marcar: {SIN_PAUSA[r.sinPausa].label.toLowerCase()}</small></td>
-                    <td className="num">{r.toleranciaSalida} min antes</td>
-                    <td>{REDONDEOS.find(x => x.valor === r.redondeo)?.label}</td>
-                    <td className="num r">{uso(p.id)}</td>
-                    <td style={{ textAlign: 'right' }}><MenuAcciones items={acciones(p)} /></td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-      <div className="at-config-grid">
-        {at.politicas.map(p => (
-          <article key={p.id} className="at-item">
-            <div className="at-item-cab">
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 className="at-item-nom">{p.nombre} {p.porDefecto && <span className="at-defecto"><Star size={10} /> Por defecto</span>}</h3>
-                <div className="at-item-sub">{p.desc}</div>
-              </div>
-              <MenuAcciones items={acciones(p)} />
+      <div className="at-reglas-modos">
+        {MODOS.map(({ k, Icono, titulo, sub, lugar, lugarTxt }) => (
+          <article key={k} className="at-regla-modo">
+            <div className="at-regla-cab">
+              <span className="ico"><Icono size={18} /></span>
+              <div><b>{titulo}</b><small>{sub}</small></div>
+              <span className="n"><Users size={13} /> {cuantos(k)}</span>
             </div>
-            <div className="at-reglas">
-              <span className={`at-regla${p.rostro ? '' : ' off'}`}><ScanFace size={15} style={{ color: p.rostro ? 'var(--dc-verde)' : undefined }} /> {p.rostro ? `Rostro ≥ ${Math.round(p.umbral * 100)}%` : 'Sin rostro'}</span>
-              <span className={`at-regla${p.geocerca ? '' : ' off'}`}>{p.geocerca ? <MapPin size={15} style={{ color: 'var(--dc-verde)' }} /> : <MapPinOff size={15} />} {p.geocerca ? 'Con geocerca' : 'Sin geocerca'}</span>
-              <span className="at-regla"><Timer size={15} style={{ color: 'var(--dc-ambar)' }} /> Entrada: {p.tolerancia} min de tolerancia</span>
-              <span className="at-regla"><Coffee size={15} style={{ color: 'var(--dc-ambar)' }} /> Descanso: {reglasDe(p).toleranciaPausa} min · sin marcar, {SIN_PAUSA[reglasDe(p).sinPausa].label.toLowerCase()}</span>
-              <span className="at-regla"><LogOut size={15} style={{ color: 'var(--dc-ambar)' }} /> Salida: {reglasDe(p).toleranciaSalida} min antes</span>
-              <span className="at-regla"><Clock size={15} style={{ color: 'var(--dc-azul)' }} /> {REDONDEOS.find(r => r.valor === reglasDe(p).redondeo)?.label}</span>
-              <span className="at-regla"><Ruler size={15} style={{ color: 'var(--dc-azul)' }} /> {p.radio ? `Radio de ${p.radio} m` : 'Radio del lugar'}</span>
-            </div>
-            <div className="at-item-pie"><span>Horario flexible: nunca pide geocerca</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Users size={13} /> {uso(p.id)}</span></div>
+            <Interruptor on={m[k].rostro} onCambio={v => pon(k, { rostro: v })} titulo="Pedir el rostro" texto={m[k].rostro ? 'Una selfie que se parezca a su rostro registrado.' : 'Cualquiera con su sesión abierta podría marcar por él.'} />
+            {lugar
+              ? <Interruptor on={m[k].lugar} onCambio={v => pon(k, { lugar: v })} titulo={lugar} texto={m[k].lugar ? lugarTxt : 'La ubicación se guarda, pero no bloquea.'} />
+              : <div className="at-regla-fijo"><MapPinOff size={15} /> {lugarTxt}</div>}
           </article>
         ))}
       </div>
-      )}
-      {borrarP && (
-        <ConfirmarEliminar que="política" nombre={borrarP.nombre} onCerrar={() => setBorrarP(null)} onConfirmar={() => at.setPoliticas(prev => prev.filter(x => x.id !== borrarP.id))}
-          texto="No se puede deshacer. Nadie la tiene asignada, así que ninguna marcación cambia." />
-      )}
-      {/* Cambiar la de por defecto cambia las reglas de quien no tiene una propia: se confirma. */}
-      {defecto && (
-        <Modal titulo="Usar por defecto" Icono={Star} onCerrar={() => setDefecto(null)} ancho={480}
-          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setDefecto(null)}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.setPoliticas(prev => prev.map(x => ({ ...x, porDefecto: x.id === defecto.id }))); setDefecto(null) }}>Sí, usar por defecto</button></>}>
-          <p style={{ margin: 0, lineHeight: 1.55 }}><b>{defecto.nombre}</b> pasa a ser la política por defecto: la tendrán quienes no tengan una asignada, desde sus próximas marcaciones. Las jornadas que ya pasaron no se recalculan.</p>
-        </Modal>
-      )}
-      {editar && <ModalPolitica inicial={editar} onCerrar={() => setEditar(null)} />}
+
+      <section className="at-card at-regla-parecido">
+        <div className="at-regla-cab">
+          <span className="ico"><ScanFace size={18} /></span>
+          <div><b>Parecido mínimo del rostro</b><small>Para todos los que marcan con rostro.</small></div>
+          <span className="valor">{Math.round(m.umbral * 100)} %</span>
+        </div>
+        <input type="range" className="at-rango" min="60" max="95" step="1" value={Math.round(m.umbral * 100)} onChange={e => at.setAjustesGenerales({ ...g, marcacion: { ...m, umbral: Number(e.target.value) / 100 } })} aria-label="Parecido mínimo del rostro" />
+        <div className="at-regla-ext"><span>60 % · menos rechazos</span><span>95 % · más seguro</span></div>
+        <p className="at-ayuda" style={{ margin: 0 }}>Con {Math.round(m.umbral * 100)} %, una selfie con poca luz suele pasar; una con el rostro tapado se rechaza y queda en el Libro como marcación rechazada. Nunca baja de 60 %: con menos, el rostro deja de comprobarse.</p>
+      </section>
+
+      <div className="at-aviso-linea" style={{ alignItems: 'flex-start', lineHeight: 1.5 }}>
+        <Timer size={14} style={{ flexShrink: 0, marginTop: 3 }} />
+        <span>Las <b>tolerancias</b> de entrada, descanso y salida, qué pasa si no marca el descanso y cómo se cuenta la tardanza están en cada horario. El horario flexible nunca pide estar en el lugar. {' '}
+          <button type="button" onClick={() => setParams({ ver: 'horarios' }, { replace: true })} style={{ border: 'none', background: 'none', padding: 0, font: 'inherit', fontWeight: 600, color: 'var(--text-heading)', textDecoration: 'underline', cursor: 'pointer' }}>Ir a Horarios</button>
+        </span>
+      </div>
     </>
   )
 }
@@ -573,61 +555,6 @@ function Interruptor({ on, onCambio, titulo, texto }) {
       <div><b>{titulo}</b><span>{texto}</span></div>
       <button type="button" role="switch" aria-checked={on} aria-label={titulo} className={`at-switch${on ? ' on' : ''}`} onClick={e => { e.stopPropagation(); onCambio(!on) }} />
     </div>
-  )
-}
-
-function ModalPolitica({ inicial, onCerrar }) {
-  const at = useAsistencia()
-  const [p, setP] = useState(inicial)
-  const pon = (k, v) => setP(prev => ({ ...prev, [k]: v }))
-  const guardar = () => {
-    const limpio = { ...p, nombre: p.nombre.trim(), tolerancia: Number(p.tolerancia) || 0, toleranciaPausa: Number(p.toleranciaPausa) || 0, toleranciaSalida: Number(p.toleranciaSalida) || 0, redondeo: Number(p.redondeo) || 0, radio: p.radio ? Number(p.radio) : null }
-    at.setPoliticas(prev => {
-      let lista = p.id ? prev.map(x => (x.id === p.id ? limpio : x)) : [...prev, { ...limpio, id: `p-${Date.now().toString(36)}` }]
-      if (limpio.porDefecto) { const id = limpio.id || lista[lista.length - 1].id; lista = lista.map(x => ({ ...x, porDefecto: x.id === id })) }
-      return lista
-    })
-    onCerrar()
-  }
-  return (
-    <Modal titulo={p.id ? 'Editar política' : 'Nueva política'} Icono={ShieldCheck} onCerrar={onCerrar} ancho={560}
-      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!p.nombre.trim()} onClick={guardar}>Guardar</button></>}>
-      <div className="at-modal-campos">
-        <label className="at-campo"><span>Nombre</span><input className="pl-input" value={p.nombre} onChange={e => pon('nombre', e.target.value)} placeholder="Ej.: Vendedores en ruta" autoFocus /></label>
-        <label className="at-campo"><span>Para qué sirve</span><input className="pl-input" value={p.desc} onChange={e => pon('desc', e.target.value)} placeholder="Una línea que explique cuándo usarla" /></label>
-        <Interruptor on={p.rostro} onCambio={v => pon('rostro', v)} titulo="Pedir el rostro" texto="Prueba quién marca. Sin rostro, cualquiera con la sesión abierta podría marcar." />
-        {p.rostro && (
-          <label className="at-campo"><span>Similitud mínima del rostro: {Math.round(p.umbral * 100)}%</span>
-            <input type="range" className="at-rango" min="0.6" max="0.95" step="0.01" value={p.umbral} onChange={e => pon('umbral', Number(e.target.value))} />
-            <span className="at-ayuda">Más alto, más seguro y más rechazos. Nunca baja de 60%: con 0 el rostro deja de comprobarse (riesgo B4).</span>
-          </label>
-        )}
-        <Interruptor on={p.geocerca} onCambio={v => pon('geocerca', v)} titulo="Exigir estar en el lugar" texto="Si está apagado, la ubicación se guarda pero no bloquea la marcación." />
-        <label className="at-campo"><span>Radio propio (m) <em>opcional</em></span><input type="number" min="30" max="2000" className="pl-input" value={p.radio || ''} placeholder="El del lugar" onChange={e => pon('radio', e.target.value)} disabled={!p.geocerca} /></label>
-
-        {/* CÓMO SE CALCULA EL DÍA (#2, #5, #6, #7, #8, #26). */}
-        <div className="at-form-sep">Cómo se calcula el día</div>
-        <div className="at-tres">
-          <label className="at-campo"><span>Tolerancia de entrada (min)</span><input type="number" min="0" max="60" className="pl-input" value={p.tolerancia} onChange={e => pon('tolerancia', e.target.value)} /></label>
-          <label className="at-campo"><span>Tolerancia de descanso (min)</span><input type="number" min="0" max="30" className="pl-input" value={p.toleranciaPausa} onChange={e => pon('toleranciaPausa', e.target.value)} /></label>
-          <label className="at-campo"><span>Tolerancia de salida (min)</span><input type="number" min="0" max="60" className="pl-input" value={p.toleranciaSalida} onChange={e => pon('toleranciaSalida', e.target.value)} /></label>
-        </div>
-        <p className="at-ayuda" style={{ marginTop: -6 }}>Descanso: minutos de gracia al salir antes de la franja, al volver después o al excederse. Salida: minutos antes de la hora de salida que todavía no son «salida anticipada».</p>
-        <div className="at-campo"><span>Si no marca el descanso</span>
-          <div className="at-segmento" role="radiogroup">
-            {Object.entries(SIN_PAUSA).map(([k, v]) => <button key={k} type="button" role="radio" aria-checked={p.sinPausa === k} className={p.sinPausa === k ? 'on' : ''} onClick={() => pon('sinPausa', k)}>{v.label}</button>)}
-          </div>
-          <span className="at-ayuda">{SIN_PAUSA[p.sinPausa]?.desc}</span>
-        </div>
-        <div className="at-campo"><span>Redondeo de la tardanza y la salida anticipada</span>
-          <div className="at-segmento" role="radiogroup">
-            {REDONDEOS.map(r => <button key={r.valor} type="button" role="radio" aria-checked={Number(p.redondeo) === r.valor} className={Number(p.redondeo) === r.valor ? 'on' : ''} onClick={() => pon('redondeo', r.valor)}>{r.label}</button>)}
-          </div>
-          <span className="at-ayuda">{REDONDEOS.find(r => r.valor === Number(p.redondeo))?.desc} Las marcaciones siempre se guardan al segundo, con la hora del servidor.</span>
-        </div>
-        <Interruptor on={p.porDefecto} onCambio={v => pon('porDefecto', v)} titulo="Usar por defecto" texto="Se aplica a quien no tenga otra política asignada. Sólo puede haber una." />
-      </div>
-    </Modal>
   )
 }
 
@@ -774,7 +701,7 @@ function Asignaciones() {
           <table className="as-table at-tabla">
             <thead><tr>
               <th style={{ width: 36 }}><input type="checkbox" className="at-check" checked={todos} onChange={() => setSel(todos ? new Set() : new Set(lista.map(p => p.id)))} aria-label="Seleccionar todos" /></th>
-              <th>Colaborador</th><th>Horario</th><th>Lugar de trabajo</th><th>Modalidad</th><th>Política de marcación</th>
+              <th>Colaborador</th><th>Horario</th><th>Lugar de trabajo</th><th>Modalidad</th>
             </tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => (
@@ -784,7 +711,6 @@ function Asignaciones() {
                   <td>{p.horario ? <span className="at-lugar-chip"><i style={{ width: 8, height: 8, borderRadius: 3, background: p.horario.color, display: 'inline-block' }} /> {p.horario.nombre}</span> : <span className="dc-chip dc-t-ambar"><AlertTriangle size={11} /> Sin horario</span>}</td>
                   <td>{p.lugar ? <span className="at-lugar-chip">{p.lugar.tipo === 'centro' ? <Warehouse size={13} /> : <Building2 size={13} />} {p.lugar.nombre}</span> : <span className="dc-muted">—</span>}</td>
                   <td>{p.asig ? <span className="at-lugar-chip">{p.asig.modalidad === 'remoto' ? <House size={13} /> : p.asig.modalidad === 'hibrido' ? <Laptop size={13} /> : <MapPin size={13} />} {MODALIDADES[p.asig.modalidad].label}{p.asig.modalidad === 'hibrido' && <small>&nbsp;· {p.asig.diasOficina.map(d => DIAS_CORTOS[d]).join(' ')}</small>}</span> : <span className="dc-muted">—</span>}</td>
-                  <td>{p.asig ? <span className="dc-muted" style={{ fontSize: 12.5 }}>{p.asig.politicaId ? p.politica?.nombre : `${p.politica?.nombre} (por defecto)`}</span> : <span className="dc-muted">—</span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -846,7 +772,6 @@ function ModalAsignar({ ids, onCerrar, onListo }) {
           </div>
         )}
         <div className="at-dos">
-          <label className="at-campo"><span>Política</span><Desplegable valor={d.politicaId} onCambio={v => pon('politicaId', v)} opciones={[{ valor: '', etiqueta: `La de por defecto (${at.politicaDefecto?.nombre})` }, ...at.politicas.map(p => ({ valor: p.id, etiqueta: p.nombre }))]} ariaLabel="Política" /></label>
           <label className="at-campo"><span>Desde</span><input type="date" className="pl-input" value={d.desde} onChange={e => pon('desde', e.target.value)} /></label>
         </div>
         {reemplaza > 0 && <div className="at-aviso-linea"><RotateCcw size={14} /> {reemplaza === ids.length ? 'Todas tienen' : `${reemplaza} tienen`} una asignación vigente: se cierra y se abre esta, en un solo paso.</div>}

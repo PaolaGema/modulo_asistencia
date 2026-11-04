@@ -7,7 +7,7 @@ import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
-  reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia,
+  reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
 } from '../data/asistenciaData'
 
 /* ── EL ESTADO DEL MÓDULO DE ASISTENCIA ───────────────────────────────────
@@ -78,6 +78,7 @@ export function AsistenciaProvider({ children }) {
     avisar: { tarde: true, pausa: true, anticipada: true, sinPausa: false, ausente: true },
     avisarDesde: 5, plazoJustificar: 2,
     ...generalesGuardados,
+    marcacion: { ...MARCACION_EMPRESA, ...(generalesGuardados.marcacion || {}) },
   }), [generalesGuardados])
   /* Quién ya recibió sus justificaciones de ejemplo. */
   const [justSembradas, setJustSembradas] = useLocalStorage('at_just_demo', false)
@@ -91,7 +92,8 @@ export function AsistenciaProvider({ children }) {
 
   const horarioPorId = useMemo(() => new Map(horarios.map(h => [h.id, h])), [horarios])
   const politicaPorId = useMemo(() => new Map(politicas.map(p => [p.id, p])), [politicas])
-  const politicaDefecto = politicas.find(p => p.porDefecto) || politicas[0]
+  /* Las reglas de la empresa, sin horario: lo que se exige al marcar con las tolerancias por defecto. */
+  const politicaDefecto = useMemo(() => reglasMarcacion(null, ajustesGenerales.marcacion), [ajustesGenerales.marcacion])
 
   const personas = useMemo(() => personasBase.map(p => {
     const asig = asignaciones?.[p.id] || null
@@ -104,10 +106,11 @@ export function AsistenciaProvider({ children }) {
       /* `horario` es el de HOY (con su otro horario si hoy lo tiene); `horarioBase`, el que se configuró. */
       horario: asig ? horarioDelDia(horarioPorId.get(asig.horarioId) || null, hoyISO()) : null,
       horarioBase: asig ? horarioPorId.get(asig.horarioId) || null : null,
-      politica: asig ? politicaPorId.get(asig.politicaId) || politicaDefecto : null,
+      /* Sus reglas: las de su horario y las de la empresa (ya no hay políticas). */
+      politica: asig ? reglasMarcacion(horarioPorId.get(asig.horarioId) || null, ajustesGenerales.marcacion) : null,
       bio: biometria?.[p.id] || null,
     }
-  }), [personasBase, asignaciones, lugarPorId, horarioPorId, politicaPorId, politicaDefecto, biometria])
+  }), [personasBase, asignaciones, lugarPorId, horarioPorId, ajustesGenerales.marcacion, biometria])
   const personaPorId = useMemo(() => new Map(personas.map(p => [String(p.id), p])), [personas])
   useEffect(() => {
     if (!horasExtra && personas.some(p => p.horario)) setHorasExtra(horasExtraSeed(personas))
@@ -201,10 +204,10 @@ export function AsistenciaProvider({ children }) {
       id: `u${currentUser.id}`, name: currentUser.name, initials: currentUser.initials, color: currentUser.color, cargo: currentUser.cargo,
       unidad: currentUser.area || 'Recursos Humanos', sucursalId: 'central', sedeNombre: lugar?.nombre, esYo: true,
       asig: { personaId: `u${currentUser.id}`, horarioId: 'h-oficina', lugarId: 'central', modalidad: 'presencial', politicaId: null, diasOficina: [], desde: '2026-01-01' },
-      lugar, horario: horarioDelDia(horarioPorId.get('h-oficina'), hoyISO()), horarioBase: horarioPorId.get('h-oficina'), politica: politicaDefecto,
+      lugar, horario: horarioDelDia(horarioPorId.get('h-oficina'), hoyISO()), horarioBase: horarioPorId.get('h-oficina'), politica: reglasMarcacion(horarioPorId.get('h-oficina'), ajustesGenerales.marcacion),
       bio: biometria?.[`u${currentUser.id}`] || null,
     }
-  }, [yoBase, currentUser, lugarPorId, horarioPorId, politicaDefecto, biometria])
+  }, [yoBase, currentUser, lugarPorId, horarioPorId, ajustesGenerales.marcacion, biometria])
   useEffect(() => {
     if (!solicitudes || !yo.horario || conHistorial[yo.id]) return
     setConHistorial(h => ({ ...h, [yo.id]: true }))

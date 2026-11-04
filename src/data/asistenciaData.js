@@ -153,6 +153,24 @@ export const reglasDe = pol => ({
   sinPausa: pol?.sinPausa || 'ambas',
   redondeo: pol?.redondeo ?? 0,
 })
+/* SIN POLÍTICAS (decisión del 3 nov 2026): las reglas de cálculo son del HORARIO —tolerancias, qué
+   pasa si no marca el descanso, redondeo— y lo que se exige al marcar es de la EMPRESA —pedir el rostro
+   y su parecido mínimo, en Biometría; exigir estar en el lugar, en Lugares—. El remoto ya no necesita
+   una política: su modalidad no pide geocerca, y el flexible nunca la pide. Este objeto reúne las dos
+   cosas con la forma que tenía una política, así el cálculo no cambia. */
+/* Lo que se pide al marcar, según cómo trabaja: presencial (rostro y estar en su lugar), remoto (rostro;
+   la ubicación se guarda pero no bloquea) e híbrido (estar en su lugar los días de oficina). */
+export const MARCACION_EMPRESA = {
+  umbral: 0.78,
+  presencial: { rostro: true, lugar: true },
+  remoto: { rostro: true, lugar: false },
+  hibrido: { rostro: true, lugar: true },
+}
+export const reglasMarcacion = (horario, empresa = MARCACION_EMPRESA) => ({
+  id: 'reglas', nombre: horario?.nombre || 'Reglas de la empresa', ...reglasDe(horario),
+  umbral: empresa?.umbral ?? 0.78, porModalidad: { ...MARCACION_EMPRESA, ...(empresa || {}) },
+  rostro: (empresa?.presencial || MARCACION_EMPRESA.presencial).rostro, geocerca: (empresa?.presencial || MARCACION_EMPRESA.presencial).lugar, radio: null,
+})
 const redondear = (min, bloque) => (bloque ? Math.floor(min / bloque + 1e-9) * bloque : min)
 
 /* LA FRANJA DE DESCANSO DE UN HORARIO (#2), en minutos. Los horarios guardados con solo «pausa en
@@ -545,8 +563,8 @@ export function exigencias(asig, horario, politica, fecha) {
   const remotoHoy = asig?.modalidad === 'remoto' || (asig?.modalidad === 'hibrido' && !asig.diasOficina.includes(diaISO(fecha)))
   return {
     remotoHoy,
-    geocerca: !remotoHoy && horario?.modo !== 'flexible' && (politica?.geocerca ?? true),
-    rostro: politica?.rostro ?? true,
+    geocerca: !remotoHoy && horario?.modo !== 'flexible' && (politica?.porModalidad?.[asig?.modalidad === 'hibrido' ? 'hibrido' : 'presencial']?.lugar ?? politica?.geocerca ?? true),
+    rostro: politica?.porModalidad?.[remotoHoy ? 'remoto' : asig?.modalidad === 'hibrido' ? 'hibrido' : 'presencial']?.rostro ?? politica?.rostro ?? true,
     umbral: politica?.umbral ?? 0.78,
     tolerancia: politica?.tolerancia ?? 10,
   }

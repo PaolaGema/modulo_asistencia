@@ -268,7 +268,7 @@ const asistenciaNav = (cuentas = {}) => [
     ] },
     { label: 'Configuración', path: '/asistencia/configuracion', icon: Settings, subs: [
       { label: 'Horarios', ver: 'horarios' },
-      { label: 'Políticas de marcación', ver: 'politicas' },
+      { label: 'Modalidades', ver: 'modalidades' },
       { label: 'Avisos al colaborador', ver: 'avisos' },
       { label: 'Lugares y geocercas', ver: 'lugares' },
       { label: 'Asignaciones', ver: 'asignaciones' },
