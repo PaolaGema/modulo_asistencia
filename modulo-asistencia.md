@@ -2,7 +2,7 @@ Souly HR · Módulo de asistencia · Documentación de producto
 
 # Módulo de asistencia
 
-> **Módulo de asistencia — versión en Markdown.** Reúne completo el documento de producto `public/modulo-asistencia.html` (versión 1.0, 29 de octubre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Se apoya en el análisis de RR.HH. (`REQUERIMIENTOS_ASISTENCIA.md`, 27 requerimientos) y en la arquitectura del backend (`ASISTENCIA_ARQUITECTURA.md`).
+> **Módulo de asistencia — versión en Markdown.** Reúne completo el documento de producto `public/modulo-asistencia.html` (versión 1.1, 3 de noviembre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Se apoya en el análisis de RR.HH. (`REQUERIMIENTOS_ASISTENCIA.md`, 27 requerimientos) y en la arquitectura del backend (`ASISTENCIA_ARQUITECTURA.md`).
 
 ## Índice
 
@@ -16,6 +16,7 @@ Souly HR · Módulo de asistencia · Documentación de producto
 - [07 · Flujos de usuario](#07--flujos-de-usuario)
 - [08 · Recursos visuales](#08--recursos-visuales)
 - [09 · Historias de usuario](#09--historias-de-usuario)
+- [10 · Pruebas para QA](#10--pruebas-para-qa)
 - [Cómo se mantiene este documento](#cómo-se-mantiene-este-documento)
 - [Historial de versiones](#historial-de-versiones)
 - [Anexo · Por qué decidimos así](#anexo--por-qué-decidimos-así)
@@ -23,8 +24,8 @@ Souly HR · Módulo de asistencia · Documentación de producto
 
 La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un registro que se escribe solo, al segundo, con la prueba de cada marca, y que RR.HH. y la persona leen con los mismos números*. Este documento define qué es el módulo, qué reglas cumple, qué tiene que hacer el producto y cómo se opera.
 
-- **Versión:** 1.0
-- **Fecha:** 29 de octubre de 2026
+- **Versión:** 1.1
+- **Fecha:** 3 de noviembre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
 - **Estado:** Borrador
@@ -36,31 +37,32 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | reglas de negocio | 58 |
 | requisitos funcionales | 87 |
 | historias de usuario | 20 |
-| pantallas | 22 |
-| decisiones abiertas | 11 |
+| pruebas para QA | 66 |
+| pantallas | 21 |
+| decisiones abiertas | 9 |
 
-> **El módulo, de un vistazo.** Asistencia tiene tres capas sobre un solo dato, la **marcación**. Arriba, la **configuración**: horarios (cuándo), políticas (qué se exige y cómo se calcula), lugares con su geocerca (dónde, tomados de Organización) y asignaciones (a quién le toca qué). En el medio, el **cálculo del día**: de las marcas válidas salen la entrada, la salida, lo trabajado, la tardanza, las alertas del descanso, las horas extra autorizadas y el estado. Abajo, lo que se hace con eso: **Hoy** lo mira en vivo, el **Libro** lo consulta por día, semana, mes, en calendario y por tema —faltas, retrasos, salidas sin marcar—, **Solicitudes** lo corrige y el **Cierre** lo congela para planillas. El colaborador marca desde el celular y ve los mismos números en Mi asistencia.
+> **El módulo, de un vistazo.** Asistencia tiene tres capas sobre un solo dato, la **marcación**. Arriba, la **configuración**: horarios (cuándo, cada día con su entrada, su salida, hasta dos descansos y sus tolerancias), modalidades (qué se pide al marcar según se trabaje presencial, híbrido o remoto), lugares con su geocerca (dónde, tomados de Organización) y asignaciones (a quién le toca qué, y en qué lugares puede marcar). En el medio, el **cálculo del día**: de las marcas válidas salen la entrada, la salida, lo trabajado, la tardanza, las alertas del descanso, las horas extra autorizadas y el estado. Abajo, lo que se hace con eso: **Hoy** lo mira en vivo, el **Libro** lo consulta por día, semana, mes, en calendario y por tema —faltas, retrasos, salidas sin marcar—, **Solicitudes** lo corrige y el **resumen para planillas** lo lleva, en un formato fijo, al sistema de sueldos de la empresa. El colaborador marca desde el celular y ve los mismos números en Mi asistencia.
 
 ## 00 · Glosario
 
 *Las palabras del módulo, con lo que significan en Souly. Se leen antes que nada porque todo lo demás las usa: una tardanza no es una alerta, quedarse no es hacer horas extra y una falta justificada no es una falta.*
 
-### 0.1 Lugar, horario, política y asignación
+### 0.1 Lugar, horario, modalidad y asignación
 
-Cuatro piezas deciden cómo marca cada persona:
+Cuatro piezas deciden cómo marca cada persona (hasta la versión 1.0 había además **políticas de marcación**; desde la 1.1 sus tolerancias son del horario y lo que se exige al marcar, de la modalidad):
 
 | Pieza | Qué dice | De dónde sale |
 | --- | --- | --- |
 | **Lugar** | Dónde marca: una sucursal o un centro de trabajo, con su **geocerca** (un punto y un radio en metros) | Organización › Estructura física. Asistencia no crea lugares: les dibuja la geocerca encima |
-| **Horario** | Cuándo trabaja: **fijo** (entrada, salida, días y una franja de descanso) o **flexible** (una meta de horas al día, sin hora de entrada) | Configuración › Horarios |
-| **Política de marcación** | Qué se exige al marcar (rostro, estar en el lugar) y cómo se calcula el día (tolerancias, descanso no marcado, redondeo) | Configuración › Políticas de marcación |
-| **Asignación** | Qué horario, qué lugar, qué modalidad y qué política tiene una persona, desde qué fecha | Configuración › Asignaciones, o el alta en Gestión de personas |
+| **Horario** | Cuándo trabaja: **fijo** (cada día con su entrada, su salida y hasta dos franjas de descanso, y las **tolerancias** de entrada, descanso y salida) o **flexible** (una meta de horas por día, sin hora de entrada, y cuándo puede marcar) | Configuración › Horarios |
+| **Modalidad** | Qué se pide al marcar según cómo trabaja: **presencial** (rostro y estar en su lugar), **híbrido** (rostro; su lugar los días de oficina) o **remoto** (rostro; la ubicación se guarda pero no bloquea). El parecido mínimo del rostro es uno para toda la empresa | Configuración › Modalidades |
+| **Asignación** | Qué horario, qué lugar (y en qué otros lugares puede marcar), qué modalidad tiene una persona y desde qué fecha | Configuración › Asignaciones, o el alta en Gestión de personas |
 
-La **modalidad** es parte de la asignación: **presencial** (marca dentro de la geocerca), **remoto** (marca desde donde esté; se controlan el rostro y el horario) o **híbrido** (los días de oficina con geocerca; los demás, en remoto).
+La **modalidad** se elige en la asignación; lo que pide cada una se configura en Modalidades. Quien rota entre sucursales puede tener **varios lugares**: marca en cualquiera y cuenta el más cercano.
 
 ### 0.2 Marcación y jornada
 
-Una **marcación** es un registro de un momento: **entrada**, **inicio de pausa**, **fin de pausa** o **salida**. Guarda la hora del servidor al segundo, la ubicación, la distancia al lugar, si estaba dentro, la similitud del rostro y su **origen**: la app o el panel de RR.HH. Una marca puede quedar **rechazada** (el rostro no coincidió o estaba fuera de la geocerca), **ajustada** (cambió su hora, con la original a la vista) o **anulada** (sigue visible, en gris).
+Una **marcación** es un registro de un momento: **entrada**, **inicio del descanso**, **fin del descanso** o **salida**. Guarda la hora del servidor al segundo, la ubicación, la distancia al lugar, si estaba dentro, la similitud del rostro y su **origen**: la app o el panel de RR.HH. Una marca puede quedar **rechazada** (el rostro no coincidió o estaba fuera de la geocerca), **ajustada** (cambió su hora, con la original a la vista) o **anulada** (sigue visible, en gris).
 
 La **jornada** es el día de una persona calculado de sus marcas válidas: entrada, salida, descanso, trabajado, programado, tardanza, alertas, horas extra y estado. No se guarda: se deduce cada vez.
 
@@ -84,13 +86,13 @@ La **jornada** es el día de una persona calculado de sus marcas válidas: entra
 
 Cada estado tiene palabra y color; nunca solo color. En las tablas va en una píldora de color con una línea que dice qué pasa: «Trabajando · desde 08:34», «No ha llegado · debía entrar 08:30». El atraso no cambia el estado: va en ámbar junto a la hora de entrada.
 
-### 0.4 Tardanza, tolerancia y redondeo
+### 0.4 Tardanza y tolerancia
 
-La **tolerancia de entrada** son los minutos de gracia de la política: con entrada 08:30 y 10 min, quien marca hasta las 08:40 llega a tiempo. La **tardanza** es lo que pasa de la entrada más la tolerancia, al segundo: quien marca 08:40:59 suma 59 s. El **redondeo** de la política puede contarla por minuto completo o en bloques de 5 min, siempre hacia abajo, a favor de la persona. Hay una sola tardanza por día y todas las pantallas leen esa.
+La **tolerancia de entrada** son los minutos de gracia de su **horario**: con entrada 08:30 y 10 min, quien marca hasta las 08:40 llega a tiempo. La **tardanza** es lo que pasa de la entrada más la tolerancia, **siempre al segundo**: quien marca 08:40:59 suma 59 s. Ya no hay redondeo (se retiró en la 1.1). Hay una sola tardanza por día y todas las pantallas leen esa.
 
 ### 0.5 Alerta y justificación
 
-Una **alerta** es algo del día que se aparta de su horario: llegó tarde, salió antes al descanso, volvió tarde del descanso, excedió su descanso, no marcó su descanso o salió antes. La **justificación** es el motivo que la persona manda desde la app para una alerta; su jefe o RR.HH. lo acepta o no. Aceptada, la alerta deja de contar en contra en el cierre; rechazada, sigue contando como **injustificada**.
+Una **alerta** es algo del día que se aparta de su horario: llegó tarde, salió antes al descanso, volvió tarde del descanso, excedió su descanso, no marcó su descanso o salió antes. La **justificación** es el motivo que la persona manda desde la app para una alerta; su jefe o RR.HH. lo acepta o no. Aceptada, la alerta deja de contar en contra (en el Libro y en el resumen para planillas); rechazada, sigue contando como **injustificada**.
 
 Justificar **un día entero** es otra cosa: una vacación, un permiso de día completo o una licencia aprobados vuelven el día **Justificada**, y no cuenta como falta.
 
@@ -98,15 +100,15 @@ Justificar **un día entero** es otra cosa: una vacación, un permiso de día co
 
 Una **hora extra** existe solo si se autorizó: la persona la **pide** y RR.HH. la **aprueba**, o RR.HH. la **asigna** y la persona la **acepta**. Las dos terminan en una **ventana** (fecha, desde, hasta). Solo lo trabajado dentro de esa ventana cuenta como hora extra. Lo que alguien se quede después de su horario sin autorización es **fuera de horario**: se informa, no se paga.
 
-### 0.7 Incidencia, solicitud y cierre
+### 0.7 Temas del Libro, solicitud y resumen para planillas
 
-Una **incidencia** es un hecho que el sistema vio y alguien tiene que mirar: una falta sin justificar, una alerta sin motivo, una jornada sin salida, una marca rechazada o un rato fuera de horario. Una **solicitud** es un pedido de la persona: vacaciones, permiso o licencia, horas extra, justificación, corrección de marcación, trabajo remoto o cambio de turno. El **cierre** congela un mes para planillas: después ya no se corrige.
+Los **temas del Libro** son los hechos que hay que mirar —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario—, como un filtro de la Semana y el Mes del Libro (antes eran la pantalla «Incidencias»). Una **solicitud** es un pedido de la persona: vacaciones, permiso o licencia, horas extra, justificación, corrección de marcación, trabajo remoto o cambio de turno. El **resumen para planillas** es un archivo de formato fijo que se baja del Mes del Libro; no hay cierre de mes: ningún mes se bloquea y toda corrección queda con su motivo.
 
 ### 0.8 Quién es quién
 
 | Rol | Qué hace en el módulo |
 | --- | --- |
-| **Recursos Humanos** | Configura, mira el día, corrige con motivo, responde solicitudes, autoriza horas extra y cierra el mes |
+| **Recursos Humanos** | Configura, mira el día, corrige con motivo, responde solicitudes, autoriza horas extra y baja el resumen para planillas |
 | **El líder de área** | Acepta o no las justificaciones de su gente y aprueba lo de su equipo —ABIERTA‑ASI‑01— |
 | **El colaborador** | Marca desde el celular, ve su día, su semana y su mes, pide horas extra y correcciones, y justifica sus alertas |
 
@@ -116,7 +118,7 @@ Una **incidencia** es un hecho que el sistema vio y alguien tiene que mirar: una
 
 ### 1.1 ¿Qué es la asistencia en Souly?
 
-Es el registro de cuándo trabaja cada persona y la prueba de que fue ella. El colaborador marca desde su celular con su rostro y su ubicación; el servidor pone la hora y decide si la marca vale. De esas marcas sale el día de cada persona, que RR.HH. mira en vivo, corrige con motivo y entrega cerrado a planillas.
+Es el registro de cuándo trabaja cada persona y la prueba de que fue ella. El colaborador marca desde su celular con su rostro y su ubicación; el servidor pone la hora y decide si la marca vale. De esas marcas sale el día de cada persona, que RR.HH. mira en vivo, corrige con motivo y entrega a planillas en un formato fijo.
 
 ### 1.2 El problema que resuelve
 
@@ -150,8 +152,8 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 | Indicador | Meta |
 | --- | --- |
 | Marcaciones desde la app | Más del 95 % de las marcas con origen app, no cargadas por RR.HH. |
-| Tiempo para cerrar el mes | Que RR.HH. cierre en el primer día hábil del mes siguiente |
-| Faltas y salidas sin marcar sin revisar al cierre | Cero |
+| Tiempo para tener el resumen para planillas | Que RR.HH. lo baje el primer día hábil del mes siguiente |
+| Faltas y salidas sin marcar sin revisar al exportar | Cero |
 | Horas extra sin autorización pagadas | Cero |
 | Discusiones por la asistencia en la liquidación | Que bajen mes a mes |
 
@@ -164,8 +166,8 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 
 ### 1.7 Alcance y límites
 
-- **Entra:** horarios fijos y flexibles con franja de descanso; políticas de marcación con tolerancias y redondeo; geocercas sobre los lugares de Organización; asignaciones individuales y masivas; marcar con rostro y ubicación desde el celular; el cálculo del día al segundo; Hoy, Libro de asistencia por día, semana y mes; la asistencia de una persona; Incidencias; Solicitudes de vacaciones, permisos y licencias, horas extra, justificaciones, correcciones, trabajo remoto y cambios de turno; saldos de vacaciones; corregir, anular y marcar a mano con motivo; el cierre del mes y la exportación para planillas; biometría con consentimiento y retención de selfies; Mi asistencia del colaborador.
-- **No entra en esta versión:** la bolsa de horas y su compensación (#11); horarios distintos por día o con vigencia (#3); turnos que cruzan la medianoche; marcar sin conexión; el domicilio autorizado para remotos (#19); vincular el celular a la persona; la cobertura mínima configurable por cargo (#21); reportes por área, día de la semana y motivo (#24); el envío real de avisos.
+- **Entra:** horarios fijos y flexibles, con un renglón por día, hasta dos descansos por día y sus tolerancias; modalidades (qué se pide al marcar en presencial, híbrido y remoto) y el parecido mínimo del rostro; geocercas sobre los lugares de Organización y varios lugares por persona; asignaciones individuales y masivas; marcar con rostro y ubicación desde el celular; el cálculo del día al segundo; Hoy; el Libro de asistencia por día, semana, mes y calendario, con sus temas (faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario); la asistencia de una persona y su reporte en PDF; Solicitudes de vacaciones, permisos y licencias, horas extra, justificaciones, correcciones, trabajo remoto y cambios de turno, con la papeleta a la vista; saldos de vacaciones; corregir, anular y marcar a mano con motivo; el resumen para planillas y la exportación en CSV.
+- **No entra en esta versión:** la bolsa de horas y su compensación (#11); horarios con fecha de vigencia (#3; los horarios distintos por día ya entran); turnos que cruzan la medianoche; marcar sin conexión; el domicilio autorizado para remotos (#19); vincular el celular a la persona; la cobertura mínima configurable por cargo (#21); reportes por área, día de la semana y motivo (#24); el envío real de avisos.
 
 ## 02 · Integraciones
 
@@ -179,7 +181,7 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 ### 2.2 Gestión de personas
 
 - La **ficha** es la dueña de los datos de la persona: nombre, cargo, unidad, fecha de ingreso. Asistencia los lee.
-- El **alta** de un colaborador tiene el paso «Asignación de asistencia»: horario, lugar, modalidad y política desde su fecha de ingreso. Con «No controla» la persona no marca y no se le cuentan faltas.
+- El **alta** de un colaborador tiene el paso «Asistencia»: la asignación —horario, lugar y otros lugares, modalidad— desde su fecha de ingreso, y «Vacaciones y permisos» (si puede pedirlas antes del año y quién aprueba). Con «No controla» la persona no marca y no se le cuentan faltas.
 - Un desvinculado sale de todas las listas.
 - La **fecha de ingreso** da los días de vacaciones por año.
 
@@ -196,7 +198,7 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 
 ### 2.5 Planillas
 
-- Planillas toma el **cierre** del mes en un formato fijo, en segundos: días, ausencias, tardanza y descanso injustificados, salidas anticipadas, horas extra aprobadas trabajadas y fuera de horario.
+- Planillas toma el **resumen para planillas**, que se baja al exportar el Mes del Libro, en un formato fijo y en segundos: días, ausencias, tardanza y descanso injustificados, salidas anticipadas, horas extra aprobadas trabajadas y fuera de horario. El módulo no cierra meses ni calcula sueldos.
 
 ### 2.6 Resumen
 
@@ -206,7 +208,7 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 | Gestión de personas | La ficha, el alta y la fecha de ingreso | La asignación desde el alta |
 | Mi espacio | — | Mi asistencia, las solicitudes y las papeletas |
 | Comunicación | El canal de avisos | Los avisos de marca y de alertas |
-| Planillas | — | El cierre del mes en formato fijo |
+| Planillas | — | El resumen para planillas en formato fijo, al exportar el Mes |
 
 ## 03 · Funcionalidades
 
@@ -214,7 +216,7 @@ Un registro que se escribe solo, al segundo, con la evidencia de cada marca; que
 
 ### Para Recursos Humanos
 
-Las pantallas del módulo Asistencia del menú lateral: Hoy, Libro de asistencia —que se despliega en Todas las jornadas y sus temas: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas y Fuera de horario—, Solicitudes —que se despliega en sus siete tipos— y Configuración —que se despliega en sus seis partes—.
+Las pantallas del módulo Asistencia del menú lateral: Hoy, Libro de asistencia —sin submenú: sus temas son un filtro de la Semana y el Mes—, Solicitudes —que se despliega en sus siete tipos— y Configuración —que se despliega en sus cinco partes: Horarios, Modalidades, Avisos al colaborador, Lugares y geocercas y Asignaciones—. En todas, los estados y los temas se eligen en **listas desplegables** con su punto de color y su número, no en pestañas, y la columna de la persona se llama **Colaborador**.
 
 ### 3.1 Hoy
 
@@ -243,9 +245,9 @@ La pantalla con la que RR.HH. empieza la mañana. Contesta, en orden: ¿cómo va
 
 Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la dirección: se enlaza y la flecha de atrás vuelve.
 
-- **Cabecera**: flechas para el día, la semana o el mes anterior y siguiente —nunca pasan de hoy—, «Ir a hoy» o «Ir a este mes», el selector **Día · Semana · Mes · Calendario** y el chip «Mes cerrado» si corresponde. **Exportar CSV** a la derecha.
-- **Buscador** por nombre o cargo y filtros de sucursal, centro de trabajo y unidad en la misma fila.
-- **Día**: una franja de conteos que filtra —Todos, Llegaron tarde, Sin marcar o Faltaron, Trabajando, Por llegar, Terminaron, Sin salida, Con permiso— y una tabla limpia, como el timesheet de BambooHR: el colaborador con su unidad y su lugar; su **horario** con el descanso, para comparar con la entrada sin pensar; la **entrada** con el atraso en naranja («+12 min tarde»); la **salida** con su nota («en turno», «40 min antes», «Descanso antes · 16 min»); **«Su día»**, una barrita de 06:00 a 22:00 —el riel es su horario, el verde lo que trabajó, el naranja el atraso o la salida antes, el rayado rojo la falta, el gris el permiso, el violeta sin salida y una rayita marca «ahora»—; las **horas trabajadas** de las programadas; y el **estado** en una píldora de color con una línea que dice qué pasa: «Trabajando · llegó 26 min tarde», «En descanso · vuelve 14:00», «No ha llegado · debía entrar 08:30», «Terminó su jornada · salió 15:04», «Salida sin marcar», «Aún no le toca · entra a las 09:00», y lo justificado con su motivo: «De vacaciones», «Con permiso» o «Con licencia».
+- **Cabecera**: flechas para el día, la semana o el mes anterior y siguiente —nunca pasan de hoy—, «Ir a hoy» o «Ir a este mes», el selector **Día · Semana · Mes** y dos íconos para ver en **tabla** o en **calendario**.
+- **Buscador** por nombre o cargo, filtros de sucursal, centro de trabajo y unidad, el estado (en el Día) o el tema (en la Semana y el Mes) en listas desplegables, y **Exportar CSV**, en la misma fila.
+- **Día**: el estado en una lista desplegable —Todos los estados, Faltaron (hoy: No han llegado), Llegaron tarde, Trabajando, Aún no les toca, Terminaron, Sin salida, Con permiso—, cada uno con su punto de color y su número, y una tabla limpia, como el timesheet de BambooHR: el colaborador con su unidad y su lugar; su **horario** con el descanso, para comparar con la entrada sin pensar; la **entrada** con el atraso en naranja («+12 min tarde»); la **salida** con su nota («en turno», «40 min antes», «Descanso antes · 16 min»); **«Su día»**, una barrita de 06:00 a 22:00 —el riel es su horario, el verde lo que trabajó, el naranja el atraso o la salida antes, el rayado rojo la falta, el gris el permiso, el violeta sin salida y una rayita marca «ahora»—; las **horas trabajadas** de las programadas; y el **estado** en una píldora de color con una línea que dice qué pasa: «Trabajando · llegó 26 min tarde», «En descanso · vuelve 14:00», «No ha llegado · debía entrar 08:30», «Terminó su jornada · salió 15:04», «Salida sin marcar», «Aún no le toca · entra a las 09:00», y lo justificado con su motivo: «De vacaciones», «Con permiso» o «Con licencia».
 - **Semana**: con el lenguaje del Mes. Cada día en el color lleno de su estado, con la hora de entrada y de salida; el fin de semana, apagado. A la derecha, las mismas columnas que el Mes —Retrasos, Tiempo de retraso, Faltas y **Horas de la semana**—. El día en curso no suma hasta que termina.
 - **Mes**: la planilla clásica. Una fila por colaborador, un cuadrito por día con el color de su estado y, a la derecha, lo acumulado: **Retrasos** y **Tiempo de retraso** (las veces que llegó tarde y el tiempo acumulado, cada uno en su columna, con lo justificado debajo del tiempo), **Faltas** (las ausentes; las con permiso aparte, «+ 1 con permiso») y **Horas del mes** (las trabajadas de las programadas, y debajo «completas» o «faltan 4:00»). Las tres columnas se ordenan de mayor a menor.
 - **Calendario**: la vista gráfica del mes, a toda la pantalla. Arriba a la derecha, dos íconos eligen la forma de ver: **tabla** (Día · Semana · Mes) o **calendario**. Cada día muestra las caras de quienes hay que mirar —aro rojo si faltó, ámbar si llegó tarde—, hasta cinco y «+N», y debajo cuántos; los días sin jornada se apagan. Al tocar un día se abre una ventana con todo ese día: seis cifras que también filtran (con jornada, faltaron, llegaron tarde, de vacaciones o con permiso, salida sin marcar y a tiempo), un buscador y la tabla del Día de esa fecha. Cada persona abre su jornada y «Abrir este día en el Libro» lleva a la vista Día.
@@ -259,7 +261,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 | RF‑ASI‑009 | El Mes muestra por persona las tardanzas, las faltas y el saldo, ordenables | Oblig. | Ordenar por tardanzas pone primero a quien suma más minutos |
 | RF‑ASI‑010 | Lo acumulado cuenta solo días cerrados | Oblig. | A media mañana, el saldo no cuenta el día de hoy |
 | RF‑ASI‑011 | Las faltas con vacación, permiso o licencia van aparte | Oblig. | Una persona con una falta y un permiso muestra «1» y «+ 1 con permiso» |
-| RF‑ASI‑012 | El Día filtra por estado con una franja de conteos | Import. | «6 Llegaron tarde» deja solo a esas seis |
+| RF‑ASI‑012 | El Día filtra por estado con una lista desplegable con su número | Import. | «Llegaron tarde · 6» deja solo a esas seis |
 | RF‑ASI‑013 | El CSV trae una fila por persona y día, con las duraciones en segundos | Oblig. | La tardanza de 59 s figura como 59 |
 
 > **En la maqueta:** la vista Día es la opción E1 de la ronda 4 de propuestas —tabla limpia— con la barrita del día como columna; reemplaza a la de medias horas —ABIERTA‑ASI‑11, resuelta—.
@@ -268,7 +270,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 
 Su mes con el mismo lenguaje del Libro: seis cifras arriba y el calendario grande abajo.
 
-- **Cabecera**: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro registrado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, **CSV** y **PDF**.
+- **Cabecera**: nombre, cargo y unidad; su lugar, modalidad, horario y si tiene el rostro registrado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, **CSV** y **PDF**.
 - **Seis cifras**: días trabajados (de los que tenía jornada, sin contar el día en curso), retrasos, tiempo de retraso, faltas, horas del mes (lo trabajado de lo programado, «completas» o «faltan») y puntualidad, con la racha de días seguidos a tiempo.
 - **Calendario** del mes a todo el ancho, con la entrada y la salida de cada día en el color de su estado; un clic abre la jornada.
 - Debajo, las horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.
@@ -293,20 +295,20 @@ Su mes con el mismo lenguaje del Libro: seis cifras arriba y el calendario grand
 Todo lo de un día de una persona, y el único lugar donde se corrige.
 
 - **Cifras**: entrada y salida al segundo, trabajado, programado y tardanza o extra aprobada.
-- **La barra del día** con sus marcas, el horario y la franja de descanso; la línea del descanso («tomó X · se descontaron X por no marcarlo»).
+- **La barra del día** con sus marcas, el horario y la franja de descanso; la línea del descanso («Descansos de 13:00 a 14:00 y de 16:00 a 16:15 · tomó X · no lo marcó: se restaron X de las horas trabajadas»).
 - **Alertas** del día con su detalle y en qué está su justificación: aceptada, por revisar, no aceptada o avisada sin motivo.
-- **Horas extra** del día: su ventana, su estado y cuánto trabajó dentro; «Aprobar» o «Rechazar» si están por responder. Si se quedó sin autorización, **«Autorizar como horas extra»**.
+- **Horas extra** del día: su ventana, su estado y cuánto trabajó dentro; «Aprobar» o «Rechazar» si están pendientes. Si se quedó sin autorización, **«Autorizar como horas extra»**.
 - **Las marcas**, en orden: la hora, la original tachada si se ajustó, su tipo, cómo se hizo (rostro y distancia, remoto o cargada por RR.HH.), su motivo y quién, y el radar de la distancia. Cada una con **«Ajustar la hora»** y **«Anular la marcación»**.
 - **Pie**: «Ver su mes», **«Justificar»** (solo para un día ausente, sin marcar, sin salida o tarde) y **«Agregar marcación»**.
 - Cada corrección pide **«¿Por qué?»**, obligatorio, y queda con el nombre de quien la hizo.
-- Con el mes cerrado: «El mes está cerrado para nómina: se puede mirar, pero no corregir».
+- No hay meses cerrados: cualquier día se puede corregir, siempre con su motivo y su autor.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑ASI‑017 | Ajustar una hora guarda la original y la muestra tachada | Oblig. | Una entrada de 08:52 ajustada a 08:30 muestra las dos |
 | RF‑ASI‑018 | Anular deja la marca a la vista, gris, con su motivo | Oblig. | La marca anulada no cuenta pero se ve |
 | RF‑ASI‑019 | Toda corrección pide un motivo de al menos 4 caracteres | Oblig. | Sin motivo, «Guardar» no hace nada |
-| RF‑ASI‑020 | Con el mes cerrado no hay ninguna acción de corrección | Oblig. | No aparecen Ajustar, Anular, Justificar ni Agregar marcación |
+| RF‑ASI‑020 | **Retirado:** ya no hay cierre de mes | — | — |
 | RF‑ASI‑021 | «Autorizar como horas extra» convierte lo trabajado fuera de horario en una ventana aprobada | Import. | Se quedó 1 h 10 sin autorización: al autorizar, cuenta como 1 h 10 de extra |
 
 ### 3.5 Los temas del Libro
@@ -352,7 +354,7 @@ Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una
 | RF‑ASI‑079 | Vacaciones y permisos muestran la papeleta que solicitó la persona | Oblig. | El número de la papeleta en «Revisar» es el mismo que ve la persona en su app |
 | RF‑ASI‑080 | La papeleta lleva el sello de la respuesta de RR.HH. | Import. | Aprobada, dice «Aprobó Juan Pérez Gómez · 3 nov» en los dos lados |
 | RF‑ASI‑030 | La cobertura avisa si el lugar quedaría bajo el 80 % | Import. | «Su lugar quedaría con 6 de 9» en ámbar |
-| RF‑ASI‑031 | El menú cuenta las solicitudes por responder, con las de horas extra | Oblig. | Una nueva desde la app suma uno |
+| RF‑ASI‑031 | El menú cuenta las solicitudes pendientes, con las de horas extra | Oblig. | Una nueva desde la app suma uno |
 
 ### 3.7 Saldos de vacaciones
 
@@ -405,7 +407,7 @@ Cuándo trabaja cada quien.
 - Menú: Editar, Duplicar, Eliminar (no si está asignado). **Duplicar y Eliminar piden confirmación**: Duplicar pide el nombre de la copia («Sí, duplicar»). **Eliminar** abre una ventana centrada, como «Eliminar mi cuenta» del celular (Ronda 22 · K2): un ícono grande, «¿Eliminar «Oficina (copia)»?», qué pasa, y **hay que escribir el nombre del horario** para que se encienda el botón rojo. La misma ventana sirve para eliminar una política; «Usar por defecto» también se confirma.
 - **Las horas se eligen con el reloj de Souly**: un campo que se puede escribir (08:30) y que abre una tarjeta con dos columnas —horas y minutos de 5 en 5— y la elegida en navy; en vez del reloj gris del navegador.
 - **Nuevo horario** (Ronda 19 · X1): una ventana ancha. Arriba, nombre, tipo (**Fijo** o **Flexible**) y color. A la izquierda, **un renglón por día, de lunes a domingo**: un interruptor para si trabaja ese día, su entrada y su salida, **sus descansos** —hasta dos, solo con su hora («☕ 13:00–14:00»)— como etiquetas; al tocar una se abre **una tarjetita flotante** (Ronda 20 · E2) con desde → hasta en grande, duraciones rápidas (15 min, 30 min, 45 min, 1 h) que calculan el «hasta», la barra del día con dónde cae y «Quitar descanso», sus horas y un menú ⋯ para copiar ese día a todos, de lunes a viernes o a un día libre. A la derecha, **«Así queda su semana»**: un calendario de lunes a domingo con un bloque por día en el color del horario y los descansos rayados. Abajo, la tolerancia de la política y las horas por grupo de días y de la semana. **Un horario nuevo arranca de lunes a sábado** (sábado de 08:30 a 12:30, sin descanso); cada empresa lo cambia. Cada día avisa si la salida es antes que la entrada o si un descanso cae fuera de la jornada o se pisa con el otro.
-- **Cada descanso se mide por separado**: la primera pausa que marca contra el primer descanso, la segunda contra el segundo; si se excede en el primero, el exceso aparece en el primero. Si no marca uno que su jornada incluye, cuenta como descanso sin marcar. Las horas del día descuentan los dos.
+- **Cada descanso se mide por separado**: el primer descanso que marca contra la primera franja, el segundo contra la segunda; si se excede en el primero, el exceso aparece en el primero. Si no marca uno que su jornada incluye, cuenta como descanso sin marcar. Las horas del día descuentan los dos.
 - **Un día distinto cuenta como jornada completa con sus propias horas**: quien trabaja el sábado de 08:00 a 12:00 cumplió su día y no queda debiendo; la tardanza y la salida anticipada se miden contra el horario de ese día. Por dentro se guarda el horario más repetido como base y los demás días como excepciones. La tabla y la tarjeta muestran los días distintos debajo («Sá 09:00 a 13:00»).
 - **Tolerancias** (lo que antes era la política): de entrada, del descanso y de salida, con − y +, cada una con su efecto («Atraso desde las 08:40», «Salida anticipada antes de las 17:55»). La tabla muestra la tolerancia debajo de la entrada y salida. **Ya no se elige** qué pasa si no marca el descanso ni el redondeo: si no lo marca, siempre se resta de las horas trabajadas y queda el aviso «No marcó su descanso»; la tardanza siempre se cuenta al segundo (#8).
 - Abajo: las horas programadas al día y a la semana.
@@ -414,7 +416,7 @@ Cuándo trabaja cada quien.
 | --- | --- | --- | --- |
 | RF‑ASI‑042 | El descanso de un horario fijo es una franja dentro de la jornada | Oblig. | Un descanso de 12:00 a 12:00 no se guarda |
 | RF‑ASI‑043 | Un horario no cruza la medianoche | Oblig. | Entrada 22:00 y salida 06:00 avisan y no se guardan |
-| RF‑ASI‑044 | El formulario muestra la tolerancia de la política y desde qué hora es atraso | Import. | Entrada 08:30 con 10 min: «cuenta como atraso después de las 08:40» |
+| RF‑ASI‑044 | La ventana del horario muestra sus tolerancias y desde qué hora es atraso | Import. | Entrada 08:30 con 10 min: «Atraso desde las 08:40» |
 | RF‑ASI‑045 | Un horario asignado no se elimina | Oblig. | «Está asignado a personas: reasígnelas primero» |
 | RF‑ASI‑082 | Un horario puede tener otro horario algunos días | Oblig. | Lunes a viernes 08:00–18:00 y sábado 08:00–12:00: el sábado se programan 4 h |
 | RF‑ASI‑083 | El día con otro horario cuenta como jornada completa con sus horas | Oblig. | Trabajar el sábado de 08:00 a 12:00 da «4:00 de 4:00» y «Terminó su jornada» |
@@ -451,7 +453,7 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑ASI‑049 | Cada aviso se enciende o se apaga | Oblig. | Con «No marcó su descanso» apagado, la incidencia dice «Sin aviso a la persona» |
+| RF‑ASI‑049 | Cada aviso se enciende o se apaga | Oblig. | Con «No marcó su descanso» apagado, el tema Retrasos y descansos dice «Sin aviso a la persona» |
 | RF‑ASI‑050 | «Avisar desde» filtra lo que se le avisa a la persona | Oblig. | Con 5 min, una tardanza de 4 min no se avisa |
 
 > **En la maqueta:** el aviso con «Agregar motivo» se configura pero todavía no aparece en el celular, y el plazo para justificar no vence solo —ABIERTA‑ASI‑06—.
@@ -510,7 +512,7 @@ Lo que la persona hace y ve desde su celular y desde Mi espacio en la web.
 
 ### 3.17 Marcar desde el celular
 
-- **Inicio** muestra la franja del día: su turno, cómo va («Entraste 08:27 · 3 h 10») y el botón menta con la **próxima marca**: Marcar entrada, Iniciar pausa, Volver de la pausa o Marcar salida. Al terminar, «Listo por hoy».
+- **Inicio** muestra la franja del día: su turno, cómo va («Entraste 08:27 · 3 h 10») y el botón menta con la **próxima marca**: Marcar entrada, Iniciar descanso, Volver del descanso o Marcar salida. Al terminar, «Listo por hoy».
 - Un toque **no marca**: abre una ventana que dice qué va a marcar y a qué hora, y cómo le queda («Llega 12 min tarde», «Le faltan 2 h de jornada»). Recién **«Escanear rostro»** empieza.
 - **Ubicación**: busca dónde está y dice «Está en su lugar · a 24 m»; fuera de la geocerca, «Está fuera de su lugar», con «Volver a intentar». En remoto: «Hoy es día remoto: vale cualquier lugar».
 - **Rostro**: «Mire la cámara»; la primera vez, «Registrando su rostro». Antes de la primera vez, el **consentimiento**.
@@ -530,7 +532,7 @@ Lo que la persona hace y ve desde su celular y desde Mi espacio en la web.
 
 - **Esta semana**: siete días con un punto de color, el de hoy en navy; un toque muestra a qué hora marcó cada cosa, cómo la marcó y cuánto trabajó. Resumen: trabajadas, días a tiempo y horas extra.
 - **Mi mes**: el calendario con el color de cada día y el resumen: trabajadas, días a tiempo y llegadas tarde.
-- **El día elegido**: las marcas con su diferencia («a la hora», «12 min tarde», «fuera de horario»), la pausa y cuánto se pasó, y «¿Algo está mal? Corregir una marca».
+- **El día elegido**: las marcas con su diferencia («a la hora», «12 min tarde», «fuera de horario»), el descanso y cuánto se pasó, y «¿Algo está mal? Corregir una marca».
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
@@ -552,7 +554,7 @@ Lo que la persona hace y ve desde su celular y desde Mi espacio en la web.
 
 ### 3.20 Los avisos de marcación
 
-- Bajan desde arriba del teléfono, una vez por día cada uno: 10 min antes de la entrada si no marcó, pasada la tolerancia si sigue sin marcar («Aún no marca su entrada»), 5 min antes de que termine la pausa y si ya se pasó, y a la hora de salida si sigue sin marcarla.
+- Bajan desde arriba del teléfono, una vez por día cada uno: 10 min antes de la entrada si no marcó, pasada la tolerancia si sigue sin marcar («Aún no marca su entrada»), 5 min antes de que termine el descanso («Su descanso termina a las 14:00») y si ya se pasó, y a la hora de salida si sigue sin marcarla.
 - Un toque lleva a Inicio.
 
 | Código | Requisito | Prioridad | Criterio |
@@ -587,13 +589,13 @@ Lo que vale en todas las pantallas.
 
 - La pantalla de RR.HH. y la del colaborador hablan de **usted**; los avisos al colaborador, de **tú**, como un mensaje: «Hoy llegaste 45 min tarde».
 - Se dice **sucursal**, **centro de trabajo** y **unidad organizacional**, nunca «sede» ni «área».
-- Se dice **colaborador** en las tablas, **marcación** y no «fichada», **descanso** para la franja y **pausa** para lo que se marca.
+- Se dice **colaborador** en las tablas (nunca «persona»), **marcación** y no «fichada», y **descanso** siempre —la franja y lo que se marca: «Iniciar descanso», «Volver del descanso», «En descanso»—, nunca «pausa».
 - Las horas como «08:30», las duraciones como «1 h 8 min»; los saldos con signo, «−30 min».
 
 ### 3.24 Fuera de alcance de esta versión
 
 - Bolsa de horas y compensación con tiempo libre (#11).
-- Horarios distintos por día de la semana o con fecha de vigencia (#3).
+- Horarios con fecha de vigencia (#3). Los horarios distintos por día de la semana ya entran.
 - Turnos que cruzan la medianoche (riesgo K1).
 - Marcar sin conexión y vincular el celular a la persona.
 - Domicilio autorizado para quien trabaja en remoto (#19).
@@ -603,11 +605,11 @@ Lo que vale en todas las pantallas.
 
 ## 04 · Reglas de negocio
 
-*Las condiciones que el sistema cumple siempre. Primero las de Recursos Humanos, en el orden en que vive un día: se marca, se calcula, se corrige, se justifica, se autoriza, se pide, se revisa y se cierra, y antes de todo se configura; después las del colaborador. Todas se leen igual, en cuatro apartados, y cada una dice de dónde viene: el requerimiento de RR.HH. (#), la arquitectura del backend o nueva.*
+*Las condiciones que el sistema cumple siempre. Primero las de Recursos Humanos, en el orden en que vive un día: se marca, se calcula, se corrige, se justifica, se autoriza, se pide, se revisa y se exporta, y antes de todo se configura; después las del colaborador. Todas se leen igual, en cuatro apartados, y cada una dice de dónde viene: el requerimiento de RR.HH. (#), la arquitectura del backend o nueva.*
 
 ### Para Recursos Humanos
 
-Las condiciones del módulo por tema: la marcación, el cálculo del día, corregir sin borrar, las justificaciones, las horas extra, las solicitudes, las incidencias y el cierre, y la configuración.
+Las condiciones del módulo por tema: la marcación, el cálculo del día, corregir sin borrar, las justificaciones, las horas extra, las solicitudes, los temas del Libro y el resumen para planillas, y la configuración.
 
 ### La marcación
 
@@ -701,7 +703,7 @@ El celular toma la ubicación y convierte el rostro en un **vector de 512 númer
 
 *Descripción general*
 
-Con una política que exige estar en el lugar, una marca a más distancia que el **radio** se rechaza: «Está fuera de su lugar», con «Volver a intentar». La geocerca se exige solo si la persona es presencial ese día, su horario es fijo y su política la pide.
+Si su modalidad pide **estar en su lugar**, una marca a más distancia que el **radio** se rechaza: «Está fuera de su lugar», con «Volver a intentar». La geocerca se exige solo si la persona es presencial ese día (o híbrida en un día de oficina), su horario es fijo y su modalidad la pide. Con **varios lugares**, vale cualquiera: cuenta el más cercano y la marca guarda en cuál fue.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -713,7 +715,7 @@ Con una política que exige estar en el lugar, una marca a más distancia que el
 
 **3. Condiciones y excepciones**
 
-- Con la geocerca apagada en la política, la ubicación se guarda pero no bloquea.
+- Con «Estar en su lugar» apagado en su modalidad, la ubicación se guarda pero no bloquea.
 - Un horario flexible nunca pide geocerca.
 - Una marca rechazada queda registrada y aparece en Libro › Marcaciones rechazadas.
 
@@ -725,7 +727,7 @@ Con una política que exige estar en el lugar, una marca a más distancia que el
 - **Pantalla:** W‑ASI‑21 Marcar desde el celular
 - **Diseño:** Prototipado
 
-#### 4.4 · BR-ASI-004 · El radio es el de la política, si no el del lugar
+#### 4.4 · BR-ASI-004 · El radio es el de la geocerca del lugar
 
 *Estado: Borrador*
 
@@ -739,29 +741,29 @@ Con una política que exige estar en el lugar, una marca a más distancia que el
 
 *Descripción general*
 
-El radio permitido es el **radio propio de la política**, si tiene; si no, el de la **geocerca del lugar**; si el lugar no tiene, **150 m**.
+El radio permitido es el de la **geocerca del lugar** donde marca; si el lugar no tiene, **150 m**. Ya no hay radio propio de una política (se retiraron en la 1.1). Si la persona puede marcar en **varios lugares**, se mide contra el más cercano.
 
 **2. Escenarios ágiles de ejecución**
 
-*Cargos de confianza*
+*Un supervisor que rota*
 
-- **Dado que** la política «Cargos de confianza» tiene radio 300 m y la sucursal 150 m
-- **Cuando** una gerente marca a 220 m
-- **Entonces** la marca vale
+- **Dado que** alguien puede marcar en Sopocachi (150 m) y en El Prado (200 m)
+- **Cuando** marca a 180 m de El Prado
+- **Entonces** la marca vale y el día dice «Sucursal El Prado»
 
 **3. Condiciones y excepciones**
 
-- El radio del lugar va de 30 a 1000 m; el de la política, de 30 a 2000 m.
+- El radio del lugar va de 30 a 1000 m.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑ASI‑051
-- **Historia de usuario:** HU‑ASI‑14
-- **Pantalla:** W‑ASI‑16 Políticas de marcación
+- **Requisitos:** RF‑ASI‑051, RF‑ASI‑087
+- **Historia de usuario:** HU‑ASI‑14, HU‑ASI‑15
+- **Pantalla:** W‑ASI‑18 Lugares y geocercas; W‑ASI‑19 Asignaciones
 - **Diseño:** Prototipado
 
-#### 4.5 · BR-ASI-005 · El rostro se compara con un mínimo de la política
+#### 4.5 · BR-ASI-005 · El rostro se compara con un mínimo de la empresa
 
 *Estado: Borrador*
 
@@ -769,33 +771,33 @@ El radio permitido es el **radio propio de la política**, si tiene; si no, el d
 
 - **Código:** BR-ASI-005
 - **Grupo:** La marcación
-- **Qué gobierna:** Marcación
+- **Qué gobierna:** Modalidad
 - **Antes:** Arquitectura · §6 · riesgo B4
 - **Estado:** Borrador
 
 *Descripción general*
 
-Con «Pedir el rostro», la marca vale si la **similitud** llega a la mínima de su política: 78 % en la Estándar. El mínimo **nunca baja del 60 %**: con 0 el rostro dejaría de comprobarse.
+Si su modalidad pide **el rostro**, la marca vale si el **parecido** llega al mínimo de la empresa: 78 % por defecto, de 60 % a 95 %, en Configuración › Modalidades. El mínimo **nunca baja del 60 %**: con menos el rostro dejaría de comprobarse.
 
 **2. Escenarios ágiles de ejecución**
 
 *El rostro no coincide*
 
-- **Dado que** la política pide 78 %
+- **Dado que** el parecido mínimo es 78 %
 - **Cuando** el rostro coincide 64 %
-- **Entonces** la marca se rechaza «por rostro» y aparece en Libro › Marcaciones rechazadas con la selfie
+- **Entonces** la marca se rechaza «por rostro» y aparece en el Libro, tema Marcaciones rechazadas, con la selfie
 
 **3. Condiciones y excepciones**
 
 - Más alto es más seguro y con más rechazos.
-- Sin rostro en la política, se marca solo con la ubicación.
+- Con «Pedir el rostro» apagado en su modalidad, se marca solo con la ubicación.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑ASI‑047
+- **Requisitos:** RF‑ASI‑047, RF‑ASI‑085
 - **Historia de usuario:** HU‑ASI‑13
-- **Pantalla:** W‑ASI‑16 Políticas de marcación
+- **Pantalla:** W‑ASI‑16 Modalidades
 - **Diseño:** Prototipado
 
 #### 4.6 · BR-ASI-006 · Sin consentimiento no se usa el rostro
@@ -832,7 +834,7 @@ Antes de la primera marca con rostro, la persona lee **«Antes de usar su rostro
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑056
 - **Historia de usuario:** HU‑ASI‑16, HU‑ASI‑18
-- **Pantalla:** W‑ASI‑21 Marcar desde el celular; W‑ASI‑20 Biometría y privacidad
+- **Pantalla:** W‑ASI‑21 Marcar desde el celular; W‑ASI‑20 Asignaciones (columna Rostro)
 - **Diseño:** Prototipado
 
 #### 4.7 · BR-ASI-007 · Marcar pide confirmar antes de escanear
@@ -861,7 +863,7 @@ Un toque en el botón de marcar **no marca**: abre una ventana que dice qué va 
 
 **3. Condiciones y excepciones**
 
-- Una salida temprana ofrece «Mejor, iniciar pausa» si el descanso está pendiente.
+- Una salida temprana ofrece «Mejor, iniciar su descanso» si el descanso está pendiente.
 - Una entrada después de su salida dice «Fuera de su horario» y pide «Marcar igual».
 
 **4. Trazabilidad**
@@ -886,15 +888,15 @@ Un toque en el botón de marcar **no marca**: abre una ventana que dice qué va 
 
 *Descripción general*
 
-La próxima marca es siempre la que sigue: **entrada**, **inicio de pausa**, **fin de pausa**, **salida**. Con descanso pendiente y más de una hora por delante, el botón principal es «Iniciar pausa» y la salida queda como segunda opción.
+La próxima marca es siempre la que sigue: **entrada**, **inicio del descanso**, **fin del descanso**, **salida**; con dos descansos, el segundo también. Con descanso pendiente y más de una hora por delante, el botón principal es «Iniciar descanso» y la salida queda como segunda opción.
 
 **2. Escenarios ágiles de ejecución**
 
 *Después del almuerzo*
 
-- **Dado que** alguien marcó su entrada y su pausa
+- **Dado que** alguien marcó su entrada y el inicio de su descanso
 - **Cuando** abre la app
-- **Entonces** el botón dice «Volver de la pausa»
+- **Entonces** el botón dice «Volver del descanso»
 
 **3. Condiciones y excepciones**
 
@@ -958,7 +960,7 @@ Quien marcó la salida por error tiene **10 minutos** para «Deshacer la salida�
 
 *Descripción general*
 
-Una persona **remota**, o **híbrida** en un día que no es de oficina, marca desde donde esté: se exige el rostro y su horario, no la geocerca. Su ubicación queda como registro. Un trabajo remoto aprobado hace lo mismo esos días.
+Una persona **remota**, o **híbrida** en un día que no es de oficina, marca desde donde esté: se exige su horario y el rostro si su modalidad lo pide, no la geocerca. Su ubicación queda como registro. Un trabajo remoto aprobado hace lo mismo esos días.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -977,7 +979,7 @@ Una persona **remota**, o **híbrida** en un día que no es de oficina, marca de
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑053
 - **Historia de usuario:** HU‑ASI‑15
-- **Pantalla:** W‑ASI‑19 Asignaciones; W‑ASI‑21 Marcar desde el celular
+- **Pantalla:** W‑ASI‑16 Modalidades; W‑ASI‑19 Asignaciones; W‑ASI‑21 Marcar desde el celular
 - **Diseño:** Prototipado
 
 ### El cálculo del día
@@ -1034,7 +1036,7 @@ Las marcas y los cálculos se guardan **al segundo**: 08:30:01 y 08:30:59 son di
 
 *Descripción general*
 
-La tardanza es lo que pasa de la **hora de entrada más la tolerancia** de su política, al segundo y redondeada según la política. Se calcula **una sola vez**; todas las pantallas —Hoy, el Libro, la persona, el cierre, su app— leen esa.
+La tardanza es lo que pasa de la **hora de entrada de ese día más la tolerancia de su horario**, siempre **al segundo**. Se calcula **una sola vez**; todas las pantallas —Hoy, el Libro, la persona, el PDF, el resumen para planillas, su app— leen esa.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1059,38 +1061,38 @@ La tardanza es lo que pasa de la **hora de entrada más la tolerancia** de su po
 
 #### 4.13 · BR-ASI-013 · El redondeo es hacia abajo, a favor de la persona
 
-*Estado: Borrador*
+*Estado: Retirada · desde la 1.1 la tardanza y la salida anticipada se cuentan siempre al segundo (#8); ya no se elige redondeo*
 
 **1. Información básica**
 
 - **Código:** BR-ASI-013
 - **Grupo:** El cálculo del día
-- **Qué gobierna:** Política
+- **Qué gobierna:** Horario
 - **Antes:** REQ #8
-- **Estado:** Borrador
+- **Estado:** Retirada
 
 *Descripción general*
 
-La política elige cómo se cuenta la tardanza y la salida anticipada: **al segundo**, **por minuto completo** o **en bloques de 5 min**, siempre **hacia abajo**. Las marcas se guardan igual al segundo.
+Se podía contar la tardanza y la salida anticipada al segundo, por minuto completo o en bloques de 5 min. Desde la 1.1 **siempre al segundo**: es lo que pidió RR.HH. y lo que todas las pantallas muestran igual.
 
 **2. Escenarios ágiles de ejecución**
 
-*Bloques de cinco*
+*Al segundo*
 
-- **Dado que** la política redondea en bloques de 5 min
-- **Cuando** alguien llega 7 min 30 s tarde
-- **Entonces** cuentan 5 min
+- **Dado que** la entrada es 08:30 con 10 min de tolerancia
+- **Cuando** alguien marca 08:47:30
+- **Entonces** su tardanza es 7 min 30 s
 
 **3. Condiciones y excepciones**
 
-- El redondeo no cambia la hora de la marca, solo lo que se cuenta.
+- Las marcas se guardan al segundo con la hora del servidor.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑ASI‑046
-- **Historia de usuario:** HU‑ASI‑13
-- **Pantalla:** W‑ASI‑16 Políticas de marcación
+- **Requisitos:** RF‑ASI‑070
+- **Historia de usuario:** HU‑ASI‑12
+- **Pantalla:** W‑ASI‑15 Horarios
 - **Diseño:** Prototipado
 
 #### 4.14 · BR-ASI-014 · El descanso es una franja
@@ -1107,15 +1109,15 @@ La política elige cómo se cuenta la tardanza y la salida anticipada: **al segu
 
 *Descripción general*
 
-El descanso de un horario fijo es una **franja** —de 13:00 a 14:00—, no una cantidad de minutos. Se marca al salir y al volver, no cuenta como trabajado y tiene que caer dentro de la jornada.
+El descanso de un horario fijo es una **franja** —de 13:00 a 14:00—, no una cantidad de minutos. Cada día puede tener **hasta dos** (por ejemplo, de 13:00 a 14:00 y de 16:00 a 16:15). Se marca al salir y al volver, no cuenta como trabajado y tiene que caer dentro de la jornada de ese día sin pisarse con el otro.
 
 **2. Escenarios ágiles de ejecución**
 
 *Una franja fuera de la jornada*
 
-- **Dado que** un horario de 08:30 a 18:00
-- **Cuando** se pone el descanso de 18:30 a 19:00
-- **Entonces** no se guarda: «El descanso tiene que empezar después de la entrada, terminar antes de la salida y durar algo»
+- **Dado que** un lunes de 08:30 a 18:00
+- **Cuando** se pone un descanso de 18:30 a 19:00
+- **Entonces** el renglón avisa «Un descanso cae fuera de la jornada» y «Guardar horario» no se activa
 
 **3. Condiciones y excepciones**
 
@@ -1156,7 +1158,7 @@ El descanso se compara con su franja y con la **tolerancia de descanso**. Si dur
 
 **3. Condiciones y excepciones**
 
-- Se mira el primer descanso del día.
+- Cada descanso que marca se compara con su franja: el primero con la primera y el segundo con la segunda.
 
 **4. Trazabilidad**
 
@@ -1166,7 +1168,7 @@ El descanso se compara con su franja y con la **tolerancia de descanso**. Si dur
 - **Pantalla:** W‑ASI‑07 Detalle de la jornada
 - **Diseño:** Prototipado
 
-#### 4.16 · BR-ASI-016 · Si no marca el descanso, decide la política
+#### 4.16 · BR-ASI-016 · Si no marca el descanso, se resta y se avisa
 
 *Estado: Borrador*
 
@@ -1174,32 +1176,33 @@ El descanso se compara con su franja y con la **tolerancia de descanso**. Si dur
 
 - **Código:** BR-ASI-016
 - **Grupo:** El cálculo del día
-- **Qué gobierna:** Política
+- **Qué gobierna:** Jornada
 - **Antes:** REQ #6
 - **Estado:** Borrador
 
 *Descripción general*
 
-Si alguien trabajó de corrido por encima de su franja sin marcar el descanso, la política dice qué pasa: **Descontar y alertar**, **Solo descontar** o **Solo alertar**.
+Si alguien trabajó de corrido por encima de una franja de descanso sin marcarla, **siempre** se resta esa franja de sus **horas trabajadas** y queda el aviso **«No marcó su descanso»**. Ya no se elige (antes lo decidía la política: descontar, alertar o ambas). Se habla de horas trabajadas, no de sueldo: el módulo no paga ni descuenta dinero.
 
 **2. Escenarios ágiles de ejecución**
 
-*Descontar y alertar*
+*Sin marcar el descanso*
 
-- **Dado que** la política descuenta y alerta, y la franja es de 1 h
+- **Dado que** la franja es de 13:00 a 14:00
 - **Cuando** alguien entra 08:30 y sale 18:00 sin marcar el descanso
-- **Entonces** se descuenta 1 h de lo trabajado y queda «No marcó su descanso»
+- **Entonces** se restan 1 h de sus horas trabajadas y el día dice «No lo marcó: se restaron 1 h de las horas trabajadas»
 
 **3. Condiciones y excepciones**
 
 - Si la jornada no cubre la franja, no aplica.
+- Con dos descansos, se mira cada uno: el que no marcó es el que se resta.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑ASI‑046
-- **Historia de usuario:** HU‑ASI‑13
-- **Pantalla:** W‑ASI‑16 Políticas de marcación; W‑ASI‑07 Detalle de la jornada
+- **Requisitos:** RF‑ASI‑084
+- **Historia de usuario:** HU‑ASI‑12
+- **Pantalla:** W‑ASI‑07 Detalle de la jornada
 - **Diseño:** Prototipado
 
 #### 4.17 · BR-ASI-017 · Salida anticipada, pasada su tolerancia
@@ -1216,7 +1219,7 @@ Si alguien trabajó de corrido por encima de su franja sin marcar el descanso, l
 
 *Descripción general*
 
-Salir antes de la **hora de salida menos la tolerancia de salida** es **salida anticipada**, por la diferencia. Hoy cuenta recién cuando marcó la salida.
+Salir antes de la **hora de salida de ese día menos la tolerancia de salida de su horario** es **salida anticipada**, por la diferencia, al segundo. Hoy cuenta recién cuando marcó la salida.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1252,7 +1255,7 @@ Salir antes de la **hora de salida menos la tolerancia de salida** es **salida a
 
 *Descripción general*
 
-Hoy el estado sigue al momento: **Por llegar** hasta la entrada más la tolerancia, después **Sin marcar**; **Trabajando**, **En pausa** o **Terminó**. Un día pasado queda en **Ausente**, **Justificada**, **Sin salida**, **Llegó tarde**, **Salida anticipada**, **Horas extra** o **Presente**, en ese orden. Las faltas no se cargan a mano.
+Hoy el estado sigue al momento: **Aún no le toca** hasta la entrada más la tolerancia, después **No ha llegado**; **Trabajando**, **En descanso** o **Terminó su jornada**. Un día pasado queda en **Faltó**, **De vacaciones · Con permiso · Con licencia**, **Salida sin marcar**, **Llegó tarde**, **Salió antes**, **Horas extra** o **Terminó su jornada**, en ese orden. Las faltas no se cargan a mano.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1260,11 +1263,11 @@ Hoy el estado sigue al momento: **Por llegar** hasta la entrada más la toleranc
 
 - **Dado que** alguien tenía jornada ayer
 - **Cuando** no marcó en todo el día y no tenía permiso
-- **Entonces** el día queda «Ausente» sin que nadie lo cargue
+- **Entonces** el día queda «Faltó» sin que nadie lo cargue
 
 **3. Condiciones y excepciones**
 
-- Con un horario flexible, «Sin marcar» empieza a las 11:00.
+- Con un horario flexible, «No ha llegado» empieza a las 11:00.
 - Sin asignación el día es «Día libre».
 
 **4. Trazabilidad**
@@ -1325,7 +1328,7 @@ Un feriado nacional no es día laboral: nadie llega tarde ni falta en Todos Sant
 
 *Descripción general*
 
-Con un horario **flexible** no hay hora de entrada: no hay tardanza, salida anticipada ni geocerca. Solo cuenta que cumpla su **meta** de horas del día.
+Con un horario **flexible** no hay hora de entrada: no hay tardanza, salida anticipada ni geocerca. Solo cuenta que cumpla su **meta** de horas de ese día —cada día puede tener la suya (el viernes, 6 h)—. Tiene una franja de **cuándo puede marcar** (de 07:00 a 20:00 por defecto).
 
 **2. Escenarios ágiles de ejecución**
 
@@ -1373,8 +1376,8 @@ Lo acumulado —el saldo, las tardanzas y las faltas del Libro, la persona y su 
 
 **3. Condiciones y excepciones**
 
-- El cierre nunca cuenta el día de hoy.
-- Las incidencias tampoco incluyen hoy.
+- El resumen para planillas nunca cuenta el día de hoy.
+- Los temas del Libro tampoco incluyen una falta o una salida sin marcar de hoy.
 
 **4. Trazabilidad**
 
@@ -1398,11 +1401,11 @@ Lo acumulado —el saldo, las tardanzas y las faltas del Libro, la persona y su 
 
 *Descripción general*
 
-Lo trabajado es de la entrada a la salida menos los descansos marcados —y el que está en curso, hoy—, menos lo descontado por no marcar el descanso.
+Lo trabajado es de la entrada a la salida menos los descansos marcados —y el que está en curso, hoy—, menos lo que se restó por no marcar un descanso.
 
 **2. Escenarios ágiles de ejecución**
 
-*En pausa*
+*En descanso*
 
 - **Dado que** alguien entró 08:30 y salió al descanso 13:00
 - **Cuando** son las 13:30
@@ -1601,7 +1604,7 @@ En un mes **cerrado** nadie ajusta, anula, marca a mano, justifica ni autoriza h
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑020, RF‑ASI‑038
 - **Historia de usuario:** HU‑ASI‑11
-- **Pantalla:** W‑ASI‑07 Detalle de la jornada; W‑ASI‑14 Cierre del mes
+- **Pantalla:** W‑ASI‑07 Detalle de la jornada; W‑ASI‑14 Cierre del mes (retirada)
 - **Diseño:** Prototipado
 
 ### Las justificaciones
@@ -1782,7 +1785,7 @@ Quedarse no es trabajar horas extra. Solo cuenta como **hora extra** lo trabajad
 
 **3. Condiciones y excepciones**
 
-- Una ventana por responder o asignada sin aceptar no cuenta.
+- Una ventana pendiente o asignada sin aceptar no cuenta.
 
 **4. Trazabilidad**
 
@@ -2207,7 +2210,7 @@ Al revisar una vacación o un permiso de día completo, se cuenta cuánta gente 
 
 *Descripción general*
 
-La persona retira una solicitud mientras está **por responder**; sus días vuelven al saldo. Lo aprobado no se cancela desde la app.
+La persona retira una solicitud mientras está **pendiente**; sus días vuelven al saldo. Lo aprobado no se cancela desde la app.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2229,9 +2232,9 @@ La persona retira una solicitud mientras está **por responder**; sus días vuel
 - **Pantalla:** W‑ASI‑22 Mi asistencia
 - **Diseño:** Prototipado
 
-### Las incidencias y el cierre
+### Los temas del Libro y el resumen para planillas
 
-*Qué se revisa antes de cerrar y qué congela el cierre*
+*Qué se revisa en el Libro y qué se lleva a planillas. No hay cierre de mes.*
 
 #### 4.45 · BR-ASI-045 · Cada tema del Libro muestra un mes
 
@@ -2240,22 +2243,22 @@ La persona retira una solicitud mientras está **por responder**; sus días vuel
 **1. Información básica**
 
 - **Código:** BR-ASI-045
-- **Grupo:** Las incidencias y el cierre
-- **Qué gobierna:** Incidencia
+- **Grupo:** Los temas del Libro y el resumen para planillas
+- **Qué gobierna:** Libro
 - **Antes:** REQ #20
 - **Estado:** Borrador
 
 *Descripción general*
 
-Los temas del Libro —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— muestran **el mes elegido**, como el resto del Libro. Antes, como Incidencias, mostraban los 10 días anteriores a hoy (cambia en la 1.1).
+Los temas del Libro —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— muestran **el mes elegido**, como el resto del Libro. Antes, como Incidencias, mostraban los 10 días anteriores a hoy. Se eligen en la Semana o el Mes con la lista desplegable de temas, en cuadritos o en lista.
 
 **2. Escenarios ágiles de ejecución**
 
 *Una falta vieja*
 
 - **Dado que** una falta fue hace 12 días
-- **Cuando** se abre Libro › Faltas en ese mes
-- **Entonces** ya no aparece; sigue en el Libro y en el cierre
+- **Cuando** se elige el tema Faltas en el Mes de ese mes
+- **Entonces** aparece, con «Ver el día» para justificarla
 
 **3. Condiciones y excepciones**
 
@@ -2276,22 +2279,22 @@ Los temas del Libro —faltas, retrasos y descansos, salidas sin marcar, marcaci
 **1. Información básica**
 
 - **Código:** BR-ASI-046
-- **Grupo:** Las incidencias y el cierre
-- **Qué gobierna:** Incidencia
+- **Grupo:** Los temas del Libro y el resumen para planillas
+- **Qué gobierna:** Libro
 - **Antes:** Nueva
 - **Estado:** Borrador
 
 *Descripción general*
 
-En la fila no se resuelve nada: «Revisar» abre el día. Lo que corrige el día se hace ahí —agregar la salida, justificar, autorizar—. «Dejar como falta», «Ya la revisé», «No es extra» o «Dejar como injustificada» solo la sacan de la lista.
+En la lista de un tema no se resuelve nada: «Ver el día» abre el detalle de la jornada, con una línea que dice qué se vino a mirar. Lo que corrige el día se hace ahí —agregar la salida, justificar, autorizar como horas extra—. No hay bandeja que vaciar ni contador.
 
 **2. Escenarios ágiles de ejecución**
 
-*Dejar como falta*
+*Una falta sin permiso*
 
-- **Dado que** una falta sin permiso
-- **Cuando** RR.HH. toca «Dejar como falta»
-- **Entonces** el día sigue «Ausente» y la falta sigue en la lista: no hay que «vaciarla»
+- **Dado que** una falta sin justificar en el tema Faltas
+- **Cuando** RR.HH. toca «Ver el día» y ve que no tenía permiso
+- **Entonces** la deja como está: el día sigue «Faltó» y sigue en el tema
 
 **3. Condiciones y excepciones**
 
@@ -2312,7 +2315,7 @@ En la fila no se resuelve nada: «Revisar» abre el día. Lo que corrige el día
 **1. Información básica**
 
 - **Código:** BR-ASI-047
-- **Grupo:** Las incidencias y el cierre
+- **Grupo:** Los temas del Libro y el resumen para planillas
 - **Qué gobierna:** Cierre
 - **Antes:** REQ #27
 - **Estado:** Borrador
@@ -2338,32 +2341,32 @@ Cerrar un mes guarda quién y cuándo, y desde ahí no se corrige nada de ese me
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑038, RF‑ASI‑039
 - **Historia de usuario:** HU‑ASI‑11
-- **Pantalla:** W‑ASI‑14 Cierre del mes
+- **Pantalla:** W‑ASI‑14 Cierre del mes (retirada)
 - **Diseño:** Prototipado
 
-#### 4.48 · BR-ASI-048 · En el cierre solo cuenta en contra lo injustificado
+#### 4.48 · BR-ASI-048 · En el resumen para planillas solo cuenta en contra lo injustificado
 
 *Estado: Borrador*
 
 **1. Información básica**
 
 - **Código:** BR-ASI-048
-- **Grupo:** Las incidencias y el cierre
-- **Qué gobierna:** Cierre
+- **Grupo:** Los temas del Libro y el resumen para planillas
+- **Qué gobierna:** Resumen para planillas
 - **Antes:** REQ #27
 - **Estado:** Borrador
 
 *Descripción general*
 
-Para planillas cuenta en contra solo lo **injustificado**: tardanza, descanso excedido, salida anticipada y ausencias. Solo se pagan las horas extra **aprobadas y trabajadas**. Las ausencias justificadas van aparte.
+En el resumen para planillas cuenta en contra solo lo **injustificado**: tardanza, descanso excedido, salida anticipada y ausencias. Solo cuentan las horas extra **aprobadas y trabajadas** dentro de lo autorizado. Las ausencias justificadas van aparte.
 
 **2. Escenarios ágiles de ejecución**
 
 *Una tardanza aceptada*
 
 - **Dado que** alguien tiene 40 min de tardanza y 25 justificados
-- **Cuando** se cierra el mes
-- **Entonces** el cierre lleva 15 min de tardanza injustificada
+- **Cuando** se baja el resumen para planillas del mes
+- **Entonces** lleva 15 min de tardanza injustificada
 
 **3. Condiciones y excepciones**
 
@@ -2374,7 +2377,7 @@ Para planillas cuenta en contra solo lo **injustificado**: tardanza, descanso ex
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑040
 - **Historia de usuario:** HU‑ASI‑11
-- **Pantalla:** W‑ASI‑14 Cierre del mes
+- **Pantalla:** W‑ASI‑05 Libro · Mes (Exportar CSV › Resumen para planillas)
 - **Diseño:** Prototipado
 
 #### 4.49 · BR-ASI-049 · El resumen para planillas tiene un formato fijo
@@ -2384,40 +2387,41 @@ Para planillas cuenta en contra solo lo **injustificado**: tardanza, descanso ex
 **1. Información básica**
 
 - **Código:** BR-ASI-049
-- **Grupo:** Las incidencias y el cierre
-- **Qué gobierna:** Cierre
+- **Grupo:** Los temas del Libro y el resumen para planillas
+- **Qué gobierna:** Resumen para planillas
 - **Antes:** REQ #27 · #8
 - **Estado:** Borrador
 
 *Descripción general*
 
-Planillas recibe siempre las mismas columnas, una fila por persona, con los tiempos **en segundos**: período y su estado, días programados y trabajados, ausencias, trabajado, programado, tardanza total e injustificada, descanso excedido, salida anticipada, días sin descanso, horas extra autorizadas y trabajadas, fuera de horario y compensación. Se baja desde el Libro, en el Mes o el Calendario.
+Al exportar el **Mes** o el **Calendario** del Libro se elige «Las jornadas» o el **Resumen para planillas**: siempre las mismas columnas, una fila por colaborador, con los tiempos **en segundos** —período, código, colaborador, unidad, sucursal y centro; días programados y trabajados; faltas injustificadas y ausencias justificadas; trabajado y programado; retrasos y tardanza total e injustificada; descanso excedido y salida anticipada injustificados; días sin marcar descanso; horas extra autorizadas y trabajadas dentro de lo autorizado; y fuera de horario—. No hay borrador ni cierre: es el mes como está ese día.
 
 **2. Escenarios ágiles de ejecución**
 
-*Un borrador*
+*El resumen de octubre*
 
-- **Dado que** noviembre no está cerrado
-- **Cuando** se exporta
-- **Entonces** el archivo se llama «planilla_asistencia_2026-11_BORRADOR.csv» y el período dice «Borrador»
+- **Dado que** es 3 de noviembre
+- **Cuando** se baja el resumen para planillas de octubre
+- **Entonces** el archivo «planillas_asistencia_2026-10.csv» trae una fila por colaborador filtrado, con las mismas columnas en el mismo orden
 
 **3. Condiciones y excepciones**
 
-- La compensación en tiempo va siempre en 0 hasta que exista la bolsa de horas (#11).
+- Solo cuentan los días que ya pasaron.
+- Bajan los colaboradores que dejan pasar los filtros.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑041
 - **Historia de usuario:** HU‑ASI‑11
-- **Pantalla:** W‑ASI‑14 Cierre del mes
+- **Pantalla:** W‑ASI‑05 Libro · Mes (Exportar CSV › Resumen para planillas)
 - **Diseño:** Prototipado
 
 ### La configuración
 
 *Qué se arma antes de que alguien marque*
 
-#### 4.50 · BR-ASI-050 · La tolerancia es de la política, no del horario
+#### 4.50 · BR-ASI-050 · La tolerancia es del horario
 
 *Estado: Borrador*
 
@@ -2425,32 +2429,33 @@ Planillas recibe siempre las mismas columnas, una fila por persona, con los tiem
 
 - **Código:** BR-ASI-050
 - **Grupo:** La configuración
-- **Qué gobierna:** Política
+- **Qué gobierna:** Horario
 - **Antes:** Nueva
 - **Estado:** Borrador
 
 *Descripción general*
 
-La tolerancia de entrada, de descanso y de salida es de la **política**: un mismo horario de 08:30 puede tener 10 min para unos y 20 para otros. Para no perderla, el formulario del horario dice cuánto es y desde qué hora cuenta como atraso, con «Cambiar en Políticas».
+Las tolerancias de **entrada**, **descanso** y **salida** son de cada **horario**, en el bloque «Tolerancias» de su ventana, cada una con su efecto («Atraso desde las 08:40», «Salida anticipada antes de las 17:55»). Hasta la 1.0 eran de la política; si un grupo necesita otra tolerancia, tiene su propio horario.
 
 **2. Escenarios ágiles de ejecución**
 
 *Al crear un horario*
 
-- **Dado que** la política por defecto tiene 10 min
-- **Cuando** se pone la entrada 08:30
-- **Entonces** el formulario dice «cuenta como atraso después de las 08:40»
+- **Dado que** la entrada del lunes es 08:30
+- **Cuando** se pone la tolerancia de entrada en 10 min
+- **Entonces** el bloque dice «Atraso desde las 08:40» y la tabla de Horarios muestra «10 min de tolerancia»
 
 **3. Condiciones y excepciones**
 
-- Si otras políticas tienen otra tolerancia, se listan.
+- Las tolerancias van de 0 a 60 min.
+- El horario flexible no tiene tolerancias: no tiene hora de entrada.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑ASI‑044
-- **Historia de usuario:** HU‑ASI‑12, HU‑ASI‑13
-- **Pantalla:** W‑ASI‑15 Horarios; W‑ASI‑16 Políticas de marcación
+- **Requisitos:** RF‑ASI‑044, RF‑ASI‑086
+- **Historia de usuario:** HU‑ASI‑12
+- **Pantalla:** W‑ASI‑15 Horarios
 - **Diseño:** Prototipado
 
 #### 4.51 · BR-ASI-051 · Los lugares son los de Organización
@@ -2503,7 +2508,7 @@ Asistencia no da de alta sitios: toma las **sucursales** y los **centros de trab
 
 *Descripción general*
 
-Cada persona tiene una **asignación vigente**: horario, lugar, modalidad, política y desde. Asignar de nuevo cierra la anterior y abre esta en un solo paso. Sin política propia vale la **de por defecto**.
+Cada persona tiene una **asignación vigente**: horario, lugar (y los otros lugares donde puede marcar), modalidad y desde. Asignar de nuevo cierra la anterior y abre esta en un solo paso; la ventana de asignar muestra antes cuántos cambian, cuántos ya lo tenían y cuántos son nuevos.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2561,7 +2566,7 @@ En el alta, «¿Controla su asistencia?» en **No** deja a la persona sin asigna
 - **Pantalla:** W‑ASI‑19 Asignaciones
 - **Diseño:** Prototipado
 
-#### 4.54 · BR-ASI-054 · Una sola política por defecto; lo que está en uso no se borra
+#### 4.54 · BR-ASI-054 · Lo que está en uso no se borra; borrar se confirma escribiendo
 
 *Estado: Borrador*
 
@@ -2569,32 +2574,32 @@ En el alta, «¿Controla su asistencia?» en **No** deja a la persona sin asigna
 
 - **Código:** BR-ASI-054
 - **Grupo:** La configuración
-- **Qué gobierna:** Política
+- **Qué gobierna:** Horario
 - **Antes:** Nueva
 - **Estado:** Borrador
 
 *Descripción general*
 
-Hay **una sola** política por defecto. Ni la de por defecto ni una en uso se eliminan; un horario asignado tampoco.
+Un horario asignado no se elimina. Uno sin nadie asignado se elimina en una ventana centrada que pide **escribir su nombre**; duplicarlo pide el nombre de la copia. (Hasta la 1.0 esta regla hablaba de una sola política por defecto: ya no hay políticas.)
 
 **2. Escenarios ágiles de ejecución**
 
 *Eliminar en uso*
 
-- **Dado que** 12 personas tienen «Trabajo remoto»
+- **Dado que** 33 colaboradores tienen «Oficina»
 - **Cuando** se quiere eliminar
-- **Entonces** Eliminar está desactivado: «Está en uso»
+- **Entonces** Eliminar está desactivado: «Está asignado a colaboradores: reasígnelos primero»
 
 **3. Condiciones y excepciones**
 
-- Sin excepciones.
+- El botón rojo se enciende recién con el nombre exacto, sin importar mayúsculas ni tildes.
 
 **4. Trazabilidad**
 
 - **Ticket:** Pendiente
-- **Requisitos:** RF‑ASI‑045, RF‑ASI‑046, RF‑ASI‑048
-- **Historia de usuario:** HU‑ASI‑13
-- **Pantalla:** W‑ASI‑16 Políticas de marcación; W‑ASI‑15 Horarios
+- **Requisitos:** RF‑ASI‑045
+- **Historia de usuario:** HU‑ASI‑12
+- **Pantalla:** W‑ASI‑15 Horarios
 - **Diseño:** Prototipado
 
 #### 4.55 · BR-ASI-055 · Las selfies se borran solas
@@ -2630,7 +2635,7 @@ La selfie de cada marca es solo evidencia y **se borra a los N días** —90 por
 - **Ticket:** Pendiente
 - **Requisitos:** RF‑ASI‑057, RF‑ASI‑058
 - **Historia de usuario:** HU‑ASI‑16
-- **Pantalla:** W‑ASI‑20 Biometría y privacidad
+- **Pantalla:** W‑ASI‑20 Asignaciones (columna Rostro) y Modalidades (privacidad)
 - **Diseño:** Prototipado
 
 #### 4.56 · BR-ASI-056 · Un horario no cruza la medianoche
@@ -2727,7 +2732,7 @@ La persona ve en su app y en Mi asistencia **exactamente** lo que ve RR.HH.: el 
 
 *Descripción general*
 
-La app recuerda marcar: 10 min antes de la entrada, pasada la tolerancia si sigue sin marcar, 5 min antes de terminar la pausa y si ya se pasó, y a la hora de salida si sigue sin marcarla. Cada aviso sale **una sola vez** por día.
+La app recuerda marcar: 10 min antes de la entrada, pasada la tolerancia si sigue sin marcar, 5 min antes de terminar el descanso y si ya se pasó, y a la hora de salida si sigue sin marcarla. Cada aviso sale **una sola vez** por día.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2759,32 +2764,32 @@ La app recuerda marcar: 10 min antes de la entrada, pasada la tolerancia si sigu
 | Entidad | Qué es | Campos principales |
 | --- | --- | --- |
 | **Geocerca** | El punto y el radio de un lugar de Organización | lugar, latitud, longitud, radio en metros |
-| **Horario** | Cuándo trabaja alguien | nombre, modo (fijo o flexible), días de la semana, entrada, salida, descanso desde y hasta, meta en minutos (flexible), color |
-| **Política de marcación** | Qué se exige y cómo se calcula | nombre, para qué sirve, rostro, similitud mínima, geocerca, radio propio, tolerancia de entrada, de descanso y de salida, si no marca el descanso (descontar, alertar o ambas), redondeo (0, 1 o 5), por defecto |
-| **Asignación** | Lo que le toca a una persona | persona, horario, lugar, modalidad (presencial, remoto, híbrido), días de oficina, política (o la de por defecto), desde |
+| **Horario** | Cuándo trabaja alguien | nombre, modo (fijo o flexible), días de la semana, entrada, salida, descansos (hasta dos, desde y hasta), los días con otro horario (`porDia`: entrada, salida y sus descansos), tolerancia de entrada, de descanso y de salida, meta en minutos y meta por día (flexible), cuándo puede marcar (flexible), color |
+| **Modalidades** | Qué se pide al marcar | por modalidad (presencial, híbrido, remoto): pedir el rostro y estar en su lugar; parecido mínimo del rostro (de 0,60 a 0,95). Guardado en los ajustes generales. Reemplaza a la **política de marcación** (retirada en la 1.1) |
+| **Asignación** | Lo que le toca a una persona | persona, horario, lugar, otros lugares donde puede marcar, modalidad (presencial, remoto, híbrido), días de oficina, desde |
 | **Biometría** | El rostro de una persona | consentimiento (versión, fecha), rostro registrado (fecha), pidió registrarlo de nuevo |
-| **Marcación** | Un momento registrado | persona, fecha, tipo (entrada, inicio de pausa, fin de pausa, salida), minuto al segundo, latitud, longitud, distancia, dentro, similitud, origen (app o panel), remoto, rechazada (rostro o geocerca), motivo, por, cuándo |
+| **Marcación** | Un momento registrado | persona, fecha, tipo (entrada, inicio del descanso, fin del descanso, salida; en datos `pausa_inicio` y `pausa_fin`), minuto al segundo, lugar donde marcó, latitud, longitud, distancia, dentro, similitud, origen (app o panel), remoto, rechazada (rostro o geocerca), motivo, por, cuándo |
 | **Ajuste** | El cambio de una marca | marca, minuto nuevo o anulada, motivo, por, cuándo. La hora original queda en la marca |
 | **Justificación de un día** | Lo que RR.HH. justificó de un día | persona, fecha, tipo, motivo, por, cuándo |
-| **Solicitud** | Un pedido de la persona | tipo (vacaciones, permiso, corrección, remoto, cambio, justificación), persona, estado (por responder, aprobada, rechazada, cancelada), cuándo, canal, motivo, respondió, respondida, nota; y lo propio de cada tipo: desde y hasta, subtipo y horas, respaldo, marca y hora, turno de y a, alerta, minutos y categoría |
-| **Horas extra** | Una ventana de horas extra | persona, fecha, desde, hasta, origen (pedida, asignada, autorizada después), estado (por responder, esperando que acepte, aprobada, aceptada, rechazada), motivo, proyecto o centro de costo, aprobador, por, cuándo, respondió, nota |
+| **Solicitud** | Un pedido de la persona | tipo (vacaciones, permiso, corrección, remoto, cambio, justificación), persona, estado (pendiente, aprobada, rechazada, cancelada), cuándo, número de papeleta (vacaciones y permisos), canal, motivo, respondió, respondida, nota; y lo propio de cada tipo: desde y hasta, subtipo y horas, respaldo, marca y hora, turno de y a, alerta, minutos y categoría |
+| **Horas extra** | Una ventana de horas extra | persona, fecha, desde, hasta, origen (pedida, asignada, autorizada después), estado (pendiente, esperando que acepte, aprobada, aceptada, rechazada), motivo, proyecto o centro de costo, aprobador, por, cuándo, respondió, nota |
 | **Incidencia descartada** | **Ya no se usa:** era lo que se sacaba de la bandeja de Incidencias | id |
-| **Cierre** | Un mes congelado | mes, por, cuándo |
-| **Ajustes generales** | Los valores de la empresa | días de retención de selfies, avisos encendidos por tipo, avisar desde (min), plazo para justificar (días hábiles), plazo para responder (h), motivo obligatorio en la marca manual |
+| **Cierre** | **Ya no se usa:** era un mes congelado (retirado en la 1.1) | mes, por, cuándo |
+| **Ajustes generales** | Los valores de la empresa | lo que se pide al marcar por modalidad y el parecido mínimo del rostro, días de retención de selfies, avisos encendidos por tipo, avisar desde (min), plazo para justificar (días hábiles), plazo para responder (h), motivo obligatorio en la marca manual |
 
 ### 5.2 Lo que se guarda y lo que se deduce
 
-- **Se guardan** las marcas al segundo, sus ajustes, la configuración, las solicitudes y las horas extra con sus respuestas, las justificaciones de un día y los cierres.
-- **Se deduce** la jornada de cada persona y día —entrada, salida, descanso, trabajado, programado, tardanza y su parte injustificada, alertas, salida anticipada, descanso excedido, lo descontado, horas extra, fuera de horario y estado—, las incidencias, los saldos de vacaciones, la puntualidad y todo lo acumulado.
+- **Se guardan** las marcas al segundo, sus ajustes, la configuración, las solicitudes y las horas extra con sus respuestas, y las justificaciones de un día.
+- **Se deduce** la jornada de cada persona y día —entrada, salida, descanso, trabajado, programado, tardanza y su parte injustificada, alertas, salida anticipada, descanso excedido, lo descontado, horas extra, fuera de horario y estado—, los temas del Libro, los saldos de vacaciones, la puntualidad y todo lo acumulado.
 - **Nada se borra**: un ajuste guarda la hora original, una marca anulada queda, una solicitud cancelada o rechazada queda con su estado.
 
 ### 5.3 Cómo se calcula un día
 
 1. Se toman las marcas válidas —ni rechazadas ni anuladas— en orden.
 2. La entrada es la primera entrada; la salida, la última salida. Los descansos se emparejan por orden.
-3. Si el día es laboral —su horario lo incluye y no es feriado—, lo programado es la jornada menos la franja de descanso, o la meta si es flexible.
+3. Se toma el horario **de ese día** (con su otro horario, si lo tiene). Si el día es laboral —su horario lo incluye y no es feriado—, lo programado es la jornada menos sus descansos, o la meta de ese día si es flexible.
 4. Lo trabajado es de la entrada a la salida —o hasta ahora, hoy— menos los descansos.
-5. Con horario fijo: la tardanza contra la entrada más la tolerancia, redondeada; las alertas del descanso contra su franja; el descanso no marcado según la política; la salida anticipada contra la salida menos su tolerancia.
+5. Con horario fijo: la tardanza contra la entrada más la tolerancia, al segundo; cada descanso contra su franja; el descanso no marcado se resta de lo trabajado y queda el aviso; la salida anticipada contra la salida menos su tolerancia.
 6. Las alertas justificadas y aceptadas dejan de sumar a lo injustificado.
 7. Las horas extra son lo trabajado dentro de las ventanas autorizadas; lo demás que pasa de la jornada, desde 15 min, es fuera de horario.
 8. El estado sale del momento —hoy— o del resultado —un día pasado—.
@@ -2801,25 +2806,25 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Entrega | Qué incluye |
 | --- | --- |
-| **1 · Marcar y calcular** | Lugares y geocercas, horarios con franja, políticas con tolerancias y redondeo, asignaciones, biometría y consentimiento, marcar desde el celular, el cálculo del día al segundo, Hoy y el Libro |
+| **1 · Marcar y calcular** | Lugares y geocercas, horarios con un renglón por día, hasta dos descansos y sus tolerancias, modalidades, asignaciones con varios lugares, rostro y consentimiento, marcar desde el celular, el cálculo del día al segundo, Hoy y el Libro |
 | **2 · Corregir y justificar** | El detalle de la jornada con ajustar, anular y marcar a mano; los temas del Libro (faltas, retrasos, salidas sin marcar, rechazadas, fuera de horario); los avisos al colaborador con «Agregar motivo»; Justificaciones y Correcciones |
 | **3 · Pedir y autorizar** | Vacaciones con saldos y cobertura, permisos y licencias, trabajo remoto, cambios de turno, horas extra pedidas, asignadas y autorizadas después, y Mi asistencia completa |
-| **4 · Cerrar** | El cierre del mes, el archivo fijo para planillas y los reportes de tardanza por persona, semana y mes |
+| **4 · Exportar y reportar** | El resumen para planillas en formato fijo, el reporte en PDF de cada persona y los reportes de tardanza por persona, semana y mes |
 
 ### 6.3 Hitos
 
 | Hito | Se cumple cuando |
 | --- | --- |
 | **Primera marca con rostro** | Alguien marca su entrada desde el celular, dentro de su geocerca, y RR.HH. la ve en Hoy |
-| **Primera justificación aceptada** | Una tardanza avisada recibe su motivo y deja de contar en el cierre |
-| **Primer mes cerrado** | RR.HH. cierra un mes sin incidencias y Planillas lo toma en el formato fijo |
+| **Primera justificación aceptada** | Una tardanza avisada recibe su motivo y deja de contar en contra |
+| **Primer resumen para planillas** | RR.HH. baja el resumen de un mes con los temas del Libro revisados y Planillas lo toma en el formato fijo |
 
 ### 6.4 Dependencias
 
 - **Organización**: las sucursales, los centros de trabajo y las unidades.
 - **Gestión de personas**: la ficha, el alta y la fecha de ingreso.
 - **Comunicación**: el envío de los avisos a la app.
-- **Planillas**: toma el cierre.
+- **Planillas**: toma el resumen para planillas.
 
 ### 6.5 Suposiciones
 
@@ -2830,11 +2835,11 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Riesgo | Mitigación |
 | --- | --- |
-| GPS falso o impreciso | El rostro prueba quién; el radio se ajusta por lugar; las marcas rechazadas llegan a Incidencias con su distancia |
-| Similitud del rostro mal calibrada | Mínimo del 60 %, umbral por política y la selfie como evidencia |
+| GPS falso o impreciso | El rostro prueba quién; el radio se ajusta por lugar; las marcas rechazadas llegan al Libro, tema Marcaciones rechazadas, con su distancia y su selfie |
+| Similitud del rostro mal calibrada | Mínimo del 60 %, un parecido mínimo para toda la empresa y la selfie como evidencia |
 | Turnos que cruzan la medianoche | No se permiten hasta resolverlo (riesgo K1) |
 | Marcar sin señal | Hoy, la marcación manual con motivo; marcar sin conexión es una entrega futura |
-| Que nadie revise lo raro | Los temas del Libro a un clic desde Hoy, y el aviso al cerrar |
+| Que nadie revise lo raro | Los temas del Libro a un clic desde Hoy |
 
 ### 6.7 Decisiones abiertas
 
@@ -2843,10 +2848,10 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | ABIERTA‑ASI‑01 | ¿Quién acepta una justificación: el líder de la persona, RR.HH. o los dos? ¿El líder ve solo a su unidad? | REQ #13 |
 | ABIERTA‑ASI‑02 | ¿Las horas extra se pagan o se compensan con tiempo? ¿Cómo funciona la bolsa de horas? | REQ #11 |
 | ABIERTA‑ASI‑03 | ¿El mínimo para operar se configura por lugar y por cargo, en lugar del 80 % para todos? | REQ #21 |
-| ABIERTA‑ASI‑04 | ¿Dónde entra el Cierre del mes en el menú? Hoy la pantalla existe pero no tiene ruta | Nueva |
-| ABIERTA‑ASI‑05 | ¿El candado del mes cerrado se valida también en el servidor? Hoy lo aplican las pantallas | Nueva |
+| ABIERTA‑ASI‑04 | **Cerrada:** ya no hay cierre de mes | Nueva |
+| ABIERTA‑ASI‑05 | **Cerrada:** ya no hay cierre de mes ni candado | Nueva |
 | ABIERTA‑ASI‑06 | El aviso con «Agregar motivo» y el vencimiento del plazo para justificar: hoy se configuran pero no llegan al celular | REQ #15 |
-| ABIERTA‑ASI‑07 | ¿Horarios distintos por día de la semana y con fecha de vigencia? | REQ #3 |
+| ABIERTA‑ASI‑07 | ¿Horarios con fecha de vigencia? (los distintos por día de la semana ya entran en la 1.1) | REQ #3 |
 | ABIERTA‑ASI‑08 | ¿Marcar sin conexión y vincular el celular a la persona? | Arquitectura · R5, R6 |
 | ABIERTA‑ASI‑09 | La zona horaria fija en UTC−4, ¿se configura por empresa? | Arquitectura · R1 |
 | ABIERTA‑ASI‑10 | Los feriados móviles y los de cada departamento, ¿quién los carga? | Nueva |
@@ -2882,17 +2887,17 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ### 7.4 Revisar las faltas del mes
 
-1. En el menú, Libro de asistencia › Faltas. Muestra el mes, «Sin justificar».
-2. Se filtra por sucursal o unidad, o se busca a alguien.
+1. En el Libro de asistencia, «Mes», y en la lista de temas, «Faltas». Muestra solo a quienes faltaron, «Sin justificar».
+2. Se filtra por sucursal o unidad, o se busca a alguien; el ícono de lista muestra cada falta.
 3. «Ver el día» abre su jornada: si tenía permiso, «Justificar».
-4. «Exportar CSV» baja la lista del mes.
+4. «Exportar CSV» baja la lista del tema.
 
 ### 7.5 Responder una vacación
 
 1. En Solicitudes › Vacaciones, «Pendientes».
 2. La fila dice cuántos días le quedan y si su lugar sigue cubierto.
 3. «Revisar»: «Si apruebas: … le quedarán N».
-4. «Aprobar», con una nota opcional; o «Rechazar…» con el motivo y la confirmación.
+4. A la izquierda, la papeleta que pidió. «Aprobar…», con una nota opcional, y se escribe APROBAR para confirmar; o «Rechazar…» con el motivo y la confirmación. «Dejar pendiente» la deja para después.
 
 ### 7.6 Asignar horas extra
 
@@ -2901,19 +2906,19 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 3. «Asignar a N»: cada una la ve en su app y la acepta.
 4. Al marcar la salida, solo cuenta lo trabajado dentro de la franja.
 
-### 7.7 Cerrar el mes
+### 7.7 Exportar el resumen para planillas
 
-1. En Cierre del mes, se revisan las cifras y la tabla por persona.
-2. Si hay incidencias sin resolver, se resuelven antes.
-3. «Cerrar el mes» y la confirmación.
-4. «Exportar para planillas» baja el archivo fijo, ya sin «borrador».
+1. En el Libro de asistencia, «Mes», el mes que se quiere llevar.
+2. Se revisan los temas —Faltas, Salidas sin marcar— y se corrige lo que haga falta desde el día.
+3. «Exportar CSV» › «Resumen para planillas».
+4. Baja el archivo de formato fijo, en segundos, con una fila por colaborador. No hay cierre: si después se corrige algo, se vuelve a bajar.
 
 ### 7.8 Configurar el módulo por primera vez
 
 1. Cada sección de Configuración muestra lo que le falta (lugares «Sin ubicación», colaboradores sin horario, rostros sin registrar).
 2. Lugares y geocercas: se ubica cada sucursal y centro en el mapa con su radio.
-3. Horarios: se crean con su franja de descanso.
-4. Políticas: se revisa la Estándar y sus tolerancias.
+3. Horarios: se crean con un renglón por día, sus descansos y sus tolerancias.
+4. Modalidades: se revisa qué se pide al marcar en presencial, híbrido y remoto, y el parecido mínimo del rostro.
 5. Asignaciones: se filtra una unidad, se marca la casilla de la cabecera y «Asignar horario y lugar».
 
 ### Para El colaborador
@@ -2943,7 +2948,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 1. En el «+» de Mi asistencia, «Pedir horas extra».
 2. Día, desde su salida, hasta «2 h» y la razón: «Serían 2 h de horas extra».
-3. «Enviar a RR.HH.»; queda «Por aprobar».
+3. «Enviar a RR.HH.»; queda «Pendiente».
 4. Aprobadas, lo que trabaje dentro cuenta como extra.
 
 ## 08 · Recursos visuales
@@ -2963,15 +2968,15 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | W‑ASI‑05 | Libro de asistencia · Mes | /asistencia/registro?ver=mes |
 | W‑ASI‑06 | Asistencia de una persona | /asistencia/persona/:id?mes= |
 | W‑ASI‑07 | Detalle de la jornada | sobre Hoy, el Libro, sus temas y la persona |
-| W‑ASI‑08 | Temas del Libro: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas, Fuera de horario | /asistencia/registro/:tema?mes= |
+| W‑ASI‑08 | Temas del Libro: Faltas, Retrasos y descansos, Salidas sin marcar, Marcaciones rechazadas, Fuera de horario | /asistencia/registro?ver=mes&tema=…&lista=1 (las viejas /asistencia/registro/:tema redirigen) |
 | W‑ASI‑09 | Solicitudes, por tipo | /asistencia/solicitudes?ver= |
 | W‑ASI‑10 | Revisar una solicitud | sobre Solicitudes |
-| W‑ASI‑11 | Saldos de vacaciones | /asistencia/solicitudes?ver=vacaciones, pestaña Saldos |
+| W‑ASI‑11 | Saldos de vacaciones | /asistencia/solicitudes?ver=vacaciones, «Solicitudes · Saldos» › Saldos |
 | W‑ASI‑12 | Horas extra | /asistencia/solicitudes?ver=horas-extra&vista= |
 | W‑ASI‑13 | Asignar horas extra | sobre Horas extra |
-| W‑ASI‑14 | Cierre del mes | sin ruta en la maqueta —ABIERTA‑ASI‑04— |
+| W‑ASI‑14 | **Retirada:** Cierre del mes (ya no hay cierre; el resumen para planillas se baja del Libro › Mes) | — |
 | W‑ASI‑15 | Configuración › Horarios | /asistencia/configuracion?ver=horarios |
-| W‑ASI‑16 | Configuración › Políticas de marcación | /asistencia/configuracion?ver=politicas |
+| W‑ASI‑16 | Configuración › Modalidades (antes Políticas de marcación) | /asistencia/configuracion?ver=modalidades |
 | W‑ASI‑17 | Configuración › Avisos al colaborador | /asistencia/configuracion?ver=avisos |
 | W‑ASI‑18 | Configuración › Lugares y geocercas | /asistencia/configuracion?ver=lugares |
 | W‑ASI‑19 | Configuración › Asignaciones | /asistencia/configuracion?ver=asignaciones |
@@ -2999,19 +3004,19 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | HU‑ASI‑01 | **Como** Recursos Humanos, **quiero** ver en vivo quién llegó y quién falta **para** reaccionar a tiempo | Esperados sin justificados · Comparación con un día normal · Lugares en riesgo |
 | HU‑ASI‑02 | **Como** Recursos Humanos, **quiero** que el sistema me diga qué resolver hoy **para** no buscarlo | Hasta cinco cosas en orden de gravedad · Cada una con su acción |
 | HU‑ASI‑03 | **Como** Recursos Humanos, **quiero** consultar las jornadas por día, semana o mes **para** encontrar patrones | Tres vistas · La fecha en la dirección · Exportar |
-| HU‑ASI‑04 | **Como** Recursos Humanos, **quiero** ver las tardanzas, faltas y saldo acumulados de cada persona **para** actuar antes del cierre | Mes con acumulado · Ordenable · Lo justificado aparte |
+| HU‑ASI‑04 | **Como** Recursos Humanos, **quiero** ver las tardanzas, faltas y horas acumuladas de cada colaborador **para** actuar a tiempo | Mes con acumulado · Ordenable · Lo justificado aparte |
 | HU‑ASI‑05 | **Como** Recursos Humanos, **quiero** corregir una marca sin borrarla **para** que quede el rastro | Original tachada · Anular a la vista · Motivo y autor |
 | HU‑ASI‑06 | **Como** Recursos Humanos, **quiero** cargar una marca a quien no pudo marcar **para** que su día sea correcto | Motivo obligatorio · «Cargada por» |
-| HU‑ASI‑07 | **Como** Recursos Humanos, **quiero** revisar lo raro de los últimos días **para** cerrar sin sorpresas | Cinco tipos · Revisar abre el día · Contador en el menú |
-| HU‑ASI‑08 | **Como** Recursos Humanos, **quiero** responder las solicitudes con lo que necesito para decidir **para** no buscar en otro lado | «Para decidir» · Rechazar con motivo · Aprobar aplica el efecto |
+| HU‑ASI‑07 | **Como** Recursos Humanos, **quiero** revisar lo raro del mes **para** que el resumen para planillas salga limpio | Cinco temas como filtro del Libro · Cuadritos o lista · «Ver el día» |
+| HU‑ASI‑08 | **Como** Recursos Humanos, **quiero** responder las solicitudes con lo que necesito para decidir **para** no buscar en otro lado | La papeleta a la vista · «A tener en cuenta» · Aprobar escribiendo APROBAR · Rechazar con motivo |
 | HU‑ASI‑09 | **Como** Recursos Humanos, **quiero** aprobar vacaciones viendo el saldo y la cobertura **para** no dejar un lugar sin gente | Saldo por antigüedad · Días hábiles · Aviso de cobertura |
 | HU‑ASI‑10 | **Como** Recursos Humanos, **quiero** autorizar horas extra antes o después **para** pagar solo lo que corresponde | Pedidas, asignadas y autorizadas después · Solo cuenta lo de la ventana |
-| HU‑ASI‑11 | **Como** Recursos Humanos, **quiero** cerrar el mes y exportarlo para planillas **para** que no cambie después | Cerrar congela · Formato fijo en segundos · Borrador antes de cerrar |
-| HU‑ASI‑12 | **Como** Recursos Humanos, **quiero** crear horarios con su franja de descanso **para** calcular bien el día | Fijo o flexible · Franja dentro de la jornada · La tolerancia a la vista |
-| HU‑ASI‑13 | **Como** Recursos Humanos, **quiero** definir qué se exige al marcar y cómo se calcula **para** cada tipo de puesto | Rostro, geocerca, tolerancias, descanso y redondeo · Una por defecto |
+| HU‑ASI‑11 | **Como** Recursos Humanos, **quiero** bajar el mes para planillas **para** llevarlo al sistema de sueldos | Resumen para planillas desde el Mes · Formato fijo en segundos · Solo lo injustificado en contra |
+| HU‑ASI‑12 | **Como** Recursos Humanos, **quiero** crear horarios con su franja de descanso **para** calcular bien el día | Fijo o flexible · Un renglón por día · Hasta dos descansos · Tolerancias del horario |
+| HU‑ASI‑13 | **Como** Recursos Humanos, **quiero** definir qué se exige al marcar **para** cada modalidad | Rostro y lugar por modalidad · Parecido mínimo del rostro · Privacidad de las selfies |
 | HU‑ASI‑14 | **Como** Recursos Humanos, **quiero** dibujar la geocerca de cada lugar **para** que se marque desde ahí | Lugares de Organización · Punto y radio en el mapa |
-| HU‑ASI‑15 | **Como** Recursos Humanos, **quiero** asignar horario, lugar y modalidad a muchas personas a la vez | Filtrar y marcar todos · La nueva reemplaza · También en el alta |
-| HU‑ASI‑16 | **Como** Recursos Humanos, **quiero** cuidar los datos biométricos **para** cumplir con la privacidad | Consentimiento · Selfies que se borran · Registrar el rostro de nuevo |
+| HU‑ASI‑15 | **Como** Recursos Humanos, **quiero** asignar horario, lugar y modalidad a muchas personas a la vez | Filtrar y marcar todos · Varios lugares · Así quedan antes de confirmar · La nueva reemplaza · También en el alta |
+| HU‑ASI‑16 | **Como** Recursos Humanos, **quiero** cuidar los datos biométricos **para** cumplir con la privacidad | Consentimiento · Selfies que se borran · Registrar el rostro de nuevo escribiendo BORRAR |
 
 ### Para El líder de área
 
@@ -3031,6 +3036,145 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | HU‑ASI‑19 | **Como** colaborador, **quiero** ver mi día, mi semana y mi mes **para** saber cómo voy | Los mismos números que RR.HH. · Cómo se hizo cada marca |
 | HU‑ASI‑20 | **Como** colaborador, **quiero** pedir horas extra, corregir una marca y explicar un atraso **para** que mi registro sea justo | Pedir antes del día · Corrección con hora y razón · Motivo desde el aviso |
 
+## 10 · Pruebas para QA
+
+El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se prueba, con qué requisito se relaciona, los pasos y lo que tiene que pasar. Se mantiene junto con el resto del documento: cuando cambia una regla o una pantalla, cambia su prueba.
+
+### 10.1 Antes de empezar
+
+- **Dónde:** el prototipo publicado (Vercel) o `npm run dev` en `http://localhost:5173`. Navegador de escritorio, 1440 × 900 o más; el celular se prueba en el marco de teléfono de la misma web.
+- **Datos:** con la **demo cargada** (menú lateral › «Cargar la demo»). El reloj de la demo queda en un **viernes a las 16:10** y la empresa de ejemplo es **FarmaVida S.R.L.**, con 63 colaboradores. Los ejemplos de abajo usan octubre de 2026; si la demo cae en otra semana, se usan los mismos casos con otras fechas.
+- **Quién:** las pantallas de Asistencia se prueban como **Juan Pérez Gómez · Administrador HR**. Lo del celular, como colaborador (menú lateral › «Ver la demo como»).
+- **Volver a empezar:** «Cargar la demo» borra lo que se cambió y vuelve a sembrar todo.
+- **Cómo reportar:** el ID del caso (QA‑ASI‑NN), qué se hizo, qué pasó, qué se esperaba y una captura. En la columna «Resultado» se marca **✓** (pasa), **✗** (falla) o **—** (no se pudo probar).
+- **Siempre, en todas las pruebas:** toda acción que no se deshace pide confirmación en una ventana antes de aplicarse; las tablas dicen «Colaborador» y no «Persona»; los filtros de estado son listas desplegables con la flecha a la derecha; nada se ve cortado ni se sale del ancho de la pantalla.
+
+### 10.2 Hoy
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑01 | Saludo y cifras del momento | Abrir Asistencia › Hoy | Saludo con el nombre, «El N % de tu gente ya está trabajando», y las cifras No han llegado, Llegaron tarde y Ausencias justificadas | — |   |
+| QA‑ASI‑02 | Estados en lista desplegable | En «Colaboradores», abrir la lista de estados | No han llegado, Llegaron tarde, Trabajando, Aún no les toca, Vacaciones y permisos y Todos, cada uno con su punto de color y su número; al elegir uno, la tabla se filtra | — |   |
+| QA‑ASI‑03 | Enlaces de «Requiere tu atención» | Tocar «Revisar» en «marcaciones rechazadas hoy» | Abre el Libro en el Mes con el tema «Marcaciones rechazadas» y la vista de lista | — |   |
+| QA‑ASI‑04 | El calendario sin cierre | Mirar el calendario de la columna derecha | La leyenda muestra Feriado, Vacaciones y permisos, Faltas y Horas extra; **no** aparece «Cierre» | — |   |
+
+### 10.3 Libro de asistencia
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑05 | Día con estados | Libro › Día de hoy; abrir la lista de estados | Columnas Colaborador, Horario, Entrada, Salida, Su día (barra), Horas trabajadas, Estado. Quien está trabajando aparece en verde «desde HH:MM» aunque haya llegado tarde | — |   |
+| QA‑ASI‑06 | Semana y Mes | Cambiar a Semana y a Mes con el segmento de la cabecera | Semana: celdas de color por día y lo acumulado; Mes: un cuadrito por día y las columnas Retrasos, Tiempo de retraso, Faltas y Horas del mes | — |   |
+| QA‑ASI‑07 | Ventana «Su mes» | En el Mes, tocar el nombre de un colaborador | Abre su mes con las cifras, «Descargar PDF» y «Ver su asistencia completa» | RF‑ASI‑014 |   |
+| QA‑ASI‑08 | Calendario | Tocar el ícono de calendario de la cabecera | El mes a todo el ancho; un clic en un día abre una ventana con los filtros y la tabla de ese día | — |   |
+| QA‑ASI‑09 | Temas como filtro (Mes) | En el Mes, elegir «Faltas» en la lista de temas | Quedan solo quienes faltaron en el mes; los demás días se apagan; aparece «Sin justificar · Justificadas · Todas» | RF‑ASI‑081 |   |
+| QA‑ASI‑10 | Lista de cada caso | Con «Retrasos y descansos» elegido, tocar el ícono de lista | Una fila por caso con Colaborador, Día, Qué pasó, Su motivo y «Ver el día» | RF‑ASI‑023 |   |
+| QA‑ASI‑11 | Sin submenú | Mirar el menú lateral | «Libro de asistencia» es una sola entrada, sin Faltas, Retrasos ni Incidencias debajo | — |   |
+| QA‑ASI‑12 | Direcciones viejas | Entrar a `/asistencia/registro/faltas` y a `/asistencia/incidencias` | Las dos abren el Libro en el Mes con el tema Faltas y la lista | — |   |
+| QA‑ASI‑13 | Exportar del Mes | En el Mes, «Exportar CSV» | Pregunta «Las jornadas» o «Resumen para planillas»; el resumen trae una fila por colaborador, los tiempos en segundos y solo los días que ya pasaron | RF‑ASI‑040, 041 |   |
+| QA‑ASI‑14 | Exportar un tema | Con un tema elegido, «Exportar CSV» | Baja la lista de ese tema, no las jornadas | — |   |
+
+### 10.4 La asistencia de un colaborador y su PDF
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑15 | Las seis cifras | Abrir la asistencia completa de Valentina Cruz, octubre | Días trabajados «X de Y» sin contar el día en curso, Retrasos, Tiempo de retraso, Faltas, Horas del mes («completas» o «faltan») y Puntualidad | RF‑ASI‑014, 015 |   |
+| QA‑ASI‑16 | Descargar PDF | «Descargar PDF» sin marcar la casilla | Baja un PDF de 2 páginas: logo de SoulyHR, empresa, período, las seis cifras y el calendario; en la segunda, cada día con su observación y las firmas de RR.HH. y del colaborador | RF‑ASI‑075, 076 |   |
+| QA‑ASI‑17 | PDF con marcaciones | Marcar «Incluir las marcaciones al segundo» y descargar | Se suman hojas en horizontal con entrada, descanso, salida al segundo, tardanza y cómo marcó | RF‑ASI‑077 |   |
+| QA‑ASI‑18 | Mismos números | Comparar las cifras de la pantalla, del PDF y de la ventana «Su mes» del Libro | Son iguales | RF‑ASI‑075 |   |
+
+### 10.5 El detalle de una jornada
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑19 | Dos descansos | Con un horario con dos descansos (ver QA‑ASI‑43), abrir un día de ese colaborador | «Descansos de 13:00 a 14:00 y de 16:00 a 16:15»; las horas del día descuentan los dos | RF‑ASI‑084 |   |
+| QA‑ASI‑20 | Descanso sin marcar | Abrir un día con la alerta «No marcó su descanso» | Dice «se restaron N de las horas trabajadas» y queda la alerta; no habla de descuentos de sueldo | — |   |
+| QA‑ASI‑21 | Dónde marcó | Un colaborador con varios lugares (ver QA‑ASI‑55) marca en el otro lugar | La marca dice «Desde la app · Sucursal El Prado» | RF‑ASI‑087 |   |
+| QA‑ASI‑22 | Corregir sin borrar | En una marca, ⋯ › «Ajustar la hora» con motivo | La marca muestra la hora original, la nueva, el motivo y quién la ajustó | — |   |
+
+### 10.6 Solicitudes
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑23 | Lista y filtro de estado | Solicitudes › Vacaciones | Arranca en «Pendientes» (lista desplegable con número); columnas Colaborador, Fechas y motivo, A tener en cuenta, **Fecha de solicitud** (la fecha y debajo «hace N días»), Estado | — |   |
+| QA‑ASI‑24 | «Pendiente» | Mirar el estado de una solicitud sin responder | Dice «Pendiente», no «Por responder» | — |   |
+| QA‑ASI‑25 | La papeleta en Revisar | Revisar la vacación de Andrea Núñez | A la izquierda, la misma papeleta que ella vio en su app, con su número y el sello «Pendiente» | RF‑ASI‑079 |   |
+| QA‑ASI‑26 | Aprobar escribiendo | «Aprobar…» › escribir «apro» y después «APROBAR» | «Sí, aprobar» se activa solo con la palabra completa (sin importar mayúsculas); al aprobar, el estado pasa a «Aprobada» | RF‑ASI‑078 |   |
+| QA‑ASI‑27 | Excepción sin saldo | Revisar la vacación de Camila Herrera (sin días) › «Aprobar igual…» | El efecto aparece en rojo como excepción antes de escribir APROBAR | RF‑ASI‑029 |   |
+| QA‑ASI‑28 | Sello de la respuesta | Después de aprobar, abrir «Ver» | La papeleta dice «Aprobada · Aprobó Juan Pérez Gómez · fecha» | RF‑ASI‑080 |   |
+| QA‑ASI‑29 | Rechazar con motivo | «Rechazar…» con un motivo de menos de 6 letras y después uno largo | Con menos de 6, «Confirmar» no se activa; con el motivo, se rechaza y la persona lo verá en su app | RF‑ASI‑027 |   |
+| QA‑ASI‑30 | Dejar pendiente | En Revisar, «Dejar pendiente» | Se cierra sin cambiar nada; sigue en Pendientes | — |   |
+| QA‑ASI‑31 | Saldos | Vacaciones › «Saldos» (arriba a la derecha) | Columnas Colaborador, Fecha de ingreso, Días por año, Días usados, Días disponibles | — |   |
+| QA‑ASI‑32 | Todos los tipos | Recorrer Permisos y licencias, Justificaciones, Correcciones, Trabajo remoto y Cambios de turno | Mismo filtro, misma «Fecha de solicitud» y la segunda columna con su nombre (Permiso o licencia, Qué justifica, Qué corrige…) | — |   |
+
+### 10.7 Horas extra
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑33 | Sin cifras ni pestañas | Solicitudes › Horas extra | No hay tarjetas de cifras; «Pendientes · Programadas · Todas» en lista desplegable y «Solicitudes · Resumen del mes» arriba a la derecha | — |   |
+| QA‑ASI‑34 | Aprobar una hora extra | Revisar una pendiente › Aprobar escribiendo APROBAR | Pasa a autorizada; las horas trabajadas dentro de la ventana cuentan como extra | — |   |
+| QA‑ASI‑35 | Fuera de horario | Ver un día de alguien que se quedó sin autorización | Aparece como «fuera de horario», no como horas extra | — |   |
+
+### 10.8 Configuración › Horarios
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑36 | Tabla primero | Abrir Horarios | Se abre en la tabla (Horario, Entrada y salida con la tolerancia debajo, Descansos, Días, Al día, A la semana, Colaboradores); el ícono de tarjetas va segundo; «Nuevo horario» a la derecha | — |   |
+| QA‑ASI‑37 | Nuevo horario por defecto | «Nuevo horario» | Ventana ancha; un renglón por día de lunes a domingo; arranca de lunes a sábado con el sábado de 08:30 a 12:30; a la derecha «Así queda su semana» | — |   |
+| QA‑ASI‑38 | Domingo sí, martes no | Apagar el martes, prender el domingo de 09:00 a 14:00 y guardar | El martes se ve rayado como «Día de descanso»; la tabla marca los días correctos y suma las horas de la semana con las de cada día | RF‑ASI‑082 |   |
+| QA‑ASI‑39 | Sábado corto, jornada completa | Con «Atención al público» (sábado 09:00 a 13:00), ver en el Libro un sábado de alguien que la tiene | «09:00 – 13:00 sin descanso» y «4:00 de 4:00 · Terminó su jornada» si trabajó sus 4 horas | RF‑ASI‑083 |   |
+| QA‑ASI‑40 | El reloj de Souly | Tocar una hora de entrada | Se abre una tarjeta con Hora y Minutos (de 5 en 5); la elegida en navy; «Listo»; también se puede escribir «830» y queda 08:30 | — |   |
+| QA‑ASI‑41 | La tarjeta del descanso | Tocar un descanso «☕ 13:00–14:00» | Tarjetita flotante con Desde → Hasta, 15 min · 30 min · 45 min · 1 h, la barra del día y «Quitar descanso»; Escape cierra solo la tarjeta | — |   |
+| QA‑ASI‑42 | Descanso sin nombre | Mirar los descansos | Solo la hora («☕ 13:00–14:00»); no dice Almuerzo ni Refrigerio | — |   |
+| QA‑ASI‑43 | Dos descansos | En el lunes, «+ descanso» dos veces; guardar | Máximo dos por día; la tabla muestra uno por renglón y «Al día» descuenta los dos (8 h 15 min con 08:30–18:00, 13:00–14:00 y 16:00–16:15) | RF‑ASI‑084 |   |
+| QA‑ASI‑44 | Errores del día | Poner la salida antes que la entrada; poner un descanso fuera de la jornada | El renglón avisa en ámbar y «Guardar horario» no se activa | — |   |
+| QA‑ASI‑45 | Tolerancias | En «Tolerancias», subir la de entrada a 15 min | Debajo dice «Atraso desde las 08:45»; quien entra 08:44 con ese horario no llega tarde | RF‑ASI‑086 |   |
+| QA‑ASI‑46 | Sin opciones de planilla | Mirar la ventana del horario | No aparece «Si no marca el descanso» ni «La tardanza se cuenta» | — |   |
+| QA‑ASI‑47 | Flexible | Tipo «Flexible» | Misma ventana grande; un renglón por día con la meta (− y +), «Cuándo puede marcar» y la semana en barras violeta | — |   |
+| QA‑ASI‑48 | Duplicar | ⋯ › Duplicar | Pide el nombre de la copia y «Sí, duplicar»; la copia aparece con 0 colaboradores | — |   |
+| QA‑ASI‑49 | Eliminar escribiendo el nombre | ⋯ › Eliminar en la copia | Ventana centrada; el botón rojo se enciende solo al escribir el nombre exacto; en un horario con colaboradores, Eliminar está apagado | — |   |
+
+### 10.9 Configuración › Modalidades
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑50 | Modalidades | Configuración › Modalidades | Tarjetas Presencial, Híbrido y Remoto con cuántos colaboradores y sus interruptores; el parecido mínimo del rostro (60–95 %) y la privacidad (días de las selfies) | RF‑ASI‑047, 085 |   |
+| QA‑ASI‑51 | Lo que pide al marcar | Apagar «Estar en su lugar» en Presencial; marcar desde el celular fuera de la geocerca | La marca se acepta; con el interruptor prendido, se rechaza | RF‑ASI‑085 |   |
+| QA‑ASI‑52 | Dirección vieja | Entrar a `?ver=politicas` y a `?ver=biometria` | Abren Modalidades y Asignaciones | — |   |
+
+### 10.10 Configuración › Asignaciones
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑53 | Una fila y el filtro | Abrir Asignaciones | Buscador, sucursal, centro, unidad y «Todos · Sin horario · Sin rostro» en una sola fila; columnas Horario, Lugar de trabajo, Modalidad, Rostro | — |   |
+| QA‑ASI‑54 | Asignar a muchos | Filtrar una unidad, marcar la casilla de la cabecera › «Asignar horario y lugar» | La ventana muestra a quiénes; el horario se busca en la lista desplegable (filtros Fijos, Flexibles, Con sábado, Con domingo); «Así quedan» dice cuántos cambian, ya lo tenían o son nuevos | RF‑ASI‑053 |   |
+| QA‑ASI‑55 | Varios lugares | En la ventana, «También puede marcar en» › agregar Sucursal El Prado; asignar | La tabla muestra «+1»; el colaborador puede marcar en los dos | RF‑ASI‑087 |   |
+| QA‑ASI‑56 | Borrar el rostro | ⋯ › «Pedir que registre su rostro de nuevo» | Ventana centrada con su cara y el rostro tachado, los tres pasos y escribir BORRAR; el botón se enciende solo con la palabra | RF‑ASI‑058 |   |
+
+### 10.11 El celular del colaborador
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑57 | Marcar | Como colaborador, Inicio › marcar la entrada | Pide confirmación, rostro y ubicación según su modalidad; después el botón ofrece «Iniciar descanso» | — |   |
+| QA‑ASI‑58 | Descanso, no pausa | Iniciar y volver del descanso | Los botones y el historial dicen «Iniciar descanso», «Volver del descanso», «Salió a descansar», «Volvió del descanso»; nunca «pausa» | — |   |
+| QA‑ASI‑59 | Pedir vacaciones | Inicio › pedir vacaciones › elegir fechas › revisar la papeleta › Solicitar | Llega a RR.HH. como Pendiente, con el mismo número de papeleta | RF‑ASI‑079 |   |
+| QA‑ASI‑60 | Ver la respuesta | Después de QA‑ASI‑28, Mis solicitudes › ver la papeleta | Tiene el sello «Aprobada» con quién y cuándo | RF‑ASI‑080 |   |
+
+### 10.12 El alta del colaborador
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑61 | Paso Asistencia | Personas › Nuevo colaborador › paso «Asistencia» | Dos bloques: «Asignación de asistencia» (horario con buscador y su semana, dónde marca, otros lugares, modalidad, desde) y «Vacaciones y permisos» (4 campos); ya no están Jornada laboral, Método de marcación ni Compensación de horas | — |   |
+| QA‑ASI‑62 | Se asigna al dar de alta | Completar el alta con un horario y un lugar | El colaborador aparece en Asignaciones con ese horario y en Hoy desde la fecha elegida | RF‑ASI‑055 |   |
+
+### 10.13 Cálculos
+
+| ID | Qué se prueba | Pasos | Resultado esperado | Requisito | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| QA‑ASI‑63 | Tardanza al segundo | Horario 08:30 con 10 min de tolerancia; marca de entrada 08:40:59 | 59 s de tardanza; a las 08:40:00 no hay tardanza | — |   |
+| QA‑ASI‑64 | Lo justificado no debe horas | Un colaborador con 4 días de vacaciones aprobadas en el mes | Esos días no suman horas programadas: «Horas del mes» no dice que faltan esas horas | — |   |
+| QA‑ASI‑65 | Solo cuenta en contra lo injustificado | Una tardanza con justificación aceptada | En el resumen para planillas no suma a «Tardanza injustificada» | RF‑ASI‑040 |   |
+| QA‑ASI‑66 | Días trabajados | Ver «Días trabajados» un día laboral antes de la salida | No cuenta el día en curso hasta que marca la salida | — |   |
+
 ## Cómo se mantiene este documento
 
 - Se actualiza junto con la maqueta: un cambio de comportamiento lleva su cambio aquí, en la misma entrega.
@@ -3042,6 +3186,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
+| **1.1** | 3 nov 2026 | **El módulo más simple y pensado en grande** (rondas 13 a 25 bis de propuestas). **Sin cierre de mes**: lo que pedía el #27 lo cumple el **resumen para planillas** al exportar el Mes; ningún mes se bloquea. **Los temas del Libro** —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— pasan de páginas aparte a un **filtro** de la Semana y el Mes, en cuadritos o en lista; el Libro queda sin submenú. **El reporte en PDF** de cada persona. **Solicitudes** con la papeleta a la vista, aprobar escribiendo **APROBAR**, «Pendiente» en vez de «Por responder», «Dejar pendiente» y «Fecha de solicitud». **Horarios** con un renglón por día (domingo trabajado, martes libre, sábado corto), hasta **dos descansos** por día, sus **tolerancias**, el flexible con meta por día y cuándo puede marcar, la tabla primero y las tarjetas después, el reloj de Souly para las horas, y duplicar y eliminar con confirmación. **Las políticas se retiran**: las tolerancias son del horario, lo que se pide al marcar va en **Modalidades** (presencial, híbrido, remoto) con un parecido mínimo para toda la empresa, el descanso sin marcar siempre se resta y la tardanza va siempre al segundo. **Biometría** se une a Asignaciones (columna Rostro, borrar el rostro escribiendo BORRAR) y a Modalidades (privacidad). **Varios lugares** por persona para quien rota. **Asignar** pensado para 50 horarios y muchos colaboradores, con «Así quedan». El **alta del colaborador** queda con la asignación y «Vacaciones y permisos». Hoy, el Libro y Solicitudes con **listas desplegables** en vez de pestañas; **«descanso»** en vez de «pausa» y **«colaborador»** en las tablas. |
 | **1.0** | 29 oct 2026 | **Primera versión con el formato de los demás módulos.** Reúne lo construido en la maqueta hasta el 29 de octubre: Hoy; el Libro de asistencia por día, semana y mes, con las tardanzas, faltas y saldo acumulados por persona; la asistencia de una persona; el detalle de la jornada con ajustar, anular, marcar a mano y justificar; Incidencias; Solicitudes en siete tipos con saldos de vacaciones y cobertura; Horas extra pedidas, asignadas y autorizadas después; el Cierre del mes con el archivo fijo para planillas; la Configuración en seis partes, con la tolerancia a la vista al crear un horario; y lo del colaborador: marcar con confirmación, rostro y ubicación, sus avisos y Mi asistencia. Las reglas de cálculo siguen la prioridad 1 de RR.HH.: descanso como franja (#2, #5, #6), al segundo (#8), horas extra solo autorizadas (#9, #10), justificaciones (#13, #15) y el cierre para planillas (#27). 58 reglas BR‑ASI, 74 requisitos, 20 historias y 22 pantallas |
 
 ## Anexo · Por qué decidimos así
@@ -3062,9 +3207,9 @@ Con «60 minutos de pausa» no se sabe si alguien salió antes, volvió tarde o 
 
 Si cualquier rato de más se pagara, el que se queda conversando cobra lo mismo que el que se quedó por un inventario. Una hora extra se pide o se asigna antes; lo demás se informa como fuera de horario y, si correspondía, se autoriza después.
 
-#### Por qué la tolerancia es de la política
+#### Por qué la tolerancia es del horario (y ya no hay políticas)
 
-Un mismo horario de 08:30 sirve para el personal general con 10 minutos y para cargos de confianza con 20. Si la tolerancia fuera del horario, habría que duplicar horarios. Para que no se pierda, el formulario del horario la muestra.
+Hasta la 1.0 la tolerancia era de la política, para que un mismo horario de 08:30 sirviera con 10 minutos para unos y 20 para otros. En la práctica, las políticas sumaban una pieza más que entender y asignar, y casi todos tenían la misma. Desde la 1.1 la tolerancia es del horario —quien necesita otra, tiene su horario— y lo que se exige al marcar depende de la modalidad. El descanso sin marcar siempre se resta de las horas trabajadas y la tardanza va al segundo: ya no son opciones.
 
 #### Por qué la persona justifica y no RR.HH.
 
@@ -3080,22 +3225,21 @@ Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por
 
 ## Anexo · El módulo en el prototipo, hoy
 
-*Cómo está construido el módulo de asistencia en el prototipo al 29 de octubre de 2026 (versión 1.0), y en qué se aparta de este documento. Todo sale del código de este repositorio.*
+*Cómo está construido el módulo de asistencia en el prototipo al 3 de noviembre de 2026 (versión 1.1), y en qué se aparta de este documento. Todo sale del código de este repositorio.*
 
 ### Las pantallas y sus rutas
 
 | Dirección | Componente | Qué hay |
 | --- | --- | --- |
 | `/asistencia` | `pages/asistencia/Hoy.jsx`, `components/asistencia/HoyPulso.jsx` | Hoy, con la marcación manual |
-| `/asistencia/registro` | `Registro.jsx` (`LibroDia`, `LibroMes`) | Libro de asistencia por día, semana y mes |
-| `/asistencia/persona/:id` | `Persona.jsx` | La asistencia de una persona |
+| `/asistencia/registro` | `Registro.jsx` (`LibroDia`, `LibroSemana`, `LibroMes`, `LibroCalendario`), `components/asistencia/ListaTema.jsx`, `temasLibro.js` | Libro de asistencia por día, semana, mes y calendario, con los temas como filtro y su lista |
+| `/asistencia/persona/:id` | `Persona.jsx`, `components/asistencia/ReportePDF.jsx` | La asistencia de una persona y su reporte en PDF |
 | sobre las anteriores | `components/asistencia/DetalleJornada.jsx` | El detalle de la jornada y sus correcciones |
-| `/asistencia/registro/:tema` | `LibroTema.jsx` | Los temas del Libro (lo que era Incidencias); `/asistencia/incidencias` lleva a Faltas |
-| `/asistencia/solicitudes` | `Solicitudes.jsx`, `components/asistencia/RevisarSolicitud.jsx` | Solicitudes por tipo, revisar y saldos |
+| `/asistencia/registro/:tema` | `LibroTema.jsx` | Solo redirige a `?ver=mes&tema=…&lista=1`; `/asistencia/incidencias` lleva a Faltas |
+| `/asistencia/solicitudes` | `Solicitudes.jsx`, `components/asistencia/RevisarSolicitud.jsx` | Solicitudes por tipo, revisar (con la papeleta y APROBAR) y saldos |
 | `/asistencia/solicitudes?ver=horas-extra` | `HorasExtra.jsx` | Horas extra (la vieja `/asistencia/horas-extra` redirige aquí) |
-| sin ruta | `Cierre.jsx` | Cierre del mes; `/asistencia/cierre` vuelve a Hoy |
-| `/asistencia/configuracion` | `Configuracion.jsx`, `MapaGeocerca.jsx` | Las seis partes de la configuración |
-| alta de un colaborador | `components/personas/AsignacionAsistencia.jsx` | La asignación desde el alta |
+| `/asistencia/configuracion` | `Configuracion.jsx`, `MapaGeocerca.jsx`, `components/asistencia/ModalAsignar.jsx`, `SelectorHorario.jsx`, `CampoHora.jsx`, `ConfirmarEliminar.jsx` | Las cinco partes de la configuración: Horarios, Modalidades, Avisos, Lugares y Asignaciones; `?ver=politicas` abre Modalidades y `?ver=biometria`, Asignaciones; `/asistencia/cierre` vuelve a Hoy |
+| alta de un colaborador | `components/personas/AsignacionAsistencia.jsx` | La asignación desde el alta (con `SelectorHorario`) |
 | `/mi-espacio/mi-asistencia` | `pages/colaborador/MiAsistencia.jsx`, `components/asistencia/Marcador.jsx` | Mi asistencia en la web |
 | celular | `Marcador.jsx`, `ConfirmarMarca.jsx`, `layout/InicioPhone.jsx`, `layout/AvisoPhone.jsx` | Marcar, su semana, su mes, pedir horas extra, corregir y los avisos |
 
@@ -3108,13 +3252,12 @@ Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por
 
 ### En qué se aparta de este documento
 
-- **El cierre no tiene ruta** ni entrada en el menú, aunque el candado de los meses cerrados funciona en el Libro, la persona y el detalle —ABIERTA‑ASI‑04—.
-- **El candado del mes** lo aplican las pantallas; las funciones de fondo no lo revisan —ABIERTA‑ASI‑05—.
 - **No hay roles**: ninguna pantalla mira el rol; el nombre del usuario se guarda como autor de cada corrección. Quien no es administrador va a Mi asistencia.
 - **La ubicación y el rostro se simulan** en el celular; el rostro siempre coincide. No se guarda la selfie.
 - **El aviso con «Agregar motivo»** solo se configura; en el celular no hay todavía cómo mandar una justificación, y el plazo no vence —ABIERTA‑ASI‑06—. Las justificaciones de ejemplo vienen sembradas.
 - **«Trabajo remoto»** aparece en «¿Qué necesita?» como «Pronto».
 - **Pedir horas extra** desde el celular no pide el proyecto.
 - **El «plazo para responder»** de RR.HH. se guarda pero no se muestra en ninguna pantalla.
-- **El calendario** de Hoy usa la fecha real y no la del reloj de la demo, y su leyenda tiene «Cierre» sin eventos.
-- **No existen**: la bolsa de horas, marcar sin conexión, el domicilio autorizado, horarios por día o con vigencia, ni turnos de noche.
+- **El calendario** de Hoy usa la fecha real y no la del reloj de la demo.
+- **La franja «cuándo puede marcar»** del horario flexible se guarda y se muestra, pero todavía no se usa en el cálculo.
+- **No existen**: la bolsa de horas, marcar sin conexión, el domicilio autorizado, horarios con vigencia, ni turnos de noche.
