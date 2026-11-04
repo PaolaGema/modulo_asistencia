@@ -123,7 +123,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
                       {m.anulada && <span className="at-tl-rech">Anulada</span>}
                     </span>
                     <span className="at-tl-sub">
-                      {m.origen === 'panel' ? <><MonitorCog size={12} aria-hidden="true" /> Cargada por {m.por}</> : <><Smartphone size={12} aria-hidden="true" /> Desde la app{m.remoto ? ' · remoto' : persona.lugar ? ` · ${persona.lugar.nombre}` : ''}</>}
+                      {m.origen === 'panel' ? <><MonitorCog size={12} aria-hidden="true" /> Cargada por {m.por}</> : <><Smartphone size={12} aria-hidden="true" /> Desde la app{m.remoto ? ' · remoto' : (persona.lugares?.find(l => l.id === m.lugarId) || persona.lugar) ? ` · ${(persona.lugares?.find(l => l.id === m.lugarId) || persona.lugar).nombre}` : ''}</>}
                     </span>
                     <Verificacion marca={m} />
                     {(m.ajuste || m.motivo) && <span className="at-tl-motivo">«{m.ajuste?.motivo || m.motivo}» — {m.ajuste?.por || m.por}</span>}

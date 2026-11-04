@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarClock, Search, Check, MapPin, House, Laptop, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { CalendarClock, Search, Check, MapPin, House, Laptop, ChevronDown, ChevronUp, Plus, X } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Modal } from '../documentacion/comunes'
 import Desplegable from '../layout/Desplegable'
@@ -107,6 +107,7 @@ export default function ModalAsignar({ ids, onCerrar, onListo }) {
     lugarId: primera?.asig?.lugarId || primera?.sucursalId || at.lugares[0]?.id,
     modalidad: primera?.asig?.modalidad || 'presencial',
     diasOficina: primera?.asig?.diasOficina?.length ? primera.asig.diasOficina : [2, 4],
+    lugaresExtra: primera?.asig?.lugaresExtra || [],
     desde: hoyISO(),
   })
   const [verTodos, setVerTodos] = useState(false)
@@ -120,7 +121,7 @@ export default function ModalAsignar({ ids, onCerrar, onListo }) {
   const lugar = at.lugarPorId.get(d.lugarId)
 
   /* Así quedan: quién cambia, quién ya lo tenía, quién es nuevo, agrupado por el horario de antes. */
-  const igual = p => p.asig && p.asig.horarioId === d.horarioId && p.asig.lugarId === d.lugarId && p.asig.modalidad === d.modalidad
+  const igual = p => p.asig && p.asig.horarioId === d.horarioId && p.asig.lugarId === d.lugarId && p.asig.modalidad === d.modalidad && (p.asig.lugaresExtra || []).join() === d.lugaresExtra.join()
   const nuevos = gente.filter(p => !p.asig)
   const yaLoTenian = gente.filter(igual)
   const cambian = gente.filter(p => p.asig && !igual(p))
@@ -132,7 +133,7 @@ export default function ModalAsignar({ ids, onCerrar, onListo }) {
   const desdeHoy = hoyISO()
   const lunes = sumarDias(desdeHoy, ((8 - diaISO(desdeHoy)) % 7) || 7)
   const Ico = { presencial: MapPin, remoto: House, hibrido: Laptop }
-  const asignar = () => { at.asignar(ids, { ...d, politicaId: null, diasOficina: d.modalidad === 'hibrido' ? d.diasOficina : [] }); onListo() }
+  const asignar = () => { at.asignar(ids, { ...d, politicaId: null, diasOficina: d.modalidad === 'hibrido' ? d.diasOficina : [], lugaresExtra: d.modalidad === 'remoto' ? [] : d.lugaresExtra.filter(x => x !== d.lugarId) }); onListo() }
   const n = ids.length
 
   return (
@@ -157,7 +158,19 @@ export default function ModalAsignar({ ids, onCerrar, onListo }) {
             )}
 
             <span className="at-hz-rot">2 · Dónde marca y cómo</span>
-            <Desplegable valor={d.lugarId} onCambio={v => pon('lugarId', v)} opciones={lugaresOps} ariaLabel="Dónde marca" conBuscador />
+            <Desplegable valor={d.lugarId} onCambio={v => { pon('lugarId', v); pon('lugaresExtra', d.lugaresExtra.filter(x => x !== v)) }} opciones={lugaresOps} ariaLabel="Dónde marca" conBuscador />
+            {/* VARIOS LUGARES: para quien rota entre sucursales (supervisores, técnicos, reemplazos). Puede
+                marcar en cualquiera; el Libro dice en cuál marcó cada día. */}
+            {d.modalidad !== 'remoto' && (
+              <div className="at-as-extra">
+                <span className="tit">También puede marcar en</span>
+                {d.lugaresExtra.map(id => { const l = at.lugarPorId.get(id); return l ? <span key={id} className="chip"><MapPin size={12} />{l.nombre}<button type="button" aria-label={`Quitar ${l.nombre}`} onClick={() => pon('lugaresExtra', d.lugaresExtra.filter(x => x !== id))}><X size={12} /></button></span> : null })}
+                <span className="agregar">
+                  <Desplegable valor="" placeholder="+ Agregar otro lugar" onCambio={v => v && v !== d.lugarId && !d.lugaresExtra.includes(v) && pon('lugaresExtra', [...d.lugaresExtra, v])} opciones={lugaresOps.filter(o => o.valor !== d.lugarId && !d.lugaresExtra.includes(o.valor))} ariaLabel="Agregar otro lugar" conBuscador />
+                </span>
+                {d.lugaresExtra.length > 0 && <small>Puede marcar en cualquiera de los {d.lugaresExtra.length + 1}. El Libro dice dónde marcó cada día.</small>}
+              </div>
+            )}
             <div className="at-as-modos" role="radiogroup" aria-label="Modalidad">
               {Object.entries(MODALIDADES).map(([k, m]) => {
                 const I = Ico[k] || MapPin
@@ -206,7 +219,7 @@ export default function ModalAsignar({ ids, onCerrar, onListo }) {
               </div>
             )}
             <div className="at-as-nota">
-              {h && lugar ? <>Quedan con <b>{h.nombre}</b>, en <b>{lugar.nombre}</b>, <b>{MODALIDADES[d.modalidad].label.toLowerCase()}</b>, desde el <b>{fechaLarga(d.desde).toLowerCase()}</b>.</> : 'Elija el horario y el lugar.'}
+              {h && lugar ? <>Quedan con <b>{h.nombre}</b>, en <b>{lugar.nombre}</b>{d.lugaresExtra.length && d.modalidad !== 'remoto' ? <> (o en {d.lugaresExtra.map(id => at.lugarPorId.get(id)?.nombre).filter(Boolean).join(' o ')})</> : null}, <b>{MODALIDADES[d.modalidad].label.toLowerCase()}</b>, desde el <b>{fechaLarga(d.desde).toLowerCase()}</b>.</> : 'Elija el horario y el lugar.'}
               {cambian.length > 0 && <> A {cambian.length === 1 ? 'quien cambia' : `los ${cambian.length} que cambian`} se le{cambian.length === 1 ? '' : 's'} cierra su asignación de hoy y se abre esta, en un solo paso.</>}
             </div>
             {!at.horarios.length && <span className="at-ayuda"><Plus size={12} /> Primero cree un horario.</span>}

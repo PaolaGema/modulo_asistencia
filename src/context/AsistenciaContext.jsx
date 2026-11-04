@@ -101,6 +101,8 @@ export function AsistenciaProvider({ children }) {
     const sucursalId = lugar?.tipo === 'centro' ? lugar.sucursalId : lugar?.id || p.sede
     return {
       ...p, asig, lugar,
+      /* VARIOS LUGARES: quien rota entre sucursales puede marcar en su lugar o en cualquiera de los extra. */
+      lugares: lugar ? [lugar, ...(asig?.lugaresExtra || []).map(id => lugarPorId.get(id)).filter(Boolean)] : [],
       sucursalId,
       centroId: lugar?.tipo === 'centro' ? lugar.id : null,
       /* `horario` es el de HOY (con su otro horario si hoy lo tiene); `horarioBase`, el que se configuró. */
@@ -221,11 +223,14 @@ export function AsistenciaProvider({ children }) {
      dispositivo. La geocerca y el rostro llegan ya evaluados por el flujo de captura. */
   const marcar = useCallback((p, tipo, { lat, lng, score } = {}) => {
     const ex = exigenciasDe(p, hoyISO())
-    const geo = p.lugar?.geo
-    const dist = geo && lat != null ? Math.round(distanciaM({ lat, lng }, geo)) : null
+    /* Si puede marcar en varios lugares, cuenta el más cercano: ahí marcó. */
+    const opciones = (p.lugares?.length ? p.lugares : [p.lugar]).filter(l => l?.geo)
+    const cerca = lat != null ? opciones.map(l => ({ l, d: distanciaM({ lat, lng }, l.geo) })).sort((a, b) => a.d - b.d)[0] : null
+    const geo = cerca?.l.geo || p.lugar?.geo
+    const dist = cerca ? Math.round(cerca.d) : null
     const m = {
       id: nuevaId(), personaId: p.id, fecha: hoyISO(), tipo, min: alSegundo(minutosAhora()),
-      lat: lat ?? null, lng: lng ?? null, distancia: dist,
+      lat: lat ?? null, lng: lng ?? null, distancia: dist, lugarId: cerca?.l.id || p.lugar?.id || null,
       dentro: ex.geocerca ? dist != null && dist <= (p.politica?.radio || geo?.radio || 150) : null,
       score: ex.rostro ? score ?? null : null, origen: 'app', remoto: ex.remotoHoy, nueva: true,
     }

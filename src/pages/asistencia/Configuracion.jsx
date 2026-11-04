@@ -728,7 +728,7 @@ function Asignaciones() {
                   <td onClick={e => e.stopPropagation()}><input type="checkbox" className="at-check" checked={sel.has(p.id)} onChange={() => alternar(p.id)} aria-label={`Seleccionar a ${p.name}`} /></td>
                   <td><PersonaAt persona={p} size={30} sub={`${p.cargo} · ${p.unidad}`} /></td>
                   <td>{p.horario ? <span className="at-lugar-chip"><i style={{ width: 8, height: 8, borderRadius: 3, background: p.horario.color, display: 'inline-block' }} /> {p.horario.nombre}</span> : <span className="dc-chip dc-t-ambar"><AlertTriangle size={11} /> Sin horario</span>}</td>
-                  <td>{p.lugar ? <span className="at-lugar-chip">{p.lugar.tipo === 'centro' ? <Warehouse size={13} /> : <Building2 size={13} />} {p.lugar.nombre}</span> : <span className="dc-muted">—</span>}</td>
+                  <td>{p.lugar ? <span className="at-lugar-chip">{p.lugar.tipo === 'centro' ? <Warehouse size={13} /> : <Building2 size={13} />} {p.lugar.nombre}{p.lugares?.length > 1 && <b className="at-mas-lugares" title={`También marca en ${p.lugares.slice(1).map(l => l.nombre).join(', ')}`}>+{p.lugares.length - 1}</b>}</span> : <span className="dc-muted">—</span>}</td>
                   <td>{p.asig ? <span className="at-lugar-chip">{p.asig.modalidad === 'remoto' ? <House size={13} /> : p.asig.modalidad === 'hibrido' ? <Laptop size={13} /> : <MapPin size={13} />} {MODALIDADES[p.asig.modalidad].label}{p.asig.modalidad === 'hibrido' && <small>&nbsp;· {p.asig.diasOficina.map(d => DIAS_CORTOS[d]).join(' ')}</small>}</span> : <span className="dc-muted">—</span>}</td>
                   <td>{(() => {
                     const b = p.bio || {}

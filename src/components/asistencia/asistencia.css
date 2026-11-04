@@ -1768,3 +1768,11 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-as-nota { background: var(--surface-card); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; line-height: 1.5; color: var(--text-heading); }
 @media (max-width: 1000px) { .at-as-lado { grid-template-columns: 1fr; } .at-as-der { position: static; } }
 .at-sol-cuando .at-sol-fecha { display: block; font-weight: 600; color: var(--text-heading); white-space: nowrap; } .at-sol-cuando small { display: block; font-size: 11.5px; color: var(--text-muted); }
+
+/* Varios lugares */
+.at-as-extra { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: var(--surface-hover); border-radius: 12px; padding: 9px 10px; }
+.at-as-extra .tit { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 2px; }
+.at-as-extra .chip { display: inline-flex; gap: 5px; align-items: center; background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 99px; padding: 3px 4px 3px 10px; font-size: 12.5px; font-weight: 600; color: var(--text-heading); }
+.at-as-extra .chip button { border: none; background: none; color: var(--text-muted); cursor: pointer; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; } .at-as-extra .chip button:hover { background: var(--surface-hover); }
+.at-as-extra .agregar { width: 220px; } .at-as-extra small { width: 100%; font-size: 11.5px; color: var(--text-muted); }
+.at-mas-lugares { margin-left: 6px; font-size: 11px; font-weight: 700; background: var(--surface-hover); border-radius: 99px; padding: 1px 7px; color: var(--text-heading); }

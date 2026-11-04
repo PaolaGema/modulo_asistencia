@@ -34,7 +34,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | roles con su vista | 3 |
 | estados de un día | 13 |
 | reglas de negocio | 58 |
-| requisitos funcionales | 86 |
+| requisitos funcionales | 87 |
 | historias de usuario | 20 |
 | pantallas | 22 |
 | decisiones abiertas | 11 |
@@ -439,6 +439,7 @@ Cuándo trabaja cada quien.
 | RF‑ASI‑048 | **Retirado:** ya no hay políticas que eliminar | — | — |
 | RF‑ASI‑085 | Lo que se pide al marcar depende de la modalidad del colaborador | Oblig. | Con «Estar en su lugar» apagado para Presencial, una marca fuera de la geocerca no se rechaza |
 | RF‑ASI‑086 | Cada horario tiene sus tolerancias de entrada, descanso y salida | Oblig. | Con 15 min en el horario Tienda, quien entra 08:44 a un horario de 08:30 no llega tarde |
+| RF‑ASI‑087 | Un colaborador puede marcar en varios lugares | Import. | Con Sopocachi y El Prado, una marca dentro de la geocerca de El Prado se acepta y el día dice «Sucursal El Prado» |
 
 ### 3.12 Configuración › Avisos al colaborador
 
@@ -471,7 +472,7 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 - Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · Pidió registrarlo otra vez); una lista desplegable **Todos · Sin horario · Sin rostro**, con su número.
 - Menú ⋯ de cada fila: «Asignar horario y lugar», «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación** (Ronda 24 · B1): la misma ventana centrada que eliminar, con su cara y su rostro tachado, qué pasa en tres pasos —se borra, le llega un aviso, lo registra al marcar— y escribir **BORRAR**.
 - Buscador, filtros de lugar y unidad y «Todos · Sin horario · Sin rostro» en una sola fila. Para asignar una unidad o una sucursal entera de una vez, se filtra y se marca la casilla de la cabecera de la tabla.
-- **Asignar horario y lugar** (Ronda 25 bis, pensado para 50 horarios, 30 lugares y muchos colaboradores a la vez): arriba, a quiénes (sus caras y cuántos). **1 · Horario** en una lista desplegable con buscador y filtros (Fijos, Flexibles, Con sábado, Con domingo), los más usados primero, cada uno con su color, sus horas, su semana en barritas y cuántos lo tienen; debajo, la semana del elegido en grande con su descanso, horas a la semana y tolerancia. **2 · Dónde marca y cómo**: el lugar con buscador y la modalidad en tres tarjetas (y los días de oficina si es híbrido). **3 · Desde**: hoy, el lunes u otra fecha. A la derecha, **«Así quedan»**: cuántos cambian, cuántos ya lo tenían y cuántos son nuevos, agrupado por el horario de antes, «Ver los N, uno por uno» y una frase con lo que queda; a los que cambian se les cierra su asignación y se abre esta, en un solo paso.
+- **Asignar horario y lugar** (Ronda 25 bis, pensado para 50 horarios, 30 lugares y muchos colaboradores a la vez): arriba, a quiénes (sus caras y cuántos). **1 · Horario** en una lista desplegable con buscador y filtros (Fijos, Flexibles, Con sábado, Con domingo), los más usados primero, cada uno con su color, sus horas, su semana en barritas y cuántos lo tienen; debajo, la semana del elegido en grande con su descanso, horas a la semana y tolerancia. **2 · Dónde marca y cómo**: el lugar con buscador, **«También puede marcar en»** para quien rota entre sucursales (supervisores, técnicos, reemplazos: puede marcar en cualquiera y cuenta el más cercano; el detalle del día dice en cuál marcó y la tabla muestra «+1»), y la modalidad en tres tarjetas (y los días de oficina si es híbrido). **3 · Desde**: hoy, el lunes u otra fecha. A la derecha, **«Así quedan»**: cuántos cambian, cuántos ya lo tenían y cuántos son nuevos, agrupado por el horario de antes, «Ver los N, uno por uno» y una frase con lo que queda; a los que cambian se les cierra su asignación y se abre esta, en un solo paso.
 - La misma asignación se hace en el **alta** del colaborador, con «¿Controla su asistencia?».
 
 | Código | Requisito | Prioridad | Criterio |
