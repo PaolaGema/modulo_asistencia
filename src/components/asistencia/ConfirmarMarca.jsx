@@ -18,7 +18,7 @@ import './asistencia.css'
    Se mide en `em`: vive dentro del teléfono de la demo y en Mi asistencia de escritorio. Ocupa todo su
    contenedor (el teléfono, o la pantalla con `position: fixed`) y se centra en él. */
 
-const QUE = { entrada: 'Va a marcar su entrada', pausa_inicio: 'Va a iniciar su pausa', pausa_fin: 'Va a volver de su pausa', salida: 'Va a marcar su salida' }
+const QUE = { entrada: 'Va a marcar su entrada', pausa_inicio: 'Va a iniciar su descanso', pausa_fin: 'Va a volver de su descanso', salida: 'Va a marcar su salida' }
 
 function estadoDe(tipo, { h, j, ahora, tolerancia, acc, pausaPendiente }) {
   if (tipo === 'entrada') {
@@ -32,7 +32,7 @@ function estadoDe(tipo, { h, j, ahora, tolerancia, acc, pausaPendiente }) {
     const inicio = [...(j.marcas || [])].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada)
     const dura = inicio ? ahora - inicio.min : 0
     if (h?.pausa && dura > h.pausa) return { tono: 'ojo', icono: Coffee, chip: `Se pasó ${duracion(dura - h.pausa)} de su pausa`, nota: 'Se descuentan de su jornada.' }
-    return { tono: 'bien', icono: Coffee, chip: `Lleva ${duracion(dura)} de pausa` }
+    return { tono: 'bien', icono: Coffee, chip: `Lleva ${duracion(dura)} de descanso` }
   }
   if (acc.temprano) return { tono: 'ojo', chip: `Le faltan ${duracion(acc.falta)} de jornada`, nota: 'Si marca la salida, su día se cierra y ya no podrá volver a marcar hoy.', antes: pausaPendiente }
   return { tono: 'bien', chip: `Trabajó ${duracion(j.trabajado)} · jornada completa` }
@@ -67,7 +67,7 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
         <div className="at-v2-botones">
           {e.antes ? (
             <>
-              <button type="button" className="prin" onClick={() => onConfirmar('pausa_inicio')} autoFocus><Coffee size="1.2em" /> Mejor, iniciar pausa</button>
+              <button type="button" className="prin" onClick={() => onConfirmar('pausa_inicio')} autoFocus><Coffee size="1.2em" /> Mejor, iniciar su descanso</button>
               <button type="button" className="sec" onClick={() => onConfirmar('salida')}>Sí, terminar jornada</button>
             </>
           ) : (

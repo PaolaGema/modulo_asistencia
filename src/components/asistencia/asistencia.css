@@ -1623,3 +1623,23 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-tdes-barra small { position: absolute; top: 16px; transform: translateX(-50%); font-size: 10px; color: var(--text-muted); }
 .at-tdes-pie { display: flex; justify-content: space-between; align-items: center; }
 .at-tdes-pie .quitar { border: none; background: none; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--dc-rojo); cursor: pointer; display: inline-flex; gap: 5px; align-items: center; }
+
+/* El flexible en la ventana grande (Ronda 21 · G1) */
+.at-hz-fila.flex { grid-template-columns: 34px 26px 130px minmax(0, 1fr) 50px 32px; }
+.at-hz-fila.flex .at-hz-libre { grid-column: span 2; }
+.at-hz-step { display: inline-flex; align-items: center; border: 1px solid var(--border-soft); border-radius: 9px; overflow: hidden; height: 32px; background: var(--surface-card); }
+.at-hz-step button { width: 32px; height: 100%; border: none; background: var(--surface-hover); color: var(--text-heading); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.at-hz-step button:disabled { opacity: .35; cursor: default; }
+.at-hz-step span { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--text-heading); white-space: nowrap; padding: 0 4px; }
+.at-hz-ventana { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 4px 2px; font-size: 12.5px; color: var(--text-muted); }
+.at-hz-ventana .pl-input { height: 32px; width: 110px; }
+.at-hz-ventana small { width: 100%; font-size: 11.5px; }
+.at-hz-metas { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; height: 260px; }
+.at-hz-mc { display: grid; grid-template-rows: 1fr auto; gap: 5px; } .at-hz-mc > b { text-align: center; font-size: 11px; color: var(--text-heading); }
+.at-hz-mp { position: relative; background: var(--surface-card); border: 1px solid var(--border-soft); border-radius: 8px; display: flex; align-items: flex-end; overflow: hidden; }
+.at-hz-mc.libre .at-hz-mp { background: repeating-linear-gradient(45deg, transparent 0 6px, var(--border-soft) 6px 7px); }
+.at-hz-mp i { display: block; width: 100%; border-radius: 6px 6px 0 0; position: relative; }
+.at-hz-mp i small { position: absolute; top: 4px; left: 0; right: 0; text-align: center; color: #fff; font-size: 9.5px; font-weight: 700; }
+.at-hz-mp em { margin: auto; font-style: normal; font-size: 10px; color: var(--text-muted); }
+.at-hz-chipventana { background: var(--surface-card); border-radius: 9px; padding: 7px 10px; font-size: 12px; color: var(--text-muted); text-align: center; } .at-hz-chipventana b { color: var(--text-heading); }
+.at-hz-notaflex { background: var(--dc-violeta-bg); color: var(--dc-violeta); border-radius: 9px; padding: 8px 10px; font-size: 12px; line-height: 1.45; }

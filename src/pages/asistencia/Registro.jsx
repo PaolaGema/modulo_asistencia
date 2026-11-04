@@ -410,7 +410,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
               const notaEntrada = j.tardanza > 0 ? `+${duracion(j.tardanza)} tarde` : j.entrada != null ? 'a tiempo' : { sinMarcar: 'sin marcar', ausente: 'falta', justificada: 'permiso', porLlegar: 'por llegar' }[j.estado] || ''
               const notaSalida = alerta ? `${ALERTAS[alerta.tipo].corto}${alerta.tipo !== 'sinPausa' ? ` · ${duracion(alerta.min)}` : ''}`
                 : j.salida != null ? (j.anticipada > 0 ? `${duracion(j.anticipada)} antes` : j.extra > 0 ? `+${duracion(j.extra)} extra` : '')
-                  : j.entrada != null ? (j.estado === 'pausa' ? 'en pausa' : ahora != null ? 'en turno' : 'sin salida') : ''
+                  : j.entrada != null ? (j.estado === 'pausa' ? 'en descanso' : ahora != null ? 'en turno' : 'sin salida') : ''
               return (
                 <tr key={p.id} tabIndex={0} className="at-dia-fila" onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
                   <td><PersonaAt persona={p} size={30} sub={`${p.unidad} · ${remoto ? 'Remoto' : p.lugar?.nombre || 'Sin lugar'}`} /></td>

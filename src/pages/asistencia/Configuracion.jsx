@@ -113,7 +113,7 @@ function Horarios() {
       {enTabla ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
           <table className="as-table at-tabla at-tabla-sol at-hor-tabla">
-            <thead><tr><th>Horario</th><th>Entrada y salida</th><th>Descanso</th><th>Días</th><th className="r">Al día</th><th className="r">A la semana</th><th className="r">Colaboradores</th><th aria-label="Acciones" /></tr></thead>
+            <thead><tr><th>Horario</th><th>Entrada y salida</th><th>Descansos</th><th>Días</th><th className="r">Al día</th><th className="r">A la semana</th><th className="r">Colaboradores</th><th aria-label="Acciones" /></tr></thead>
             <tbody>
               {at.horarios.map(h => {
                 const n = uso(h.id)
@@ -122,7 +122,7 @@ function Horarios() {
                 return (
                   <tr key={h.id}>
                     <td><span className="at-hor-nom"><span className="at-item-color" style={{ background: h.color }} /><b>{h.nombre}</b>{h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</span></td>
-                    <td className="num">{h.modo === 'fijo' ? <>{h.entrada} a {h.salida}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</> : <span className="dc-muted">Libre</span>}</td>
+                    <td className="num">{h.modo === 'fijo' ? <>{h.entrada} a {h.salida}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</> : <span className="dc-muted">Libre{h.ventanaDesde ? ` · ${h.ventanaDesde} a ${h.ventanaHasta}` : ''}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</span>}</td>
                     <td className="num">{h.modo === 'fijo' ? (fr ? franjasPausa(h).map(x => <span key={x.desde} style={{ display: 'block' }}>{hhmm(x.desde)} a {hhmm(x.hasta)}</span>) : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
                     <td><span className="at-semana-chips at-semana-chips-sm">{[1, 2, 3, 4, 5, 6, 7].map(d => <span key={d} className={h.dias.includes(d) ? 'on' : ''}>{DIAS_CORTOS[d].slice(0, 2)}</span>)}</span></td>
                     <td className="num r">{duracion(dia)}</td>
@@ -218,7 +218,8 @@ function ModalHorario({ inicial, onCerrar }) {
   const [filas, setFilas] = useState(() => Object.fromEntries(SEMANA.map(d => {
     const hd = inicial.modo === 'fijo' ? horarioDeDia(inicial, d) : inicial
     const descansos = inicial.modo === 'fijo' ? franjasPausa(hd).map(f => ({ desde: hhmm(f.desde), hasta: hhmm(f.hasta) })) : []
-    return [d, { on: inicial.dias.includes(d), entrada: hd.entrada || '08:30', salida: hd.salida || '18:00', descansos }]
+    const meta = (inicial.modo === 'flexible' ? horarioDeDia(inicial, d).meta : inicial.meta) || 480
+    return [d, { on: inicial.dias.includes(d), entrada: hd.entrada || '08:30', salida: hd.salida || '18:00', descansos, meta }]
   })))
   const [editando, setEditando] = useState(null) // { d, k, top, left }
   const abrirEn = (d, k, el) => { const r = el.getBoundingClientRect(); setEditando({ d, k, top: r.bottom + 10, left: Math.min(r.left, window.innerWidth - 330), flecha: Math.max(16, Math.min(r.left - Math.min(r.left, window.innerWidth - 330) + 20, 290)) }) }
@@ -245,7 +246,14 @@ function ModalHorario({ inicial, onCerrar }) {
   const semanaMin = activos.reduce((t, d) => t + minutosDe(d), 0)
 
   const armar = () => {
-    if (h.modo === 'flexible') return { ...h, porDia: {}, descansos: [], pausa: 0, pausaDesde: null, pausaHasta: null }
+    if (h.modo === 'flexible') {
+      /* La meta más repetida es la del horario; los días distintos van en `metaPorDia`. */
+      const cuentaM = {}
+      activos.forEach(d => { cuentaM[filas[d].meta] = (cuentaM[filas[d].meta] || 0) + 1 })
+      const meta = Number([...activos].sort((a, b) => cuentaM[filas[b].meta] - cuentaM[filas[a].meta]).map(d => filas[d].meta)[0]) || 480
+      const metaPorDia = Object.fromEntries(activos.filter(d => filas[d].meta !== meta).map(d => [d, filas[d].meta]))
+      return { ...h, dias: activos, meta, metaPorDia, porDia: {}, descansos: [], pausa: 0, pausaDesde: null, pausaHasta: null, ventanaDesde: h.ventanaDesde || '07:00', ventanaHasta: h.ventanaHasta || '20:00' }
+    }
     const clave = d => JSON.stringify([filas[d].entrada, filas[d].salida, filas[d].descansos.map(x => [x.desde, x.hasta])])
     const cuenta = {}
     activos.forEach(d => { cuenta[clave(d)] = (cuenta[clave(d)] || 0) + 1 })
@@ -258,7 +266,8 @@ function ModalHorario({ inicial, onCerrar }) {
       pausa: primero ? aMin(primero.hasta) - aMin(primero.desde) : 0, pausaDesde: primero?.desde || null, pausaHasta: primero?.hasta || null,
     }
   }
-  const valido = h.nombre.trim() && (h.modo === 'flexible' ? h.dias.length && h.meta > 0 : activos.length && !conError.length)
+  const ventanaMal = h.modo === 'flexible' && aMin(h.ventanaHasta || '20:00') <= aMin(h.ventanaDesde || '07:00')
+  const valido = h.nombre.trim() && (h.modo === 'flexible' ? activos.length && !ventanaMal : activos.length && !conError.length)
   const guardar = () => {
     const { conPausa, ...resto } = armar() // eslint-disable-line no-unused-vars
     const limpio = { ...resto, nombre: h.nombre.trim(), meta: Number(h.meta) || 0 }
@@ -274,7 +283,7 @@ function ModalHorario({ inicial, onCerrar }) {
   const primero = activos[0]
 
   return (
-    <Modal titulo={h.id ? 'Editar horario' : 'Nuevo horario'} Icono={Clock} onCerrar={onCerrar} ancho={h.modo === 'fijo' ? 1080 : 560}
+    <Modal titulo={h.id ? 'Editar horario' : 'Nuevo horario'} Icono={Clock} onCerrar={onCerrar} ancho={1080}
       pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!valido} onClick={guardar}>Guardar horario</button></>}>
       <div className="at-modal-campos">
         <div className="at-hz-cab">
@@ -374,13 +383,68 @@ function ModalHorario({ inicial, onCerrar }) {
           </>
         ) : (
           <>
-            <div className="at-campo"><span>Días que trabaja</span>
-              <div className="at-semana-chips">
-                {SEMANA.map(d => <button key={d} type="button" aria-pressed={h.dias.includes(d)} className={h.dias.includes(d) ? 'on' : ''} onClick={() => pon('dias', h.dias.includes(d) ? h.dias.filter(x => x !== d) : [...h.dias, d].sort())}>{DIAS_CORTOS[d]}</button>)}
+            {/* FLEXIBLE (Ronda 21 · G1): los mismos renglones, con la meta de horas de cada día. */}
+            <div className="at-hz-lado">
+              <div className="at-hz-filas flex">
+                {SEMANA.map(d => {
+                  const f = filas[d]
+                  return (
+                    <div key={d} className={`at-hz-fila flex${f.on ? '' : ' off'}`}>
+                      <button type="button" role="switch" aria-checked={f.on} aria-label={`${DIAS_LARGOS_CAP[d]}: ${f.on ? 'trabaja' : 'no trabaja'}`} className={`at-switch at-switch-sm${f.on ? ' on' : ''}`} onClick={() => ponFila(d, { on: !f.on })} />
+                      <b title={DIAS_LARGOS_CAP[d]}>{DIAS_CORTOS[d]}</b>
+                      {f.on ? (
+                        <>
+                          <span className="at-hz-step">
+                            <button type="button" aria-label={`Menos horas el ${DIAS_LARGOS_CAP[d].toLowerCase()}`} disabled={f.meta <= 30} onClick={() => ponFila(d, { meta: Math.max(30, f.meta - 30) })}>−</button>
+                            <span>{duracion(f.meta)}</span>
+                            <button type="button" aria-label={`Más horas el ${DIAS_LARGOS_CAP[d].toLowerCase()}`} disabled={f.meta >= 720} onClick={() => ponFila(d, { meta: Math.min(720, f.meta + 30) })}>+</button>
+                          </span>
+                          <div className="at-hz-barra" aria-hidden="true"><i className="trab" style={{ left: 0, width: `${(f.meta / 720) * 100}%`, background: h.color }} /></div>
+                          <span className="at-hz-h">{duracion(f.meta, { corto: true })}</span>
+                          <MenuAcciones etiqueta={`Copiar el ${DIAS_LARGOS_CAP[d].toLowerCase()}`} items={[
+                            { label: 'Copiar a todos los días de trabajo', Icono: Copy, onClick: () => setFilas(prev => Object.fromEntries(SEMANA.map(x => [x, prev[x].on ? { ...prev[x], meta: prev[d].meta } : prev[x]]))) },
+                            { label: 'Copiar de lunes a viernes', Icono: Copy, onClick: () => setFilas(prev => Object.fromEntries(SEMANA.map(x => [x, x <= 5 ? { ...prev[x], on: true, meta: prev[d].meta } : prev[x]]))) },
+                          ]} />
+                        </>
+                      ) : (
+                        <><span className="at-hz-libre">Día de descanso</span><span className="at-hz-h">—</span><span /></>
+                      )}
+                    </div>
+                  )
+                })}
+                <div className="at-hz-ventana">
+                  <span className="at-hz-rot">Cuándo puede marcar</span>
+                  <input type="time" className="pl-input" aria-label="Desde" value={h.ventanaDesde || '07:00'} onChange={e => pon('ventanaDesde', e.target.value)} />
+                  <span>a</span>
+                  <input type="time" className="pl-input" aria-label="Hasta" value={h.ventanaHasta || '20:00'} onChange={e => pon('ventanaHasta', e.target.value)} />
+                  <small>{ventanaMal ? 'El «hasta» tiene que ser después del «desde».' : 'Fuera de esa franja, la marca queda como fuera de horario.'}</small>
+                </div>
+              </div>
+
+              <div className="at-hz-semana" aria-hidden="true">
+                <span className="at-hz-rot">Así queda su semana</span>
+                <div className="at-hz-metas">
+                  {SEMANA.map(d => {
+                    const f = filas[d]
+                    return (
+                      <div key={d} className={`at-hz-mc${f.on ? '' : ' libre'}`}>
+                        <div className="at-hz-mp">{f.on ? <i style={{ height: `${(f.meta / 720) * 100}%`, background: h.color }}><small>{duracion(f.meta, { corto: true })}</small></i> : <em>Libre</em>}</div>
+                        <b>{DIAS_CORTOS[d]}</b>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="at-hz-chipventana">Puede marcar entre <b>{h.ventanaDesde || '07:00'}</b> y <b>{h.ventanaHasta || '20:00'}</b></div>
+                <div className="at-hz-notaflex">Sin tardanzas: no tiene hora de entrada. Cuenta que cumpla la meta de cada día.</div>
               </div>
             </div>
-            <label className="at-campo"><span>Meta diaria (horas)</span><input type="number" min="1" max="12" step="0.5" className="pl-input" value={h.meta / 60} onChange={e => pon('meta', Math.round(Number(e.target.value) * 60))} /></label>
-            <p className="at-ayuda" style={{ margin: 0 }}>{duracion(h.meta * h.dias.length)} a la semana, a la hora que quiera.</p>
+            {activos.length > 0 && (
+              <div className="at-hz-tot">
+                <span><b>{activos.length}</b> {activos.length === 1 ? 'día' : 'días'} de trabajo{libres.length ? <> · descansa {libres.map(d => DIAS_LARGOS_CAP[d].toLowerCase()).join(' y ')}</> : ''}</span>
+                {(() => { const gs = []; activos.forEach(d => { const g = gs.find(x => x.m === filas[d].meta); if (g) g.dias.push(d); else gs.push({ m: filas[d].meta, dias: [d] }) }); return gs.map(g => <span key={g.m}><b>{duracion(g.m, { corto: true })}</b> {nombreDias(g.dias)}</span>) })()}
+                <span><b>{duracion(activos.reduce((t, d) => t + filas[d].meta, 0), { corto: true })}</b> a la semana</span>
+              </div>
+            )}
           </>
         )}
       </div>

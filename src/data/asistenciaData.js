@@ -88,7 +88,7 @@ export const ESTADOS = {
   ausente:    { label: 'Faltó',           tono: 'rojo',    icono: 'cruz',   desc: 'Tenía jornada y no marcó.' },
   justificada:{ label: 'Ausencia justificada',       tono: 'gris',    icono: 'escudo', desc: 'Ausencia con permiso, licencia o vacaciones.' },
   trabajando: { label: 'Trabajando',        tono: 'verde',   icono: 'vivo',   desc: 'Marcó la entrada y está en su jornada.' },
-  pausa:      { label: 'En descanso',          tono: 'azul',    icono: 'cafe',   desc: 'Marcó el inicio de su pausa.' },
+  pausa:      { label: 'En descanso',          tono: 'azul',    icono: 'cafe',   desc: 'Marcó el inicio de su descanso.' },
   porLlegar:  { label: 'Aún no le toca',        tono: 'gris',    icono: 'espera', desc: 'Todavía no es su hora de entrada.' },
   sinMarcar:  { label: 'No ha llegado',        tono: 'rojo',    icono: 'alerta', desc: 'Ya pasó su hora de entrada y la tolerancia, y no marcó.' },
   termino:    { label: 'Terminó su jornada',           tono: 'verde',   icono: 'check',  desc: 'Marcó entrada y salida hoy.' },
@@ -97,8 +97,8 @@ export const ESTADOS = {
 
 export const TIPOS_MARCA = {
   entrada: { label: 'Entrada', corto: 'Entró' },
-  pausa_inicio: { label: 'Inicio de pausa', corto: 'Pausa' },
-  pausa_fin: { label: 'Fin de pausa', corto: 'Volvió' },
+  pausa_inicio: { label: 'Inicio del descanso', corto: 'Descanso' },
+  pausa_fin: { label: 'Fin del descanso', corto: 'Volvió' },
   salida: { label: 'Salida', corto: 'Salió' },
 }
 
@@ -162,6 +162,8 @@ const redondear = (min, bloque) => (bloque ? Math.floor(min / bloque + 1e-9) * b
    tiene el mismo descanso. Ese día cuenta como jornada completa con SUS horas: quien trabaja el sábado de
    08:00 a 12:00 cumplió su día, no le «faltan» cuatro horas. */
 export function horarioDeDia(h, dow) {
+  /* Un flexible puede tener otra meta algún día (el viernes, 6 h): `metaPorDia`. */
+  if (h?.modo === 'flexible') return h.metaPorDia?.[dow] ? { ...h, meta: h.metaPorDia[dow], delDia: dow } : h
   const o = h?.modo === 'fijo' ? h.porDia?.[dow] : null
   if (!o) return h
   /* Sus descansos: los propios (`descansos`), los del horario (`conPausa`) o ninguno. */
@@ -170,7 +172,8 @@ export function horarioDeDia(h, dow) {
 }
 export const horarioDelDia = (h, fecha) => horarioDeDia(h, diaISO(fecha))
 /* Los días con otro horario, en palabras: «Sá 08:00 a 12:00». */
-export const otrosDias = h => (h?.modo === 'fijo' ? Object.entries(h.porDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, o]) => `${DIAS_CORTOS[d]} ${o.entrada} a ${o.salida}`) : [])
+export const otrosDias = h => (h?.modo === 'fijo' ? Object.entries(h.porDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, o]) => `${DIAS_CORTOS[d]} ${o.entrada} a ${o.salida}`)
+  : Object.entries(h?.metaPorDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, m]) => `${DIAS_CORTOS[d]} ${duracion(m)}`))
 export const minutosSemana = h => (h?.dias || []).reduce((s, d) => s + minutosProgramados(horarioDeDia(h, d)), 0)
 
 /* LOS DESCANSOS DE UN DÍA: hasta dos, cada uno con su franja.
@@ -532,7 +535,7 @@ export function accionDelMomento(j, horario, minAhora) {
     ? { principal: 'pausa_inicio', secundaria: 'salida', temprano, falta, deshacer: null }
     : { principal: 'salida', secundaria: 'pausa_inicio', temprano, falta, deshacer: null }
 }
-export const ETIQUETA_MARCA = { entrada: 'Marcar entrada', pausa_inicio: 'Iniciar pausa', pausa_fin: 'Volver de la pausa', salida: 'Marcar salida' }
+export const ETIQUETA_MARCA = { entrada: 'Marcar entrada', pausa_inicio: 'Iniciar descanso', pausa_fin: 'Volver del descanso', salida: 'Marcar salida' }
 /* Los feriados nacionales no son días laborales: nadie llega tarde ni falta en Todos Santos. */
 export const esDiaLaboral = (h, fecha) => !!h && h.dias.includes(diaISO(fecha)) && !FERIADOS[fecha]
 

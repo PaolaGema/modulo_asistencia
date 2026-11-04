@@ -102,7 +102,7 @@ function HoyCompacto({ onMarcar }) {
           </span>
           {acc.secundaria && (
             <button type="button" onClick={() => setPedido(acc.secundaria)} style={enlace}>
-              {acc.secundaria === 'salida' ? <LogOut size={9} /> : <Coffee size={9} />} {acc.secundaria === 'salida' ? 'Marcar salida' : 'Pausa'}
+              {acc.secundaria === 'salida' ? <LogOut size={9} /> : <Coffee size={9} />} {acc.secundaria === 'salida' ? 'Marcar salida' : 'Descanso'}
             </button>
           )}
         </div>

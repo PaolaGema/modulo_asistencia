@@ -99,10 +99,10 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
     const chip = momento === 'pausa' ? `En pausa desde las ${hhmm(iniPausa?.min ?? ahoraMin)}`
       : momento === 'turno' ? `En turno desde las ${hhmm(j.entrada)}`
         : !j.laboral ? 'Hoy no tiene jornada' : fijo && ahoraMin >= B ? `Su turno ya terminó · ${hr.entrada} a ${hr.salida}` : fijo && ahoraMin > A + (yo.politica?.tolerancia ?? 10) ? `Su entrada era a las ${hr.entrada}` : fijo ? `Su entrada es a las ${hr.entrada}` : 'Horario flexible'
-    const datos = momento === 'fin' ? [['Trabajó', duracion(j.trabajado)], ['Pausa', duracion(j.pausas || 0)], ['Saldo del mes', duracion(saldo, { signo: true, corto: true }), saldo >= 0 ? 'bien' : 'mal']]
-      : momento === 'pausa' ? [['Lleva de pausa', duracion(ahoraMin - (iniPausa?.min ?? ahoraMin)), 'ojo'], ['Vuelve a las', vuelve != null ? hhmm(vuelve) : '—'], vuelve != null && ahoraMin > vuelve ? ['Se pasó', duracion(ahoraMin - vuelve), 'mal'] : ['Le quedan', vuelve != null ? duracion(vuelve - ahoraMin) : '—']]
+    const datos = momento === 'fin' ? [['Trabajó', duracion(j.trabajado)], ['Descanso', duracion(j.pausas || 0)], ['Saldo del mes', duracion(saldo, { signo: true, corto: true }), saldo >= 0 ? 'bien' : 'mal']]
+      : momento === 'pausa' ? [['Lleva de descanso', duracion(ahoraMin - (iniPausa?.min ?? ahoraMin)), 'ojo'], ['Vuelve a las', vuelve != null ? hhmm(vuelve) : '—'], vuelve != null && ahoraMin > vuelve ? ['Se pasó', duracion(ahoraMin - vuelve), 'mal'] : ['Le quedan', vuelve != null ? duracion(vuelve - ahoraMin) : '—']]
         : momento === 'turno' ? [['Lleva', duracion(j.trabajado)], ['Le quedan', duracion(acc.falta)], ['Sale', fijo ? hr.salida : '—']]
-          : [['Entrada', fijo ? hr.entrada : 'Libre'], ['Pausa', dur ? `${dur} min` : '—'], ['Salida', fijo ? hr.salida : '—']]
+          : [['Entrada', fijo ? hr.entrada : 'Libre'], ['Descanso', dur ? `${dur} min` : '—'], ['Salida', fijo ? hr.salida : '—']]
 
     const tol = yo.politica?.tolerancia ?? 10
     const dif = j.entrada != null && fijo ? j.entrada - A : null
@@ -111,8 +111,8 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
         ? ['ok', LogIn, 'Entrada', dif <= 0 ? `A tiempo · ${duracion(-dif)} antes` : dif <= tol ? 'Dentro de la tolerancia' : `${duracion(dif)} tarde`, hhmm(j.entrada)]
         : ['despues', LogIn, 'Entrada', 'Por marcar', fijo ? hr.entrada : '—'],
       iniPausa
-        ? [finPausa ? 'ok' : 'ahora', Coffee, 'Pausa', finPausa ? duracion(finPausa.min - iniPausa.min) : 'En curso', hhmm(iniPausa.min)]
-        : [momento === 'turno' && dur ? 'ahora' : 'despues', Coffee, 'Pausa', dur ? `Sugerida · ${dur} min` : 'Sin pausa', pausaPlan ? hhmm(pausaPlan[0]) : '—'],
+        ? [finPausa ? 'ok' : 'ahora', Coffee, 'Descanso', finPausa ? duracion(finPausa.min - iniPausa.min) : 'En curso', hhmm(iniPausa.min)]
+        : [momento === 'turno' && dur ? 'ahora' : 'despues', Coffee, 'Descanso', dur ? `Sugerido · ${dur} min` : 'Sin descanso', pausaPlan ? hhmm(pausaPlan[0]) : '—'],
       j.salida != null
         ? ['ok', LogOut, 'Salida', 'Jornada completa', hhmm(j.salida)]
         : ['despues', LogOut, 'Salida', 'Fin de su turno', fijo ? hr.salida : '—'],
@@ -322,7 +322,7 @@ function HoyCel({ j, acc, t, yo, extraHoy, validas, onPedir, onDeshacer }) {
           </button>
           {acc.secundaria && (
             <button type="button" onClick={() => onPedir(acc.secundaria)} style={{ ...enlace, marginTop: -4 }}>
-              {acc.secundaria === 'salida' ? 'O marcar la salida' : 'O iniciar una pausa'}
+              {acc.secundaria === 'salida' ? 'O marcar la salida' : 'O iniciar su descanso'}
             </button>
           )}
         </>
@@ -395,8 +395,8 @@ function SemanaCel({ onMes, onCorregir }) {
    y cómo se marcó (rostro, distancia). Entre la salida a la pausa y la vuelta, la pausa con su
    duración. Un día que todavía no llega muestra el horario; uno libre, que es libre. */
 const MARCA_DD = {
-  entrada: [LogIn, 'Entrada', 'var(--tn-verde)', 'var(--tx-verde)'], pausa_inicio: [Coffee, 'Salió a la pausa', 'var(--tn-ambar)', 'var(--tx-ambar)'],
-  pausa_fin: [Coffee, 'Volvió de la pausa', 'var(--tn-ambar)', 'var(--tx-ambar)'], salida: [LogOut, 'Salida', 'var(--tn-gris)', 'var(--in-texto)'],
+  entrada: [LogIn, 'Entrada', 'var(--tn-verde)', 'var(--tx-verde)'], pausa_inicio: [Coffee, 'Salió a descansar', 'var(--tn-ambar)', 'var(--tx-ambar)'],
+  pausa_fin: [Coffee, 'Volvió del descanso', 'var(--tn-ambar)', 'var(--tx-ambar)'], salida: [LogOut, 'Salida', 'var(--tn-gris)', 'var(--in-texto)'],
 }
 function DiaElegido({ fecha, j, laboral, yo, hoy, onCorregir }) {
   const hr = yo.horario
@@ -499,7 +499,7 @@ function DiaElegido({ fecha, j, laboral, yo, hoy, onCorregir }) {
 /* CORREGIR UNA MARCACIÓN: el día, qué marca (entrada, salida a la pausa, vuelta o salida), la hora
    correcta y la razón. Dice qué figura hoy para esa marca, así la persona ve qué está pidiendo
    cambiar. Va a RR.HH. como solicitud de corrección: al aprobarla se carga la marca. */
-const MARCAS_CORREGIR = [['entrada', 'Entrada'], ['pausa_inicio', 'Salió a la pausa'], ['pausa_fin', 'Volvió de la pausa'], ['salida', 'Salida']]
+const MARCAS_CORREGIR = [['entrada', 'Entrada'], ['pausa_inicio', 'Salió a descansar'], ['pausa_fin', 'Volvió del descanso'], ['salida', 'Salida']]
 export function CorregirMarcaCel({ fecha: fechaInicial, onVolver, onEnviada, volverA = 'Mi asistencia' }) {
   const at = useAsistencia()
   const yo = at.yo

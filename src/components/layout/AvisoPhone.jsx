@@ -38,8 +38,8 @@ export function avisoDelMomento(at, { forzar = false } = {}) {
   if (j.enPausa) {
     const ini = [...j.marcas].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada)
     const fin = ini && h.pausa ? ini.min + h.pausa : null
-    if (fin != null && ahora > fin) return { id: 'pausa-pasada', icono: Coffee, titulo: `Se pasó ${duracion(ahora - fin)} de su pausa`, texto: 'Marque su vuelta cuanto antes.', urgente: true }
-    if (forzar || (fin != null && ahora >= fin - 5)) return { id: 'pausa-fin', icono: Coffee, titulo: fin != null ? `Su pausa termina a las ${hhmm(fin)}` : 'Vuelva de su pausa', texto: 'Recuerde marcar su vuelta.' }
+    if (fin != null && ahora > fin) return { id: 'pausa-pasada', icono: Coffee, titulo: `Se pasó ${duracion(ahora - fin)} de su descanso`, texto: 'Marque su vuelta cuanto antes.', urgente: true }
+    if (forzar || (fin != null && ahora >= fin - 5)) return { id: 'pausa-fin', icono: Coffee, titulo: fin != null ? `Su descanso termina a las ${hhmm(fin)}` : 'Vuelva de su descanso', texto: 'Recuerde marcar su vuelta.' }
     return null
   }
   if (forzar || (fijo && ahora >= sal)) return { id: 'salida', icono: LogOut, titulo: fijo && ahora >= sal ? 'Ya es su hora de salida' : `Su salida es a las ${h.salida}`, texto: 'No olvide marcar su salida antes de irse.' }
