@@ -1716,3 +1716,13 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-regla-priv { font-size: 12.5px; color: var(--text-muted); background: var(--surface-hover); border-radius: 10px; padding: 9px 12px; } .at-regla-priv b { color: var(--text-heading); }
 .at-link-inline { border: none; background: none; padding: 0 0 0 6px; font: inherit; font-weight: 600; color: var(--green-fuerte); cursor: pointer; text-decoration: underline; }
 .at-asig-tabla th, .at-asig-tabla td { padding-left: 9px; padding-right: 9px; } .at-asig-tabla .dc-persona-sub { max-width: 190px; }
+
+/* Borrar el rostro (Ronda 24 · B1) */
+.at-elim-caras { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; } .at-elim-caras .flecha { color: var(--text-muted); font-size: 18px; }
+.at-elim-caras .og-av, .at-elim-caras > span:first-child { box-shadow: 0 0 0 4px var(--surface-hover); border-radius: 50%; }
+.at-elim-cara { position: relative; width: 54px; height: 54px; border-radius: 50%; border: 2.5px dashed var(--dc-rojo); background: var(--dc-rojo-bg); color: var(--dc-rojo); display: grid; place-items: center; }
+.at-elim-cara::after { content: ""; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; background: var(--dc-rojo); transform: rotate(45deg); border-radius: 2px; }
+.at-elim-pasos { list-style: none; margin: 4px 0 0; padding: 10px 12px; width: 100%; box-sizing: border-box; display: grid; gap: 7px; text-align: left; background: var(--surface-hover); border-radius: 12px; }
+.at-elim-pasos li { display: flex; gap: 9px; align-items: center; font-size: 13px; color: var(--text-heading); }
+.at-elim-pasos i { font-style: normal; width: 20px; height: 20px; border-radius: 50%; background: var(--navy, #0C2D40); color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none; }
+.at-elim-palabra { color: var(--dc-rojo); letter-spacing: .06em; font-family: ui-monospace, monospace; background: var(--dc-rojo-bg); border-radius: 6px; padding: 1px 6px; }

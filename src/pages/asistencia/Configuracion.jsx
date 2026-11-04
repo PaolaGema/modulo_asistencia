@@ -14,6 +14,7 @@ import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/a
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
 import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
+import Avatar from '../../components/personas/Avatar'
 import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
@@ -673,11 +674,13 @@ function Asignaciones() {
   const at = useAsistencia()
   const [filtro, setFiltro] = useState(FILTRO_VACIO)
   const [busca, setBusca] = useState('')
-  const [soloSin, setSoloSin] = useState(false)
+  /* Qué mostrar: todos, los que no tienen horario o los que no registraron su rostro. */
+  const [mostrar, setMostrar] = useState('')
+  const soloSin = mostrar === 'horario'
   const [sel, setSel] = useState(() => new Set())
   const [pag, setPag] = useState(1)
   const [asignar, setAsignar] = useState(false)
-  const [soloRostro, setSoloRostro] = useState(false)
+  const soloRostro = mostrar === 'rostro'
   const [confirmar, setConfirmar] = useState(null)
   const sinRostro = p => !p.bio?.enrolado || !!p.bio?.reenrolar
   const texto = busca.trim().toLowerCase()
@@ -696,8 +699,22 @@ function Asignaciones() {
             <Search size={13} className="pl-search-ico" />
             <input type="search" className="pl-search" placeholder="Buscar colaborador…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar colaborador" />
           </div>
-          <button type="button" className={`at-pestana${soloSin ? ' on' : ''}`} onClick={() => { setSoloSin(!soloSin); setPag(1) }}><AlertTriangle size={12} /> Sin horario <b>{sinCuenta}</b></button>
-          <button type="button" className={`at-pestana${soloRostro ? ' on' : ''}`} onClick={() => { setSoloRostro(!soloRostro); setPag(1) }}><ScanFace size={12} /> Sin rostro <b>{at.personas.filter(sinRostro).length}</b></button>
+          <div className={`dc-filtro at-filtro-estado${mostrar ? ' on' : ''}`} style={{ width: 220 }}>
+            <Desplegable valor={mostrar} ariaLabel="Qué mostrar" placeholder="Todos" anchoMenu={240} claseBoton="at-dd-estados"
+              opciones={[
+                { valor: '', etiqueta: 'Todos', lateral: String(at.personas.length), separada: true },
+                { valor: 'horario', etiqueta: 'Sin horario', punto: '#F5B04F', lateral: String(sinCuenta), apagada: !sinCuenta },
+                { valor: 'rostro', etiqueta: 'Sin rostro', punto: '#94A3B8', lateral: String(at.personas.filter(sinRostro).length), apagada: !at.personas.filter(sinRostro).length },
+              ]}
+              contenido={o => (
+                <span className="pl-dd-trigger-estado">
+                  {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                  <span>{o ? o.etiqueta : 'Todos'}</span>
+                  <b>{o ? o.lateral : at.personas.length}</b>
+                </span>
+              )}
+              onCambio={v => { setMostrar(v); setPag(1) }} />
+          </div>
         </div>
         <button type="button" className="dc-btn" onClick={() => { setSel(new Set(lista.map(p => p.id))) }}>Seleccionar los {lista.length} filtrados</button>
       </div>
@@ -752,10 +769,16 @@ function Asignaciones() {
       {asignar && <ModalAsignar ids={[...sel]} onCerrar={() => setAsignar(false)} onListo={() => { setAsignar(false); setSel(new Set()) }} />}
       {/* Borrar un rostro tiene consecuencias: se confirma. */}
       {confirmar && (
-        <Modal titulo={confirmar.tipo === 'pedir' ? 'Registrar el rostro de nuevo' : 'Aprobar un nuevo registro'} Icono={ScanFace} onCerrar={() => setConfirmar(null)} ancho={480}
-          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setConfirmar(null)}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.actualizarBio(confirmar.p.id, confirmar.tipo === 'pedir' ? { enrolado: null } : { reenrolar: null, enrolado: null }); setConfirmar(null) }}>{confirmar.tipo === 'pedir' ? 'Sí, borrar su rostro' : 'Sí, aprobar'}</button></>}>
-          <p style={{ margin: 0, lineHeight: 1.55 }}>Se borra el rostro registrado de <b>{confirmar.p.name}</b>. La próxima vez que marque, la app le pedirá registrarlo de nuevo, quieto, de frente y con buena luz. Hasta entonces, sus marcaciones no se comparan con ningún rostro.</p>
-        </Modal>
+        <ConfirmarEliminar
+          titulo={<>¿Borrar el rostro de {confirmar.p.name}?</>}
+          texto={confirmar.tipo === 'pedir'
+            ? 'La próxima vez que marque, la app le pedirá registrarlo de nuevo. Hasta entonces, sus marcaciones no se comparan con ningún rostro.'
+            : 'Pidió registrar su rostro otra vez. Al aprobarlo se borra el que tiene y lo registra de nuevo la próxima vez que marque.'}
+          pasos={['Se borra su rostro guardado', 'Le llega un aviso a su app', 'Lo registra de nuevo al marcar']}
+          palabra="BORRAR" accion={confirmar.tipo === 'pedir' ? 'Borrar su rostro' : 'Aprobar y borrar su rostro'}
+          cabeza={<span className="at-elim-caras" aria-hidden="true"><Avatar persona={confirmar.p} size={54} /><span className="flecha">→</span><span className="at-elim-cara"><ScanFace size={26} /></span></span>}
+          onCerrar={() => setConfirmar(null)}
+          onConfirmar={() => at.actualizarBio(confirmar.p.id, confirmar.tipo === 'pedir' ? { enrolado: null } : { reenrolar: null, enrolado: null })} />
       )}
     </>
   )

@@ -468,8 +468,8 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 
 ### 3.14 Configuración › Asignaciones
 
-- Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · Pidió registrarlo otra vez); «Sin horario» y **«Sin rostro»** como filtros.
-- Menú ⋯ de cada fila: «Asignar horario y lugar», «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación**.
+- Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · Pidió registrarlo otra vez); una lista desplegable **Todos · Sin horario · Sin rostro**, con su número.
+- Menú ⋯ de cada fila: «Asignar horario y lugar», «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación** (Ronda 24 · B1): la misma ventana centrada que eliminar, con su cara y su rostro tachado, qué pasa en tres pasos —se borra, le llega un aviso, lo registra al marcar— y escribir **BORRAR**.
 - Buscador, filtros y **«Seleccionar los N filtrados»**: así se asigna una unidad o una sucursal entera de una vez.
 - **Asignar a N personas**: horario, lugar de marcación, modalidad (y los días de oficina si es híbrido) y desde. Si ya tenían una, «se cierra y se abre esta, en un solo paso».
 - La misma asignación se hace en el **alta** del colaborador, con «¿Controla su asistencia?».
