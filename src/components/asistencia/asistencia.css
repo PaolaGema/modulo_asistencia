@@ -1549,3 +1549,25 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-otro-dia { column-gap: 10px; } .at-otro-dia .pl-input { min-width: 0; width: 100%; box-sizing: border-box; }
 .at-otro-dia > * { min-width: 0; }
 .at-hor-barra { justify-content: flex-end; }
+/* La ventana del horario: un renglón por día (Ronda 17 · V2) */
+.at-hz-cab { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+.at-hz-rot { font-size: 11.5px !important; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--green-fuerte) !important; }
+.at-hz-filas { display: grid; gap: 6px; background: var(--surface-hover); border-radius: 14px; padding: 10px; }
+.at-hz-fila { display: grid; grid-template-columns: 34px 26px 92px 92px minmax(0, 1fr) 54px; gap: 10px; align-items: center; background: var(--surface-card); border-radius: 10px; padding: 6px 10px; }
+.at-hz-fila b { font-size: 12.5px; color: var(--text-heading); }
+.at-hz-fila .pl-input { height: 32px; padding: 0 8px; font-size: 13px; min-width: 0; width: 100%; box-sizing: border-box; }
+.at-hz-fila.off { background: repeating-linear-gradient(45deg, transparent 0 6px, var(--border-soft) 6px 7px); }
+.at-hz-fila.mal { box-shadow: inset 0 0 0 1.5px var(--dc-ambar); }
+.at-hz-libre { grid-column: span 3; color: var(--text-muted); font-size: 12.5px; font-weight: 500; }
+.at-hz-barra { position: relative; height: 12px; border-radius: 99px; background: var(--bg-canal); }
+.at-hz-barra i { position: absolute; top: 0; bottom: 0; border-radius: 99px; }
+.at-hz-barra .pau { background: repeating-linear-gradient(45deg, var(--surface-card) 0 2px, rgba(255,255,255,.55) 2px 4px); opacity: .85; }
+.at-hz-h { font-weight: 700; font-size: 12.5px; text-align: right; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+.at-hz-fila.mal .at-hz-h { color: var(--dc-ambar); }
+.at-hz-escala { display: flex; justify-content: space-between; margin: 0 74px 0 304px; font-size: 10px; color: var(--text-muted); }
+.at-hz-copiar { align-self: flex-start; border: none; background: none; padding: 4px 2px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--green-fuerte); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.at-hz-tot { display: flex; gap: 6px; flex-wrap: wrap; }
+.at-hz-tot span { border: 1px solid var(--border-soft); background: var(--surface-card); border-radius: 99px; padding: 5px 12px; font-size: 12px; color: var(--text-muted); }
+.at-hz-tot b { color: var(--text-heading); }
+.at-switch-sm { transform: scale(.82); transform-origin: left center; }
+@media (max-width: 640px) { .at-hz-fila { grid-template-columns: 34px 26px 1fr 1fr 48px; } .at-hz-barra { display: none; } .at-hz-escala { display: none; } }
