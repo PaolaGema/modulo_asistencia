@@ -4,7 +4,7 @@ import { CalendarDays, Pencil, Plus, ShieldCheck, Ban, Check, X, ArrowUpRight, S
 import { Modal, MenuAcciones } from '../documentacion/comunes'
 import Desplegable from '../layout/Desplegable'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { TIPOS_MARCA, TIPOS_JUSTIFICACION, ESTADOS_EXTRA, ORIGENES_EXTRA, ALERTAS, esAutorizada, fechaLarga, hhmm, hhmmss, aMin, duracion, mesDe, minutosAhora } from '../../data/asistenciaData'
+import { TIPOS_MARCA, TIPOS_JUSTIFICACION, ESTADOS_EXTRA, ORIGENES_EXTRA, ALERTAS, esAutorizada, fechaLarga, hhmm, hhmmss, aMin, duracion, mesDe, minutosAhora, horarioDelDia } from '../../data/asistenciaData'
 import { EstadoDia, PersonaAt, Selfie, Verificacion, BarraDia, Radar } from './comunes'
 
 /* ── EL DETALLE DE UN DÍA ──────────────────────────────────────────────────
@@ -58,10 +58,10 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
           <div><span>{j.tardanza ? 'Tardanza' : 'Extra aprobada'}</span><b className={j.tardanza ? 'tarde' : j.extra ? 'extra' : ''}>{j.tardanza ? duracion(j.tardanza, { seg: true }) : duracion(j.extra)}</b></div>
         </div>
 
-        <BarraDia jornada={j} horario={persona.horario} ahora={esHoy ? minutosAhora() : null} grande />
+        <BarraDia jornada={j} horario={horarioDelDia(persona.horarioBase || persona.horario, fecha)} ahora={esHoy ? minutosAhora() : null} grande />
 
         {j.franja && (
-          <p className="at-det-franja"><Coffee size={13} aria-hidden="true" /> Descanso de {hhmm(j.franja.desde)} a {hhmm(j.franja.hasta)}{j.pausas > 0 ? ` · tomó ${duracion(j.pausas, { seg: true })}` : ''}{j.descontado > 0 ? ` · se descontaron ${duracion(j.descontado)} por no marcarlo` : ''}</p>
+          <p className="at-det-franja"><Coffee size={13} aria-hidden="true" /> {(j.franjas || [j.franja]).map(fr => `${(j.franjas || []).length > 1 ? fr.nombre : 'Descanso'} de ${hhmm(fr.desde)} a ${hhmm(fr.hasta)}`).join(' · ')}{j.pausas > 0 ? ` · tomó ${duracion(j.pausas, { seg: true })}` : ''}{j.descontado > 0 ? ` · se descontaron ${duracion(j.descontado)} por no marcarlo` : ''}</p>
         )}
 
         {/* LAS ALERTAS DEL DÍA (#5, #6, #7, #13, #15): qué pasó, si se le avisó y qué respondió. */}

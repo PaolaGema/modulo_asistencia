@@ -164,19 +164,27 @@ const redondear = (min, bloque) => (bloque ? Math.floor(min / bloque + 1e-9) * b
 export function horarioDeDia(h, dow) {
   const o = h?.modo === 'fijo' ? h.porDia?.[dow] : null
   if (!o) return h
-  return { ...h, entrada: o.entrada, salida: o.salida, pausa: o.conPausa ? h.pausa : 0, pausaDesde: o.conPausa ? h.pausaDesde : null, pausaHasta: o.conPausa ? h.pausaHasta : null, delDia: dow }
+  /* Sus descansos: los propios (`descansos`), los del horario (`conPausa`) o ninguno. */
+  const propios = Array.isArray(o.descansos) ? o.descansos : o.conPausa ? null : []
+  return { ...h, entrada: o.entrada, salida: o.salida, ...(propios ? { descansos: propios, pausa: 0, pausaDesde: null, pausaHasta: null } : {}), delDia: dow }
 }
 export const horarioDelDia = (h, fecha) => horarioDeDia(h, diaISO(fecha))
 /* Los días con otro horario, en palabras: «Sá 08:00 a 12:00». */
 export const otrosDias = h => (h?.modo === 'fijo' ? Object.entries(h.porDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, o]) => `${DIAS_CORTOS[d]} ${o.entrada} a ${o.salida}`) : [])
 export const minutosSemana = h => (h?.dias || []).reduce((s, d) => s + minutosProgramados(horarioDeDia(h, d)), 0)
 
-export function franjaPausa(h) {
-  if (!h || h.modo !== 'fijo' || !(h.pausa > 0 || h.pausaDesde)) return null
-  const desde = aMin(h.pausaDesde || '13:00')
-  const hasta = h.pausaHasta ? aMin(h.pausaHasta) : desde + (Number(h.pausa) || 0)
-  return hasta > desde ? { desde, hasta, largo: hasta - desde } : null
+/* LOS DESCANSOS DE UN DÍA: hasta dos —el almuerzo y un refrigerio—, cada uno con su nombre y su franja.
+   Los horarios de antes tienen uno solo (pausaDesde–pausaHasta) y se leen igual. */
+export function franjasPausa(h) {
+  if (!h || h.modo !== 'fijo') return []
+  const lista = Array.isArray(h.descansos)
+    ? h.descansos.map(d => ({ nombre: d.nombre || 'Descanso', desde: aMin(d.desde), hasta: aMin(d.hasta) }))
+    : h.pausa > 0 || h.pausaDesde
+      ? [{ nombre: 'Descanso', desde: aMin(h.pausaDesde || '13:00'), hasta: h.pausaHasta ? aMin(h.pausaHasta) : aMin(h.pausaDesde || '13:00') + (Number(h.pausa) || 0) }]
+      : []
+  return lista.filter(f => f.hasta > f.desde).map(f => ({ ...f, largo: f.hasta - f.desde })).sort((a, b) => a.desde - b.desde)
 }
+export function franjaPausa(h) { return franjasPausa(h)[0] || null }
 
 /* LAS ALERTAS DE UN DÍA: lo que se le avisa a la persona y lo que puede justificar (#5, #6, #7, #15). */
 export const ALERTAS = {
@@ -493,7 +501,7 @@ function rng(semilla) {
 const entre = (r, a, b) => a + r() * (b - a)
 
 /* ── HORARIOS ── */
-export const minutosProgramados = h => (h.modo === 'flexible' ? h.meta || 0 : Math.max(0, aMin(h.salida) - aMin(h.entrada) - (franjaPausa(h)?.largo || 0)))
+export const minutosProgramados = h => (h.modo === 'flexible' ? h.meta || 0 : Math.max(0, aMin(h.salida) - aMin(h.entrada) - franjasPausa(h).reduce((s, f) => s + f.largo, 0)))
 
 /* ── QUÉ TOCA MARCAR AHORA ──
    El orden del día es entrada → pausa → vuelta de la pausa → salida. Después de entrar, el botón
@@ -518,7 +526,7 @@ export function accionDelMomento(j, horario, minAhora) {
   if (j.salida != null) return { principal: null, secundaria: null, temprano: false, falta: 0, deshacer }
   if (j.entrada == null) return { principal: 'entrada', secundaria: null, temprano: false, falta: 0, deshacer: null }
   if (j.enPausa) return { principal: 'pausa_fin', secundaria: null, temprano, falta, deshacer: null }
-  const pausaPendiente = !!franjaPausa(horario) && !validas.some(m => m.tipo === 'pausa_inicio')
+  const pausaPendiente = franjasPausa(horario).length > validas.filter(m => m.tipo === 'pausa_inicio').length
   const tocaPausa = pausaPendiente && falta > 60
   return tocaPausa
     ? { principal: 'pausa_inicio', secundaria: 'salida', temprano, falta, deshacer: null }
@@ -598,7 +606,8 @@ export function marcasSembradas(p, asig, horario, politica, lugar, fecha, hasta 
   pon('entrada', entrada)
   /* EL DESCANSO, DENTRO DE SU FRANJA (#2). Casi todos salen a la hora y vuelven a tiempo; algunos
      salen antes, otros vuelven tarde o se exceden, y unos pocos no lo marcan (#5, #6). */
-  const franja = franjaPausa(horario)
+  const franjas = franjasPausa(horario)
+  const franja = franjas[0] || null
   if (laboral && (franja || horario.modo === 'flexible') && salida - entrada > 300) {
     const d3 = r()
     const ini = franja ? franja.desde : 13 * 60
@@ -609,6 +618,13 @@ export function marcasSembradas(p, asig, horario, politica, lugar, fecha, hasta 
       pon('pausa_inicio', pi)
       pon('pausa_fin', pf)
     }
+  }
+  /* El segundo descanso (el refrigerio), si el día lo tiene y le toca. */
+  if (laboral && franjas[1] && franjas[1].hasta < salida) {
+    const f2 = franjas[1]
+    const pi2 = f2.desde + entre(r, -1, 2)
+    pon('pausa_inicio', pi2, { id: `m-${p.id}-${fecha}-pausa_inicio-2` })
+    pon('pausa_fin', pi2 + f2.largo + entre(r, -2, r() > 0.92 ? 12 : 1), { id: `m-${p.id}-${fecha}-pausa_fin-2` })
   }
   /* Sin salida: sólo en días pasados (hoy, todavía puede marcarla). */
   if (r() > 0.015 || ventana) pon('salida', salida)
@@ -643,26 +659,29 @@ export function recomputar({ marcas, horario, tolerancia, reglas: reglasIn, fech
      política. Todas las pantallas leen esta; ninguna la vuelve a calcular. */
   const tardanza = fijo && entrada != null ? redondear(Math.max(0, entrada - (aMin(horario.entrada) + tol)), reglas.redondeo) : 0
 
-  /* EL DESCANSO EN SU FRANJA (#2, #5, #6): la primera pausa, contra la franja del horario. */
-  const franja = fijo ? franjaPausa(horario) : null
+  /* LOS DESCANSOS EN SU FRANJA (#2, #5, #6): cada pausa contra su franja —la primera contra el
+     almuerzo, la segunda contra el refrigerio—. Una franja sin su pausa marcada, si la jornada la
+     incluye, es un descanso sin marcar. */
+  const franjas = fijo ? franjasPausa(horario) : []
   const alertas = []
   const tolP = reglas.toleranciaPausa
   let descontado = 0
-  if (franja && pi[0]) {
-    /* UNA ALERTA POR HECHO. Si se excedió, eso es lo que cuenta (y el detalle dice a qué hora salió
-       y volvió). Si no se excedió pero corrió su descanso fuera de la franja —salió antes o volvió
-       después—, se dice eso: dejó su puesto en un horario que no era de descanso. */
-    const ini = pi[0].min; const vuelta = pf[0]?.min
-    if (vuelta != null && pausas > franja.largo + tolP) alertas.push({ tipo: 'pausaExceso', min: redondear(pausas - franja.largo, reglas.redondeo), detalle: `Salió a las ${hhmmss(ini)} y volvió a las ${hhmmss(vuelta)}: tomó ${duracion(pausas, { seg: true })} de descanso y le corresponden ${duracion(franja.largo)}, de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.` })
-    else {
-      if (ini < franja.desde - tolP) alertas.push({ tipo: 'pausaAnticipada', min: redondear(franja.desde - ini, reglas.redondeo), detalle: `Salió a las ${hhmmss(ini)}; su descanso empieza a las ${hhmm(franja.desde)}.` })
-      if (vuelta != null && vuelta > franja.hasta + tolP) alertas.push({ tipo: 'pausaRetorno', min: redondear(vuelta - franja.hasta, reglas.redondeo), detalle: `Volvió a las ${hhmmss(vuelta)}; su descanso termina a las ${hhmm(franja.hasta)}.` })
+  franjas.forEach((franja, k) => {
+    const nombre = franjas.length > 1 ? ` (${franja.nombre.toLowerCase()})` : ''
+    if (pi[k]) {
+      const ini = pi[k].min; const vuelta = pf[k]?.min
+      const esta = vuelta != null ? vuelta - ini : 0
+      if (vuelta != null && esta > franja.largo + tolP) alertas.push({ tipo: 'pausaExceso', min: redondear(esta - franja.largo, reglas.redondeo), detalle: `Salió a las ${hhmmss(ini)} y volvió a las ${hhmmss(vuelta)}${nombre}: tomó ${duracion(esta, { seg: true })} de descanso y le corresponden ${duracion(franja.largo)}, de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.` })
+      else {
+        if (ini < franja.desde - tolP) alertas.push({ tipo: 'pausaAnticipada', min: redondear(franja.desde - ini, reglas.redondeo), detalle: `Salió a las ${hhmmss(ini)}${nombre}; su descanso empieza a las ${hhmm(franja.desde)}.` })
+        if (vuelta != null && vuelta > franja.hasta + tolP) alertas.push({ tipo: 'pausaRetorno', min: redondear(vuelta - franja.hasta, reglas.redondeo), detalle: `Volvió a las ${hhmmss(vuelta)}${nombre}; su descanso termina a las ${hhmm(franja.hasta)}.` })
+      }
+    } else if (entrada != null && entrada < franja.desde && salida != null && salida > franja.hasta) {
+      const resta = reglas.sinPausa !== 'alertar' ? franja.largo : 0
+      descontado += resta
+      if (reglas.sinPausa !== 'descontar') alertas.push({ tipo: 'sinPausa', min: franja.largo, detalle: `No marcó su descanso${nombre} de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.${resta ? ` Se descontaron ${duracion(resta)} de lo trabajado.` : ' No se descontó.'}` })
     }
-  } else if (franja && entrada != null && entrada < franja.desde && salida != null && salida > franja.hasta) {
-    /* Trabajó de corrido sin marcar el descanso: la política dice si se descuenta, se alerta o ambas. */
-    if (reglas.sinPausa !== 'alertar') descontado = franja.largo
-    if (reglas.sinPausa !== 'descontar') alertas.push({ tipo: 'sinPausa', min: franja.largo, detalle: `No marcó su descanso de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.${descontado ? ` Se descontaron ${duracion(descontado)} de lo trabajado.` : ' No se descontó.'}` })
-  }
+  })
   trabajado = Math.max(0, trabajado - descontado)
   /* SALIDA ANTICIPADA (#7): antes de la hora de salida menos su tolerancia. Hoy, solo si ya marcó. */
   const anticipada = fijo && salida != null ? redondear(Math.max(0, aMin(horario.salida) - reglas.toleranciaSalida - salida), reglas.redondeo) : 0
@@ -712,7 +731,7 @@ export function recomputar({ marcas, horario, tolerancia, reglas: reglasIn, fech
      horas en el Libro, en su ficha, en su app y en el cierre. */
   return {
     entrada, salida, pausas, trabajado, programado: estado === 'justificada' ? 0 : programado, tardanza, extra, fueraDeHorario,
-    tardanzaInjustificada, anticipada, anticipadaInjustificada, excesoPausa, excesoPausaInjustificado, descontado, alertas, franja, autorizado: ventanas.reduce((t, v) => t + v.hasta - v.desde, 0), estado, enPausa, llegoTarde: tardanza > 0, laboral }
+    tardanzaInjustificada, anticipada, anticipadaInjustificada, excesoPausa, excesoPausaInjustificado, descontado, alertas, franja: franjas[0] || null, franjas, autorizado: ventanas.reduce((t, v) => t + v.hasta - v.desde, 0), estado, enPausa, llegoTarde: tardanza > 0, laboral }
 }
 
 /* ── CARGAR LA DEMO DE ASISTENCIA ──

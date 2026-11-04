@@ -986,7 +986,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>3</b><span>roles con su vista</span></div>
     <div><b>13</b><span>estados de un día</span></div>
     <div><b>58</b><span>reglas de negocio</span></div>
-    <div><b>83</b><span>requisitos funcionales</span></div>
+    <div><b>84</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
     <div><b>22</b><span>pantallas</span></div>
     <div><b>11</b><span>decisiones abiertas</span></div>
@@ -1810,7 +1810,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <ul>
 <li><strong>Tabla o tarjetas</strong>: dos íconos junto a «Nuevo horario»; se abre en la tabla y las tarjetas, la forma gráfica, van después. La <strong>tarjeta</strong> muestra su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántos colaboradores lo tienen. La <strong>tabla</strong> pone los horarios lado a lado: Horario, Entrada y salida, Descanso, Días, Al día, A la semana y Colaboradores.</li>
 <li>Menú: Editar, Duplicar, Eliminar (no si está asignado). <strong>Eliminar pide confirmación</strong> en una ventana: «Sí, eliminar».</li>
-<li><strong>Nuevo horario</strong> (Ronda 17 · V2): nombre y tipo <strong>Fijo</strong> o <strong>Flexible</strong>. En un horario fijo, <strong>un renglón por día, de lunes a domingo</strong>: un interruptor para si trabaja ese día, su entrada y su salida, una barra del día (de 06 a 22) en el color del horario, con el descanso rayado, y sus horas. Así cada día puede tener su horario: el sábado más corto, <strong>el domingo trabajado y el martes libre</strong>. «Copiar el lunes a todos los días» repite el primer día en los demás. Abajo, las horas por grupo de días («7:30 lunes, miércoles, jueves, viernes, domingo · 4:00 sábado») y las de la semana. En uno flexible: los días y la meta diaria.</li>
+<li><strong>Nuevo horario</strong> (Ronda 19 · X1): una ventana ancha. Arriba, nombre, tipo (<strong>Fijo</strong> o <strong>Flexible</strong>) y color. A la izquierda, <strong>un renglón por día, de lunes a domingo</strong>: un interruptor para si trabaja ese día, su entrada y su salida, <strong>sus descansos</strong> —hasta dos, por ejemplo <strong>almuerzo y refrigerio</strong>— como etiquetas que se tocan para cambiar el nombre, el desde y el hasta, sus horas y un menú ⋯ para copiar ese día a todos, de lunes a viernes o a un día libre. A la derecha, <strong>«Así queda su semana»</strong>: un calendario de lunes a domingo con un bloque por día en el color del horario y los descansos rayados. Abajo, la tolerancia de la política y las horas por grupo de días y de la semana. <strong>Un horario nuevo arranca de lunes a sábado</strong> (sábado de 08:30 a 12:30, sin descanso); cada empresa lo cambia. Cada día avisa si la salida es antes que la entrada o si un descanso cae fuera de la jornada o se pisa con el otro.</li>
+<li><strong>Cada descanso se mide por separado</strong>: la primera pausa que marca contra el primer descanso, la segunda contra el segundo; si se excede en el almuerzo, el exceso aparece en el almuerzo. Si no marca uno que su jornada incluye, cuenta como descanso sin marcar. Las horas del día descuentan los dos.</li>
 <li><strong>Un día distinto cuenta como jornada completa con sus propias horas</strong>: quien trabaja el sábado de 08:00 a 12:00 cumplió su día y no queda debiendo; la tardanza y la salida anticipada se miden contra el horario de ese día. Por dentro se guarda el horario más repetido como base y los demás días como excepciones. La tabla y la tarjeta muestran los días distintos debajo («Sá 09:00 a 13:00»).</li>
 <li>Debajo de la entrada: <strong>la tolerancia de la política</strong> y desde qué hora cuenta como atraso, con las otras políticas que tienen otra y «Cambiar en Políticas».</li>
 <li>Abajo: las horas programadas al día y a la semana.</li>
@@ -1824,6 +1825,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-045">RF‑ASI‑045</td><td>Un horario asignado no se elimina</td><td>Oblig.</td><td>«Está asignado a personas: reasígnelas primero»</td></tr>
 <tr><td class="id" id="RF-ASI-082">RF‑ASI‑082</td><td>Un horario puede tener otro horario algunos días</td><td>Oblig.</td><td>Lunes a viernes 08:00–18:00 y sábado 08:00–12:00: el sábado se programan 4 h</td></tr>
 <tr><td class="id" id="RF-ASI-083">RF‑ASI‑083</td><td>El día con otro horario cuenta como jornada completa con sus horas</td><td>Oblig.</td><td>Trabajar el sábado de 08:00 a 12:00 da «4:00 de 4:00» y «Terminó su jornada»</td></tr>
+<tr><td class="id" id="RF-ASI-084">RF‑ASI‑084</td><td>Cada día del horario puede tener hasta dos descansos, cada uno medido por separado</td><td>Oblig.</td><td>Con almuerzo de 13:00 a 14:00 y refrigerio de 16:00 a 16:15, el lunes de 08:30 a 18:00 programa 8:15</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-11">3.11 Configuración › Políticas de marcación</h3>

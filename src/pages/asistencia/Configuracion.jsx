@@ -11,7 +11,7 @@ import Desplegable from '../../components/layout/Desplegable'
 import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
-import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana } from '../../data/asistenciaData'
+import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
    Cinco partes, en el orden en que se arma el módulo la primera vez: los HORARIOS (cuándo), las
@@ -107,7 +107,7 @@ function Horarios() {
           <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma(null)}><Table2 size={15} aria-hidden="true" /></button>
           <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma('tarjetas')}><LayoutGrid size={15} aria-hidden="true" /></button>
         </div>
-        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
+        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '08:30', salida: '18:00', descansos: [{ nombre: 'Almuerzo', desde: '13:00', hasta: '14:00' }], porDia: { 6: { entrada: '08:30', salida: '12:30', descansos: [] } }, conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
       </div>
       {enTabla ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
@@ -122,7 +122,7 @@ function Horarios() {
                   <tr key={h.id}>
                     <td><span className="at-hor-nom"><span className="at-item-color" style={{ background: h.color }} /><b>{h.nombre}</b>{h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</span></td>
                     <td className="num">{h.modo === 'fijo' ? <>{h.entrada} a {h.salida}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</> : <span className="dc-muted">Libre</span>}</td>
-                    <td className="num">{h.modo === 'fijo' ? (fr ? `${hhmm(fr.desde)} a ${hhmm(fr.hasta)}` : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
+                    <td className="num">{h.modo === 'fijo' ? (fr ? franjasPausa(h).map(x => <span key={x.desde} style={{ display: 'block' }}>{franjasPausa(h).length > 1 ? <small className="dc-muted">{x.nombre} </small> : null}{hhmm(x.desde)} a {hhmm(x.hasta)}</span>) : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
                     <td><span className="at-semana-chips at-semana-chips-sm">{[1, 2, 3, 4, 5, 6, 7].map(d => <span key={d} className={h.dias.includes(d) ? 'on' : ''}>{DIAS_CORTOS[d].slice(0, 2)}</span>)}</span></td>
                     <td className="num r">{duracion(dia)}</td>
                     <td className="num r">{duracion(minutosSemana(h))}</td>
@@ -147,7 +147,7 @@ function Horarios() {
                 <span className="at-item-color" style={{ background: h.color }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 className="at-item-nom">{h.nombre} {h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</h3>
-                  <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${fr ? ` · descanso de ${hhmm(fr.desde)} a ${hhmm(fr.hasta)}` : ' · sin descanso'}${otrosDias(h).length ? ` · ${otrosDias(h).join(' · ')}` : ''}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
+                  <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${fr ? ` · ${franjasPausa(h).map(x => `${x.nombre.toLowerCase()} de ${hhmm(x.desde)} a ${hhmm(x.hasta)}`).join(' y ')}` : ' · sin descanso'}${otrosDias(h).length ? ` · ${otrosDias(h).join(' · ')}` : ''}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
                 </div>
                 <MenuAcciones items={acciones(h, n, fr)} />
               </div>
@@ -188,17 +188,23 @@ function Horarios() {
 
 const DIAS_LARGOS_CAP = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 const SEMANA = [1, 2, 3, 4, 5, 6, 7]
+const NOMBRES_DESCANSO = ['Almuerzo', 'Refrigerio', 'Descanso']
 const ESCALA_H = [6 * 60, 22 * 60]
-const enEscala = m => `${Math.max(0, Math.min(100, ((m - ESCALA_H[0]) / (ESCALA_H[1] - ESCALA_H[0])) * 100))}%`
+const enEscala = m => Math.max(0, Math.min(100, ((m - ESCALA_H[0]) / (ESCALA_H[1] - ESCALA_H[0])) * 100))
+const descansoNuevo = (fila, k) => {
+  const e = aMin(fila.entrada); const s = aMin(fila.salida)
+  if (k === 0) { const d = Math.max(e + 60, Math.min(13 * 60, s - 90)); return { nombre: 'Almuerzo', desde: hhmm(d), hasta: hhmm(d + 60) } }
+  const d = Math.max(e + 60, Math.min(16 * 60, s - 45)); return { nombre: 'Refrigerio', desde: hhmm(d), hasta: hhmm(d + 15) }
+}
 
-/* ── LA VENTANA DEL HORARIO (Ronda 17 · V2) ─────────────────────────────────
-   Un renglón por día, de lunes a domingo: si trabaja, su entrada y su salida, una barra del día y sus
-   horas. Así cada día puede tener su horario —el sábado más corto, el domingo trabajado, el martes
-   libre—. El descanso es una sola franja y se aplica a los días cuya jornada la incluye: el sábado de
-   08:00 a 12:00 no tiene el descanso de 13:00 a 14:00.
+/* ── LA VENTANA DEL HORARIO (Ronda 19 · X1) ─────────────────────────────────
+   Ancha: a la izquierda un renglón por día, de lunes a domingo —si trabaja, su entrada y su salida,
+   sus descansos (hasta dos: el almuerzo y un refrigerio) como etiquetas que se tocan para editarlas y
+   sus horas—; a la derecha, la semana dibujada. Un horario nuevo arranca de lunes a sábado, con el
+   sábado más corto; cada empresa lo cambia.
 
-   Se guarda con el modelo de siempre: el horario más repetido es la base y los demás días van en
-   `porDia`, así los cálculos (horarioDelDia) no cambian. */
+   Se guarda con el modelo de siempre: el día más repetido es la base y los demás van en `porDia`, cada
+   uno con sus `descansos`. */
 function ModalHorario({ inicial, onCerrar }) {
   const at = useAsistencia()
   const [h, setH] = useState(inicial)
@@ -208,38 +214,49 @@ function ModalHorario({ inicial, onCerrar }) {
   const otras = at.politicas.filter(p => p.id !== at.politicaDefecto?.id && p.tolerancia !== tol)
   const irPoliticas = () => { onCerrar(); setParams({ ver: 'politicas' }, { replace: true }) }
 
-  /* Los siete renglones, armados desde el horario (con sus días distintos). */
   const [filas, setFilas] = useState(() => Object.fromEntries(SEMANA.map(d => {
     const hd = inicial.modo === 'fijo' ? horarioDeDia(inicial, d) : inicial
-    return [d, { on: inicial.dias.includes(d), entrada: hd.entrada || '08:00', salida: hd.salida || '18:00' }]
+    const descansos = inicial.modo === 'fijo' ? franjasPausa(hd).map((f, k) => ({ nombre: f.nombre === 'Descanso' ? NOMBRES_DESCANSO[k] : f.nombre, desde: hhmm(f.desde), hasta: hhmm(f.hasta) })) : []
+    return [d, { on: inicial.dias.includes(d), entrada: hd.entrada || '08:30', salida: hd.salida || '18:00', descansos }]
   })))
+  const [editando, setEditando] = useState(null) // { d, k }
   const ponFila = (d, cambios) => setFilas(prev => ({ ...prev, [d]: { ...prev[d], ...cambios } }))
+  const ponDescanso = (d, k, cambios) => setFilas(prev => ({ ...prev, [d]: { ...prev[d], descansos: prev[d].descansos.map((x, i) => (i === k ? { ...x, ...cambios } : x)) } }))
+  const agregarDescanso = d => { const k = filas[d].descansos.length; ponFila(d, { descansos: [...filas[d].descansos, descansoNuevo(filas[d], k)] }); setEditando({ d, k }) }
+  const quitarDescanso = (d, k) => { ponFila(d, { descansos: filas[d].descansos.filter((_, i) => i !== k) }); setEditando(null) }
+  const copiar = (de, a) => setFilas(prev => Object.fromEntries(SEMANA.map(d => [d, a.includes(d) && d !== de ? { ...prev[d], on: true, entrada: prev[de].entrada, salida: prev[de].salida, descansos: prev[de].descansos.map(x => ({ ...x })) } : prev[d]])))
   const activos = SEMANA.filter(d => filas[d].on)
-  const primero = activos[0]
-  const copiarATodos = () => setFilas(prev => Object.fromEntries(SEMANA.map(d => [d, prev[d].on ? { ...prev[d], entrada: prev[primero].entrada, salida: prev[primero].salida } : prev[d]])))
 
-  /* El descanso: una franja que se aplica a los días que la incluyen. */
-  const pd = aMin(h.pausaDesde); const ph = aMin(h.pausaHasta)
-  const filaMal = d => aMin(filas[d].salida) <= aMin(filas[d].entrada)
-  const cubre = d => h.conPausa && ph > pd && pd > aMin(filas[d].entrada) && ph < aMin(filas[d].salida)
-  const conDescanso = activos.filter(cubre)
-  const pausaMal = h.modo === 'fijo' && h.conPausa && (ph <= pd || (activos.length > 0 && !conDescanso.length))
-  const minutosDe = d => Math.max(0, aMin(filas[d].salida) - aMin(filas[d].entrada) - (cubre(d) ? ph - pd : 0))
-  const semanaMin = activos.reduce((s, d) => s + minutosDe(d), 0)
+  /* Qué está mal en un día: la salida antes de la entrada, o un descanso fuera de la jornada, al revés
+     o encimado con el otro. */
+  const errorDe = d => {
+    const f = filas[d]; const e = aMin(f.entrada); const s = aMin(f.salida)
+    if (s <= e) return 'La salida es antes que la entrada'
+    const ds = f.descansos.map(x => [aMin(x.desde), aMin(x.hasta)]).sort((a, b) => a[0] - b[0])
+    if (ds.some(([a, b]) => b <= a)) return 'Un descanso termina antes de empezar'
+    if (ds.some(([a, b]) => a <= e || b >= s)) return 'Un descanso cae fuera de la jornada'
+    if (ds.length === 2 && ds[1][0] < ds[0][1]) return 'Los dos descansos se pisan'
+    return null
+  }
+  const minutosDe = d => { const f = filas[d]; return Math.max(0, aMin(f.salida) - aMin(f.entrada) - f.descansos.reduce((t, x) => t + Math.max(0, aMin(x.hasta) - aMin(x.desde)), 0)) }
+  const conError = activos.filter(errorDe)
+  const semanaMin = activos.reduce((t, d) => t + minutosDe(d), 0)
 
-  /* Lo que se guarda: la base es el horario más repetido (de los que llevan el descanso, si hay). */
   const armar = () => {
-    if (h.modo === 'flexible') return { ...h, porDia: {}, pausa: 0, pausaDesde: null, pausaHasta: null }
-    const clave = d => `${filas[d].entrada}|${filas[d].salida}`
+    if (h.modo === 'flexible') return { ...h, porDia: {}, descansos: [], pausa: 0, pausaDesde: null, pausaHasta: null }
+    const clave = d => JSON.stringify([filas[d].entrada, filas[d].salida, filas[d].descansos.map(x => [x.nombre, x.desde, x.hasta])])
     const cuenta = {}
     activos.forEach(d => { cuenta[clave(d)] = (cuenta[clave(d)] || 0) + 1 })
-    const candidatos = (conDescanso.length ? conDescanso : activos).map(clave)
-    const base = candidatos.sort((a, b) => cuenta[b] - cuenta[a])[0] || '08:00|18:00'
-    const [entrada, salida] = base.split('|')
-    const porDia = Object.fromEntries(activos.filter(d => clave(d) !== base || (h.conPausa && !cubre(d))).map(d => [d, { entrada: filas[d].entrada, salida: filas[d].salida, conPausa: cubre(d) }]))
-    return { ...h, dias: activos, entrada, salida, porDia, pausa: h.conPausa ? ph - pd : 0, pausaDesde: h.conPausa ? h.pausaDesde : null, pausaHasta: h.conPausa ? h.pausaHasta : null }
+    const baseDia = [...activos].sort((a, b) => cuenta[clave(b)] - cuenta[clave(a)])[0]
+    const base = filas[baseDia]
+    const primero = base.descansos[0]
+    const porDia = Object.fromEntries(activos.filter(d => clave(d) !== clave(baseDia)).map(d => [d, { entrada: filas[d].entrada, salida: filas[d].salida, descansos: filas[d].descansos.map(x => ({ ...x })) }]))
+    return {
+      ...h, dias: activos, entrada: base.entrada, salida: base.salida, descansos: base.descansos.map(x => ({ ...x })), porDia,
+      pausa: primero ? aMin(primero.hasta) - aMin(primero.desde) : 0, pausaDesde: primero?.desde || null, pausaHasta: primero?.hasta || null,
+    }
   }
-  const valido = h.nombre.trim() && (h.modo === 'flexible' ? h.dias.length && h.meta > 0 : activos.length && !activos.some(filaMal) && !pausaMal)
+  const valido = h.nombre.trim() && (h.modo === 'flexible' ? h.dias.length && h.meta > 0 : activos.length && !conError.length)
   const guardar = () => {
     const { conPausa, ...resto } = armar() // eslint-disable-line no-unused-vars
     const limpio = { ...resto, nombre: h.nombre.trim(), meta: Number(h.meta) || 0 }
@@ -248,15 +265,15 @@ function ModalHorario({ inicial, onCerrar }) {
     onCerrar()
   }
 
-  /* El resumen de abajo: las horas por grupo de días iguales y el total. */
   const grupos = []
   activos.forEach(d => { const m = minutosDe(d); const g = grupos.find(x => x.m === m); if (g) g.dias.push(d); else grupos.push({ m, dias: [d] }) })
-  const nombreDias = ds => (ds.length === 5 && ds.join() === '1,2,3,4,5' ? 'lunes a viernes' : ds.length === 6 && ds.join() === '1,2,3,4,5,6' ? 'lunes a sábado' : ds.map(d => DIAS_LARGOS_CAP[d].toLowerCase()).join(', '))
-  const entradaPrimero = primero ? filas[primero].entrada : h.entrada
+  const nombreDias = ds => (ds.join() === '1,2,3,4,5' ? 'lunes a viernes' : ds.join() === '1,2,3,4,5,6' ? 'lunes a sábado' : ds.map(d => DIAS_LARGOS_CAP[d].toLowerCase()).join(', '))
+  const libres = SEMANA.filter(d => !filas[d].on)
+  const primero = activos[0]
 
   return (
-    <Modal titulo={h.id ? 'Editar horario' : 'Nuevo horario'} Icono={Clock} onCerrar={onCerrar} ancho={680}
-      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!valido} onClick={guardar}>Guardar</button></>}>
+    <Modal titulo={h.id ? 'Editar horario' : 'Nuevo horario'} Icono={Clock} onCerrar={onCerrar} ancho={h.modo === 'fijo' ? 1080 : 560}
+      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!valido} onClick={guardar}>Guardar horario</button></>}>
       <div className="at-modal-campos">
         <div className="at-hz-cab">
           <label className="at-campo"><span>Nombre</span><input className="pl-input" value={h.nombre} onChange={e => pon('nombre', e.target.value)} placeholder="Ej.: Turno tarde de tienda" autoFocus /></label>
@@ -266,69 +283,100 @@ function ModalHorario({ inicial, onCerrar }) {
               <button type="button" role="radio" aria-checked={h.modo === 'flexible'} className={h.modo === 'flexible' ? 'on' : ''} onClick={() => pon('modo', 'flexible')}>Flexible</button>
             </div>
           </div>
+          <div className="at-campo"><span>Color</span>
+            <div style={{ display: 'flex', gap: 7, height: 40, alignItems: 'center' }}>
+              {COLORES.map(c => <button key={c} type="button" aria-label={`Color ${c}`} aria-pressed={h.color === c} onClick={() => pon('color', c)} style={{ width: 24, height: 24, borderRadius: 7, border: 'none', background: c, cursor: 'pointer', boxShadow: h.color === c ? '0 0 0 2px var(--surface-card), 0 0 0 4px var(--text-heading)' : 'none' }} />)}
+            </div>
+          </div>
         </div>
 
         {h.modo === 'fijo' ? (
           <>
-            <div className="at-campo"><span className="at-hz-rot">Su semana · cada día con su entrada y su salida</span>
+            <div className="at-hz-lado">
               <div className="at-hz-filas">
                 {SEMANA.map(d => {
                   const f = filas[d]
-                  const mal = f.on && filaMal(d)
-                  const conP = f.on && cubre(d)
+                  const err = f.on ? errorDe(d) : null
+                  const ed = editando?.d === d ? editando.k : null
                   return (
-                    <div key={d} className={`at-hz-fila${f.on ? '' : ' off'}${mal ? ' mal' : ''}`}>
-                      <button type="button" role="switch" aria-checked={f.on} aria-label={`${DIAS_LARGOS_CAP[d]}: ${f.on ? 'trabaja' : 'no trabaja'}`} className={`at-switch at-switch-sm${f.on ? ' on' : ''}`} onClick={() => ponFila(d, { on: !f.on })} />
+                    <div key={d} className={`at-hz-fila${f.on ? '' : ' off'}${err ? ' mal' : ''}`}>
+                      <button type="button" role="switch" aria-checked={f.on} aria-label={`${DIAS_LARGOS_CAP[d]}: ${f.on ? 'trabaja' : 'no trabaja'}`} className={`at-switch at-switch-sm${f.on ? ' on' : ''}`} onClick={() => { ponFila(d, { on: !f.on }); setEditando(null) }} />
                       <b title={DIAS_LARGOS_CAP[d]}>{DIAS_CORTOS[d]}</b>
                       {f.on ? (
                         <>
                           <input type="time" className="pl-input" aria-label={`Entrada del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.entrada} onChange={e => ponFila(d, { entrada: e.target.value })} />
                           <input type="time" className="pl-input" aria-label={`Salida del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.salida} onChange={e => ponFila(d, { salida: e.target.value })} />
-                          <div className="at-hz-barra" aria-hidden="true">
-                            {!mal && <i className="trab" style={{ left: enEscala(aMin(f.entrada)), width: `calc(${enEscala(aMin(f.salida))} - ${enEscala(aMin(f.entrada))})`, background: h.color }} />}
-                            {conP && <i className="pau" style={{ left: enEscala(pd), width: `calc(${enEscala(ph)} - ${enEscala(pd)})` }} />}
+                          <div className="at-hz-paus">
+                            {f.descansos.map((x, k) => (
+                              <button key={k} type="button" className={`at-hz-pau${ed === k ? ' on' : ''}`} onClick={() => setEditando(ed === k ? null : { d, k })} title="Editar el descanso"><Coffee size={12} aria-hidden="true" /> {x.nombre} {x.desde}–{x.hasta}</button>
+                            ))}
+                            {f.descansos.length < 2 && <button type="button" className="at-hz-pau add" onClick={() => agregarDescanso(d)}><Plus size={12} aria-hidden="true" /> descanso</button>}
                           </div>
-                          <span className="at-hz-h">{mal ? 'Revisar' : duracion(minutosDe(d), { corto: true })}</span>
+                          <span className="at-hz-h">{err ? '—' : duracion(minutosDe(d), { corto: true })}</span>
+                          <MenuAcciones etiqueta={`Copiar el ${DIAS_LARGOS_CAP[d].toLowerCase()}`} items={[
+                            { label: 'Copiar a todos los días de trabajo', Icono: Copy, onClick: () => copiar(d, activos) },
+                            { label: 'Copiar de lunes a viernes', Icono: Copy, onClick: () => copiar(d, [1, 2, 3, 4, 5]) },
+                            ...libres.map(l => ({ label: `Copiar al ${DIAS_LARGOS_CAP[l].toLowerCase()}`, Icono: Plus, onClick: () => copiar(d, [l]) })),
+                          ]} />
+                          {ed != null && f.descansos[ed] && (
+                            <div className="at-hz-editor">
+                              <select className="pl-input" aria-label="Nombre del descanso" value={f.descansos[ed].nombre} onChange={e => ponDescanso(d, ed, { nombre: e.target.value })}>
+                                {NOMBRES_DESCANSO.map(n => <option key={n}>{n}</option>)}
+                              </select>
+                              <label>Desde<input type="time" className="pl-input" value={f.descansos[ed].desde} onChange={e => ponDescanso(d, ed, { desde: e.target.value })} /></label>
+                              <label>Hasta<input type="time" className="pl-input" value={f.descansos[ed].hasta} onChange={e => ponDescanso(d, ed, { hasta: e.target.value })} /></label>
+                              <span className="at-hz-dur">{duracion(Math.max(0, aMin(f.descansos[ed].hasta) - aMin(f.descansos[ed].desde)))}</span>
+                              <button type="button" className="at-hz-quitar" onClick={() => quitarDescanso(d, ed)}><Trash2 size={13} aria-hidden="true" /> Quitar</button>
+                              <button type="button" className="dc-btn dc-btn-sm" onClick={() => setEditando(null)}>Listo</button>
+                            </div>
+                          )}
+                          {err && <span className="at-hz-err"><AlertTriangle size={12} aria-hidden="true" /> {err}</span>}
                         </>
                       ) : (
-                        <><span className="at-hz-libre">No trabaja</span><span className="at-hz-h">—</span></>
+                        <><span className="at-hz-libre">Día de descanso</span><span className="at-hz-h">—</span><span /></>
                       )}
                     </div>
                   )
                 })}
-                <div className="at-hz-escala" aria-hidden="true"><span>06</span><span>10</span><span>14</span><span>18</span><span>22</span></div>
+                <span className="at-ayuda" style={{ margin: '2px 4px 0', fontSize: 12 }}>Hasta dos descansos por día. Toque uno para cambiarlo; ⋯ copia el día a otros.</span>
               </div>
-              {activos.length > 1 && <button type="button" className="at-hz-copiar" onClick={copiarATodos}><Copy size={13} /> Copiar el {DIAS_LARGOS_CAP[primero].toLowerCase()} a todos los días</button>}
+
+              {/* LA SEMANA DIBUJADA: un bloque por día en el color del horario y los descansos rayados. */}
+              <div className="at-hz-semana" aria-hidden="true">
+                <span className="at-hz-rot">Así queda su semana</span>
+                <div className="at-hz-cal">
+                  <div className="at-hz-horas">{[6, 9, 12, 15, 18, 21].map(x => <span key={x} style={{ top: `${enEscala(x * 60)}%` }}>{String(x).padStart(2, '0')}</span>)}</div>
+                  {SEMANA.map(d => {
+                    const f = filas[d]; const ok = f.on && !errorDe(d)
+                    return (
+                      <div key={d} className={`at-hz-col${f.on ? '' : ' libre'}`}>
+                        <b>{DIAS_CORTOS[d]}</b>
+                        <div className="at-hz-pista">
+                          {ok && <i className="t" style={{ top: `${enEscala(aMin(f.entrada))}%`, height: `${enEscala(aMin(f.salida)) - enEscala(aMin(f.entrada))}%`, background: h.color }} />}
+                          {ok && f.descansos.map((x, k) => <i key={k} className="p" style={{ top: `${enEscala(aMin(x.desde))}%`, height: `${Math.max(1.2, enEscala(aMin(x.hasta)) - enEscala(aMin(x.desde)))}%` }} />)}
+                          {!f.on && <em>Libre</em>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="at-hz-ley"><span><i style={{ background: h.color }} />Trabaja</span><span><i className="p" />Descanso</span></div>
+              </div>
             </div>
 
-            {/* LA TOLERANCIA NO ES DEL HORARIO sino de la política; se dice cuánto es y dónde se cambia. */}
             {primero && (
               <div className="at-aviso-linea" style={{ alignItems: 'flex-start', lineHeight: 1.45 }}>
                 <Timer size={14} style={{ flexShrink: 0, marginTop: 2 }} />
                 <span style={{ flex: 1 }}>
-                  Tolerancia de entrada: <b>{tol} min</b> ({at.politicaDefecto.nombre}): el {DIAS_LARGOS_CAP[primero].toLowerCase()} cuenta como atraso después de las <b>{hhmm(aMin(entradaPrimero) + tol)}</b>.
+                  Tolerancia de entrada: <b>{tol} min</b> ({at.politicaDefecto.nombre}): el {DIAS_LARGOS_CAP[primero].toLowerCase()} cuenta como atraso después de las <b>{hhmm(aMin(filas[primero].entrada) + tol)}</b>.
                   {otras.length > 0 && <> {otras.map(p => `${p.nombre}: ${p.tolerancia} min`).join(' · ')}.</>}
                   {' '}<button type="button" onClick={irPoliticas} style={{ border: 'none', background: 'none', padding: 0, font: 'inherit', fontWeight: 600, color: 'var(--text-heading)', textDecoration: 'underline', cursor: 'pointer' }}>Cambiar en Políticas</button>
                 </span>
               </div>
             )}
-
-            {/* EL DESCANSO ES UNA FRANJA (#2): se aplica a los días cuya jornada la incluye. */}
-            <Interruptor on={h.conPausa} onCambio={v => pon('conPausa', v)} titulo="Tiene descanso" texto="Una franja fija para almorzar o descansar. Se aplica a los días cuya jornada la incluye, se marca al salir y al volver, y no cuenta como trabajada." />
-            {h.conPausa && (
-              <div className="at-dos">
-                <label className="at-campo"><span>Descanso desde</span><input type="time" className="pl-input" value={h.pausaDesde} onChange={e => pon('pausaDesde', e.target.value)} /></label>
-                <label className="at-campo"><span>Hasta</span><input type="time" className="pl-input" value={h.pausaHasta} onChange={e => pon('pausaHasta', e.target.value)} /></label>
-              </div>
-            )}
-            {h.conPausa && conDescanso.length > 0 && conDescanso.length < activos.length && (
-              <p className="at-ayuda" style={{ margin: 0 }}>Sin descanso: {activos.filter(d => !cubre(d)).map(d => DIAS_LARGOS_CAP[d].toLowerCase()).join(', ')}, porque su jornada no lo incluye.</p>
-            )}
-            {pausaMal && <div className="at-aviso-linea" style={{ background: 'var(--dc-ambar-bg)', color: 'var(--dc-ambar)' }}><AlertTriangle size={14} /> El descanso tiene que terminar después de empezar y caer dentro de la jornada de algún día.</div>}
-            {activos.some(filaMal) && <div className="at-aviso-linea" style={{ background: 'var(--dc-ambar-bg)', color: 'var(--dc-ambar)' }}><AlertTriangle size={14} /> Algún día tiene la salida antes que la entrada. Los turnos que cruzan la medianoche todavía no se calculan bien: divídalo en dos días por ahora.</div>}
-
-            {activos.length > 0 && !activos.some(filaMal) && (
+            {activos.length > 0 && !conError.length && (
               <div className="at-hz-tot">
+                <span><b>{activos.length}</b> {activos.length === 1 ? 'día' : 'días'} de trabajo{libres.length ? <> · descansa {libres.map(d => DIAS_LARGOS_CAP[d].toLowerCase()).join(' y ')}</> : ''}</span>
                 {grupos.map(g => <span key={g.m}><b>{duracion(g.m, { corto: true })}</b> {nombreDias(g.dias)}</span>)}
                 <span><b>{duracion(semanaMin, { corto: true })}</b> a la semana</span>
               </div>
@@ -345,12 +393,6 @@ function ModalHorario({ inicial, onCerrar }) {
             <p className="at-ayuda" style={{ margin: 0 }}>{duracion(h.meta * h.dias.length)} a la semana, a la hora que quiera.</p>
           </>
         )}
-
-        <div className="at-campo"><span>Color</span>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {COLORES.map(c => <button key={c} type="button" aria-label={`Color ${c}`} aria-pressed={h.color === c} onClick={() => pon('color', c)} style={{ width: 26, height: 26, borderRadius: 8, border: 'none', background: c, cursor: 'pointer', boxShadow: h.color === c ? '0 0 0 2px var(--surface-card), 0 0 0 4px var(--text-heading)' : 'none' }} />)}
-          </div>
-        </div>
       </div>
     </Modal>
   )

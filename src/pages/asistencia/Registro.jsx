@@ -11,7 +11,7 @@ import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import Desplegable from '../../components/layout/Desplegable'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import Avatar from '../../components/personas/Avatar'
-import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa, horarioDelDia } from '../../data/asistenciaData'
+import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa, franjasPausa, horarioDelDia } from '../../data/asistenciaData'
 
 /* ── EL LIBRO DE ASISTENCIA ────────────────────────────────────────────────
    Todas las jornadas, un día, una semana o un mes a la vez. El día es una tabla —quién, a qué hora
@@ -414,7 +414,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
               return (
                 <tr key={p.id} tabIndex={0} className="at-dia-fila" onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
                   <td><PersonaAt persona={p} size={30} sub={`${p.unidad} · ${remoto ? 'Remoto' : p.lugar?.nombre || 'Sin lugar'}`} /></td>
-                  <td className="at-dia-hor">{h?.modo === 'fijo' ? <><b>{h.entrada} – {h.salida}</b><small>{fr ? `descanso ${hhmm(fr.desde)}–${hhmm(fr.hasta)}` : 'sin descanso'}</small></> : h ? <><b>Flexible</b><small>meta {duracion(h.meta, { corto: true })}</small></> : '—'}</td>
+                  <td className="at-dia-hor">{h?.modo === 'fijo' ? <><b>{h.entrada} – {h.salida}</b><small>{fr ? franjasPausa(h).map(x => `${franjasPausa(h).length > 1 ? x.nombre.toLowerCase() : 'descanso'} ${hhmm(x.desde)}–${hhmm(x.hasta)}`).join(' · ') : 'sin descanso'}</small></> : h ? <><b>Flexible</b><small>meta {duracion(h.meta, { corto: true })}</small></> : '—'}</td>
                   <td className="at-dia-num"><b className={j.llegoTarde ? 'tarde' : j.estado === 'sinMarcar' || j.estado === 'ausente' ? 'falta' : ''}>{hhmm(j.entrada)}</b><small className={j.llegoTarde ? 'tarde' : ''}>{notaEntrada}</small></td>
                   <td className="at-dia-num"><b>{hhmm(j.salida)}</b>{notaSalida && <small className={alerta && !alerta.justificacion ? 'alerta' : ''}>{notaSalida}</small>}</td>
                   <td className="at-minidia-c"><MiniDia p={p} j={j} ahora={ahora} /></td>
