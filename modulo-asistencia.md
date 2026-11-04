@@ -336,7 +336,7 @@ Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar, con una
 - **Estado** en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Pendientes (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. Una solicitud sin respuesta dice **Pendiente**. En Vacaciones, arriba a la derecha, **Solicitudes · Saldos** cambia de vista.
 - **Tabla**: Colaborador, qué pide (Fechas y motivo, Permiso o licencia, Qué justifica…), **A tener en cuenta** —hasta dos datos que hacen falta para responder—, cuándo la pidió y su estado. «Revisar» o «Ver».
 - **«Para decidir»** según el tipo: el saldo de vacaciones que le queda («Pide 5 y le quedan 3»); si su lugar sigue cubierto esos días («Su lugar quedaría con 6 de 9»); si la licencia trae respaldo; cuántas justificaciones lleva en el mes.
-- **Revisar** abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y **«Si apruebas:»** con lo que va a pasar. «Decidir después» la deja como estaba.
+- **Revisar** abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y **«Si apruebas:»** con lo que va a pasar. «Dejar pendiente» cierra sin responder y la solicitud sigue pendiente.
 - **La papeleta a la vista**: en vacaciones y en permisos y licencias, a la izquierda de «Revisar» está la misma papeleta que la persona vio y solicitó desde su app, con su número. El recuadro de RR.HH. dice «Pendiente» y, al responder, «Aprobada» o «Rechazada» con quién y cuándo; la persona ve ese mismo sello en su papeleta, en Mis solicitudes.
 - **Aprobar se confirma escribiendo la palabra**: un segundo paso repite qué va a pasar —en rojo si es una excepción sin saldo— y pide escribir **APROBAR** (o **ACEPTAR** en una justificación) para activar «Sí, aprobar». Aprobar admite una nota; **rechazar pide un motivo** y también se confirma en un segundo paso.
 - **Aprobar aplica el efecto**: el día de vacaciones o de licencia deja de ser falta, la corrección carga la marcación, el trabajo remoto quita la geocerca esos días, la justificación deja de contar la alerta en contra.
@@ -1965,7 +1965,7 @@ Aprobar o rechazar no se hace desde la fila: se abre la solicitud. **Rechazar pi
 
 **3. Condiciones y excepciones**
 
-- «Decidir después» cierra sin cambiar nada.
+- «Dejar pendiente» cierra sin responder: la solicitud sigue pendiente.
 
 **4. Trazabilidad**
 

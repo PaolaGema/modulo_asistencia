@@ -37,7 +37,7 @@ export default function RevisarSolicitud({ titulo, persona, estado, datos, conte
     <>
       {onRechazar && <button type="button" className="at-btn-linea-peligro" onClick={() => { setPaso('rechazar'); setTexto('') }}><X size={14} aria-hidden="true" /> {accionRechazar}…</button>}
       <span style={{ flex: 1 }} />
-      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Decidir después</button>
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar} title="Cierra sin responder: la solicitud sigue pendiente">Dejar pendiente</button>
       {onAprobar && <button type="button" className="pl-btn-save" onClick={() => { setPaso('aprobar'); setClave('') }}><Check size={14} aria-hidden="true" /> {accionAprobar}…</button>}
     </>
   ) : paso === 'aprobar' ? (
