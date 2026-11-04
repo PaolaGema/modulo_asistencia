@@ -988,7 +988,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>58</b><span>reglas de negocio</span></div>
     <div><b>87</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
-    <div><b>110</b><span>pruebas para QA (documento aparte)</span></div>
+    <div><b>128</b><span>pruebas para QA (documento aparte)</span></div>
     <div><b>21</b><span>pantallas</span></div>
     <div><b>9</b><span>decisiones abiertas</span></div>
   </div>
@@ -4336,7 +4336,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
       
     </header>
 
-<p>Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: <strong><a href="pruebas-asistencia.html">Pruebas de Asistencia</a></strong> (fuente: <code>pruebas-asistencia.md</code>). Son <strong>110 casos</strong> en dos partes —<strong>RR.HH. en la web</strong> (91) y <strong>el colaborador en el celular</strong> (19)—, cada uno con sus pasos, el resultado esperado y el requisito (RF‑ASI) que prueba. <strong>Todos los requisitos vigentes tienen al menos una prueba</strong>; los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca <strong>✓ Pasa</strong>, <strong>✗ Falla</strong> o <strong>— No se pudo</strong>, con una nota, y se exportan los resultados en CSV.</p>
+<p>Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: <strong><a href="pruebas-asistencia.html">Pruebas de Asistencia</a></strong> (fuente: <code>pruebas-asistencia.md</code>). Son <strong>128 casos</strong> en dos partes —<strong>RR.HH. en la web</strong> (108) y <strong>el colaborador en el celular</strong> (20)—, cada uno con sus pasos, el resultado esperado, el requisito (RF‑ASI) y la regla de negocio (BR‑ASI) que prueba. <strong>Todos los requisitos vigentes y todas las reglas vigentes tienen al menos una prueba</strong> (las reglas retiradas —013, 027 y 047— no se prueban); los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca <strong>✓ Pasa</strong>, <strong>✗ Falla</strong> o <strong>— No se pudo</strong>, con una nota, y se exportan los resultados en CSV.</p>
 <p>Se mantienen junto con este documento: cuando cambia una regla o una pantalla, cambia su prueba. Para regenerar la página: <code>node herramientas/doc-pruebas.cjs pruebas-asistencia.md public/pruebas-asistencia.html</code>.</p>
   </section>
 
