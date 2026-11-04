@@ -1602,3 +1602,24 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 @media (max-width: 1100px) { .at-hz-lado { grid-template-columns: 1fr; } .at-hz-semana { position: static; } }
 @media (max-width: 640px) { .at-hz-fila { grid-template-columns: 34px 26px 1fr 1fr; } .at-hz-paus { grid-column: 3 / -1; } }
 .at-hz-ed-tit { font-size: 12.5px; color: var(--text-heading); height: 34px; display: inline-flex; align-items: center; margin-right: 4px; }
+
+/* La tarjeta de un descanso (Ronda 20 · E2) */
+.at-tdes { position: fixed; z-index: 2000; width: 310px; background: var(--surface-card); border-radius: 14px; box-shadow: 0 24px 48px -18px rgba(12,45,64,.5), 0 0 0 1px var(--border-soft); padding: 14px; display: grid; gap: 12px; animation: at-tdes .14s ease-out; }
+@keyframes at-tdes { from { opacity: 0; transform: translateY(-4px); } }
+.at-tdes::before { content: ""; position: absolute; top: -7px; left: var(--flecha, 24px); width: 13px; height: 13px; background: var(--surface-card); transform: rotate(45deg); box-shadow: -1px -1px 0 var(--border-soft); }
+.at-tdes.arriba::before { top: auto; bottom: -7px; box-shadow: 1px 1px 0 var(--border-soft); }
+.at-tdes-cab { display: flex; justify-content: space-between; align-items: center; } .at-tdes-cab b { font-size: 14px; color: var(--text-heading); }
+.at-tdes-cab button { border: none; background: none; color: var(--text-muted); cursor: pointer; display: grid; padding: 2px; border-radius: 6px; } .at-tdes-cab button:hover { background: var(--surface-hover); }
+.at-tdes-horas { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+.at-tdes-horas label { display: grid; gap: 4px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+.at-tdes-horas .pl-input { height: 42px; font-size: 16px; font-weight: 600; text-align: center; min-width: 0; width: 100%; box-sizing: border-box; }
+.at-tdes-horas > span { padding-bottom: 11px; color: var(--text-muted); }
+.at-tdes-dur { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; } .at-tdes-dur > span { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 2px; }
+.at-tdes-dur button { border: 1px solid var(--border-soft); background: var(--surface-card); border-radius: 99px; padding: 5px 10px; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.at-tdes-dur button.on { background: var(--navy, #0C2D40); color: #fff; border-color: transparent; } .at-tdes-dur em { font-style: normal; font-size: 12px; font-weight: 600; color: var(--green-fuerte); }
+.at-tdes-barra { position: relative; height: 12px; border-radius: 99px; background: var(--bg-canal); margin-bottom: 14px; }
+.at-tdes-barra i { position: absolute; top: 0; bottom: 0; border-radius: 99px; } .at-tdes-barra i.otro { background: repeating-linear-gradient(45deg, var(--surface-card) 0 2px, rgba(255,255,255,.55) 2px 4px); }
+.at-tdes-barra i.yo { background: var(--text-heading); border-radius: 3px; top: -2px; bottom: -2px; }
+.at-tdes-barra small { position: absolute; top: 16px; transform: translateX(-50%); font-size: 10px; color: var(--text-muted); }
+.at-tdes-pie { display: flex; justify-content: space-between; align-items: center; }
+.at-tdes-pie .quitar { border: none; background: none; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--dc-rojo); cursor: pointer; display: inline-flex; gap: 5px; align-items: center; }

@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Star, Building2, Warehouse, Users, CheckCircle2, AlertTriangle,
   ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, Ruler, CalendarClock, RotateCcw, Check, Copy, Coffee, LogOut, BellRing, Smartphone,
-  LayoutGrid, Table2,
+  LayoutGrid, Table2, X,
 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio, MenuAcciones } from '../../components/documentacion/comunes'
@@ -192,6 +193,7 @@ const ESCALA_H = [6 * 60, 22 * 60]
 const enEscala = m => Math.max(0, Math.min(100, ((m - ESCALA_H[0]) / (ESCALA_H[1] - ESCALA_H[0])) * 100))
 const descansoNuevo = (fila, k) => {
   const e = aMin(fila.entrada); const s = aMin(fila.salida)
+  if (k === 0 && s - e <= 300) { const d = e + Math.round((s - e) / 2 / 15) * 15; return { desde: hhmm(d), hasta: hhmm(d + 15) } }
   if (k === 0) { const d = Math.max(e + 60, Math.min(13 * 60, s - 90)); return { desde: hhmm(d), hasta: hhmm(d + 60) } }
   const d = Math.max(e + 60, Math.min(16 * 60, s - 45)); return { desde: hhmm(d), hasta: hhmm(d + 15) }
 }
@@ -218,10 +220,11 @@ function ModalHorario({ inicial, onCerrar }) {
     const descansos = inicial.modo === 'fijo' ? franjasPausa(hd).map(f => ({ desde: hhmm(f.desde), hasta: hhmm(f.hasta) })) : []
     return [d, { on: inicial.dias.includes(d), entrada: hd.entrada || '08:30', salida: hd.salida || '18:00', descansos }]
   })))
-  const [editando, setEditando] = useState(null) // { d, k }
+  const [editando, setEditando] = useState(null) // { d, k, top, left }
+  const abrirEn = (d, k, el) => { const r = el.getBoundingClientRect(); setEditando({ d, k, top: r.bottom + 10, left: Math.min(r.left, window.innerWidth - 330), flecha: Math.max(16, Math.min(r.left - Math.min(r.left, window.innerWidth - 330) + 20, 290)) }) }
   const ponFila = (d, cambios) => setFilas(prev => ({ ...prev, [d]: { ...prev[d], ...cambios } }))
   const ponDescanso = (d, k, cambios) => setFilas(prev => ({ ...prev, [d]: { ...prev[d], descansos: prev[d].descansos.map((x, i) => (i === k ? { ...x, ...cambios } : x)) } }))
-  const agregarDescanso = d => { const k = filas[d].descansos.length; ponFila(d, { descansos: [...filas[d].descansos, descansoNuevo(filas[d], k)] }); setEditando({ d, k }) }
+  const agregarDescanso = (d, el) => { const k = filas[d].descansos.length; ponFila(d, { descansos: [...filas[d].descansos, descansoNuevo(filas[d], k)] }); abrirEn(d, k, el) }
   const quitarDescanso = (d, k) => { ponFila(d, { descansos: filas[d].descansos.filter((_, i) => i !== k) }); setEditando(null) }
   const copiar = (de, a) => setFilas(prev => Object.fromEntries(SEMANA.map(d => [d, a.includes(d) && d !== de ? { ...prev[d], on: true, entrada: prev[de].entrada, salida: prev[de].salida, descansos: prev[de].descansos.map(x => ({ ...x })) } : prev[d]])))
   const activos = SEMANA.filter(d => filas[d].on)
@@ -307,9 +310,9 @@ function ModalHorario({ inicial, onCerrar }) {
                           <input type="time" className="pl-input" aria-label={`Salida del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.salida} onChange={e => ponFila(d, { salida: e.target.value })} />
                           <div className="at-hz-paus">
                             {f.descansos.map((x, k) => (
-                              <button key={k} type="button" className={`at-hz-pau${ed === k ? ' on' : ''}`} onClick={() => setEditando(ed === k ? null : { d, k })} title="Editar el descanso"><Coffee size={12} aria-hidden="true" /> {x.desde}–{x.hasta}</button>
+                              <button key={k} type="button" className={`at-hz-pau${ed === k ? ' on' : ''}`} onClick={e => (ed === k ? setEditando(null) : abrirEn(d, k, e.currentTarget))} title="Editar el descanso"><Coffee size={12} aria-hidden="true" /> {x.desde}–{x.hasta}</button>
                             ))}
-                            {f.descansos.length < 2 && <button type="button" className="at-hz-pau add" onClick={() => agregarDescanso(d)}><Plus size={12} aria-hidden="true" /> descanso</button>}
+                            {f.descansos.length < 2 && <button type="button" className="at-hz-pau add" onClick={e => agregarDescanso(d, e.currentTarget)}><Plus size={12} aria-hidden="true" /> descanso</button>}
                           </div>
                           <span className="at-hz-h">{err ? '—' : duracion(minutosDe(d), { corto: true })}</span>
                           <MenuAcciones etiqueta={`Copiar el ${DIAS_LARGOS_CAP[d].toLowerCase()}`} items={[
@@ -317,16 +320,6 @@ function ModalHorario({ inicial, onCerrar }) {
                             { label: 'Copiar de lunes a viernes', Icono: Copy, onClick: () => copiar(d, [1, 2, 3, 4, 5]) },
                             ...libres.map(l => ({ label: `Copiar al ${DIAS_LARGOS_CAP[l].toLowerCase()}`, Icono: Plus, onClick: () => copiar(d, [l]) })),
                           ]} />
-                          {ed != null && f.descansos[ed] && (
-                            <div className="at-hz-editor">
-                              <b className="at-hz-ed-tit">{ed === 0 ? (f.descansos.length > 1 ? 'Primer descanso' : 'Descanso') : 'Segundo descanso'}</b>
-                              <label>Desde<input type="time" className="pl-input" value={f.descansos[ed].desde} onChange={e => ponDescanso(d, ed, { desde: e.target.value })} /></label>
-                              <label>Hasta<input type="time" className="pl-input" value={f.descansos[ed].hasta} onChange={e => ponDescanso(d, ed, { hasta: e.target.value })} /></label>
-                              <span className="at-hz-dur">{duracion(Math.max(0, aMin(f.descansos[ed].hasta) - aMin(f.descansos[ed].desde)))}</span>
-                              <button type="button" className="at-hz-quitar" onClick={() => quitarDescanso(d, ed)}><Trash2 size={13} aria-hidden="true" /> Quitar</button>
-                              <button type="button" className="dc-btn dc-btn-sm" onClick={() => setEditando(null)}>Listo</button>
-                            </div>
-                          )}
                           {err && <span className="at-hz-err"><AlertTriangle size={12} aria-hidden="true" /> {err}</span>}
                         </>
                       ) : (
@@ -391,7 +384,55 @@ function ModalHorario({ inicial, onCerrar }) {
           </>
         )}
       </div>
+      {editando && filas[editando.d]?.descansos[editando.k] && (
+        <TarjetaDescanso pos={editando} fila={filas[editando.d]} k={editando.k} color={h.color}
+          onCambio={c => ponDescanso(editando.d, editando.k, c)} onQuitar={() => quitarDescanso(editando.d, editando.k)} onCerrar={() => setEditando(null)} />
+      )}
     </Modal>
+  )
+}
+
+/* LA TARJETA DE UN DESCANSO (Ronda 20 · E2): flota sobre su etiqueta. Desde → hasta en grande,
+   duraciones rápidas que calculan el «hasta», y la barra del día con dónde cae (el que se edita, en
+   oscuro). Se cierra con Listo, con la ✕, con Escape o tocando afuera. */
+const DURACIONES = [15, 30, 45, 60]
+function TarjetaDescanso({ pos, fila, k, color, onCambio, onQuitar, onCerrar }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const fuera = e => { if (ref.current && !ref.current.contains(e.target) && !e.target.closest?.('.at-hz-pau')) onCerrar() }
+    const tecla = e => { if (e.key === 'Escape') { e.stopPropagation(); onCerrar() } }
+    document.addEventListener('mousedown', fuera); document.addEventListener('keydown', tecla, true)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla, true) }
+  }, [onCerrar])
+  const x = fila.descansos[k]
+  const dura = Math.max(0, aMin(x.hasta) - aMin(x.desde))
+  const e = aMin(fila.entrada); const s = aMin(fila.salida)
+  const alto = window.innerHeight - pos.top < 300
+  const titulo = fila.descansos.length > 1 ? (k === 0 ? 'Primer descanso' : 'Segundo descanso') : 'Descanso'
+  return createPortal(
+    <div ref={ref} className={`at-tdes${alto ? ' arriba' : ''}`} role="dialog" aria-label={titulo}
+      style={alto ? { bottom: window.innerHeight - pos.top + 52, left: pos.left, '--flecha': `${pos.flecha}px` } : { top: pos.top, left: pos.left, '--flecha': `${pos.flecha}px` }}>
+      <div className="at-tdes-cab"><b>{titulo}</b><button type="button" aria-label="Cerrar" onClick={onCerrar}><X size={15} /></button></div>
+      <div className="at-tdes-horas">
+        <label>Desde<input type="time" className="pl-input" value={x.desde} onChange={ev => onCambio({ desde: ev.target.value, hasta: hhmm(aMin(ev.target.value) + (dura || 15)) })} autoFocus /></label>
+        <span aria-hidden="true">→</span>
+        <label>Hasta<input type="time" className="pl-input" value={x.hasta} onChange={ev => onCambio({ hasta: ev.target.value })} /></label>
+      </div>
+      <div className="at-tdes-dur"><span>Dura</span>
+        {DURACIONES.map(m => <button key={m} type="button" className={dura === m ? 'on' : ''} aria-pressed={dura === m} onClick={() => onCambio({ hasta: hhmm(aMin(x.desde) + m) })}>{m === 60 ? '1 h' : `${m} min`}</button>)}
+        {!DURACIONES.includes(dura) && dura > 0 && <em>{duracion(dura)}</em>}
+      </div>
+      <div className="at-tdes-barra" aria-hidden="true">
+        {s > e && <i className="t" style={{ left: `${enEscala(e)}%`, width: `${enEscala(s) - enEscala(e)}%`, background: color }} />}
+        {fila.descansos.map((y, i) => <i key={i} className={i === k ? 'yo' : 'otro'} style={{ left: `${enEscala(aMin(y.desde))}%`, width: `${Math.max(1.5, enEscala(aMin(y.hasta)) - enEscala(aMin(y.desde)))}%` }} />)}
+        <small style={{ left: `${enEscala(e)}%` }}>{fila.entrada}</small><small style={{ left: `${enEscala(s)}%` }}>{fila.salida}</small>
+      </div>
+      <div className="at-tdes-pie">
+        <button type="button" className="quitar" onClick={onQuitar}><Trash2 size={13} aria-hidden="true" /> Quitar descanso</button>
+        <button type="button" className="pl-btn-save" style={{ height: 34 }} onClick={onCerrar}>Listo</button>
+      </div>
+    </div>,
+    document.body,
   )
 }
 
