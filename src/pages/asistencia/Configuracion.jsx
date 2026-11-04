@@ -484,9 +484,49 @@ function Politicas() {
   const [borrarP, setBorrarP] = useState(null)
   const [defecto, setDefecto] = useState(null)
   const uso = id => at.personas.filter(p => p.politica?.id === id).length
+  /* Tabla primero (se abre así) y las tarjetas después, como en Horarios. */
+  const [params, setParams] = useSearchParams()
+  const enTabla = params.get('forma') !== 'tarjetas'
+  const ponForma = v => { const n = new URLSearchParams(params); if (v) n.set('forma', v); else n.delete('forma'); setParams(n, { replace: true }) }
+  const acciones = p => [
+    { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...reglasDe(p), ...p }) },
+    !p.porDefecto && { label: 'Usar por defecto', Icono: Star, onClick: () => setDefecto(p) },
+    { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: p.porDefecto || uso(p.id) > 0, titulo: p.porDefecto ? 'Es la de por defecto' : uso(p.id) ? 'Está en uso' : undefined, onClick: () => setBorrarP(p) },
+  ]
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, ...reglasDe(null), radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button></div>
+      <div className="at-hor-barra">
+        <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver">
+          <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma(null)}><Table2 size={15} aria-hidden="true" /></button>
+          <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma('tarjetas')}><LayoutGrid size={15} aria-hidden="true" /></button>
+        </div>
+        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, ...reglasDe(null), radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button>
+      </div>
+      {enTabla ? (
+        <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
+          <table className="as-table at-tabla at-tabla-sol at-pol-tabla">
+            <thead><tr><th>Política</th><th>Rostro</th><th>Ubicación</th><th title="Tolerancia de entrada">Entrada</th><th title="Tolerancia del descanso">Descanso</th><th title="Tolerancia de salida">Salida</th><th>Tardanza</th><th className="r">Colaboradores</th><th aria-label="Acciones" /></tr></thead>
+            <tbody>
+              {at.politicas.map(p => {
+                const r = reglasDe(p)
+                return (
+                  <tr key={p.id}>
+                    <td><span className="at-pol-nom"><b>{p.nombre}</b>{p.porDefecto && <span className="at-defecto"><Star size={10} /> Por defecto</span>}</span></td>
+                    <td>{p.rostro ? <span className="at-pl t-verde"><i aria-hidden="true" />≥ {Math.round(p.umbral * 100)} %</span> : <span className="at-pl t-gris"><i aria-hidden="true" />Sin rostro</span>}</td>
+                    <td>{p.geocerca ? <><span className="at-pl t-verde"><i aria-hidden="true" />Geocerca</span><small className="at-pol-desc">{p.radio ? `radio de ${p.radio} m` : 'radio del lugar'}</small></> : <span className="at-pl t-gris"><i aria-hidden="true" />Sin geocerca</span>}</td>
+                    <td className="num">{r.tolerancia} min<small className="at-pol-desc">de tolerancia</small></td>
+                    <td className="num">{r.toleranciaPausa} min<small className="at-pol-desc">sin marcar: {SIN_PAUSA[r.sinPausa].label.toLowerCase()}</small></td>
+                    <td className="num">{r.toleranciaSalida} min antes</td>
+                    <td>{REDONDEOS.find(x => x.valor === r.redondeo)?.label}</td>
+                    <td className="num r">{uso(p.id)}</td>
+                    <td style={{ textAlign: 'right' }}><MenuAcciones items={acciones(p)} /></td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
       <div className="at-config-grid">
         {at.politicas.map(p => (
           <article key={p.id} className="at-item">
@@ -495,11 +535,7 @@ function Politicas() {
                 <h3 className="at-item-nom">{p.nombre} {p.porDefecto && <span className="at-defecto"><Star size={10} /> Por defecto</span>}</h3>
                 <div className="at-item-sub">{p.desc}</div>
               </div>
-              <MenuAcciones items={[
-                { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...reglasDe(p), ...p }) },
-                !p.porDefecto && { label: 'Usar por defecto', Icono: Star, onClick: () => setDefecto(p) },
-                { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: p.porDefecto || uso(p.id) > 0, titulo: p.porDefecto ? 'Es la de por defecto' : uso(p.id) ? 'Está en uso' : undefined, onClick: () => setBorrarP(p) },
-              ]} />
+              <MenuAcciones items={acciones(p)} />
             </div>
             <div className="at-reglas">
               <span className={`at-regla${p.rostro ? '' : ' off'}`}><ScanFace size={15} style={{ color: p.rostro ? 'var(--dc-verde)' : undefined }} /> {p.rostro ? `Rostro ≥ ${Math.round(p.umbral * 100)}%` : 'Sin rostro'}</span>
@@ -514,6 +550,7 @@ function Politicas() {
           </article>
         ))}
       </div>
+      )}
       {borrarP && (
         <ConfirmarEliminar que="política" nombre={borrarP.nombre} onCerrar={() => setBorrarP(null)} onConfirmar={() => at.setPoliticas(prev => prev.filter(x => x.id !== borrarP.id))}
           texto="No se puede deshacer. Nadie la tiene asignada, así que ninguna marcación cambia." />

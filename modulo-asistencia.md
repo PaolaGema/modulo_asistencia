@@ -422,7 +422,8 @@ Cuándo trabaja cada quien.
 
 ### 3.11 Configuración › Políticas de marcación
 
-- **Tarjeta** por política con sus reglas a la vista: rostro y similitud, geocerca, tolerancia de entrada, de descanso y de salida, qué pasa si no marca el descanso, redondeo y radio.
+- **Tabla o tarjetas**, como en Horarios: se abre en la **tabla** —Política, Rostro, Ubicación (geocerca y radio), Entrada, Descanso (y qué pasa si no lo marca), Salida, Tardanza (redondeo) y Colaboradores— y las **tarjetas** muestran las mismas reglas con su descripción.
+- Menú: Editar, Usar por defecto (con confirmación) y Eliminar (escribiendo el nombre; no si es la de por defecto o está en uso).
 - **Nueva política**: «Pedir el rostro» y su similitud mínima (60 a 95 %); «Exigir estar en el lugar» y un radio propio opcional; **Cómo se calcula el día**: tolerancias de entrada (0–60 min), descanso (0–30) y salida (0–60); **Si no marca el descanso**: Descontar y alertar, Solo descontar o Solo alertar; **Redondeo**: al segundo, por minuto completo o en bloques de 5 min; «Usar por defecto».
 - Vienen tres: **Estándar** (por defecto), **Trabajo remoto** y **Cargos de confianza**.
 
