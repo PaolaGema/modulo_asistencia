@@ -7,7 +7,7 @@ import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
-  reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo,
+  reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia,
 } from '../data/asistenciaData'
 
 /* ── EL ESTADO DEL MÓDULO DE ASISTENCIA ───────────────────────────────────
@@ -101,7 +101,9 @@ export function AsistenciaProvider({ children }) {
       ...p, asig, lugar,
       sucursalId,
       centroId: lugar?.tipo === 'centro' ? lugar.id : null,
-      horario: asig ? horarioPorId.get(asig.horarioId) || null : null,
+      /* `horario` es el de HOY (con su otro horario si hoy lo tiene); `horarioBase`, el que se configuró. */
+      horario: asig ? horarioDelDia(horarioPorId.get(asig.horarioId) || null, hoyISO()) : null,
+      horarioBase: asig ? horarioPorId.get(asig.horarioId) || null : null,
       politica: asig ? politicaPorId.get(asig.politicaId) || politicaDefecto : null,
       bio: biometria?.[p.id] || null,
     }
@@ -138,7 +140,7 @@ export function AsistenciaProvider({ children }) {
   /* Trabajo remoto aprobado para ese día: no se exige la geocerca. */
   const remotoAprobado = useCallback((pid, fecha) => (solicitudes || []).some(x => x.tipo === 'remoto' && x.estado === 'aprobada' && String(x.personaId) === String(pid) && fecha >= x.desde && fecha <= x.hasta), [solicitudes])
   const exigenciasDe = useCallback((p, fecha) => {
-    const ex = exigencias(p?.asig, p?.horario, p?.politica, fecha)
+    const ex = exigencias(p?.asig, horarioDelDia(p?.horarioBase || p?.horario, fecha), p?.politica, fecha)
     return remotoAprobado(p?.id, fecha) ? { ...ex, remotoHoy: true, geocerca: false } : ex
   }, [remotoAprobado])
 
@@ -169,7 +171,7 @@ export function AsistenciaProvider({ children }) {
       : (esHoy && String(p.id) === yoId) ? []
         /* Quien tiene vacaciones, permiso o licencia ese día no marca: no se le siembra nada. */
         : justificacionDe(p.id, fecha) ? []
-        : marcasSembradas(p, p.asig, p.horario, p.politica, p.lugar, fecha, esHoy ? minutosAhora() : Infinity, ventanasDe(p.id, fecha)[0] || null)
+        : marcasSembradas(p, p.asig, horarioDelDia(p.horarioBase || p.horario, fecha), p.politica, p.lugar, fecha, esHoy ? minutosAhora() : Infinity, ventanasDe(p.id, fecha)[0] || null)
     const propias = marcasExtra.filter(m => String(m.personaId) === String(p.id) && m.fecha === fecha)
     return [...base, ...propias]
       .map(m => {
@@ -183,7 +185,7 @@ export function AsistenciaProvider({ children }) {
     const marcas = marcasDe(p, fecha)
     const esHoy = fecha === hoy
     const j = recomputar({
-      marcas, horario: p?.horario, reglas: reglasDe(p?.politica), fecha,
+      marcas, horario: horarioDelDia(p?.horarioBase || p?.horario, fecha), reglas: reglasDe(p?.politica), fecha,
       justificacion: justificacionDe(p?.id, fecha), esHoy, minAhora: minutosAhora(), ventanas: ventanasDe(p?.id, fecha),
       justificadas: justificadasDe(p?.id, fecha),
     })
@@ -199,7 +201,7 @@ export function AsistenciaProvider({ children }) {
       id: `u${currentUser.id}`, name: currentUser.name, initials: currentUser.initials, color: currentUser.color, cargo: currentUser.cargo,
       unidad: currentUser.area || 'Recursos Humanos', sucursalId: 'central', sedeNombre: lugar?.nombre, esYo: true,
       asig: { personaId: `u${currentUser.id}`, horarioId: 'h-oficina', lugarId: 'central', modalidad: 'presencial', politicaId: null, diasOficina: [], desde: '2026-01-01' },
-      lugar, horario: horarioPorId.get('h-oficina'), politica: politicaDefecto,
+      lugar, horario: horarioDelDia(horarioPorId.get('h-oficina'), hoyISO()), horarioBase: horarioPorId.get('h-oficina'), politica: politicaDefecto,
       bio: biometria?.[`u${currentUser.id}`] || null,
     }
   }, [yoBase, currentUser, lugarPorId, horarioPorId, politicaDefecto, biometria])

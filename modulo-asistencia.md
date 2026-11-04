@@ -34,7 +34,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | roles con su vista | 3 |
 | estados de un día | 13 |
 | reglas de negocio | 58 |
-| requisitos funcionales | 81 |
+| requisitos funcionales | 83 |
 | historias de usuario | 20 |
 | pantallas | 22 |
 | decisiones abiertas | 11 |
@@ -404,6 +404,7 @@ Cuándo trabaja cada quien. Arriba de toda la Configuración, la **puesta a punt
 - **Tabla o tarjetas**: dos íconos junto a «Nuevo horario»; se abre en la tabla y las tarjetas, la forma gráfica, van después. La **tarjeta** muestra su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántos colaboradores lo tienen. La **tabla** pone los horarios lado a lado: Horario, Entrada y salida, Descanso, Días, Al día, A la semana y Colaboradores.
 - Menú: Editar, Duplicar, Eliminar (no si está asignado). **Eliminar pide confirmación** en una ventana: «Sí, eliminar».
 - **Nuevo horario**: nombre; tipo **Fijo · con hora de entrada** o **Flexible · por meta de horas**; días que trabaja; entrada y salida; **«Tiene descanso»** con su franja desde–hasta; o la meta diaria si es flexible; color.
+- **Otro horario algunos días** (pedido de RR.HH.): un interruptor debajo del descanso. Por cada día con otro horario: el día, su entrada y su salida, si lleva el mismo descanso, y cuántas horas tiene («Jornada completa de 4 h»). Por ejemplo, de lunes a viernes de 08:00 a 18:00 y **el sábado de 08:00 a 12:00**. Ese día **cuenta como jornada completa con sus propias horas**: quien cumple su horario no queda debiendo, y la tardanza y la salida anticipada se miden contra el horario de ese día. La tabla y la tarjeta lo muestran debajo («Sá 09:00 a 13:00») y las horas a la semana suman cada día con las suyas.
 - Debajo de la entrada: **la tolerancia de la política** y desde qué hora cuenta como atraso, con las otras políticas que tienen otra y «Cambiar en Políticas».
 - Abajo: las horas programadas al día y a la semana.
 
@@ -413,6 +414,8 @@ Cuándo trabaja cada quien. Arriba de toda la Configuración, la **puesta a punt
 | RF‑ASI‑043 | Un horario no cruza la medianoche | Oblig. | Entrada 22:00 y salida 06:00 avisan y no se guardan |
 | RF‑ASI‑044 | El formulario muestra la tolerancia de la política y desde qué hora es atraso | Import. | Entrada 08:30 con 10 min: «cuenta como atraso después de las 08:40» |
 | RF‑ASI‑045 | Un horario asignado no se elimina | Oblig. | «Está asignado a personas: reasígnelas primero» |
+| RF‑ASI‑082 | Un horario puede tener otro horario algunos días | Oblig. | Lunes a viernes 08:00–18:00 y sábado 08:00–12:00: el sábado se programan 4 h |
+| RF‑ASI‑083 | El día con otro horario cuenta como jornada completa con sus horas | Oblig. | Trabajar el sábado de 08:00 a 12:00 da «4:00 de 4:00» y «Terminó su jornada» |
 
 ### 3.11 Configuración › Políticas de marcación
 

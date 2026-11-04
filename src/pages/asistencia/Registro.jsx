@@ -11,7 +11,7 @@ import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import Desplegable from '../../components/layout/Desplegable'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import Avatar from '../../components/personas/Avatar'
-import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa } from '../../data/asistenciaData'
+import { ESTADOS, ALERTAS, DIAS_CORTOS, fechaLarga, fechaCorta, hhmm, hhmmss, duracion, sumarDias, diaISO, minutosAhora, mesDe, descargarCSV, aFecha, diasDelMes, mesVecino, nombreMes, aMin, franjaPausa, horarioDelDia } from '../../data/asistenciaData'
 
 /* ── EL LIBRO DE ASISTENCIA ────────────────────────────────────────────────
    Todas las jornadas, un día, una semana o un mes a la vez. El día es una tabla —quién, a qué hora
@@ -357,8 +357,9 @@ function MiniDia({ p, j, ahora }) {
   const [ini, fin] = ESCALA
   const x = m => `${Math.max(0, Math.min(100, ((m - ini) / (fin - ini)) * 100))}%`
   const w = (a, b) => `${Math.max(0, Math.min(100, ((Math.min(b, fin) - Math.max(a, ini)) / (fin - ini)) * 100))}%`
-  const fijo = p.horario?.modo === 'fijo' && j.laboral
-  const prog = fijo ? [aMin(p.horario.entrada), aMin(p.horario.salida)] : null
+  const hd = horarioDelDia(p.horarioBase || p.horario, j.fecha)
+  const fijo = hd?.modo === 'fijo' && j.laboral
+  const prog = fijo ? [aMin(hd.entrada), aMin(hd.salida)] : null
   const t = tramosDe(j, ahora)
   const segs = []
   if (prog) segs.push(['riel', ...prog])
@@ -402,7 +403,7 @@ function LibroDia({ filas, pagina, setPag, ahora, onAbrir }) {
           <tbody>
             {filas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(({ p, j }) => {
               const remoto = j.marcas.some(m => m.remoto && !m.rechazada)
-              const h = p.horario
+              const h = horarioDelDia(p.horarioBase || p.horario, j.fecha)
               const fr = h?.modo === 'fijo' ? franjaPausa(h) : null
               const alerta = j.alertas.find(a => a.tipo !== 'tarde' && a.tipo !== 'anticipada')
               const abrir = () => onAbrir(p)

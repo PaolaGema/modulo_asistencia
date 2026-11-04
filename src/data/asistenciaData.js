@@ -114,7 +114,7 @@ export const TIPOS_JUSTIFICACION = ['Permiso con goce', 'Licencia médica', 'Vac
 
 export const HORARIOS_SEED = [
   { id: 'h-oficina', nombre: 'Oficina', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', pausa: 60, pausaDesde: '13:00', pausaHasta: '14:00', color: '#00B876' },
-  { id: 'h-tienda', nombre: 'Atención al público', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '09:00', salida: '17:00', pausa: 30, pausaDesde: '13:00', pausaHasta: '13:30', color: '#3B82F6' },
+  { id: 'h-tienda', nombre: 'Atención al público', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '09:00', salida: '17:00', pausa: 30, pausaDesde: '13:00', pausaHasta: '13:30', color: '#3B82F6', porDia: { 6: { entrada: '09:00', salida: '13:00', conPausa: false } } },
   { id: 'h-deposito', nombre: 'Depósito · turno mañana', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '07:00', salida: '15:00', pausa: 30, pausaDesde: '11:30', pausaHasta: '12:00', color: '#F59E0B' },
   { id: 'h-flexible', nombre: 'Flexible por objetivos', modo: 'flexible', dias: [1, 2, 3, 4, 5], meta: 480, color: '#8B5CF6' },
   { id: 'h-medio', nombre: 'Medio tiempo', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:00', salida: '12:00', pausa: 0, color: '#EC4899' },
@@ -157,6 +157,20 @@ const redondear = (min, bloque) => (bloque ? Math.floor(min / bloque + 1e-9) * b
 
 /* LA FRANJA DE DESCANSO DE UN HORARIO (#2), en minutos. Los horarios guardados con solo «pausa en
    minutos» la toman desde las 13:00, que es donde la pantalla se la dibujaba. */
+/* OTRO HORARIO ALGUNOS DÍAS (pedido de RR.HH.): de lunes a viernes de 08:00 a 18:00 y el sábado de
+   08:00 a 12:00. `porDia` guarda, por día de la semana (1 = lunes … 7 = domingo), su entrada, su salida y si
+   tiene el mismo descanso. Ese día cuenta como jornada completa con SUS horas: quien trabaja el sábado de
+   08:00 a 12:00 cumplió su día, no le «faltan» cuatro horas. */
+export function horarioDeDia(h, dow) {
+  const o = h?.modo === 'fijo' ? h.porDia?.[dow] : null
+  if (!o) return h
+  return { ...h, entrada: o.entrada, salida: o.salida, pausa: o.conPausa ? h.pausa : 0, pausaDesde: o.conPausa ? h.pausaDesde : null, pausaHasta: o.conPausa ? h.pausaHasta : null, delDia: dow }
+}
+export const horarioDelDia = (h, fecha) => horarioDeDia(h, diaISO(fecha))
+/* Los días con otro horario, en palabras: «Sá 08:00 a 12:00». */
+export const otrosDias = h => (h?.modo === 'fijo' ? Object.entries(h.porDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, o]) => `${DIAS_CORTOS[d]} ${o.entrada} a ${o.salida}`) : [])
+export const minutosSemana = h => (h?.dias || []).reduce((s, d) => s + minutosProgramados(horarioDeDia(h, d)), 0)
+
 export function franjaPausa(h) {
   if (!h || h.modo !== 'fijo' || !(h.pausa > 0 || h.pausaDesde)) return null
   const desde = aMin(h.pausaDesde || '13:00')
