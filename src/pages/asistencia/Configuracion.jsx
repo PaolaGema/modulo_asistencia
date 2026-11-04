@@ -39,7 +39,7 @@ export default function Configuracion() {
     { ok: !sinHorario.length, tit: 'Personas con horario', txt: sinHorario.length ? `${sinHorario.length} sin asignar` : 'Todas asignadas', ver: 'asignaciones' },
     { ok: !!at.politicas.find(p => p.porDefecto), tit: 'Política por defecto', txt: at.politicaDefecto?.nombre || 'Falta elegir una', ver: 'politicas' },
     { ok: !sinConsent.length, tit: 'Consentimiento biométrico', txt: sinConsent.length ? `${sinConsent.length} por aceptar` : 'Todos aceptaron', ver: 'biometria' },
-    { ok: !sinRostro.length, tit: 'Rostros enrolados', txt: sinRostro.length ? `${sinRostro.length} sin enrolar` : 'Todos enrolados', ver: 'biometria' },
+    { ok: !sinRostro.length, tit: 'Rostros registrados', txt: sinRostro.length ? `${sinRostro.length} sin registrar` : 'Todos registrados', ver: 'biometria' },
   ]
   const listos = checks.filter(c => c.ok).length
 
@@ -49,7 +49,7 @@ export default function Configuracion() {
     avisos: ['Avisos al colaborador', 'Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánto tiempo tiene para mandar su motivo.'],
     lugares: ['Lugares de marcación', 'Las sucursales y los centros de trabajo de Organización, con la geocerca dentro de la cual se puede marcar.'],
     asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué política tiene cada persona. Se puede asignar a toda una unidad o sucursal de una vez.'],
-    biometria: ['Biometría y privacidad', 'Quién aceptó el consentimiento y enroló su rostro, y cuánto tiempo se guardan las selfies.'],
+    biometria: ['Biometría y privacidad', 'Quién aceptó el consentimiento y registró su rostro, y cuánto tiempo se guardan las selfies.'],
   }
 
   return (
@@ -601,6 +601,7 @@ function Biometria() {
   const at = useAsistencia()
   const [filtro, setFiltro] = useState(FILTRO_VACIO)
   const [pag, setPag] = useState(1)
+  const [confirmar, setConfirmar] = useState(null)
   const lista = filtrar(at.personas, filtro)
   const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA))
   const pagina = Math.min(pag, paginas)
@@ -610,8 +611,8 @@ function Biometria() {
     <>
       <div className="at-config-grid">
         <article className="at-item">
-          <div className="at-item-cab"><div><h3 className="at-item-nom"><ScanFace size={16} /> Enrolamiento</h3><div className="at-item-sub">Cada persona registra su rostro una vez, desde la app, después de aceptar el consentimiento.</div></div></div>
-          <div className="at-saldo"><b className="pos">{enrolados}</b><span className="dc-muted">de {at.personas.length} enrolados</span></div>
+          <div className="at-item-cab"><div><h3 className="at-item-nom"><ScanFace size={16} /> Rostros registrados</h3><div className="at-item-sub">Cada colaborador registra su rostro una vez, desde la app, después de aceptar el consentimiento. Al marcar, la app compara su selfie con ese rostro.</div></div></div>
+          <div className="at-saldo"><b className="pos">{enrolados}</b><span className="dc-muted">de {at.personas.length} con el rostro registrado</span></div>
           <div className="at-progreso" style={{ margin: 0 }}><span style={{ width: `${(enrolados / Math.max(1, at.personas.length)) * 100}%` }} /></div>
         </article>
         <article className="at-item">
@@ -635,24 +636,31 @@ function Biometria() {
                   <td><PersonaAt persona={p} size={30} /></td>
                   <td>{b.consentimiento ? <span className="dc-chip dc-t-verde"><CheckCircle2 size={11} /> Aceptó el {fechaCorta(b.consentimiento.aceptado)}</span> : <span className="dc-chip dc-t-ambar"><AlertTriangle size={11} /> Pendiente</span>}</td>
                   <td>
-                    {b.reenrolar ? <span className="dc-chip dc-t-violeta"><RotateCcw size={11} /> Pidió volver a enrolarse</span>
-                      : b.enrolado ? <span className="dc-chip dc-t-verde"><ScanFace size={11} /> Enrolado el {fechaCorta(b.enrolado)}</span>
-                        : <span className="dc-chip dc-t-gris">Sin enrolar</span>}
+                    {b.reenrolar ? <span className="dc-chip dc-t-violeta"><RotateCcw size={11} /> Pidió registrar su rostro de nuevo</span>
+                      : b.enrolado ? <span className="dc-chip dc-t-verde"><ScanFace size={11} /> Registrado el {fechaCorta(b.enrolado)}</span>
+                        : <span className="dc-chip dc-t-gris">Sin registrar</span>}
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     {b.reenrolar
-                      ? <button type="button" className="at-btn-ok" style={{ height: 28 }} onClick={() => at.actualizarBio(p.id, { reenrolar: null, enrolado: null })}><Check size={13} /> Aprobar</button>
+                      ? <button type="button" className="at-btn-ok" style={{ height: 28 }} onClick={() => setConfirmar({ p, tipo: 'aprobar' })}><Check size={13} /> Aprobar</button>
                       : b.enrolado
-                        ? <button type="button" className="dc-btn dc-btn-sm" onClick={() => at.actualizarBio(p.id, { enrolado: null })} title="Borra su rostro: la próxima vez que marque, se enrola de nuevo"><RotateCcw size={13} /> Pedir nuevo enrolamiento</button>
-                        : <span className="dc-muted" style={{ fontSize: 12 }}>Se enrola desde la app</span>}
+                        ? <button type="button" className="dc-btn dc-btn-sm" onClick={() => setConfirmar({ p, tipo: 'pedir' })} title="Borra su rostro: la próxima vez que marque, lo registra de nuevo"><RotateCcw size={13} /> Pedir que lo registre de nuevo</button>
+                        : <span className="dc-muted" style={{ fontSize: 12 }}>Lo registra desde la app</span>}
                   </td>
                 </tr>
               )
             })}
           </tbody>
         </table>
-        <Paginacion page={pagina} setPage={setPag} total={lista.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
+        <Paginacion page={pagina} setPage={setPag} total={lista.length} perPage={POR_PAGINA} nombre="colaboradores" nombreUno="colaborador" />
       </div>
+      {/* Borrar un rostro tiene consecuencias: se confirma en una ventana. */}
+      {confirmar && (
+        <Modal titulo={confirmar.tipo === 'pedir' ? 'Registrar el rostro de nuevo' : 'Aprobar un nuevo registro'} Icono={ScanFace} onCerrar={() => setConfirmar(null)} ancho={480}
+          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setConfirmar(null)}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.actualizarBio(confirmar.p.id, confirmar.tipo === 'pedir' ? { enrolado: null } : { reenrolar: null, enrolado: null }); setConfirmar(null) }}>{confirmar.tipo === 'pedir' ? 'Sí, borrar su rostro' : 'Sí, aprobar'}</button></>}>
+          <p style={{ margin: 0, lineHeight: 1.55 }}>Se borra el rostro registrado de <b>{confirmar.p.name}</b>. La próxima vez que marque, la app le pedirá registrarlo de nuevo, quieto, de frente y con buena luz. Hasta entonces, sus marcaciones no se comparan con ningún rostro.</p>
+        </Modal>
+      )}
     </>
   )
 }

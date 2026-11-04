@@ -105,7 +105,7 @@ export default function Persona() {
             {p.asig && <span className="at-tag">{p.asig.modalidad === 'remoto' ? <House size={12} /> : p.asig.modalidad === 'hibrido' ? <Laptop size={12} /> : <MapPin size={12} />} {MODALIDADES[p.asig.modalidad].label}{p.asig.modalidad === 'hibrido' ? ` · oficina ${p.asig.diasOficina.map(d => DIAS_CORTOS[d]).join(', ')}` : ''}</span>}
             {p.horario && <span className="at-tag"><Clock size={12} /> {p.horario.nombre} · {p.horario.modo === 'fijo' ? `${p.horario.entrada}–${p.horario.salida}` : `meta ${duracion(p.horario.meta)}`}</span>}
             {p.politica && <span className="at-tag"><ShieldCheck size={12} /> Política {p.politica.nombre}</span>}
-            <span className="at-tag"><ScanFace size={12} /> {p.bio?.enrolado ? 'Rostro enrolado' : 'Rostro sin enrolar'}</span>
+            <span className="at-tag"><ScanFace size={12} /> {p.bio?.enrolado ? 'Rostro registrado' : 'Rostro sin registrar'}</span>
           </div>
         </div>
         {!p.asig && <button type="button" className="pl-btn-new" onClick={() => navigate('/asistencia/configuracion?ver=asignaciones')}>Asignar horario</button>}

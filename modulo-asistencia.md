@@ -268,7 +268,7 @@ Todas las jornadas, un día, una semana o un mes a la vez. La fecha viaja en la 
 
 Su mes con el mismo lenguaje del Libro: seis cifras arriba y el calendario grande abajo.
 
-- **Cabecera**: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro enrolado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, **CSV** y **PDF**.
+- **Cabecera**: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro registrado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, **CSV** y **PDF**.
 - **Seis cifras**: días trabajados (de los que tenía jornada, sin contar el día en curso), retrasos, tiempo de retraso, faltas, horas del mes (lo trabajado de lo programado, «completas» o «faltan») y puntualidad, con la racha de días seguidos a tiempo.
 - **Calendario** del mes a todo el ancho, con la entrada y la salida de cada día en el color de su estado; un clic abre la jornada.
 - Debajo, las horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.
@@ -399,7 +399,7 @@ El módulo es solo de asistencia: no paga sueldos ni cierra meses. Lo que pidió
 
 ### 3.10 Configuración › Horarios
 
-Cuándo trabaja cada quien. Arriba de toda la Configuración, la **puesta a punto**: lugares con geocerca, personas con horario, política por defecto, consentimiento biométrico y rostros enrolados, con lo que falta y su enlace.
+Cuándo trabaja cada quien. Arriba de toda la Configuración, la **puesta a punto**: lugares con geocerca, personas con horario, política por defecto, consentimiento biométrico y rostros registrados, con lo que falta y su enlace.
 
 - **Tabla o tarjetas**: dos íconos junto a «Nuevo horario»; se abre en la tabla y las tarjetas, la forma gráfica, van después. La **tarjeta** muestra su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántos colaboradores lo tienen. La **tabla** pone los horarios lado a lado: Horario, Entrada y salida, Descanso, Días, Al día, A la semana y Colaboradores.
 - Menú: Editar, Duplicar, Eliminar (no si está asignado). **Eliminar pide confirmación** en una ventana: «Sí, eliminar».
@@ -467,15 +467,15 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 
 ### 3.15 Configuración › Biometría y privacidad
 
-- **Enrolamiento**: cuántos registraron su rostro.
+- **Rostros registrados**: cuántos registraron su rostro. Registrar el rostro es hacerlo una vez desde la app, después de aceptar el consentimiento; al marcar, la app compara la selfie con ese rostro. (Antes se decía «enrolar».)
 - **Privacidad**: el servidor no compara imágenes, recibe un vector; la selfie de cada marca es solo evidencia y **se borra a los N días** (30 a 365; 90 por defecto). Consentimiento vigente: versión 2026‑08‑v1.
-- Una fila por persona: si aceptó el consentimiento y cuándo, si está enrolada; «Aprobar» un pedido de volver a enrolarse o «Pedir nuevo enrolamiento».
+- Una fila por colaborador: si aceptó el consentimiento y cuándo, si registró su rostro; «Aprobar» un pedido de registrarlo de nuevo o «Pedir que lo registre de nuevo». **Las dos acciones piden confirmación** en una ventana, porque borran el rostro guardado.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑ASI‑056 | Nadie marca con rostro sin aceptar el consentimiento | Oblig. | La primera vez la app muestra «Antes de usar su rostro» |
 | RF‑ASI‑057 | Las selfies se borran solas a los días configurados | Oblig. | Con 90 días, una selfie de hace 100 ya no está |
-| RF‑ASI‑058 | Pedir un nuevo enrolamiento borra el rostro guardado | Import. | La próxima marca vuelve a enrolar |
+| RF‑ASI‑058 | Pedir que registre su rostro de nuevo borra el rostro guardado, después de confirmar | Import. | La próxima marca vuelve a pedir el registro |
 
 ### Para El líder de área
 
@@ -2593,7 +2593,7 @@ Hay **una sola** política por defecto. Ni la de por defecto ni una en uso se el
 
 *Descripción general*
 
-La selfie de cada marca es solo evidencia y **se borra a los N días** —90 por defecto, de 30 a 365—. El rostro de la persona se borra si pide un nuevo enrolamiento.
+La selfie de cada marca es solo evidencia y **se borra a los N días** —90 por defecto, de 30 a 365—. El rostro de la persona se borra si RR.HH. le pide registrarlo de nuevo.
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2744,7 +2744,7 @@ La app recuerda marcar: 10 min antes de la entrada, pasada la tolerancia si sigu
 | **Horario** | Cuándo trabaja alguien | nombre, modo (fijo o flexible), días de la semana, entrada, salida, descanso desde y hasta, meta en minutos (flexible), color |
 | **Política de marcación** | Qué se exige y cómo se calcula | nombre, para qué sirve, rostro, similitud mínima, geocerca, radio propio, tolerancia de entrada, de descanso y de salida, si no marca el descanso (descontar, alertar o ambas), redondeo (0, 1 o 5), por defecto |
 | **Asignación** | Lo que le toca a una persona | persona, horario, lugar, modalidad (presencial, remoto, híbrido), días de oficina, política (o la de por defecto), desde |
-| **Biometría** | El rostro de una persona | consentimiento (versión, fecha), enrolado (fecha), pidió volver a enrolarse |
+| **Biometría** | El rostro de una persona | consentimiento (versión, fecha), rostro registrado (fecha), pidió registrarlo de nuevo |
 | **Marcación** | Un momento registrado | persona, fecha, tipo (entrada, inicio de pausa, fin de pausa, salida), minuto al segundo, latitud, longitud, distancia, dentro, similitud, origen (app o panel), remoto, rechazada (rostro o geocerca), motivo, por, cuándo |
 | **Ajuste** | El cambio de una marca | marca, minuto nuevo o anulada, motivo, por, cuándo. La hora original queda en la marca |
 | **Justificación de un día** | Lo que RR.HH. justificó de un día | persona, fecha, tipo, motivo, por, cuándo |
@@ -2993,7 +2993,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | HU‑ASI‑13 | **Como** Recursos Humanos, **quiero** definir qué se exige al marcar y cómo se calcula **para** cada tipo de puesto | Rostro, geocerca, tolerancias, descanso y redondeo · Una por defecto |
 | HU‑ASI‑14 | **Como** Recursos Humanos, **quiero** dibujar la geocerca de cada lugar **para** que se marque desde ahí | Lugares de Organización · Punto y radio en el mapa |
 | HU‑ASI‑15 | **Como** Recursos Humanos, **quiero** asignar horario, lugar y política a muchas personas a la vez | Seleccionar los filtrados · La nueva reemplaza · También en el alta |
-| HU‑ASI‑16 | **Como** Recursos Humanos, **quiero** cuidar los datos biométricos **para** cumplir con la privacidad | Consentimiento · Selfies que se borran · Nuevo enrolamiento |
+| HU‑ASI‑16 | **Como** Recursos Humanos, **quiero** cuidar los datos biométricos **para** cumplir con la privacidad | Consentimiento · Selfies que se borran · Registrar el rostro de nuevo |
 
 ### Para El líder de área
 

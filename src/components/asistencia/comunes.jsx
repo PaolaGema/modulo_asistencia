@@ -65,7 +65,7 @@ export function Verificacion({ marca, compacto }) {
   if (marca.score != null) {
     const ok = marca.rechazada !== 'rostro'
     piezas.push(
-      <span key="r" className={`dc-chip dc-chip-sm dc-t-${ok ? 'verde' : 'rojo'}`} title="Similitud del rostro con el enrolado">
+      <span key="r" className={`dc-chip dc-chip-sm dc-t-${ok ? 'verde' : 'rojo'}`} title="Parecido con su rostro registrado">
         <ScanFace size={11} aria-hidden="true" /> {compacto ? `${Math.round(marca.score * 100)}%` : `Rostro ${Math.round(marca.score * 100)}%`}
       </span>,
     )

@@ -1667,7 +1667,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p3-3">3.3 La asistencia de una persona</h3>
 <p>Su mes con el mismo lenguaje del Libro: seis cifras arriba y el calendario grande abajo.</p>
 <ul>
-<li><strong>Cabecera</strong>: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro enrolado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, <strong>CSV</strong> y <strong>PDF</strong>.</li>
+<li><strong>Cabecera</strong>: nombre, cargo y unidad; su lugar, modalidad, horario, política y si tiene el rostro registrado. Sin asignación, «Asignar horario». A la derecha, las flechas de mes, <strong>CSV</strong> y <strong>PDF</strong>.</li>
 <li><strong>Seis cifras</strong>: días trabajados (de los que tenía jornada, sin contar el día en curso), retrasos, tiempo de retraso, faltas, horas del mes (lo trabajado de lo programado, «completas» o «faltan») y puntualidad, con la racha de días seguidos a tiempo.</li>
 <li><strong>Calendario</strong> del mes a todo el ancho, con la entrada y la salida de cada día en el color de su estado; un clic abre la jornada.</li>
 <li>Debajo, las horas extra trabajadas de las autorizadas y lo que quedó fuera de horario.</li>
@@ -1806,7 +1806,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </tbody>
 </table></div>
 <h3 id="p3-10">3.10 Configuración › Horarios</h3>
-<p>Cuándo trabaja cada quien. Arriba de toda la Configuración, la <strong>puesta a punto</strong>: lugares con geocerca, personas con horario, política por defecto, consentimiento biométrico y rostros enrolados, con lo que falta y su enlace.</p>
+<p>Cuándo trabaja cada quien. Arriba de toda la Configuración, la <strong>puesta a punto</strong>: lugares con geocerca, personas con horario, política por defecto, consentimiento biométrico y rostros registrados, con lo que falta y su enlace.</p>
 <ul>
 <li><strong>Tabla o tarjetas</strong>: dos íconos junto a «Nuevo horario»; se abre en la tabla y las tarjetas, la forma gráfica, van después. La <strong>tarjeta</strong> muestra su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántos colaboradores lo tienen. La <strong>tabla</strong> pone los horarios lado a lado: Horario, Entrada y salida, Descanso, Días, Al día, A la semana y Colaboradores.</li>
 <li>Menú: Editar, Duplicar, Eliminar (no si está asignado). <strong>Eliminar pide confirmación</strong> en una ventana: «Sí, eliminar».</li>
@@ -1882,16 +1882,16 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </table></div>
 <h3 id="p3-15">3.15 Configuración › Biometría y privacidad</h3>
 <ul>
-<li><strong>Enrolamiento</strong>: cuántos registraron su rostro.</li>
+<li><strong>Rostros registrados</strong>: cuántos registraron su rostro. Registrar el rostro es hacerlo una vez desde la app, después de aceptar el consentimiento; al marcar, la app compara la selfie con ese rostro. (Antes se decía «enrolar».)</li>
 <li><strong>Privacidad</strong>: el servidor no compara imágenes, recibe un vector; la selfie de cada marca es solo evidencia y <strong>se borra a los N días</strong> (30 a 365; 90 por defecto). Consentimiento vigente: versión 2026‑08‑v1.</li>
-<li>Una fila por persona: si aceptó el consentimiento y cuándo, si está enrolada; «Aprobar» un pedido de volver a enrolarse o «Pedir nuevo enrolamiento».</li>
+<li>Una fila por colaborador: si aceptó el consentimiento y cuándo, si registró su rostro; «Aprobar» un pedido de registrarlo de nuevo o «Pedir que lo registre de nuevo». <strong>Las dos acciones piden confirmación</strong> en una ventana, porque borran el rostro guardado.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
 <tr><td class="id" id="RF-ASI-056">RF‑ASI‑056</td><td>Nadie marca con rostro sin aceptar el consentimiento</td><td>Oblig.</td><td>La primera vez la app muestra «Antes de usar su rostro»</td></tr>
 <tr><td class="id" id="RF-ASI-057">RF‑ASI‑057</td><td>Las selfies se borran solas a los días configurados</td><td>Oblig.</td><td>Con 90 días, una selfie de hace 100 ya no está</td></tr>
-<tr><td class="id" id="RF-ASI-058">RF‑ASI‑058</td><td>Pedir un nuevo enrolamiento borra el rostro guardado</td><td>Import.</td><td>La próxima marca vuelve a enrolar</td></tr>
+<tr><td class="id" id="RF-ASI-058">RF‑ASI‑058</td><td>Pedir que registre su rostro de nuevo borra el rostro guardado, después de confirmar</td><td>Import.</td><td>La próxima marca vuelve a pedir el registro</td></tr>
 </tbody>
 </table></div>
 <h3 class="rol-h" id="s3-rol-el-lider-de-area"><span class="rol-k">Para</span>El líder de área</h3>
@@ -3859,7 +3859,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>La selfie de cada marca es solo evidencia y <strong>se borra a los N días</strong> —90 por defecto, de 30 a 365—. El rostro de la persona se borra si pide un nuevo enrolamiento.</p>
+<p>La selfie de cada marca es solo evidencia y <strong>se borra a los N días</strong> —90 por defecto, de 30 a 365—. El rostro de la persona se borra si RR.HH. le pide registrarlo de nuevo.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Pasados los 90 días</div><ul><li><b>Dado que</b>la retención es de 90 días</li><li><b>Cuando</b>pasa una selfie de hace 100 días</li><li><b>Entonces</b>ya no está; la marca sigue</li></ul></div>
@@ -4003,7 +4003,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td><strong>Horario</strong></td><td>Cuándo trabaja alguien</td><td>nombre, modo (fijo o flexible), días de la semana, entrada, salida, descanso desde y hasta, meta en minutos (flexible), color</td></tr>
 <tr><td><strong>Política de marcación</strong></td><td>Qué se exige y cómo se calcula</td><td>nombre, para qué sirve, rostro, similitud mínima, geocerca, radio propio, tolerancia de entrada, de descanso y de salida, si no marca el descanso (descontar, alertar o ambas), redondeo (0, 1 o 5), por defecto</td></tr>
 <tr><td><strong>Asignación</strong></td><td>Lo que le toca a una persona</td><td>persona, horario, lugar, modalidad (presencial, remoto, híbrido), días de oficina, política (o la de por defecto), desde</td></tr>
-<tr><td><strong>Biometría</strong></td><td>El rostro de una persona</td><td>consentimiento (versión, fecha), enrolado (fecha), pidió volver a enrolarse</td></tr>
+<tr><td><strong>Biometría</strong></td><td>El rostro de una persona</td><td>consentimiento (versión, fecha), rostro registrado (fecha), pidió registrarlo de nuevo</td></tr>
 <tr><td><strong>Marcación</strong></td><td>Un momento registrado</td><td>persona, fecha, tipo (entrada, inicio de pausa, fin de pausa, salida), minuto al segundo, latitud, longitud, distancia, dentro, similitud, origen (app o panel), remoto, rechazada (rostro o geocerca), motivo, por, cuándo</td></tr>
 <tr><td><strong>Ajuste</strong></td><td>El cambio de una marca</td><td>marca, minuto nuevo o anulada, motivo, por, cuándo. La hora original queda en la marca</td></tr>
 <tr><td><strong>Justificación de un día</strong></td><td>Lo que RR.HH. justificó de un día</td><td>persona, fecha, tipo, motivo, por, cuándo</td></tr>
@@ -4281,7 +4281,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="HU-ASI-13">HU‑ASI‑13</td><td><strong>Como</strong> Recursos Humanos, <strong>quiero</strong> definir qué se exige al marcar y cómo se calcula <strong>para</strong> cada tipo de puesto</td><td>Rostro, geocerca, tolerancias, descanso y redondeo · Una por defecto</td></tr>
 <tr><td class="id" id="HU-ASI-14">HU‑ASI‑14</td><td><strong>Como</strong> Recursos Humanos, <strong>quiero</strong> dibujar la geocerca de cada lugar <strong>para</strong> que se marque desde ahí</td><td>Lugares de Organización · Punto y radio en el mapa</td></tr>
 <tr><td class="id" id="HU-ASI-15">HU‑ASI‑15</td><td><strong>Como</strong> Recursos Humanos, <strong>quiero</strong> asignar horario, lugar y política a muchas personas a la vez</td><td>Seleccionar los filtrados · La nueva reemplaza · También en el alta</td></tr>
-<tr><td class="id" id="HU-ASI-16">HU‑ASI‑16</td><td><strong>Como</strong> Recursos Humanos, <strong>quiero</strong> cuidar los datos biométricos <strong>para</strong> cumplir con la privacidad</td><td>Consentimiento · Selfies que se borran · Nuevo enrolamiento</td></tr>
+<tr><td class="id" id="HU-ASI-16">HU‑ASI‑16</td><td><strong>Como</strong> Recursos Humanos, <strong>quiero</strong> cuidar los datos biométricos <strong>para</strong> cumplir con la privacidad</td><td>Consentimiento · Selfies que se borran · Registrar el rostro de nuevo</td></tr>
 </tbody>
 </table></div>
 <h3 class="rol-h" id="s9-rol-el-lider-de-area"><span class="rol-k">Para</span>El líder de área</h3>
