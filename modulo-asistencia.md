@@ -2514,7 +2514,7 @@ Cada persona tiene una **asignación vigente**: horario, lugar, modalidad, polí
 
 **3. Condiciones y excepciones**
 
-- Se asigna a muchas a la vez con los filtros y «Seleccionar los N filtrados».
+- Se asigna a muchas a la vez: se filtra y se marca la casilla de la cabecera de la tabla.
 
 **4. Trazabilidad**
 
@@ -2913,7 +2913,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 2. Lugares y geocercas: se ubica cada sucursal y centro en el mapa con su radio.
 3. Horarios: se crean con su franja de descanso.
 4. Políticas: se revisa la Estándar y sus tolerancias.
-5. Asignaciones: se filtra una unidad, «Seleccionar los N filtrados» y «Asignar horario y lugar».
+5. Asignaciones: se filtra una unidad, se marca la casilla de la cabecera y «Asignar horario y lugar».
 
 ### Para El colaborador
 
@@ -3009,7 +3009,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | HU‑ASI‑12 | **Como** Recursos Humanos, **quiero** crear horarios con su franja de descanso **para** calcular bien el día | Fijo o flexible · Franja dentro de la jornada · La tolerancia a la vista |
 | HU‑ASI‑13 | **Como** Recursos Humanos, **quiero** definir qué se exige al marcar y cómo se calcula **para** cada tipo de puesto | Rostro, geocerca, tolerancias, descanso y redondeo · Una por defecto |
 | HU‑ASI‑14 | **Como** Recursos Humanos, **quiero** dibujar la geocerca de cada lugar **para** que se marque desde ahí | Lugares de Organización · Punto y radio en el mapa |
-| HU‑ASI‑15 | **Como** Recursos Humanos, **quiero** asignar horario, lugar y política a muchas personas a la vez | Seleccionar los filtrados · La nueva reemplaza · También en el alta |
+| HU‑ASI‑15 | **Como** Recursos Humanos, **quiero** asignar horario, lugar y modalidad a muchas personas a la vez | Filtrar y marcar todos · La nueva reemplaza · También en el alta |
 | HU‑ASI‑16 | **Como** Recursos Humanos, **quiero** cuidar los datos biométricos **para** cumplir con la privacidad | Consentimiento · Selfies que se borran · Registrar el rostro de nuevo |
 
 ### Para El líder de área
