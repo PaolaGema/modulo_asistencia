@@ -3,14 +3,14 @@ import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Building2, Warehouse, Users, AlertTriangle,
-  ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, CalendarClock, RotateCcw, Check, Copy, Coffee, BellRing, Smartphone,
+  ShieldCheck, House, Laptop, ArrowUpRight, Timer, CalendarClock, RotateCcw, Check, Copy, Coffee, BellRing, Smartphone,
   LayoutGrid, Table2, X,
 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio, MenuAcciones } from '../../components/documentacion/comunes'
 import Desplegable from '../../components/layout/Desplegable'
 import Paginacion from '../../components/layout/Paginacion'
-import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
+import { PersonaAt, FILTRO_VACIO, filtrar, BarraBusqueda } from '../../components/asistencia/comunes'
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
 import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
@@ -40,7 +40,7 @@ export default function Configuracion() {
     modalidades: ['Modalidades', 'Qué se le pide al colaborador al marcar, según cómo trabaja: presencial, híbrido o remoto.'],
     avisos: ['Avisos al colaborador', 'Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánto tiempo tiene para mandar su motivo.'],
     lugares: ['Lugares de marcación', 'Las sucursales y los centros de trabajo de Organización, con la geocerca dentro de la cual se puede marcar.'],
-    asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué modalidad tiene cada colaborador, y si registró su rostro. Se puede asignar a toda una unidad o sucursal de una vez.'],
+    asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué modalidad tiene cada colaborador, y si registró su rostro. Para asignar a toda una unidad o sucursal, fíltrela y marque la casilla de arriba de la tabla.'],
   }
 
   return (
@@ -694,32 +694,26 @@ function Asignaciones() {
 
   return (
     <>
-      <div className="at-barra-herr">
-        <div className="at-barra-herr-izq">
-          <div className="pl-search-wrap" style={{ width: 260 }}>
-            <Search size={13} className="pl-search-ico" />
-            <input type="search" className="pl-search" placeholder="Buscar colaborador…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar colaborador" />
-          </div>
-          <div className={`dc-filtro at-filtro-estado${mostrar ? ' on' : ''}`} style={{ width: 220 }}>
-            <Desplegable valor={mostrar} ariaLabel="Qué mostrar" placeholder="Todos" anchoMenu={240} claseBoton="at-dd-estados"
-              opciones={[
-                { valor: '', etiqueta: 'Todos', lateral: String(at.personas.length), separada: true },
-                { valor: 'horario', etiqueta: 'Sin horario', punto: '#F5B04F', lateral: String(sinCuenta), apagada: !sinCuenta },
-                { valor: 'rostro', etiqueta: 'Sin rostro', punto: '#94A3B8', lateral: String(at.personas.filter(sinRostro).length), apagada: !at.personas.filter(sinRostro).length },
-              ]}
-              contenido={o => (
-                <span className="pl-dd-trigger-estado">
-                  {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
-                  <span>{o ? o.etiqueta : 'Todos'}</span>
-                  <b>{o ? o.lateral : at.personas.length}</b>
-                </span>
-              )}
-              onCambio={v => { setMostrar(v); setPag(1) }} />
-          </div>
+      {/* Una sola fila: buscador, los filtros de lugar y unidad y qué mostrar. Para asignar a todos los
+          filtrados, la casilla de la cabecera de la tabla. */}
+      <BarraBusqueda busca={busca} onBusca={v => { setBusca(v); setPag(1) }} placeholder="Buscar colaborador…" filtro={filtro} onFiltro={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas}>
+        <div className={`dc-filtro at-filtro-estado${mostrar ? ' on' : ''}`} style={{ width: 220 }}>
+          <Desplegable valor={mostrar} ariaLabel="Qué mostrar" placeholder="Todos" anchoMenu={240} claseBoton="at-dd-estados"
+            opciones={[
+              { valor: '', etiqueta: 'Todos', lateral: String(at.personas.length), separada: true },
+              { valor: 'horario', etiqueta: 'Sin horario', punto: '#F5B04F', lateral: String(sinCuenta), apagada: !sinCuenta },
+              { valor: 'rostro', etiqueta: 'Sin rostro', punto: '#94A3B8', lateral: String(at.personas.filter(sinRostro).length), apagada: !at.personas.filter(sinRostro).length },
+            ]}
+            contenido={o => (
+              <span className="pl-dd-trigger-estado">
+                {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
+                <span>{o ? o.etiqueta : 'Todos'}</span>
+                <b>{o ? o.lateral : at.personas.length}</b>
+              </span>
+            )}
+            onCambio={v => { setMostrar(v); setPag(1) }} />
         </div>
-        <button type="button" className="dc-btn" onClick={() => { setSel(new Set(lista.map(p => p.id))) }}>Seleccionar los {lista.length} filtrados</button>
-      </div>
-      <FiltrosOrg valor={filtro} onCambio={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas} />
+      </BarraBusqueda>
 
       {lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>

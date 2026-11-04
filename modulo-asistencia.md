@@ -470,13 +470,13 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 
 - Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · Pidió registrarlo otra vez); una lista desplegable **Todos · Sin horario · Sin rostro**, con su número.
 - Menú ⋯ de cada fila: «Asignar horario y lugar», «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación** (Ronda 24 · B1): la misma ventana centrada que eliminar, con su cara y su rostro tachado, qué pasa en tres pasos —se borra, le llega un aviso, lo registra al marcar— y escribir **BORRAR**.
-- Buscador, filtros y **«Seleccionar los N filtrados»**: así se asigna una unidad o una sucursal entera de una vez.
+- Buscador, filtros de lugar y unidad y «Todos · Sin horario · Sin rostro» en una sola fila. Para asignar una unidad o una sucursal entera de una vez, se filtra y se marca la casilla de la cabecera de la tabla.
 - **Asignar horario y lugar** (Ronda 25 bis, pensado para 50 horarios, 30 lugares y muchos colaboradores a la vez): arriba, a quiénes (sus caras y cuántos). **1 · Horario** en una lista desplegable con buscador y filtros (Fijos, Flexibles, Con sábado, Con domingo), los más usados primero, cada uno con su color, sus horas, su semana en barritas y cuántos lo tienen; debajo, la semana del elegido en grande con su descanso, horas a la semana y tolerancia. **2 · Dónde marca y cómo**: el lugar con buscador y la modalidad en tres tarjetas (y los días de oficina si es híbrido). **3 · Desde**: hoy, el lunes u otra fecha. A la derecha, **«Así quedan»**: cuántos cambian, cuántos ya lo tenían y cuántos son nuevos, agrupado por el horario de antes, «Ver los N, uno por uno» y una frase con lo que queda; a los que cambian se les cierra su asignación y se abre esta, en un solo paso.
 - La misma asignación se hace en el **alta** del colaborador, con «¿Controla su asistencia?».
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
-| RF‑ASI‑053 | Se asigna a muchas personas a la vez con los filtros | Oblig. | Filtrar Ventas y «Seleccionar los 12 filtrados» asigna a los 12 |
+| RF‑ASI‑053 | Se asigna a muchas personas a la vez con los filtros | Oblig. | Filtrar Ventas y marcar la casilla de la cabecera selecciona a los 12 |
 | RF‑ASI‑054 | **Retirado:** ya no hay políticas | — | — |
 | RF‑ASI‑055 | El alta asigna desde la fecha de ingreso | Import. | Ingresa el 10: aparece en Hoy desde el 10 |
 
