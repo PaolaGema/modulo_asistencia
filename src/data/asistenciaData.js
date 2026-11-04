@@ -150,8 +150,8 @@ export const reglasDe = pol => ({
   tolerancia: pol?.tolerancia ?? 10,
   toleranciaPausa: pol?.toleranciaPausa ?? 2,
   toleranciaSalida: pol?.toleranciaSalida ?? 5,
-  sinPausa: pol?.sinPausa || 'ambas',
-  redondeo: pol?.redondeo ?? 0,
+  sinPausa: 'ambas', // siempre: se resta de las horas trabajadas y queda el aviso (ya no se elige)
+  redondeo: 0, // siempre al segundo (#8): ya no se elige
 })
 /* SIN POLÍTICAS (decisión del 3 nov 2026): las reglas de cálculo son del HORARIO —tolerancias, qué
    pasa si no marca el descanso, redondeo— y lo que se exige al marcar es de la EMPRESA —pedir el rostro
@@ -700,7 +700,7 @@ export function recomputar({ marcas, horario, tolerancia, reglas: reglasIn, fech
     } else if (entrada != null && entrada < franja.desde && salida != null && salida > franja.hasta) {
       const resta = reglas.sinPausa !== 'alertar' ? franja.largo : 0
       descontado += resta
-      if (reglas.sinPausa !== 'descontar') alertas.push({ tipo: 'sinPausa', min: franja.largo, detalle: `No marcó su descanso${nombre} de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.${resta ? ` Se descontaron ${duracion(resta)} de lo trabajado.` : ' No se descontó.'}` })
+      if (reglas.sinPausa !== 'descontar') alertas.push({ tipo: 'sinPausa', min: franja.largo, detalle: `No marcó su descanso${nombre} de ${hhmm(franja.desde)} a ${hhmm(franja.hasta)}.${resta ? ` Se restaron ${duracion(resta)} de las horas trabajadas.` : ''}` })
     }
   })
   trabajado = Math.max(0, trabajado - descontado)

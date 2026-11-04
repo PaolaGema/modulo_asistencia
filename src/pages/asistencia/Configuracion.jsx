@@ -14,7 +14,7 @@ import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/a
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
 import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
-import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
+import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
    Cinco partes, en el orden en que se arma el módulo la primera vez: los HORARIOS (cuándo), las
@@ -343,7 +343,7 @@ function ModalHorario({ inicial, onCerrar }) {
 
             {/* CÓMO SE CUENTA (lo que antes era la política): tolerancias, descanso sin marcar y redondeo. */}
             <div className="at-hz-cuenta">
-              <span className="at-hz-rot">Cómo se cuenta</span>
+              <span className="at-hz-rot">Tolerancias</span>
               <div className="at-hz-tols">
                 {[['tolerancia', 'Tolerancia de entrada', primero ? `Atraso desde las ${hhmm(aMin(filas[primero].entrada) + reglas.tolerancia)}` : ''], ['toleranciaPausa', 'Tolerancia del descanso', 'Al salir, al volver o al excederse'], ['toleranciaSalida', 'Tolerancia de salida', primero ? `Salida anticipada antes de las ${hhmm(aMin(filas[primero].salida) - reglas.toleranciaSalida)}` : '']].map(([k, t, ayuda]) => (
                   <div key={k} className="at-hz-tol">
@@ -356,14 +356,6 @@ function ModalHorario({ inicial, onCerrar }) {
                     <em>{ayuda}</em>
                   </div>
                 ))}
-              </div>
-              <div className="at-hz-opc">
-                <div><small>Si no marca el descanso</small>
-                  <div className="at-segmento" role="radiogroup">{Object.entries(SIN_PAUSA).map(([k, v]) => <button key={k} type="button" role="radio" aria-checked={reglas.sinPausa === k} className={reglas.sinPausa === k ? 'on' : ''} title={v.desc} onClick={() => ponRegla('sinPausa', k)}>{v.label}</button>)}</div>
-                </div>
-                <div><small>La tardanza se cuenta</small>
-                  <div className="at-segmento" role="radiogroup">{REDONDEOS.map(r => <button key={r.valor} type="button" role="radio" aria-checked={reglas.redondeo === r.valor} className={reglas.redondeo === r.valor ? 'on' : ''} title={r.desc} onClick={() => ponRegla('redondeo', r.valor)}>{r.label}</button>)}</div>
-                </div>
               </div>
             </div>
             {activos.length > 0 && !conError.length && (

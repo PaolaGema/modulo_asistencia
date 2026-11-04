@@ -1711,3 +1711,4 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-regla-ext { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); }
 @media (max-width: 1000px) { .at-reglas-modos, .at-hz-tols, .at-hz-opc { grid-template-columns: 1fr; } }
 .at-regla-parecido { padding: 16px 18px; border-radius: 16px; }
+.at-hz-opc.uno { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
