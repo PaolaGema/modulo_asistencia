@@ -1663,3 +1663,19 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-ch-pie { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 0; }
 .at-ch-pie b { font-size: 18px; color: var(--text-heading); font-variant-numeric: tabular-nums; }
 .at-ch-pie button { border: none; border-radius: 9px; background: var(--navy, #0C2D40); color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 14px; cursor: pointer; }
+
+/* Eliminar confirmando con el nombre (Ronda 22 · K2) — como «Eliminar mi cuenta» del celular */
+.at-elim { width: 420px; max-width: calc(100vw - 32px); background: var(--surface-card); border-radius: 20px; box-shadow: 0 30px 60px -20px rgba(12,45,64,.55); padding: 28px 24px 18px; display: grid; justify-items: center; text-align: center; gap: 10px; animation: at-tdes .16s ease-out; }
+.at-elim-ico { width: 64px; height: 64px; border-radius: 50%; background: var(--dc-rojo-bg); color: var(--dc-rojo); display: grid; place-items: center; box-shadow: 0 0 0 8px color-mix(in srgb, var(--dc-rojo-bg) 55%, transparent); margin-bottom: 4px; }
+.at-elim-tit { font-size: 17px; color: var(--text-heading); line-height: 1.3; }
+.at-elim-txt { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+.at-elim-campo { display: grid; gap: 6px; width: 100%; text-align: left; margin-top: 8px; } .at-elim-campo > span:first-child { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.at-elim-in { display: flex; align-items: center; height: 44px; border: 1.5px solid var(--border-soft); border-radius: 12px; padding: 0 12px; background: var(--surface-card); transition: border-color .15s, box-shadow .15s; }
+.at-elim-in:focus-within { border-color: var(--dc-rojo); box-shadow: 0 0 0 3px var(--dc-rojo-bg); }
+.at-elim-in.ok { border-color: var(--green-fuerte); box-shadow: 0 0 0 3px var(--dc-verde-bg); }
+.at-elim-in input { flex: 1; border: none; outline: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--text-heading); min-width: 0; }
+.at-elim-in em { font-style: normal; font-weight: 700; color: var(--green-fuerte); }
+.at-elim-pie { display: grid; gap: 6px; width: 100%; margin-top: 10px; }
+.at-elim-si { height: 42px; border: none; border-radius: 12px; background: #E5484D; color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.at-elim-si:disabled { background: var(--surface-hover); color: var(--text-muted); cursor: default; }
+.at-elim-no { height: 36px; border: none; background: none; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 10px; } .at-elim-no:hover { background: var(--surface-hover); color: var(--text-heading); }

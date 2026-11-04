@@ -13,6 +13,7 @@ import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
 import CampoHora from '../../components/asistencia/CampoHora'
+import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
 import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
@@ -27,23 +28,8 @@ const SECCIONES = ['horarios', 'politicas', 'avisos', 'lugares', 'asignaciones',
 const COLORES = ['#00B876', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444', '#0C2D40']
 
 export default function Configuracion() {
-  const at = useAsistencia()
-  const [params, setParams] = useSearchParams()
+  const [params] = useSearchParams()
   const ver = SECCIONES.includes(params.get('ver')) ? params.get('ver') : 'horarios'
-  const ir = v => setParams({ ver: v }, { replace: true })
-
-  const sinGeo = at.lugares.filter(l => !l.geo)
-  const sinHorario = at.personas.filter(p => !p.asig)
-  const sinConsent = at.personas.filter(p => !p.bio?.consentimiento)
-  const sinRostro = at.personas.filter(p => p.bio?.consentimiento && !p.bio?.enrolado)
-  const checks = [
-    { ok: !sinGeo.length, tit: 'Lugares con geocerca', txt: sinGeo.length ? `${sinGeo.length} sin ubicación` : `${at.lugares.length} listos`, ver: 'lugares' },
-    { ok: !sinHorario.length, tit: 'Personas con horario', txt: sinHorario.length ? `${sinHorario.length} sin asignar` : 'Todas asignadas', ver: 'asignaciones' },
-    { ok: !!at.politicas.find(p => p.porDefecto), tit: 'Política por defecto', txt: at.politicaDefecto?.nombre || 'Falta elegir una', ver: 'politicas' },
-    { ok: !sinConsent.length, tit: 'Consentimiento biométrico', txt: sinConsent.length ? `${sinConsent.length} por aceptar` : 'Todos aceptaron', ver: 'biometria' },
-    { ok: !sinRostro.length, tit: 'Rostros registrados', txt: sinRostro.length ? `${sinRostro.length} sin registrar` : 'Todos registrados', ver: 'biometria' },
-  ]
-  const listos = checks.filter(c => c.ok).length
 
   const titulos = {
     horarios: ['Horarios', 'Cuándo trabaja cada quien. Un horario fijo calcula tardanzas y horas extra; uno flexible sólo pide cumplir la meta del día.'],
@@ -57,23 +43,6 @@ export default function Configuracion() {
   return (
     <div className="content-scroll">
       <Cabecera titulo={titulos[ver][0]} sub={titulos[ver][1]} />
-
-      {listos < checks.length && (
-        <section className="at-puesta" aria-label="Puesta a punto">
-          <div style={{ textAlign: 'center', minWidth: 96 }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-heading)' }}>{listos}/{checks.length}</div>
-            <div className="dc-muted" style={{ fontSize: 12, fontWeight: 600 }}>Puesta a punto</div>
-          </div>
-          <div className="at-puesta-lista">
-            {checks.map(c => (
-              <button key={c.tit} type="button" className={`at-puesta-item ${c.ok ? 'ok' : 'pend'}`} onClick={() => ir(c.ver)}>
-                <span className="ico">{c.ok ? <Check size={14} /> : <AlertTriangle size={13} />}</span>
-                <span><b>{c.tit}</b><span>{c.txt}</span></span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
 
       {ver === 'horarios' && <Horarios />}
       {ver === 'politicas' && <Politicas />}
@@ -188,10 +157,8 @@ function Horarios() {
         </Modal>
       )}
       {borrar && (
-        <Modal titulo="Eliminar horario" Icono={Trash2} onCerrar={() => setBorrar(null)} ancho={460}
-          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setBorrar(null)}>Cancelar</button><button type="button" className="at-btn-peligro" style={{ height: 38 }} onClick={() => { at.setHorarios(prev => prev.filter(x => x.id !== borrar.id)); setBorrar(null) }}>Sí, eliminar</button></>}>
-          <p style={{ margin: 0, lineHeight: 1.55 }}>¿Eliminar el horario <b>{borrar.nombre}</b>? Nadie lo tiene asignado, así que no cambia la jornada de ningún colaborador. No se puede deshacer.</p>
-        </Modal>
+        <ConfirmarEliminar que="horario" nombre={borrar.nombre} onCerrar={() => setBorrar(null)} onConfirmar={() => at.setHorarios(prev => prev.filter(x => x.id !== borrar.id))}
+          texto="No se puede deshacer. Nadie lo tiene asignado, así que ningún colaborador cambia de jornada, y las jornadas que ya pasaron quedan como están." />
       )}
     </>
   )
@@ -514,6 +481,8 @@ function TarjetaDescanso({ pos, fila, k, color, onCambio, onQuitar, onCerrar }) 
 function Politicas() {
   const at = useAsistencia()
   const [editar, setEditar] = useState(null)
+  const [borrarP, setBorrarP] = useState(null)
+  const [defecto, setDefecto] = useState(null)
   const uso = id => at.personas.filter(p => p.politica?.id === id).length
   return (
     <>
@@ -528,8 +497,8 @@ function Politicas() {
               </div>
               <MenuAcciones items={[
                 { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...reglasDe(p), ...p }) },
-                !p.porDefecto && { label: 'Usar por defecto', Icono: Star, onClick: () => at.setPoliticas(prev => prev.map(x => ({ ...x, porDefecto: x.id === p.id }))) },
-                { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: p.porDefecto || uso(p.id) > 0, titulo: p.porDefecto ? 'Es la de por defecto' : uso(p.id) ? 'Está en uso' : undefined, onClick: () => at.setPoliticas(prev => prev.filter(x => x.id !== p.id)) },
+                !p.porDefecto && { label: 'Usar por defecto', Icono: Star, onClick: () => setDefecto(p) },
+                { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: p.porDefecto || uso(p.id) > 0, titulo: p.porDefecto ? 'Es la de por defecto' : uso(p.id) ? 'Está en uso' : undefined, onClick: () => setBorrarP(p) },
               ]} />
             </div>
             <div className="at-reglas">
@@ -545,6 +514,17 @@ function Politicas() {
           </article>
         ))}
       </div>
+      {borrarP && (
+        <ConfirmarEliminar que="política" nombre={borrarP.nombre} onCerrar={() => setBorrarP(null)} onConfirmar={() => at.setPoliticas(prev => prev.filter(x => x.id !== borrarP.id))}
+          texto="No se puede deshacer. Nadie la tiene asignada, así que ninguna marcación cambia." />
+      )}
+      {/* Cambiar la de por defecto cambia las reglas de quien no tiene una propia: se confirma. */}
+      {defecto && (
+        <Modal titulo="Usar por defecto" Icono={Star} onCerrar={() => setDefecto(null)} ancho={480}
+          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setDefecto(null)}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.setPoliticas(prev => prev.map(x => ({ ...x, porDefecto: x.id === defecto.id }))); setDefecto(null) }}>Sí, usar por defecto</button></>}>
+          <p style={{ margin: 0, lineHeight: 1.55 }}><b>{defecto.nombre}</b> pasa a ser la política por defecto: la tendrán quienes no tengan una asignada, desde sus próximas marcaciones. Las jornadas que ya pasaron no se recalculan.</p>
+        </Modal>
+      )}
       {editar && <ModalPolitica inicial={editar} onCerrar={() => setEditar(null)} />}
     </>
   )
