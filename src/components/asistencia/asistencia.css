@@ -1643,3 +1643,23 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-hz-mp em { margin: auto; font-style: normal; font-size: 10px; color: var(--text-muted); }
 .at-hz-chipventana { background: var(--surface-card); border-radius: 9px; padding: 7px 10px; font-size: 12px; color: var(--text-muted); text-align: center; } .at-hz-chipventana b { color: var(--text-heading); }
 .at-hz-notaflex { background: var(--dc-violeta-bg); color: var(--dc-violeta); border-radius: 9px; padding: 8px 10px; font-size: 12px; line-height: 1.45; }
+/* La hora con el estilo de Souly (CampoHora) */
+.at-ch { display: inline-flex; align-items: center; height: 32px; border: 1px solid var(--border-soft); border-radius: 9px; background: var(--surface-card); padding: 0 4px 0 10px; gap: 2px; min-width: 0; width: 100%; box-sizing: border-box; transition: border-color .15s, box-shadow .15s; }
+.at-ch:hover { border-color: var(--text-muted); }
+.at-ch.abierto, .at-ch:focus-within { border-color: var(--green-fuerte); box-shadow: 0 0 0 3px rgba(0,224,145,.18); }
+.at-ch input { border: none; outline: none; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--text-heading); width: 100%; min-width: 0; font-variant-numeric: tabular-nums; padding: 0; }
+.at-ch button { border: none; background: none; color: var(--text-muted); cursor: pointer; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; flex: none; }
+.at-ch button:hover { background: var(--surface-hover); color: var(--text-heading); }
+.at-ch.grande { height: 44px; border-radius: 11px; padding-left: 14px; }
+.at-ch.grande input { font-size: 17px; }
+.at-ch-tarjeta { position: fixed; z-index: 2100; width: 214px; background: var(--surface-card); border-radius: 14px; box-shadow: 0 22px 44px -16px rgba(12,45,64,.45), 0 0 0 1px var(--border-soft); padding: 10px; display: grid; gap: 8px; animation: at-tdes .12s ease-out; }
+.at-ch-cols { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; align-items: start; }
+.at-ch-col { display: grid; gap: 4px; } .at-ch-col small { text-align: center; font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+.at-ch-lista { height: 196px; overflow-y: auto; scrollbar-width: thin; display: grid; gap: 2px; align-content: start; padding: 2px; border-radius: 10px; background: var(--surface-hover); }
+.at-ch-lista button { height: 28px; border: none; border-radius: 99px; background: none; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-variant-numeric: tabular-nums; }
+.at-ch-lista button:hover { background: var(--surface-card); color: var(--text-heading); }
+.at-ch-lista button.on { background: var(--navy, #0C2D40); color: #fff; }
+.at-ch-sep { padding-top: 104px; font-weight: 700; color: var(--text-muted); }
+.at-ch-pie { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 0; }
+.at-ch-pie b { font-size: 18px; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+.at-ch-pie button { border: none; border-radius: 9px; background: var(--navy, #0C2D40); color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 14px; cursor: pointer; }

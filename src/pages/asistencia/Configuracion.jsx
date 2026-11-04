@@ -12,6 +12,7 @@ import Desplegable from '../../components/layout/Desplegable'
 import Paginacion from '../../components/layout/Paginacion'
 import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
+import CampoHora from '../../components/asistencia/CampoHora'
 import { MODALIDADES, DIAS_CORTOS, SIN_PAUSA, REDONDEOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
@@ -95,10 +96,11 @@ function Horarios() {
   const ponForma = v => { const n = new URLSearchParams(params); if (v) n.set('forma', v); else n.delete('forma'); setParams(n, { replace: true }) }
   const [editar, setEditar] = useState(null)
   const [borrar, setBorrar] = useState(null)
+  const [duplicar, setDuplicar] = useState(null)
   const uso = id => Object.values(at.asignaciones).filter(a => a?.horarioId === id).length
   const acciones = (h, n, fr) => [
     { label: 'Editar', Icono: Pencil, onClick: () => setEditar({ ...h, conPausa: !!fr, pausaDesde: fr ? hhmm(fr.desde) : '13:00', pausaHasta: fr ? hhmm(fr.hasta) : '14:00' }) },
-    { label: 'Duplicar', Icono: Copy, onClick: () => at.setHorarios(prev => [...prev, { ...h, id: `h-${Date.now().toString(36)}`, nombre: `${h.nombre} (copia)` }]) },
+    { label: 'Duplicar', Icono: Copy, onClick: () => setDuplicar({ h, nombre: `${h.nombre} (copia)` }) },
     { label: 'Eliminar', Icono: Trash2, peligro: true, disabled: n > 0, titulo: n > 0 ? 'Está asignado a colaboradores: reasígnelos primero' : undefined, onClick: () => setBorrar(h) },
   ]
   return (
@@ -177,6 +179,14 @@ function Horarios() {
       </div>
       )}
       {editar && <ModalHorario inicial={editar} onCerrar={() => setEditar(null)} />}
+      {/* Duplicar también se confirma: se elige el nombre de la copia antes de crearla. */}
+      {duplicar && (
+        <Modal titulo="Duplicar horario" Icono={Copy} onCerrar={() => setDuplicar(null)} ancho={480}
+          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setDuplicar(null)}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!duplicar.nombre.trim()} onClick={() => { at.setHorarios(prev => [...prev, { ...duplicar.h, id: `h-${Date.now().toString(36)}`, nombre: duplicar.nombre.trim() }]); setDuplicar(null) }}>Sí, duplicar</button></>}>
+          <p style={{ margin: '0 0 12px', lineHeight: 1.55 }}>Se crea un horario nuevo igual a <b>{duplicar.h.nombre}</b>, sin colaboradores asignados. Después puede cambiarle los días o las horas.</p>
+          <label className="at-campo"><span>Nombre de la copia</span><input className="pl-input" value={duplicar.nombre} onChange={e => setDuplicar({ ...duplicar, nombre: e.target.value })} autoFocus /></label>
+        </Modal>
+      )}
       {borrar && (
         <Modal titulo="Eliminar horario" Icono={Trash2} onCerrar={() => setBorrar(null)} ancho={460}
           pie={<><button type="button" className="pl-btn-cancel" onClick={() => setBorrar(null)}>Cancelar</button><button type="button" className="at-btn-peligro" style={{ height: 38 }} onClick={() => { at.setHorarios(prev => prev.filter(x => x.id !== borrar.id)); setBorrar(null) }}>Sí, eliminar</button></>}>
@@ -315,8 +325,8 @@ function ModalHorario({ inicial, onCerrar }) {
                       <b title={DIAS_LARGOS_CAP[d]}>{DIAS_CORTOS[d]}</b>
                       {f.on ? (
                         <>
-                          <input type="time" className="pl-input" aria-label={`Entrada del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.entrada} onChange={e => ponFila(d, { entrada: e.target.value })} />
-                          <input type="time" className="pl-input" aria-label={`Salida del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.salida} onChange={e => ponFila(d, { salida: e.target.value })} />
+                          <CampoHora ariaLabel={`Entrada del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.entrada} onChange={v => ponFila(d, { entrada: v })} />
+                          <CampoHora ariaLabel={`Salida del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.salida} onChange={v => ponFila(d, { salida: v })} />
                           <div className="at-hz-paus">
                             {f.descansos.map((x, k) => (
                               <button key={k} type="button" className={`at-hz-pau${ed === k ? ' on' : ''}`} onClick={e => (ed === k ? setEditando(null) : abrirEn(d, k, e.currentTarget))} title="Editar el descanso"><Coffee size={12} aria-hidden="true" /> {x.desde}–{x.hasta}</button>
@@ -414,9 +424,9 @@ function ModalHorario({ inicial, onCerrar }) {
                 })}
                 <div className="at-hz-ventana">
                   <span className="at-hz-rot">Cuándo puede marcar</span>
-                  <input type="time" className="pl-input" aria-label="Desde" value={h.ventanaDesde || '07:00'} onChange={e => pon('ventanaDesde', e.target.value)} />
+                  <span style={{ width: 110 }}><CampoHora ariaLabel="Puede marcar desde" value={h.ventanaDesde || '07:00'} onChange={v => pon('ventanaDesde', v)} /></span>
                   <span>a</span>
-                  <input type="time" className="pl-input" aria-label="Hasta" value={h.ventanaHasta || '20:00'} onChange={e => pon('ventanaHasta', e.target.value)} />
+                  <span style={{ width: 110 }}><CampoHora ariaLabel="Puede marcar hasta" value={h.ventanaHasta || '20:00'} onChange={v => pon('ventanaHasta', v)} /></span>
                   <small>{ventanaMal ? 'El «hasta» tiene que ser después del «desde».' : 'Fuera de esa franja, la marca queda como fuera de horario.'}</small>
                 </div>
               </div>
@@ -478,9 +488,9 @@ function TarjetaDescanso({ pos, fila, k, color, onCambio, onQuitar, onCerrar }) 
       style={alto ? { bottom: window.innerHeight - pos.top + 52, left: pos.left, '--flecha': `${pos.flecha}px` } : { top: pos.top, left: pos.left, '--flecha': `${pos.flecha}px` }}>
       <div className="at-tdes-cab"><b>{titulo}</b><button type="button" aria-label="Cerrar" onClick={onCerrar}><X size={15} /></button></div>
       <div className="at-tdes-horas">
-        <label>Desde<input type="time" className="pl-input" value={x.desde} onChange={ev => onCambio({ desde: ev.target.value, hasta: hhmm(aMin(ev.target.value) + (dura || 15)) })} autoFocus /></label>
+        <label>Desde<CampoHora ariaLabel="Desde" value={x.desde} onChange={v => onCambio({ desde: v, hasta: hhmm(aMin(v) + (dura || 15))  })} autoFocus grande /></label>
         <span aria-hidden="true">→</span>
-        <label>Hasta<input type="time" className="pl-input" value={x.hasta} onChange={ev => onCambio({ hasta: ev.target.value })} /></label>
+        <label>Hasta<CampoHora ariaLabel="Hasta" grande value={x.hasta} onChange={v => onCambio({ hasta: v })} /></label>
       </div>
       <div className="at-tdes-dur"><span>Dura</span>
         {DURACIONES.map(m => <button key={m} type="button" className={dura === m ? 'on' : ''} aria-pressed={dura === m} onClick={() => onCambio({ hasta: hhmm(aMin(x.desde) + m) })}>{m === 60 ? '1 h' : `${m} min`}</button>)}
