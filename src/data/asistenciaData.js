@@ -173,14 +173,14 @@ export const horarioDelDia = (h, fecha) => horarioDeDia(h, diaISO(fecha))
 export const otrosDias = h => (h?.modo === 'fijo' ? Object.entries(h.porDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, o]) => `${DIAS_CORTOS[d]} ${o.entrada} a ${o.salida}`) : [])
 export const minutosSemana = h => (h?.dias || []).reduce((s, d) => s + minutosProgramados(horarioDeDia(h, d)), 0)
 
-/* LOS DESCANSOS DE UN DÍA: hasta dos —el almuerzo y un refrigerio—, cada uno con su nombre y su franja.
+/* LOS DESCANSOS DE UN DÍA: hasta dos, cada uno con su franja.
    Los horarios de antes tienen uno solo (pausaDesde–pausaHasta) y se leen igual. */
 export function franjasPausa(h) {
   if (!h || h.modo !== 'fijo') return []
   const lista = Array.isArray(h.descansos)
-    ? h.descansos.map(d => ({ nombre: d.nombre || 'Descanso', desde: aMin(d.desde), hasta: aMin(d.hasta) }))
+    ? h.descansos.map(d => ({ desde: aMin(d.desde), hasta: aMin(d.hasta) }))
     : h.pausa > 0 || h.pausaDesde
-      ? [{ nombre: 'Descanso', desde: aMin(h.pausaDesde || '13:00'), hasta: h.pausaHasta ? aMin(h.pausaHasta) : aMin(h.pausaDesde || '13:00') + (Number(h.pausa) || 0) }]
+      ? [{ desde: aMin(h.pausaDesde || '13:00'), hasta: h.pausaHasta ? aMin(h.pausaHasta) : aMin(h.pausaDesde || '13:00') + (Number(h.pausa) || 0) }]
       : []
   return lista.filter(f => f.hasta > f.desde).map(f => ({ ...f, largo: f.hasta - f.desde })).sort((a, b) => a.desde - b.desde)
 }
@@ -660,14 +660,14 @@ export function recomputar({ marcas, horario, tolerancia, reglas: reglasIn, fech
   const tardanza = fijo && entrada != null ? redondear(Math.max(0, entrada - (aMin(horario.entrada) + tol)), reglas.redondeo) : 0
 
   /* LOS DESCANSOS EN SU FRANJA (#2, #5, #6): cada pausa contra su franja —la primera contra el
-     almuerzo, la segunda contra el refrigerio—. Una franja sin su pausa marcada, si la jornada la
+     primer descanso, la segunda contra el segundo—. Una franja sin su pausa marcada, si la jornada la
      incluye, es un descanso sin marcar. */
   const franjas = fijo ? franjasPausa(horario) : []
   const alertas = []
   const tolP = reglas.toleranciaPausa
   let descontado = 0
   franjas.forEach((franja, k) => {
-    const nombre = franjas.length > 1 ? ` (${franja.nombre.toLowerCase()})` : ''
+    const nombre = franjas.length > 1 ? (k === 0 ? ' (primer descanso)' : ' (segundo descanso)') : ''
     if (pi[k]) {
       const ini = pi[k].min; const vuelta = pf[k]?.min
       const esta = vuelta != null ? vuelta - ini : 0

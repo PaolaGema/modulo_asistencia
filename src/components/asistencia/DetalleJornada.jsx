@@ -61,7 +61,7 @@ export default function DetalleJornada({ persona, fecha, onCerrar, incidencia })
         <BarraDia jornada={j} horario={horarioDelDia(persona.horarioBase || persona.horario, fecha)} ahora={esHoy ? minutosAhora() : null} grande />
 
         {j.franja && (
-          <p className="at-det-franja"><Coffee size={13} aria-hidden="true" /> {(j.franjas || [j.franja]).map(fr => `${(j.franjas || []).length > 1 ? fr.nombre : 'Descanso'} de ${hhmm(fr.desde)} a ${hhmm(fr.hasta)}`).join(' · ')}{j.pausas > 0 ? ` · tomó ${duracion(j.pausas, { seg: true })}` : ''}{j.descontado > 0 ? ` · se descontaron ${duracion(j.descontado)} por no marcarlo` : ''}</p>
+          <p className="at-det-franja"><Coffee size={13} aria-hidden="true" /> {(j.franjas || []).length > 1 ? 'Descansos' : 'Descanso'} {(j.franjas || [j.franja]).map(fr => `de ${hhmm(fr.desde)} a ${hhmm(fr.hasta)}`).join(' y ')}{j.pausas > 0 ? ` · tomó ${duracion(j.pausas, { seg: true })}` : ''}{j.descontado > 0 ? ` · se descontaron ${duracion(j.descontado)} por no marcarlo` : ''}</p>
         )}
 
         {/* LAS ALERTAS DEL DÍA (#5, #6, #7, #13, #15): qué pasó, si se le avisó y qué respondió. */}

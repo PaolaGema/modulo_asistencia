@@ -107,7 +107,7 @@ function Horarios() {
           <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma(null)}><Table2 size={15} aria-hidden="true" /></button>
           <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma('tarjetas')}><LayoutGrid size={15} aria-hidden="true" /></button>
         </div>
-        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '08:30', salida: '18:00', descansos: [{ nombre: 'Almuerzo', desde: '13:00', hasta: '14:00' }], porDia: { 6: { entrada: '08:30', salida: '12:30', descansos: [] } }, conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
+        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5, 6], entrada: '08:30', salida: '18:00', descansos: [{ desde: '13:00', hasta: '14:00' }], porDia: { 6: { entrada: '08:30', salida: '12:30', descansos: [] } }, conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
       </div>
       {enTabla ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
@@ -122,7 +122,7 @@ function Horarios() {
                   <tr key={h.id}>
                     <td><span className="at-hor-nom"><span className="at-item-color" style={{ background: h.color }} /><b>{h.nombre}</b>{h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</span></td>
                     <td className="num">{h.modo === 'fijo' ? <>{h.entrada} a {h.salida}{otrosDias(h).map(t => <small key={t} className="at-hor-otro">{t}</small>)}</> : <span className="dc-muted">Libre</span>}</td>
-                    <td className="num">{h.modo === 'fijo' ? (fr ? franjasPausa(h).map(x => <span key={x.desde} style={{ display: 'block' }}>{franjasPausa(h).length > 1 ? <small className="dc-muted">{x.nombre} </small> : null}{hhmm(x.desde)} a {hhmm(x.hasta)}</span>) : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
+                    <td className="num">{h.modo === 'fijo' ? (fr ? franjasPausa(h).map(x => <span key={x.desde} style={{ display: 'block' }}>{hhmm(x.desde)} a {hhmm(x.hasta)}</span>) : <span className="dc-muted">Sin descanso</span>) : '—'}</td>
                     <td><span className="at-semana-chips at-semana-chips-sm">{[1, 2, 3, 4, 5, 6, 7].map(d => <span key={d} className={h.dias.includes(d) ? 'on' : ''}>{DIAS_CORTOS[d].slice(0, 2)}</span>)}</span></td>
                     <td className="num r">{duracion(dia)}</td>
                     <td className="num r">{duracion(minutosSemana(h))}</td>
@@ -147,7 +147,7 @@ function Horarios() {
                 <span className="at-item-color" style={{ background: h.color }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 className="at-item-nom">{h.nombre} {h.modo === 'flexible' && <span className="dc-chip dc-chip-sm dc-t-violeta">Flexible</span>}</h3>
-                  <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${fr ? ` · ${franjasPausa(h).map(x => `${x.nombre.toLowerCase()} de ${hhmm(x.desde)} a ${hhmm(x.hasta)}`).join(' y ')}` : ' · sin descanso'}${otrosDias(h).length ? ` · ${otrosDias(h).join(' · ')}` : ''}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
+                  <div className="at-item-sub">{h.modo === 'fijo' ? `${h.entrada} a ${h.salida}${fr ? ` · ${franjasPausa(h).length > 1 ? 'descansos' : 'descanso'} ${franjasPausa(h).map(x => `de ${hhmm(x.desde)} a ${hhmm(x.hasta)}`).join(' y ')}` : ' · sin descanso'}${otrosDias(h).length ? ` · ${otrosDias(h).join(' · ')}` : ''}` : `Meta de ${duracion(h.meta)} al día, a la hora que quiera`}</div>
                 </div>
                 <MenuAcciones items={acciones(h, n, fr)} />
               </div>
@@ -188,18 +188,17 @@ function Horarios() {
 
 const DIAS_LARGOS_CAP = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 const SEMANA = [1, 2, 3, 4, 5, 6, 7]
-const NOMBRES_DESCANSO = ['Almuerzo', 'Refrigerio', 'Descanso']
 const ESCALA_H = [6 * 60, 22 * 60]
 const enEscala = m => Math.max(0, Math.min(100, ((m - ESCALA_H[0]) / (ESCALA_H[1] - ESCALA_H[0])) * 100))
 const descansoNuevo = (fila, k) => {
   const e = aMin(fila.entrada); const s = aMin(fila.salida)
-  if (k === 0) { const d = Math.max(e + 60, Math.min(13 * 60, s - 90)); return { nombre: 'Almuerzo', desde: hhmm(d), hasta: hhmm(d + 60) } }
-  const d = Math.max(e + 60, Math.min(16 * 60, s - 45)); return { nombre: 'Refrigerio', desde: hhmm(d), hasta: hhmm(d + 15) }
+  if (k === 0) { const d = Math.max(e + 60, Math.min(13 * 60, s - 90)); return { desde: hhmm(d), hasta: hhmm(d + 60) } }
+  const d = Math.max(e + 60, Math.min(16 * 60, s - 45)); return { desde: hhmm(d), hasta: hhmm(d + 15) }
 }
 
 /* ── LA VENTANA DEL HORARIO (Ronda 19 · X1) ─────────────────────────────────
    Ancha: a la izquierda un renglón por día, de lunes a domingo —si trabaja, su entrada y su salida,
-   sus descansos (hasta dos: el almuerzo y un refrigerio) como etiquetas que se tocan para editarlas y
+   sus descansos (hasta dos) como etiquetas que se tocan para editarlas y
    sus horas—; a la derecha, la semana dibujada. Un horario nuevo arranca de lunes a sábado, con el
    sábado más corto; cada empresa lo cambia.
 
@@ -216,7 +215,7 @@ function ModalHorario({ inicial, onCerrar }) {
 
   const [filas, setFilas] = useState(() => Object.fromEntries(SEMANA.map(d => {
     const hd = inicial.modo === 'fijo' ? horarioDeDia(inicial, d) : inicial
-    const descansos = inicial.modo === 'fijo' ? franjasPausa(hd).map((f, k) => ({ nombre: f.nombre === 'Descanso' ? NOMBRES_DESCANSO[k] : f.nombre, desde: hhmm(f.desde), hasta: hhmm(f.hasta) })) : []
+    const descansos = inicial.modo === 'fijo' ? franjasPausa(hd).map(f => ({ desde: hhmm(f.desde), hasta: hhmm(f.hasta) })) : []
     return [d, { on: inicial.dias.includes(d), entrada: hd.entrada || '08:30', salida: hd.salida || '18:00', descansos }]
   })))
   const [editando, setEditando] = useState(null) // { d, k }
@@ -244,7 +243,7 @@ function ModalHorario({ inicial, onCerrar }) {
 
   const armar = () => {
     if (h.modo === 'flexible') return { ...h, porDia: {}, descansos: [], pausa: 0, pausaDesde: null, pausaHasta: null }
-    const clave = d => JSON.stringify([filas[d].entrada, filas[d].salida, filas[d].descansos.map(x => [x.nombre, x.desde, x.hasta])])
+    const clave = d => JSON.stringify([filas[d].entrada, filas[d].salida, filas[d].descansos.map(x => [x.desde, x.hasta])])
     const cuenta = {}
     activos.forEach(d => { cuenta[clave(d)] = (cuenta[clave(d)] || 0) + 1 })
     const baseDia = [...activos].sort((a, b) => cuenta[clave(b)] - cuenta[clave(a)])[0]
@@ -308,7 +307,7 @@ function ModalHorario({ inicial, onCerrar }) {
                           <input type="time" className="pl-input" aria-label={`Salida del ${DIAS_LARGOS_CAP[d].toLowerCase()}`} value={f.salida} onChange={e => ponFila(d, { salida: e.target.value })} />
                           <div className="at-hz-paus">
                             {f.descansos.map((x, k) => (
-                              <button key={k} type="button" className={`at-hz-pau${ed === k ? ' on' : ''}`} onClick={() => setEditando(ed === k ? null : { d, k })} title="Editar el descanso"><Coffee size={12} aria-hidden="true" /> {x.nombre} {x.desde}–{x.hasta}</button>
+                              <button key={k} type="button" className={`at-hz-pau${ed === k ? ' on' : ''}`} onClick={() => setEditando(ed === k ? null : { d, k })} title="Editar el descanso"><Coffee size={12} aria-hidden="true" /> {x.desde}–{x.hasta}</button>
                             ))}
                             {f.descansos.length < 2 && <button type="button" className="at-hz-pau add" onClick={() => agregarDescanso(d)}><Plus size={12} aria-hidden="true" /> descanso</button>}
                           </div>
@@ -320,9 +319,7 @@ function ModalHorario({ inicial, onCerrar }) {
                           ]} />
                           {ed != null && f.descansos[ed] && (
                             <div className="at-hz-editor">
-                              <select className="pl-input" aria-label="Nombre del descanso" value={f.descansos[ed].nombre} onChange={e => ponDescanso(d, ed, { nombre: e.target.value })}>
-                                {NOMBRES_DESCANSO.map(n => <option key={n}>{n}</option>)}
-                              </select>
+                              <b className="at-hz-ed-tit">{ed === 0 ? (f.descansos.length > 1 ? 'Primer descanso' : 'Descanso') : 'Segundo descanso'}</b>
                               <label>Desde<input type="time" className="pl-input" value={f.descansos[ed].desde} onChange={e => ponDescanso(d, ed, { desde: e.target.value })} /></label>
                               <label>Hasta<input type="time" className="pl-input" value={f.descansos[ed].hasta} onChange={e => ponDescanso(d, ed, { hasta: e.target.value })} /></label>
                               <span className="at-hz-dur">{duracion(Math.max(0, aMin(f.descansos[ed].hasta) - aMin(f.descansos[ed].desde)))}</span>
