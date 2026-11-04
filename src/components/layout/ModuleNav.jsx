@@ -272,7 +272,6 @@ const asistenciaNav = (cuentas = {}) => [
       { label: 'Avisos al colaborador', ver: 'avisos' },
       { label: 'Lugares y geocercas', ver: 'lugares' },
       { label: 'Asignaciones', ver: 'asignaciones' },
-      { label: 'Biometría y privacidad', ver: 'biometria' },
     ] },
   ]},
 ]

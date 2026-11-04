@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Building2, Warehouse, Users, CheckCircle2, AlertTriangle,
+  Plus, Pencil, Trash2, Clock, ScanFace, MapPin, MapPinOff, Building2, Warehouse, Users, AlertTriangle,
   ShieldCheck, Search, House, Laptop, ArrowUpRight, Timer, CalendarClock, RotateCcw, Check, Copy, Coffee, BellRing, Smartphone,
   LayoutGrid, Table2, X,
 } from 'lucide-react'
@@ -24,13 +24,13 @@ import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, 
    ARRIBA, LA PUESTA A PUNTO: el `readiness` del backend —sin sede, sin horario, sin política,
    consentimiento pendiente— dicho como una lista de lo que falta, con su enlace. */
 
-const SECCIONES = ['horarios', 'modalidades', 'avisos', 'lugares', 'asignaciones', 'biometria']
+const SECCIONES = ['horarios', 'modalidades', 'avisos', 'lugares', 'asignaciones']
 const COLORES = ['#00B876', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444', '#0C2D40']
 
 export default function Configuracion() {
   const [params] = useSearchParams()
   /* «politicas» era el nombre de antes: los enlaces viejos abren Modalidades. */
-  const pedido = ['politicas', 'reglas'].includes(params.get('ver')) ? 'modalidades' : params.get('ver')
+  const pedido = ['politicas', 'reglas'].includes(params.get('ver')) ? 'modalidades' : params.get('ver') === 'biometria' ? 'asignaciones' : params.get('ver')
   const ver = SECCIONES.includes(pedido) ? pedido : 'horarios'
 
   const titulos = {
@@ -38,8 +38,7 @@ export default function Configuracion() {
     modalidades: ['Modalidades', 'Qué se le pide al colaborador al marcar, según cómo trabaja: presencial, híbrido o remoto.'],
     avisos: ['Avisos al colaborador', 'Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánto tiempo tiene para mandar su motivo.'],
     lugares: ['Lugares de marcación', 'Las sucursales y los centros de trabajo de Organización, con la geocerca dentro de la cual se puede marcar.'],
-    asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué política tiene cada persona. Se puede asignar a toda una unidad o sucursal de una vez.'],
-    biometria: ['Biometría y privacidad', 'Quién aceptó el consentimiento y registró su rostro, y cuánto tiempo se guardan las selfies.'],
+    asignaciones: ['Asignaciones', 'Qué horario, qué lugar y qué modalidad tiene cada colaborador, y si registró su rostro. Se puede asignar a toda una unidad o sucursal de una vez.'],
   }
 
   return (
@@ -51,7 +50,6 @@ export default function Configuracion() {
       {ver === 'avisos' && <Avisos />}
       {ver === 'lugares' && <Lugares />}
       {ver === 'asignaciones' && <Asignaciones />}
-      {ver === 'biometria' && <Biometria />}
     </div>
   )
 }
@@ -528,12 +526,25 @@ function Reglas() {
         </div>
         <input type="range" className="at-rango" min="60" max="95" step="1" value={Math.round(m.umbral * 100)} onChange={e => at.setAjustesGenerales({ ...g, marcacion: { ...m, umbral: Number(e.target.value) / 100 } })} aria-label="Parecido mínimo del rostro" />
         <div className="at-regla-ext"><span>60 % · menos rechazos</span><span>95 % · más seguro</span></div>
+        <div className="at-regla-priv">
+          <span><b>{at.personas.filter(p => p.bio?.enrolado).length}</b> de {at.personas.length} registraron su rostro · <b>{at.personas.filter(p => !p.bio?.consentimiento).length}</b> sin aceptar el consentimiento <button type="button" className="at-link-inline" onClick={() => setParams({ ver: 'asignaciones' }, { replace: true })}>Ver en Asignaciones</button></span>
+        </div>
         <p className="at-ayuda" style={{ margin: 0 }}>Con {Math.round(m.umbral * 100)} %, una selfie con poca luz suele pasar; una con el rostro tapado se rechaza y queda en el Libro como marcación rechazada. Nunca baja de 60 %: con menos, el rostro deja de comprobarse.</p>
+      </section>
+
+      <section className="at-card at-regla-parecido">
+        <div className="at-regla-cab">
+          <span className="ico"><ShieldCheck size={18} /></span>
+          <div><b>Privacidad del rostro</b><small>El sistema no guarda la foto del rostro: guarda una huella en números. La selfie de cada marcación es solo evidencia y se borra sola.</small></div>
+          <span className="valor">{g.retencionSelfies} días</span>
+        </div>
+        <input type="range" className="at-rango" min="30" max="365" step="15" value={g.retencionSelfies} onChange={e => at.setAjustesGenerales({ ...g, retencionSelfies: Number(e.target.value) })} aria-label="Días que se guardan las selfies" />
+        <div className="at-regla-ext"><span>Borrar las selfies después de {g.retencionSelfies} días</span><span>Consentimiento vigente: versión 2026-08-v1</span></div>
       </section>
 
       <div className="at-aviso-linea" style={{ alignItems: 'flex-start', lineHeight: 1.5 }}>
         <Timer size={14} style={{ flexShrink: 0, marginTop: 3 }} />
-        <span>Las <b>tolerancias</b> de entrada, descanso y salida, qué pasa si no marca el descanso y cómo se cuenta la tardanza están en cada horario. El horario flexible nunca pide estar en el lugar. {' '}
+        <span>Las <b>tolerancias</b> de entrada, descanso y salida están en cada horario. El horario flexible nunca pide estar en el lugar. {' '}
           <button type="button" onClick={() => setParams({ ver: 'horarios' }, { replace: true })} style={{ border: 'none', background: 'none', padding: 0, font: 'inherit', fontWeight: 600, color: 'var(--text-heading)', textDecoration: 'underline', cursor: 'pointer' }}>Ir a Horarios</button>
         </span>
       </div>
@@ -666,8 +677,11 @@ function Asignaciones() {
   const [sel, setSel] = useState(() => new Set())
   const [pag, setPag] = useState(1)
   const [asignar, setAsignar] = useState(false)
+  const [soloRostro, setSoloRostro] = useState(false)
+  const [confirmar, setConfirmar] = useState(null)
+  const sinRostro = p => !p.bio?.enrolado || !!p.bio?.reenrolar
   const texto = busca.trim().toLowerCase()
-  const lista = filtrar(at.personas, filtro).filter(p => (!soloSin || !p.asig) && (!texto || `${p.name} ${p.cargo} ${p.unidad}`.toLowerCase().includes(texto)))
+  const lista = filtrar(at.personas, filtro).filter(p => (!soloSin || !p.asig) && (!soloRostro || sinRostro(p)) && (!texto || `${p.name} ${p.cargo} ${p.unidad}`.toLowerCase().includes(texto)))
   const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA))
   const pagina = Math.min(pag, paginas)
   const todos = lista.length > 0 && lista.every(p => sel.has(p.id))
@@ -680,9 +694,10 @@ function Asignaciones() {
         <div className="at-barra-herr-izq">
           <div className="pl-search-wrap" style={{ width: 260 }}>
             <Search size={13} className="pl-search-ico" />
-            <input type="search" className="pl-search" placeholder="Buscar persona…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar persona" />
+            <input type="search" className="pl-search" placeholder="Buscar colaborador…" value={busca} onChange={e => { setBusca(e.target.value); setPag(1) }} aria-label="Buscar colaborador" />
           </div>
           <button type="button" className={`at-pestana${soloSin ? ' on' : ''}`} onClick={() => { setSoloSin(!soloSin); setPag(1) }}><AlertTriangle size={12} /> Sin horario <b>{sinCuenta}</b></button>
+          <button type="button" className={`at-pestana${soloRostro ? ' on' : ''}`} onClick={() => { setSoloRostro(!soloRostro); setPag(1) }}><ScanFace size={12} /> Sin rostro <b>{at.personas.filter(sinRostro).length}</b></button>
         </div>
         <button type="button" className="dc-btn" onClick={() => { setSel(new Set(lista.map(p => p.id))) }}>Seleccionar los {lista.length} filtrados</button>
       </div>
@@ -690,10 +705,10 @@ function Asignaciones() {
 
       {lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-          <table className="as-table at-tabla">
+          <table className="as-table at-tabla at-asig-tabla">
             <thead><tr>
               <th style={{ width: 36 }}><input type="checkbox" className="at-check" checked={todos} onChange={() => setSel(todos ? new Set() : new Set(lista.map(p => p.id)))} aria-label="Seleccionar todos" /></th>
-              <th>Colaborador</th><th>Horario</th><th>Lugar de trabajo</th><th>Modalidad</th>
+              <th>Colaborador</th><th>Horario</th><th>Lugar de trabajo</th><th>Modalidad</th><th>Rostro</th><th aria-label="Acciones" />
             </tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => (
@@ -703,11 +718,25 @@ function Asignaciones() {
                   <td>{p.horario ? <span className="at-lugar-chip"><i style={{ width: 8, height: 8, borderRadius: 3, background: p.horario.color, display: 'inline-block' }} /> {p.horario.nombre}</span> : <span className="dc-chip dc-t-ambar"><AlertTriangle size={11} /> Sin horario</span>}</td>
                   <td>{p.lugar ? <span className="at-lugar-chip">{p.lugar.tipo === 'centro' ? <Warehouse size={13} /> : <Building2 size={13} />} {p.lugar.nombre}</span> : <span className="dc-muted">—</span>}</td>
                   <td>{p.asig ? <span className="at-lugar-chip">{p.asig.modalidad === 'remoto' ? <House size={13} /> : p.asig.modalidad === 'hibrido' ? <Laptop size={13} /> : <MapPin size={13} />} {MODALIDADES[p.asig.modalidad].label}{p.asig.modalidad === 'hibrido' && <small>&nbsp;· {p.asig.diasOficina.map(d => DIAS_CORTOS[d]).join(' ')}</small>}</span> : <span className="dc-muted">—</span>}</td>
+                  <td>{(() => {
+                    const b = p.bio || {}
+                    if (!b.consentimiento) return <span className="at-pl t-ambar" title="Todavía no aceptó que se use su rostro"><i aria-hidden="true" />Sin consentimiento</span>
+                    if (b.reenrolar) return <span className="at-pl t-violeta"><i aria-hidden="true" />Pidió registrarlo otra vez</span>
+                    if (b.enrolado) return <span className="at-pl t-verde" title={`Aceptó el consentimiento el ${fechaCorta(b.consentimiento.aceptado)} y registró su rostro el ${fechaCorta(b.enrolado)}`}><i aria-hidden="true" />Registrado</span>
+                    return <span className="at-pl t-gris" title="Lo registra desde la app la primera vez que marca"><i aria-hidden="true" />Sin registrar</span>
+                  })()}</td>
+                  <td style={{ textAlign: 'right' }} onClick={e => e.stopPropagation()}>
+                    <MenuAcciones items={[
+                      { label: 'Asignar horario y lugar', Icono: CalendarClock, onClick: () => { setSel(new Set([p.id])); setAsignar(true) } },
+                      p.bio?.reenrolar && { label: 'Aprobar el nuevo registro', Icono: Check, onClick: () => setConfirmar({ p, tipo: 'aprobar' }) },
+                      p.bio?.enrolado && !p.bio?.reenrolar && { label: 'Pedir que registre su rostro de nuevo', Icono: RotateCcw, onClick: () => setConfirmar({ p, tipo: 'pedir' }) },
+                    ].filter(Boolean)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <Paginacion page={pagina} setPage={setPag} total={lista.length} perPage={POR_PAGINA} nombre="personas" nombreUno="persona" />
+          <Paginacion page={pagina} setPage={setPag} total={lista.length} perPage={POR_PAGINA} nombre="colaboradores" nombreUno="colaborador" />
         </div>
       ) : <div className="dc-tarjeta"><Vacio Icono={Users} titulo={soloSin ? 'Todos tienen horario' : 'Nadie coincide'} texto={soloSin ? 'No queda nadie sin asignar con estos filtros.' : 'Pruebe con otros filtros.'} /></div>}
 
@@ -721,6 +750,13 @@ function Asignaciones() {
         </div>
       )}
       {asignar && <ModalAsignar ids={[...sel]} onCerrar={() => setAsignar(false)} onListo={() => { setAsignar(false); setSel(new Set()) }} />}
+      {/* Borrar un rostro tiene consecuencias: se confirma. */}
+      {confirmar && (
+        <Modal titulo={confirmar.tipo === 'pedir' ? 'Registrar el rostro de nuevo' : 'Aprobar un nuevo registro'} Icono={ScanFace} onCerrar={() => setConfirmar(null)} ancho={480}
+          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setConfirmar(null)}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.actualizarBio(confirmar.p.id, confirmar.tipo === 'pedir' ? { enrolado: null } : { reenrolar: null, enrolado: null }); setConfirmar(null) }}>{confirmar.tipo === 'pedir' ? 'Sí, borrar su rostro' : 'Sí, aprobar'}</button></>}>
+          <p style={{ margin: 0, lineHeight: 1.55 }}>Se borra el rostro registrado de <b>{confirmar.p.name}</b>. La próxima vez que marque, la app le pedirá registrarlo de nuevo, quieto, de frente y con buena luz. Hasta entonces, sus marcaciones no se comparan con ningún rostro.</p>
+        </Modal>
+      )}
     </>
   )
 }
@@ -772,71 +808,3 @@ function ModalAsignar({ ids, onCerrar, onListo }) {
   )
 }
 
-/* ── BIOMETRÍA ── */
-function Biometria() {
-  const at = useAsistencia()
-  const [filtro, setFiltro] = useState(FILTRO_VACIO)
-  const [pag, setPag] = useState(1)
-  const [confirmar, setConfirmar] = useState(null)
-  const lista = filtrar(at.personas, filtro)
-  const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA))
-  const pagina = Math.min(pag, paginas)
-  const g = at.ajustesGenerales
-  const enrolados = at.personas.filter(p => p.bio?.enrolado).length
-  return (
-    <>
-      <div className="at-config-grid">
-        <article className="at-item">
-          <div className="at-item-cab"><div><h3 className="at-item-nom"><ScanFace size={16} /> Rostros registrados</h3><div className="at-item-sub">Cada colaborador registra su rostro una vez, desde la app, después de aceptar el consentimiento. Al marcar, la app compara su selfie con ese rostro.</div></div></div>
-          <div className="at-saldo"><b className="pos">{enrolados}</b><span className="dc-muted">de {at.personas.length} con el rostro registrado</span></div>
-          <div className="at-progreso" style={{ margin: 0 }}><span style={{ width: `${(enrolados / Math.max(1, at.personas.length)) * 100}%` }} /></div>
-        </article>
-        <article className="at-item">
-          <div className="at-item-cab"><div><h3 className="at-item-nom"><ShieldCheck size={16} /> Privacidad</h3><div className="at-item-sub">El servidor nunca compara imágenes: recibe un vector del rostro. La selfie de cada marcación se guarda sólo como evidencia, y se borra sola.</div></div></div>
-          <label className="at-campo"><span>Borrar las selfies después de {g.retencionSelfies} días</span>
-            <input type="range" className="at-rango" min="30" max="365" step="15" value={g.retencionSelfies} onChange={e => at.setAjustesGenerales({ ...g, retencionSelfies: Number(e.target.value) })} />
-          </label>
-          <div className="at-item-pie"><span>Consentimiento vigente</span><span className="dc-chip dc-t-gris">versión 2026-08-v1</span></div>
-        </article>
-      </div>
-
-      <FiltrosOrg valor={filtro} onCambio={v => { setFiltro(v); setPag(1) }} lugares={at.lugares} personas={at.personas} />
-      <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-        <table className="as-table at-tabla">
-          <thead><tr><th>Colaborador</th><th>Consentimiento</th><th>Rostro registrado</th><th /></tr></thead>
-          <tbody>
-            {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => {
-              const b = p.bio || {}
-              return (
-                <tr key={p.id} style={{ cursor: 'default' }}>
-                  <td><PersonaAt persona={p} size={30} /></td>
-                  <td>{b.consentimiento ? <span className="dc-chip dc-t-verde"><CheckCircle2 size={11} /> Aceptó el {fechaCorta(b.consentimiento.aceptado)}</span> : <span className="dc-chip dc-t-ambar"><AlertTriangle size={11} /> Pendiente</span>}</td>
-                  <td>
-                    {b.reenrolar ? <span className="dc-chip dc-t-violeta"><RotateCcw size={11} /> Pidió registrar su rostro de nuevo</span>
-                      : b.enrolado ? <span className="dc-chip dc-t-verde"><ScanFace size={11} /> Registrado el {fechaCorta(b.enrolado)}</span>
-                        : <span className="dc-chip dc-t-gris">Sin registrar</span>}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    {b.reenrolar
-                      ? <button type="button" className="at-btn-ok" style={{ height: 28 }} onClick={() => setConfirmar({ p, tipo: 'aprobar' })}><Check size={13} /> Aprobar</button>
-                      : b.enrolado
-                        ? <button type="button" className="dc-btn dc-btn-sm" onClick={() => setConfirmar({ p, tipo: 'pedir' })} title="Borra su rostro: la próxima vez que marque, lo registra de nuevo"><RotateCcw size={13} /> Pedir que lo registre de nuevo</button>
-                        : <span className="dc-muted" style={{ fontSize: 12 }}>Lo registra desde la app</span>}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-        <Paginacion page={pagina} setPage={setPag} total={lista.length} perPage={POR_PAGINA} nombre="colaboradores" nombreUno="colaborador" />
-      </div>
-      {/* Borrar un rostro tiene consecuencias: se confirma en una ventana. */}
-      {confirmar && (
-        <Modal titulo={confirmar.tipo === 'pedir' ? 'Registrar el rostro de nuevo' : 'Aprobar un nuevo registro'} Icono={ScanFace} onCerrar={() => setConfirmar(null)} ancho={480}
-          pie={<><button type="button" className="pl-btn-cancel" onClick={() => setConfirmar(null)}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.actualizarBio(confirmar.p.id, confirmar.tipo === 'pedir' ? { enrolado: null } : { reenrolar: null, enrolado: null }); setConfirmar(null) }}>{confirmar.tipo === 'pedir' ? 'Sí, borrar su rostro' : 'Sí, aprobar'}</button></>}>
-          <p style={{ margin: 0, lineHeight: 1.55 }}>Se borra el rostro registrado de <b>{confirmar.p.name}</b>. La próxima vez que marque, la app le pedirá registrarlo de nuevo, quieto, de frente y con buena luz. Hasta entonces, sus marcaciones no se comparan con ningún rostro.</p>
-        </Modal>
-      )}
-    </>
-  )
-}

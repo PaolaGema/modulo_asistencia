@@ -1712,3 +1712,7 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 @media (max-width: 1000px) { .at-reglas-modos, .at-hz-tols, .at-hz-opc { grid-template-columns: 1fr; } }
 .at-regla-parecido { padding: 16px 18px; border-radius: 16px; }
 .at-hz-opc.uno { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
+
+.at-regla-priv { font-size: 12.5px; color: var(--text-muted); background: var(--surface-hover); border-radius: 10px; padding: 9px 12px; } .at-regla-priv b { color: var(--text-heading); }
+.at-link-inline { border: none; background: none; padding: 0 0 0 6px; font: inherit; font-weight: 600; color: var(--green-fuerte); cursor: pointer; text-decoration: underline; }
+.at-asig-tabla th, .at-asig-tabla td { padding-left: 9px; padding-right: 9px; } .at-asig-tabla .dc-persona-sub { max-width: 190px; }

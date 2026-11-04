@@ -468,22 +468,25 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 
 ### 3.14 Configuración › Asignaciones
 
-- Una fila por persona con su horario, lugar, modalidad y política; «Sin horario» como chip y como filtro.
+- Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · Pidió registrarlo otra vez); «Sin horario» y **«Sin rostro»** como filtros.
+- Menú ⋯ de cada fila: «Asignar horario y lugar», «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación**.
 - Buscador, filtros y **«Seleccionar los N filtrados»**: así se asigna una unidad o una sucursal entera de una vez.
-- **Asignar a N personas**: horario, lugar de marcación, modalidad (y los días de oficina si es híbrido), política (la de por defecto o una) y desde. Si ya tenían una, «se cierra y se abre esta, en un solo paso».
+- **Asignar a N personas**: horario, lugar de marcación, modalidad (y los días de oficina si es híbrido) y desde. Si ya tenían una, «se cierra y se abre esta, en un solo paso».
 - La misma asignación se hace en el **alta** del colaborador, con «¿Controla su asistencia?».
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
 | RF‑ASI‑053 | Se asigna a muchas personas a la vez con los filtros | Oblig. | Filtrar Ventas y «Seleccionar los 12 filtrados» asigna a los 12 |
-| RF‑ASI‑054 | Sin política propia, vale la de por defecto | Oblig. | La columna dice «Estándar (por defecto)» |
+| RF‑ASI‑054 | **Retirado:** ya no hay políticas | — | — |
 | RF‑ASI‑055 | El alta asigna desde la fecha de ingreso | Import. | Ingresa el 10: aparece en Hoy desde el 10 |
 
-### 3.15 Configuración › Biometría y privacidad
+### 3.15 Configuración › Biometría y privacidad (unida a Asignaciones y Modalidades)
 
-- **Rostros registrados**: cuántos registraron su rostro. Registrar el rostro es hacerlo una vez desde la app, después de aceptar el consentimiento; al marcar, la app compara la selfie con ese rostro. (Antes se decía «enrolar».)
-- **Privacidad**: el servidor no compara imágenes, recibe un vector; la selfie de cada marca es solo evidencia y **se borra a los N días** (30 a 365; 90 por defecto). Consentimiento vigente: versión 2026‑08‑v1.
-- Una fila por colaborador: si aceptó el consentimiento y cuándo, si registró su rostro; «Aprobar» un pedido de registrarlo de nuevo o «Pedir que lo registre de nuevo». **Las dos acciones piden confirmación** en una ventana, porque borran el rostro guardado.
+**Ya no es una sección aparte** (3 nov 2026): la tabla de quién aceptó el consentimiento y registró su rostro es la columna **«Rostro»** de Asignaciones, y la privacidad está en **Modalidades**.
+
+- **Registrar el rostro** es hacerlo una vez desde la app, después de aceptar el consentimiento; al marcar, la app compara la selfie con ese rostro.
+- En Modalidades: cuántos registraron su rostro y cuántos no aceptaron el consentimiento, con «Ver en Asignaciones»; y **Privacidad del rostro**: el sistema no guarda la foto sino una huella en números, la selfie de cada marca es solo evidencia y **se borra a los N días** (30 a 365; 90 por defecto). Consentimiento vigente: versión 2026‑08‑v1.
+- La dirección vieja (`?ver=biometria`) abre Asignaciones.
 
 | Código | Requisito | Prioridad | Criterio |
 | --- | --- | --- | --- |
@@ -2971,7 +2974,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | W‑ASI‑17 | Configuración › Avisos al colaborador | /asistencia/configuracion?ver=avisos |
 | W‑ASI‑18 | Configuración › Lugares y geocercas | /asistencia/configuracion?ver=lugares |
 | W‑ASI‑19 | Configuración › Asignaciones | /asistencia/configuracion?ver=asignaciones |
-| W‑ASI‑20 | Configuración › Biometría y privacidad | /asistencia/configuracion?ver=biometria |
+| W‑ASI‑20 | Configuración › Asignaciones (columna Rostro) y Modalidades (privacidad) | /asistencia/configuracion?ver=asignaciones |
 
 ### Para El colaborador
 
