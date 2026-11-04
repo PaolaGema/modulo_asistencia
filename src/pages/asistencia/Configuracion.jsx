@@ -103,11 +103,11 @@ function Horarios() {
   return (
     <>
       <div className="at-hor-barra">
-        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
         <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver">
           <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma(null)}><Table2 size={15} aria-hidden="true" /></button>
           <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma('tarjetas')}><LayoutGrid size={15} aria-hidden="true" /></button>
         </div>
+        <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
       </div>
       {enTabla ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
@@ -315,7 +315,7 @@ function Politicas() {
   const uso = id => at.personas.filter(p => p.politica?.id === id).length
   return (
     <>
-      <div><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, ...reglasDe(null), radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button></div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', desc: '', rostro: true, geocerca: true, umbral: 0.78, ...reglasDe(null), radio: null, porDefecto: false })}><Plus size={14} /> Nueva política</button></div>
       <div className="at-config-grid">
         {at.politicas.map(p => (
           <article key={p.id} className="at-item">

@@ -1548,3 +1548,4 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-otro-dia select.pl-input { height: 44px; width: 100%; }
 .at-otro-dia { column-gap: 10px; } .at-otro-dia .pl-input { min-width: 0; width: 100%; box-sizing: border-box; }
 .at-otro-dia > * { min-width: 0; }
+.at-hor-barra { justify-content: flex-end; }
