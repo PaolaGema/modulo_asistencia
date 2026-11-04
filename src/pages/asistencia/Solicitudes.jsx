@@ -47,6 +47,8 @@ const QUE = { vacaciones: 'las vacaciones', justificacion: 'la justificación', 
 /* Qué dice la segunda columna, según lo que se pide. */
 const COL_PIDE = { vacaciones: 'Fechas y motivo', permiso: 'Permiso o licencia', justificacion: 'Qué justifica', correccion: 'Qué corrige', remoto: 'Días y motivo', cambio: 'Qué turno cambia' }
 const rango = (a, b) => (a === b ? fechaCorta(a) : `${fechaCorta(a)} al ${fechaCorta(b)}`)
+/* La fecha en que la pidió, y debajo cuánto hace. */
+const fechaSolicitud = f => { const d = aFecha(String(f).slice(0, 10)); return `${d.getDate()} ${['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][d.getMonth()]} ${d.getFullYear()}` }
 const hace = (desde, hoy) => { const d = Math.round((aFecha(hoy) - aFecha(desde)) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días` }
 
 export default function Solicitudes() {
@@ -137,7 +139,7 @@ function Lista({ ver }) {
       ) : lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
           <table className="as-table at-tabla at-tabla-sol">
-            <thead><tr><th>Colaborador</th><th>{COL_PIDE[vista.tipo] || 'Qué pide'}</th><th>A tener en cuenta</th><th>Cuándo la pidió</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
+            <thead><tr><th>Colaborador</th><th>{COL_PIDE[vista.tipo] || 'Qué pide'}</th><th>A tener en cuenta</th><th>Fecha de solicitud</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(s => {
                 const d = describir(s, saldoDe, coberturaDe, historialDe)
@@ -150,7 +152,7 @@ function Lista({ ver }) {
                       <span className="at-sol-sub">{d.detalle}</span>
                     </td>
                     <td><span className="at-sol-chips">{d.chips.length ? d.chips.slice(0, 2).map((c, i) => <span key={i} className={`dc-chip dc-chip-sm dc-t-${c.tono}`}>{c.texto}</span>) : <span className="dc-muted">—</span>}</span></td>
-                    <td className="at-sol-cuando">{hace(s.cuando, at.hoy)}</td>
+                    <td className="at-sol-cuando"><b className="at-sol-fecha">{fechaSolicitud(s.cuando)}</b><small>{hace(s.cuando, at.hoy)}</small></td>
                     <td><Etiqueta tono={ESTADOS_SOLICITUD[s.estado].tono}>{ESTADOS_SOLICITUD[s.estado].label}</Etiqueta></td>
                     <td style={{ textAlign: 'right' }}>
                       <button type="button" className={s.estado === 'pendiente' ? 'at-btn-revisar' : 'dc-btn dc-btn-sm'} onClick={e => { e.stopPropagation(); abrir() }}>

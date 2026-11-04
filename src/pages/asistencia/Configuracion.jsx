@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
@@ -14,8 +14,9 @@ import { PersonaAt, FiltrosOrg, FILTRO_VACIO, filtrar } from '../../components/a
 import MapaGeocerca from '../../components/asistencia/MapaGeocerca'
 import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
+import ModalAsignar from '../../components/asistencia/ModalAsignar'
 import Avatar from '../../components/personas/Avatar'
-import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, hoyISO, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
+import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
    Cinco partes, en el orden en que se arma el módulo la primera vez: los HORARIOS (cuándo), las
@@ -784,50 +785,4 @@ function Asignaciones() {
   )
 }
 
-function ModalAsignar({ ids, onCerrar, onListo }) {
-  const at = useAsistencia()
-  const primera = at.personas.find(p => p.id === ids[0])
-  const [d, setD] = useState({
-    horarioId: primera?.asig?.horarioId || at.horarios[0]?.id,
-    lugarId: primera?.asig?.lugarId || primera?.sucursalId || at.lugares[0]?.id,
-    modalidad: primera?.asig?.modalidad || 'presencial',
-    diasOficina: primera?.asig?.diasOficina?.length ? primera.asig.diasOficina : [2, 4],
-    politicaId: primera?.asig?.politicaId || '',
-    desde: hoyISO(),
-  })
-  const pon = (k, v) => setD(prev => ({ ...prev, [k]: v }))
-  const lugaresOps = useMemo(() => at.lugares.filter(l => l.tipo === 'sucursal').flatMap(s => [
-    { valor: s.id, etiqueta: `${s.nombre} · ${s.ciudad}` },
-    ...at.lugares.filter(c => c.tipo === 'centro' && c.sucursalId === s.id).map(c => ({ valor: c.id, etiqueta: `   ↳ ${c.nombre}` })),
-  ]), [at.lugares])
-  const reemplaza = ids.filter(id => at.asignaciones[id]).length
-  return (
-    <Modal titulo={`Asignar a ${ids.length} ${ids.length === 1 ? 'persona' : 'personas'}`} Icono={CalendarClock} onCerrar={onCerrar} ancho={580}
-      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" onClick={() => { at.asignar(ids, { ...d, politicaId: d.politicaId || null, diasOficina: d.modalidad === 'hibrido' ? d.diasOficina : [] }); onListo() }}>Asignar</button></>}>
-      <div className="at-modal-campos">
-        <div className="at-dos">
-          <label className="at-campo"><span>Horario</span><Desplegable valor={d.horarioId} onCambio={v => pon('horarioId', v)} opciones={at.horarios.map(h => ({ valor: h.id, etiqueta: h.nombre }))} ariaLabel="Horario" /></label>
-          <label className="at-campo"><span>Lugar de marcación</span><Desplegable valor={d.lugarId} onCambio={v => pon('lugarId', v)} opciones={lugaresOps} ariaLabel="Lugar" conBuscador /></label>
-        </div>
-        <div className="at-campo"><span>Modalidad</span>
-          <div className="at-segmento" role="radiogroup">
-            {Object.entries(MODALIDADES).map(([k, m]) => <button key={k} type="button" role="radio" aria-checked={d.modalidad === k} className={d.modalidad === k ? 'on' : ''} onClick={() => pon('modalidad', k)}>{m.label}</button>)}
-          </div>
-          <span className="at-ayuda">{MODALIDADES[d.modalidad].desc}</span>
-        </div>
-        {d.modalidad === 'hibrido' && (
-          <div className="at-campo"><span>Días de oficina</span>
-            <div className="at-semana-chips">
-              {[1, 2, 3, 4, 5, 6, 7].map(x => <button key={x} type="button" aria-pressed={d.diasOficina.includes(x)} className={d.diasOficina.includes(x) ? 'on' : ''} onClick={() => pon('diasOficina', d.diasOficina.includes(x) ? d.diasOficina.filter(y => y !== x) : [...d.diasOficina, x].sort())}>{DIAS_CORTOS[x]}</button>)}
-            </div>
-          </div>
-        )}
-        <div className="at-dos">
-          <label className="at-campo"><span>Desde</span><input type="date" className="pl-input" value={d.desde} onChange={e => pon('desde', e.target.value)} /></label>
-        </div>
-        {reemplaza > 0 && <div className="at-aviso-linea"><RotateCcw size={14} /> {reemplaza === ids.length ? 'Todas tienen' : `${reemplaza} tienen`} una asignación vigente: se cierra y se abre esta, en un solo paso.</div>}
-      </div>
-    </Modal>
-  )
-}
 
