@@ -55,7 +55,7 @@ h1 { margin: 6px 0 4px; font-family: var(--display); font-size: 34px; letter-spa
 .meta { display: flex; gap: 16px; flex-wrap: wrap; color: #B7CBD8; font-size: 13px; } .meta a { color: var(--menta); }
 .quien { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 .quien label { display: grid; gap: 3px; font-size: 11px; color: #B7CBD8; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); }
-.quien input { height: 36px; border-radius: 9px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; padding: 0 10px; font: inherit; font-size: 14px; min-width: 220px; }
+.quien input { height: 36px; border-radius: 9px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; padding: 0 10px; font: inherit; font-family: var(--texto); letter-spacing: 0; text-transform: none; font-size: 14px; min-width: 220px; }
 .barra-sup { position: sticky; top: 0; z-index: 5; background: var(--hoja); border-bottom: 1px solid var(--regla); padding: 12px max(16px, calc((100vw - 1100px) / 2)); display: grid; gap: 10px; }
 .avance { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .avance .num { font-family: var(--display); font-size: 22px; } .avance .num small { font-size: 13px; color: var(--gris); font-family: var(--texto); }
@@ -74,6 +74,28 @@ details.antes summary { cursor: pointer; font-weight: 700; padding: 10px 0; } de
 code { font-family: var(--mono); font-size: 12.5px; background: var(--gris-bg); border-radius: 5px; padding: 1px 5px; }
 .parte-t { font-family: var(--display); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--verde); margin: 18px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--regla); }
 .chip.parte.on { background: #00B876; border-color: #00B876; } .chip.parte.on b { color: #fff; }
+.tablero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; }
+.avance { display: grid; gap: 8px; }
+.num { display: flex; align-items: baseline; gap: 8px; } .num b { font-family: var(--display); font-size: 30px; line-height: 1; } .num span { color: var(--gris); font-size: 14px; } .num em { margin-left: auto; font-style: normal; font-weight: 700; color: var(--verde); font-size: 14px; }
+.prog { height: 10px; min-width: 0; }
+.cifras { display: grid; grid-template-columns: repeat(4, 116px); gap: 8px; }
+.cifra { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left; border: 1.5px solid var(--regla); background: var(--hoja); border-radius: 12px; padding: 8px 10px; cursor: pointer; font: inherit; color: var(--tinta); }
+.cifra .ic { grid-row: 1 / 3; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--gris-bg); color: var(--gris); }
+.cifra b { font-family: var(--display); font-size: 20px; line-height: 1.1; } .cifra small { font-size: 11.5px; color: var(--gris); white-space: nowrap; }
+.cifra.pasa .ic { background: var(--verde-bg); color: var(--verde); } .cifra.falla .ic { background: var(--rojo-bg); color: var(--rojo); }
+.cifra:hover { border-color: var(--gris); } .cifra.on { border-color: var(--marca); box-shadow: 0 0 0 3px rgba(12,45,64,.12); }
+.cifra.pasa.on { border-color: #00B876; box-shadow: 0 0 0 3px var(--verde-bg); } .cifra.falla.on { border-color: #E5484D; box-shadow: 0 0 0 3px var(--rojo-bg); }
+.herr { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; background: var(--gris-bg); border-radius: 11px; padding: 3px; gap: 2px; }
+.seg button { border: none; background: none; border-radius: 9px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; color: var(--gris); cursor: pointer; white-space: nowrap; }
+.seg button small { font-size: 11.5px; font-weight: 600; opacity: .8; margin-left: 4px; }
+.seg button.on { background: var(--hoja); color: var(--tinta); box-shadow: 0 1px 3px rgba(12,45,64,.15); }
+.buscar-w { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px; height: 38px; border: 1px solid var(--regla); border-radius: 10px; padding: 0 12px; background: var(--hoja); color: var(--gris); }
+.buscar-w:focus-within { border-color: #00B876; box-shadow: 0 0 0 3px var(--verde-bg); }
+.buscar-w .buscar { border: none; height: 100%; padding: 0; min-width: 0; outline: none; background: none; }
+.btn.prim { display: inline-flex; gap: 7px; align-items: center; height: 38px; }
+.link-peligro { border: none; background: none; color: var(--gris); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 4px; } .link-peligro:hover { color: var(--rojo); }
+@media (max-width: 900px) { .tablero { grid-template-columns: 1fr; } .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .grupo h2 { font-family: var(--display); font-size: 22px; margin: 8px 0 10px; display: flex; align-items: baseline; gap: 10px; } .grupo h2 small { font-family: var(--texto); font-size: 13px; color: var(--gris); font-weight: 500; }
 .caso { background: var(--hoja); border: 1px solid var(--regla); border-left: 4px solid var(--regla); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; margin-bottom: 10px; }
 .caso.pasa { border-left-color: #00B876; } .caso.falla { border-left-color: #E5484D; } .caso.nopudo { border-left-color: #94A3B8; }
@@ -109,15 +131,18 @@ code { font-family: var(--mono); font-size: 12.5px; background: var(--gris-bg); 
   </div>
 </header>
 <div class="barra-sup">
-  <div class="avance">
-    <span class="num" id="num">0 <small>de ${total} probados</small></span>
-    <div class="prog" aria-hidden="true"><i class="p" id="pp"></i><i class="f" id="pf"></i><i class="n" id="pn"></i></div>
+  <div class="tablero">
+    <div class="avance">
+      <div class="num" id="num"></div>
+      <div class="prog" aria-hidden="true"><i class="p" id="pp"></i><i class="f" id="pf"></i><i class="n" id="pn"></i></div>
+    </div>
+    <div class="cifras" id="filtros"></div>
   </div>
   <div class="herr">
-    <div class="cuentas" id="partes"></div><div class="cuentas" id="filtros"></div>
-    <input class="buscar" id="buscar" type="search" placeholder="Buscar un caso, una pantalla o un requisito…">
-    <button class="btn prim" id="exportar">Exportar resultados (CSV)</button>
-    <button class="btn peligro" id="limpiar">Empezar de nuevo</button>
+    <div class="seg" id="partes" role="tablist" aria-label="Qué parte"></div>
+    <div class="buscar-w"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="buscar" id="buscar" type="search" placeholder="Buscar un caso, una pantalla o un requisito…"></div>
+    <button class="btn prim" id="exportar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Exportar CSV</button>
+    <button class="link-peligro" id="limpiar">Empezar de nuevo</button>
   </div>
 </div>
 <main>
@@ -133,7 +158,7 @@ try { estado = JSON.parse(localStorage.getItem(CLAVE) || '{}') } catch (e) { est
 const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(estado)) } catch (e) {} }
 const casos = GRUPOS.flatMap(g => g.casos.map(c => ({ ...c, grupo: g.titulo, parte: g.parte })))
 let filtro = '', texto = '', parte = ''
-const PARTES = [['', 'Todo'], ['rrhh', 'RR.HH. · web'], ['celular', 'Colaborador · celular']]
+const PARTES = [['', 'Todo'], ['rrhh', 'RR.HH. (web)'], ['celular', 'Colaborador (celular)']]
 const q = id => document.getElementById(id)
 ;['quien', 'donde'].forEach(k => { q(k).value = estado['_' + k] || ''; q(k).addEventListener('input', e => { estado['_' + k] = e.target.value; guardar() }) })
 const resultado = id => estado[id]?.r || ''
@@ -141,12 +166,13 @@ function pintarArriba() {
   const n = { pasa: 0, falla: 0, nopudo: 0 }
   casos.forEach(c => { const r = resultado(c.id); if (r) n[r]++ })
   const hechos = n.pasa + n.falla + n.nopudo, t = casos.length
-  q('num').innerHTML = hechos + ' <small>de ' + t + ' probados</small>'
+  q('num').innerHTML = '<b>' + hechos + '</b><span>de ' + t + ' probados</span><em>' + Math.round(hechos / t * 100) + ' %</em>'
   q('pp').style.width = (n.pasa / t * 100) + '%'; q('pf').style.width = (n.falla / t * 100) + '%'; q('pn').style.width = (n.nopudo / t * 100) + '%'
-  const ops = [['', 'Todos', t], ['sin', 'Sin probar', t - hechos], ['pasa', '✓ Pasan', n.pasa], ['falla', '✗ Fallan', n.falla], ['nopudo', '— No se pudo', n.nopudo]]
-  q('filtros').innerHTML = ops.map(([k, l, c]) => '<button class="chip' + (filtro === k ? ' on' : '') + '" data-f="' + k + '">' + l + ' <b>' + c + '</b></button>').join('')
-  q('filtros').querySelectorAll('button').forEach(b => b.onclick = () => { filtro = b.dataset.f; pintar() })
-  q('partes').innerHTML = PARTES.map(([k, l]) => { const cs = casos.filter(c => !k || c.parte === k); const h = cs.filter(c => resultado(c.id)).length; return '<button class="chip parte' + (parte === k ? ' on' : '') + '" data-p="' + k + '">' + l + ' <b>' + h + '/' + cs.length + '</b></button>' }).join('')
+  /* Las cifras son a la vez el filtro: tocar «Fallan» muestra solo las que fallan; otra vez, todas. */
+  const ops = [['pasa', 'Pasan', n.pasa, '✓'], ['falla', 'Fallan', n.falla, '✗'], ['nopudo', 'No se pudo', n.nopudo, '—'], ['sin', 'Sin probar', t - hechos, '○']]
+  q('filtros').innerHTML = ops.map(([k, l, c, i]) => '<button class="cifra ' + k + (filtro === k ? ' on' : '') + '" data-f="' + k + '" aria-pressed="' + (filtro === k) + '"><span class="ic">' + i + '</span><b>' + c + '</b><small>' + l + '</small></button>').join('')
+  q('filtros').querySelectorAll('button').forEach(b => b.onclick = () => { filtro = filtro === b.dataset.f ? '' : b.dataset.f; pintar() })
+  q('partes').innerHTML = PARTES.map(([k, l]) => { const cs = casos.filter(c => !k || c.parte === k); const h = cs.filter(c => resultado(c.id)).length; return '<button role="tab" aria-selected="' + (parte === k) + '" class="' + (parte === k ? 'on' : '') + '" data-p="' + k + '">' + l + ' <small>' + h + '/' + cs.length + '</small></button>' }).join('')
   q('partes').querySelectorAll('button').forEach(b => b.onclick = () => { parte = b.dataset.p; pintar() })
 }
 function pintar() {
