@@ -171,7 +171,7 @@ export default function Registro() {
                 <span className="pl-dd-trigger-estado">
                   {o?.punto && <i style={{ background: o.punto }} aria-hidden="true" />}
                   <span>{o ? o.etiqueta : 'Todas las jornadas'}</span>
-                  {o && <b>{delTema.length}</b>}
+                  {o?.valor && <b>{delTema.length}</b>}
                 </span>
               )}
               onCambio={v => ir({ tema: v, lista: v && enLista ? '1' : null })} />

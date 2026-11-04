@@ -11611,3 +11611,5 @@ html.vt-volver::view-transition-old(telefono) { z-index: 3; }
 .pl-dd-trigger-estado > b { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-muted); }
 /* El filtro de estados entra entero, sin scroll: son pocas opciones y se leen de un vistazo. */
 .pl-dropdown-menu:has(.pl-dd-punto) { max-height: 340px; }
+.pl-dropdown-trigger > .pl-dd-trigger-estado { flex: 1 1 auto !important; max-width: none !important; width: auto; margin-right: 6px; } .pl-dd-trigger-estado > b { margin-left: auto; }
+.pl-dropdown-trigger.at-dd-estados { padding-right: 12px !important; }

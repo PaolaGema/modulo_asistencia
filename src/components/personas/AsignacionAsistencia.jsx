@@ -1,13 +1,15 @@
 import { useMemo } from 'react'
-import { CircleCheck, CircleSlash } from 'lucide-react'
+import { CircleCheck, CircleSlash, MapPin, House, Laptop, X } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import Desplegable from '../layout/Desplegable'
+import SelectorHorario, { Semanita } from '../asistencia/SelectorHorario'
 import { MODALIDADES, DIAS_CORTOS, hoyISO, fechaLarga } from '../../data/asistenciaData'
 import '../asistencia/asistencia.css'
 
 /* ── LA ASISTENCIA DE LA PERSONA, EN SU FICHA ──
    Lo mismo que asigna Asistencia › Configuración › Asignaciones, pero al darla de alta: su horario,
-   dónde marca, si es presencial, híbrida o remota, y con qué controles marca. Los valores viajan en
+   dónde marca (y en qué otros lugares, si rota), si es presencial, híbrida o remota, y con qué controles
+   marca. Con la misma lista de horarios que Asignar: con buscador, para cuando hay 50. Los valores viajan en
    el formulario con claves `at.*` y, al confirmar el alta, `asignacionDeFicha` los convierte en la
    asignación del módulo: desde ese día aparece en Hoy, en el Libro y en su app.
 
@@ -30,7 +32,7 @@ function valores(form, at) {
     lugarId: form['at.lugar'] || at.lugares.find(l => l.tipo === 'sucursal')?.id || '',
     modalidad: form['at.modalidad'] || 'presencial',
     diasOficina: form['at.diasOficina'] || [2, 4],
-    politicaId: form['at.politica'] || '',
+    lugaresExtra: form['at.lugaresExtra'] || [],
     desde: form['at.desde'] || form['3.25'] || hoyISO(),
   }
 }
@@ -43,7 +45,8 @@ export function asignacionDeFicha(form, at) {
   return {
     horarioId: v.horarioId, lugarId: v.lugarId, modalidad: v.modalidad, desde: v.desde,
     diasOficina: v.modalidad === 'hibrido' ? v.diasOficina : [],
-    politicaId: v.politicaId || null,
+    lugaresExtra: v.modalidad === 'remoto' ? [] : v.lugaresExtra.filter(x => x !== v.lugarId),
+    politicaId: null,
   }
 }
 
@@ -73,20 +76,13 @@ export default function AsignacionAsistencia({ form, set }) {
       ) : (
         <>
           <div className="at-campo"><span>Horario</span>
-            <div className="at-ficha-horarios" role="radiogroup" aria-label="Horario">
-              {at.horarios.map(h => (
-                <button key={h.id} type="button" role="radio" aria-checked={v.horarioId === h.id} className={v.horarioId === h.id ? 'on' : ''} onClick={() => set('at.horario', h.id)}>
-                  <i style={{ background: h.color }} />
-                  <b>{h.nombre}</b>
-                  <small>{resumenHorario(h)}</small>
-                </button>
-              ))}
-            </div>
+            <SelectorHorario valor={v.horarioId} onCambio={x => set('at.horario', x)} uso={id => at.personas.filter(p => p.asig?.horarioId === id).length} />
+            {horario && <div className="at-as-prev"><Semanita h={horario} grande /></div>}
           </div>
 
           <div className="at-dos">
             <label className="at-campo"><span>Dónde marca</span>
-              <Desplegable valor={v.lugarId} onCambio={x => set('at.lugar', x)} opciones={lugaresOps} ariaLabel="Dónde marca" conBuscador />
+              <Desplegable valor={v.lugarId} onCambio={x => { set('at.lugar', x); set('at.lugaresExtra', v.lugaresExtra.filter(y => y !== x)) }} opciones={lugaresOps} ariaLabel="Dónde marca" conBuscador />
               <span className="at-ayuda">Su sucursal o centro de trabajo. Ahí está su geocerca.</span>
             </label>
             <label className="at-campo"><span>Desde</span>
@@ -94,12 +90,22 @@ export default function AsignacionAsistencia({ form, set }) {
               <span className="at-ayuda">Por defecto, su fecha de ingreso.</span>
             </label>
           </div>
+          {v.modalidad !== 'remoto' && (
+            <div className="at-as-extra">
+              <span className="tit">También puede marcar en</span>
+              {v.lugaresExtra.map(id => { const l = at.lugarPorId.get(id); return l ? <span key={id} className="chip"><MapPin size={12} />{l.nombre}<button type="button" aria-label={`Quitar ${l.nombre}`} onClick={() => set('at.lugaresExtra', v.lugaresExtra.filter(x => x !== id))}><X size={12} /></button></span> : null })}
+              <span className="agregar"><Desplegable valor="" placeholder="+ Agregar otro lugar" onCambio={x => x && x !== v.lugarId && !v.lugaresExtra.includes(x) && set('at.lugaresExtra', [...v.lugaresExtra, x])} opciones={lugaresOps.filter(o => o.valor !== v.lugarId && !v.lugaresExtra.includes(o.valor))} ariaLabel="Agregar otro lugar" conBuscador /></span>
+              <small>Para quien rota entre sucursales: puede marcar en cualquiera.</small>
+            </div>
+          )}
 
           <div className="at-campo"><span>Modalidad</span>
-            <div className="at-segmento" role="radiogroup" aria-label="Modalidad">
-              {Object.entries(MODALIDADES).map(([k, m]) => <button key={k} type="button" role="radio" aria-checked={v.modalidad === k} className={v.modalidad === k ? 'on' : ''} onClick={() => set('at.modalidad', k)}>{m.label}</button>)}
+            <div className="at-as-modos" role="radiogroup" aria-label="Modalidad">
+              {Object.entries(MODALIDADES).map(([k, m]) => {
+                const I = { presencial: MapPin, remoto: House, hibrido: Laptop }[k] || MapPin
+                return <button key={k} type="button" role="radio" aria-checked={v.modalidad === k} className={v.modalidad === k ? 'on' : ''} onClick={() => set('at.modalidad', k)}><I size={17} /><b>{m.label}</b><small>{m.desc}</small></button>
+              })}
             </div>
-            <span className="at-ayuda">{MODALIDADES[v.modalidad].desc}</span>
           </div>
           {v.modalidad === 'hibrido' && (
             <div className="at-campo"><span>Días de oficina</span>
@@ -114,7 +120,7 @@ export default function AsignacionAsistencia({ form, set }) {
           <p className="at-ficha-resumen">
             <CircleCheck size={16} aria-hidden="true" />
             <span>
-              Desde el <b>{fechaLarga(v.desde).toLowerCase()}</b> marca {v.modalidad === 'remoto' ? 'desde donde esté' : <>en <b>{lugar?.nombre || 'su lugar'}</b></>}
+              Desde el <b>{fechaLarga(v.desde).toLowerCase()}</b> marca {v.modalidad === 'remoto' ? 'desde donde esté' : <>en <b>{lugar?.nombre || 'su lugar'}</b>{v.lugaresExtra.length ? <> o en {v.lugaresExtra.map(id => at.lugarPorId.get(id)?.nombre).filter(Boolean).join(' o ')}</> : null}</>}
               {horario && <>, <b>{resumenHorario(horario)}</b></>}
               {controles.length ? <>, con {controles.join(' y ')}</> : null}.
             </span>
