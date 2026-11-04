@@ -988,7 +988,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <div><b>58</b><span>reglas de negocio</span></div>
     <div><b>87</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
-    <div><b>66</b><span>pruebas para QA</span></div>
+    <div><b>80</b><span>pruebas para QA (documento aparte)</span></div>
     <div><b>21</b><span>pantallas</span></div>
     <div><b>9</b><span>decisiones abiertas</span></div>
   </div>
@@ -1327,22 +1327,6 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 <div class="rail-s" data-sec="s10">
   <a href="#s10"><span>10</span>Pruebas para QA</a>
-  <button type="button" class="rail-x" aria-expanded="false" aria-controls="sub-s10"><svg class="rail-c" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3.5 1.5 L7 5 L3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr">Ver los subtítulos de Pruebas para QA</span></button>
-  <ul class="rail-sub" id="sub-s10" hidden>
-    <li><a href="#p10-1">10.1 Antes de empezar</a></li>
-    <li><a href="#p10-2">10.2 Hoy</a></li>
-    <li><a href="#p10-3">10.3 Libro de asistencia</a></li>
-    <li><a href="#p10-4">10.4 La asistencia de un colaborador y su PDF</a></li>
-    <li><a href="#p10-5">10.5 El detalle de una jornada</a></li>
-    <li><a href="#p10-6">10.6 Solicitudes</a></li>
-    <li><a href="#p10-7">10.7 Horas extra</a></li>
-    <li><a href="#p10-8">10.8 Configuración › Horarios</a></li>
-    <li><a href="#p10-9">10.9 Configuración › Modalidades</a></li>
-    <li><a href="#p10-10">10.10 Configuración › Asignaciones</a></li>
-    <li><a href="#p10-11">10.11 El celular del colaborador</a></li>
-    <li><a href="#p10-12">10.12 El alta del colaborador</a></li>
-    <li><a href="#p10-13">10.13 Cálculos</a></li>
-  </ul>
 </div>
 <div class="rail-s" data-sec="como-se-mantiene-este-documento">
   <a href="#como-se-mantiene-este-documento"><span>+</span>Cómo se mantiene este documento</a>
@@ -4352,154 +4336,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       
     </header>
 
-<p>El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se prueba, con qué requisito se relaciona, los pasos y lo que tiene que pasar. Se mantiene junto con el resto del documento: cuando cambia una regla o una pantalla, cambia su prueba.</p>
-<h3 id="p10-1">10.1 Antes de empezar</h3>
-<ul>
-<li><strong>Dónde:</strong> el prototipo publicado (Vercel) o <code>npm run dev</code> en <code>http://localhost:5173</code>. Navegador de escritorio, 1440 × 900 o más; el celular se prueba en el marco de teléfono de la misma web.</li>
-<li><strong>Datos:</strong> con la <strong>demo cargada</strong> (menú lateral › «Cargar la demo»). El reloj de la demo queda en un <strong>viernes a las 16:10</strong> y la empresa de ejemplo es <strong>FarmaVida S.R.L.</strong>, con 63 colaboradores. Los ejemplos de abajo usan octubre de 2026; si la demo cae en otra semana, se usan los mismos casos con otras fechas.</li>
-<li><strong>Quién:</strong> las pantallas de Asistencia se prueban como <strong>Juan Pérez Gómez · Administrador HR</strong>. Lo del celular, como colaborador (menú lateral › «Ver la demo como»).</li>
-<li><strong>Volver a empezar:</strong> «Cargar la demo» borra lo que se cambió y vuelve a sembrar todo.</li>
-<li><strong>Cómo reportar:</strong> el ID del caso (QA‑ASI‑NN), qué se hizo, qué pasó, qué se esperaba y una captura. En la columna «Resultado» se marca <strong>✓</strong> (pasa), <strong>✗</strong> (falla) o <strong>—</strong> (no se pudo probar).</li>
-<li><strong>Siempre, en todas las pruebas:</strong> toda acción que no se deshace pide confirmación en una ventana antes de aplicarse; las tablas dicen «Colaborador» y no «Persona»; los filtros de estado son listas desplegables con la flecha a la derecha; nada se ve cortado ni se sale del ancho de la pantalla.</li>
-</ul>
-<h3 id="p10-2">10.2 Hoy</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑01</td><td>Saludo y cifras del momento</td><td>Abrir Asistencia › Hoy</td><td>Saludo con el nombre, «El N % de tu gente ya está trabajando», y las cifras No han llegado, Llegaron tarde y Ausencias justificadas</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑02</td><td>Estados en lista desplegable</td><td>En «Colaboradores», abrir la lista de estados</td><td>No han llegado, Llegaron tarde, Trabajando, Aún no les toca, Vacaciones y permisos y Todos, cada uno con su punto de color y su número; al elegir uno, la tabla se filtra</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑03</td><td>Enlaces de «Requiere tu atención»</td><td>Tocar «Revisar» en «marcaciones rechazadas hoy»</td><td>Abre el Libro en el Mes con el tema «Marcaciones rechazadas» y la vista de lista</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑04</td><td>El calendario sin cierre</td><td>Mirar el calendario de la columna derecha</td><td>La leyenda muestra Feriado, Vacaciones y permisos, Faltas y Horas extra; <strong>no</strong> aparece «Cierre»</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-3">10.3 Libro de asistencia</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑05</td><td>Día con estados</td><td>Libro › Día de hoy; abrir la lista de estados</td><td>Columnas Colaborador, Horario, Entrada, Salida, Su día (barra), Horas trabajadas, Estado. Quien está trabajando aparece en verde «desde HH:MM» aunque haya llegado tarde</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑06</td><td>Semana y Mes</td><td>Cambiar a Semana y a Mes con el segmento de la cabecera</td><td>Semana: celdas de color por día y lo acumulado; Mes: un cuadrito por día y las columnas Retrasos, Tiempo de retraso, Faltas y Horas del mes</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑07</td><td>Ventana «Su mes»</td><td>En el Mes, tocar el nombre de un colaborador</td><td>Abre su mes con las cifras, «Descargar PDF» y «Ver su asistencia completa»</td><td>RF‑ASI‑014</td><td></td></tr>
-<tr><td>QA‑ASI‑08</td><td>Calendario</td><td>Tocar el ícono de calendario de la cabecera</td><td>El mes a todo el ancho; un clic en un día abre una ventana con los filtros y la tabla de ese día</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑09</td><td>Temas como filtro (Mes)</td><td>En el Mes, elegir «Faltas» en la lista de temas</td><td>Quedan solo quienes faltaron en el mes; los demás días se apagan; aparece «Sin justificar · Justificadas · Todas»</td><td>RF‑ASI‑081</td><td></td></tr>
-<tr><td>QA‑ASI‑10</td><td>Lista de cada caso</td><td>Con «Retrasos y descansos» elegido, tocar el ícono de lista</td><td>Una fila por caso con Colaborador, Día, Qué pasó, Su motivo y «Ver el día»</td><td>RF‑ASI‑023</td><td></td></tr>
-<tr><td>QA‑ASI‑11</td><td>Sin submenú</td><td>Mirar el menú lateral</td><td>«Libro de asistencia» es una sola entrada, sin Faltas, Retrasos ni Incidencias debajo</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑12</td><td>Direcciones viejas</td><td>Entrar a <code>/asistencia/registro/faltas</code> y a <code>/asistencia/incidencias</code></td><td>Las dos abren el Libro en el Mes con el tema Faltas y la lista</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑13</td><td>Exportar del Mes</td><td>En el Mes, «Exportar CSV»</td><td>Pregunta «Las jornadas» o «Resumen para planillas»; el resumen trae una fila por colaborador, los tiempos en segundos y solo los días que ya pasaron</td><td>RF‑ASI‑040, 041</td><td></td></tr>
-<tr><td>QA‑ASI‑14</td><td>Exportar un tema</td><td>Con un tema elegido, «Exportar CSV»</td><td>Baja la lista de ese tema, no las jornadas</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-4">10.4 La asistencia de un colaborador y su PDF</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑15</td><td>Las seis cifras</td><td>Abrir la asistencia completa de Valentina Cruz, octubre</td><td>Días trabajados «X de Y» sin contar el día en curso, Retrasos, Tiempo de retraso, Faltas, Horas del mes («completas» o «faltan») y Puntualidad</td><td>RF‑ASI‑014, 015</td><td></td></tr>
-<tr><td>QA‑ASI‑16</td><td>Descargar PDF</td><td>«Descargar PDF» sin marcar la casilla</td><td>Baja un PDF de 2 páginas: logo de SoulyHR, empresa, período, las seis cifras y el calendario; en la segunda, cada día con su observación y las firmas de RR.HH. y del colaborador</td><td>RF‑ASI‑075, 076</td><td></td></tr>
-<tr><td>QA‑ASI‑17</td><td>PDF con marcaciones</td><td>Marcar «Incluir las marcaciones al segundo» y descargar</td><td>Se suman hojas en horizontal con entrada, descanso, salida al segundo, tardanza y cómo marcó</td><td>RF‑ASI‑077</td><td></td></tr>
-<tr><td>QA‑ASI‑18</td><td>Mismos números</td><td>Comparar las cifras de la pantalla, del PDF y de la ventana «Su mes» del Libro</td><td>Son iguales</td><td>RF‑ASI‑075</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-5">10.5 El detalle de una jornada</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑19</td><td>Dos descansos</td><td>Con un horario con dos descansos (ver QA‑ASI‑43), abrir un día de ese colaborador</td><td>«Descansos de 13:00 a 14:00 y de 16:00 a 16:15»; las horas del día descuentan los dos</td><td>RF‑ASI‑084</td><td></td></tr>
-<tr><td>QA‑ASI‑20</td><td>Descanso sin marcar</td><td>Abrir un día con la alerta «No marcó su descanso»</td><td>Dice «se restaron N de las horas trabajadas» y queda la alerta; no habla de descuentos de sueldo</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑21</td><td>Dónde marcó</td><td>Un colaborador con varios lugares (ver QA‑ASI‑55) marca en el otro lugar</td><td>La marca dice «Desde la app · Sucursal El Prado»</td><td>RF‑ASI‑087</td><td></td></tr>
-<tr><td>QA‑ASI‑22</td><td>Corregir sin borrar</td><td>En una marca, ⋯ › «Ajustar la hora» con motivo</td><td>La marca muestra la hora original, la nueva, el motivo y quién la ajustó</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-6">10.6 Solicitudes</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑23</td><td>Lista y filtro de estado</td><td>Solicitudes › Vacaciones</td><td>Arranca en «Pendientes» (lista desplegable con número); columnas Colaborador, Fechas y motivo, A tener en cuenta, <strong>Fecha de solicitud</strong> (la fecha y debajo «hace N días»), Estado</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑24</td><td>«Pendiente»</td><td>Mirar el estado de una solicitud sin responder</td><td>Dice «Pendiente», no «Por responder»</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑25</td><td>La papeleta en Revisar</td><td>Revisar la vacación de Andrea Núñez</td><td>A la izquierda, la misma papeleta que ella vio en su app, con su número y el sello «Pendiente»</td><td>RF‑ASI‑079</td><td></td></tr>
-<tr><td>QA‑ASI‑26</td><td>Aprobar escribiendo</td><td>«Aprobar…» › escribir «apro» y después «APROBAR»</td><td>«Sí, aprobar» se activa solo con la palabra completa (sin importar mayúsculas); al aprobar, el estado pasa a «Aprobada»</td><td>RF‑ASI‑078</td><td></td></tr>
-<tr><td>QA‑ASI‑27</td><td>Excepción sin saldo</td><td>Revisar la vacación de Camila Herrera (sin días) › «Aprobar igual…»</td><td>El efecto aparece en rojo como excepción antes de escribir APROBAR</td><td>RF‑ASI‑029</td><td></td></tr>
-<tr><td>QA‑ASI‑28</td><td>Sello de la respuesta</td><td>Después de aprobar, abrir «Ver»</td><td>La papeleta dice «Aprobada · Aprobó Juan Pérez Gómez · fecha»</td><td>RF‑ASI‑080</td><td></td></tr>
-<tr><td>QA‑ASI‑29</td><td>Rechazar con motivo</td><td>«Rechazar…» con un motivo de menos de 6 letras y después uno largo</td><td>Con menos de 6, «Confirmar» no se activa; con el motivo, se rechaza y la persona lo verá en su app</td><td>RF‑ASI‑027</td><td></td></tr>
-<tr><td>QA‑ASI‑30</td><td>Dejar pendiente</td><td>En Revisar, «Dejar pendiente»</td><td>Se cierra sin cambiar nada; sigue en Pendientes</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑31</td><td>Saldos</td><td>Vacaciones › «Saldos» (arriba a la derecha)</td><td>Columnas Colaborador, Fecha de ingreso, Días por año, Días usados, Días disponibles</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑32</td><td>Todos los tipos</td><td>Recorrer Permisos y licencias, Justificaciones, Correcciones, Trabajo remoto y Cambios de turno</td><td>Mismo filtro, misma «Fecha de solicitud» y la segunda columna con su nombre (Permiso o licencia, Qué justifica, Qué corrige…)</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-7">10.7 Horas extra</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑33</td><td>Sin cifras ni pestañas</td><td>Solicitudes › Horas extra</td><td>No hay tarjetas de cifras; «Pendientes · Programadas · Todas» en lista desplegable y «Solicitudes · Resumen del mes» arriba a la derecha</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑34</td><td>Aprobar una hora extra</td><td>Revisar una pendiente › Aprobar escribiendo APROBAR</td><td>Pasa a autorizada; las horas trabajadas dentro de la ventana cuentan como extra</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑35</td><td>Fuera de horario</td><td>Ver un día de alguien que se quedó sin autorización</td><td>Aparece como «fuera de horario», no como horas extra</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-8">10.8 Configuración › Horarios</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑36</td><td>Tabla primero</td><td>Abrir Horarios</td><td>Se abre en la tabla (Horario, Entrada y salida con la tolerancia debajo, Descansos, Días, Al día, A la semana, Colaboradores); el ícono de tarjetas va segundo; «Nuevo horario» a la derecha</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑37</td><td>Nuevo horario por defecto</td><td>«Nuevo horario»</td><td>Ventana ancha; un renglón por día de lunes a domingo; arranca de lunes a sábado con el sábado de 08:30 a 12:30; a la derecha «Así queda su semana»</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑38</td><td>Domingo sí, martes no</td><td>Apagar el martes, prender el domingo de 09:00 a 14:00 y guardar</td><td>El martes se ve rayado como «Día de descanso»; la tabla marca los días correctos y suma las horas de la semana con las de cada día</td><td>RF‑ASI‑082</td><td></td></tr>
-<tr><td>QA‑ASI‑39</td><td>Sábado corto, jornada completa</td><td>Con «Atención al público» (sábado 09:00 a 13:00), ver en el Libro un sábado de alguien que la tiene</td><td>«09:00 – 13:00 sin descanso» y «4:00 de 4:00 · Terminó su jornada» si trabajó sus 4 horas</td><td>RF‑ASI‑083</td><td></td></tr>
-<tr><td>QA‑ASI‑40</td><td>El reloj de Souly</td><td>Tocar una hora de entrada</td><td>Se abre una tarjeta con Hora y Minutos (de 5 en 5); la elegida en navy; «Listo»; también se puede escribir «830» y queda 08:30</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑41</td><td>La tarjeta del descanso</td><td>Tocar un descanso «☕ 13:00–14:00»</td><td>Tarjetita flotante con Desde → Hasta, 15 min · 30 min · 45 min · 1 h, la barra del día y «Quitar descanso»; Escape cierra solo la tarjeta</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑42</td><td>Descanso sin nombre</td><td>Mirar los descansos</td><td>Solo la hora («☕ 13:00–14:00»); no dice Almuerzo ni Refrigerio</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑43</td><td>Dos descansos</td><td>En el lunes, «+ descanso» dos veces; guardar</td><td>Máximo dos por día; la tabla muestra uno por renglón y «Al día» descuenta los dos (8 h 15 min con 08:30–18:00, 13:00–14:00 y 16:00–16:15)</td><td>RF‑ASI‑084</td><td></td></tr>
-<tr><td>QA‑ASI‑44</td><td>Errores del día</td><td>Poner la salida antes que la entrada; poner un descanso fuera de la jornada</td><td>El renglón avisa en ámbar y «Guardar horario» no se activa</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑45</td><td>Tolerancias</td><td>En «Tolerancias», subir la de entrada a 15 min</td><td>Debajo dice «Atraso desde las 08:45»; quien entra 08:44 con ese horario no llega tarde</td><td>RF‑ASI‑086</td><td></td></tr>
-<tr><td>QA‑ASI‑46</td><td>Sin opciones de planilla</td><td>Mirar la ventana del horario</td><td>No aparece «Si no marca el descanso» ni «La tardanza se cuenta»</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑47</td><td>Flexible</td><td>Tipo «Flexible»</td><td>Misma ventana grande; un renglón por día con la meta (− y +), «Cuándo puede marcar» y la semana en barras violeta</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑48</td><td>Duplicar</td><td>⋯ › Duplicar</td><td>Pide el nombre de la copia y «Sí, duplicar»; la copia aparece con 0 colaboradores</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑49</td><td>Eliminar escribiendo el nombre</td><td>⋯ › Eliminar en la copia</td><td>Ventana centrada; el botón rojo se enciende solo al escribir el nombre exacto; en un horario con colaboradores, Eliminar está apagado</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-9">10.9 Configuración › Modalidades</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑50</td><td>Modalidades</td><td>Configuración › Modalidades</td><td>Tarjetas Presencial, Híbrido y Remoto con cuántos colaboradores y sus interruptores; el parecido mínimo del rostro (60–95 %) y la privacidad (días de las selfies)</td><td>RF‑ASI‑047, 085</td><td></td></tr>
-<tr><td>QA‑ASI‑51</td><td>Lo que pide al marcar</td><td>Apagar «Estar en su lugar» en Presencial; marcar desde el celular fuera de la geocerca</td><td>La marca se acepta; con el interruptor prendido, se rechaza</td><td>RF‑ASI‑085</td><td></td></tr>
-<tr><td>QA‑ASI‑52</td><td>Dirección vieja</td><td>Entrar a <code>?ver=politicas</code> y a <code>?ver=biometria</code></td><td>Abren Modalidades y Asignaciones</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-10">10.10 Configuración › Asignaciones</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑53</td><td>Una fila y el filtro</td><td>Abrir Asignaciones</td><td>Buscador, sucursal, centro, unidad y «Todos · Sin horario · Sin rostro» en una sola fila; columnas Horario, Lugar de trabajo, Modalidad, Rostro</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑54</td><td>Asignar a muchos</td><td>Filtrar una unidad, marcar la casilla de la cabecera › «Asignar horario y lugar»</td><td>La ventana muestra a quiénes; el horario se busca en la lista desplegable (filtros Fijos, Flexibles, Con sábado, Con domingo); «Así quedan» dice cuántos cambian, ya lo tenían o son nuevos</td><td>RF‑ASI‑053</td><td></td></tr>
-<tr><td>QA‑ASI‑55</td><td>Varios lugares</td><td>En la ventana, «También puede marcar en» › agregar Sucursal El Prado; asignar</td><td>La tabla muestra «+1»; el colaborador puede marcar en los dos</td><td>RF‑ASI‑087</td><td></td></tr>
-<tr><td>QA‑ASI‑56</td><td>Borrar el rostro</td><td>⋯ › «Pedir que registre su rostro de nuevo»</td><td>Ventana centrada con su cara y el rostro tachado, los tres pasos y escribir BORRAR; el botón se enciende solo con la palabra</td><td>RF‑ASI‑058</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-11">10.11 El celular del colaborador</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑57</td><td>Marcar</td><td>Como colaborador, Inicio › marcar la entrada</td><td>Pide confirmación, rostro y ubicación según su modalidad; después el botón ofrece «Iniciar descanso»</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑58</td><td>Descanso, no pausa</td><td>Iniciar y volver del descanso</td><td>Los botones y el historial dicen «Iniciar descanso», «Volver del descanso», «Salió a descansar», «Volvió del descanso»; nunca «pausa»</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑59</td><td>Pedir vacaciones</td><td>Inicio › pedir vacaciones › elegir fechas › revisar la papeleta › Solicitar</td><td>Llega a RR.HH. como Pendiente, con el mismo número de papeleta</td><td>RF‑ASI‑079</td><td></td></tr>
-<tr><td>QA‑ASI‑60</td><td>Ver la respuesta</td><td>Después de QA‑ASI‑28, Mis solicitudes › ver la papeleta</td><td>Tiene el sello «Aprobada» con quién y cuándo</td><td>RF‑ASI‑080</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-12">10.12 El alta del colaborador</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑61</td><td>Paso Asistencia</td><td>Personas › Nuevo colaborador › paso «Asistencia»</td><td>Dos bloques: «Asignación de asistencia» (horario con buscador y su semana, dónde marca, otros lugares, modalidad, desde) y «Vacaciones y permisos» (4 campos); ya no están Jornada laboral, Método de marcación ni Compensación de horas</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑62</td><td>Se asigna al dar de alta</td><td>Completar el alta con un horario y un lugar</td><td>El colaborador aparece en Asignaciones con ese horario y en Hoy desde la fecha elegida</td><td>RF‑ASI‑055</td><td></td></tr>
-</tbody>
-</table></div>
-<h3 id="p10-13">10.13 Cálculos</h3>
-<div class="tbl"><table>
-<thead><tr><th>ID</th><th>Qué se prueba</th><th>Pasos</th><th>Resultado esperado</th><th>Requisito</th><th>Resultado</th></tr></thead>
-<tbody>
-<tr><td>QA‑ASI‑63</td><td>Tardanza al segundo</td><td>Horario 08:30 con 10 min de tolerancia; marca de entrada 08:40:59</td><td>59 s de tardanza; a las 08:40:00 no hay tardanza</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑64</td><td>Lo justificado no debe horas</td><td>Un colaborador con 4 días de vacaciones aprobadas en el mes</td><td>Esos días no suman horas programadas: «Horas del mes» no dice que faltan esas horas</td><td>—</td><td></td></tr>
-<tr><td>QA‑ASI‑65</td><td>Solo cuenta en contra lo injustificado</td><td>Una tardanza con justificación aceptada</td><td>En el resumen para planillas no suma a «Tardanza injustificada»</td><td>RF‑ASI‑040</td><td></td></tr>
-<tr><td>QA‑ASI‑66</td><td>Días trabajados</td><td>Ver «Días trabajados» un día laboral antes de la salida</td><td>No cuenta el día en curso hasta que marca la salida</td><td>—</td><td></td></tr>
-</tbody>
-</table></div>
+<p>Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: <strong><a href="pruebas-asistencia.html">Pruebas de Asistencia</a></strong> (fuente: <code>pruebas-asistencia.md</code>). Son <strong>80 casos</strong> en dos partes —<strong>RR.HH. en la web</strong> (62) y <strong>el colaborador en el celular</strong> (18)—, cada uno con sus pasos, el resultado esperado y el requisito (RF‑ASI) que prueba. En la página se marca <strong>✓ Pasa</strong>, <strong>✗ Falla</strong> o <strong>— No se pudo</strong>, con una nota, y se exportan los resultados en CSV.</p>
+<p>Se mantienen junto con este documento: cuando cambia una regla o una pantalla, cambia su prueba. Para regenerar la página: <code>node herramientas/doc-pruebas.cjs pruebas-asistencia.md public/pruebas-asistencia.html</code>.</p>
   </section>
 
   <section id="como-se-mantiene-este-documento">

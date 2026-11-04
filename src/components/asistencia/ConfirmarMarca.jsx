@@ -27,7 +27,7 @@ function estadoDe(tipo, { h, j, ahora, tolerancia, acc, pausaPendiente }) {
     if (tarde > tolerancia) return { tono: 'ojo', chip: `Llega ${duracion(tarde)} tarde`, nota: 'Se registra como atraso. Si tuvo un motivo, puede justificarlo después.' }
     return { tono: 'bien', chip: h?.modo === 'fijo' ? `Llega a tiempo · su entrada es ${h.entrada}` : 'Horario flexible' }
   }
-  if (tipo === 'pausa_inicio') return { tono: 'bien', icono: Coffee, chip: h?.pausa ? `Su horario tiene ${h.pausa} min · vuelve ${hhmm(ahora + h.pausa)}` : 'Inicio de pausa' }
+  if (tipo === 'pausa_inicio') return { tono: 'bien', icono: Coffee, chip: h?.pausa ? `Su horario tiene ${h.pausa} min · vuelve ${hhmm(ahora + h.pausa)}` : 'Inicio del descanso' }
   if (tipo === 'pausa_fin') {
     const inicio = [...(j.marcas || [])].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada)
     const dura = inicio ? ahora - inicio.min : 0

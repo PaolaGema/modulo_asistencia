@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 /* LOS DOCUMENTOS EN MARKDOWN viven en la raíz del proyecto, que es donde los mantenemos. El servidor
    de desarrollo ya los sirve desde ahí; al compilar se copian a `dist` para que el índice de la
    documentación (public/documentacion.html) los ofrezca para descargar también en Vercel. */
-const DOCUMENTOS_MD = ['documentacion-ficha-colaborador.md', 'modulo-organizacion.md', 'modulo-onboarding.md', 'modulo-documentacion.md', 'modulo-asistencia.md']
+const DOCUMENTOS_MD = ['documentacion-ficha-colaborador.md', 'modulo-organizacion.md', 'modulo-onboarding.md', 'modulo-documentacion.md', 'modulo-asistencia.md', 'pruebas-asistencia.md']
 
 const documentosMd = () => ({
   name: 'documentos-md',
