@@ -2455,7 +2455,7 @@ La tolerancia de entrada, de descanso y de salida es de la **política**: un mis
 
 *Descripción general*
 
-Asistencia no da de alta sitios: toma las **sucursales** y los **centros de trabajo** de Organización y les pone una **geocerca** encima. Un lugar sin geocerca dice «Sin ubicación» y cuenta en la puesta a punto.
+Asistencia no da de alta sitios: toma las **sucursales** y los **centros de trabajo** de Organización y les pone una **geocerca** encima. Un lugar sin geocerca dice «Sin ubicación».
 
 **2. Escenarios ágiles de ejecución**
 
@@ -2898,7 +2898,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ### 7.8 Configurar el módulo por primera vez
 
-1. La puesta a punto dice qué falta.
+1. Cada sección de Configuración muestra lo que le falta (lugares «Sin ubicación», colaboradores sin horario, rostros sin registrar).
 2. Lugares y geocercas: se ubica cada sucursal y centro en el mapa con su radio.
 3. Horarios: se crean con su franja de descanso.
 4. Políticas: se revisa la Estándar y sus tolerancias.
@@ -3082,7 +3082,7 @@ Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por
 | `/asistencia/solicitudes` | `Solicitudes.jsx`, `components/asistencia/RevisarSolicitud.jsx` | Solicitudes por tipo, revisar y saldos |
 | `/asistencia/solicitudes?ver=horas-extra` | `HorasExtra.jsx` | Horas extra (la vieja `/asistencia/horas-extra` redirige aquí) |
 | sin ruta | `Cierre.jsx` | Cierre del mes; `/asistencia/cierre` vuelve a Hoy |
-| `/asistencia/configuracion` | `Configuracion.jsx`, `MapaGeocerca.jsx` | Las seis partes de la configuración y la puesta a punto |
+| `/asistencia/configuracion` | `Configuracion.jsx`, `MapaGeocerca.jsx` | Las seis partes de la configuración |
 | alta de un colaborador | `components/personas/AsignacionAsistencia.jsx` | La asignación desde el alta |
 | `/mi-espacio/mi-asistencia` | `pages/colaborador/MiAsistencia.jsx`, `components/asistencia/Marcador.jsx` | Mi asistencia en la web |
 | celular | `Marcador.jsx`, `ConfirmarMarca.jsx`, `layout/InicioPhone.jsx`, `layout/AvisoPhone.jsx` | Marcar, su semana, su mes, pedir horas extra, corregir y los avisos |

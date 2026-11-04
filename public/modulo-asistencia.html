@@ -3733,7 +3733,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>Asistencia no da de alta sitios: toma las <strong>sucursales</strong> y los <strong>centros de trabajo</strong> de Organización y les pone una <strong>geocerca</strong> encima. Un lugar sin geocerca dice «Sin ubicación» y cuenta en la puesta a punto.</p>
+<p>Asistencia no da de alta sitios: toma las <strong>sucursales</strong> y los <strong>centros de trabajo</strong> de Organización y les pone una <strong>geocerca</strong> encima. Un lugar sin geocerca dice «Sin ubicación».</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Una sucursal nueva</div><ul><li><b>Dado que</b>Organización crea una sucursal</li><li><b>Cuando</b>se abre Lugares y geocercas</li><li><b>Entonces</b>aparece «Sin ubicación» con «Ubicar»</li></ul></div>
@@ -4172,7 +4172,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </ol>
 <h3 id="p7-8">7.8 Configurar el módulo por primera vez</h3>
 <ol>
-<li>La puesta a punto dice qué falta.</li>
+<li>Cada sección de Configuración muestra lo que le falta (lugares «Sin ubicación», colaboradores sin horario, rostros sin registrar).</li>
 <li>Lugares y geocercas: se ubica cada sucursal y centro en el mapa con su radio.</li>
 <li>Horarios: se crean con su franja de descanso.</li>
 <li>Políticas: se revisa la Estándar y sus tolerancias.</li>
@@ -4387,7 +4387,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td><code>/asistencia/solicitudes</code></td><td><code>Solicitudes.jsx</code>, <code>components/asistencia/RevisarSolicitud.jsx</code></td><td>Solicitudes por tipo, revisar y saldos</td></tr>
 <tr><td><code>/asistencia/solicitudes?ver=horas-extra</code></td><td><code>HorasExtra.jsx</code></td><td>Horas extra (la vieja <code>/asistencia/horas-extra</code> redirige aquí)</td></tr>
 <tr><td>sin ruta</td><td><code>Cierre.jsx</code></td><td>Cierre del mes; <code>/asistencia/cierre</code> vuelve a Hoy</td></tr>
-<tr><td><code>/asistencia/configuracion</code></td><td><code>Configuracion.jsx</code>, <code>MapaGeocerca.jsx</code></td><td>Las seis partes de la configuración y la puesta a punto</td></tr>
+<tr><td><code>/asistencia/configuracion</code></td><td><code>Configuracion.jsx</code>, <code>MapaGeocerca.jsx</code></td><td>Las seis partes de la configuración</td></tr>
 <tr><td>alta de un colaborador</td><td><code>components/personas/AsignacionAsistencia.jsx</code></td><td>La asignación desde el alta</td></tr>
 <tr><td><code>/mi-espacio/mi-asistencia</code></td><td><code>pages/colaborador/MiAsistencia.jsx</code>, <code>components/asistencia/Marcador.jsx</code></td><td>Mi asistencia en la web</td></tr>
 <tr><td>celular</td><td><code>Marcador.jsx</code>, <code>ConfirmarMarca.jsx</code>, <code>layout/InicioPhone.jsx</code>, <code>layout/AvisoPhone.jsx</code></td><td>Marcar, su semana, su mes, pedir horas extra, corregir y los avisos</td></tr>
