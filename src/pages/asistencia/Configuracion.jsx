@@ -89,7 +89,8 @@ export default function Configuracion() {
 function Horarios() {
   const at = useAsistencia()
   const [params, setParams] = useSearchParams()
-  const enTabla = params.get('forma') === 'tabla'
+  /* Primero la tabla (se abre así); las tarjetas, la forma gráfica, después. */
+  const enTabla = params.get('forma') !== 'tarjetas'
   const ponForma = v => { const n = new URLSearchParams(params); if (v) n.set('forma', v); else n.delete('forma'); setParams(n, { replace: true }) }
   const [editar, setEditar] = useState(null)
   const [borrar, setBorrar] = useState(null)
@@ -104,8 +105,8 @@ function Horarios() {
       <div className="at-hor-barra">
         <button type="button" className="pl-btn-new" onClick={() => setEditar({ id: null, nombre: '', modo: 'fijo', dias: [1, 2, 3, 4, 5], entrada: '08:30', salida: '18:00', conPausa: true, pausaDesde: '13:00', pausaHasta: '14:00', meta: 480, color: COLORES[at.horarios.length % COLORES.length] })}><Plus size={14} /> Nuevo horario</button>
         <div className="at-segmento at-modo" role="tablist" aria-label="Forma de ver">
-          <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma(null)}><LayoutGrid size={15} aria-hidden="true" /></button>
-          <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma('tabla')}><Table2 size={15} aria-hidden="true" /></button>
+          <button type="button" role="tab" aria-selected={enTabla} aria-label="Tabla" title="Tabla" className={enTabla ? 'on' : ''} onClick={() => ponForma(null)}><Table2 size={15} aria-hidden="true" /></button>
+          <button type="button" role="tab" aria-selected={!enTabla} aria-label="Tarjetas" title="Tarjetas" className={!enTabla ? 'on' : ''} onClick={() => ponForma('tarjetas')}><LayoutGrid size={15} aria-hidden="true" /></button>
         </div>
       </div>
       {enTabla ? (
