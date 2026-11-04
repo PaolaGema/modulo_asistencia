@@ -37,7 +37,7 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | reglas de negocio | 58 |
 | requisitos funcionales | 87 |
 | historias de usuario | 20 |
-| pruebas para QA (documento aparte) | 80 |
+| pruebas para QA (documento aparte) | 110 |
 | pantallas | 21 |
 | decisiones abiertas | 9 |
 
@@ -3038,7 +3038,7 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ## 10 · Pruebas para QA
 
-Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: **[Pruebas de Asistencia](pruebas-asistencia.html)** (fuente: `pruebas-asistencia.md`). Son **80 casos** en dos partes —**RR.HH. en la web** (62) y **el colaborador en el celular** (18)—, cada uno con sus pasos, el resultado esperado y el requisito (RF‑ASI) que prueba. En la página se marca **✓ Pasa**, **✗ Falla** o **— No se pudo**, con una nota, y se exportan los resultados en CSV.
+Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: **[Pruebas de Asistencia](pruebas-asistencia.html)** (fuente: `pruebas-asistencia.md`). Son **110 casos** en dos partes —**RR.HH. en la web** (91) y **el colaborador en el celular** (19)—, cada uno con sus pasos, el resultado esperado y el requisito (RF‑ASI) que prueba. **Todos los requisitos vigentes tienen al menos una prueba**; los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca **✓ Pasa**, **✗ Falla** o **— No se pudo**, con una nota, y se exportan los resultados en CSV.
 
 Se mantienen junto con este documento: cuando cambia una regla o una pantalla, cambia su prueba. Para regenerar la página: `node herramientas/doc-pruebas.cjs pruebas-asistencia.md public/pruebas-asistencia.html`.
 
