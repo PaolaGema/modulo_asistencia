@@ -3042,6 +3042,8 @@ Las pruebas del módulo están en un documento aparte, para que QA las vaya marc
 
 Se mantienen junto con este documento: cuando cambia una regla o una pantalla, cambia su prueba. Para regenerar la página: `node herramientas/doc-pruebas.cjs pruebas-asistencia.md public/pruebas-asistencia.html`.
 
+Para desarrollo, cada situación real del módulo está en fichas con capturas: **[Casos de Asistencia](casos-asistencia.html)** (fuente: `casos-asistencia.md`). Son **24 casos** —la marcación, el cálculo del día, corregir sin borrar, justificaciones y solicitudes, y lo que ve la persona—, cada uno con la situación, los datos de la demo, el cálculo, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web y del celular. Las capturas se rehacen con `node herramientas/capturas-casos.cjs` y la página con `node herramientas/doc-casos.cjs casos-asistencia.md public/casos-asistencia.html`.
+
 ## Cómo se mantiene este documento
 
 - Se actualiza junto con la maqueta: un cambio de comportamiento lleva su cambio aquí, en la misma entrega.

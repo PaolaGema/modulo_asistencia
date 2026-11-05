@@ -382,7 +382,8 @@ export function AsistenciaProvider({ children }) {
     const nuevas = [], dobles = []
     const ya = new Set((solicitudes || []).filter(x => x.tipo === 'correccion').map(x => `${x.personaId}|${x.fecha}`))
     const MOTIVOS = {
-      falta: ['Me olvidé de marcar la salida', 'Salí apurado y no marqué', 'La app no abría al salir'],
+      /* Sin nombrar la marca: la que falta puede ser la salida, el descanso o su vuelta. */
+      falta: ['Me olvidé de marcar', 'Estaba apurado y no marqué', 'La app no abría en ese momento'],
       salida: ['La app tardó en registrar mi salida', 'Marqué y no se guardó al momento', 'Se me acabó la batería al salir'],
       vuelta: ['Volví a mi hora, la app se colgó', 'Marqué tarde la vuelta, ya estaba en mi puesto'],
       entrada: ['Llegué a mi hora pero me olvidé de marcar', 'Marqué cuando me acordé, ya estaba trabajando'],
@@ -479,6 +480,9 @@ export function AsistenciaProvider({ children }) {
     solicitudes: solicitudes || [], crearSolicitud, responderSolicitud, cancelarSolicitud, exigenciasDe,
     horasExtra: horasExtra || [], solicitarExtra, asignarExtra, responderExtra, autorizarDespues,
   }
+  /* Solo en desarrollo: el script de capturas del documento de casos (herramientas/capturas-casos.cjs)
+     lee de aquí las jornadas para encontrar un ejemplo real de cada caso. No existe en producción. */
+  useEffect(() => { if (import.meta.env.DEV) window.__asistencia = value })
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 

@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casos de Asistencia · Souly HR</title>
+<style>
+:root { --marca:#0C2D40; --menta:#00E091; --verde:#0A7F55; --verde-bg:#E6F9F1; --gris:#62788A; --gris-bg:#EEF2F5; --papel:#EDF1F3; --hoja:#FFFFFF; --tinta:#0F1A20; --regla:#E4EAED; --suave:#F6F8FA;
+  --display:Bahnschrift,"DIN Alternate","Avenir Next Condensed","Arial Narrow","Helvetica Neue",sans-serif; --mono:"Cascadia Mono",Consolas,ui-monospace,monospace; --texto:"Segoe UI",system-ui,-apple-system,sans-serif; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --hoja:#152530; --papel:#0E1A22; --tinta:#E6EEF2; --regla:#24343F; --suave:#1B2D38; --gris:#93A7B5; --gris-bg:#22333E; --verde-bg:#0F3A2C; --verde:#4FD39E; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font-family: var(--texto); font-size: 14px; line-height: 1.55; }
+header.cab { background: var(--marca); color: #fff; padding: 28px max(16px, calc((100vw - 1180px) / 2)) 22px; }
+.eyebrow { margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--menta); }
+h1 { margin: 6px 0 4px; font-family: var(--display); font-size: 34px; letter-spacing: -.01em; }
+.meta { display: flex; gap: 16px; flex-wrap: wrap; color: #B7CBD8; font-size: 13px; } .meta a { color: var(--menta); }
+.lead { color: #DCE7EE; max-width: 80ch; margin: 10px 0 0; }
+.barra-sup { position: sticky; top: 0; z-index: 5; background: var(--hoja); border-bottom: 1px solid var(--regla); padding: 10px max(16px, calc((100vw - 1180px) / 2)); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.buscar-w { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px; height: 38px; border: 1px solid var(--regla); border-radius: 10px; padding: 0 12px; background: var(--hoja); color: var(--gris); }
+.buscar-w:focus-within { border-color: #00B876; box-shadow: 0 0 0 3px var(--verde-bg); }
+.buscar-w input { border: none; outline: none; background: none; font: inherit; color: var(--tinta); flex: 1; min-width: 0; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--regla); background: var(--hoja); color: var(--gris); border-radius: 99px; padding: 5px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
+.chip b { color: var(--tinta); margin-left: 4px; }
+.chip:hover { border-color: var(--gris); }
+main { max-width: 1180px; margin: 0 auto; padding: 18px 16px 60px; display: grid; gap: 16px; }
+details.antes { background: var(--hoja); border: 1px solid var(--regla); border-radius: 14px; padding: 4px 16px; }
+details.antes summary { cursor: pointer; font-weight: 700; padding: 10px 0; } details.antes ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
+code { font-family: var(--mono); font-size: 12.5px; background: var(--gris-bg); border-radius: 5px; padding: 1px 5px; overflow-wrap: anywhere; }
+.grupo-t { font-family: var(--display); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--verde); margin: 14px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--regla); scroll-margin-top: 70px; }
+.caso { background: var(--hoja); border: 1px solid var(--regla); border-radius: 14px; overflow: hidden; scroll-margin-top: 70px; }
+.ficha-cab { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--regla); background: var(--suave); }
+.ficha-cab .id { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--gris); }
+.ficha-cab h3 { margin: 0; font-size: 16px; flex: 1; min-width: 220px; }
+.reglas { display: flex; gap: 4px; flex-wrap: wrap; font-size: 0; }
+.ref { font-family: var(--mono); font-size: 11px; background: var(--gris-bg); color: var(--gris); border-radius: 99px; padding: 1px 8px; white-space: nowrap; }
+.reglas .ref { font-size: 11px; }
+.ficha-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; padding: 14px 16px 16px; }
+.par { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 8px; font-size: 13.5px; padding: 7px 0; border-bottom: 1px dashed var(--regla); }
+.par:last-child { border-bottom: 0; }
+.par > span { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--gris); font-weight: 700; padding-top: 2px; }
+.par b.g { color: var(--verde); }
+pre.calc { margin: 0; font-family: var(--mono); font-size: 12.5px; background: var(--gris-bg); border-radius: 8px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.capturas { display: grid; gap: 10px; align-items: start; }
+.capturas.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.capturas.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+figure { margin: 0; }
+figure img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--regla); background: var(--suave); }
+figcaption { font-size: 12px; color: var(--gris); margin-top: 5px; }
+.sin-captura { margin: 0; color: var(--gris); background: var(--suave); border: 1px dashed var(--regla); border-radius: 10px; padding: 24px; text-align: center; }
+.vacio { text-align: center; color: var(--gris); padding: 30px; }
+@media (max-width: 900px) { .ficha-cuerpo { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .par { grid-template-columns: 1fr; gap: 2px; } h1 { font-size: 28px; } .capturas.n3 { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<header class="cab">
+  <p class="eyebrow">Souly HR · Casos para desarrollo</p>
+  <h1>Casos de Asistencia</h1>
+  <div class="meta"><span>Versión del módulo: 1.1</span><span>Fecha: 5 de noviembre de 2026</span><span>Documento del módulo: <a href="modulo-asistencia.html">modulo-asistencia.html</a></span><span>24 casos</span></div>
+  <p class="lead">Cada situación real del módulo en una ficha, para construirla igual que en el prototipo. La ficha dice la situación («Dado que · Cuando · Entonces»), los datos de entrada, lo que calcula el sistema, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web de RR.HH. y del celular. Las reglas no se repiten aquí: cada ficha nombra las suyas (BR‑ASI) y su pantalla (W‑ASI) del documento del módulo.</p>
+</header>
+<div class="barra-sup">
+  <label class="buscar-w"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="buscar" type="search" placeholder="Buscar un caso, una regla (BR‑ASI‑012) o una persona…" aria-label="Buscar un caso"></label>
+  <nav class="chips" aria-label="Grupos"><a class="chip" href="#1-la-marcacion">La marcación<b>4</b></a><a class="chip" href="#2-el-calculo-del-dia">El cálculo del día<b>10</b></a><a class="chip" href="#3-corregir-sin-borrar">Corregir sin borrar<b>5</b></a><a class="chip" href="#4-justificaciones-y-solicitudes">Justificaciones y solicitudes<b>4</b></a><a class="chip" href="#5-lo-que-ve-la-persona">Lo que ve la persona<b>1</b></a></nav>
+</div>
+<main>
+<details class="antes" open><summary>Antes de empezar</summary><ul><li><b>Dónde:</b> el prototipo publicado (Vercel) o <code>npm run dev</code>. Las pantallas de RR.HH. se ven como <b>Juan Pérez Gómez · Administrador HR</b>; las del celular, como <b>Carlos Mendoza Ríos</b> (menú lateral › «Ver la demo como»).</li><li><b>Datos:</b> todo sale de la <b>demo recién cargada</b> (menú lateral › «Cargar la demo»): FarmaVida S.R.L., 63 colaboradores, reloj en el <b>viernes 30 de octubre de 2026 a las 16:10</b>. Si la demo se carga otra semana, los mismos casos caen en otras fechas.</li><li><b>Cómo se leen los tiempos:</b> todo se guarda y se calcula <b>al segundo</b>; las pantallas truncan al mostrar (<span class="ref">BR‑ASI‑011</span>). En los cálculos, <code>08:44:24</code> es la hora exacta de la marca.</li><li><b>Las capturas:</b> salen de la maqueta con <code>node herramientas/capturas-casos.cjs</code> (necesita <code>npm run dev</code>). Cuando cambia una pantalla, se corre de nuevo y se regenera esta página con <code>node herramientas/doc-casos.cjs casos-asistencia.md public/casos-asistencia.html</code>.</li><li><b>«En el código»</b> apunta al prototipo (React). No es el backend: sirve para ver la regla escrita y comparar resultados.</li></ul></details>
+<h2 class="grupo-t" id="1-la-marcacion">1 · La marcación</h2>
+<article class="caso" id="caso-asi-01" data-texto="caso-asi-01 marca su entrada desde el celular br‑asi‑001, br‑asi‑007, br‑asi‑010 · w‑asi‑21 **dado que** carlos trabaja hoy en remoto y su turno empieza a las 08:30 · **cuando** toca «marcar entrada» a las 08:27 · **entonces** ve primero una ventana para confirmar (la hora, si llega a tiempo, dónde marca) y recién después pasa a la ubicación y al rostro. carlos mendoza ríos · oficina 08:30–18:00 · híbrido (oficina martes y jueves) · viernes 30 oct = remoto. como carlos › celular › inicio › «marcar entrada». `components/asistencia/marcador.jsx` (los pasos), `context/asistenciacontext.jsx › marcar()`. la ventana de confirmar va antes de escanear; en remoto dice «no se revisa la oficina». remoto → no se revisa la geocerca; la ubicación queda solo como registro hora de la marca = la del servidor, al segundo (no la del celular)">
+  <header class="ficha-cab"><span class="id">CASO-ASI-01</span><h3>Marca su entrada desde el celular</h3><div class="reglas"><span class="ref">BR‑ASI‑001</span>, <span class="ref">BR‑ASI‑007</span>, <span class="ref">BR‑ASI‑010</span> · <span class="ref">W‑ASI‑21</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Carlos trabaja hoy en remoto y su turno empieza a las 08:30 · <b class="g">Cuando</b> toca «Marcar entrada» a las 08:27 · <b class="g">Entonces</b> ve primero una ventana para confirmar (la hora, si llega a tiempo, dónde marca) y recién después pasa a la ubicación y al rostro.</div></div>
+      <div class="par"><span>Datos</span><div>Carlos Mendoza Ríos · Oficina 08:30–18:00 · Híbrido (oficina martes y jueves) · viernes 30 oct = remoto.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">remoto → no se revisa la geocerca; la ubicación queda solo como registro
+hora de la marca = la del servidor, al segundo (no la del celular)</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>como Carlos › celular › Inicio › «Marcar entrada».</div></div>
+      <div class="par"><span>En el código</span><div><code>components/asistencia/Marcador.jsx</code> (los pasos), <code>context/AsistenciaContext.jsx › marcar()</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>la ventana de confirmar va antes de escanear; en remoto dice «no se revisa la oficina».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n2"><figure><a href="assets/casos/01-confirmar-cel.png" target="_blank" rel="noopener"><img src="assets/casos/01-confirmar-cel.png" alt="Celular · Confirmar antes de escanear" loading="lazy"></a><figcaption>Celular · Confirmar antes de escanear</figcaption></figure><figure><a href="assets/casos/01-listo-cel.png" target="_blank" rel="noopener"><img src="assets/casos/01-listo-cel.png" alt="Celular · Paso 1 de 3: la ubicación" loading="lazy"></a><figcaption>Celular · Paso 1 de 3: la ubicación</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-02" data-texto="caso-asi-02 marca lejos de su lugar: la marca se rechaza br‑asi‑003, br‑asi‑004 · w‑asi‑07 **dado que** diego debe marcar en casa matriz equipetrol · **cuando** marca su entrada a 401 m del lugar · **entonces** la marca queda **rechazada, a la vista**, y no cuenta; la que vale es la siguiente, ya dentro. diego morales · 08:30–18:00 · martes 6 oct · entrada 08:18:48 a 401 m (rechazada) · entrada 08:24:48 a 57 m · salida 19:21:03. asistencia › libro › buscar a diego › martes 6 oct (o su página › octubre › 6). `context/asistenciacontext.jsx › marcar()` (campo `dentro`), `data/asistenciadata.js › recomputar()` (filtra las rechazadas). la fila roja «rechazada · fuera de la geocerca» con su distancia; ese mismo día también muestra «no marcó su descanso» y «1 h 26 min fuera de horario». 401 m &gt; radio de la geocerca → rechazada (no cuenta) entrada del día = 08:24:48 (la primera válida) → a tiempo">
+  <header class="ficha-cab"><span class="id">CASO-ASI-02</span><h3>Marca lejos de su lugar: la marca se rechaza</h3><div class="reglas"><span class="ref">BR‑ASI‑003</span>, <span class="ref">BR‑ASI‑004</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Diego debe marcar en Casa Matriz Equipetrol · <b class="g">Cuando</b> marca su entrada a 401 m del lugar · <b class="g">Entonces</b> la marca queda <b>rechazada, a la vista</b>, y no cuenta; la que vale es la siguiente, ya dentro.</div></div>
+      <div class="par"><span>Datos</span><div>Diego Morales · 08:30–18:00 · martes 6 oct · Entrada 08:18:48 a 401 m (rechazada) · Entrada 08:24:48 a 57 m · Salida 19:21:03.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">401 m &gt; radio de la geocerca → rechazada (no cuenta)
+entrada del día = 08:24:48 (la primera válida) → a tiempo</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Asistencia › Libro › buscar a Diego › martes 6 oct (o su página › octubre › 6).</div></div>
+      <div class="par"><span>En el código</span><div><code>context/AsistenciaContext.jsx › marcar()</code> (campo <code>dentro</code>), <code>data/asistenciaData.js › recomputar()</code> (filtra las rechazadas).</div></div>
+      <div class="par"><span>Qué mirar</span><div>la fila roja «Rechazada · fuera de la geocerca» con su distancia; ese mismo día también muestra «No marcó su descanso» y «1 h 26 min fuera de horario».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/02-rechazada-lejos.png" target="_blank" rel="noopener"><img src="assets/casos/02-rechazada-lejos.png" alt="Web · Detalle de la jornada de Diego, 6 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Diego, 6 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-03" data-texto="caso-asi-03 el rostro no coincide br‑asi‑005, br‑asi‑006 · w‑asi‑07 **dado que** la empresa pide un mínimo de parecido del rostro · **cuando** tomás marca y el rostro da 51 % · **entonces** la marca se rechaza; marca de nuevo 90 segundos después con 92 % y esa vale. tomás ibáñez · sucursal montero · 07:00–15:00 · lunes 5 oct · entrada 06:49:20 rostro 51 % (rechazada) · entrada 06:50:50 rostro 92 %. página de tomás ibáñez › octubre › 5. `components/asistencia/detallejornada.jsx` (cómo se muestra), `data/asistenciadata.js › recomputar()`. la marca rechazada sigue en la lista con su porcentaje; no se borra. 51 % &lt; mínimo de la empresa → rechazada entrada del día = 06:50:50 → a tiempo">
+  <header class="ficha-cab"><span class="id">CASO-ASI-03</span><h3>El rostro no coincide</h3><div class="reglas"><span class="ref">BR‑ASI‑005</span>, <span class="ref">BR‑ASI‑006</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> la empresa pide un mínimo de parecido del rostro · <b class="g">Cuando</b> Tomás marca y el rostro da 51 % · <b class="g">Entonces</b> la marca se rechaza; marca de nuevo 90 segundos después con 92 % y esa vale.</div></div>
+      <div class="par"><span>Datos</span><div>Tomás Ibáñez · Sucursal Montero · 07:00–15:00 · lunes 5 oct · Entrada 06:49:20 rostro 51 % (rechazada) · Entrada 06:50:50 rostro 92 %.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">51 % &lt; mínimo de la empresa → rechazada
+entrada del día = 06:50:50 → a tiempo</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Tomás Ibáñez › octubre › 5.</div></div>
+      <div class="par"><span>En el código</span><div><code>components/asistencia/DetalleJornada.jsx</code> (cómo se muestra), <code>data/asistenciaData.js › recomputar()</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>la marca rechazada sigue en la lista con su porcentaje; no se borra.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/03-rostro.png" target="_blank" rel="noopener"><img src="assets/casos/03-rostro.png" alt="Web · Detalle de la jornada de Tomás, 5 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Tomás, 5 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-04" data-texto="caso-asi-04 el celular tiene otra hora br‑asi‑001, br‑asi‑002 **dado que** el reloj del celular de alguien está 20 minutos atrasado · **cuando** marca su entrada a las 08:41 reales · **entonces** la marca queda a las 08:41: la hora la pone el servidor. cualquier persona; el celular manda tipo de marca, ubicación y rostro, **nunca la hora**. no se ve en la maqueta (todo corre en el mismo equipo). se prueba con el backend: cambiar la hora del celular y marcar. `context/asistenciacontext.jsx › marcar()` — `min: alsegundo(minutosahora())`. sin captura: es una regla del servidor. marca.min = hora del servidor al recibirla, al segundo">
+  <header class="ficha-cab"><span class="id">CASO-ASI-04</span><h3>El celular tiene otra hora</h3><div class="reglas"><span class="ref">BR‑ASI‑001</span>, <span class="ref">BR‑ASI‑002</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> el reloj del celular de alguien está 20 minutos atrasado · <b class="g">Cuando</b> marca su entrada a las 08:41 reales · <b class="g">Entonces</b> la marca queda a las 08:41: la hora la pone el servidor.</div></div>
+      <div class="par"><span>Datos</span><div>cualquier persona; el celular manda tipo de marca, ubicación y rostro, <b>nunca la hora</b>.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">marca.min = hora del servidor al recibirla, al segundo</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>no se ve en la maqueta (todo corre en el mismo equipo). Se prueba con el backend: cambiar la hora del celular y marcar.</div></div>
+      <div class="par"><span>En el código</span><div><code>context/AsistenciaContext.jsx › marcar()</code> — <code>min: alSegundo(minutosAhora())</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>sin captura: es una regla del servidor.</div></div>
+    </div>
+    <div class="imgs"><p class="sin-captura">Sin captura: lo decide el servidor.</p></div>
+  </div>
+</article>
+<h2 class="grupo-t" id="2-el-calculo-del-dia">2 · El cálculo del día</h2>
+<article class="caso" id="caso-asi-05" data-texto="caso-asi-05 llega dentro de la tolerancia br‑asi‑012, br‑asi‑050 · w‑asi‑07 **dado que** camila entra a las 09:00 con 10 min de tolerancia · **cuando** marca a las 09:05:48 · **entonces** el día queda **a tiempo**, sin tardanza. camila herrera · sucursal sopocachi · 09:00–17:00 · martes 27 oct · entrada 09:05:48. página de camila herrera › octubre › 27. `data/asistenciadata.js › recomputar()` — `tardanza`. sin aviso de tardanza, aunque entró después de las 09:00. límite = 09:00 + 10 min = 09:10:00 09:05:48 ≤ 09:10:00 → tardanza 0 → a tiempo">
+  <header class="ficha-cab"><span class="id">CASO-ASI-05</span><h3>Llega dentro de la tolerancia</h3><div class="reglas"><span class="ref">BR‑ASI‑012</span>, <span class="ref">BR‑ASI‑050</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Camila entra a las 09:00 con 10 min de tolerancia · <b class="g">Cuando</b> marca a las 09:05:48 · <b class="g">Entonces</b> el día queda <b>a tiempo</b>, sin tardanza.</div></div>
+      <div class="par"><span>Datos</span><div>Camila Herrera · Sucursal Sopocachi · 09:00–17:00 · martes 27 oct · Entrada 09:05:48.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">límite = 09:00 + 10 min = 09:10:00
+09:05:48 ≤ 09:10:00 → tardanza 0 → a tiempo</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Camila Herrera › octubre › 27.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>tardanza</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>sin aviso de tardanza, aunque entró después de las 09:00.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/05-tolerancia.png" target="_blank" rel="noopener"><img src="assets/casos/05-tolerancia.png" alt="Web · Detalle de la jornada de Camila, 27 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Camila, 27 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-06" data-texto="caso-asi-06 llega tarde br‑asi‑012, br‑asi‑050 · w‑asi‑07 **dado que** diego entra a las 08:30 con 10 min de tolerancia · **cuando** marca a las 08:44:24 · **entonces** llegó **4 min 24 s tarde**: la tardanza se cuenta desde el fin de la tolerancia, no desde las 08:30. diego morales · 08:30–18:00 · jueves 15 oct · entrada 08:44:24 · descanso 13:01:31–13:57:43 · salida 17:56:18. página de diego morales › octubre › 15. `data/asistenciadata.js › recomputar()` — una sola tardanza; todas las pantallas leen esta. «llegó tarde · 4 min tarde» arriba, la tarjeta tardanza «4 min 24 s» y la línea «se le avisó en la app · sin motivo todavía». tardanza = 08:44:24 − (08:30 + 10 min) = 4 min 24 s trabajado = (17:56:18 − 08:44:24) − 56 min 12 s de descanso = 8 h 15 min 42 s">
+  <header class="ficha-cab"><span class="id">CASO-ASI-06</span><h3>Llega tarde</h3><div class="reglas"><span class="ref">BR‑ASI‑012</span>, <span class="ref">BR‑ASI‑050</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Diego entra a las 08:30 con 10 min de tolerancia · <b class="g">Cuando</b> marca a las 08:44:24 · <b class="g">Entonces</b> llegó <b>4 min 24 s tarde</b>: la tardanza se cuenta desde el fin de la tolerancia, no desde las 08:30.</div></div>
+      <div class="par"><span>Datos</span><div>Diego Morales · 08:30–18:00 · jueves 15 oct · Entrada 08:44:24 · Descanso 13:01:31–13:57:43 · Salida 17:56:18.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">tardanza = 08:44:24 − (08:30 + 10 min) = 4 min 24 s
+trabajado = (17:56:18 − 08:44:24) − 56 min 12 s de descanso = 8 h 15 min 42 s</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Diego Morales › octubre › 15.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — una sola tardanza; todas las pantallas leen esta.</div></div>
+      <div class="par"><span>Qué mirar</span><div>«Llegó tarde · 4 min tarde» arriba, la tarjeta Tardanza «4 min 24 s» y la línea «Se le avisó en la app · sin motivo todavía».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/06-tarde.png" target="_blank" rel="noopener"><img src="assets/casos/06-tarde.png" alt="Web · Detalle de la jornada de Diego, 15 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Diego, 15 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-07" data-texto="caso-asi-07 olvida marcar la salida br‑asi‑018, br‑asi‑021 · w‑asi‑07 **dado que** camila marcó su entrada · **cuando** se va sin marcar la salida · **entonces** el día queda **«salida sin marcar»** (incompleto) y no suma horas hasta que se corrija. camila herrera · sábado 10 oct · 09:00–13:00 · entrada 08:53:38 · sin más marcas. página de camila herrera › octubre › 10. `data/asistenciadata.js › recomputar()` — `estado = 'incompleta'`. el estado «salida sin marcar» y las horas en cero; se arregla con una corrección (caso‑asi‑16). sin salida y el día ya pasó → estado incompleta trabajado = 0 (no hay fin para calcular)">
+  <header class="ficha-cab"><span class="id">CASO-ASI-07</span><h3>Olvida marcar la salida</h3><div class="reglas"><span class="ref">BR‑ASI‑018</span>, <span class="ref">BR‑ASI‑021</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Camila marcó su entrada · <b class="g">Cuando</b> se va sin marcar la salida · <b class="g">Entonces</b> el día queda <b>«Salida sin marcar»</b> (incompleto) y no suma horas hasta que se corrija.</div></div>
+      <div class="par"><span>Datos</span><div>Camila Herrera · sábado 10 oct · 09:00–13:00 · Entrada 08:53:38 · sin más marcas.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">sin salida y el día ya pasó → estado incompleta
+trabajado = 0 (no hay fin para calcular)</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Camila Herrera › octubre › 10.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>estado = 'incompleta'</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el estado «Salida sin marcar» y las horas en cero; se arregla con una corrección (<span class="ref">CASO‑ASI‑16</span>).</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/07-sin-salida.png" target="_blank" rel="noopener"><img src="assets/casos/07-sin-salida.png" alt="Web · Detalle de la jornada de Camila, 10 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Camila, 10 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-08" data-texto="caso-asi-08 se pasa del descanso br‑asi‑014, br‑asi‑015 · w‑asi‑07 **dado que** diego tiene 1 h de descanso, de 13:00 a 14:00 · **cuando** sale a las 13:01:33 y vuelve a las 14:27:22 · **entonces** se alerta **una vez** el exceso, que se cuenta en tiempo. diego morales · miércoles 21 oct · entrada 08:18:16 · descanso 13:01:33–14:27:22 · salida 18:08:41. página de diego morales › octubre › 21. `data/asistenciadata.js › recomputar()` — `pausaexceso`. el aviso dice a qué hora salió y volvió y cuánto le corresponde. descanso tomado = 14:27:22 − 13:01:33 = 1 h 25 min 49 s exceso = 1 h 25 min 49 s − 1 h = 25 min 49 s">
+  <header class="ficha-cab"><span class="id">CASO-ASI-08</span><h3>Se pasa del descanso</h3><div class="reglas"><span class="ref">BR‑ASI‑014</span>, <span class="ref">BR‑ASI‑015</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Diego tiene 1 h de descanso, de 13:00 a 14:00 · <b class="g">Cuando</b> sale a las 13:01:33 y vuelve a las 14:27:22 · <b class="g">Entonces</b> se alerta <b>una vez</b> el exceso, que se cuenta en tiempo.</div></div>
+      <div class="par"><span>Datos</span><div>Diego Morales · miércoles 21 oct · Entrada 08:18:16 · Descanso 13:01:33–14:27:22 · Salida 18:08:41.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">descanso tomado = 14:27:22 − 13:01:33 = 1 h 25 min 49 s
+exceso = 1 h 25 min 49 s − 1 h = 25 min 49 s</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Diego Morales › octubre › 21.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>pausaExceso</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el aviso dice a qué hora salió y volvió y cuánto le corresponde.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/08-descanso-largo.png" target="_blank" rel="noopener"><img src="assets/casos/08-descanso-largo.png" alt="Web · Detalle de la jornada de Diego, 21 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Diego, 21 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-09" data-texto="caso-asi-09 no marca el descanso br‑asi‑016, br‑asi‑022 · w‑asi‑07 **dado que** camila tiene 30 min de descanso, de 13:00 a 13:30 · **cuando** marca solo la entrada y la salida · **entonces** se restan los 30 min de lo trabajado y se le avisa. camila herrera · miércoles 21 oct · 09:00–17:00 · entrada 08:57:32 · salida 17:10:16. página de camila herrera › octubre › 21. `data/asistenciadata.js › recomputar()` — `sinpausa` (según la política: descontar, alertar o las dos). «no marcó su descanso de 13:00 a 13:30. se restaron 30 min de las horas trabajadas». trabajado = (17:10:16 − 08:57:32) − 30 min = 7 h 42 min 44 s">
+  <header class="ficha-cab"><span class="id">CASO-ASI-09</span><h3>No marca el descanso</h3><div class="reglas"><span class="ref">BR‑ASI‑016</span>, <span class="ref">BR‑ASI‑022</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Camila tiene 30 min de descanso, de 13:00 a 13:30 · <b class="g">Cuando</b> marca solo la entrada y la salida · <b class="g">Entonces</b> se restan los 30 min de lo trabajado y se le avisa.</div></div>
+      <div class="par"><span>Datos</span><div>Camila Herrera · miércoles 21 oct · 09:00–17:00 · Entrada 08:57:32 · Salida 17:10:16.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">trabajado = (17:10:16 − 08:57:32) − 30 min = 7 h 42 min 44 s</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Camila Herrera › octubre › 21.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>sinPausa</code> (según la política: descontar, alertar o las dos).</div></div>
+      <div class="par"><span>Qué mirar</span><div>«No marcó su descanso de 13:00 a 13:30. Se restaron 30 min de las horas trabajadas».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/09-sin-descanso.png" target="_blank" rel="noopener"><img src="assets/casos/09-sin-descanso.png" alt="Web · Detalle de la jornada de Camila, 21 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Camila, 21 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-10" data-texto="caso-asi-10 se queda más de 30 minutos sin autorización br‑asi‑032, br‑asi‑034 · w‑asi‑07 **dado que** diego no tiene horas extra autorizadas ese día · **cuando** se queda hasta las 19:55:58 · **entonces** lo de más es **«fuera de horario»**: se informa, no se paga. rr.hh. puede autorizarlo después. diego morales · jueves 22 oct · 08:30–18:00 (8 h 30 min) · entrada 08:25:02 · descanso 13:00:38–13:59:21 · salida 19:55:58. página de diego morales › octubre › 22. `data/asistenciadata.js › recomputar()` — `fueradehorario`. el bloque «fuera de horario, sin autorización» con el botón «autorizar como horas extra». trabajado = 10 h 32 min 13 s · programado = 8 h 30 min · autorizado = 0 fuera de horario = 10 h 32 min 13 s − 8 h 30 min = 2 h 2 min 13 s (≥ 15 min → se informa) en el tema «fuera de horario» del libro aparece si es ≥ 30 min">
+  <header class="ficha-cab"><span class="id">CASO-ASI-10</span><h3>Se queda más de 30 minutos sin autorización</h3><div class="reglas"><span class="ref">BR‑ASI‑032</span>, <span class="ref">BR‑ASI‑034</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Diego no tiene horas extra autorizadas ese día · <b class="g">Cuando</b> se queda hasta las 19:55:58 · <b class="g">Entonces</b> lo de más es <b>«fuera de horario»</b>: se informa, no se paga. RR.HH. puede autorizarlo después.</div></div>
+      <div class="par"><span>Datos</span><div>Diego Morales · jueves 22 oct · 08:30–18:00 (8 h 30 min) · Entrada 08:25:02 · Descanso 13:00:38–13:59:21 · Salida 19:55:58.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">trabajado = 10 h 32 min 13 s · programado = 8 h 30 min · autorizado = 0
+fuera de horario = 10 h 32 min 13 s − 8 h 30 min = 2 h 2 min 13 s (≥ 15 min → se informa)
+en el tema «Fuera de horario» del Libro aparece si es ≥ 30 min</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Diego Morales › octubre › 22.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>fueraDeHorario</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el bloque «fuera de horario, sin autorización» con el botón «Autorizar como horas extra».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/10-fuera-horario.png" target="_blank" rel="noopener"><img src="assets/casos/10-fuera-horario.png" alt="Web · Detalle de la jornada de Diego, 22 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Diego, 22 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-11" data-texto="caso-asi-11 sale antes de hora br‑asi‑017 · w‑asi‑07 **dado que** la salida de camila es a las 17:00 · **cuando** marca la salida a las 16:11:08 · **entonces** el día queda **«salió antes»**, pasada su tolerancia de salida. camila herrera · lunes 19 oct · 09:00–17:00 · entrada 08:48:15 · descanso 13:01:09–13:27:45 · salida 16:11:08. página de camila herrera › octubre › 19. `data/asistenciadata.js › recomputar()` — `anticipada`. el aviso «salió a las 16:11:08; su salida es a las 17:00». salida anticipada = 17:00 − tolerancia de salida − 16:11:08">
+  <header class="ficha-cab"><span class="id">CASO-ASI-11</span><h3>Sale antes de hora</h3><div class="reglas"><span class="ref">BR‑ASI‑017</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> la salida de Camila es a las 17:00 · <b class="g">Cuando</b> marca la salida a las 16:11:08 · <b class="g">Entonces</b> el día queda <b>«Salió antes»</b>, pasada su tolerancia de salida.</div></div>
+      <div class="par"><span>Datos</span><div>Camila Herrera · lunes 19 oct · 09:00–17:00 · Entrada 08:48:15 · Descanso 13:01:09–13:27:45 · Salida 16:11:08.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">salida anticipada = 17:00 − tolerancia de salida − 16:11:08</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Camila Herrera › octubre › 19.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>anticipada</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el aviso «Salió a las 16:11:08; su salida es a las 17:00».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/11-anticipada.png" target="_blank" rel="noopener"><img src="assets/casos/11-anticipada.png" alt="Web · Detalle de la jornada de Camila, 19 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Camila, 19 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-12" data-texto="caso-asi-12 falta sin aviso br‑asi‑018, br‑asi‑026 · w‑asi‑07 **dado que** valentina tenía que trabajar · **cuando** no marca nada y no tiene permiso · **entonces** el día queda **«faltó»** y cuenta en contra hasta que se justifique. valentina cruz · viernes 9 oct · 08:30–18:00 · sin marcas · sin vacaciones ni permiso. página de valentina cruz › octubre › 9. `data/asistenciadata.js › recomputar()` — `estado = 'ausente'`. desde el detalle se justifica el día (br‑asi‑026); justificado deja de ser falta. día laboral, pasado, sin entrada, sin justificación → ausente programado = 8 h 30 min (sí cuenta)">
+  <header class="ficha-cab"><span class="id">CASO-ASI-12</span><h3>Falta sin aviso</h3><div class="reglas"><span class="ref">BR‑ASI‑018</span>, <span class="ref">BR‑ASI‑026</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Valentina tenía que trabajar · <b class="g">Cuando</b> no marca nada y no tiene permiso · <b class="g">Entonces</b> el día queda <b>«Faltó»</b> y cuenta en contra hasta que se justifique.</div></div>
+      <div class="par"><span>Datos</span><div>Valentina Cruz · viernes 9 oct · 08:30–18:00 · sin marcas · sin vacaciones ni permiso.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">día laboral, pasado, sin entrada, sin justificación → ausente
+programado = 8 h 30 min (sí cuenta)</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Valentina Cruz › octubre › 9.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>estado = 'ausente'</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>desde el detalle se justifica el día (<span class="ref">BR‑ASI‑026</span>); justificado deja de ser falta.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/12-falta.png" target="_blank" rel="noopener"><img src="assets/casos/12-falta.png" alt="Web · Detalle de la jornada de Valentina, 9 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Valentina, 9 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-13" data-texto="caso-asi-13 día de vacaciones br‑asi‑039 · w‑asi‑07 **dado que** sofía tiene vacaciones aprobadas · **cuando** no marca · **entonces** el día no es falta, **no se la espera** en hoy y **no tiene horas programadas**. sofía ramírez · miércoles 28 oct · vacaciones aprobadas «viaje familiar». página de sofía ramírez › octubre › 28. `data/asistenciadata.js › recomputar()` — `programado: estado === 'justificada' ? 0 : programado`. el día dice de qué es la ausencia, no «faltó». con justificación y sin entrada → justificada programado = 0 (no le «faltan» horas a quien está de vacaciones)">
+  <header class="ficha-cab"><span class="id">CASO-ASI-13</span><h3>Día de vacaciones</h3><div class="reglas"><span class="ref">BR‑ASI‑039</span> · <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Sofía tiene vacaciones aprobadas · <b class="g">Cuando</b> no marca · <b class="g">Entonces</b> el día no es falta, <b>no se la espera</b> en Hoy y <b>no tiene horas programadas</b>.</div></div>
+      <div class="par"><span>Datos</span><div>Sofía Ramírez · miércoles 28 oct · vacaciones aprobadas «Viaje familiar».</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">con justificación y sin entrada → justificada
+programado = 0 (no le «faltan» horas a quien está de vacaciones)</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>página de Sofía Ramírez › octubre › 28.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › recomputar()</code> — <code>programado: estado === 'justificada' ? 0 : programado</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el día dice de qué es la ausencia, no «Faltó».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/13-vacaciones.png" target="_blank" rel="noopener"><img src="assets/casos/13-vacaciones.png" alt="Web · Detalle de la jornada de Sofía, 28 oct" loading="lazy"></a><figcaption>Web · Detalle de la jornada de Sofía, 28 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-14" data-texto="caso-asi-14 feriado nacional br‑asi‑019 · w‑asi‑01 **dado que** el 2 de noviembre es todos santos · **cuando** nadie marca ese día · **entonces** nadie figura como falta. feriado nacional 2 nov 2026 «todos santos» (también 25 dic, navidad). asistencia › hoy › calendario › mes siguiente › 2. `data/asistenciadata.js › feriados`, `components/asistencia/calendarioasistencia.jsx`. el punto violeta de feriado y el detalle «feriado nacional: nadie debería figurar como falta». feriado → día no laboral → sin programado, sin faltas">
+  <header class="ficha-cab"><span class="id">CASO-ASI-14</span><h3>Feriado nacional</h3><div class="reglas"><span class="ref">BR‑ASI‑019</span> · <span class="ref">W‑ASI‑01</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> el 2 de noviembre es Todos Santos · <b class="g">Cuando</b> nadie marca ese día · <b class="g">Entonces</b> nadie figura como falta.</div></div>
+      <div class="par"><span>Datos</span><div>feriado nacional 2 nov 2026 «Todos Santos» (también 25 dic, Navidad).</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">feriado → día no laboral → sin programado, sin faltas</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Asistencia › Hoy › calendario › mes siguiente › 2.</div></div>
+      <div class="par"><span>En el código</span><div><code>data/asistenciaData.js › FERIADOS</code>, <code>components/asistencia/CalendarioAsistencia.jsx</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el punto violeta de feriado y el detalle «Feriado nacional: nadie debería figurar como falta».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/14-feriado.png" target="_blank" rel="noopener"><img src="assets/casos/14-feriado.png" alt="Web · Calendario de Hoy, noviembre" loading="lazy"></a><figcaption>Web · Calendario de Hoy, noviembre</figcaption></figure></div></div>
+  </div>
+</article>
+<h2 class="grupo-t" id="3-corregir-sin-borrar">3 · Corregir sin borrar</h2>
+<article class="caso" id="caso-asi-15" data-texto="caso-asi-15 pide corregir una hora y rr.hh. la aprueba br‑asi‑023, br‑asi‑037, br‑asi‑038 · w‑asi‑22, w‑asi‑10 **dado que** diego marcó la salida a las 18:12 pero se fue a las 18:22 · **cuando** pide corregirla desde el celular y rr.hh. aprueba · **entonces** su salida queda a las 18:22 **sobre la misma marca** (sin una nueva), con la hora original guardada y el motivo. diego morales · 08:30–18:00 · jueves 29 oct · salida 18:12 → 18:22 · «la app tardó en registrar mi salida» · es su 3.ª corrección del mes. celular: mi asistencia › «+» › «corregir una marcación». web: solicitudes › correcciones de marcación › diego, 29 oct. `components/asistencia/marcador.jsx › corregirmarcacel`, `components/asistencia/papeletacorreccion.jsx`, `context/asistenciacontext.jsx › respondersolicitud()`, `utils/correccion.js`. en la papeleta, la hora vieja tachada y la nueva en verde; abajo, «suma 9 min trabajadas · es su 3.ª corrección del mes»; «si apruebas» dice que se corrige sin duplicar. suma 9 min trabajadas (la marca original tenía segundos pasadas las 18:12) mueve ≤ 15 min, pero es su 3.ª corrección del mes → se revisa de a una, no en lote aprobar → ajustar(marcaid, 18:22, motivo): original = 18:12">
+  <header class="ficha-cab"><span class="id">CASO-ASI-15</span><h3>Pide corregir una hora y RR.HH. la aprueba</h3><div class="reglas"><span class="ref">BR‑ASI‑023</span>, <span class="ref">BR‑ASI‑037</span>, <span class="ref">BR‑ASI‑038</span> · <span class="ref">W‑ASI‑22</span>, <span class="ref">W‑ASI‑10</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Diego marcó la salida a las 18:12 pero se fue a las 18:22 · <b class="g">Cuando</b> pide corregirla desde el celular y RR.HH. aprueba · <b class="g">Entonces</b> su salida queda a las 18:22 <b>sobre la misma marca</b> (sin una nueva), con la hora original guardada y el motivo.</div></div>
+      <div class="par"><span>Datos</span><div>Diego Morales · 08:30–18:00 · jueves 29 oct · Salida 18:12 → 18:22 · «La app tardó en registrar mi salida» · es su 3.ª corrección del mes.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">suma 9 min trabajadas (la marca original tenía segundos pasadas las 18:12)
+mueve ≤ 15 min, pero es su 3.ª corrección del mes → se revisa de a una, no en lote
+aprobar → ajustar(marcaId, 18:22, motivo): original = 18:12</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>celular: Mi asistencia › «+» › «Corregir una marcación». Web: Solicitudes › Correcciones de marcación › Diego, 29 oct.</div></div>
+      <div class="par"><span>En el código</span><div><code>components/asistencia/Marcador.jsx › CorregirMarcaCel</code>, <code>components/asistencia/PapeletaCorreccion.jsx</code>, <code>context/AsistenciaContext.jsx › responderSolicitud()</code>, <code>utils/correccion.js</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>en la papeleta, la hora vieja tachada y la nueva en verde; abajo, «Suma 9 min trabajadas · Es su 3.ª corrección del mes»; «Si apruebas» dice que se corrige sin duplicar.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n2"><figure><a href="assets/casos/15-corregir-cel.png" target="_blank" rel="noopener"><img src="assets/casos/15-corregir-cel.png" alt="Celular · Corregir su día" loading="lazy"></a><figcaption>Celular · Corregir su día</figcaption></figure><figure><a href="assets/casos/15-corregir-hora-web.png" target="_blank" rel="noopener"><img src="assets/casos/15-corregir-hora-web.png" alt="Web · Revisar la corrección de Diego" loading="lazy"></a><figcaption>Web · Revisar la corrección de Diego</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-16" data-texto="caso-asi-16 carga una marca que faltaba br‑asi‑023, br‑asi‑038 · w‑asi‑10 **dado que** luciana no marcó su salida a descansar · **cuando** pide cargarla a las 13:00 · **entonces** al aprobar se agrega **una marca nueva** con su motivo (es la única corrección que agrega una marca). luciana paredes · sucursal el prado · 09:00–17:00 · jueves 29 oct · entrada 08:50 · pide «salida a descansar 13:00» · «me olvidé de marcar» · es su 3.ª corrección del mes. solicitudes › correcciones de marcación › luciana paredes, 29 oct. `context/asistenciacontext.jsx › respondersolicitud()`, `utils/correccion.js › ranurasdeldia()` (la hora sugerida). en la papeleta, «sin marcar» → «13:00»; abajo, «es su 3.ª corrección del mes». marca sin marcaid → aprobar = marcamanual(13:00, motivo) 3.ª corrección del mes → no es rutinaria: se revisa de a una">
+  <header class="ficha-cab"><span class="id">CASO-ASI-16</span><h3>Carga una marca que faltaba</h3><div class="reglas"><span class="ref">BR‑ASI‑023</span>, <span class="ref">BR‑ASI‑038</span> · <span class="ref">W‑ASI‑10</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Luciana no marcó su salida a descansar · <b class="g">Cuando</b> pide cargarla a las 13:00 · <b class="g">Entonces</b> al aprobar se agrega <b>una marca nueva</b> con su motivo (es la única corrección que agrega una marca).</div></div>
+      <div class="par"><span>Datos</span><div>Luciana Paredes · Sucursal El Prado · 09:00–17:00 · jueves 29 oct · Entrada 08:50 · pide «Salida a descansar 13:00» · «Me olvidé de marcar» · es su 3.ª corrección del mes.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">marca sin marcaId → aprobar = marcaManual(13:00, motivo)
+3.ª corrección del mes → no es rutinaria: se revisa de a una</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Solicitudes › Correcciones de marcación › Luciana Paredes, 29 oct.</div></div>
+      <div class="par"><span>En el código</span><div><code>context/AsistenciaContext.jsx › responderSolicitud()</code>, <code>utils/correccion.js › ranurasDelDia()</code> (la hora sugerida).</div></div>
+      <div class="par"><span>Qué mirar</span><div>en la papeleta, «Sin marcar» → «13:00»; abajo, «Es su 3.ª corrección del mes».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/16-marca-faltante-web.png" target="_blank" rel="noopener"><img src="assets/casos/16-marca-faltante-web.png" alt="Web · Revisar la corrección de Luciana" loading="lazy"></a><figcaption>Web · Revisar la corrección de Luciana</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-17" data-texto="caso-asi-17 quita una marca de más br‑asi‑024 · w‑asi‑10 **dado que** fernando marcó dos veces la entrada · **cuando** pide quitar la de las 08:25 · **entonces** al aprobar esa marca queda **anulada, a la vista**: no se borra. fernando quisbert · sucursal montero · 08:30–18:00 · jueves 29 oct · entrada 08:24 · entrada de más 08:25 · «la app me hizo marcar de nuevo». solicitudes › correcciones de marcación › fernando quisbert, 29 oct. `context/asistenciacontext.jsx › respondersolicitud()` (`c.quitar → anular`). la fila «entrada de más 08:25 → se quita». aprobar → anular(marcaid, motivo) no cambia sus horas: la entrada del día sigue siendo 08:24">
+  <header class="ficha-cab"><span class="id">CASO-ASI-17</span><h3>Quita una marca de más</h3><div class="reglas"><span class="ref">BR‑ASI‑024</span> · <span class="ref">W‑ASI‑10</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Fernando marcó dos veces la entrada · <b class="g">Cuando</b> pide quitar la de las 08:25 · <b class="g">Entonces</b> al aprobar esa marca queda <b>anulada, a la vista</b>: no se borra.</div></div>
+      <div class="par"><span>Datos</span><div>Fernando Quisbert · Sucursal Montero · 08:30–18:00 · jueves 29 oct · Entrada 08:24 · Entrada de más 08:25 · «La app me hizo marcar de nuevo».</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">aprobar → anular(marcaId, motivo)
+no cambia sus horas: la entrada del día sigue siendo 08:24</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Solicitudes › Correcciones de marcación › Fernando Quisbert, 29 oct.</div></div>
+      <div class="par"><span>En el código</span><div><code>context/AsistenciaContext.jsx › responderSolicitud()</code> (<code>c.quitar → anular</code>).</div></div>
+      <div class="par"><span>Qué mirar</span><div>la fila «Entrada de más 08:25 → Se quita».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/17-quitar-marca-web.png" target="_blank" rel="noopener"><img src="assets/casos/17-quitar-marca-web.png" alt="Web · Revisar la corrección de Fernando" loading="lazy"></a><figcaption>Web · Revisar la corrección de Fernando</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-18" data-texto="caso-asi-18 rr.hh. carga una marca a mano br‑asi‑025 · w‑asi‑02 **dado que** alguien no pudo marcar · **cuando** rr.hh. carga la marca a mano · **entonces** **sin motivo no se guarda**, y la marca queda como «cargada por rr.hh.» con quién y cuándo. cualquier colaborador; hora y motivo obligatorios. asistencia › hoy › «marcación manual». `pages/asistencia/hoy.jsx`, `context/asistenciacontext.jsx › marcamanual()`. primero se elige a la persona; después la hora y el motivo, que es obligatorio y queda en el registro. marca { origen: 'panel', motivo, por, cuando }">
+  <header class="ficha-cab"><span class="id">CASO-ASI-18</span><h3>RR.HH. carga una marca a mano</h3><div class="reglas"><span class="ref">BR‑ASI‑025</span> · <span class="ref">W‑ASI‑02</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> alguien no pudo marcar · <b class="g">Cuando</b> RR.HH. carga la marca a mano · <b class="g">Entonces</b> <b>sin motivo no se guarda</b>, y la marca queda como «Cargada por RR.HH.» con quién y cuándo.</div></div>
+      <div class="par"><span>Datos</span><div>cualquier colaborador; hora y motivo obligatorios.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">marca { origen: 'panel', motivo, por, cuando }</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Asistencia › Hoy › «Marcación manual».</div></div>
+      <div class="par"><span>En el código</span><div><code>pages/asistencia/Hoy.jsx</code>, <code>context/AsistenciaContext.jsx › marcaManual()</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>primero se elige a la persona; después la hora y el motivo, que es obligatorio y queda en el registro.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/18-manual.png" target="_blank" rel="noopener"><img src="assets/casos/18-manual.png" alt="Web · Marcación manual" loading="lazy"></a><figcaption>Web · Marcación manual</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-19" data-texto="caso-asi-19 rr.hh. aprueba correcciones en lote br‑asi‑038, br‑asi‑054 · w‑asi‑09 **dado que** hay 123 correcciones pendientes · **cuando** rr.hh. abre «revisar en lote», elige las rutinarias y escribe aprobar · **entonces** se aprueban todas juntas, cada una igual que aprobada de a una. 123 pendientes en la demo: 97 rutinarias y 26 de a una. solicitudes › correcciones de marcación › «revisar en lote». `pages/asistencia/revisarlote.jsx`, `utils/correccion.js › piderespaldo()`. «ver su día» abre las marcas de ese día; el pie fijo pide escribir aprobar. rechazar no va en lote: cada rechazo lleva su motivo. rutinaria = mueve ≤ 15 min · no quita atraso · 1.ª o 2.ª del mes · no es la propia lo demás → «se revisan de a una», con el porqué">
+  <header class="ficha-cab"><span class="id">CASO-ASI-19</span><h3>RR.HH. aprueba correcciones en lote</h3><div class="reglas"><span class="ref">BR‑ASI‑038</span>, <span class="ref">BR‑ASI‑054</span> · <span class="ref">W‑ASI‑09</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> hay 123 correcciones pendientes · <b class="g">Cuando</b> RR.HH. abre «Revisar en lote», elige las rutinarias y escribe APROBAR · <b class="g">Entonces</b> se aprueban todas juntas, cada una igual que aprobada de a una.</div></div>
+      <div class="par"><span>Datos</span><div>123 pendientes en la demo: 97 rutinarias y 26 de a una.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">rutinaria = mueve ≤ 15 min · no quita atraso · 1.ª o 2.ª del mes · no es la propia
+lo demás → «Se revisan de a una», con el porqué</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Solicitudes › Correcciones de marcación › «Revisar en lote».</div></div>
+      <div class="par"><span>En el código</span><div><code>pages/asistencia/RevisarLote.jsx</code>, <code>utils/correccion.js › pideRespaldo()</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>«Ver su día» abre las marcas de ese día; el pie fijo pide escribir APROBAR. Rechazar no va en lote: cada rechazo lleva su motivo.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/19-lote.png" target="_blank" rel="noopener"><img src="assets/casos/19-lote.png" alt="Web · Revisar en lote" loading="lazy"></a><figcaption>Web · Revisar en lote</figcaption></figure></div></div>
+  </div>
+</article>
+<h2 class="grupo-t" id="4-justificaciones-y-solicitudes">4 · Justificaciones y solicitudes</h2>
+<article class="caso" id="caso-asi-20" data-texto="caso-asi-20 justifica una tardanza br‑asi‑028, br‑asi‑029 · w‑asi‑10 **dado que** mateo llegó 36 min 47 s tarde · **cuando** lo justifica desde la app («llovió fuerte y no había transporte») y rr.hh. acepta · **entonces** la tardanza **deja de contar en contra** en el resumen y en la puntualidad. mateo guzmán · sucursal el prado · jueves 29 oct · llegó tarde 36 min 47 s · categoría clima · respondió al aviso el 30 oct. solicitudes › justificaciones › mateo guzmán. `components/asistencia/revisarsolicitud.jsx`, `data/asistenciadata.js › recomputar()` (`justificadas`). «primera justificación del mes» y «si apruebas» con el efecto. aceptada → justificadas.tarde = {...} → tardanzainjustificada = 0">
+  <header class="ficha-cab"><span class="id">CASO-ASI-20</span><h3>Justifica una tardanza</h3><div class="reglas"><span class="ref">BR‑ASI‑028</span>, <span class="ref">BR‑ASI‑029</span> · <span class="ref">W‑ASI‑10</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Mateo llegó 36 min 47 s tarde · <b class="g">Cuando</b> lo justifica desde la app («Llovió fuerte y no había transporte») y RR.HH. acepta · <b class="g">Entonces</b> la tardanza <b>deja de contar en contra</b> en el resumen y en la puntualidad.</div></div>
+      <div class="par"><span>Datos</span><div>Mateo Guzmán · Sucursal El Prado · jueves 29 oct · llegó tarde 36 min 47 s · categoría Clima · respondió al aviso el 30 oct.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">aceptada → justificadas.tarde = {...} → tardanzaInjustificada = 0</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Solicitudes › Justificaciones › Mateo Guzmán.</div></div>
+      <div class="par"><span>En el código</span><div><code>components/asistencia/RevisarSolicitud.jsx</code>, <code>data/asistenciaData.js › recomputar()</code> (<code>justificadas</code>).</div></div>
+      <div class="par"><span>Qué mirar</span><div>«Primera justificación del mes» y «Si apruebas» con el efecto.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/20-justificar.png" target="_blank" rel="noopener"><img src="assets/casos/20-justificar.png" alt="Web · Revisar la justificación de Mateo" loading="lazy"></a><figcaption>Web · Revisar la justificación de Mateo</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-21" data-texto="caso-asi-21 pide horas extra y solo cuenta lo autorizado br‑asi‑032, br‑asi‑033 · w‑asi‑22, w‑asi‑12, w‑asi‑07 **dado que** diego tiene autorizadas horas extra de 18:00 a 20:00 · **cuando** se queda hasta las 20:06:28 · **entonces** cuentan como extra **solo las 2 h dentro de la ventana**; los 6 min de después no se pagan. diego morales · miércoles 7 oct · 08:30–18:00 · entrada 08:31:52 · descanso 12:59:22–13:59:19 · salida 20:06:28 · ventana 18:00–20:00. pendiente en la demo: 31 oct 18:00–20:00 «cobertura por vacaciones». celular: mi asistencia › «+» › «pedir horas extra». web: solicitudes › horas extra; el día, en la página de diego › octubre › 7. `pages/asistencia/horasextra.jsx`, `data/asistenciadata.js › recomputar()` — `extra` y `ventanas`. «solo cuentan las autorizadas. quedarse más tiempo no las genera». extra = lo trabajado dentro de 18:00–20:00 = 2 h sobra = 10 h 34 min 39 s − 8 h 30 min − 2 h = 4 min 39 s (&lt; 15 min → no es fuera de horario)">
+  <header class="ficha-cab"><span class="id">CASO-ASI-21</span><h3>Pide horas extra y solo cuenta lo autorizado</h3><div class="reglas"><span class="ref">BR‑ASI‑032</span>, <span class="ref">BR‑ASI‑033</span> · <span class="ref">W‑ASI‑22</span>, <span class="ref">W‑ASI‑12</span>, <span class="ref">W‑ASI‑07</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Diego tiene autorizadas horas extra de 18:00 a 20:00 · <b class="g">Cuando</b> se queda hasta las 20:06:28 · <b class="g">Entonces</b> cuentan como extra <b>solo las 2 h dentro de la ventana</b>; los 6 min de después no se pagan.</div></div>
+      <div class="par"><span>Datos</span><div>Diego Morales · miércoles 7 oct · 08:30–18:00 · Entrada 08:31:52 · Descanso 12:59:22–13:59:19 · Salida 20:06:28 · ventana 18:00–20:00. Pendiente en la demo: 31 oct 18:00–20:00 «Cobertura por vacaciones».</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">extra = lo trabajado dentro de 18:00–20:00 = 2 h
+sobra = 10 h 34 min 39 s − 8 h 30 min − 2 h = 4 min 39 s (&lt; 15 min → no es fuera de horario)</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>celular: Mi asistencia › «+» › «Pedir horas extra». Web: Solicitudes › Horas extra; el día, en la página de Diego › octubre › 7.</div></div>
+      <div class="par"><span>En el código</span><div><code>pages/asistencia/HorasExtra.jsx</code>, <code>data/asistenciaData.js › recomputar()</code> — <code>extra</code> y <code>ventanas</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>«Solo cuentan las autorizadas. Quedarse más tiempo no las genera».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n3"><figure><a href="assets/casos/21-horas-extra-cel.png" target="_blank" rel="noopener"><img src="assets/casos/21-horas-extra-cel.png" alt="Celular · Pedir horas extra" loading="lazy"></a><figcaption>Celular · Pedir horas extra</figcaption></figure><figure><a href="assets/casos/21-horas-extra-web.png" target="_blank" rel="noopener"><img src="assets/casos/21-horas-extra-web.png" alt="Web · Horas extra pendientes" loading="lazy"></a><figcaption>Web · Horas extra pendientes</figcaption></figure><figure><a href="assets/casos/21-extra-ventana.png" target="_blank" rel="noopener"><img src="assets/casos/21-extra-ventana.png" alt="Web · El día de Diego con horas extra, 7 oct" loading="lazy"></a><figcaption>Web · El día de Diego con horas extra, 7 oct</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-22" data-texto="caso-asi-22 pide vacaciones sin saldo br‑asi‑041, br‑asi‑042, br‑asi‑043 · w‑asi‑10 **dado que** camila aún no cumple un año (saldo 0) · **cuando** pide 4 días · **entonces** rr.hh. ve que no le alcanza y que su lugar sigue cubierto; aprobar es **una excepción** y queda registrada así. camila herrera · ingreso 2 ene 2026 · del 5 al 9 nov · 4 días hábiles · «viaje» · sucursal sopocachi con 10 de 12. solicitudes › vacaciones › camila herrera. `components/asistencia/revisarsolicitud.jsx`, `utils/papeletavacacion.js`. el botón dice «aprobar igual…» en vez de «aprobar…»; la papeleta muestra «saldo después −4 días (de 0)». días hábiles = jue 5, vie 6, sáb 7, lun 9 = 4 (trabaja de lunes a sábado; el domingo no cuenta) · saldo después = 0 − 4 = −4 cobertura = 10 de 12 → sigue cubierto">
+  <header class="ficha-cab"><span class="id">CASO-ASI-22</span><h3>Pide vacaciones sin saldo</h3><div class="reglas"><span class="ref">BR‑ASI‑041</span>, <span class="ref">BR‑ASI‑042</span>, <span class="ref">BR‑ASI‑043</span> · <span class="ref">W‑ASI‑10</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Camila aún no cumple un año (saldo 0) · <b class="g">Cuando</b> pide 4 días · <b class="g">Entonces</b> RR.HH. ve que no le alcanza y que su lugar sigue cubierto; aprobar es <b>una excepción</b> y queda registrada así.</div></div>
+      <div class="par"><span>Datos</span><div>Camila Herrera · ingreso 2 ene 2026 · del 5 al 9 nov · 4 días hábiles · «Viaje» · Sucursal Sopocachi con 10 de 12.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">días hábiles = jue 5, vie 6, sáb 7, lun 9 = 4 (trabaja de lunes a sábado; el domingo no cuenta) · saldo después = 0 − 4 = −4
+cobertura = 10 de 12 → sigue cubierto</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Solicitudes › Vacaciones › Camila Herrera.</div></div>
+      <div class="par"><span>En el código</span><div><code>components/asistencia/RevisarSolicitud.jsx</code>, <code>utils/papeletaVacacion.js</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>el botón dice «Aprobar igual…» en vez de «Aprobar…»; la papeleta muestra «Saldo después −4 días (de 0)».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/22-vacaciones.png" target="_blank" rel="noopener"><img src="assets/casos/22-vacaciones.png" alt="Web · Revisar las vacaciones de Camila" loading="lazy"></a><figcaption>Web · Revisar las vacaciones de Camila</figcaption></figure></div></div>
+  </div>
+</article>
+<article class="caso" id="caso-asi-23" data-texto="caso-asi-23 permiso por horas br‑asi‑040 · w‑asi‑10 **dado que** valentina pide permiso de 15:00 a 17:00 para una cita médica · **cuando** rr.hh. lo aprueba · **entonces** puede ausentarse esas horas, pero **el resto del día lo trabaja**: un permiso por horas no justifica el día entero. valentina cruz · sábado 31 oct · 15:00–17:00 · cita médica · «control médico». solicitudes › permisos y licencias › valentina cruz. `utils/permisohoras.js`, `utils/papeletapermiso.js`. «si apruebas: podrá ausentarse de 15:00 a 17:00 el 31 oct». permiso por horas → justifica solo 15:00–17:00, no el día">
+  <header class="ficha-cab"><span class="id">CASO-ASI-23</span><h3>Permiso por horas</h3><div class="reglas"><span class="ref">BR‑ASI‑040</span> · <span class="ref">W‑ASI‑10</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> Valentina pide permiso de 15:00 a 17:00 para una cita médica · <b class="g">Cuando</b> RR.HH. lo aprueba · <b class="g">Entonces</b> puede ausentarse esas horas, pero <b>el resto del día lo trabaja</b>: un permiso por horas no justifica el día entero.</div></div>
+      <div class="par"><span>Datos</span><div>Valentina Cruz · sábado 31 oct · 15:00–17:00 · Cita médica · «Control médico».</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">permiso por horas → justifica solo 15:00–17:00, no el día</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>Solicitudes › Permisos y licencias › Valentina Cruz.</div></div>
+      <div class="par"><span>En el código</span><div><code>utils/permisoHoras.js</code>, <code>utils/papeletaPermiso.js</code>.</div></div>
+      <div class="par"><span>Qué mirar</span><div>«Si apruebas: Podrá ausentarse de 15:00 a 17:00 el 31 oct».</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n1"><figure><a href="assets/casos/23-permiso-horas.png" target="_blank" rel="noopener"><img src="assets/casos/23-permiso-horas.png" alt="Web · Revisar el permiso de Valentina" loading="lazy"></a><figcaption>Web · Revisar el permiso de Valentina</figcaption></figure></div></div>
+  </div>
+</article>
+<h2 class="grupo-t" id="5-lo-que-ve-la-persona">5 · Lo que ve la persona</h2>
+<article class="caso" id="caso-asi-24" data-texto="caso-asi-24 su celular y la web dicen lo mismo br‑asi‑057 · w‑asi‑22, w‑asi‑06 **dado que** rr.hh. mira el mes de carlos en la web (y su pdf) · **cuando** carlos mira su mes en el celular · **entonces** los dos dicen los mismos números. carlos mendoza ríos · septiembre 2026 · 17 días con entrada, 4 llegadas tarde, 1 falta, 4 días de vacaciones o permiso. web: página de carlos › septiembre. celular (como carlos): mi asistencia › «ver el mes» › septiembre. `utils/cifrasmes.js › cifrasdelmes()`, usado por `reportemes.jsx` (pdf) y `marcador.jsx` (celular). el celular y la web cuentan igual. ojo: el historial de ejemplo de carlos (sus vacaciones) se siembra la primera vez que se entra a la demo como él. trabajado = 137 h 41 min (web «137:41», celular «137 h 41 min») días a tiempo = días que vino sin llegar tarde ÷ días que vino = 13 de 17 puntualidad = 13 ÷ 17 = 76 % · llegadas tarde = 4 las vacaciones y los permisos no cuentan en ninguno de los dos lados">
+  <header class="ficha-cab"><span class="id">CASO-ASI-24</span><h3>Su celular y la web dicen lo mismo</h3><div class="reglas"><span class="ref">BR‑ASI‑057</span> · <span class="ref">W‑ASI‑22</span>, <span class="ref">W‑ASI‑06</span></div></header>
+  <div class="ficha-cuerpo">
+    <div class="datos">
+      <div class="par"><span>Situación</span><div><b class="g">Dado que</b> RR.HH. mira el mes de Carlos en la web (y su PDF) · <b class="g">Cuando</b> Carlos mira su mes en el celular · <b class="g">Entonces</b> los dos dicen los mismos números.</div></div>
+      <div class="par"><span>Datos</span><div>Carlos Mendoza Ríos · septiembre 2026 · 17 días con entrada, 4 llegadas tarde, 1 falta, 4 días de vacaciones o permiso.</div></div>
+      <div class="par"><span>Calcula</span><div><pre class="calc">trabajado = 137 h 41 min (web «137:41», celular «137 h 41 min»)
+días a tiempo = días que vino sin llegar tarde ÷ días que vino = 13 de 17
+puntualidad = 13 ÷ 17 = 76 % · llegadas tarde = 4
+las vacaciones y los permisos no cuentan en ninguno de los dos lados</pre></div></div>
+      <div class="par"><span>Para probarlo</span><div>web: página de Carlos › septiembre. Celular (como Carlos): Mi asistencia › «Ver el mes» › septiembre.</div></div>
+      <div class="par"><span>En el código</span><div><code>utils/cifrasMes.js › cifrasDelMes()</code>, usado por <code>ReporteMes.jsx</code> (PDF) y <code>Marcador.jsx</code> (celular).</div></div>
+      <div class="par"><span>Qué mirar</span><div>el celular y la web cuentan igual. Ojo: el historial de ejemplo de Carlos (sus vacaciones) se siembra la primera vez que se entra a la demo como él.</div></div>
+    </div>
+    <div class="imgs"><div class="capturas n2"><figure><a href="assets/casos/24-mismos-numeros-cel.png" target="_blank" rel="noopener"><img src="assets/casos/24-mismos-numeros-cel.png" alt="Celular · Mi mes, septiembre" loading="lazy"></a><figcaption>Celular · Mi mes, septiembre</figcaption></figure><figure><a href="assets/casos/24-mismos-numeros-web.png" target="_blank" rel="noopener"><img src="assets/casos/24-mismos-numeros-web.png" alt="Web · El mes de Carlos, septiembre" loading="lazy"></a><figcaption>Web · El mes de Carlos, septiembre</figcaption></figure></div></div>
+  </div>
+</article>
+<p class="vacio" id="vacio" hidden>Ningún caso coincide con la búsqueda.</p>
+</main>
+<script>
+const q = document.getElementById('buscar')
+q.addEventListener('input', () => {
+  const t = q.value.trim().toLowerCase().replace(/-/g, '‑')
+  let n = 0
+  document.querySelectorAll('.caso').forEach(c => { const ok = !t || c.dataset.texto.replace(/-/g, '‑').includes(t); c.hidden = !ok; if (ok) n++ })
+  document.querySelectorAll('.grupo-t').forEach(h => { let e = h.nextElementSibling, alguno = false; while (e && e.classList.contains('caso')) { if (!e.hidden) alguno = true; e = e.nextElementSibling } h.hidden = !alguno })
+  document.getElementById('vacio').hidden = n > 0
+})
+</script>
+</body>
+</html>
