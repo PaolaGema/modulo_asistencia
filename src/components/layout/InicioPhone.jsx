@@ -9,6 +9,8 @@ import { EVENTOS_INICIO, diaCorto } from '../../data/eventosInicio'
 import { useMisPedidos } from '../../hooks/useMisPedidos'
 import { useLineaTarde } from '../../hooks/useLineaTarde'
 import LineaTarde from '../asistencia/LineaTarde'
+import LineaPermiso from '../asistencia/LineaPermiso'
+import { textoPermiso } from '../../utils/permisoHoras'
 import { PUBLICACIONES } from '../../data/publicacionesInicio'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -45,7 +47,7 @@ function HoyCompacto({ onMarcar }) {
   const at = useAsistencia()
   const yo = at.yo
   const j = at.jornadaDe(yo, at.hoy)
-  const h = yo.horario
+  const h = at.horarioDe(yo, at.hoy) || yo.horario
   const hoy = ahora()
   const dia = `${DIAS_LARGOS[diaISO(at.hoy)]} ${fechaCorta(at.hoy)}`
 
@@ -54,10 +56,12 @@ function HoyCompacto({ onMarcar }) {
   const [pedido, setPedido] = useState(null)
   const marco = typeof document !== 'undefined' ? document.getElementById('marco-telefono') : null
   const turno = !h ? 'Sin horario asignado' : h.modo === 'fijo' ? `Turno ${h.entrada}–${h.salida}` : `Turno flexible · ${duracion(h.meta)}`
-  const detalle = !h ? 'Pídeselo a RR.HH.'
-    : j.salida != null ? `Saliste ${hhmm(j.salida)} · ${duracion(j.trabajado)}`
+  /* Con permiso por horas en la mañana, la franja lo dice en vez de «Sin marcar». */
+  const permisoIni = h?.permisoHoras?.inicio && j.entrada == null ? `${h.permisoHoras.inicio.label} hasta ${hhmm(h.permisoHoras.inicio.hasta)}` : null
+  const detalle = !h ? 'Pídalo a RR.HH.' : permisoIni ? permisoIni
+    : j.salida != null ? `Salió ${hhmm(j.salida)} · ${duracion(j.trabajado)}`
       : j.enPausa ? 'En descanso'
-        : j.entrada != null ? `Entraste ${hhmm(j.entrada)} · ${duracion(j.trabajado)}`
+        : j.entrada != null ? `Entró ${hhmm(j.entrada)} · ${duracion(j.trabajado)}`
           : 'Sin marcar'
   const enTurno = j.entrada != null && j.salida == null
   const meta = j.programado || h?.meta || 480
@@ -111,7 +115,7 @@ function HoyCompacto({ onMarcar }) {
       )}
       {acc.deshacer && (
         <button type="button" onClick={() => at.anular(acc.deshacer.id, 'La persona deshizo su salida desde la app')} style={{ ...enlace, alignSelf: 'flex-start', color: C.acento, position: 'relative' }}>
-          <RotateCcw size={9} /> ¿Te equivocaste? Deshacer salida
+          <RotateCcw size={9} /> ¿Se equivocó? Deshacer salida
         </button>
       )}
 
@@ -241,6 +245,8 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermi
   const pedidos = useMisPedidos(currentUser.name)
   const tarde = useLineaTarde()
   const at = useAsistencia()
+  /* Un permiso por horas de hoy: la línea verde «Su permiso cubre la mañana». */
+  const permiso = textoPermiso(at.horarioDe(at.yo, at.hoy), at.jornadaDe(at.yo, at.hoy))
   const vacacion = saldoVacaciones(at.yo, at.solicitudes, at.hoy)
   const { theme, toggleTheme } = useTheme()
   const circulo = { width: 29, height: 29, borderRadius: '50%', background: C.carta, boxShadow: C.sombra, display: 'grid', placeItems: 'center' }
@@ -287,6 +293,7 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermi
       {/* Una sola línea de estado: la entrada tarde, si la hay, va antes que las solicitudes. */}
       {tarde.ver && onCorregir
         ? <LineaTarde tardanza={tarde.tardanza} onCorregir={() => onCorregir('entrada')} onCerrar={tarde.cerrar} estilo={{ marginBottom: 12 }} />
+        : permiso ? <LineaPermiso texto={permiso} estilo={{ marginBottom: 12 }} />
         : <LineaSolicitudes pedidos={pedidos} onAbrir={onSolicitudes} />}
 
       {/* Las acciones rápidas suben, justo debajo de «Hoy»: son lo que más se toca. EN MOSAICO (opción A3):

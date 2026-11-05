@@ -7,7 +7,7 @@ import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
-  reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
+  reglasDe, horarioConPermisos, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
 } from '../data/asistenciaData'
 import { cambiosDe } from '../utils/correccion'
 
@@ -167,6 +167,13 @@ export function AsistenciaProvider({ children }) {
     return r
   }, [solicitudes])
 
+  /* PERMISOS POR HORAS aprobados de un día (médico de 08:30 a 13:00…), en minutos, y el horario de ese día
+     ya corrido por ellos: entrada al terminar el permiso de la mañana, salida al empezar el de la tarde. */
+  const permisosPorHorasDe = useCallback((pid, fecha) => (solicitudes || [])
+    .filter(x => x.tipo === 'permiso' && x.estado === 'aprobada' && x.horaDesde && x.horaHasta && String(x.personaId) === String(pid) && fecha >= x.desde && fecha <= x.hasta)
+    .map(x => ({ desde: aMin(x.horaDesde), hasta: aMin(x.horaHasta), label: SUBTIPOS_PERMISO.find(t => t.key === x.subtipo)?.label || 'Permiso', solicitudId: x.id })), [solicitudes])
+  const horarioDe = useCallback((p, fecha) => horarioConPermisos(horarioDelDia(p?.horarioBase || p?.horario, fecha), permisosPorHorasDe(p?.id, fecha)), [permisosPorHorasDe])
+
   /* ── LAS MARCAS DE UN DÍA: sembradas + manuales, con los ajustes aplicados ── */
   const marcasDe = useCallback((p, fecha) => {
     if (!p) return []
@@ -177,7 +184,7 @@ export function AsistenciaProvider({ children }) {
       : (esHoy && String(p.id) === yoId) ? []
         /* Quien tiene vacaciones, permiso o licencia ese día no marca: no se le siembra nada. */
         : justificacionDe(p.id, fecha) ? []
-        : marcasSembradas(p, p.asig, horarioDelDia(p.horarioBase || p.horario, fecha), p.politica, p.lugar, fecha, esHoy ? minutosAhora() : Infinity, ventanasDe(p.id, fecha)[0] || null)
+        : marcasSembradas(p, p.asig, horarioDe(p, fecha), p.politica, p.lugar, fecha, esHoy ? minutosAhora() : Infinity, ventanasDe(p.id, fecha)[0] || null)
     const propias = marcasExtra.filter(m => String(m.personaId) === String(p.id) && m.fecha === fecha)
     return [...base, ...propias]
       .map(m => {
@@ -185,26 +192,26 @@ export function AsistenciaProvider({ children }) {
         return a ? { ...m, original: m.min, min: a.anulada ? m.min : a.min, anulada: !!a.anulada, ajuste: a } : m
       })
       .sort((a, b) => a.min - b.min)
-  }, [hoy, marcasExtra, ajustes, yoId, justificacionDe, ventanasDe])
+  }, [hoy, marcasExtra, ajustes, yoId, justificacionDe, ventanasDe, horarioDe])
 
   const jornadaDe = useCallback((p, fecha) => {
     const marcas = marcasDe(p, fecha)
     const esHoy = fecha === hoy
     const j = recomputar({
-      marcas, horario: horarioDelDia(p?.horarioBase || p?.horario, fecha), reglas: reglasDe(p?.politica), fecha,
+      marcas, horario: horarioDe(p, fecha), reglas: reglasDe(p?.politica), fecha,
       justificacion: justificacionDe(p?.id, fecha), esHoy, minAhora: minutosAhora(), ventanas: ventanasDe(p?.id, fecha),
       justificadas: justificadasDe(p?.id, fecha),
     })
     if (!p?.asig || !p?.horario) j.estado = 'libre'
     return { ...j, marcas, fecha, persona: p, justificacion: justificacionDe(p?.id, fecha), horasExtra: (horasExtra || []).filter(x => String(x.personaId) === String(p?.id) && x.fecha === fecha), rechazadas: marcas.filter(m => m.rechazada) }
-  }, [marcasDe, hoy, justificacionDe, justificadasDe, ventanasDe, horasExtra, tic]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [marcasDe, hoy, justificacionDe, justificadasDe, ventanasDe, horasExtra, horarioDe, tic]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* El mismo día con otras marcas: para mostrar qué cambiaría una corrección antes de pedirla. */
   const simularDia = useCallback((p, fecha, marcas) => recomputar({
-    marcas, horario: horarioDelDia(p?.horarioBase || p?.horario, fecha), reglas: reglasDe(p?.politica), fecha,
+    marcas, horario: horarioDe(p, fecha), reglas: reglasDe(p?.politica), fecha,
     justificacion: justificacionDe(p?.id, fecha), esHoy: fecha === hoy, minAhora: minutosAhora(), ventanas: ventanasDe(p?.id, fecha),
     justificadas: justificadasDe(p?.id, fecha),
-  }), [hoy, justificacionDe, justificadasDe, ventanasDe])
+  }), [hoy, justificacionDe, justificadasDe, ventanasDe, horarioDe])
 
   /* Sin ficha en el directorio, una de paso con el horario de oficina en la casa matriz. */
   const yo = useMemo(() => {
@@ -372,7 +379,7 @@ export function AsistenciaProvider({ children }) {
     horarios, setHorarios, horarioPorId, politicas, setPoliticas, politicaPorId, politicaDefecto,
     asignaciones: asignaciones || {}, asignar, quitarAsignacion, geocercas, setGeocerca,
     biometria: biometria || {}, actualizarBio, ajustesGenerales, setAjustesGenerales,
-    marcasDe, jornadaDe, simularDia, justificacionDe, justificadasDe, incidencias,
+    marcasDe, jornadaDe, simularDia, horarioDe, permisosPorHorasDe, justificacionDe, justificadasDe, incidencias,
     marcar, marcaManual, ajustar, anular, justificar, descartar, marcasExtra,
     solicitudes: solicitudes || [], crearSolicitud, responderSolicitud, cancelarSolicitud, exigenciasDe,
     horasExtra: horasExtra || [], solicitarExtra, asignarExtra, responderExtra, autorizarDespues,

@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight, Clock, House, Paperclip } from 'lucide-react
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import BarraVolver from './BarraVolver'
+import YaPedido from './YaPedido'
+import { ocupadosDe, nombreOcupado, TONO_OCUPADO } from '../../utils/ocupados'
 import HoraCel from './HoraCel'
 import { Sello } from './VacacionPhone'
 import { INFO, numeroPermiso } from '../../utils/papeletaPermiso'
@@ -32,37 +34,6 @@ const arriba = () => document.querySelector('#marco-telefono .phone-scroll')?.sc
 const dias = n => `${n} ${n === 1 ? 'día' : 'días'}`
 const corto = s => `${DIAS_LARGOS[diaISO(s)].slice(0, 3)} ${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
 const largo = s => { const t = `${DIAS_LARGOS[diaISO(s)]} ${aFecha(s).getDate()} de ${MESES[aFecha(s).getMonth()]}`; return t[0].toUpperCase() + t.slice(1) }
-const diaMes = s => `${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
-
-/* Lo que ya tiene pedido o aprobado (vacación, permiso, trabajo remoto), día por día: en el calendario esos
-   días se pintan con el color de su estado —ámbar por aprobar, verde aprobado, como las etiquetas de Mis
-   solicitudes— y no se pueden tocar; debajo, una línea por cada uno dice qué es. */
-const QUE_ES = { vacaciones: ['Vacación', 'a'], permiso: ['Permiso', 'o'], remoto: ['Trabajo remoto', 'o'] }
-const TONO_OCUPADO = { pendiente: ['var(--tn-ambar)', 'var(--tx-ambar)'], aprobada: ['var(--tn-verde)', 'var(--tx-verde)'] }
-const nombreOcupado = s => { const [que, g] = QUE_ES[s.tipo]; return `${que} ${s.estado === 'aprobada' ? `aprobad${g}` : 'por aprobar'}` }
-function ocupadosDe(solicitudes, pid) {
-  const lista = solicitudes.filter(s => QUE_ES[s.tipo] && ['pendiente', 'aprobada'].includes(s.estado) && String(s.personaId) === String(pid))
-  const dias = new Map()
-  lista.forEach(s => { for (let d = s.desde; d <= (s.hasta || s.desde); d = sumarDias(d, 1)) if (!dias.has(d)) dias.set(d, s) })
-  // El primero que ya tiene entre dos días (cuando el rango elegido pasa por encima de algo pedido).
-  const entre = (a, b) => { for (let d = a; a && d <= b; d = sumarDias(d, 1)) if (dias.has(d)) return dias.get(d); return null }
-  return { lista, dias, entre }
-}
-function YaPedido({ ocupados, celdas }) {
-  const desde = celdas[0], hasta = celdas.at(-1)
-  const aca = ocupados.lista.filter(s => s.desde <= hasta && (s.hasta || s.desde) >= desde).sort((a, b) => a.desde.localeCompare(b.desde))
-  if (!aca.length) return null
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 8 }}>
-      {aca.map(s => (
-        <span key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 7.4, color: C.mute }}>
-          <i aria-hidden="true" style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: TONO_OCUPADO[s.estado][1] }} />
-          <span><b style={{ fontWeight: 600, color: C.texto }}>{nombreOcupado(s)}</b> · {s.hasta && s.hasta !== s.desde ? `${diaMes(s.desde)} – ${diaMes(s.hasta)}` : diaMes(s.desde)}</span>
-        </span>
-      ))}
-    </div>
-  )
-}
 
 /* El ejemplo del motivo, según lo que pide. */
 const EJEMPLO = { medico: 'control con el traumatólogo', tramite: 'renovar el carnet', familiar: 'reunión en el colegio de mi hijo', estudio: 'examen de la maestría', 'lic-medica': 'reposo indicado por el médico', maternidad: 'nacimiento previsto para el 20 de diciembre', paternidad: 'nacimiento de mi hija', duelo: 'fallecimiento de un familiar', matrimonio: 'mi matrimonio civil', cumpleanos: 'mi cumpleaños' }
@@ -235,7 +206,6 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
             {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < minimo} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
           </div>
-          <YaPedido ocupados={ocupados} celdas={celdas} />
           {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: choque ? 'var(--in-rojo)' : C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
         </div>
 
@@ -286,6 +256,7 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
           </button>
         </div>
       </div>
+      <YaPedido ocupados={ocupados} celdas={celdas} />
     </div>
   )
 }
@@ -544,7 +515,6 @@ export function SolicitarRemotoPhone({ onVolver, volverA = '¿Qué necesita?', o
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
             {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < at.hoy || !esHabil(d, h)} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
           </div>
-          <YaPedido ocupados={ocupados} celdas={celdas} />
           {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: choque ? 'var(--in-rojo)' : C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderTop: `1px solid ${C.separador}`, paddingTop: 9 }}>
@@ -558,6 +528,7 @@ export function SolicitarRemotoPhone({ onVolver, volverA = '¿Qué necesita?', o
           </button>
         </div>
       </div>
+      <YaPedido ocupados={ocupados} celdas={celdas} />
     </div>
   )
 }

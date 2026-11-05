@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight, Palmtree, FileText } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import BarraVolver from './BarraVolver'
+import YaPedido from './YaPedido'
+import { ocupadosDe, nombreOcupado, TONO_OCUPADO } from '../../utils/ocupados'
 import {
   FERIADOS, esHabil, diasHabiles, habilSiguiente, saldoVacaciones, sumarDias, diaISO, aFecha,
   MESES, DIAS_LARGOS, mesDe, mesVecino, diasDelMes, nombreMes, semanasDe,
@@ -77,13 +79,10 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
 
   const saldo = saldoVacaciones(yo, at.solicitudes, at.hoy)
   /* Los días que ya están pedidos o aprobados no se pueden volver a pedir. */
-  const ocupados = useMemo(() => {
-    const set = new Set()
-    at.solicitudes
-      .filter(s => s.tipo === 'vacaciones' && ['pendiente', 'aprobada'].includes(s.estado) && String(s.personaId) === String(yo.id))
-      .forEach(s => { for (let d = s.desde; d <= s.hasta; d = sumarDias(d, 1)) set.add(d) })
-    return set
-  }, [at.solicitudes, yo.id])
+  /* Lo que ya tiene pedido o aprobado (vacación, permiso o trabajo remoto) no se puede volver a pedir: esos días
+     van con el color de su estado y debajo, las fichas «Ya tiene pedido» (opción A de «Lo que ya pidió»). */
+  const ocup = useMemo(() => ocupadosDe(at.solicitudes, yo.id), [at.solicitudes, yo.id])
+  const ocupados = ocup.dias
 
   if (enviada) {
     return (
@@ -236,7 +235,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
             style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center', touchAction: 'none' }}>
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
             {celdas.map((d, i) => (
-              <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} regreso={regreso} habil={esHabil(d, h)} pasado={d < minimo} ocupado={ocupados.has(d)}
+              <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} regreso={regreso} habil={esHabil(d, h)} pasado={d < minimo} ocupado={ocupados.get(d)}
                 fuera={eligiendo && d > limite} vecino={!d.startsWith(ym)} onTocar={clic} />
             ))}
           </div>
@@ -261,6 +260,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
         <BarraSaldo libres={saldo.disponible - (desde ? n : 0)} esta={desde ? n : 0} reservados={saldo.pedidos} total={saldo.saldo} />
         </div>
       </div>
+      <YaPedido ocupados={ocup} celdas={celdas} />
 
     </div>
   )
@@ -341,14 +341,15 @@ function Dia({ d, col, desde, fin, regreso, habil, pasado, ocupado, fuera, vecin
   const etiqueta = d === desde ? 'Vacaciones' : vuelve ? 'Trabaja' : null
   return (
     <span style={{ height: 25, display: 'grid', placeItems: 'center', background: fondo, borderRadius: radio }}>
-      <button type="button" data-dia={d} disabled={off} onClick={() => onTocar(d)} title={feriado || (ocupado ? 'Ya pedido' : pasado ? 'Ya pasó' : undefined)}
-        aria-label={`${diaCorto(d)}${feriado ? `, feriado: ${feriado}` : ''}${ocupado ? ', ya pedido' : ''}${vuelve ? ', día en que vuelve' : ''}`} aria-pressed={punta || !!dentro}
+      <button type="button" data-dia={d} disabled={off} onClick={() => onTocar(d)} title={feriado || (ocupado ? nombreOcupado(ocupado) : pasado ? 'Ya pasó' : undefined)}
+        aria-label={`${diaCorto(d)}${feriado ? `, feriado: ${feriado}` : ''}${ocupado ? `, ${nombreOcupado(ocupado).toLowerCase()}` : ''}${vuelve ? ', día en que vuelve' : ''}`} aria-pressed={punta || !!dentro}
         style={{
           position: 'relative', width: 23, height: 23, borderRadius: '50%', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 9,
           fontVariantNumeric: 'tabular-nums', fontWeight: punta || vuelve ? 700 : dentro ? 600 : 400, color,
           opacity: off && !punta && !vuelve ? 0.28 : vecino && !punta && !dentro && !vuelve ? 0.4 : !habil && !punta && !vuelve ? 0.5 : 1, cursor: off ? 'default' : 'pointer',
           background: punta ? C.punta : 'transparent', boxShadow: punta ? C.puntaSombra : vuelve ? `inset 0 0 0 1.5px ${C.acento}` : 'none',
-          transition: 'background .15s, color .15s, box-shadow .2s', textDecoration: ocupado ? 'line-through' : 'none',
+          transition: 'background .15s, color .15s, box-shadow .2s', textDecoration: 'none',
+          ...(ocupado && !punta ? { background: TONO_OCUPADO[ocupado.estado][0], color: TONO_OCUPADO[ocupado.estado][1], fontWeight: 600, opacity: vecino ? 0.5 : 1 } : {}),
         }}>
         {aFecha(d).getDate()}
         {feriado && !punta && <i aria-hidden="true" style={{ position: 'absolute', left: '50%', bottom: 2.5, width: 2.5, height: 2.5, marginLeft: -1.25, borderRadius: '50%', background: '#F59E0B' }} />}

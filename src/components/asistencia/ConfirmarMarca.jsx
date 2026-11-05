@@ -43,7 +43,7 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
   const yo = at.yo
   const j = at.jornadaDe(yo, at.hoy)
   const ex = at.exigenciasDe(yo, at.hoy)
-  const h = yo.horario
+  const h = at.horarioDe(yo, at.hoy) || yo.horario
   const t = relojAhora()
   const ahora = t.getHours() * 60 + t.getMinutes()
   const acc = accionDelMomento(j, h, ahora)

@@ -9,6 +9,8 @@ import { ahora, TIPOS_MARCA, ESTADOS_EXTRA, esAutorizada, fechaLarga, fechaCorta
 import ConfirmarMarca from './ConfirmarMarca'
 import ReporteMes from './ReporteMes'
 import LineaTarde from './LineaTarde'
+import LineaPermiso from './LineaPermiso'
+import { textoPermiso } from '../../utils/permisoHoras'
 import PapeletaCorreccion from './PapeletaCorreccion'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { ranurasDelDia, efectoDeCambios, pideRespaldo, preguntaDe, NOMBRE_MARCA } from '../../utils/correccion'
@@ -47,7 +49,9 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
   const j = at.jornadaDe(yo, at.hoy)
   /* `iniciar` llega del botón del inicio del teléfono: abre directo el paso que toca. */
   const ahora = t.getHours() * 60 + t.getMinutes()
-  const acc = accionDelMomento(j, yo.horario, ahora)
+  /* El horario de hoy, ya corrido por un permiso por horas (entra a las 13:00 si tiene permiso hasta las 13:00). */
+  const hoyH = at.horarioDe(yo, at.hoy) || yo.horario
+  const acc = accionDelMomento(j, hoyH, ahora)
   /* Viniendo del inicio del teléfono (`iniciar`) ya se confirmó en la ventana: va directo al escaneo. */
   const [flujo, setFlujo] = useState(iniciar ? { tipo: iniciar } : null) // { tipo }
   const ex = at.exigenciasDe(yo, at.hoy)
@@ -81,7 +85,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
 
   /* ── LO QUE PINTA LA TARJETA K1 ── el momento del día, la regla del turno, los tres datos y el recorrido. */
   const k1 = (() => {
-    const hr = yo.horario
+    const hr = at.horarioDe(yo, at.hoy) || yo.horario
     if (!hr) return { momento: 'antes', marcasHora: [], datos: [], recorrido: [] }
     const ahoraMin = t.getHours() * 60 + t.getMinutes()
     const fijo = hr.modo === 'fijo'
@@ -175,6 +179,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
           ? <div style={{ ...TARJETA_CEL, fontSize: 7.6, color: 'var(--in-mute)', textAlign: 'center' }}>Todavía no tiene un horario asignado. Pídaselo a RR.HH.</div>
           : <HoyCel j={j} acc={acc} t={t} yo={yo} extraHoy={extraHoy} validas={validas} onPedir={pedir} onDeshacer={id => at.anular(id, 'La persona deshizo su salida desde la app')} />}
         {/* La misma línea ámbar del Inicio: si la entrada de hoy quedó tarde, corregirla está a un toque. */}
+        {telefono && !tarde.ver && textoPermiso(hoyH, j) && <LineaPermiso texto={textoPermiso(hoyH, j)} />}
         {telefono && tarde.ver && <LineaTarde tardanza={tarde.tardanza} onCorregir={() => setCorregir({ fecha: at.hoy, abrir: 'entrada' })} onCerrar={tarde.cerrar} />}
         {yo.horario && <SemanaCel onMes={() => setVerMes(true)} onCorregir={fecha => setCorregir({ fecha })} />}
         {ventana}
@@ -285,7 +290,8 @@ const ICONO_MARCA = { entrada: LogIn, pausa_inicio: Coffee, pausa_fin: Coffee, s
 function HoyCel({ j, acc, t, yo, extraHoy, validas, onPedir, onDeshacer }) {
   /* Como la M3 del lienzo: solo la etiqueta del momento, el reloj y el botón. Las marcas del día y los
      pasos están al tocar el día en la semana; así la tarjeta no se llena de texto. */
-  const hr = yo.horario
+  const at = useAsistencia()
+  const hr = at.horarioDe(yo, at.hoy) || yo.horario
   const fijo = hr.modo === 'fijo'
   const ahoraMin = t.getHours() * 60 + t.getMinutes()
   const A = fijo ? aMin(hr.entrada) : null
@@ -408,7 +414,8 @@ const MARCA_DD = {
   pausa_fin: [Coffee, 'Volvió del descanso', 'var(--tn-ambar)', 'var(--tx-ambar)'], salida: [LogOut, 'Salida', 'var(--tn-gris)', 'var(--in-texto)'],
 }
 function DiaElegido({ fecha, j, laboral, yo, hoy, onCorregir }) {
-  const hr = yo.horario
+  const at = useAsistencia()
+  const hr = at.horarioDe(yo, fecha) || yo.horario
   const d = aFecha(fecha)
   const titulo = `${['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'][diaISO(fecha)]} ${d.getDate()}${fecha === hoy ? ' · hoy' : ''}`
   const tol = yo.politica?.tolerancia ?? 10

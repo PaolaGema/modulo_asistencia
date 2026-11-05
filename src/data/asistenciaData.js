@@ -189,6 +189,26 @@ export function horarioDeDia(h, dow) {
   return { ...h, entrada: o.entrada, salida: o.salida, ...(propios ? { descansos: propios, pausa: 0, pausaDesde: null, pausaHasta: null } : {}), delDia: dow }
 }
 export const horarioDelDia = (h, fecha) => horarioDeDia(h, diaISO(fecha))
+/* EL HORARIO DE UN DÍA CON PERMISO POR HORAS (propuesta «Lo que la app ya sabe», aprobada el 5 nov 2026).
+   `permisos` = [{ desde, hasta, label }] en minutos, ya aprobados. Si el permiso cubre el inicio del turno,
+   su entrada de ese día es cuando termina el permiso; si cubre el final, su salida es cuando empieza. Así
+   no cuenta atraso ni salida antes, y esas horas no se le deben. Un descanso que queda fuera del tramo que
+   trabaja se cae. Un permiso en medio del turno no mueve la entrada ni la salida. */
+export function horarioConPermisos(h, permisos = []) {
+  if (!h || h.modo !== 'fijo' || !permisos.length) return h
+  let e = aMin(h.entrada)
+  let s = aMin(h.salida)
+  const inicio = permisos.find(p => p.desde <= e && p.hasta > e)
+  const fin = permisos.find(p => p.hasta >= s && p.desde < s)
+  if (inicio) e = Math.min(inicio.hasta, s)
+  if (fin) s = Math.max(fin.desde, e)
+  if (!inicio && !fin) return { ...h, permisoHoras: { medio: permisos[0] } }
+  const quedan = franjasPausa(h).filter(f => f.desde >= e && f.hasta <= s).map(f => ({ desde: hhmm(f.desde), hasta: hhmm(f.hasta) }))
+  return {
+    ...h, entrada: hhmm(e), salida: hhmm(s), descansos: quedan, pausa: 0, pausaDesde: null, pausaHasta: null,
+    permisoHoras: { inicio: inicio || null, fin: fin || null, entradaOriginal: h.entrada, salidaOriginal: h.salida },
+  }
+}
 /* Los días con otro horario, en palabras: «Sá 08:00 a 12:00». */
 export const otrosDias = h => (h?.modo === 'fijo' ? Object.entries(h.porDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, o]) => `${DIAS_CORTOS[d]} ${o.entrada} a ${o.salida}`)
   : Object.entries(h?.metaPorDia || {}).filter(([d]) => h.dias.includes(Number(d))).map(([d, m]) => `${DIAS_CORTOS[d]} ${duracion(m)}`))
