@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { LogIn, LogOut, Coffee, X, Check, ScanFace, MapPin, House, ChevronLeft, ChevronRight, RotateCcw, Navigation, Clock, Plus, PencilLine, FileDown, Loader2 } from 'lucide-react'
+import { LogIn, LogOut, Coffee, X, Check, ScanFace, MapPin, House, ChevronLeft, ChevronRight, RotateCcw, Navigation, Clock, Plus, PencilLine, FileDown, Loader2, Users } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
+import { useEquipo } from '../../hooks/useEquipo'
 import { fotoDe } from '../../pages/personas/colaboradoresData'
 import { avatarUrl } from '../../utils/calendarEvents'
 import viaSaludando from '../../assets/imagenes/via_saludando.png'
@@ -65,6 +66,9 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
   /* El «+» del saludo (lienzo H1): su menú y la pantalla «Pedir horas extra». */
   const [menuMas, setMenuMas] = useState(false)
   const [verExtra, setVerExtra] = useState(false)
+  /* «Pedir horas extra para mi equipo» (opción C2, 5 nov 2026): solo para quien tiene equipo. */
+  const [verExtraEquipo, setVerExtraEquipo] = useState(false)
+  const equipo = useEquipo()
   /* Corregir una marcación: null, o { fecha } del día desde el que se pidió. */
   const [corregir, setCorregir] = useState(null)
   const [avisoExtra, setAvisoExtra] = useState(null)
@@ -147,6 +151,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
 
   if (telefono && corregir) return <CorregirMarcaCel fecha={corregir.fecha} abrir={corregir.abrir} onVolver={() => setCorregir(null)} onEnviada={() => { setCorregir(null); setVerMes(false); setAvisoExtra('Pidió corregir una marcación. RR.HH. le responderá.') }} />
   if (telefono && verMes) return <MesCel onVolver={() => setVerMes(false)} onCorregir={fecha => setCorregir({ fecha })} />
+  if (telefono && verExtraEquipo) return <PedirExtraCel equipo onVolver={() => setVerExtraEquipo(false)} onEnviada={n => { setVerExtraEquipo(false); setAvisoExtra(`Pidió horas extra para ${n === 1 ? '1 persona' : `${n} personas`}. RR.HH. le responderá.`) }} />
   if (telefono && verExtra) return <PedirExtraCel onVolver={() => setVerExtra(false)} onEnviada={() => { setVerExtra(false); setAvisoExtra('Pidió horas extra. RR.HH. le responderá.') }} />
   if (telefono) {
     return (
@@ -165,6 +170,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
               <div onClick={() => setMenuMas(false)} style={{ position: 'fixed', inset: 0, zIndex: 4 }} />
               <div role="menu" style={{ position: 'absolute', right: 0, top: 30, zIndex: 5, width: 150, background: 'var(--in-carta)', borderRadius: 11, padding: 4, display: 'grid', boxShadow: '0 0 0 1px var(--in-linea), 0 18px 32px -14px rgba(12,45,64,.55)', animation: 'vac-aparecer .15s ease-out' }}>
                 {[[Clock, 'var(--tn-violeta)', 'var(--tx-violeta)', 'Pedir horas extra', 'Para quedarse más tarde', () => { setMenuMas(false); setVerExtra(true) }],
+                  ...(equipo.length ? [[Users, 'var(--tn-violeta)', 'var(--tx-violeta)', 'Pedir horas extra para mi equipo', 'RR.HH. aprueba y cada uno acepta', () => { setMenuMas(false); setVerExtraEquipo(true) }]] : []),
                   [PencilLine, 'var(--tn-ambar)', 'var(--tx-ambar)', 'Corregir una marcación', 'Olvidó marcar o marcó mal', () => { setMenuMas(false); setCorregir({ fecha: at.hoy }) }]].map(([Ico, bg, tx, t, sub, onClick]) => (
                   <button key={t} type="button" role="menuitem" disabled={!onClick} onClick={onClick} style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: 7, alignItems: 'center', padding: '6px 6px', border: 'none', borderRadius: 8, background: 'transparent', fontFamily: 'inherit', textAlign: 'left', color: 'var(--in-texto)', cursor: onClick ? 'pointer' : 'default', opacity: onClick ? 1 : 0.5 }}>
                     <span style={{ width: 20, height: 20, borderRadius: 6, background: bg, color: tx, display: 'grid', placeItems: 'center' }}><Ico size={10} /></span>
@@ -651,8 +657,8 @@ function AsignadasCel() {
       <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ width: 22, height: 22, borderRadius: 7, background: 'var(--tn-violeta)', color: 'var(--tx-violeta)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Clock size={11} /></span>
         <span style={{ display: 'grid' }}>
-          <b style={{ fontSize: 8 }}>RR.HH. le asignó horas extra</b>
-          <small style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>{x.fecha === at.hoy ? 'Hoy' : fechaLarga(x.fecha)} · de {x.desde} a {x.hasta}{x.motivo ? ` · ${x.motivo}` : ''}</small>
+          <b style={{ fontSize: 8 }}>{x.origen === 'lider' ? 'Su líder pidió horas extra para usted' : 'RR.HH. le asignó horas extra'}</b>
+          <small style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>{x.fecha === at.hoy ? 'Hoy' : fechaLarga(x.fecha)} · de {x.desde} a {x.hasta}{x.motivo ? ` · ${x.motivo}` : ''}{x.origen === 'lider' ? `. Las pidió ${x.lider} y RR.HH. ya las aprobó.` : ''}</small>
         </span>
       </span>
       <span style={{ display: 'flex', gap: 5 }}>
@@ -664,43 +670,72 @@ function AsignadasCel() {
 }
 
 /* PEDIR HORAS EXTRA, en su pantalla: el día, desde y hasta, y para qué. Abajo, las que ya pidió. */
-export function PedirExtraCel({ onVolver, onEnviada, volverA = 'Mi asistencia' }) {
+/* `equipo`: el jefe la pide para una o varias personas de su equipo (opción C2, 5 nov 2026). Se envía una por
+   persona, con origen «lider»: RR.HH. la aprueba y cada uno la acepta en su celular. Abajo, lo que pidió y en qué quedó. */
+export function PedirExtraCel({ onVolver, onEnviada, volverA = 'Mi asistencia', equipo: paraEquipo = false }) {
   const at = useAsistencia()
   const yo = at.yo
+  const equipo = useEquipo()
+  const [para, setPara] = useState(() => new Set())
+  const alternar = id => setPara(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
   const salida = yo.horario?.salida || '18:00'
   const [fecha, setFecha] = useState(sumarDias(at.hoy, 1))
   const [desde, setDesde] = useState(salida)
   const [hasta, setHasta] = useState(hhmm(aMin(salida) + 120))
   const [motivo, setMotivo] = useState('')
-  const valido = aMin(hasta) > aMin(desde) && motivo.trim().length >= 4 && fecha >= at.hoy
-  const mias = at.horasExtra.filter(x => String(x.personaId) === String(yo.id) && x.fecha >= at.hoy && x.estado !== 'asignada').sort((a, b) => (a.fecha < b.fecha ? -1 : 1))
-  const enviar = () => { at.solicitarExtra({ personaId: yo.id, fecha, desde, hasta, motivo: motivo.trim(), por: yo.name }); onEnviada() }
+  const valido = aMin(hasta) > aMin(desde) && motivo.trim().length >= 4 && fecha >= at.hoy && (!paraEquipo || para.size > 0)
+  const mias = paraEquipo
+    ? at.horasExtra.filter(x => x.origen === 'lider' && x.lider === yo.name && x.fecha >= at.hoy).sort((a, b) => (a.fecha < b.fecha ? -1 : 1))
+    : at.horasExtra.filter(x => String(x.personaId) === String(yo.id) && x.fecha >= at.hoy && x.estado !== 'asignada').sort((a, b) => (a.fecha < b.fecha ? -1 : 1))
+  const enviar = () => {
+    if (!paraEquipo) { at.solicitarExtra({ personaId: yo.id, fecha, desde, hasta, motivo: motivo.trim(), por: yo.name }); onEnviada(); return }
+    const grupo = `lider-${yo.id}-${Date.now().toString(36)}`
+    para.forEach(id => at.solicitarExtra({ personaId: id, fecha, desde, hasta, motivo: motivo.trim(), por: yo.name, lider: yo.name, origen: 'lider', grupo }))
+    onEnviada(para.size)
+  }
+  const nombreDe = id => at.personaPorId.get(id)?.name || at.personaPorId.get(String(id))?.name || ''
   const campo = { width: '100%', boxSizing: 'border-box', height: 26, padding: '0 9px', borderRadius: 10, border: 'none', background: 'var(--in-fondo)', fontFamily: 'inherit', fontSize: 8.4, fontWeight: 500, color: 'var(--in-texto)', outline: 'none' }
   const rotulo = { fontSize: 7.2, fontWeight: 400, color: 'var(--in-mute)', display: 'grid', gap: 3 }
   const ESTADO_EXTRA_CEL = { pendiente: ['Por aprobar', 'var(--tn-ambar)', 'var(--tx-ambar)'], aprobada: ['Aprobada', 'var(--tn-verde)', 'var(--tx-verde)'], aceptada: ['Aceptada', 'var(--tn-verde)', 'var(--tx-verde)'], rechazada: ['No aprobada', 'var(--in-rojo-bg)', 'var(--in-rojo)'] }
+  const ESTADO_EQUIPO_CEL = { pendiente: ['Espera RR.HH.', 'var(--tn-ambar)', 'var(--tx-ambar)'], asignada: ['Por aceptar', 'var(--tn-azul)', 'var(--tx-azul)'], aceptada: ['Aceptada', 'var(--tn-verde)', 'var(--tx-verde)'], rechazada: ['No aprobada', 'var(--tn-gris)', 'var(--tx-gris)'], cancelada: ['Cancelada', 'var(--tn-gris)', 'var(--tx-gris)'] }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       <BarraVolver texto={volverA} onVolver={onVolver} conTema />
-      <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>Pedir horas extra</b>
-      <span style={{ fontSize: 7.4, color: 'var(--in-mute)', margin: '-5px 2px 0', lineHeight: 1.5 }}>Se piden antes del día. Quedarse más tiempo sin pedirlas no cuenta como hora extra.</span>
+      <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>{paraEquipo ? 'Pedir horas extra para mi equipo' : 'Pedir horas extra'}</b>
+      <span style={{ fontSize: 7.4, color: 'var(--in-mute)', margin: '-5px 2px 0', lineHeight: 1.5 }}>{paraEquipo ? 'RR.HH. las aprueba y cada persona las acepta en su celular.' : 'Se piden antes del día. Quedarse más tiempo sin pedirlas no cuenta como hora extra.'}</span>
       <div style={{ ...TARJETA_CEL, display: 'grid', gap: 8 }}>
+        {paraEquipo && (
+          <div style={rotulo}>Para quién
+            <span style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {equipo.map(p => {
+                const si = para.has(p.id)
+                return (
+                  <button key={p.id} type="button" aria-pressed={si} onClick={() => alternar(p.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 20, padding: '0 8px 0 3px', borderRadius: 99, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 7, fontWeight: 600, background: si ? 'var(--tn-verde)' : 'var(--in-fondo)', color: si ? 'var(--tx-verde)' : 'var(--in-texto)', boxShadow: si ? 'inset 0 0 0 1.2px #00E091' : 'none' }}>
+                    <span style={{ width: 14, height: 14, borderRadius: '50%', background: si ? '#00B876' : 'var(--in-campo)', color: '#fff', display: 'grid', placeItems: 'center' }}>{si ? <Check size={8} strokeWidth={3} /> : null}</span>
+                    {p.name.split(' ').slice(0, 2).join(' ')}
+                  </button>
+                )
+              })}
+            </span>
+          </div>
+        )}
         <div style={rotulo}>Día<FechaCel valor={fecha} min={at.hoy} hoy={at.hoy} onCambio={setFecha} estilo={campo} ariaLabel="Día" /></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
           <div style={rotulo}>Desde<HoraCel valor={desde} onCambio={setDesde} estilo={campo} ariaLabel="Desde" titulo="Desde" alinear="izq" atajos={[{ hora: salida, texto: 'su salida' }]} /></div>
           <div style={rotulo}>Hasta<HoraCel valor={hasta} onCambio={setHasta} estilo={campo} ariaLabel="Hasta" titulo="Hasta" alinear="der" atajos={[{ hora: hhmm(aMin(desde) + 60), texto: '1 h' }, { hora: hhmm(aMin(desde) + 120), texto: '2 h' }]} /></div>
         </div>
         <label style={rotulo}>Razón de la solicitud<input value={motivo} onChange={e => setMotivo(e.target.value)} placeholder="Por ejemplo: cierre de inventario" style={campo} /></label>
-        {aMin(hasta) > aMin(desde) && <span style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>Serían <b style={{ color: 'var(--in-texto)' }}>{duracion(aMin(hasta) - aMin(desde))}</b> de horas extra.</span>}
+        {aMin(hasta) > aMin(desde) && <span style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>Serían <b style={{ color: 'var(--in-texto)' }}>{duracion(aMin(hasta) - aMin(desde))}</b> de horas extra{paraEquipo && para.size > 1 ? <> para cada uno · <b style={{ color: 'var(--in-texto)' }}>{duracion((aMin(hasta) - aMin(desde)) * para.size)}</b> en total</> : ''}.</span>}
       </div>
       <button type="button" disabled={!valido} onClick={enviar} style={{ height: 30, borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 8.6, fontWeight: 600, background: valido ? '#00E091' : 'var(--in-plomo)', color: valido ? NAVY : 'var(--in-suave)', cursor: valido ? 'pointer' : 'default' }}>Enviar a RR.HH.</button>
       {!!mias.length && (
         <>
-          <span style={{ fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)', margin: '6px 2px -2px' }}>Sus horas extra</span>
+          <span style={{ fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTransform: 'uppercase', color: 'var(--in-texto)', margin: '6px 2px -2px' }}>{paraEquipo ? 'Lo que pidió para su equipo' : 'Sus horas extra'}</span>
           {mias.map(x => {
-            const [t, bg, tx] = ESTADO_EXTRA_CEL[x.estado] || [ESTADOS_EXTRA[x.estado]?.label || x.estado, 'var(--tn-gris)', 'var(--tx-gris)']
+            const [t, bg, tx] = (paraEquipo && x.estado === 'rechazada' && x.noPudo && ['No puede', 'var(--tn-gris)', 'var(--tx-gris)']) || (paraEquipo && ESTADO_EQUIPO_CEL[x.estado]) || ESTADO_EXTRA_CEL[x.estado] || [ESTADOS_EXTRA[x.estado]?.label || x.estado, 'var(--tn-gris)', 'var(--tx-gris)']
             return (
               <div key={x.id} style={{ ...TARJETA_CEL, padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-                <span style={{ display: 'grid' }}><b style={{ fontSize: 8.2 }}>{x.fecha === at.hoy ? 'Hoy' : fechaCorta(x.fecha)} · {x.desde} a {x.hasta}</b><small style={{ fontSize: 6.4, color: 'var(--in-mute)' }}>{x.motivo}</small></span>
+                <span style={{ display: 'grid' }}><b style={{ fontSize: 8.2 }}>{x.fecha === at.hoy ? 'Hoy' : fechaCorta(x.fecha)} · {x.desde} a {x.hasta}</b><small style={{ fontSize: 6.4, color: 'var(--in-mute)' }}>{paraEquipo ? nombreDe(x.personaId) : x.motivo}</small></span>
                 <em style={{ fontStyle: 'normal', fontSize: 6, fontWeight: 700, borderRadius: 99, padding: '2px 7px', background: bg, color: tx, whiteSpace: 'nowrap' }}>{t}</em>
               </div>
             )

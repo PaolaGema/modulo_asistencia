@@ -5,7 +5,7 @@ import {
   IdCard, GraduationCap, Package, Paperclip, Inbox, Search, ChevronRight, Plus, X, History, Flag, Award, Megaphone, Download,
   Palmtree, PencilLine, House, Repeat, CalendarX, ChevronDown, Layers, Timer,
   Banknote,
-  Copy,
+  Copy, Users,
 } from 'lucide-react'
 import BarraVolver from './BarraVolver'
 import { useMisDocumentos, textoMotivo } from '../../hooks/useMisDocumentos'
@@ -17,6 +17,7 @@ import { armarPapeleta } from '../../utils/papeletaVacacion'
 import SolicitarVacacionPhone from './VacacionPhone'
 import SolicitarPermisoPhone, { SolicitarRemotoPhone } from './PermisoPhone'
 import { PedirExtraCel, CorregirMarcaCel } from '../asistencia/Marcador'
+import { useEquipo } from '../../hooks/useEquipo'
 import { habilSiguiente, diaISO, DIAS_LARGOS, MESES, saldoVacaciones, aFecha, fechaCorta as fechaCortaAt } from '../../data/asistenciaData'
 import {
   ESTADOS, ESTADOS_CONTRATO, TIPOS_SOLICITUD, MODALIDADES, fechaCorta,
@@ -1109,13 +1110,15 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
       ? <LeerPhone r={r} atras={atras} />
       : <div>{atras}</div>
   } else if (actual.p === 'nueva') {
-    pantalla = <NuevaSolicitud atras={atras} onVacacion={() => ir({ p: 'vacacion' })} onPermiso={() => ir({ p: 'permiso' })} onRemoto={() => ir({ p: 'remoto' })} onExtra={() => ir({ p: 'extra' })} onCorregir={() => ir({ p: 'corregir' })} onDocumento={tipo => ir({ p: 'elegir', tipo })} />
+    pantalla = <NuevaSolicitud atras={atras} onVacacion={() => ir({ p: 'vacacion' })} onPermiso={() => ir({ p: 'permiso' })} onRemoto={() => ir({ p: 'remoto' })} onExtra={() => ir({ p: 'extra' })} onExtraEquipo={() => ir({ p: 'extra-equipo' })} onCorregir={() => ir({ p: 'corregir' })} onDocumento={tipo => ir({ p: 'elegir', tipo })} />
   } else if (actual.p === 'elegir') {
     pantalla = <ElegirDocumento md={md} tipo={actual.tipo} atras={atras} onElegir={clave => ir({ p: 'revisar', tipo: actual.tipo, clave })} />
   } else if (actual.p === 'revisar') {
     pantalla = <RevisarDocumento md={md} tipo={actual.tipo} clave={actual.clave} atras={atras} onEnviada={() => { setAviso('Solicitud enviada a RR.HH.'); setPila([{ p: 'lista' }]); arriba() }} />
   } else if (actual.p === 'extra') {
     pantalla = <PedirExtraCel volverA="¿Qué necesita?" onVolver={volver} onEnviada={() => { setAviso('Pidió horas extra a RR.HH.'); setPila([{ p: 'lista' }]); arriba() }} />
+  } else if (actual.p === 'extra-equipo') {
+    pantalla = <PedirExtraCel equipo volverA="¿Qué necesita?" onVolver={volver} onEnviada={n => { setAviso(`Pidió horas extra para ${n === 1 ? '1 persona' : `${n} personas`}. RR.HH. le responderá.`); setPila([{ p: 'lista' }]); arriba() }} />
   } else if (actual.p === 'corregir') {
     pantalla = <CorregirMarcaCel volverA="¿Qué necesita?" onVolver={volver} onEnviada={() => { setAviso('Solicitud enviada a RR.HH.'); setPila([{ p: 'lista' }]); arriba() }} />
   } else if (actual.p === 'permiso') {
@@ -1141,8 +1144,9 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
    RR.HH., en filas y en dos grupos, cada tipo con el ícono y el color de la lista y una línea que lo
    explica. Un tipo nuevo es una fila más. Lo que todavía no tiene formulario en el teléfono se ve
    marcado «Pronto», para que se sepa que vendrá. */
-function NuevaSolicitud({ atras, onVacacion, onPermiso, onRemoto, onExtra, onCorregir, onDocumento }) {
+function NuevaSolicitud({ atras, onVacacion, onPermiso, onRemoto, onExtra, onExtraEquipo, onCorregir, onDocumento }) {
   const at = useAsistencia()
+  const equipo = useEquipo()
   const libres = saldoVacaciones(at.yo, at.solicitudes, at.hoy).disponible
   const grupos = [
     ['Su tiempo', [
@@ -1150,6 +1154,8 @@ function NuevaSolicitud({ atras, onVacacion, onPermiso, onRemoto, onExtra, onCor
       [Clock, 'violeta', 'Permiso o licencia', 'Por horas, por días o con respaldo', onPermiso],
       [House, 'cian', 'Trabajo remoto', 'Uno o varios días desde casa', onRemoto],
       [Timer, 'azul', 'Horas extra', 'Para quedarse más tarde', onExtra],
+      /* Solo para quien tiene equipo: la pide para su gente; RR.HH. aprueba y cada uno acepta. */
+      ...(equipo.length ? [[Users, 'azul', 'Horas extra para mi equipo', 'RR.HH. aprueba y cada uno acepta', onExtraEquipo]] : []),
       [PencilLine, 'ambar', 'Corregir una marcación', 'Olvidó marcar o marcó mal', onCorregir],
     ]],
     ['Documentos', [

@@ -516,6 +516,8 @@ export const ORIGENES_EXTRA = {
   solicitud: 'La pidió desde la app',
   asignacion: 'Asignada por RR.HH.',
   posterior: 'Autorizada después del día',
+  /* El jefe la pide para alguien de su equipo (5 nov 2026): RR.HH. aprueba y la persona acepta, como una asignada. */
+  lider: 'La pidió su líder',
 }
 export const esAutorizada = x => x.estado === 'aprobada' || x.estado === 'aceptada'
 
@@ -540,8 +542,37 @@ export function horasExtraSeed(personas) {
       pon(p, fecha, sal, fin, i % 2 ? 'solicitud' : 'asignacion', i % 2 ? 'aprobada' : 'aceptada', motivos[(n + i) % motivos.length])
     })
     if (n % 3 === 0 && esDiaLaboral(p.horario, h)) pon(p, h, sal, fin, 'asignacion', 'aceptada', motivos[n % motivos.length])
-    if (n % 2 === 0) pon(p, sumarDias(h, 1), sal, fin, 'solicitud', 'pendiente', motivos[(n + 2) % motivos.length])
-    if (n % 2 === 1) pon(p, sumarDias(h, 2), sal, fin, 'asignacion', 'asignada', motivos[(n + 3) % motivos.length])
+    /* Lo que viene, en sus próximos días de trabajo (no en su sábado libre). */
+    const proximo = k => { let f = h; let n2 = 0; while (n2 < k) { f = sumarDias(f, 1); if (esDiaLaboral(p.horario, f)) n2++ } return f }
+    if (n % 2 === 0) pon(p, proximo(1), sal, fin, 'solicitud', 'pendiente', motivos[(n + 2) % motivos.length])
+    if (n % 2 === 1) pon(p, proximo(2), sal, fin, 'asignacion', 'asignada', motivos[(n + 3) % motivos.length])
+  })
+  /* LO QUE PIDEN LOS JEFES PARA SU EQUIPO (5 nov 2026), en todos sus estados: esperando a RR.HH. (para una
+     persona o para varias a la vez), aprobadas que la persona todavía no acepta, aceptadas y una que no pudo. */
+  const jefes = [['Marketing', /^Líder/], ['Operaciones', /^Coordinador/]]
+    .map(([unidad, cargo]) => personas.find(p => p.unidad === unidad && cargo.test(p.cargo || ''))).filter(Boolean)
+  const proximoDe = (gente, k) => { let f = h; let n = 0; while (n < k) { f = sumarDias(f, 1); if (gente.every(p => esDiaLaboral(p.horario, f))) n++ } return f }
+  const pasadoDe = (p, k) => { let f = h; let n = 0; while (n < k) { f = sumarDias(f, -1); if (esDiaLaboral(p.horario, f)) n++ } return f }
+  const motivosJefe = ['Cierre del inventario de la sucursal', 'Lanzamiento de la campaña', 'Recepción de un pedido grande', 'Cobertura de un turno']
+  jefes.forEach((jefe, j) => {
+    const equipo = personas.filter(p => p.unidad === jefe.unidad && p.id !== jefe.id && p.horario?.modo === 'fijo' && !lista.some(x => x.personaId === p.id))
+    const pide = (gente, fecha, estado, motivo, extra = {}) => {
+      const grupo = `lider-${jefe.id}-${fecha}-${gente[0].id}`
+      gente.forEach(p => {
+        const sal = p.horario.salida
+        lista.push({
+          id: `hx-lider-${p.id}-${fecha}`, personaId: p.id, fecha, desde: sal, hasta: hhmm(aMin(sal) + 120), origen: 'lider', estado, motivo,
+          proyecto: PROYECTOS_DEMO[(jefe.id + j) % PROYECTOS_DEMO.length], aprobador: 'Juan Pérez Gómez', por: jefe.name, lider: jefe.name, grupo,
+          cuando: fecha > h ? sumarDias(h, -1) : sumarDias(fecha, -2), ...(estado !== 'pendiente' ? { respondio: 'Juan Pérez Gómez' } : {}), ...extra,
+        })
+      })
+    }
+    const [a1, a2, a3, a4, a5] = equipo
+    if (a1 && a2) pide([a1, a2], proximoDe([a1, a2], 1), 'pendiente', motivosJefe[j % 4])
+    if (a3) pide([a3], proximoDe([a3], 2), 'pendiente', motivosJefe[(j + 1) % 4])
+    if (a4) pide([a4], proximoDe([a4], 1), 'asignada', motivosJefe[(j + 2) % 4])
+    if (a5) pide([a5], pasadoDe(a5, 3), 'aceptada', motivosJefe[(j + 3) % 4])
+    if (j === 1 && a4) pide([a4], pasadoDe(a4, 6), 'rechazada', motivosJefe[0], { nota: 'No puede', noPudo: true })
   })
   return lista
 }

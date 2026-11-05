@@ -165,7 +165,7 @@ export default function HorasExtra() {
                       <span className="at-sol-sub">{duracion(largo(x))}{x.fecha < at.hoy && esAutorizada(x) ? ` · trabajó ${duracion(at.jornadaDe(x.persona, x.fecha).extra)}` : ''}</span>
                     </td>
                     <td><span className="at-sol-sub" style={{ marginTop: 0, color: 'var(--text-heading)' }}>{x.motivo}</span></td>
-                    <td className="at-sol-cuando">{ORIGENES_EXTRA[x.origen]}</td>
+                    <td className="at-sol-cuando">{x.origen === 'lider' ? <>La pidió su líder<br /><small>{x.lider}</small></> : ORIGENES_EXTRA[x.origen]}</td>
                     <td><Etiqueta tono={ESTADOS_EXTRA[x.estado].tono}>{ESTADOS_EXTRA[x.estado].label}</Etiqueta></td>
                     <td style={{ textAlign: 'right' }}>
                       <button type="button" className={x.estado === 'pendiente' ? 'at-btn-revisar' : 'dc-btn dc-btn-sm'} onClick={e => { e.stopPropagation(); abrir() }}>{accion}</button>
@@ -226,6 +226,11 @@ export default function HorasExtra() {
               </div>
             )}
             contexto={[
+              x.origen === 'lider' && (() => {
+                const grupo = at.horasExtra.filter(o => o.grupo && o.grupo === x.grupo)
+                const nombres = grupo.map(o => at.personaPorId.get(String(o.personaId))?.name || at.personaPorId.get(o.personaId)?.name).filter(Boolean)
+                return { tono: 'violeta', texto: `Lo pidió su líder, ${x.lider}${grupo.length > 1 ? `, para ${grupo.length} personas: ${nombres.slice(0, -1).join(', ')} y ${nombres[nombres.length - 1]}` : ''}` }
+              })(),
               propia && pendiente && { tono: 'ambar', texto: 'Son sus propias horas extra. Puede responderlas, pero quedará registrado en la auditoría que las respondió usted.' },
               { tono: 'azul', texto: delMes.length ? `Sería su ${delMes.length + 1}.ª vez en ${nMes}: ya tiene ${duracion(yaTiene)} autorizadas (${listaDias} de ${nMes})` : `Primera vez en ${nMes}: no tiene otras horas extra autorizadas este mes` },
               libre && { tono: 'ambar', texto: `El ${dia.split(" ")[0].toLowerCase()} no trabaja: las horas extra serían en su día libre` },
@@ -233,7 +238,7 @@ export default function HorasExtra() {
               fijo && hueco > 0 && { tono: 'gris', texto: `Empiezan ${duracion(hueco)} después de su salida (${h.salida})` },
               fijo && hueco < 0 && { tono: 'ambar', texto: `Empiezan antes de que termine su horario (${h.salida}): de ${x.desde} a ${h.salida} ya es su jornada y no cuenta como extra` },
             ]}
-            efecto={pendiente ? `lo que trabaje de ${horas(x)} el ${fechaCorta(x.fecha)} contará como horas extra. Si se queda más tiempo, ese tiempo no cuenta.` : ''}
+            efecto={pendiente && x.origen === 'lider' ? `le llega a ${x.persona.name.split(' ')[0]} para que las acepte. Cuando las acepte, lo que trabaje de ${horas(x)} el ${fechaCorta(x.fecha)} contará como horas extra.` : pendiente ? `lo que trabaje de ${horas(x)} el ${fechaCorta(x.fecha)} contará como horas extra. Si se queda más tiempo, ese tiempo no cuenta.` : ''}
             efectoRechazo={pendiente ? 'Si igual se queda, ese tiempo no contará como horas extra. La persona verá el motivo en su app.' : 'Las horas dejan de estar autorizadas: lo que trabaje ese día después de su horario no contará como horas extra. La persona lo verá en su app.'}
             respondio={x.respondio && x.propia ? `${x.respondio} (sus propias horas extra)` : x.respondio} nota={x.nota}
             onAprobar={pendiente ? nota => at.responderExtra(x.id, 'aprobada', nota) : null}

@@ -18,6 +18,7 @@ export default function PapeletaExtra({ x, persona, empresa, numero }) {
   const trabaja = !!h && at.jornadaDe(persona, x.fecha).laboral
   const largo = aMin(x.hasta) - aMin(x.desde)
   const asignada = x.origen === 'asignacion'
+  const delLider = x.origen === 'lider'
   const nombreEmpresa = empresa?.razonSocial || empresa?.nombre || 'FarmaVida S.A.'
   const sigla = (nombreEmpresa.split(' ')[0].match(/[A-ZÁÉÍÓÚÑ]/g) || ['S']).slice(0, 2).join('')
   const sucursal = at.lugarPorId.get(persona.sucursalId)?.nombre || persona.lugar?.nombre || persona.sedeNombre || '—'
@@ -77,8 +78,15 @@ export default function PapeletaExtra({ x, persona, empresa, numero }) {
           {celda('Motivo', x.motivo || '—', { ancho: true })}
           {celda('Origen', ORIGENES_EXTRA[x.origen] || '—', { ancho: true })}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 6 }}>
-          {asignada ? (
+        <div style={{ display: 'grid', gridTemplateColumns: delLider ? '1fr 1fr 1fr' : '1fr 1fr', gap: 12, marginTop: 6 }}>
+          {delLider ? (
+            /* La pidió el jefe: firma él, aprueba RR.HH. y después acepta la persona. */
+            <>
+              {firma(x.lider || x.por, `Su líder · pidió${pidio ? ` el ${pidio}` : ''}`, null)}
+              {firma('Recursos Humanos', x.estado === 'rechazada' && !x.noPudo ? `Rechazó ${x.respondio || ''}` : x.respondio ? `Aprobó ${x.respondio}` : 'Aprobación', <Sello firma={{ estado: x.estado === 'pendiente' ? 'pendiente' : x.estado === 'rechazada' && !x.noPudo ? 'rechazada' : 'aprobada' }} />)}
+              {firma(persona.name, x.estado === 'aceptada' ? 'Aceptó' : x.noPudo ? 'No puede' : 'Acepta', x.estado === 'pendiente' || (x.estado === 'rechazada' && !x.noPudo) ? null : <Sello firma={{ estado: SELLO_PERSONA[x.estado] || 'pendiente' }} />)}
+            </>
+          ) : asignada ? (
             <>
               {firma('Recursos Humanos', `Asignó ${x.por || ''}${pidio ? ` · ${pidio}` : ''}`, null)}
               {firma(persona.name, x.estado === 'asignada' ? 'Acepta' : x.estado === 'aceptada' ? 'Aceptó' : 'No puede', <Sello firma={{ estado: SELLO_PERSONA[x.estado] || 'pendiente' }} />)}
