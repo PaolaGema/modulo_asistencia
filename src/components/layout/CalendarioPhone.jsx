@@ -32,7 +32,7 @@ const ROTULO = { fontSize: 8.3, fontWeight: 600, letterSpacing: '.02em', textTra
 const largo = s => { const t = `${DIAS_LARGOS[diaISO(s)]} ${aFecha(s).getDate()} de ${MESES[aFecha(s).getMonth()]}`; return t[0].toUpperCase() + t.slice(1) }
 const corto = s => `${DIAS_LARGOS[diaISO(s)].slice(0, 3)} ${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
 const fechaRango = (a, b) => (b && b !== a ? `${aFecha(a).getDate()} ${MESES[aFecha(a).getMonth()].slice(0, 3)} – ${aFecha(b).getDate()} ${MESES[aFecha(b).getMonth()].slice(0, 3)}` : corto(a))
-const cosas = n => (n === 1 ? '1 cosa' : `${n} cosas`)
+const cosas = n => (n === 1 ? '1 fecha' : `${n} fechas`) // solo para quien usa lector de pantalla
 
 /* Todo lo de la persona, día por día: { fecha: [cosa] }. Cada cosa sabe cómo se dibuja. */
 function useCosas() {
@@ -113,7 +113,8 @@ export default function CalendarioPhone({ onVolver, volverA = 'Inicio', diaInici
     if (vistos.has(k)) return false
     vistos.add(k); return true
   }).map(c => ({ ...c, d })))
-  const titulo = dia ? (delDia.length ? `${cosas(delDia.length)} este día` : 'Nada este día') : lista.length ? `${cosas(lista.length)} este mes` : 'Nada este mes'
+  /* La cabecera sin números (ronda 3, opción 6): «Su noviembre» o «Su martes 10». */
+  const titulo = dia ? `Su ${DIAS_LARGOS[diaISO(dia)]} ${aFecha(dia).getDate()}` : `Su ${mesTxt.toLowerCase()}`
 
   const tarjeta = (
     <div style={{ background: C.vCarta, border: `1px solid ${C.vBorde}`, borderRadius: 22, boxShadow: C.sombra, padding: '9px 10px 10px', display: 'flex', flexDirection: 'column', gap: 7 }}>
@@ -122,6 +123,7 @@ export default function CalendarioPhone({ onVolver, volverA = 'Inicio', diaInici
         <span style={{ display: 'grid', minWidth: 0 }}>
           <small style={{ fontSize: 6.6, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: C.viajeRotulo }}>{dia ? largo(dia) : `${mesTxt} ${ym.slice(0, 4)}`}</small>
           <b style={{ fontSize: 12, fontWeight: 700, letterSpacing: '-.02em' }}>{titulo}</b>
+          {!dia && <span style={{ fontSize: 7.4, color: C.mute }}>Toque un día para ver qué tiene</span>}
         </span>
         <span style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
           <button type="button" aria-label="Mes anterior" onClick={() => mover(-1)} style={flecha}><ChevronLeft size={12} /></button>
