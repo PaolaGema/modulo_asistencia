@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { CalendarHeart, Plus, Pencil, Trash2, CheckCircle2, Table2, CalendarDays, ChevronLeft, ChevronRight, Cake, X } from 'lucide-react'
+import { CalendarHeart, Plus, Pencil, Trash2, CheckCircle2, Table2, CalendarDays, ChevronLeft, ChevronRight, Cake, Gift, PartyPopper, Clock } from 'lucide-react'
+import { MESES as MESES_CAL, DIAS_SEMANA, buildCalendarCells } from '../../utils/calendarEvents'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Modal, MenuAcciones, Vacio } from '../../components/documentacion/comunes'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
@@ -96,123 +97,138 @@ export default function DiasLibres() {
   )
 }
 
-/* EL AÑO ENTERO (Ronda 10 · A, elegida el 5 nov 2026): los doce meses de una vez, para ver qué cae en
-   fin de semana, qué queda pegado a un feriado y dónde falta algo. Rojo: feriado nacional. Verde: de la
-   empresa, día entero; medio verde: medio día. Lo pasado se apaga y hoy lleva un aro. Un clic en una
-   fecha vacía abre la ventana de siempre con ese día ya elegido; en un día marcado, dice qué es y deja
-   editarlo. Los personales (el cumpleaños) no tienen una fecha común: van al costado. */
+/* EL AÑO ENTERO (Ronda 10 · A, elegida el 5 nov 2026), con el mismo dibujo que el calendario de
+   Asistencia › Hoy y el de Inicio: el número en un círculo de 24 px (el elegido en azul marino, hoy con
+   aro), los puntos de color debajo, la leyenda de puntos y, al costado, el detalle del día elegido con
+   las mismas filas de «Próximos» (fecha, título, ícono). Los feriados en violeta, como en Asistencia.
+   Doce meses de una vez para ver qué cae en fin de semana y qué queda pegado a un feriado. Un clic elige
+   el día; si está libre, el detalle ofrece agregar uno ahí, y si tiene uno de la empresa, editarlo. Los
+   personales (el cumpleaños) no tienen una fecha común: van en su propia tarjeta. */
+const TIPOS_DL = {
+  feriado: { label: 'Feriado', color: 'var(--at-violeta)', Icon: PartyPopper },
+  empresa: { label: 'Día libre de la empresa', color: 'var(--at-verde)', Icon: Gift },
+}
 const pad = n => String(n).padStart(2, '0')
-const LETRAS = ['l', 'm', 'm', 'j', 'v', 's', 'd']
-const DIAS_SEM = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+const flechaDL = { width: 22, height: 22, borderRadius: 6, border: '1px solid var(--border-soft)', background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)' }
 
 function AnioDiasLibres({ lista, hoy, aQuienTxt, onNuevo, onEditar }) {
   const [anio, setAnio] = useState(Number(String(hoy).slice(0, 4)) || 2026)
-  const [abierto, setAbierto] = useState(null) // { fecha, top, left }
+  const [elegido, setElegido] = useState(hoy)
   const deEmpresa = lista.filter(r => r.cuando?.tipo === 'fecha' && r.cuando.mmdd)
   const personales = lista.filter(r => r.cuando?.tipo !== 'fecha')
-  const empresaEn = mmdd => deEmpresa.filter(r => r.cuando.mmdd === mmdd)
-  const feriadosDelAnio = Object.keys(FERIADOS).filter(f => f.startsWith(`${anio}-`))
   const anios = [...new Set(Object.keys(FERIADOS).map(f => Number(f.slice(0, 4))))].sort()
-  useEffect(() => {
-    if (!abierto) return
-    const cerrar = e => { if (e.key === 'Escape') setAbierto(null) }
-    window.addEventListener('keydown', cerrar)
-    return () => window.removeEventListener('keydown', cerrar)
-  }, [abierto])
+  const cuantoTxt = r => (r.cuanto === 'entero' ? 'Día entero' : `Libre desde las ${r.desde}`)
 
-  const tocar = (fecha, el) => {
-    const mmdd = fecha.slice(5)
-    if (!FERIADOS[fecha] && !empresaEn(mmdd).length) { setAbierto(null); onNuevo(mmdd); return }
-    const r = el.getBoundingClientRect()
-    setAbierto({ fecha, top: r.bottom + 8, left: Math.max(12, Math.min(r.left - 140, window.innerWidth - 332)) })
+  /* Lo de cada fecha: el feriado y los días libres de la empresa. */
+  const eventosDe = fecha => {
+    const ev = []
+    if (FERIADOS[fecha]) ev.push({ tipo: 'feriado', titulo: FERIADOS[fecha], sub: 'Feriado nacional · no se espera marca' })
+    deEmpresa.filter(r => r.cuando.mmdd === fecha.slice(5)).forEach(r => ev.push({ tipo: 'empresa', titulo: r.nombre, sub: `${cuantoTxt(r)} · ${aQuienTxt(r)}`, regla: r }))
+    return ev
   }
 
-  const mes = m => {
-    const primero = (new Date(anio, m, 1).getDay() + 6) % 7
-    const n = new Date(anio, m + 1, 0).getDate()
-    return (
-      <div key={m} className="at-dla-mes">
-        <b>{MESES[m][0].toUpperCase() + MESES[m].slice(1)}</b>
-        <div className="at-dla-grilla">
-          {LETRAS.map((l, i) => <em key={i} aria-hidden="true">{l}</em>)}
-          {Array.from({ length: primero }, (_, i) => <span key={`v${i}`} />)}
-          {Array.from({ length: n }, (_, i) => {
-            const d = i + 1, fecha = `${anio}-${pad(m + 1)}-${pad(d)}`
-            const dw = new Date(anio, m, d).getDay()
-            const emp = empresaEn(fecha.slice(5))
-            const tipo = FERIADOS[fecha] ? 'fer' : emp.length ? (emp.some(r => r.cuanto === 'entero') ? 'ent' : 'med') : ''
-            const nombre = FERIADOS[fecha] || emp.map(r => r.nombre).join(' · ')
-            const cls = [tipo, !tipo && (dw === 0 || dw === 6) ? 'fin' : '', fecha === hoy ? 'hoy' : '', fecha < hoy ? 'pas' : '', abierto?.fecha === fecha ? 'sel' : ''].filter(Boolean).join(' ')
-            return (
-              <button key={d} type="button" className={cls} title={nombre || 'Agregar un día libre aquí'}
-                aria-label={`${d} de ${MESES[m]}${nombre ? `: ${nombre}` : ', sin día libre'}`}
-                onClick={e => tocar(fecha, e.currentTarget)}>{d}</button>
-            )
-          })}
-        </div>
+  const mes = m => (
+    <div key={m}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-heading)', marginBottom: 6 }}>{MESES_CAL[m]}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        {DIAS_SEMANA.map(d => <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', padding: '0 0 6px' }}>{d}</div>)}
+        {buildCalendarCells(anio, m).map((c, i) => {
+          if (!c.inMonth) return <span key={i} />
+          const fecha = `${anio}-${pad(m + 1)}-${pad(c.day)}`
+          const sel = fecha === elegido, esteHoy = fecha === hoy
+          const ev = eventosDe(fecha)
+          return (
+            <button key={i} type="button" onClick={() => setElegido(fecha)} aria-pressed={sel}
+              aria-label={`${c.day} de ${MESES[m]}${ev.length ? `: ${ev.map(e => e.titulo).join(', ')}` : ''}`}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '3px 0', background: 'none', border: 'none', fontFamily: 'inherit', cursor: 'pointer' }}>
+              <span style={{
+                width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: sel || esteHoy ? 700 : 500,
+                background: sel ? 'var(--navy)' : 'transparent',
+                border: !sel && esteHoy ? '1.5px solid var(--navy)' : 'none',
+                color: sel ? '#fff' : esteHoy ? 'var(--navy)' : 'var(--text-heading)',
+              }}>{c.day}</span>
+              <span style={{ display: 'flex', gap: 2, height: 4 }}>
+                {ev.slice(0, 3).map((e, j) => <span key={j} style={{ width: 4, height: 4, borderRadius: '50%', background: TIPOS_DL[e.tipo].color }} />)}
+              </span>
+            </button>
+          )
+        })}
       </div>
-    )
-  }
+    </div>
+  )
 
-  let detalle = null
-  if (abierto) {
-    const [a, m, d] = abierto.fecha.split('-').map(Number)
-    const emp = empresaEn(abierto.fecha.slice(5))
-    detalle = (
-      <>
-        <div className="at-dla-velo" onClick={() => setAbierto(null)} />
-        <div className="at-dla-pop" role="dialog" aria-label="Día libre" style={{ top: abierto.top, left: abierto.left }}>
-          <div className="at-dla-pop-cab"><b>{DIAS_SEM[new Date(a, m - 1, d).getDay()]} {d} de {MESES[m - 1]}</b>
-            <button type="button" aria-label="Cerrar" onClick={() => setAbierto(null)}><X size={14} /></button></div>
-          {FERIADOS[abierto.fecha] && <div className="at-dla-item"><i className="fer" /><span><b>{FERIADOS[abierto.fecha]}</b><small>Feriado nacional · no se espera marca</small></span></div>}
-          {emp.map(r => (
-            <div key={r.id} className="at-dla-item"><i className={r.cuanto === 'entero' ? 'ent' : 'med'} />
-              <span><b>{r.nombre}</b><small>{r.cuanto === 'entero' ? 'Día entero' : `Libre desde las ${r.desde}`} · {aQuienTxt(r)}</small></span>
-              <button type="button" className="at-dla-link" onClick={() => { setAbierto(null); onEditar(r) }}>Editar</button>
-            </div>
-          ))}
-          {!emp.length && <button type="button" className="at-dla-link" style={{ justifySelf: 'start' }} onClick={() => { setAbierto(null); onNuevo(abierto.fecha.slice(5)) }}>+ Agregar un día libre de la empresa</button>}
+  const [, mE, dE] = elegido.split('-').map(Number)
+  const delDia = eventosDe(elegido)
+  const mesCorto = MESES_CAL[mE - 1].slice(0, 3).toUpperCase()
+  const fila = (e, i) => {
+    const t = TIPOS_DL[e.tipo]
+    const Fila = e.regla ? 'button' : 'div'
+    return (
+      <Fila key={i} type={e.regla ? 'button' : undefined} className="upcoming-item" onClick={e.regla ? () => onEditar(e.regla) : undefined}
+        style={e.regla ? { width: '100%', border: 'none', background: 'none', font: 'inherit', textAlign: 'left', cursor: 'pointer' } : undefined}>
+        <div className="ui-date"><div className="ui-day">{pad(dE)}</div><div className="ui-month">{mesCorto}</div></div>
+        <div className="ui-info"><div className="ui-name">{e.titulo}</div><div className="ui-sub">{e.sub}</div><div className="ui-sub">{t.label}{e.regla ? ' · toque para editar' : ''}</div></div>
+        <div className="ui-av" style={{ background: `color-mix(in srgb, ${t.color} 12%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <t.Icon size={14} style={{ color: t.color }} aria-hidden="true" />
         </div>
-      </>
+      </Fila>
     )
   }
 
   return (
     <div className="at-dla">
-      <div className="at-dla-arriba">
-        <div className="at-dla-ley">
-          <span><i className="fer" />Feriado nacional</span>
-          <span><i className="ent" />De la empresa · día entero</span>
-          <span><i className="med" />De la empresa · medio día</span>
-          <span><i className="hoy" />Hoy</span>
-        </div>
-        <div className="at-dla-anio">
-          <button type="button" aria-label="Año anterior" disabled={anio <= anios[0]} onClick={() => { setAnio(anio - 1); setAbierto(null) }}><ChevronLeft size={15} /></button>
-          <b>{anio}</b>
-          <button type="button" aria-label="Año siguiente" disabled={anio >= anios[anios.length - 1]} onClick={() => { setAnio(anio + 1); setAbierto(null) }}><ChevronRight size={15} /></button>
-        </div>
-      </div>
-      <div className="at-dla-cuerpo">
-        <div className="at-dla-meses">{Array.from({ length: 12 }, (_, m) => mes(m))}</div>
-        <aside className="at-dla-lado">
-          <span className="at-hz-rot">Personales</span>
-          {personales.length ? personales.map(r => (
-            <button key={r.id} type="button" className="at-dla-per" onClick={() => onEditar(r)}>
-              <Cake size={16} aria-hidden="true" />
-              <span><b>{r.nombre}</b><small>{r.cuanto === 'entero' ? 'Día entero' : `Libre desde las ${r.desde}`} · {r.forma === 'automatico' ? 'cae solo' : 'lo pide la persona'}</small></span>
-            </button>
-          )) : <small className="at-ayuda">Ninguno todavía.</small>}
-          <small className="at-ayuda">Cada persona tiene su fecha, la de su ficha; por eso no se marcan en el año.</small>
-          <span className="at-hz-rot" style={{ marginTop: 6 }}>{anio} en números</span>
-          <div className="at-dla-num">
-            <span><b>{feriadosDelAnio.length}</b>feriados</span>
-            <span><b>{deEmpresa.length}</b>de la empresa</span>
-            <span><b>{personales.length}</b>{personales.length === 1 ? 'personal' : 'personales'}</span>
+      <div className="sec-card">
+        <div className="sc-hd">
+          <CalendarDays size={15} style={{ color: 'var(--blue)' }} aria-hidden="true" />
+          <h3>{anio}</h3>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button type="button" aria-label="Año anterior" disabled={anio <= anios[0]} onClick={() => setAnio(anio - 1)} style={{ ...flechaDL, opacity: anio <= anios[0] ? 0.4 : 1 }}><ChevronLeft size={13} /></button>
+            <button type="button" aria-label="Año siguiente" disabled={anio >= anios[anios.length - 1]} onClick={() => setAnio(anio + 1)} style={{ ...flechaDL, opacity: anio >= anios[anios.length - 1] ? 0.4 : 1 }}><ChevronRight size={13} /></button>
           </div>
-          <small className="at-ayuda">Toque una fecha vacía para agregar un día libre ese día.</small>
-        </aside>
+        </div>
+        <div className="sc-body" style={{ padding: '14px 18px 18px' }}>
+          <div className="at-dla-meses">{Array.from({ length: 12 }, (_, m) => mes(m))}</div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border-soft)', flexWrap: 'wrap' }}>
+            {Object.values(TIPOS_DL).map(t => (
+              <span key={t.label} style={{ fontSize: 10.5, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: t.color, display: 'inline-block' }} /> {t.label}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
-      {detalle}
+
+      <div style={{ display: 'grid', gap: 16, alignContent: 'start' }}>
+        <div className="sec-card">
+          <div className="sc-hd">
+            <h3>{dE} de {MESES[mE - 1]}{elegido === hoy ? ' · Hoy' : ''}{delDia.length > 0 && <span className="sc-hd-count">{delDia.length}</span>}</h3>
+            {!delDia.some(e => e.tipo === 'empresa') && <a href="#" className="chip-link" onClick={e => { e.preventDefault(); onNuevo(elegido.slice(5)) }}>+ Agregar aquí</a>}
+          </div>
+          <div className="sc-body" style={{ padding: '6px 22px 12px' }}>
+            {delDia.length ? delDia.map(fila) : (
+              <div style={{ padding: '10px 0', fontSize: 11.5, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Clock size={13} aria-hidden="true" /> Sin día libre este día
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="sec-card">
+          <div className="sc-hd"><h3>Personales{personales.length > 0 && <span className="sc-hd-count">{personales.length}</span>}</h3></div>
+          <div className="sc-body" style={{ padding: '6px 22px 12px' }}>
+            {personales.map(r => (
+              <button key={r.id} type="button" className="upcoming-item" onClick={() => onEditar(r)} style={{ width: '100%', border: 'none', background: 'none', font: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
+                <div className="ui-av" style={{ background: 'color-mix(in srgb, var(--at-verde) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Cake size={14} style={{ color: 'var(--at-verde)' }} aria-hidden="true" />
+                </div>
+                <div className="ui-info"><div className="ui-name">{r.nombre}</div><div className="ui-sub">{cuantoTxt(r)} · {r.forma === 'automatico' ? 'cae solo' : 'lo pide la persona'}</div></div>
+              </button>
+            ))}
+            <div style={{ padding: '10px 0 2px', fontSize: 11.5, color: 'var(--text-muted)' }}>Cada persona tiene su fecha, la de su ficha; por eso no se marcan en el año.</div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
