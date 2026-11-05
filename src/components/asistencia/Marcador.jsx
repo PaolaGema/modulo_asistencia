@@ -8,6 +8,7 @@ import viaSaludando from '../../assets/imagenes/via_saludando.png'
 import { ahora, TIPOS_MARCA, ESTADOS_EXTRA, esAutorizada, fechaLarga, fechaCorta, nombreMes, mesVecino, hhmm, aMin, duracion, hoyISO, diasDelMes, mesDe, sumarDias, accionDelMomento, ETIQUETA_MARCA, ESTADOS, DIAS_CORTOS, diaISO, aFecha, semanasDe } from '../../data/asistenciaData'
 import ConfirmarMarca from './ConfirmarMarca'
 import ReporteMes from './ReporteMes'
+import { cifrasDelMes } from '../../utils/cifrasMes'
 import LineaTarde from './LineaTarde'
 import LineaPermiso from './LineaPermiso'
 import { textoPermiso } from '../../utils/permisoHoras'
@@ -361,10 +362,10 @@ function SemanaCel({ onMes, onCorregir }) {
     const fecha = sumarDias(lunes, i)
     return { fecha, j: fecha <= at.hoy ? at.jornadaDe(yo, fecha) : null, laboral: yo.horario.dias.includes(diaISO(fecha)) }
   })
-  const hechos = dias.filter(d => d.j && d.j.estado !== 'libre' && (d.fecha < at.hoy || d.j.salida != null))
-  const trabajado = dias.reduce((t, d) => t + (d.j?.trabajado || 0), 0)
-  const aTiempo = hechos.filter(d => ['presente', 'justificada'].includes(d.j.estado)).length
-  const extra = dias.reduce((t, d) => t + (d.j?.extra || 0), 0)
+  /* Las mismas cifras que el reporte del mes en PDF (utils/cifrasMes), sobre los días de esta semana. */
+  const c = cifrasDelMes(dias.map(x => ({ d: x.fecha, j: x.j })), at.hoy)
+  const { trabajado, aTiempo } = c
+  const extra = c.extraTrabajada
   const [sel, setSel] = useState(null)
   const elegido = dias.find(d => d.fecha === sel)
   return (
@@ -395,7 +396,7 @@ function SemanaCel({ onMes, onCorregir }) {
       {elegido ? <DiaElegido {...elegido} yo={yo} hoy={at.hoy} onCorregir={onCorregir} /> : <span style={{ textAlign: 'center', fontSize: 6.4, color: 'var(--in-suave)', marginTop: -3 }}>Toque un día para ver a qué hora marcó.</span>}
       <div style={{ ...TARJETA_CEL, padding: '7px 4px 8px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center' }}>
         <span style={{ gridColumn: '1 / -1', fontSize: 6.4, fontWeight: 700, color: 'var(--in-mute)', textAlign: 'center', marginBottom: 5 }}>Resumen de esta semana · del {fechaCorta(lunes)} a hoy</span>
-        {[[duracion(trabajado), 'Trabajadas'], [`${aTiempo} de ${hechos.length}`, 'Días a tiempo'], [duracion(extra), 'Horas extra']].map(([v, k], i) => (
+        {[[duracion(trabajado), 'Trabajadas'], [`${aTiempo} de ${c.conEntrada.length}`, 'Días a tiempo'], [duracion(extra), 'Horas extra']].map(([v, k], i) => (
           <span key={k} style={{ display: 'grid', borderLeft: i ? '1px solid var(--in-linea)' : 'none' }}>
             <b style={{ fontSize: 9.4, letterSpacing: '-.01em' }}>{v}</b>
             <small style={{ fontSize: 5.8, color: 'var(--in-mute)' }}>{k}</small>
@@ -727,9 +728,10 @@ function MesCel({ onVolver, onCorregir }) {
   // Las semanas completas, como el calendario de la vacación: los días del mes vecino, más claros.
   const semanas = semanasDe(ym)
   const hechos = dias.filter(d => d.j && d.j.estado !== 'libre' && (d.fecha < at.hoy || d.j.salida != null))
-  const trabajado = dias.reduce((t, d) => t + (d.j?.trabajado || 0), 0)
-  const aTiempo = hechos.filter(d => ['presente', 'justificada'].includes(d.j.estado)).length
-  const tardes = hechos.filter(d => d.j.estado === 'tarde').length
+  /* Las mismas cifras que el PDF de este mes (utils/cifrasMes): el teléfono y el papel dicen lo mismo. */
+  const c = cifrasDelMes(dias.map(x => ({ d: x.fecha, j: x.j })), at.hoy)
+  const { trabajado, aTiempo } = c
+  const tardes = c.tardes.length
   const elegido = dias.find(d => d.fecha === sel)
   const ir = n => { setYm(m => mesVecino(m, n)); setSel(null) }
   const flecha = (n, Icono, off) => (
@@ -776,7 +778,7 @@ function MesCel({ onVolver, onCorregir }) {
       {elegido ? <DiaElegido {...elegido} yo={yo} hoy={at.hoy} onCorregir={onCorregir} /> : <span style={{ textAlign: 'center', fontSize: 6.4, color: 'var(--in-suave)', marginTop: -3 }}>Toque un día para ver a qué hora marcó.</span>}
       <div style={{ ...TARJETA_CEL, padding: '7px 4px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center' }}>
         <span style={{ gridColumn: '1 / -1', fontSize: 6.8, fontWeight: 600, color: 'var(--in-mute)', textAlign: 'center', marginBottom: 5 }}>Resumen de {nombreMes(ym)}</span>
-        {[[duracion(trabajado), 'Trabajadas'], [`${aTiempo} de ${hechos.length}`, 'Días a tiempo'], [String(tardes), tardes === 1 ? 'Llegada tarde' : 'Llegadas tarde']].map(([v, k], i) => (
+        {[[duracion(trabajado), 'Trabajadas'], [`${aTiempo} de ${c.conEntrada.length}`, 'Días a tiempo'], [String(tardes), tardes === 1 ? 'Llegada tarde' : 'Llegadas tarde']].map(([v, k], i) => (
           <span key={k} style={{ display: 'grid', borderLeft: i ? '1px solid var(--in-linea)' : 'none' }}>
             <b style={{ fontSize: 9.4, letterSpacing: '-.01em' }}>{v}</b>
             <small style={{ fontSize: 5.8, color: 'var(--in-mute)' }}>{k}</small>

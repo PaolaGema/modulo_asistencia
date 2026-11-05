@@ -16,7 +16,6 @@ import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
 import ModalAsignar from '../../components/asistencia/ModalAsignar'
 import Avatar from '../../components/personas/Avatar'
-import DiasLibres from './DiasLibres'
 import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
@@ -27,7 +26,9 @@ import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, 
    ARRIBA, LA PUESTA A PUNTO: el `readiness` del backend —sin sede, sin horario, sin política,
    consentimiento pendiente— dicho como una lista de lo que falta, con su enlace. */
 
-const SECCIONES = ['horarios', 'dias-libres', 'modalidades', 'avisos', 'lugares', 'asignaciones']
+/* «Días libres» sale del menú por ahora (5 nov 2026): se retoma otro día. La página sigue en
+   DiasLibres.jsx y las reglas sembradas (el cumpleaños) siguen aplicándose. */
+const SECCIONES = ['horarios', 'modalidades', 'avisos', 'lugares', 'asignaciones']
 const COLORES = ['#00B876', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444', '#0C2D40']
 
 export default function Configuracion() {
@@ -50,7 +51,6 @@ export default function Configuracion() {
       <Cabecera titulo={titulos[ver][0]} sub={titulos[ver][1]} />
 
       {ver === 'horarios' && <Horarios />}
-      {ver === 'dias-libres' && <DiasLibres />}
       {ver === 'modalidades' && <Reglas />}
       {ver === 'avisos' && <Avisos />}
       {ver === 'lugares' && <Lugares />}
