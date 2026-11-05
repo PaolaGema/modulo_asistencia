@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Check, Luggage, Stethoscope, PencilLine, House, Repeat, AlarmClockPlus, MessageSquareQuote, CheckCircle2, CheckCheck } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { Cabecera, Vacio, Etiqueta, Modal } from '../../components/documentacion/comunes'
+import { Cabecera, Vacio, Etiqueta } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import Desplegable from '../../components/layout/Desplegable'
 import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
 import HorasExtra from './HorasExtra'
+import RevisarLote from './RevisarLote'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
 import { Papeleta } from '../../components/layout/VacacionPhone'
 import { Hoja } from '../../components/layout/PermisoPhone'
@@ -63,6 +64,7 @@ export default function Solicitudes() {
 function Lista({ ver }) {
   const at = useAsistencia()
   const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const vista = VISTAS[ver]
   const [estado, setEstado] = useState('pendiente')
   const [filtro, setFiltro] = useState(FILTRO_VACIO)
@@ -71,15 +73,11 @@ function Lista({ ver }) {
   const [detalle, setDetalle] = useState(null)
   const [revisar, setRevisar] = useState(null)
   const { empresa } = useOnboardingData()
-  /* APROBAR EN LOTE (correcciones de marcación pendientes, 5 nov 2026). Se marcan las casillas, aparece
-     la barra «N seleccionadas · Aprobar» y una ventana confirma cuántas son y qué marca se carga a quién.
-     Cada una queda igual que aprobada de a una: con su motivo, quién la aprobó y cuándo.
-     Rechazar NO va en lote: cada rechazo necesita su motivo, porque a la persona le llega «no aprobada».
-     No se pueden elegir la solicitud propia (se responde de a una y queda registrada como propia) ni las que tienen algo «a tener en
-     cuenta»: esas se revisan de a una. Solo cuenta lo que se ve con los filtros puestos. */
-  const enLote = vista.tipo === 'correccion' && estado === 'pendiente'
-  const [elegidas, setElegidas] = useState(() => new Set())
-  const [confirmarLote, setConfirmarLote] = useState(false)
+  /* REVISAR EN LOTE (A3 en grande, 5 nov 2026): las correcciones pendientes se aprueban en lote desde una
+     pantalla propia (RevisarLote), no desde casillas en esta tabla. Se abre con «Revisar en lote» y vive en la
+     URL (?ver=correcciones&lote=1), así «Atrás» vuelve a la lista. */
+  const modoLote = vista.tipo === 'correccion' && params.get('lote') === '1'
+  const irLote = on => setParams(prev => { const n = new URLSearchParams(prev); if (on) n.set('lote', '1'); else n.delete('lote'); return n })
   const [aviso, setAviso] = useState(null)
   useEffect(() => {
     if (!aviso) return
@@ -119,33 +117,25 @@ function Lista({ ver }) {
     return { total: delLugar.length, quedan, otros: fuera.size, riesgo: quedan < Math.ceil(delLugar.length * 0.8) }
   }
 
-  /* Por qué una fila no se puede elegir para el lote (null = se puede). */
-  const porQueNo = s => {
-    if (s.estado !== 'pendiente') return 'Ya fue respondida.'
-    if (String(s.personaId) === String(at.yo?.id)) return 'Es su propia solicitud: se revisa de a una y queda registrado que usted la aprobó.'
-    if (describir(s, saldoDe, coberturaDe, historialDe).chips.some(c => ['rojo', 'ambar'].includes(c.tono))) return 'Tiene algo a tener en cuenta: revísela de a una.'
-    return null
-  }
   const visibles = lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
-  const elegibles = enLote ? visibles.filter(s => !porQueNo(s)) : []
-  const seleccion = enLote ? lista.filter(s => elegidas.has(s.id) && !porQueNo(s)) : []
-  const todasPagina = elegibles.length > 0 && elegibles.every(s => elegidas.has(s.id))
-  const alternar = id => setElegidas(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
-  const alternarPagina = () => setElegidas(prev => {
-    const n = new Set(prev)
-    elegibles.forEach(s => (todasPagina ? n.delete(s.id) : n.add(s.id)))
-    return n
-  })
-  const aprobarLote = () => {
-    seleccion.forEach(s => at.responderSolicitud(s.id, 'aprobada', ''))
-    setAviso(seleccion.length === 1 ? 'Se aprobó 1 corrección y se cargó su marcación' : `Se aprobaron ${seleccion.length} correcciones y se cargaron sus marcaciones`)
-    setElegidas(new Set()); setConfirmarLote(false)
-  }
+  /* Todas las correcciones pendientes (sin los filtros de esta lista: la pantalla del lote tiene los suyos). */
+  const ventanas = <Ventanas revisar={revisar} setRevisar={setRevisar} at={at} empresa={empresa} saldoDe={saldoDe} coberturaDe={coberturaDe} historialDe={historialDe} aviso={aviso} detalle={detalle} setDetalle={setDetalle} />
+  const correccionesPendientes = vista.tipo === 'correccion' ? delAlcance.filter(s => s.tipo === 'correccion' && s.estado === 'pendiente') : []
 
+  if (modoLote) return (
+    <div className="content-scroll">
+      <RevisarLote pendientes={correccionesPendientes} onVolver={() => irLote(false)} onRevisar={setRevisar}
+        onAprobadas={n => setAviso(n === 1 ? 'Se aprobó 1 corrección y se corrigió su día' : `Se aprobaron ${n} correcciones y se corrigieron sus días`)} />
+      {ventanas}
+    </div>
+  )
 
   return (
     <div className="content-scroll">
       <Cabecera titulo={vista.titulo} sub={vista.sub || TIPOS_SOLICITUD[vista.tipo]?.desc}>
+        {vista.tipo === 'correccion' && correccionesPendientes.length > 1 && (
+          <button type="button" className="at-btn-ok" onClick={() => irLote(true)}><CheckCheck size={14} aria-hidden="true" /> Revisar en lote · {correccionesPendientes.length}</button>
+        )}
         {ver === 'vacaciones' && (
           <div className="at-segmento" role="tablist" aria-label="Vista">
             <button type="button" role="tab" aria-selected={estado !== 'saldos'} className={estado !== 'saldos' ? 'on' : ''} onClick={() => { setEstado('pendiente'); setPag(1) }}>Solicitudes</button>
@@ -178,39 +168,16 @@ function Lista({ ver }) {
         <Saldos gente={gente.filter(p => p.asig && (!texto || p.name.toLowerCase().includes(texto)))} saldoDe={saldoDe} navigate={navigate} />
       ) : lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-          {/* La barra del lote: aparece al elegir la primera. Solo «Aprobar»; rechazar es de a una. */}
-          {seleccion.length > 0 && (
-            <div role="region" aria-label="Selección" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderBottom: '1px solid var(--border-soft)', background: 'var(--green-bg)' }}>
-              <b style={{ fontSize: 13 }}>{seleccion.length === 1 ? '1 seleccionada' : `${seleccion.length} seleccionadas`}</b>
-              <button type="button" className="dc-btn dc-btn-texto dc-btn-sm" onClick={() => setElegidas(new Set())}>Quitar selección</button>
-              <span style={{ flex: 1 }} />
-              <span className="dc-muted" style={{ fontSize: 12 }}>Para rechazar, revise cada una: necesita su motivo.</span>
-              <button type="button" className="at-btn-ok" onClick={() => setConfirmarLote(true)}><CheckCheck size={14} /> Aprobar {seleccion.length === 1 ? '1' : seleccion.length}</button>
-            </div>
-          )}
-          <table className={`as-table at-tabla at-tabla-sol${enLote ? ' con-lote' : ''}`}>
+          <table className="as-table at-tabla at-tabla-sol">
             <thead><tr>
-              {enLote && (
-                <th style={{ width: 40 }}>
-                  <input type="checkbox" checked={todasPagina} disabled={!elegibles.length} onChange={alternarPagina}
-                    aria-label="Elegir todas las de esta página" title={elegibles.length ? 'Elegir todas las de esta página que se pueden aprobar en lote' : 'Ninguna de esta página se puede aprobar en lote'} style={{ width: 16, height: 16, accentColor: '#00B876', cursor: elegibles.length ? 'pointer' : 'default' }} />
-                </th>
-              )}
               <th>Colaborador</th><th>{COL_PIDE[vista.tipo] || 'Qué pide'}</th><th>A tener en cuenta</th><th>Fecha de solicitud</th><th>Estado</th><th aria-label="Acción" />
             </tr></thead>
             <tbody>
               {visibles.map(s => {
                 const d = describir(s, saldoDe, coberturaDe, historialDe)
                 const abrir = () => setRevisar(s)
-                const no = enLote ? porQueNo(s) : null
                 return (
                   <tr key={s.id} tabIndex={0} onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
-                    {enLote && (
-                      <td onClick={e => e.stopPropagation()} title={no || undefined}>
-                        <input type="checkbox" checked={!no && elegidas.has(s.id)} disabled={!!no} onChange={() => alternar(s.id)}
-                          aria-label={no ? `${s.persona.name}: ${no}` : `Elegir la corrección de ${s.persona.name}`} style={{ width: 16, height: 16, accentColor: '#00B876', cursor: no ? 'not-allowed' : 'pointer' }} />
-                      </td>
-                    )}
                     <td><PersonaAt persona={s.persona} size={32} /></td>
                     <td>
                       <span className="at-sol-tit">{d.titulo}</span>
@@ -239,6 +206,15 @@ function Lista({ ver }) {
         </div>
       )}
 
+      {ventanas}
+    </div>
+  )
+}
+
+/* SE COMPARTE ENTRE LA LISTA Y LA PANTALLA DEL LOTE: abrir una solicitud, el aviso y su día. */
+function Ventanas({ revisar, setRevisar, at, empresa, saldoDe, coberturaDe, historialDe, aviso, detalle, setDetalle }) {
+  return (
+    <>
       {revisar && (() => {
         const d = describir(revisar, saldoDe, coberturaDe, historialDe)
         /* LA PROPIA SE PUEDE RESPONDER (con una sola persona en RR.HH. nadie más podría), pero de a una, con aviso
@@ -275,27 +251,10 @@ function Lista({ ver }) {
         )
       })()}
 
-      {confirmarLote && (
-        <Modal titulo={seleccion.length === 1 ? 'Aprobar 1 corrección' : `Aprobar ${seleccion.length} correcciones`} Icono={CheckCheck} onCerrar={() => setConfirmarLote(false)} ancho={560}
-          pie={<>
-            <button type="button" className="dc-btn" onClick={() => setConfirmarLote(false)}>Cancelar</button>
-            <button type="button" className="at-btn-ok" onClick={aprobarLote}><CheckCheck size={14} /> Sí, aprobar {seleccion.length === 1 ? '1' : seleccion.length}</button>
-          </>}>
-          <p style={{ margin: '0 0 12px', fontSize: 13.5 }}>Se carga cada marcación con el motivo que dio la persona y su nombre como quien aprobó. Queda a la vista como corrección, igual que si la aprobara de a una.</p>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 8, maxHeight: 300, overflowY: 'auto' }}>
-            {seleccion.map(s => (
-              <li key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 10px', border: '1px solid var(--border-soft)', borderRadius: 10 }}>
-                <PersonaAt persona={s.persona} size={28} />
-                <span style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>{describir(s, saldoDe, coberturaDe, historialDe).titulo}</span>
-              </li>
-            ))}
-          </ul>
-        </Modal>
-      )}
       {aviso && <div className="md-aviso" role="status"><CheckCircle2 size={15} aria-hidden="true" /> {aviso}</div>}
 
       {detalle && <DetalleJornada persona={detalle.persona} fecha={detalle.fecha} onCerrar={() => setDetalle(null)} />}
-    </div>
+    </>
   )
 }
 

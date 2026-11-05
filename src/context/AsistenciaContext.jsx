@@ -7,9 +7,9 @@ import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
-  reglasDe, horarioConPermisos, DIAS_LIBRES_SEED, diaLibreEn, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
+  reglasDe, horarioConPermisos, DIAS_LIBRES_SEED, diaLibreEn, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion, hhmm,
 } from '../data/asistenciaData'
-import { cambiosDe } from '../utils/correccion'
+import { cambiosDe, ranurasDelDia } from '../utils/correccion'
 import { miFichaDe } from '../data/miFicha'
 import { EVENTOS_INICIO } from '../data/eventosInicio'
 
@@ -87,6 +87,8 @@ export function AsistenciaProvider({ children }) {
   }), [generalesGuardados])
   /* Quién ya recibió sus justificaciones de ejemplo. */
   const [justSembradas, setJustSembradas] = useLocalStorage('at_just_demo', false)
+  /* Las 120 correcciones de ejemplo para probar «Revisar en lote» (ver más abajo). */
+  const [loteSembrado, setLoteSembrado] = useLocalStorage('at_lote_demo', false)
 
   /* Las semillas se escriben la primera vez que hay gente que sembrar. */
   useEffect(() => {
@@ -364,6 +366,78 @@ export function AsistenciaProvider({ children }) {
     /* En modo estricto el efecto corre dos veces antes de guardar la marca: no se repite ninguna. */
     if (nuevas.length) setSolicitudes(prev => [...nuevas.filter(x => !(prev || []).some(y => y.id === x.id)), ...(prev || [])])
   }, [justSembradas, solicitudes, personas, hoy, jornadaDe, setJustSembradas, setSolicitudes])
+
+  /* CORRECCIONES DE EJEMPLO PARA REVISAR EN LOTE (A3 en grande, 5 nov 2026): unas 120 pendientes de todo
+     tipo, en todas las sucursales, sacadas de días reales de la demo para que cada una tenga sentido con su día:
+     · cargar la salida que no marcó (los días «Sin salida»);
+     · mover la salida unos minutos («la app tardó»): rutinaria;
+     · mover la vuelta del descanso a su hora: rutinaria si es poco;
+     · poner a su hora la entrada de quien llegó a tiempo y marcó tarde: quita atraso, de a una con respaldo;
+     · mover la salida más tarde («me quedé cerrando»): más de 15 min, de a una;
+     · quitar una entrada repetida (se le agrega el doble toque a su día);
+     · dos cambios en el mismo día (la vuelta del descanso y la salida).
+     Se siembran una vez. */
+  useEffect(() => {
+    if (loteSembrado || !solicitudes || !personas.some(p => p.horario)) return
+    const nuevas = [], dobles = []
+    const ya = new Set((solicitudes || []).filter(x => x.tipo === 'correccion').map(x => `${x.personaId}|${x.fecha}`))
+    const MOTIVOS = {
+      falta: ['Me olvidé de marcar la salida', 'Salí apurado y no marqué', 'La app no abría al salir'],
+      salida: ['La app tardó en registrar mi salida', 'Marqué y no se guardó al momento', 'Se me acabó la batería al salir'],
+      vuelta: ['Volví a mi hora, la app se colgó', 'Marqué tarde la vuelta, ya estaba en mi puesto'],
+      entrada: ['Llegué a mi hora pero me olvidé de marcar', 'Marqué cuando me acordé, ya estaba trabajando'],
+      doble: ['Toqué dos veces el botón', 'La app me hizo marcar de nuevo'],
+      tarde: ['Me quedé cerrando caja y marqué la salida antes', 'Me pidieron quedarme a terminar un pedido'],
+    }
+    const RESPALDOS = ['Revisar las cámaras de la entrada', 'Lo vio mi jefe', 'El registro del portón de ingreso']
+    for (let i = 1; i <= 12 && nuevas.length < 120; i++) {
+      const fecha = sumarDias(hoy, -i)
+      for (const p of personas) {
+        if (nuevas.length >= 120) break
+        if (!p.asig || p.esYo || p.horario?.modo !== 'fijo' || ya.has(`${p.id}|${fecha}`)) continue
+        const j = jornadaDe(p, fecha)
+        if (!j.programado || !j.marcas?.length || j.justificacion) continue
+        const { filas } = ranurasDelDia({ jornadaDe }, p, fecha)
+        const fila = t => filas.find(f => f.tipo === t)
+        const h = (Number(String(p.id).replace(/D/g, '')) * 31 + i * 7) % 12
+        const falta = filas.find(f => !f.marca && f.sugerida)
+        let cambios = null, clase = null, respaldo = ''
+        /* Un reparto fijo por persona y día, sin caer de un caso a otro: así salen de todos los tipos. */
+        const sal = fila('salida')?.marca, vue = fila('pausa_fin'), ent = fila('entrada')
+        const moverSalida = () => [{ tipo: 'salida', hora: hhmm(Math.round(sal.min) + 4 + (h % 4) * 3), antes: hhmm(sal.min), marcaId: sal.id }]
+        if (falta) { cambios = [{ tipo: falta.tipo, hora: falta.sugerida, antes: null, marcaId: null }]; clase = 'falta' }
+        else if ((h <= 3 || h >= 10) && sal) { cambios = moverSalida(); clase = 'salida' }
+        else if (h <= 5 && vue?.marca && vue.sugerida) {
+          cambios = [{ tipo: 'pausa_fin', hora: hhmm(Math.max(aMin(vue.sugerida), Math.round(vue.marca.min) - 9)), antes: hhmm(vue.marca.min), marcaId: vue.marca.id }]; clase = 'vuelta'
+        } else if (h <= 7 && ent?.marca && ent.sugerida && Math.round(ent.marca.min) - aMin(ent.sugerida) > 15) {
+          /* «Llegué a mi hora y marqué cuando me acordé»: quita atraso; se revisa de a una, con respaldo. */
+          cambios = [{ tipo: 'entrada', hora: ent.sugerida, antes: hhmm(ent.marca.min), marcaId: ent.marca.id }]; clase = 'entrada'
+          respaldo = RESPALDOS[(h + i) % RESPALDOS.length]
+        } else if (h <= 7 && sal) {
+          /* «Salí más tarde: me quedé cerrando»: mueve la salida más de 15 min; se revisa de a una. */
+          cambios = [{ tipo: 'salida', hora: hhmm(Math.round(sal.min) + 25 + (h % 2) * 20), antes: hhmm(sal.min), marcaId: sal.id }]; clase = 'tarde'
+          respaldo = 'Lo vio mi jefe'
+        } else if (h === 8 && ent?.marca) {
+          const m = ent.marca
+          const id = `mx-lote-${p.id}-${fecha}`
+          dobles.push({ id, personaId: p.id, fecha, tipo: 'entrada', min: Math.round(m.min) + 1, lat: p.lugar?.geo?.lat ?? null, lng: p.lugar?.geo?.lng ?? null, distancia: 12, dentro: true, score: 0.91, origen: 'app', remoto: false })
+          cambios = [{ tipo: 'entrada', antes: hhmm(Math.round(m.min) + 1), marcaId: id, quitar: true }]; clase = 'doble'
+        } else if (h === 9 && sal && vue?.marca && vue.sugerida) {
+          /* Dos cambios en el mismo día: la vuelta del descanso y la salida. */
+          cambios = [{ tipo: 'pausa_fin', hora: hhmm(Math.max(aMin(vue.sugerida), Math.round(vue.marca.min) - 6)), antes: hhmm(vue.marca.min), marcaId: vue.marca.id }, ...moverSalida()]; clase = 'salida'
+        }
+        if (!cambios) continue
+        const c = cambios[0]
+        nuevas.push({
+          id: `so-lote-${p.id}-${fecha}`, tipo: 'correccion', personaId: p.id, fecha, cambios, marca: c.tipo, hora: c.hora || c.antes,
+          motivo: MOTIVOS[clase][(h + i) % MOTIVOS[clase].length], respaldo, estado: 'pendiente', cuando: sumarDias(fecha, 1) > hoy ? hoy : sumarDias(fecha, 1), canal: 'app', demoLote: true,
+        })
+      }
+    }
+    setLoteSembrado(true)
+    if (dobles.length) setMarcasExtra(prev => [...prev.filter(x => !dobles.some(d => d.id === x.id)), ...dobles])
+    if (nuevas.length) setSolicitudes(prev => [...nuevas.filter(x => !(prev || []).some(y => y.id === x.id)), ...(prev || [])])
+  }, [loteSembrado, solicitudes, personas, hoy, jornadaDe, setLoteSembrado, setSolicitudes, setMarcasExtra])
 
   /* ── LO QUE ESPERA A RR.HH. ── los últimos 10 días, sin contar hoy: lo más viejo ya lo resolvió
      cada jefe en su momento (en la demo, se da por revisado). */
