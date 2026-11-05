@@ -340,7 +340,7 @@ export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin,
     ['Tipo', sub.label],
     ...(fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
     licencia || fin !== desde ? ['Días', `${dias(n)}${corridos ? ' corridos' : ' hábiles'}`, true]
-      : ['Horario', porHoras ? `${horaDesde} a ${horaHasta} · ${duracion(aMin(horaHasta) - aMin(horaDesde))}` : 'Todo el día', true],
+      : ['Horario', porHoras ? `${horaDesde} a ${horaHasta}` : 'Todo el día', true],
     ...(licencia ? [['Vuelve a trabajar', largo(regreso)]] : []),
     ...(info.respaldo ? [['Respaldo', respaldo || `${info.respaldo} · lo sube después`]] : []),
     ...(motivo ? [['Motivo', motivo]] : []),
