@@ -254,7 +254,6 @@ export default function Hoy() {
   const hora = reloj.getHours()
   const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches'
   const nombre = currentUser.name.split(' ')[0]
-  const comparaFaltan = normal.hay ? (sinMarcar.length > normal.faltan ? `y un ${['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][reloj.getDay()]} normal a esta hora ${normal.faltan === 1 ? 'es' : 'son'} ${normal.faltan}` : `por debajo de lo normal a esta hora (${normal.faltan})`) : ''
 
   return (
     <div className="content-scroll at-q">
@@ -276,10 +275,7 @@ export default function Hoy() {
             <div className="welcome-title">{saludo}, {nombre}</div>
             <div className="welcome-sub">
               {esperadas.length
-                ? <>El <strong className="at-q-verde">{pct} %</strong> de tu gente ya está trabajando: llegaron {llegaron.length} de {esperadas.length}.{' '}
-                  {sinMarcar.length > 0
-                    ? <><strong>{plural(sinMarcar.length, 'persona todavía no marca', 'todavía no marcan')}</strong>{comparaFaltan ? `, ${comparaFaltan}` : ''}.</>
-                    : 'Nadie está en falta.'}</>
+                ? <>El <strong className="at-q-verde">{pct} %</strong> de tu gente ya está trabajando: llegaron {llegaron.length} de {esperadas.length}.</>
                 : 'Hoy no hay jornadas programadas.'}
             </div>
             <div className="at-q-acciones">
