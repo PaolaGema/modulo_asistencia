@@ -711,6 +711,9 @@
 .at-tabla-sol th:last-child, .at-tabla-sol td:last-child { width: 1%; white-space: nowrap; }
 .at-tabla-sol .at-sol-chips .dc-chip { white-space: normal; }
 .at-tabla-sol td:first-child { min-width: 210px; }
+/* Con la columna de casillas (aprobar en lote), la persona pasa a ser la segunda y la casilla queda angosta. */
+.at-tabla-sol.con-lote th:first-child, .at-tabla-sol.con-lote td:first-child { min-width: 0; width: 1%; padding-right: 4px; }
+.at-tabla-sol.con-lote td:nth-child(2) { min-width: 210px; }
 .at-sol-chips { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .at-sol-cuando { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; }
 .at-btn-revisar {

@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Check, Luggage, Stethoscope, PencilLine, House, Repeat, AlarmClockPlus, MessageSquareQuote } from 'lucide-react'
+import { Check, Luggage, Stethoscope, PencilLine, House, Repeat, AlarmClockPlus, MessageSquareQuote, CheckCircle2, CheckCheck } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { Cabecera, Vacio, Etiqueta } from '../../components/documentacion/comunes'
+import { Cabecera, Vacio, Etiqueta, Modal } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import Desplegable from '../../components/layout/Desplegable'
 import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
@@ -11,10 +11,12 @@ import HorasExtra from './HorasExtra'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
 import { Papeleta } from '../../components/layout/VacacionPhone'
 import { Hoja } from '../../components/layout/PermisoPhone'
+import PapeletaCorreccion from '../../components/asistencia/PapeletaCorreccion'
+import { cambiosDe, NOMBRE_MARCA } from '../../utils/correccion'
 import { armarPapeleta } from '../../utils/papeletaVacacion'
 import { armarHojaPermiso } from '../../utils/papeletaPermiso'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, TIPOS_MARCA, ALERTAS, diasHabiles, saldoVacaciones, fechaCorta, aFecha, duracion, mesDe } from '../../data/asistenciaData'
+import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, ALERTAS, diasHabiles, saldoVacaciones, fechaCorta, aFecha, duracion, mesDe } from '../../data/asistenciaData'
 
 /* ── SOLICITUDES ───────────────────────────────────────────────────────────
    Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar y con sub-vistas por tipo
@@ -69,6 +71,21 @@ function Lista({ ver }) {
   const [detalle, setDetalle] = useState(null)
   const [revisar, setRevisar] = useState(null)
   const { empresa } = useOnboardingData()
+  /* APROBAR EN LOTE (correcciones de marcación pendientes, 5 nov 2026). Se marcan las casillas, aparece
+     la barra «N seleccionadas · Aprobar» y una ventana confirma cuántas son y qué marca se carga a quién.
+     Cada una queda igual que aprobada de a una: con su motivo, quién la aprobó y cuándo.
+     Rechazar NO va en lote: cada rechazo necesita su motivo, porque a la persona le llega «no aprobada».
+     No se pueden elegir la solicitud propia (se responde de a una y queda registrada como propia) ni las que tienen algo «a tener en
+     cuenta»: esas se revisan de a una. Solo cuenta lo que se ve con los filtros puestos. */
+  const enLote = vista.tipo === 'correccion' && estado === 'pendiente'
+  const [elegidas, setElegidas] = useState(() => new Set())
+  const [confirmarLote, setConfirmarLote] = useState(false)
+  const [aviso, setAviso] = useState(null)
+  useEffect(() => {
+    if (!aviso) return
+    const t = setTimeout(() => setAviso(null), 4200)
+    return () => clearTimeout(t)
+  }, [aviso])
 
   const gente = useMemo(() => filtrar(at.personas, filtro), [at.personas, filtro])
   const ids = useMemo(() => new Set(gente.map(p => String(p.id))), [gente])
@@ -100,6 +117,29 @@ function Lista({ ver }) {
     const fuera = new Set(at.solicitudes.filter(x => x.id !== s.id && ['vacaciones', 'permiso'].includes(x.tipo) && !['rechazada', 'cancelada'].includes(x.estado) && !x.horaDesde && x.desde <= s.hasta && x.hasta >= s.desde && delLugar.some(p => p.id === x.personaId)).map(x => x.personaId))
     const quedan = delLugar.length - fuera.size - 1
     return { total: delLugar.length, quedan, otros: fuera.size, riesgo: quedan < Math.ceil(delLugar.length * 0.8) }
+  }
+
+  /* Por qué una fila no se puede elegir para el lote (null = se puede). */
+  const porQueNo = s => {
+    if (s.estado !== 'pendiente') return 'Ya fue respondida.'
+    if (String(s.personaId) === String(at.yo?.id)) return 'Es su propia solicitud: se revisa de a una y queda registrado que usted la aprobó.'
+    if (describir(s, saldoDe, coberturaDe, historialDe).chips.some(c => ['rojo', 'ambar'].includes(c.tono))) return 'Tiene algo a tener en cuenta: revísela de a una.'
+    return null
+  }
+  const visibles = lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
+  const elegibles = enLote ? visibles.filter(s => !porQueNo(s)) : []
+  const seleccion = enLote ? lista.filter(s => elegidas.has(s.id) && !porQueNo(s)) : []
+  const todasPagina = elegibles.length > 0 && elegibles.every(s => elegidas.has(s.id))
+  const alternar = id => setElegidas(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  const alternarPagina = () => setElegidas(prev => {
+    const n = new Set(prev)
+    elegibles.forEach(s => (todasPagina ? n.delete(s.id) : n.add(s.id)))
+    return n
+  })
+  const aprobarLote = () => {
+    seleccion.forEach(s => at.responderSolicitud(s.id, 'aprobada', ''))
+    setAviso(seleccion.length === 1 ? 'Se aprobó 1 corrección y se cargó su marcación' : `Se aprobaron ${seleccion.length} correcciones y se cargaron sus marcaciones`)
+    setElegidas(new Set()); setConfirmarLote(false)
   }
 
 
@@ -138,14 +178,39 @@ function Lista({ ver }) {
         <Saldos gente={gente.filter(p => p.asig && (!texto || p.name.toLowerCase().includes(texto)))} saldoDe={saldoDe} navigate={navigate} />
       ) : lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-          <table className="as-table at-tabla at-tabla-sol">
-            <thead><tr><th>Colaborador</th><th>{COL_PIDE[vista.tipo] || 'Qué pide'}</th><th>A tener en cuenta</th><th>Fecha de solicitud</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
+          {/* La barra del lote: aparece al elegir la primera. Solo «Aprobar»; rechazar es de a una. */}
+          {seleccion.length > 0 && (
+            <div role="region" aria-label="Selección" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderBottom: '1px solid var(--border-soft)', background: 'var(--green-bg)' }}>
+              <b style={{ fontSize: 13 }}>{seleccion.length === 1 ? '1 seleccionada' : `${seleccion.length} seleccionadas`}</b>
+              <button type="button" className="dc-btn dc-btn-texto dc-btn-sm" onClick={() => setElegidas(new Set())}>Quitar selección</button>
+              <span style={{ flex: 1 }} />
+              <span className="dc-muted" style={{ fontSize: 12 }}>Para rechazar, revise cada una: necesita su motivo.</span>
+              <button type="button" className="at-btn-ok" onClick={() => setConfirmarLote(true)}><CheckCheck size={14} /> Aprobar {seleccion.length === 1 ? '1' : seleccion.length}</button>
+            </div>
+          )}
+          <table className={`as-table at-tabla at-tabla-sol${enLote ? ' con-lote' : ''}`}>
+            <thead><tr>
+              {enLote && (
+                <th style={{ width: 40 }}>
+                  <input type="checkbox" checked={todasPagina} disabled={!elegibles.length} onChange={alternarPagina}
+                    aria-label="Elegir todas las de esta página" title={elegibles.length ? 'Elegir todas las de esta página que se pueden aprobar en lote' : 'Ninguna de esta página se puede aprobar en lote'} style={{ width: 16, height: 16, accentColor: '#00B876', cursor: elegibles.length ? 'pointer' : 'default' }} />
+                </th>
+              )}
+              <th>Colaborador</th><th>{COL_PIDE[vista.tipo] || 'Qué pide'}</th><th>A tener en cuenta</th><th>Fecha de solicitud</th><th>Estado</th><th aria-label="Acción" />
+            </tr></thead>
             <tbody>
-              {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(s => {
+              {visibles.map(s => {
                 const d = describir(s, saldoDe, coberturaDe, historialDe)
                 const abrir = () => setRevisar(s)
+                const no = enLote ? porQueNo(s) : null
                 return (
                   <tr key={s.id} tabIndex={0} onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
+                    {enLote && (
+                      <td onClick={e => e.stopPropagation()} title={no || undefined}>
+                        <input type="checkbox" checked={!no && elegidas.has(s.id)} disabled={!!no} onChange={() => alternar(s.id)}
+                          aria-label={no ? `${s.persona.name}: ${no}` : `Elegir la corrección de ${s.persona.name}`} style={{ width: 16, height: 16, accentColor: '#00B876', cursor: no ? 'not-allowed' : 'pointer' }} />
+                      </td>
+                    )}
                     <td><PersonaAt persona={s.persona} size={32} /></td>
                     <td>
                       <span className="at-sol-tit">{d.titulo}</span>
@@ -176,6 +241,9 @@ function Lista({ ver }) {
 
       {revisar && (() => {
         const d = describir(revisar, saldoDe, coberturaDe, historialDe)
+        /* LA PROPIA SE PUEDE RESPONDER (con una sola persona en RR.HH. nadie más podría), pero de a una, con aviso
+           antes de decidir, y queda registrado que se la aprobó a sí misma. En lote no entra. */
+        const propia = String(revisar.personaId) === String(at.yo?.id)
         const pendiente = revisar.estado === 'pendiente'
         const esJust = revisar.tipo === 'justificacion'
         /* LA PAPELETA QUE FIRMÓ LA PERSONA, tal cual le llegó a RR.HH., con el sello de lo que se decidió.
@@ -185,14 +253,15 @@ function Lista({ ver }) {
         const firma = { estado: revisar.estado, quien: revisar.respondio, cuando: revisar.respondida ? fechaCorta(String(revisar.respondida).slice(0, 10)) : '' }
         const ctx = { yo: revisar.persona, persona: revisar.persona, empresa, solicitudes: at.solicitudes, lugarPorId: at.lugarPorId, hoy: at.hoy, numero }
         const documento = revisar.tipo === 'vacaciones' ? <Papeleta p={{ ...armarPapeleta({ ...revisar, papeleta: numero }, ctx) }} firma={firma} />
-          : revisar.tipo === 'permiso' ? <Hoja {...armarHojaPermiso(revisar, ctx)} firma={firma} /> : null
+          : revisar.tipo === 'permiso' ? <Hoja {...armarHojaPermiso(revisar, ctx)} firma={firma} />
+          : revisar.tipo === 'correccion' ? <PapeletaCorreccion s={revisar} persona={revisar.persona} empresa={empresa} numero={numero} firma={firma} /> : null
         const lic = revisar.tipo === 'permiso' && SUBTIPOS_PERMISO.find(t => t.key === revisar.subtipo)?.licencia
         return (
           <RevisarSolicitud
             titulo={`Revisar · ${d.tipo}`} persona={revisar.persona} estado={ESTADOS_SOLICITUD[revisar.estado]}
-            datos={d.datos} contexto={[...d.chips, ...d.extra]} efecto={d.efecto}
+            datos={d.datos} contexto={[...(propia && pendiente ? [{ tono: 'ambar', texto: 'Es su propia solicitud. Puede responderla, pero quedará registrado en la auditoría que la respondió usted. Si hay otra persona en RR.HH., mejor que la revise esa persona.' }] : []), ...d.chips, ...d.extra]} efecto={d.efecto}
             efectoRechazo={esJust ? `Seguirá contando como ${ALERTAS[revisar.alerta]?.label.toLowerCase() || 'incidencia'} injustificada en el Libro de asistencia. La persona verá el motivo en su app.` : 'No se aplica nada: el día sigue como estaba. La persona verá el motivo en su app.'}
-            respondio={revisar.respondio} nota={revisar.nota}
+            respondio={revisar.respondio && revisar.propia ? `${revisar.respondio} (su propia solicitud)` : revisar.respondio} nota={revisar.nota}
             onAprobar={pendiente ? nota => at.responderSolicitud(revisar.id, 'aprobada', nota) : null}
             onRechazar={pendiente ? motivo => at.responderSolicitud(revisar.id, 'rechazada', motivo) : null}
             onVerDia={revisar.tipo === 'correccion' || esJust ? () => { setDetalle({ persona: revisar.persona, fecha: revisar.fecha }); setRevisar(null) } : null}
@@ -205,6 +274,25 @@ function Lista({ ver }) {
           />
         )
       })()}
+
+      {confirmarLote && (
+        <Modal titulo={seleccion.length === 1 ? 'Aprobar 1 corrección' : `Aprobar ${seleccion.length} correcciones`} Icono={CheckCheck} onCerrar={() => setConfirmarLote(false)} ancho={560}
+          pie={<>
+            <button type="button" className="dc-btn" onClick={() => setConfirmarLote(false)}>Cancelar</button>
+            <button type="button" className="at-btn-ok" onClick={aprobarLote}><CheckCheck size={14} /> Sí, aprobar {seleccion.length === 1 ? '1' : seleccion.length}</button>
+          </>}>
+          <p style={{ margin: '0 0 12px', fontSize: 13.5 }}>Se carga cada marcación con el motivo que dio la persona y su nombre como quien aprobó. Queda a la vista como corrección, igual que si la aprobara de a una.</p>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 8, maxHeight: 300, overflowY: 'auto' }}>
+            {seleccion.map(s => (
+              <li key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 10px', border: '1px solid var(--border-soft)', borderRadius: 10 }}>
+                <PersonaAt persona={s.persona} size={28} />
+                <span style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>{describir(s, saldoDe, coberturaDe, historialDe).titulo}</span>
+              </li>
+            ))}
+          </ul>
+        </Modal>
+      )}
+      {aviso && <div className="md-aviso" role="status"><CheckCircle2 size={15} aria-hidden="true" /> {aviso}</div>}
 
       {detalle && <DetalleJornada persona={detalle.persona} fecha={detalle.fecha} onCerrar={() => setDetalle(null)} />}
     </div>
@@ -220,7 +308,6 @@ function describir(s, saldoDe, coberturaDe, historialDe) {
   const chips = []
   const extra = []
   const datos = []
-  const marca = (TIPOS_MARCA[s.marca]?.label || 'Marcación').toLowerCase()
   let titulo = ''
   let efecto = ''
   let tipo = TIPOS_SOLICITUD[s.tipo].label
@@ -246,10 +333,14 @@ function describir(s, saldoDe, coberturaDe, historialDe) {
     if (sub?.licencia) chips.push(s.respaldo ? { tono: 'verde', texto: `Respaldo: ${s.respaldo}` } : { tono: 'ambar', texto: 'Sin respaldo adjunto' })
     efecto = s.horaDesde ? `podrá ausentarse de ${s.horaDesde} a ${s.horaHasta} el ${fechaCorta(s.desde)}.` : `del ${rango(s.desde, s.hasta)} no contará como falta.`
   } else if (s.tipo === 'correccion') {
-    titulo = `${TIPOS_MARCA[s.marca]?.label || 'Marcación'} del ${fechaCorta(s.fecha)} a las ${s.hora}`
-    datos.push(['Qué pide', `Cargar la ${marca} del ${fechaCorta(s.fecha)}`], ['Hora', s.hora], ['Motivo', s.motivo || '—'])
-    extra.push({ tono: 'gris', texto: 'Antes de aprobar, mira su día: que la hora tenga sentido con sus otras marcaciones.' })
-    efecto = `se carga la ${marca} de las ${s.hora} del ${fechaCorta(s.fecha)}, con este motivo y tu nombre. Queda a la vista como corrección.`
+    /* Corregir su día: uno o varios cambios (cambiar una hora, agregar la que faltaba, quitar una de más). */
+    const cs = cambiosDe(s)
+    const uno = c => (c.quitar ? `Quitar ${NOMBRE_MARCA[c.tipo]?.toLowerCase() || 'marca'} de más (${c.antes})` : `${NOMBRE_MARCA[c.tipo] || 'Marcación'} ${c.antes ? `${c.antes} → ` : ''}${c.hora}`)
+    titulo = cs.length === 1 ? `${uno(cs[0])} · ${fechaCorta(s.fecha)}` : `${cs.length} cambios en su día · ${fechaCorta(s.fecha)}`
+    datos.push(['Día', fechaCorta(s.fecha)], ...cs.map((c, i) => [cs.length > 1 ? `Cambio ${i + 1}` : 'Qué cambia', uno(c)]), ['Motivo', s.motivo || '—'], s.respaldo && ['Justificación', s.respaldo])
+    if (s.respaldo) chips.push({ tono: 'azul', texto: `Comprobar: ${s.respaldo}` })
+    extra.push({ tono: 'gris', texto: 'Antes de aprobar, mira su día: que las horas tengan sentido con sus otras marcaciones.' })
+    efecto = `${cs.length === 1 ? 'se corrige su día' : `se aplican los ${cs.length} cambios`} del ${fechaCorta(s.fecha)} sobre las marcas que ya tiene (sin duplicarlas), con este motivo y tu nombre. Queda a la vista como corrección.`
   } else if (s.tipo === 'remoto') {
     titulo = `Desde casa · ${rango(s.desde, s.hasta)}`
     datos.push(['Días', rango(s.desde, s.hasta)], ['Motivo', s.motivo || '—'])

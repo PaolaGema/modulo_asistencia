@@ -1,122 +1,56 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Users, Network, Route, ClipboardCheck, ClipboardList, TrendingUp,
-  CircleDollarSign, Bot, Folder, Calendar, Gift, Globe, FileText, MessageSquarePlus, ScanFace,
-} from 'lucide-react'
 import { useUser } from '../../context/UserContext'
+import ZonaHRPhone from '../../components/layout/ZonaHRPhone'
+import PanelCel from '../../components/layout/PanelCel'
+import SolicitarVacacionPhone from '../../components/layout/VacacionPhone'
+import SolicitarPermisoPhone, { SolicitarRemotoPhone } from '../../components/layout/PermisoPhone'
+import BeneficiosPhone from '../../components/layout/BeneficiosPhone'
 
-/* ZONA HR — EL LANZADOR DE MÓDULOS.
-   Es la misma pantalla que el colaborador tiene en el teléfono, y la razón de que exista es que
-   el riel no le sirve: al colaborador el riel le muestra una sola entrada —Mi espacio personal—
-   porque los módulos de administración no le tocan. Pero SÍ le tocan las puertas de cada módulo:
-   sus evaluaciones, sus recibos, sus beneficios. Zona HR es esa lista de puertas.
+/* ZONA HR — EL LANZADOR DE MÓDULOS (opción A de «Mi espacio web · Propuestas», 5 nov 2026).
+   Es la Zona HR del teléfono, la misma pieza (`ZonaHRPhone`), a seis columnas y con `zoom`: el mismo
+   buscador, el mismo aro menta, el número ámbar de lo que espera y el reloj de Mi asistencia. Mi asistencia
+   y el calendario viven aquí, como en el teléfono; el menú deja Zona HR encendida mientras uno está en ellos.
 
-   TODAS SE DIBUJAN, TENGAN DESTINO O NO. Esconder las que faltan haría que la pantalla
-   creciera de tres en tres a lo largo del proyecto y que nadie —ni el cliente ni quien programe—
-   pudiera ver de un vistazo cuánto falta. Las que no existen no se apagan en gris hasta
-   desaparecer: se dibujan enteras y avisan al pasar el mouse. Son el mapa del producto.
-
-   QUÉ ES NAVEGABLE DEPENDE DEL ROL, y no por cortesía: Personas y Organigrama viven detrás del
-   guardia de rutas del `Layout`, así que ofrecerle esas tarjetas a un colaborador sería mandarlo
-   a un rebote. Se ofrece lo que esa persona puede abrir de verdad. */
-
+   Cada destino del teléfono se traduce a su pantalla web. Lo que en la web no tiene pantalla propia (la
+   vacación, el permiso, el trabajo remoto, los beneficios) se abre en el panel del teléfono, a la derecha.
+   Personas y Organigrama siguen detrás del guardia de rutas: solo quien gestiona tiene a dónde ir. */
 const ADMINISTRA = ['admin', 'manager', 'auxiliar']
-
-function modulos(rol) {
-  const admin = ADMINISTRA.includes(rol)
-  const gestiona = rol === 'admin' || rol === 'manager'
-  return [
-    { icon: Users, label: 'Personas', destino: gestiona && '/personas/colaboradores' },
-    { icon: Network, label: 'Organigrama', destino: gestiona && '/organizacion/organigrama' },
-    /* Para quien administra, el módulo; para el resto, su propia ruta. Es la misma puerta con
-       dos lados: nadie entra a "Onboarding" a ver el de otro si no le corresponde. */
-    { icon: Route, label: 'Onboarding', destino: admin ? '/onboarding' : '/mi-espacio/mi-onboarding' },
-    /* SUS DOCUMENTOS, TAMBIÉN PARA QUIEN ADMINISTRA (16 oct 2026). Zona HR es el espacio de la
-       persona: quien administra Documentación sigue siendo un colaborador con su propio expediente.
-       El módulo se abre desde el riel; acá, lo suyo, igual que en el celular. */
-    { icon: FileText, label: 'Mis documentos', destino: '/mi-espacio/zona-hr/documentos' },
-    { icon: MessageSquarePlus, label: 'Mis solicitudes', destino: '/mi-espacio/zona-hr/solicitudes' },
-    { icon: ScanFace, label: 'Mi asistencia', destino: '/mi-espacio/mi-asistencia' },
-    { icon: ClipboardCheck, label: 'Evaluaciones' },
-    { icon: ClipboardList, label: 'Encuestas' },
-    { icon: TrendingUp, label: 'PDI' },
-    { icon: CircleDollarSign, label: 'Mis remuneraciones' },
-    { icon: Bot, label: 'Agente de IA' },
-    { icon: Folder, label: 'Archivos', destino: rol === 'admin' && '/archivos' },
-    { icon: Calendar, label: 'Calendario', destino: '/mi-espacio/calendario' },
-    { icon: Gift, label: 'Mis beneficios' },
-    { icon: Globe, label: 'Página oficial' },
-  ]
-}
+const PANELES = { vacacion: 'Solicitar vacación', permiso: 'Permiso o licencia', remoto: 'Trabajo remoto', beneficios: 'Mis beneficios' }
 
 export default function ZonaHR() {
   const { currentUser } = useUser()
   const navigate = useNavigate()
-  const lista = modulos(currentUser.role)
+  const [panel, setPanel] = useState(null)
+  const cerrar = () => setPanel(null)
+  const gestiona = currentUser.role === 'admin' || currentUser.role === 'manager'
+
+  const navegar = (destino, con) => {
+    const paso = con?.find?.(x => PANELES[x.p])?.p
+    if (paso) return setPanel(paso)
+    if (PANELES[destino]) return setPanel(destino)
+    const ruta = {
+      organigrama: gestiona && '/organizacion/organigrama',
+      onboarding: ADMINISTRA.includes(currentUser.role) ? '/onboarding' : '/mi-espacio/mi-onboarding',
+      documentos: '/mi-espacio/zona-hr/documentos',
+      solicitudes: '/mi-espacio/zona-hr/solicitudes',
+      asistencia: '/mi-espacio/mi-asistencia',
+      calendario: '/mi-espacio/calendario',
+    }[destino]
+    if (ruta) navigate(ruta)
+  }
 
   return (
     <div className="content-scroll">
-      <div className="pl-header">
-        <div>
-          <h1 className="pl-title">Zona HR</h1>
-          <p className="pl-subtitle">Gestiona todos tus recursos desde un solo lugar.</p>
-        </div>
+      <div style={{ zoom: 1.6, maxWidth: 720, margin: '0 auto' }}>
+        <ZonaHRPhone web currentUser={currentUser} onNavegar={navegar} />
       </div>
-
-      {/* La reja se llena sola: doce tarjetas del mismo tamaño, tres por fila en el teléfono y
-          las que entren en el monitor. Sin huecos y sin una tarjeta sola en la última fila. */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(168px, 1fr))',
-        gap: 14,
-      }}>
-        {lista.map(({ icon: Icon, label, destino }) => {
-          const abre = Boolean(destino)
-          return (
-            <button
-              key={label}
-              onClick={() => abre && navigate(destino)}
-              title={abre ? `Ir a ${label}` : `${label} — todavía no está construido en el prototipo`}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                gap: 12, padding: '26px 14px',
-                background: 'var(--surface-card)',
-                border: '1px solid var(--border-soft)',
-                borderRadius: 18,
-                cursor: abre ? 'pointer' : 'default',
-                fontFamily: 'inherit',
-                boxShadow: 'var(--sh-sm)',
-                transition: 'border-color .15s, transform .15s',
-              }}
-              onMouseEnter={e => {
-                if (!abre) return
-                e.currentTarget.style.borderColor = 'var(--green)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--border-soft)'
-                e.currentTarget.style.transform = 'none'
-              }}
-            >
-              {/* El aro verde y el ícono verde: es todo el color que lleva la pantalla. Con doce
-                  tarjetas, un color por módulo la convertiría en una caja de crayones. */}
-              <span style={{
-                width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
-                border: `1.5px solid ${abre ? 'var(--green)' : 'var(--border-dark)'}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Icon size={23} strokeWidth={1.7} style={{ color: abre ? 'var(--green)' : 'var(--icon-muted)' }} />
-              </span>
-              <span style={{
-                fontSize: 13, fontWeight: 700, lineHeight: 1.3, textAlign: 'center',
-                color: abre ? 'var(--text-heading)' : 'var(--text-muted)',
-              }}>
-                {label}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+      <PanelCel abierto={!!panel} onCerrar={cerrar} etiqueta={PANELES[panel]}>
+        {panel === 'vacacion' && <SolicitarVacacionPhone onVolver={cerrar} volverA="Zona HR" onListo={cerrar} listoTexto="Volver a Zona HR" />}
+        {panel === 'permiso' && <SolicitarPermisoPhone onVolver={cerrar} volverA="Zona HR" onListo={cerrar} listoTexto="Volver a Zona HR" />}
+        {panel === 'remoto' && <SolicitarRemotoPhone onVolver={cerrar} volverA="Zona HR" onListo={cerrar} listoTexto="Volver a Zona HR" />}
+        {panel === 'beneficios' && <BeneficiosPhone currentUser={currentUser} onVolver={cerrar} volverA="Zona HR" />}
+      </PanelCel>
     </div>
   )
 }

@@ -7,6 +7,8 @@ import { ahora, hhmm, duracion, accionDelMomento, ETIQUETA_MARCA, saldoVacacione
 import { avatarUrl } from '../../utils/calendarEvents'
 import { EVENTOS_INICIO, diaCorto } from '../../data/eventosInicio'
 import { useMisPedidos } from '../../hooks/useMisPedidos'
+import { useLineaTarde } from '../../hooks/useLineaTarde'
+import LineaTarde from '../asistencia/LineaTarde'
 import { PUBLICACIONES } from '../../data/publicacionesInicio'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -113,10 +115,12 @@ function HoyCompacto({ onMarcar }) {
         </button>
       )}
 
-      {pedido && marco && createPortal(
-        <div style={{ position: 'absolute', inset: 0, zIndex: 40, fontSize: 9.4 }}>
+      {/* En el teléfono de la demo, la ventana se centra en él; en la web (Mi espacio › Inicio), en la pantalla,
+          como la del marcador de Mi asistencia. */}
+      {pedido && createPortal(
+        <div style={{ position: marco ? 'absolute' : 'fixed', inset: 0, zIndex: marco ? 40 : 300, fontSize: marco ? 9.4 : 15 }}>
           <ConfirmarMarca tipo={pedido} onCancelar={() => setPedido(null)} onConfirmar={t => { setPedido(null); onMarcar(t) }} />
-        </div>, marco)}
+        </div>, marco || document.body)}
     </div>
   )
 }
@@ -230,14 +234,19 @@ function LineaSolicitudes({ pedidos, onAbrir }) {
   )
 }
 
-export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermiso, onBeneficios, onSolicitudes, onCalendario, onPerfil }) {
+/* `web`: el mismo inicio en Mi espacio de la web (opción A de «Mi espacio web · Propuestas», 5 nov 2026):
+   las mismas piezas, en dos columnas —a la izquierda lo suyo (hoy, solicitudes, acciones), a la derecha lo
+   de la empresa (cumpleaños y noticias)—. La pantalla web lo dibuja con `zoom`, como el teléfono. */
+export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermiso, onBeneficios, onSolicitudes, onCalendario, onPerfil, onCorregir, web = false }) {
   const pedidos = useMisPedidos(currentUser.name)
+  const tarde = useLineaTarde()
   const at = useAsistencia()
   const vacacion = saldoVacaciones(at.yo, at.solicitudes, at.hoy)
   const { theme, toggleTheme } = useTheme()
   const circulo = { width: 29, height: 29, borderRadius: '50%', background: C.carta, boxShadow: C.sombra, display: 'grid', placeItems: 'center' }
-  return (
-    <div style={{ padding: '2px 2px' }}>
+  /* Las piezas, en el orden del teléfono. La web las reparte en dos columnas. */
+  const cabecera = (
+    <>
       {/* LA CABECERA (opción A del lienzo «Cabecera del inicio»): la foto acompaña al saludo y abre el
           perfil; a la derecha, las dos herramientas: el calendario de eventos y el modo claro u oscuro. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 11 }}>
@@ -259,17 +268,26 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermi
           </button>
           {/* Claro u oscuro, a un toque. Muestra el modo al que se pasa. El círculo del cambio nace de
               aquí (ThemeContext) y el ícono gira de luna a sol. */}
+          {/* En la web el cambio de modo ya está arriba, en la barra: aquí sobraría. */}
+          {!web && (
           <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Pasar a modo claro' : 'Pasar a modo oscuro'} title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
             style={{ ...circulo, position: 'relative', border: 'none', padding: 0, cursor: 'pointer' }}>
             <Moon size={12} className="tema-ico" style={{ color: C.texto, opacity: theme === 'dark' ? 0 : 1, transform: theme === 'dark' ? 'rotate(-90deg) scale(.4)' : 'none' }} />
             <Sun size={13} className="tema-ico" style={{ color: C.acento, opacity: theme === 'dark' ? 1 : 0, transform: theme === 'dark' ? 'none' : 'rotate(90deg) scale(.4)' }} />
           </button>
+          )}
         </div>
       </div>
-
+    </>
+  )
+  const loSuyo = (
+    <>
       <HoyCompacto onMarcar={onMarcar} />
 
-      <LineaSolicitudes pedidos={pedidos} onAbrir={onSolicitudes} />
+      {/* Una sola línea de estado: la entrada tarde, si la hay, va antes que las solicitudes. */}
+      {tarde.ver && onCorregir
+        ? <LineaTarde tardanza={tarde.tardanza} onCorregir={() => onCorregir('entrada')} onCerrar={tarde.cerrar} estilo={{ marginBottom: 12 }} />
+        : <LineaSolicitudes pedidos={pedidos} onAbrir={onSolicitudes} />}
 
       {/* Las acciones rápidas suben, justo debajo de «Hoy»: son lo que más se toca. EN MOSAICO (opción A3):
           vacación en la tarjeta grande con su saldo, donde se decide pedirlas, y a su lado permiso y
@@ -300,7 +318,10 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermi
           ))}
         </span>
       </div>
-
+    </>
+  )
+  const laEmpresa = (
+    <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
         <span style={rotulo}>Próximos eventos y cumpleaños</span>
         <button type="button" onClick={onCalendario} style={{ border: 'none', background: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 8.6, color: C.acentoTxt, fontWeight: 600 }}>Ver más →</button>
@@ -308,8 +329,20 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermi
       <Cumpleanos onDia={onCalendario} />
 
       <Muro currentUser={currentUser} />
-    </div>
+    </>
   )
+  if (web) {
+    return (
+      <div style={{ padding: '2px 2px' }}>
+        {cabecera}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.05fr) minmax(0, 1fr)', gap: 16, alignItems: 'start' }}>
+          <div style={{ minWidth: 0 }}>{loSuyo}</div>
+          <div style={{ minWidth: 0 }}>{laEmpresa}</div>
+        </div>
+      </div>
+    )
+  }
+  return <div style={{ padding: '2px 2px' }}>{cabecera}{loSuyo}{laEmpresa}</div>
 }
 
 /* ── NOTICIAS · MURO · MENCIONES ── las tres pestañas cambian lo que se ve; cada publicación se puede

@@ -1,12 +1,11 @@
 import { Fragment, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Building2, CalendarDays, Network, Settings, Gift, Sparkles, Plus, FileText, MapPin, ArrowLeft } from 'lucide-react'
+import { Network, Settings, Gift, Sparkles, Plus, FileText, ArrowLeft } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { colaboradoresData } from '../personas/colaboradoresData'
 import { cargoDe, areaDe, sedesDe } from '../../data/organigramaData'
 import { HOY, avatarUrl } from '../../utils/calendarEvents'
-import logoClaro from '../../assets/imagenes/logo_souly_claro.png'
 import { useMiFicha } from '../../hooks/useMiFicha'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
 import MiFichaWeb, { Preferencias, SeccionMiFicha, EditarPerfil } from '../../components/personas/MiFichaWeb'
@@ -144,116 +143,50 @@ export default function Perfil() {
   return (
     <div ref={scroll} className="content-scroll" style={{ maxWidth: 720, margin: '0 auto', width: '100%', gap: 26 }}>
 
-      {/* LA BANDA Y LA FICHA VAN JUNTAS: la foto monta sobre las dos, así que si fueran dos
-          bloques sueltos cualquier separación entre ellos partiría el avatar por la mitad. */}
-      <div style={{ position: 'relative' }}>
+      {/* LA TARJETA DE LA PERSONA, COMO EN EL TELÉFONO (opción B2 de Perfil, llevada a la web con la opción A
+          de «Mi espacio web · Propuestas», 5 nov 2026): sin franja de color. Una tarjeta blanca destacada con
+          los dos círculos menta translúcidos en la esquina, la foto con aro menta, el cargo y la antigüedad
+          como texto gris y dos píldoras: Organigrama (blanca) y Configuración (menta).
+          El cargo, el área y la sucursal siguen saliendo del puesto en el organigrama. */}
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--in-carta)', borderRadius: 28, boxShadow: 'var(--in-sombra)', padding: '30px 24px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', color: 'var(--in-texto)' }}>
+        <span aria-hidden="true" style={{ position: 'absolute', right: -60, top: -70, width: 230, height: 230, borderRadius: '50%', background: 'var(--in-acento-bg)' }} />
+        <span aria-hidden="true" style={{ position: 'absolute', right: -40, top: 90, width: 120, height: 120, borderRadius: '50%', background: 'var(--in-acento-bg)' }} />
         <div style={{
-          height: 170, borderRadius: 20,
-          background: 'linear-gradient(135deg, #05543A 0%, #00A96B 52%, #00E091 100%)',
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 20,
-        }}>
-          <img src={logoClaro} alt="SoulyHR" style={{ height: 34, width: 'auto', opacity: .95 }} />
-        </div>
-
-        {/* EL AVATAR CUELGA DEL CONTENEDOR, NO DE LA TARJETA. Dentro de la tarjeta se veía
-            cortado por arriba: `.sec-card` lleva `overflow: hidden` —lo necesita para que nada
-            se salga de sus esquinas redondeadas— y eso recorta también lo que sobresale a
-            propósito. Colgándolo del contenedor, que no recorta, la foto se ve entera y sigue
-            montada sobre las dos piezas.
-
-            Las medidas se sostienen entre sí: banda de 170, avatar arrancando a los 80, y la
-            tarjeta subida 20 con 58 de relleno arriba, que es lo que hace falta para que el
-            nombre no choque con la foto. Tocar una obliga a mirar las otras tres. */}
-        <div style={{
-          position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 2,
-          width: 112, height: 112, borderRadius: '50%',
-          border: '4px solid var(--green)', background: 'var(--surface-card)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-          boxShadow: '0 6px 20px rgba(12,45,64,.14)',
+          position: 'relative', width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+          border: '4px solid var(--in-carta)', boxShadow: '0 0 0 3px #00E091, 0 12px 26px -12px rgba(12,45,64,.45)', background: 'var(--in-carta)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           {sinFoto ? (
-            <span style={{ fontSize: 34, fontWeight: 700, color: '#fff', width: '100%', height: '100%', background: currentUser.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 36, fontWeight: 700, color: '#fff', width: '100%', height: '100%', background: currentUser.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {currentUser.initials}
             </span>
           ) : (
-            <img
-              src={avatarUrl(currentUser.name, 240)}
-              alt={currentUser.name}
-              onError={() => setSinFoto(true)}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
+            <img src={avatarUrl(currentUser.name, 240)} alt={currentUser.name} onError={() => setSinFoto(true)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}
         </div>
-
-        <div className="sec-card" style={{ marginTop: -20, padding: '58px 24px 24px', textAlign: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--text-heading)', letterSpacing: '-.02em', lineHeight: 1.2 }}>
-            {currentUser.name}
-          </h1>
-
-          <div style={{
-            display: 'inline-block', marginTop: 12, padding: '7px 18px', borderRadius: 99,
-            background: cargo ? 'var(--green-bg)' : 'var(--input-bg)',
-            border: `1px solid ${cargo ? 'var(--green)' : 'var(--border-soft)'}`,
-            fontSize: 13.5, fontWeight: 600,
-            color: cargo ? 'var(--text-heading)' : 'var(--text-muted)',
-            fontStyle: cargo ? 'normal' : 'italic',
+        <h1 style={{ position: 'relative', margin: '16px 0 0', fontSize: 24, fontWeight: 600, letterSpacing: '-.01em', lineHeight: 1.2 }}>{currentUser.name}</h1>
+        <p style={{ position: 'relative', margin: '6px 0 0', fontSize: 14, color: 'var(--in-mute)' }}>
+          {[cargo || 'Sin puesto asignado', area].filter(Boolean).join(' · ')}
+        </p>
+        {((sede || miFicha) || tiempo) && (
+          <p style={{ position: 'relative', margin: '3px 0 0', fontSize: 14, color: 'var(--in-mute)' }}>
+            {[sede ? sede.ciudad : miFicha?.sucursal, tiempo].filter(Boolean).join(' · ')}
+          </p>
+        )}
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 22, width: '100%', maxWidth: 440 }}>
+          <button type="button" onClick={() => gestiona ? navigate('/organizacion/organigrama') : null} style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 46, borderRadius: 99, border: 'none',
+            background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', color: 'var(--in-texto)', fontFamily: 'inherit', fontSize: 14, fontWeight: 600,
+            cursor: gestiona ? 'pointer' : 'default',
           }}>
-            {cargo || 'Sin puesto asignado'}
-          </div>
-
-          {/* EL ROL, DICHO COMO LO QUE ES. Va debajo del cargo, en gris y con la palabra
-              delante, porque es un permiso de la cuenta y no un puesto de la empresa. Antes
-              ocupaba la pastilla del cargo y se leía como si «Administrador HR» fuera el
-              trabajo de Juan; su trabajo es Jefe de Recursos Humanos, y administrador es lo
-              que puede hacer aquí dentro. */}
-          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)' }}>
-            Rol en el sistema: <strong style={{ fontWeight: 600, color: 'var(--text-heading)' }}>{currentUser.roleLabel}</strong>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, marginTop: 16, fontSize: 13.5, color: 'var(--text-heading)' }}>
-            {area && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Building2 size={15} style={{ color: 'var(--icon-muted)' }} /> {area}
-              </span>
-            )}
-            {/* La sucursal sale del puesto, igual que el cargo y el área. Quien no está en el
-                organigrama no tiene sede y aquí, sencillamente, no aparece la línea. */}
-            {(sede || miFicha) && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <MapPin size={15} style={{ color: 'var(--icon-muted)' }} /> {sede ? sede.ciudad : miFicha.sucursal}
-              </span>
-            )}
-            {tiempo && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)' }}>
-                <CalendarDays size={15} style={{ color: 'var(--icon-muted)' }} /> {tiempo}
-              </span>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 22, flexWrap: 'wrap' }}>
-            <button
-              onClick={() => gestiona ? navigate('/organizacion/organigrama') : null}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 9, padding: '12px 22px',
-                borderRadius: 12, border: '1.5px solid var(--green)', background: 'transparent',
-                color: 'var(--text-heading)', fontFamily: 'inherit', fontSize: 13.5, fontWeight: 600,
-                cursor: gestiona ? 'pointer' : 'default',
-              }}
-            >
-              <Network size={16} style={{ color: 'var(--green)' }} /> Organigrama
-            </button>
-            <button
-              onClick={() => abrir('config')}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 9, padding: '12px 22px',
-                borderRadius: 12, border: 'none', background: 'var(--green)',
-                color: '#0C2D40', fontFamily: 'inherit', fontSize: 13.5, fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              <Settings size={16} /> Configuración
-            </button>
-          </div>
+            <Network size={16} /> Organigrama
+          </button>
+          <button type="button" onClick={() => abrir('config')} style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 46, borderRadius: 99, border: 'none',
+            background: '#00E091', color: '#0C2D40', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+          }}>
+            <Settings size={16} /> Configuración
+          </button>
         </div>
       </div>
 

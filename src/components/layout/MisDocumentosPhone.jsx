@@ -15,7 +15,7 @@ import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { VerPapeleta } from './VacacionPhone'
 import { armarPapeleta } from '../../utils/papeletaVacacion'
 import SolicitarVacacionPhone from './VacacionPhone'
-import SolicitarPermisoPhone from './PermisoPhone'
+import SolicitarPermisoPhone, { SolicitarRemotoPhone } from './PermisoPhone'
 import { PedirExtraCel, CorregirMarcaCel } from '../asistencia/Marcador'
 import { habilSiguiente, diaISO, DIAS_LARGOS, MESES, saldoVacaciones, aFecha, fechaCorta as fechaCortaAt } from '../../data/asistenciaData'
 import {
@@ -1109,7 +1109,7 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
       ? <LeerPhone r={r} atras={atras} />
       : <div>{atras}</div>
   } else if (actual.p === 'nueva') {
-    pantalla = <NuevaSolicitud atras={atras} onVacacion={() => ir({ p: 'vacacion' })} onPermiso={() => ir({ p: 'permiso' })} onExtra={() => ir({ p: 'extra' })} onCorregir={() => ir({ p: 'corregir' })} onDocumento={tipo => ir({ p: 'elegir', tipo })} />
+    pantalla = <NuevaSolicitud atras={atras} onVacacion={() => ir({ p: 'vacacion' })} onPermiso={() => ir({ p: 'permiso' })} onRemoto={() => ir({ p: 'remoto' })} onExtra={() => ir({ p: 'extra' })} onCorregir={() => ir({ p: 'corregir' })} onDocumento={tipo => ir({ p: 'elegir', tipo })} />
   } else if (actual.p === 'elegir') {
     pantalla = <ElegirDocumento md={md} tipo={actual.tipo} atras={atras} onElegir={clave => ir({ p: 'revisar', tipo: actual.tipo, clave })} />
   } else if (actual.p === 'revisar') {
@@ -1120,6 +1120,8 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
     pantalla = <CorregirMarcaCel volverA="¿Qué necesita?" onVolver={volver} onEnviada={() => { setAviso('Solicitud enviada a RR.HH.'); setPila([{ p: 'lista' }]); arriba() }} />
   } else if (actual.p === 'permiso') {
     pantalla = <SolicitarPermisoPhone volverA="¿Qué necesita?" onVolver={volver} onListo={() => { setPila([{ p: 'lista' }]); arriba() }} listoTexto="Ver mis solicitudes" />
+  } else if (actual.p === 'remoto') {
+    pantalla = <SolicitarRemotoPhone volverA="¿Qué necesita?" onVolver={volver} onListo={() => { setPila([{ p: 'lista' }]); arriba() }} listoTexto="Ver mis solicitudes" />
   } else if (actual.p === 'vacacion') {
     pantalla = <SolicitarVacacionPhone volverA="¿Qué necesita?" onVolver={volver} onListo={() => { setPila([{ p: 'lista' }]); arriba() }} listoTexto="Ver mis solicitudes" />
   } else if (actual.p === 'detalle') {
@@ -1137,16 +1139,16 @@ export function MisSolicitudesPhone({ currentUser, onVolver, inicio }) {
 
 /* ── NUEVA SOLICITUD (opción A2 del lienzo «Pedir algo nuevo»): todo lo que se le puede pedir a
    RR.HH., en filas y en dos grupos, cada tipo con el ícono y el color de la lista y una línea que lo
-   explica. Un tipo nuevo es una fila más. Permiso, trabajo remoto y corrección de marcación todavía
-   no tienen formulario en el teléfono: se ven, marcados «Pronto», para que se sepa que vendrán. */
-function NuevaSolicitud({ atras, onVacacion, onPermiso, onExtra, onCorregir, onDocumento }) {
+   explica. Un tipo nuevo es una fila más. Lo que todavía no tiene formulario en el teléfono se ve
+   marcado «Pronto», para que se sepa que vendrá. */
+function NuevaSolicitud({ atras, onVacacion, onPermiso, onRemoto, onExtra, onCorregir, onDocumento }) {
   const at = useAsistencia()
   const libres = saldoVacaciones(at.yo, at.solicitudes, at.hoy).disponible
   const grupos = [
     ['Su tiempo', [
       [Palmtree, 'verde', 'Vacación', libres ? `Le ${libres === 1 ? 'queda 1 día' : `quedan ${libres} días`}` : 'No le quedan días por ahora', onVacacion],
       [Clock, 'violeta', 'Permiso o licencia', 'Por horas, por días o con respaldo', onPermiso],
-      [House, 'cian', 'Trabajo remoto', 'Un día desde casa'],
+      [House, 'cian', 'Trabajo remoto', 'Uno o varios días desde casa', onRemoto],
       [Timer, 'azul', 'Horas extra', 'Para quedarse más tarde', onExtra],
       [PencilLine, 'ambar', 'Corregir una marcación', 'Olvidó marcar o marcó mal', onCorregir],
     ]],

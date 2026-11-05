@@ -7,7 +7,7 @@ import { OnboardingDataProvider } from './context/OnboardingDataContext'
 import { UnsavedChangesProvider } from './context/UnsavedChangesContext'
 import Layout from './components/layout/Layout'
 import Home from './pages/inicio/Home'
-import MiDia from './pages/inicio/MiDia'
+import InicioWeb from './pages/inicio/InicioWeb'
 import Calendario from './pages/calendario/Calendario'
 import Dashboard from './pages/onboarding/Dashboard'
 import Asignaciones from './pages/onboarding/Asignaciones'
@@ -103,7 +103,7 @@ export default function App() {
               —redirigen— porque hay enlaces y marcadores apuntando ahí. */}
           <Route path="/mi-espacio" element={<Layout />}>
             <Route index element={<Navigate to="/mi-espacio/mi-dia" replace />} />
-            <Route path="mi-dia" element={<MiDia />} />
+            <Route path="mi-dia" element={<InicioWeb />} />
             {/* MI CALENDARIO: el de la persona —sus vacaciones y permisos, feriados, cumpleaños de
                 su área—. El de toda la empresa sigue en Inicio, que es lo administrativo. */}
             <Route path="calendario" element={<Calendario mio />} />

@@ -22,7 +22,7 @@ import { PersonaAt } from './comunes'
 
 const sinTildes = t => t.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase()
 
-export default function RevisarSolicitud({ titulo, persona, estado, datos, contexto = [], efecto, efectoRechazo, respondio, nota, onAprobar, onRechazar, onVerDia, accionAprobar = 'Aprobar', accionRechazar = 'Rechazar', onCerrar, documento, que, excepcion }) {
+export default function RevisarSolicitud({ titulo, persona, estado, datos, contexto = [], efecto, efectoRechazo, respondio, nota, onAprobar, onRechazar, onVerDia, accionAprobar = 'Aprobar', accionRechazar = 'Rechazar', onCerrar, documento, que, excepcion, bloqueo }) {
   const [paso, setPaso] = useState('revisar') // revisar | rechazar | aprobar
   const [clave, setClave] = useState('')
   const palabra = sinTildes(accionAprobar.split(' ')[0])
@@ -32,7 +32,12 @@ export default function RevisarSolicitud({ titulo, persona, estado, datos, conte
   const motivoValido = texto.trim().length >= 6
 
   const pie = !pendiente ? (
-    <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button>
+    <>
+      {/* Una solicitud que no puede responder quien la mira (la suya propia): se ve todo, sin botones, y se dice por qué. */}
+      {bloqueo && <span className="dc-muted" style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}><ShieldCheck size={15} aria-hidden="true" /> {bloqueo}</span>}
+      <span style={{ flex: 1 }} />
+      <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cerrar</button>
+    </>
   ) : paso === 'revisar' ? (
     <>
       {onRechazar && <button type="button" className="at-btn-linea-peligro" onClick={() => { setPaso('rechazar'); setTexto('') }}><X size={14} aria-hidden="true" /> {accionRechazar}…</button>}

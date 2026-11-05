@@ -3,12 +3,11 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, ArrowLeft, Building2, Warehouse, House, Clock, ScanFace, MapPin, Laptop, Download, FileText, Loader2 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Vacio, Modal } from '../../components/documentacion/comunes'
-import { useOnboardingData } from '../../context/OnboardingDataContext'
-import ReportePDF from '../../components/asistencia/ReportePDF'
+import ReporteMes from '../../components/asistencia/ReporteMes'
 import Avatar from '../../components/personas/Avatar'
 import { motivoJustificado } from '../../components/asistencia/estadoDia'
 import DetalleJornada from '../../components/asistencia/DetalleJornada'
-import { ESTADOS, MODALIDADES, DIAS_CORTOS, diasDelMes, diaISO, mesVecino, mesDe, nombreMes, hhmm, duracion, aFecha, descargarCSV, fechaLarga, minutosAhora } from '../../data/asistenciaData'
+import { ESTADOS, MODALIDADES, DIAS_CORTOS, diasDelMes, diaISO, mesVecino, mesDe, nombreMes, hhmm, duracion, aFecha, descargarCSV } from '../../data/asistenciaData'
 
 /* ── LA ASISTENCIA DE UNA PERSONA, MES A MES (P1) ─────────────────────────
    Con el lenguaje del Libro: arriba, las mismas cifras que la ventana del mes —días trabajados,
@@ -27,7 +26,6 @@ export default function Persona() {
   const p = at.personaPorId.get(String(id))
   const mes = params.get('mes') || mesDe(at.hoy)
   const [detalle, setDetalle] = useState(null)
-  const { empresa } = useOnboardingData()
   /* El PDF: «pidiendo» abre la ventana con la opción; «armando» dibuja las hojas fuera de la pantalla. */
   const [pidiendo, setPidiendo] = useState(params.get('pdf') === '1')
   const [conMarcas, setConMarcas] = useState(false)
@@ -168,21 +166,7 @@ export default function Persona() {
           {errorPdf && <p className="at-ayuda" style={{ color: 'var(--dc-rojo, #B42318)' }}>No se pudo armar el PDF. Probá de nuevo.</p>}
         </Modal>
       )}
-      {armando && (
-        <ReportePDF p={p} mes={mes} dias={dias} conMarcas={conMarcas} empresa={empresa}
-          lugar={p.lugar ? `${p.lugar.nombre}${p.lugar.tipo === 'centro' ? ` · ${at.lugarPorId.get(p.lugar.sucursalId)?.nombre || ''}` : ''}${p.asig ? ` · ${MODALIDADES[p.asig.modalidad].label}` : ''}` : ''}
-          generado={`${fechaLarga(at.hoy).toLowerCase()}, ${hhmm(minutosAhora())}`}
-          cifras={[
-            { t: 'Días trabajados', v: conJornada ? `${trabajados} de ${conJornada}` : '—' },
-            { t: 'Retrasos', v: tardes.length || '—', s: tardes.length ? (tardes.length === 1 ? 'vez' : 'veces') : '', tono: tardes.length ? 'tarde' : '' },
-            { t: 'Tiempo de retraso', v: tardes.length ? duracion(tardanza) : '—', s: tardes.length ? (tardanzaInj <= 0 ? 'justificado' : tardanzaInj >= tardanza ? 'sin justificar' : `${duracion(tardanza - tardanzaInj)} justificados`) : '', tono: tardes.length ? 'tarde' : '' },
-            { t: 'Faltas', v: faltas || (justificadas ? 0 : '—'), s: justificadas ? `+ ${justificadas} con permiso` : faltas ? 'sin justificar' : '', tono: faltas ? 'falta' : '' },
-            { t: 'Horas del mes', v: programado ? duracion(trabajado, { corto: true }) : '—', s: programado ? `de ${duracion(programado, { corto: true })} · ${saldo >= 0 ? 'completas' : `faltan ${duracion(-saldo, { corto: true })}`}` : '' },
-            { t: 'Puntualidad', v: puntualidad == null ? '—' : `${puntualidad} %`, s: `tolerancia de ${p.politica?.tolerancia ?? 10} min`, tono: puntualidad != null && puntualidad >= 90 ? 'bien' : puntualidad != null ? 'tarde' : '' },
-          ]}
-          pie={<><b>Horas extra:</b> {duracion(extraTrabajada)} de {duracion(extraAutorizada)} autorizadas · <b>Fuera de horario, sin autorización:</b> {duracion(fueraHorario)}</>}
-          onListo={e => { setArmando(false); if (e) { setErrorPdf(e); setPidiendo(true) } }} />
-      )}
+      {armando && <ReporteMes p={p} mes={mes} conMarcas={conMarcas} onListo={e => { setArmando(false); if (e) { setErrorPdf(e); setPidiendo(true) } }} />}
     </div>
   )
 }

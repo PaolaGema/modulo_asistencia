@@ -9,6 +9,7 @@ import {
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
   reglasDe, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
 } from '../data/asistenciaData'
+import { cambiosDe } from '../utils/correccion'
 
 /* ── EL ESTADO DEL MÓDULO DE ASISTENCIA ───────────────────────────────────
    Un solo lugar guarda la configuración (horarios, políticas, geocercas, asignaciones) y lo que
@@ -198,6 +199,13 @@ export function AsistenciaProvider({ children }) {
     return { ...j, marcas, fecha, persona: p, justificacion: justificacionDe(p?.id, fecha), horasExtra: (horasExtra || []).filter(x => String(x.personaId) === String(p?.id) && x.fecha === fecha), rechazadas: marcas.filter(m => m.rechazada) }
   }, [marcasDe, hoy, justificacionDe, justificadasDe, ventanasDe, horasExtra, tic]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* El mismo día con otras marcas: para mostrar qué cambiaría una corrección antes de pedirla. */
+  const simularDia = useCallback((p, fecha, marcas) => recomputar({
+    marcas, horario: horarioDelDia(p?.horarioBase || p?.horario, fecha), reglas: reglasDe(p?.politica), fecha,
+    justificacion: justificacionDe(p?.id, fecha), esHoy: fecha === hoy, minAhora: minutosAhora(), ventanas: ventanasDe(p?.id, fecha),
+    justificadas: justificadasDe(p?.id, fecha),
+  }), [hoy, justificacionDe, justificadasDe, ventanasDe])
+
   /* Sin ficha en el directorio, una de paso con el horario de oficina en la casa matriz. */
   const yo = useMemo(() => {
     if (yoBase) return { ...yoBase, esYo: true }
@@ -256,16 +264,28 @@ export function AsistenciaProvider({ children }) {
   const responderSolicitud = useCallback((id, estado, nota = '') => {
     const s = (solicitudes || []).find(x => x.id === id)
     if (!s) return
-    if (estado === 'aprobada' && s.tipo === 'correccion') marcaManual({ personaId: s.personaId, fecha: s.fecha, tipo: s.marca, min: aMin(s.hora), motivo: `Corrección pedida por la persona: ${s.motivo}` })
+    /* Si quien responde es la misma persona que pidió (puede pasar con una sola persona en RR.HH.), se permite
+       pero queda dicho: `propia` va en la solicitud y en el motivo de la marca, y sale en la auditoría. */
+    const propia = String(s.personaId) === String(yo?.id)
+    /* Corregir su día: cada cambio va sobre la marca que existe (se ajusta su hora o se anula la de más); solo
+       lo que faltaba se agrega. Así el día no queda con dos entradas. */
+    if (estado === 'aprobada' && s.tipo === 'correccion') {
+      const motivo = `Corrección pedida por la persona: ${s.motivo}${s.respaldo ? ` · Comprobar: ${s.respaldo}` : ''}${propia ? ' · la aprobó la misma persona' : ''}`
+      cambiosDe(s).forEach(c => {
+        if (c.quitar && c.marcaId) anular(c.marcaId, motivo)
+        else if (c.marcaId) ajustar(c.marcaId, aMin(c.hora), motivo)
+        else marcaManual({ personaId: s.personaId, fecha: s.fecha, tipo: c.tipo, min: aMin(c.hora), motivo })
+      })
+    }
     /* `respondida` dice cuándo: el inicio de la persona avisa de las respuestas nuevas, no de las de la semilla. */
-    setSolicitudes(prev => (prev || []).map(x => (x.id === id ? { ...x, estado, nota, respondio: currentUser.name, respondida: new Date().toISOString() } : x)))
-  }, [solicitudes, setSolicitudes, marcaManual, currentUser.name])
+    setSolicitudes(prev => (prev || []).map(x => (x.id === id ? { ...x, estado, nota, respondio: currentUser.name, respondida: new Date().toISOString(), ...(propia ? { propia: true } : {}) } : x)))
+  }, [solicitudes, setSolicitudes, marcaManual, ajustar, anular, currentUser.name, yo?.id])
 
   /* ── HORAS EXTRA ── la persona pide, RR.HH. asigna; RR.HH. aprueba, la persona acepta. */
   const nuevaExtra = (datos, origen, estado) => ({ id: `hx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, origen, estado, cuando: hoyISO(), ...datos })
   const solicitarExtra = useCallback(datos => setHorasExtra(prev => [nuevaExtra({ ...datos, por: datos.por }, 'solicitud', 'pendiente'), ...(prev || [])]), [setHorasExtra])
   const asignarExtra = useCallback((ids, datos) => setHorasExtra(prev => [...ids.map(id => nuevaExtra({ ...datos, personaId: id, por: currentUser.name }, 'asignacion', 'asignada')), ...(prev || [])]), [setHorasExtra, currentUser.name])
-  const responderExtra = useCallback((id, estado, nota = '') => setHorasExtra(prev => (prev || []).map(x => (x.id === id ? { ...x, estado, nota, respondio: currentUser.name } : x))), [setHorasExtra, currentUser.name])
+  const responderExtra = useCallback((id, estado, nota = '') => setHorasExtra(prev => (prev || []).map(x => (x.id === id ? { ...x, estado, nota, respondio: currentUser.name, ...(String(x.personaId) === String(yo?.id) ? { propia: true } : {}) } : x))), [setHorasExtra, currentUser.name, yo?.id])
   /* Autorizar después del día: para lo que no se pudo pedir a tiempo. Queda dicho que fue posterior. */
   const autorizarDespues = useCallback(({ personaId, fecha, desde, hasta, motivo }) => setHorasExtra(prev => [nuevaExtra({ personaId, fecha, desde, hasta, motivo, por: currentUser.name, respondio: currentUser.name }, 'posterior', 'aprobada'), ...(prev || [])]), [setHorasExtra, currentUser.name])
   const descartar = useCallback(id => setDescartadas(prev => ({ ...prev, [id]: true })), [setDescartadas])
@@ -352,7 +372,7 @@ export function AsistenciaProvider({ children }) {
     horarios, setHorarios, horarioPorId, politicas, setPoliticas, politicaPorId, politicaDefecto,
     asignaciones: asignaciones || {}, asignar, quitarAsignacion, geocercas, setGeocerca,
     biometria: biometria || {}, actualizarBio, ajustesGenerales, setAjustesGenerales,
-    marcasDe, jornadaDe, justificacionDe, justificadasDe, incidencias,
+    marcasDe, jornadaDe, simularDia, justificacionDe, justificadasDe, incidencias,
     marcar, marcaManual, ajustar, anular, justificar, descartar, marcasExtra,
     solicitudes: solicitudes || [], crearSolicitud, responderSolicitud, cancelarSolicitud, exigenciasDe,
     horasExtra: horasExtra || [], solicitarExtra, asignarExtra, responderExtra, autorizarDespues,

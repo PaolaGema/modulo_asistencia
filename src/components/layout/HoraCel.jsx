@@ -60,8 +60,8 @@ export function Columna({ valores, elegido, onElegir, etiqueta, ancho = 62, sinR
 
 /* `atajos`: [{ hora: '08:30', texto: 'su entrada' }]; `conAhora` suma «Ahora · 17:58».
    `alinear`: en un campo angosto (Desde / Hasta) la tarjeta se abre más ancha, hacia 'izq' o 'der'. */
-export default function HoraCel({ valor, onCambio, estilo, ariaLabel, titulo = 'Hora', atajos = [], conAhora, alinear }) {
-  const [abierto, setAbierto] = useState(false)
+export default function HoraCel({ valor, onCambio, estilo, ariaLabel, titulo = 'Hora', atajos = [], conAhora, alinear, abrirAlInicio = false, vacio = '--:--' }) {
+  const [abierto, setAbierto] = useState(abrirAlInicio)
   const [h, setH] = useState(() => partir(valor)[0])
   const [m, setM] = useState(() => partir(valor)[1])
   const caja = useRef(null)
@@ -89,7 +89,7 @@ export default function HoraCel({ valor, onCambio, estilo, ariaLabel, titulo = '
       <button type="button" onClick={abrir} aria-haspopup="dialog" aria-expanded={abierto} aria-label={ariaLabel}
         style={{ ...estilo, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left', cursor: 'pointer', fontVariantNumeric: 'tabular-nums',
           ...(abierto ? { background: 'var(--in-carta)', boxShadow: 'inset 0 0 0 1.5px #00E091, 0 0 0 3px rgba(0,224,145,.16)' } : {}) }}>
-        {valor || '--:--'}
+        {valor || vacio}
         <Clock size={11} strokeWidth={2} style={{ color: abierto ? '#0A7F55' : 'var(--in-mute)' }} />
       </button>
 

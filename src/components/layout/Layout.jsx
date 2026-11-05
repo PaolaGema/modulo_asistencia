@@ -16,7 +16,7 @@ import AcompanadosPhone from './AcompanadosPhone'
 import OnboardingHubPhone from './OnboardingHubPhone'
 import PerfilPhone from './PerfilPhone'
 import MisDocumentosPhone, { MisSolicitudesPhone } from './MisDocumentosPhone'
-import Marcador from '../asistencia/Marcador'
+import Marcador, { CorregirMarcaCel } from '../asistencia/Marcador'
 import InicioPhone from './InicioPhone'
 import SolicitarVacacionPhone from './VacacionPhone'
 import SolicitarPermisoPhone from './PermisoPhone'
@@ -36,7 +36,7 @@ const FONDO_SOLICITUDES = 'var(--in-fondo)'
 // Destinos que cuelgan de la pestaña Onboarding.
 const SUB_ONBOARDING = ['mi-onboarding', 'seguimiento', 'acompanados']
 /* Las pantallas con el fondo del Inicio, franja de arriba incluida. */
-const CON_FONDO_INICIO = ['inicio', 'vacacion', 'permiso', 'beneficios', 'calendario', 'solicitudes', 'asistencia', 'hr', 'perfil', 'organigrama', 'chat']
+const CON_FONDO_INICIO = ['corregir', 'inicio', 'vacacion', 'permiso', 'beneficios', 'calendario', 'solicitudes', 'asistencia', 'hr', 'perfil', 'organigrama', 'chat']
 /* Onboarding también lleva el fondo del Inicio (auditoría heurística: su franja navy lo hacía ver como
    otra app), pero siempre en claro con `papel-claro`: sus tareas todavía tienen colores fijos y en
    oscuro quedarían letras navy sobre navy. */
@@ -106,7 +106,9 @@ export default function Layout() {
   const [abrirCon, setAbrirCon] = useState(null)
   // La vista con la que se abre Perfil: Documentación si se llega desde Mis documentos; si no, la portada.
   const [perfilEn, setPerfilEn] = useState(null)
-  const abrirDesdeHR = (key, con = null) => abrirCreciendo(() => { setAbrirCon(con); setDesdeInicio(false); setOrgDesde(null); setOrigenHR(true); setMobileTab(key) })
+  /* Desde Zona HR se abre limpio: sin el paso de marcar que haya quedado del Inicio (si no, Mi asistencia
+     volvía a arrancar el escaneo de una entrada ya marcada). */
+  const abrirDesdeHR = (key, con = null) => abrirCreciendo(() => { setAbrirCon(con); setMarcarCon(null); setDesdeInicio(false); setOrgDesde(null); setOrigenHR(true); setMobileTab(key) })
   const volverAHR = () => volverEncogiendo(() => { setOrigenHR(false); setMobileTab('hr') })
   /* Lo que se abre desde el inicio (marcar, pedir vacaciones) vuelve al inicio, no a Zona HR.
      `marcarCon` es el paso que el botón del carrusel ya eligió: el marcador abre directo en él. */
@@ -313,7 +315,11 @@ export default function Layout() {
                 onSolicitudes={() => abrirDesdeInicio('solicitudes')}
                 onCalendario={d => { setCalendarioDia(typeof d === 'string' ? d : null); abrirDesdeInicio('calendario') }}
                 onPerfil={() => irAPestana('perfil')}
+                onCorregir={() => abrirDesdeInicio('corregir')}
               />
+            ) : mobileTab === 'corregir' ? (
+              /* «Figura 5 h tarde · Corregir la hora» del Inicio: la corrección de hoy, con la entrada ya elegida. */
+              <CorregirMarcaCel volverA="Inicio" abrir="entrada" onVolver={volverDeModulo} onEnviada={volverDeModulo} />
             ) : mobileTab === 'beneficios' ? (
               <BeneficiosPhone currentUser={currentUser} onVolver={volverDeModulo} volverA={desdeInicio ? 'Inicio' : 'Zona HR'} />
             ) : mobileTab === 'permiso' ? (

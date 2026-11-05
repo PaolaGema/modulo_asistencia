@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import {
   Users, Network, Route, ClipboardCheck, ClipboardList, TrendingUp,
-  DollarSign, Bot, Folder, Calendar, Gift, Globe, Moon, Sun, Search, X, FileText, MessageSquarePlus, ScanFace,
+  DollarSign, Bot, Folder, Calendar, Gift, Globe, Moon, Sun, Search, X, FileText, MessageSquarePlus, Clock,
   Palmtree, Award, ScrollText, PencilLine, Timer, Flag, Inbox, ChevronRight,
 } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
@@ -23,7 +23,7 @@ const MODULOS = [
   { icon: Route, label: 'Onboarding', destino: 'onboarding', linea: 'Su recorrido de bienvenida', palabras: 'induccion bienvenida tareas' },
   { icon: FileText, label: 'Mis documentos', destino: 'documentos', pendientes: 'documentos', linea: 'Contratos, certificados y su expediente', palabras: 'archivos expediente contrato certificados subir' },
   { icon: MessageSquarePlus, label: 'Mis solicitudes', destino: 'solicitudes', pendientes: 'solicitudes', linea: 'Vacaciones, permisos y certificados', palabras: 'pedidos vacaciones permisos certificados tramites' },
-  { icon: ScanFace, label: 'Mi asistencia', destino: 'asistencia', linea: 'Sus marcas, la semana y el mes', palabras: 'marcar marcacion entrada salida horario turno pausa' },
+  { icon: Clock, label: 'Mi asistencia', destino: 'asistencia', linea: 'Sus marcas, la semana y el mes', palabras: 'marcar marcacion entrada salida horario turno pausa' },
   { icon: ClipboardCheck, label: 'Evaluaciones', linea: 'Su evaluación de desempeño', palabras: 'desempeno evaluacion' },
   { icon: ClipboardList, label: 'Encuestas', linea: 'Encuestas de la empresa', palabras: 'encuesta opinion clima' },
   { icon: TrendingUp, label: 'PDI', linea: 'Su plan de desarrollo', palabras: 'plan desarrollo individual metas crecer' },
@@ -38,8 +38,9 @@ const NAVY = 'var(--in-texto)'
 const SOMBRA = 'var(--in-sombra)'
 const BOTON_REDONDO = { position: 'relative', width: 29, height: 29, borderRadius: '50%', border: 'none', background: 'var(--in-carta)', display: 'grid', placeItems: 'center', boxShadow: 'var(--in-sombra)', cursor: 'pointer', padding: 0, flexShrink: 0 }
 
-/* `conOnboarding`: sin una incorporación asignada (ni en curso ni terminada) el módulo no se muestra. */
-export default function ZonaHRPhone({ currentUser, onNavegar, conOnboarding = true }) {
+/* `conOnboarding`: sin una incorporación asignada (ni en curso ni terminada) el módulo no se muestra.
+   `web`: la misma Zona HR en Mi espacio de la web, a seis columnas y sin el botón de luna (la web lo tiene arriba). */
+export default function ZonaHRPhone({ currentUser, onNavegar, conOnboarding = true, web = false }) {
   const { theme, toggleTheme } = useTheme()
   const { pendientes, md } = useMisPedidos(currentUser.name)
   const [q, setQ] = useState('')
@@ -59,10 +60,12 @@ export default function ZonaHRPhone({ currentUser, onNavegar, conOnboarding = tr
           <small style={{ fontSize: 8.2, color: 'var(--in-mute)' }}>Todo lo suyo en un solo lugar</small>
         </span>
         {/* El mismo botón del Inicio: muestra el modo al que se pasa y el ícono gira de luna a sol. */}
+        {!web && (
         <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Pasar a modo claro' : 'Pasar a modo oscuro'} style={BOTON_REDONDO}>
           <Moon size={12} className="tema-ico" style={{ color: 'var(--in-texto)', opacity: theme === 'dark' ? 0 : 1, transform: theme === 'dark' ? 'rotate(-90deg) scale(.4)' : 'none' }} />
           <Sun size={13} className="tema-ico" style={{ color: 'var(--in-acento-txt)', opacity: theme === 'dark' ? 1 : 0, transform: theme === 'dark' ? 'none' : 'rotate(90deg) scale(.4)' }} />
         </button>
+        )}
       </div>
 
       {/* ── El buscador (propuesta C, «La cuadrícula se filtra»): fijo debajo del título, sin cambiar de
@@ -80,7 +83,7 @@ export default function ZonaHRPhone({ currentUser, onNavegar, conOnboarding = tr
         )}
       </label>
 
-      {modulos.length > 0 && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+      {modulos.length > 0 && <div style={{ display: 'grid', gridTemplateColumns: `repeat(${web ? 6 : 3}, 1fr)`, gap: 6 }}>
         {modulos.map(m => {
           const n = m.pendientes ? cuantos[m.pendientes] : 0
           return (

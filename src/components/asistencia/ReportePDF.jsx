@@ -41,6 +41,9 @@ function observacion(j) {
 
 function comoMarco(m) {
   if (!m) return '—'
+  /* Una marca cargada por RR.HH. (una corrección aprobada) dice quién la cargó y por qué: la auditoría tiene
+     que mostrar también cuando alguien se aprobó su propia corrección («la aprobó la misma persona»). */
+  if (m.origen === 'panel') return [`Cargada por ${m.por || 'RR.HH.'}`, m.motivo].filter(Boolean).join(' · ')
   const t = []
   t.push(m.score != null ? `Rostro ${Math.round(m.score * 100)} %` : 'Sin rostro')
   if (m.remoto) t.push('remoto')

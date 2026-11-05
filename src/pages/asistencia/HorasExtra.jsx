@@ -186,6 +186,8 @@ export default function HorasExtra() {
 
       {revisar && (() => {
         const x = revisar
+        /* Las propias se pueden responder, con aviso, y queda registrado (ver responderExtra). */
+        const propia = String(x.personaId) === String(at.yo?.id)
         const pendiente = x.estado === 'pendiente'
         const cancelable = (esAutorizada(x) || x.estado === 'asignada') && x.fecha >= at.hoy
         const yaTiene = at.horasExtra.filter(o => o.id !== x.id && o.personaId === x.personaId && esAutorizada(o) && mesDe(o.fecha) === mesDe(x.fecha)).reduce((t, o) => t + largo(o), 0)
@@ -194,12 +196,13 @@ export default function HorasExtra() {
             titulo="Revisar · Horas extra" persona={x.persona} estado={ESTADOS_EXTRA[x.estado]}
             datos={[['Día', fechaLarga(x.fecha)], ['Horario', `${horas(x)} (${duracion(largo(x))})`], ['Motivo', x.motivo], x.proyecto && ['Proyecto', x.proyecto], ['Origen', ORIGENES_EXTRA[x.origen]], ['Aprueba', x.respondio || x.aprobador || 'RR.HH.']]}
             contexto={[
+              propia && pendiente && { tono: 'ambar', texto: 'Son sus propias horas extra. Puede responderlas, pero quedará registrado en la auditoría que las respondió usted.' },
               { tono: 'azul', texto: `Ya tiene ${duracion(yaTiene)} de horas extra autorizadas en ${nombreMes(mesDe(x.fecha)).split(' ')[0]}` },
               x.persona.horario?.modo === 'fijo' && { tono: 'gris', texto: `Su horario ese día termina a las ${x.persona.horario.salida}` },
             ]}
             efecto={pendiente ? `lo que trabaje de ${horas(x)} el ${fechaCorta(x.fecha)} contará como horas extra. Si se queda más tiempo, ese tiempo no cuenta.` : ''}
             efectoRechazo={pendiente ? 'Si igual se queda, ese tiempo no contará como horas extra. La persona verá el motivo en su app.' : 'Las horas dejan de estar autorizadas: lo que trabaje ese día después de su horario no contará como horas extra. La persona lo verá en su app.'}
-            respondio={x.respondio} nota={x.nota}
+            respondio={x.respondio && x.propia ? `${x.respondio} (sus propias horas extra)` : x.respondio} nota={x.nota}
             onAprobar={pendiente ? nota => at.responderExtra(x.id, 'aprobada', nota) : null}
             onRechazar={pendiente || cancelable ? motivo => at.responderExtra(x.id, 'rechazada', motivo) : null}
             accionRechazar={pendiente ? 'Rechazar' : 'Cancelar las horas extra'}

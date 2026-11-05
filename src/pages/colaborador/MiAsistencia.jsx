@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, Building2, Warehouse, House, Clock, Flame } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, Building2, Warehouse, House, Clock, Flame, FileDown, Loader2 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera } from '../../components/documentacion/comunes'
 import Marcador from '../../components/asistencia/Marcador'
+import ReporteMes from '../../components/asistencia/ReporteMes'
 import { EstadoChip, COLOR_ESTADO } from '../../components/asistencia/comunes'
 import { ESTADOS, DIAS_CORTOS, MODALIDADES, diasDelMes, diaISO, mesDe, mesVecino, nombreMes, hhmm, duracion, aFecha } from '../../data/asistenciaData'
 
@@ -16,6 +18,13 @@ export default function MiAsistencia() {
   const yo = at.yo
   const [mes, setMes] = useState(mesDe(at.hoy))
   const [sel, setSel] = useState(null)
+  const [armando, setArmando] = useState(false)
+  const [errorPdf, setErrorPdf] = useState(false)
+  /* «Marcar entrada» del Inicio web llega con el paso ya confirmado (?marcar=entrada): va directo al escaneo. */
+  const [params, setParams] = useSearchParams()
+  const [marcar] = useState(() => params.get('marcar'))
+  // Se lee una vez y se quita de la dirección: al recargar, no vuelve a abrir el escaneo.
+  useEffect(() => { if (params.get('marcar')) setParams({}, { replace: true }) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const dias = useMemo(() => diasDelMes(mes).map(d => ({ d, j: d <= at.hoy ? at.jornadaDe(yo, d) : null })), [mes, yo, at])  
   const pasados = dias.filter(x => x.j && x.j.estado !== 'libre')
   const conEntrada = pasados.filter(x => x.j.entrada != null)
@@ -30,9 +39,16 @@ export default function MiAsistencia() {
 
   return (
     <div className="content-scroll">
-      <Cabecera titulo="Mi asistencia" sub="Marca tu entrada y tu salida, y mira tu mes con los mismos números que ve RR.HH." />
+      <Cabecera titulo="Mi asistencia" sub="Marque su entrada y su salida, y mire su mes con los mismos números que ve RR.HH.">
+        {/* El reporte del mes que está mirando, en PDF: el mismo que baja RR.HH. desde su ficha. */}
+        <button type="button" className="dc-btn dc-btn-sm" disabled={armando} onClick={() => { setErrorPdf(false); setArmando(true) }}>
+          {armando ? <Loader2 size={13} className="at-gira" /> : <FileDown size={13} />} {armando ? 'Armando el PDF…' : `Descargar ${nombreMes(mes).split(' ')[0]} en PDF`}
+        </button>
+      </Cabecera>
+      {errorPdf && <p className="at-ayuda" style={{ color: 'var(--dc-rojo, #B42318)' }}>No se pudo armar el PDF. Pruebe de nuevo.</p>}
+      {armando && <ReporteMes p={yo} mes={mes} onListo={e => { setArmando(false); if (e) setErrorPdf(true) }} />}
       <div className="at-mia">
-        <div className="at-mia-tel"><Marcador /></div>
+        <div className="at-mia-tel"><Marcador iniciar={marcar} /></div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
           <div className="at-cifras">

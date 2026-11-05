@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Clock, Paperclip } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, House, Paperclip } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import BarraVolver from './BarraVolver'
@@ -32,6 +32,37 @@ const arriba = () => document.querySelector('#marco-telefono .phone-scroll')?.sc
 const dias = n => `${n} ${n === 1 ? 'día' : 'días'}`
 const corto = s => `${DIAS_LARGOS[diaISO(s)].slice(0, 3)} ${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
 const largo = s => { const t = `${DIAS_LARGOS[diaISO(s)]} ${aFecha(s).getDate()} de ${MESES[aFecha(s).getMonth()]}`; return t[0].toUpperCase() + t.slice(1) }
+const diaMes = s => `${aFecha(s).getDate()} ${MESES[aFecha(s).getMonth()].slice(0, 3)}`
+
+/* Lo que ya tiene pedido o aprobado (vacación, permiso, trabajo remoto), día por día: en el calendario esos
+   días se pintan con el color de su estado —ámbar por aprobar, verde aprobado, como las etiquetas de Mis
+   solicitudes— y no se pueden tocar; debajo, una línea por cada uno dice qué es. */
+const QUE_ES = { vacaciones: ['Vacación', 'a'], permiso: ['Permiso', 'o'], remoto: ['Trabajo remoto', 'o'] }
+const TONO_OCUPADO = { pendiente: ['var(--tn-ambar)', 'var(--tx-ambar)'], aprobada: ['var(--tn-verde)', 'var(--tx-verde)'] }
+const nombreOcupado = s => { const [que, g] = QUE_ES[s.tipo]; return `${que} ${s.estado === 'aprobada' ? `aprobad${g}` : 'por aprobar'}` }
+function ocupadosDe(solicitudes, pid) {
+  const lista = solicitudes.filter(s => QUE_ES[s.tipo] && ['pendiente', 'aprobada'].includes(s.estado) && String(s.personaId) === String(pid))
+  const dias = new Map()
+  lista.forEach(s => { for (let d = s.desde; d <= (s.hasta || s.desde); d = sumarDias(d, 1)) if (!dias.has(d)) dias.set(d, s) })
+  // El primero que ya tiene entre dos días (cuando el rango elegido pasa por encima de algo pedido).
+  const entre = (a, b) => { for (let d = a; a && d <= b; d = sumarDias(d, 1)) if (dias.has(d)) return dias.get(d); return null }
+  return { lista, dias, entre }
+}
+function YaPedido({ ocupados, celdas }) {
+  const desde = celdas[0], hasta = celdas.at(-1)
+  const aca = ocupados.lista.filter(s => s.desde <= hasta && (s.hasta || s.desde) >= desde).sort((a, b) => a.desde.localeCompare(b.desde))
+  if (!aca.length) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 8 }}>
+      {aca.map(s => (
+        <span key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 7.4, color: C.mute }}>
+          <i aria-hidden="true" style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: TONO_OCUPADO[s.estado][1] }} />
+          <span><b style={{ fontWeight: 600, color: C.texto }}>{nombreOcupado(s)}</b> · {s.hasta && s.hasta !== s.desde ? `${diaMes(s.desde)} – ${diaMes(s.hasta)}` : diaMes(s.desde)}</span>
+        </span>
+      ))}
+    </div>
+  )
+}
 
 /* El ejemplo del motivo, según lo que pide. */
 const EJEMPLO = { medico: 'control con el traumatólogo', tramite: 'renovar el carnet', familiar: 'reunión en el colegio de mi hijo', estudio: 'examen de la maestría', 'lic-medica': 'reposo indicado por el médico', maternidad: 'nacimiento previsto para el 20 de diciembre', paternidad: 'nacimiento de mi hija', duelo: 'fallecimiento de un familiar', matrimonio: 'mi matrimonio civil', cumpleanos: 'mi cumpleaños' }
@@ -79,7 +110,9 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
   const conHoras = !licencia && unDia && porHoras && tipo !== 'cumpleanos'
   const regreso = desde && licencia ? habilSiguiente(fin, h) : null
   const horasOk = !conHoras || aMin(horaHasta) > aMin(horaDesde)
-  const listo = !!desde && (licencia ? n > 0 : horasOk)
+  const ocupados = ocupadosDe(at.solicitudes, yo.id)
+  const choque = desde ? ocupados.entre(desde, fin) : null
+  const listo = !!desde && !choque && (licencia ? n > 0 : horasOk)
   const ir = p => { setPaso(p); arriba() }
 
   const elegirTipo = k => { setTipo(k); setDesde(null); setHasta(null); setEligiendoFin(false); setRespaldo(null); setPorHoras(!SUBTIPOS_PERMISO.find(s => s.key === k)?.licencia); ir('fechas') }
@@ -181,7 +214,8 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
   /* ── PASO 2 · CUÁNDO: el calendario de la vacación ── */
   const celdas = semanasDe(ym)
   const primerMes = ym <= mesDe(minimo)
-  const ayuda = !desde ? (info.dias ? `Toque el primer día: la ley da ${info.linea}.` : licencia ? 'Toque el primer día de reposo y después el último.' : 'Toque el día del permiso. Si son varios, toque también el último.')
+  const ayuda = choque ? `Entre esos días está su ${nombreOcupado(choque).toLowerCase()}. Elija otros días.`
+    : !desde ? (info.dias ? `Toque el primer día: la ley da ${info.linea}.` : licencia ? 'Toque el primer día de reposo y después el último.' : 'Toque el día del permiso. Si son varios, toque también el último.')
     : eligiendoFin && !info.dias ? (licencia ? 'Toque el último día.' : 'Si es más de un día, toque el último.')
       : licencia ? `Vuelve a trabajar el ${largo(regreso).toLowerCase()}.` : null
   return (
@@ -199,9 +233,10 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center' }}>
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
-            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < minimo} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
+            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < minimo} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
           </div>
-          {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: C.mute, textAlign: 'center' }}>{ayuda}</p>}
+          <YaPedido ocupados={ocupados} celdas={celdas} />
+          {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: choque ? 'var(--in-rojo)' : C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
         </div>
 
         {/* Un permiso de un día: entero o unas horas, con la hora del teléfono. */}
@@ -257,11 +292,24 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
 
 const flecha = off => ({ width: 22, height: 22, display: 'grid', placeItems: 'center', border: 'none', borderRadius: '50%', background: 'none', color: 'inherit', opacity: off ? 0.2 : 0.6, cursor: off ? 'default' : 'pointer' })
 
-/* El día del calendario: las puntas en navy y el medio en la cinta menta, como la vacación. */
-function Dia({ d, col, desde, fin, habil, off, vecino, onTocar }) {
+/* El día del calendario: las puntas en navy y el medio en la cinta menta, como la vacación. Un día que ya
+   tiene algo pedido (`ocupado`) va con el color de su estado y no se puede tocar. */
+function Dia({ d, col, desde, fin, habil, off: pasado, ocupado, vecino, onTocar }) {
+  const off = pasado || !!ocupado
   const varios = desde && fin !== desde
   const punta = d === desde || d === fin
   const dentro = desde && d > desde && d < fin
+  const tono = ocupado && !punta && TONO_OCUPADO[ocupado.estado]
+  if (tono) {
+    return (
+      <span style={{ height: 25, display: 'grid', placeItems: 'center' }}>
+        <button type="button" disabled aria-label={`${corto(d)}, ${nombreOcupado(ocupado).toLowerCase()}`} title={nombreOcupado(ocupado)} style={{
+          width: 23, height: 23, borderRadius: '50%', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 9, fontVariantNumeric: 'tabular-nums',
+          fontWeight: 600, color: tono[1], background: tono[0], opacity: vecino ? 0.5 : 1, cursor: 'default',
+        }}>{aFecha(d).getDate()}</button>
+      </span>
+    )
+  }
   const inicio = varios && d === desde && col !== 6
   const final = varios && d === fin && col !== 0
   const fondo = inicio ? `linear-gradient(90deg, transparent 50%, ${C.cinta} 50%)` : final ? `linear-gradient(90deg, ${C.cinta} 50%, transparent 50%)` : dentro ? C.cinta : 'transparent'
@@ -300,7 +348,9 @@ function Cabecera({ sub, info, licencia, desde, fin, n, porHoras, corridos, hora
 /* LA HOJA (la papeleta de la vacación, opción I2): datos del trabajador y lo pedido en filas de dos
    columnas, con el horario o los días en la fila menta. */
 const P = { navy: '#0C2D40', menta: '#00E091', mentaTxt: '#0A7F55', gris: '#6B7C8A', suave: '#9AABBB', borde: '#E6ECF1', linea: '#EEF2F5', fondoMenta: '#F3FBF7' }
-export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin, n, regreso, porHoras, corridos, horaDesde, horaHasta, respaldo, info, motivo, firma }) {
+/* `documento` y `filasPedido`: otra solicitud con la misma hoja (el trabajo remoto), con su nombre y sus filas. */
+export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin, n, regreso, porHoras, corridos, horaDesde, horaHasta, respaldo, info = {}, motivo, firma, documento, filasPedido }) {
+  const doc = documento || (licencia ? 'licencia' : 'permiso')
   const nombreEmpresa = empresa?.razonSocial || empresa?.nombre || 'FarmaVida S.A.'
   const sigla = (nombreEmpresa.split(' ')[0].match(/[A-ZÁÉÍÓÚÑ]/g) || ['S']).slice(0, 2).join('')
   const celda = (k, v, ancho, destacado) => (
@@ -315,7 +365,7 @@ export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin,
       {t}<span style={{ flex: 1, height: 1, background: P.linea }} />
     </span>
   )
-  const filas = [
+  const filas = filasPedido || [
     ['Tipo', sub.label],
     ...(fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
     licencia || fin !== desde ? ['Días', `${dias(n)}${corridos ? ' corridos' : ' hábiles'}`, true]
@@ -333,12 +383,12 @@ export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin,
           <span style={{ fontSize: 6.2, color: P.gris }}>{empresa?.nit ? `NIT ${empresa.nit} · ` : ''}Recursos Humanos</span>
         </span>
         <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-          <span style={{ fontSize: 6.2, color: P.gris }}>Papeleta de {licencia ? 'licencia' : 'permiso'}</span>
+          <span style={{ fontSize: 6.2, color: P.gris }}>Papeleta de {doc}</span>
           <b style={{ fontSize: 8.4, color: P.mentaTxt, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>N° {numero}</b>
         </span>
       </header>
       <div style={{ padding: '10px 11px 4px', display: 'flex', flexDirection: 'column', gap: 9 }}>
-        <b style={{ textAlign: 'center', fontSize: 8.4, letterSpacing: '.14em', textTransform: 'uppercase' }}>Solicitud de {licencia ? 'licencia' : 'permiso'}</b>
+        <b style={{ textAlign: 'center', fontSize: 8.4, letterSpacing: '.14em', textTransform: 'uppercase' }}>Solicitud de {doc}</b>
         {seccion(1, 'Datos del trabajador')}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', border: `1px solid ${P.borde}`, borderRadius: 7, overflow: 'hidden', marginTop: -3 }}>
           {celda('Nombre completo', yo.name, true, true)}
@@ -348,7 +398,7 @@ export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin,
           {celda('Unidad organizacional', yo.unidad || '—')}
           {celda('Sucursal', sucursal || '—')}
         </div>
-        {seccion(2, licencia ? 'Licencia solicitada' : 'Permiso solicitado')}
+        {seccion(2, documento ? `${documento[0].toUpperCase()}${documento.slice(1)} solicitado` : licencia ? 'Licencia solicitada' : 'Permiso solicitado')}
         <div style={{ border: `1px solid ${P.borde}`, borderRadius: 7, overflow: 'hidden', marginTop: -3 }}>
           {filas.map(([k, v, menta], i) => (
             <div key={k} style={{ display: 'grid', gridTemplateColumns: '42% 1fr', gap: 8, alignItems: 'baseline', padding: '5px 8px', borderTop: i ? `1px solid ${P.linea}` : 'none', background: menta ? P.fondoMenta : 'transparent' }}>
@@ -376,5 +426,138 @@ export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin,
         <span>Generado por SoulyHR con los datos del expediente</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>N° {numero}</span>
       </footer>
     </article>
+  )
+}
+
+/* ── PEDIR TRABAJO REMOTO (desde «¿Qué necesita?»): el mismo camino del permiso, sin el paso del tipo.
+   El calendario elige uno o varios días de trabajo (sábados, domingos y feriados apagados); si ya tiene
+   vacación, permiso o remoto esos días, lo dice y no deja seguir. Después la misma hoja para revisar y
+   «Solicitar». Al aprobarlo RR.HH., esos días no se le pide estar en la geocerca. */
+const EJEMPLO_REMOTO = 'espero un técnico en casa'
+const numeroRemoto = at => `${at.hoy.slice(0, 4)}-${String(at.solicitudes.filter(s => s.tipo === 'remoto').length + 1).padStart(4, '0')}`
+
+export function SolicitarRemotoPhone({ onVolver, volverA = '¿Qué necesita?', onListo, listoTexto = 'Ver mis solicitudes' }) {
+  const at = useAsistencia()
+  const yo = at.yo
+  const h = yo.horario
+  const { empresa } = useOnboardingData()
+  const [paso, setPaso] = useState('fechas')
+  const [ym, setYm] = useState(mesDe(at.hoy))
+  const [desde, setDesde] = useState(null)
+  const [hasta, setHasta] = useState(null)
+  const [eligiendoFin, setEligiendoFin] = useState(false)
+  const [motivo, setMotivo] = useState('')
+  const [enviada, setEnviada] = useState(false)
+  const ir = p => { setPaso(p); arriba() }
+
+  const fin = hasta || desde
+  const n = desde ? diasHabiles(desde, fin, h) : 0
+  // Lo que ya tiene pedido o aprobado: esos días no se tocan, y un rango no puede pasar por encima de ellos.
+  const ocupados = ocupadosDe(at.solicitudes, yo.id)
+  const choque = desde ? ocupados.entre(desde, fin) : null
+  const listo = n > 0 && !choque
+
+  const tocar = d => {
+    if (!eligiendoFin || !desde || d < desde) { setDesde(d); setHasta(null); setEligiendoFin(true); return }
+    setHasta(d === desde ? null : d); setEligiendoFin(false)
+  }
+  const titulo = !desde ? 'Elija el día' : fin !== desde ? `${corto(desde)[0].toUpperCase()}${corto(desde).slice(1)} – ${corto(fin)}` : largo(desde)
+  const linea = !desde ? 'Uno o varios días de trabajo' : `${dias(n)} desde casa`
+  const filas = !desde ? [] : [
+    ...(fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
+    ['Días', `${dias(n)} hábiles`, true],
+    ['Marcación', 'Con rostro, sin pedir estar en su lugar'],
+    ...(motivo.trim() ? [['Motivo', motivo.trim()]] : []),
+  ]
+
+  const enviar = () => {
+    at.crearSolicitud({ tipo: 'remoto', personaId: yo.id, desde, hasta: fin, ...(motivo.trim() ? { motivo: motivo.trim() } : {}), solicitada: new Date().toISOString(), papeleta: numeroRemoto(at) })
+    setEnviada(true); arriba()
+  }
+
+  const cabecera = enTarjeta => (
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 2, borderRadius: enTarjeta ? 14 : 15, padding: '8px 11px 9px', color: C.viajeTxt,
+      background: enTarjeta ? C.carta : C.viaje, border: `1px solid ${enTarjeta ? 'transparent' : C.viajeBorde}`, boxShadow: enTarjeta ? 'var(--in-sombra)' : 'none',
+    }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 6.6, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: C.viajeRotulo }}>
+        <House size={10} strokeWidth={2} style={{ color: C.avion }} aria-hidden="true" />Trabajo remoto
+      </span>
+      <b style={{ fontSize: 12, fontWeight: 700, letterSpacing: '-.02em' }}>{titulo}</b>
+      <span style={{ fontSize: 7.6, color: C.mute }}>{linea}</span>
+    </div>
+  )
+
+  if (enviada) {
+    const nombre = (yo.name || '').split(' ')[0]
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, minHeight: '100%', color: C.texto }}>
+        <div style={{ marginTop: 6, borderRadius: 18, padding: '18px 12px 15px', background: C.viaje, border: `1px solid ${C.viajeBorde}`, color: C.viajeTxt, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, textAlign: 'center' }}>
+          <span aria-hidden="true" style={{ width: 34, height: 34, borderRadius: '50%', background: C.carta, color: C.avion, display: 'grid', placeItems: 'center', marginBottom: 7, boxShadow: '0 6px 14px -8px rgba(0,184,118,.7)' }}><House size={15} /></span>
+          <b style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-.01em' }}>¡Listo{nombre ? `, ${nombre}` : ''}!</b>
+          <span style={{ fontSize: 8.6, color: C.mute }}>Su solicitud ya está con RR.HH.</span>
+        </div>
+        {cabecera(true)}
+        <button type="button" onClick={onListo || onVolver} style={{ ...BOTON, width: '100%', height: 34, marginTop: 'auto' }}>{listoTexto}</button>
+      </div>
+    )
+  }
+
+  if (paso === 'revisar') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto, minHeight: '100%' }}>
+        <BarraVolver texto="Fechas" onVolver={() => ir('fechas')} conTema />
+        <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Revise su solicitud</b>
+        <Hoja numero={numeroRemoto(at)} sucursal={at.lugarPorId.get(yo.sucursalId)?.nombre || yo.sedeNombre} yo={yo} empresa={empresa} documento="trabajo remoto" filasPedido={filas} />
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
+          <span style={{ fontSize: 7.6, color: C.mute }}>Motivo (opcional)</span>
+          <input value={motivo} onChange={e => setMotivo(e.target.value)} placeholder={`Ej.: ${EJEMPLO_REMOTO}`}
+            style={{ border: 'none', borderBottom: '1px solid var(--in-campo)', background: 'none', padding: '3px 0 5px', fontFamily: 'inherit', fontSize: 9, color: C.texto, outline: 'none' }} />
+        </label>
+        <div style={{ position: 'sticky', bottom: -10, marginTop: 'auto', paddingTop: 8, paddingBottom: 2, background: 'var(--in-fondo)', display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <button type="button" onClick={enviar} style={{ ...BOTON, width: '100%', height: 34, boxShadow: '0 8px 16px -10px rgba(0,184,118,.9)' }}>Solicitar</button>
+          <span style={{ fontSize: 7.4, color: C.mute, textAlign: 'center' }}>Se envía a RR.HH. para su aprobación.</span>
+        </div>
+      </div>
+    )
+  }
+
+  const celdas = semanasDe(ym)
+  const primerMes = ym <= mesDe(at.hoy)
+  const ayuda = choque ? `Entre esos días está su ${nombreOcupado(choque).toLowerCase()}. Elija otros días.`
+    : !desde ? 'Toque el día. Si son varios, toque también el último.'
+      : eligiendoFin ? 'Si es más de un día, toque el último.' : null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto }}>
+      <BarraVolver texto={volverA} onVolver={onVolver} conTema />
+      <div style={{ background: C.vCarta, border: `1px solid ${C.vBorde}`, borderRadius: 22, boxShadow: 'var(--in-sombra)', padding: '9px 10px 10px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+        {cabecera(false)}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+            <button type="button" aria-label="Mes anterior" disabled={primerMes} onClick={() => setYm(mesVecino(ym, -1))} style={flecha(primerMes)}><ChevronLeft size={12} /></button>
+            <b style={{ fontSize: 11, fontWeight: 700, letterSpacing: '-.02em' }}>
+              {nombreMes(ym)[0].toUpperCase() + nombreMes(ym).slice(1, -5)} <span style={{ fontWeight: 400, opacity: 0.45 }}>{ym.slice(0, 4)}</span>
+            </b>
+            <button type="button" aria-label="Mes siguiente" onClick={() => setYm(mesVecino(ym, 1))} style={flecha(false)}><ChevronRight size={12} /></button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center' }}>
+            {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
+            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < at.hoy || !esHabil(d, h)} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
+          </div>
+          <YaPedido ocupados={ocupados} celdas={celdas} />
+          {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: choque ? 'var(--in-rojo)' : C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderTop: `1px solid ${C.separador}`, paddingTop: 9 }}>
+          <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span style={{ fontSize: 7.4, color: C.mute }}>Desde casa</span>
+            <b style={{ fontSize: 10.4, fontWeight: 700, letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>{desde ? dias(n) : '—'}</b>
+          </span>
+          <button type="button" disabled={!listo} onClick={() => ir('revisar')}
+            style={{ ...BOTON, padding: '0 18px', flexShrink: 0, ...(listo ? { boxShadow: '0 8px 16px -10px rgba(0,184,118,.9)' } : { background: 'var(--in-boton-off)', color: C.suave, cursor: 'default' }) }}>
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }

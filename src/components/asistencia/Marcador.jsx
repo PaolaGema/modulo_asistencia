@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { LogIn, LogOut, Coffee, X, Check, ScanFace, MapPin, House, ChevronLeft, ChevronRight, RotateCcw, Navigation, Clock, Plus, PencilLine } from 'lucide-react'
+import { LogIn, LogOut, Coffee, X, Check, ScanFace, MapPin, House, ChevronLeft, ChevronRight, RotateCcw, Navigation, Clock, Plus, PencilLine, FileDown, Loader2 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { fotoDe } from '../../pages/personas/colaboradoresData'
 import { avatarUrl } from '../../utils/calendarEvents'
 import viaSaludando from '../../assets/imagenes/via_saludando.png'
 import { ahora, TIPOS_MARCA, ESTADOS_EXTRA, esAutorizada, fechaLarga, fechaCorta, nombreMes, mesVecino, hhmm, aMin, duracion, hoyISO, diasDelMes, mesDe, sumarDias, accionDelMomento, ETIQUETA_MARCA, ESTADOS, DIAS_CORTOS, diaISO, aFecha, semanasDe } from '../../data/asistenciaData'
 import ConfirmarMarca from './ConfirmarMarca'
+import ReporteMes from './ReporteMes'
+import LineaTarde from './LineaTarde'
+import PapeletaCorreccion from './PapeletaCorreccion'
+import { useOnboardingData } from '../../context/OnboardingDataContext'
+import { ranurasDelDia, efectoDeCambios, pideRespaldo, preguntaDe, NOMBRE_MARCA } from '../../utils/correccion'
+import { useLineaTarde } from '../../hooks/useLineaTarde'
 import BarraVolver from '../layout/BarraVolver'
 import FechaCel from '../layout/FechaCel'
 import HoraCel from '../layout/HoraCel'
@@ -56,6 +62,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
   /* Corregir una marcación: null, o { fecha } del día desde el que se pidió. */
   const [corregir, setCorregir] = useState(null)
   const [avisoExtra, setAvisoExtra] = useState(null)
+  const tarde = useLineaTarde()
   /* La ventana se centra en el teléfono de la demo si el marcador vive ahí, y en la pantalla si no. */
   const raiz = useRef(null)
   const [enTelefono, setEnTelefono] = useState(null)
@@ -132,7 +139,7 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
       <ConfirmarMarca tipo={hoja} onCancelar={() => setHoja(null)} onConfirmar={t => { setFlujo({ tipo: t }); setHoja(null) }} />
     </div>, enTelefono || document.body)
 
-  if (telefono && corregir) return <CorregirMarcaCel fecha={corregir.fecha} onVolver={() => setCorregir(null)} onEnviada={() => { setCorregir(null); setVerMes(false); setAvisoExtra('Pidió corregir una marcación. RR.HH. le responderá.') }} />
+  if (telefono && corregir) return <CorregirMarcaCel fecha={corregir.fecha} abrir={corregir.abrir} onVolver={() => setCorregir(null)} onEnviada={() => { setCorregir(null); setVerMes(false); setAvisoExtra('Pidió corregir una marcación. RR.HH. le responderá.') }} />
   if (telefono && verMes) return <MesCel onVolver={() => setVerMes(false)} onCorregir={fecha => setCorregir({ fecha })} />
   if (telefono && verExtra) return <PedirExtraCel onVolver={() => setVerExtra(false)} onEnviada={() => { setVerExtra(false); setAvisoExtra('Pidió horas extra. RR.HH. le responderá.') }} />
   if (telefono) {
@@ -167,6 +174,8 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
         {!yo.asig || !yo.horario
           ? <div style={{ ...TARJETA_CEL, fontSize: 7.6, color: 'var(--in-mute)', textAlign: 'center' }}>Todavía no tiene un horario asignado. Pídaselo a RR.HH.</div>
           : <HoyCel j={j} acc={acc} t={t} yo={yo} extraHoy={extraHoy} validas={validas} onPedir={pedir} onDeshacer={id => at.anular(id, 'La persona deshizo su salida desde la app')} />}
+        {/* La misma línea ámbar del Inicio: si la entrada de hoy quedó tarde, corregirla está a un toque. */}
+        {telefono && tarde.ver && <LineaTarde tardanza={tarde.tardanza} onCorregir={() => setCorregir({ fecha: at.hoy, abrir: 'entrada' })} onCerrar={tarde.cerrar} />}
         {yo.horario && <SemanaCel onMes={() => setVerMes(true)} onCorregir={fecha => setCorregir({ fecha })} />}
         {ventana}
       </div>
@@ -496,55 +505,129 @@ function DiaElegido({ fecha, j, laboral, yo, hoy, onCorregir }) {
   )
 }
 
-/* CORREGIR UNA MARCACIÓN: el día, qué marca (entrada, salida a la pausa, vuelta o salida), la hora
-   correcta y la razón. Dice qué figura hoy para esa marca, así la persona ve qué está pidiendo
-   cambiar. Va a RR.HH. como solicitud de corrección: al aprobarla se carga la marca. */
-const MARCAS_CORREGIR = [['entrada', 'Entrada'], ['pausa_inicio', 'Salió a descansar'], ['pausa_fin', 'Volvió del descanso'], ['salida', 'Salida']]
-export function CorregirMarcaCel({ fecha: fechaInicial, onVolver, onEnviada, volverA = 'Mi asistencia' }) {
+/* CORREGIR SU DÍA (propuesta «Corregir una marcación», rondas 3 a 5, aplicada el 5 nov 2026).
+   1 · Ve las marcas que su horario espera ese día —con la vuelta del descanso cuando su horario tiene
+       descanso— y las que hizo de más. Toca la que está mal y elige la hora con el selector de siempre
+       (el atajo es la hora de su horario); la que falta dice «+ Agregar»; la de más se puede quitar.
+   2 · Debajo, el efecto en ámbar (lo calcula el sistema) y dos campos: «Qué pasó» y «Cómo se puede
+       comprobar», que pasa a ser obligatorio cuando el cambio pesa (más de 15 min).
+   3 · «Revisar solicitud» abre la misma papeleta que recibe RR.HH.; «Sí, enviar a RR.HH.» la manda.
+   `abrir`: la marca que llega abierta (desde «Solicitar corrección de hora», la entrada). */
+export function CorregirMarcaCel({ fecha: fechaInicial, onVolver, onEnviada, volverA = 'Mi asistencia', abrir = null }) {
   const at = useAsistencia()
   const yo = at.yo
-  const hr = yo.horario
-  const sugerida = m => !hr || hr.modo !== 'fijo' ? '09:00' : m === 'entrada' ? hr.entrada : m === 'salida' ? hr.salida
-    : hhmm(Math.round((aMin(hr.entrada) + aMin(hr.salida)) / 2 - (hr.pausa || 0) / 2) + (m === 'pausa_fin' ? hr.pausa || 0 : 0))
+  const { empresa } = useOnboardingData()
   const [fecha, setFecha] = useState(fechaInicial || at.hoy)
-  const [marca, setMarca] = useState('entrada')
-  const [hora, setHora] = useState(sugerida('entrada'))
-  const [motivo, setMotivo] = useState('')
-  const marcas = at.jornadaDe(yo, fecha).marcas.filter(m => !m.rechazada && !m.anulada && m.tipo === marca)
-  const valido = fecha <= at.hoy && !!hora && motivo.trim().length >= 4
-  const elegir = m => { setMarca(m); setHora(sugerida(m)) }
-  const enviar = () => { at.crearSolicitud({ tipo: 'correccion', personaId: yo.id, fecha, marca, hora, motivo: motivo.trim() }); onEnviada() }
-  const campo = { width: '100%', boxSizing: 'border-box', height: 26, padding: '0 9px', borderRadius: 10, border: 'none', background: 'var(--in-fondo)', fontFamily: 'inherit', fontSize: 8.4, fontWeight: 500, color: 'var(--in-texto)', outline: 'none' }
+  const [horas, setHoras] = useState({})
+  const [quitar, setQuitar] = useState(() => new Set())
+  const [paso, setPaso] = useState('dia')
+  const [texto, setTexto] = useState('')
+  const [comprobar, setComprobar] = useState('')
+  const todas = ranurasDelDia(at, yo, fecha)
+  /* Hoy solo se corrige lo que ya pasó: la marca cuya hora todavía no llega (la salida de las 18:00 a las 16:52)
+     no se pide por solicitud, se marca a su hora. Las que ya existen siempre se pueden corregir. */
+  const yaPaso = f => fecha !== at.hoy || f.marca || (f.sugerida ? aMin(f.sugerida) <= t0() : f.tipo !== 'salida')
+  const filas = todas.filas.filter(yaPaso)
+  const despues = todas.filas.filter(f => !yaPaso(f))
+  const extras = todas.extras
+  const cambiarDia = d => { setFecha(d); setHoras({}); setQuitar(new Set()) }
+
+  const cambios = [
+    ...filas.filter(f => horas[f.key] && (!f.marca || hhmm(f.marca.min) !== horas[f.key]))
+      .map(f => ({ tipo: f.tipo, hora: horas[f.key], antes: f.marca ? hhmm(f.marca.min) : null, marcaId: f.marca?.id || null })),
+    ...extras.filter(m => quitar.has(m.id)).map(m => ({ tipo: m.tipo, antes: hhmm(m.min), marcaId: m.id, quitar: true })),
+  ]
+  /* La hora de cada marca, ya corregida, en el orden del día: cada una después de la anterior y nunca en el futuro. */
+  const linea = filas.map(f => ({ nombre: f.nombre, hora: horas[f.key] || (f.marca ? hhmm(f.marca.min) : null) })).filter(x => x.hora)
+  let error = null
+  for (let i = 1; i < linea.length && !error; i++) if (aMin(linea[i].hora) <= aMin(linea[i - 1].hora)) error = `${linea[i].nombre} tiene que ser después de ${linea[i - 1].nombre.toLowerCase()} (${linea[i - 1].hora}).`
+  if (!error && fecha === at.hoy) { const ahora = t0(); const futura = cambios.find(c => !c.quitar && aMin(c.hora) > ahora); if (futura) error = `Todavía no son las ${futura.hora}: no se puede corregir una hora que no pasó.` }
+  const efecto = !error ? efectoDeCambios(at, yo, fecha, cambios) : []
+  const conRespaldo = !error && pideRespaldo(at, yo, fecha, cambios)
+  const listo = cambios.length > 0 && !error && texto.trim().length >= 4 && (!conRespaldo || comprobar.trim().length >= 3)
+
+  const s = { id: 'borrador', tipo: 'correccion', personaId: yo.id, fecha, cambios, marca: cambios[0]?.tipo, hora: cambios[0]?.hora || cambios[0]?.antes, motivo: texto.trim(), respaldo: comprobar.trim(), estado: 'pendiente', cuando: at.hoy }
+  const enviar = () => { const { id, estado, cuando, ...datos } = s; at.crearSolicitud(datos); onEnviada() } // eslint-disable-line no-unused-vars
+
+  const campo = { width: '100%', boxSizing: 'border-box', border: 'none', borderRadius: 10, background: 'var(--in-fondo)', fontFamily: 'inherit', fontSize: 8.4, fontWeight: 500, color: 'var(--in-texto)', outline: 'none' }
   const rotulo = { fontSize: 7.2, fontWeight: 400, color: 'var(--in-mute)', display: 'grid', gap: 3 }
+  const boton = on => ({ height: 30, borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 8.6, fontWeight: 600, background: on ? '#00E091' : 'var(--in-plomo)', color: on ? '#0C2D40' : 'var(--in-suave)', cursor: on ? 'pointer' : 'default' })
+
+  if (paso === 'revisar') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
+        <BarraVolver texto="Su día" onVolver={() => setPaso('dia')} conTema />
+        <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>Revise su solicitud</b>
+        <span style={{ fontSize: 7.4, color: 'var(--in-mute)', margin: '-5px 2px 0' }}>Así la recibe RR.HH. Si algo está mal, vuelva a su día y cámbielo.</span>
+        <PapeletaCorreccion s={s} persona={yo} empresa={empresa} numero={`${at.hoy.slice(0, 4)}-${String(at.solicitudes.filter(x => x.tipo === 'correccion').length + 1).padStart(4, '0')}`} firma={{ estado: 'pendiente' }} />
+        <button type="button" onClick={enviar} style={{ ...boton(true), height: 34, marginTop: 4 }}>Sí, enviar a RR.HH.</button>
+      </div>
+    )
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'Poppins, sans-serif', color: 'var(--in-texto)' }}>
       <BarraVolver texto={volverA} onVolver={onVolver} conTema />
-      <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>Corregir una marcación</b>
-      <span style={{ fontSize: 7.4, color: 'var(--in-mute)', margin: '-5px 2px 0', lineHeight: 1.5 }}>Si olvidó marcar o la hora quedó mal. RR.HH. la revisa y, si la aprueba, se corrige sola.</span>
-      <div style={{ ...TARJETA_CEL, display: 'grid', gap: 8 }}>
-        <div style={rotulo}>Día<FechaCel valor={fecha} max={at.hoy} hoy={at.hoy} onCambio={setFecha} estilo={campo} ariaLabel="Día" /></div>
-        <div style={{ ...rotulo, gap: 4 }}>
-          ¿Qué marca?
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
-            {MARCAS_CORREGIR.map(([k, t]) => (
-              <button key={k} type="button" onClick={() => elegir(k)} aria-pressed={marca === k} style={{
-                height: 24, borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 7.8, fontWeight: 600, cursor: 'pointer',
-                background: marca === k ? 'var(--in-pill)' : 'var(--in-fondo)', color: marca === k ? 'var(--in-pill-txt)' : 'var(--in-texto)',
-              }}>{t}</button>
-            ))}
-          </div>
+      <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em', margin: '-6px 2px 0' }}>Corregir su día</b>
+      <span style={{ fontSize: 7.4, color: 'var(--in-mute)', margin: '-5px 2px 0', lineHeight: 1.5 }}>Toque la marca que está mal y elija la hora correcta.</span>
+      <div style={{ ...TARJETA_CEL, display: 'grid', gap: 6 }}>
+        <div style={rotulo}>Día<FechaCel valor={fecha} max={at.hoy} hoy={at.hoy} onCambio={cambiarDia} estilo={{ ...campo, height: 26, padding: '0 9px' }} ariaLabel="Día" /></div>
+        <div style={{ display: 'grid' }}>
+          {filas.map((f, i) => {
+            const nueva = horas[f.key]
+            const cambia = nueva && (!f.marca || hhmm(f.marca.min) !== nueva)
+            return (
+              <div key={`${fecha}-${f.key}`} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 96px', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: i ? '1px solid var(--in-linea)' : 'none' }}>
+                <span style={{ display: 'grid', minWidth: 0 }}>
+                  <b style={{ fontSize: 8.6, fontWeight: 600 }}>{f.nombre}</b>
+                  <small style={{ fontSize: 6.8, color: cambia ? 'var(--in-acento-txt)' : f.marca ? 'var(--in-mute)' : 'var(--tx-ambar)' }}>
+                    {cambia ? (f.marca ? <>Decía <s>{hhmm(f.marca.min)}</s> · corregida</> : 'Agregada') : f.marca ? `Marcó a las ${hhmm(f.marca.min)}` : 'Sin marcar'}
+                  </small>
+                </span>
+                <HoraCel valor={nueva || (f.marca ? hhmm(f.marca.min) : '')} vacio="+ Agregar" titulo={preguntaDe(f.tipo)} ariaLabel={`${f.nombre}: cambiar la hora`} alinear="der"
+                  abrirAlInicio={abrir === f.tipo && i === filas.findIndex(x => x.tipo === abrir)}
+                  onCambio={v => setHoras(h => ({ ...h, [f.key]: v }))}
+                  atajos={f.sugerida ? [{ hora: f.sugerida, texto: f.tipo === 'entrada' ? 'su entrada' : f.tipo === 'salida' ? 'su salida' : f.tipo === 'pausa_inicio' ? 'su descanso' : 'fin del descanso' }] : []}
+                  estilo={{ ...campo, height: 26, padding: '0 9px', fontWeight: 600, color: cambia ? 'var(--in-acento-txt)' : f.marca ? 'var(--in-texto)' : 'var(--in-acento-txt)', background: cambia ? 'var(--in-acento-bg)' : 'var(--in-fondo)' }} />
+              </div>
+            )
+          })}
+          {extras.map(m => {
+            const fuera = quitar.has(m.id)
+            return (
+              <div key={m.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: '1px solid var(--in-linea)' }}>
+                <span style={{ display: 'grid' }}>
+                  <b style={{ fontSize: 8.6, fontWeight: 600, textDecoration: fuera ? 'line-through' : 'none', color: fuera ? 'var(--in-suave)' : 'var(--in-texto)' }}>{NOMBRE_MARCA[m.tipo] || 'Marca'} de más · {hhmm(m.min)}</b>
+                  <small style={{ fontSize: 6.8, color: 'var(--in-mute)' }}>{fuera ? 'Se quitará al aprobarse' : 'Sobra en su día'}</small>
+                </span>
+                <button type="button" onClick={() => setQuitar(q => { const n = new Set(q); if (n.has(m.id)) n.delete(m.id); else n.add(m.id); return n })}
+                  style={{ height: 22, padding: '0 10px', borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 7.6, fontWeight: 600, cursor: 'pointer', background: fuera ? 'var(--in-fondo)' : 'var(--in-rojo-bg)', color: fuera ? 'var(--in-texto)' : 'var(--in-rojo)' }}>{fuera ? 'Dejarla' : 'Quitar'}</button>
+              </div>
+            )
+          })}
         </div>
-        <span style={{ fontSize: 6.6, color: 'var(--in-mute)', background: 'var(--in-calendario)', borderRadius: 8, padding: '5px 8px' }}>
-          {marcas.length ? <>Hoy figura a las <b style={{ color: 'var(--in-texto)' }}>{marcas.map(m => hhmm(m.min)).join(' y ')}</b>.</> : 'Ese día no figura esta marca.'}
-        </span>
-        <div style={rotulo}>Hora correcta<HoraCel valor={hora} onCambio={setHora} estilo={campo} ariaLabel="Hora correcta" titulo="Hora correcta" conAhora={fecha === at.hoy}
-          atajos={hr?.modo === 'fijo' ? [{ hora: sugerida(marca), texto: { entrada: 'su entrada', salida: 'su salida', pausa_inicio: 'su pausa', pausa_fin: 'fin de la pausa' }[marca] }] : []} /></div>
-        <label style={rotulo}>Razón de la solicitud<input value={motivo} onChange={e => setMotivo(e.target.value)} placeholder="Por ejemplo: se me acabó la batería" style={campo} /></label>
       </div>
-      <button type="button" disabled={!valido} onClick={enviar} style={{ height: 30, borderRadius: 99, border: 'none', fontFamily: 'inherit', fontSize: 8.6, fontWeight: 600, background: valido ? '#00E091' : 'var(--in-plomo)', color: valido ? NAVY : 'var(--in-suave)', cursor: valido ? 'pointer' : 'default' }}>Enviar a RR.HH.</button>
+      {despues.length > 0 && <span style={{ fontSize: 7, color: 'var(--in-mute)', margin: '-3px 2px 0', lineHeight: 1.45 }}>{despues.map(f => `${f.nombre.toLowerCase()}${f.sugerida ? ` (${f.sugerida})` : ""}`).join(', ').replace(/^./, c => c.toUpperCase())}: todavía no es la hora. Se marca{despues.length > 1 ? 'n' : ''} a su hora, no hace falta pedirla{despues.length > 1 ? 's' : ''}.</span>}
+      {error && <span role="alert" style={{ fontSize: 7.4, color: 'var(--in-rojo)', background: 'var(--in-rojo-bg)', borderRadius: 9, padding: '6px 9px', lineHeight: 1.45 }}>{error}</span>}
+      {!error && cambios.length > 0 && <span style={{ fontSize: 7.6, fontWeight: 600, color: 'var(--tx-ambar)', background: 'var(--tn-ambar)', borderRadius: 9, padding: '6px 9px', lineHeight: 1.45 }}>Si se aprueba: {efecto.join(' · ')}</span>}
+      <div style={{ ...TARJETA_CEL, display: 'grid', gap: 8 }}>
+        <label style={rotulo}>Motivo
+          <textarea value={texto} onChange={e => setTexto(e.target.value)} rows={3} placeholder="Por ejemplo: llegué a las 8:30 y me olvidé de marcar."
+            style={{ ...campo, padding: '7px 9px', resize: 'none', lineHeight: 1.45 }} />
+        </label>
+        <label style={rotulo}>
+          <span>Justificación {conRespaldo ? <b style={{ color: 'var(--tx-ambar)', fontWeight: 600 }}>· necesario: el cambio es de más de 15 min</b> : <i style={{ fontStyle: 'normal', color: 'var(--in-suave)' }}>· opcional</i>}</span>
+          <input value={comprobar} onChange={e => setComprobar(e.target.value)} placeholder="Cómo se puede comprobar. Por ejemplo: las cámaras de la entrada" style={{ ...campo, height: 26, padding: '0 9px' }} />
+        </label>
+      </div>
+      <button type="button" disabled={!listo} onClick={() => { setPaso('revisar'); document.querySelector('#marco-telefono .phone-scroll')?.scrollTo(0, 0) }} style={boton(listo)}>Revisar solicitud</button>
+      {!listo && !error && <span style={{ textAlign: 'center', fontSize: 6.8, color: 'var(--in-suave)', marginTop: -3 }}>
+        {!cambios.length ? 'Cambie al menos una marca.' : texto.trim().length < 4 ? 'Escriba el motivo.' : 'Escriba la justificación: cómo se puede comprobar.'}
+      </span>}
     </div>
   )
 }
+const t0 = () => { const d = ahora(); return d.getHours() * 60 + d.getMinutes() }
 
 /* Horas extra que RR.HH. le asignó y esperan su respuesta: van arriba de la tarjeta de hoy, porque piden
    una respuesta. Lo demás de las horas extra se ve en la semana y se pide desde el «+». */
@@ -629,6 +712,9 @@ function MesCel({ onVolver, onCorregir }) {
   const yo = at.yo
   const [ym, setYm] = useState(mesDe(at.hoy))
   const [sel, setSel] = useState(null)
+  /* El reporte del mes en PDF: el mismo que baja RR.HH. desde su ficha, del mes que esté mirando. */
+  const [armando, setArmando] = useState(false)
+  const [errorPdf, setErrorPdf] = useState(false)
   const dias = diasDelMes(ym).map(fecha => ({ fecha, j: fecha <= at.hoy ? at.jornadaDe(yo, fecha) : null, laboral: !!yo.horario?.dias.includes(diaISO(fecha)) }))
   // Las semanas completas, como el calendario de la vacación: los días del mes vecino, más claros.
   const semanas = semanasDe(ym)
@@ -689,6 +775,14 @@ function MesCel({ onVolver, onCorregir }) {
           </span>
         ))}
       </div>
+      <button type="button" disabled={armando} onClick={() => { setErrorPdf(false); setArmando(true) }} style={{
+        height: 30, borderRadius: 99, border: 'none', background: 'var(--in-carta)', boxShadow: 'var(--in-sombra)', color: 'var(--in-texto)',
+        fontFamily: 'inherit', fontSize: 8.4, fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: armando ? 'default' : 'pointer',
+      }}>
+        {armando ? <Loader2 size={12} className="at-gira" /> : <FileDown size={12} />} {armando ? 'Armando el PDF…' : `Descargar el reporte de ${nombreMes(ym).split(' ')[0]} en PDF`}
+      </button>
+      {errorPdf && <span style={{ textAlign: 'center', fontSize: 7, color: 'var(--in-rojo)' }}>No se pudo armar el PDF. Pruebe de nuevo.</span>}
+      {armando && <ReporteMes p={yo} mes={ym} onListo={e => { setArmando(false); if (e) setErrorPdf(true) }} />}
     </div>
   )
 }

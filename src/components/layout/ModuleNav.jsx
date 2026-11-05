@@ -2,8 +2,9 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EJES, vistasDeEje, tipoDe } from '../../data/estructuraData'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Sun, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, Clock } from 'lucide-react'
+import { ChevronRight, Handshake, LayoutDashboard, Users, Route, Rocket, BookOpen, Settings, ShieldCheck, UserRound, Building2, Folder, MessageCircleMore, ClipboardCheck, Info, ChevronsLeft, ChevronsRight, Calendar, HeartHandshake, MapPin, Network, LayoutGrid, Megaphone, Award, CalendarClock, Send, Workflow, FolderOpen, SlidersHorizontal, Inbox, Radio, BookOpenCheck, Home, MessageCircle, User } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
+import { useMisPedidos } from '../../hooks/useMisPedidos'
 import { useUser } from '../../context/UserContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useUnsavedChanges } from '../../context/UnsavedChangesContext'
@@ -12,7 +13,7 @@ import { versionActual } from '../../data/documentacionData'
 
 const sectionInfo = {
   'Administración': 'Las pantallas con las que se administra este módulo.',
-  'Mi espacio': 'Tu espacio personal como colaborador.',
+  'Mi espacio': 'Todo lo suyo, igual que en la app del celular.',
   'Empresa': 'Quién es la empresa, dónde está y cómo se organiza por dentro. Se define una vez y casi no se toca.',
   'Puestos y personas': 'Los cargos, las plazas y el dibujo. De aquí sacan Onboarding y Evaluación el área y el cargo de cada persona.',
   'Sistema': 'Cómo se comporta Souly para toda la empresa. Se decide una vez y afecta a todos los módulos.',
@@ -40,37 +41,29 @@ const inicioNav = [
   ]},
 ]
 
-/* Todo lo propio de la persona, junto y fuera de los módulos de administración: antes había
-   que entrar a Inicio para ver el día, a Onboarding para ver el onboarding propio y a otro
-   módulo del riel para el calendario —tres puertas administrativas para tres cosas que no
-   tienen nada de administrativo. */
-const miEspacioPropio = [
-  { label: 'Mi día', path: '/mi-espacio/mi-dia', icon: Sun },
-  { label: 'Mi Onboarding', path: '/mi-espacio/mi-onboarding', icon: Rocket },
-  { label: 'Mi asistencia', path: '/mi-espacio/mi-asistencia', icon: Clock },
-  { label: 'Mi calendario', path: '/mi-espacio/calendario', icon: Calendar },
+/* MI ESPACIO = LA BARRA DEL TELÉFONO (opción A de «Mi espacio web · Propuestas», 5 nov 2026). Es el
+   mismo colaborador entre por donde entre, así que la web tiene las mismas cinco puertas, con los mismos
+   nombres e íconos y en el mismo orden. Mi asistencia y el calendario ya no son puertas propias: viven en
+   Zona HR, como en el teléfono, y mientras uno está en ellas Zona HR queda encendida (`tambien`).
+   Zona HR lleva el número de lo que espera algo de la persona (sus solicitudes y documentos por hacer). */
+const miEspacioItems = cuentaZona => [
+  { label: 'Inicio', path: '/mi-espacio/mi-dia', icon: Home },
+  { label: 'Onboarding', path: '/mi-espacio/mi-onboarding', icon: Route },
+  { label: 'Comunicación', path: '/mi-espacio/chats', icon: MessageCircle },
+  { label: 'Zona HR', path: '/mi-espacio/zona-hr', icon: LayoutGrid, cuenta: cuentaZona, tambien: ['/mi-espacio/mi-asistencia', '/mi-espacio/calendario'] },
+  { label: 'Perfil', path: '/mi-espacio/perfil', icon: User },
 ]
 
-/* Las tres últimas son las pestañas que el colaborador ya tiene en la barra de abajo del móvil
-   —Chat, Zona HR y Perfil— y que en escritorio no aparecían por ningún lado. Van al final y en
-   ese mismo orden para que las dos vistas se lean igual. */
-const miEspacioApp = [
-  { label: 'Mis chats', path: '/mi-espacio/chats', icon: MessageCircleMore },
-  { label: 'Zona HR', path: '/mi-espacio/zona-hr', icon: LayoutGrid },
-  { label: 'Mi perfil', path: '/mi-espacio/perfil', icon: UserRound },
+const miEspacioNav = cuentaZona => [
+  { section: 'Mi espacio', items: miEspacioItems(cuentaZona) },
 ]
 
-const miEspacioNav = [
-  { section: 'Mi espacio', items: [...miEspacioPropio, ...miEspacioApp] },
-]
-
-// El buddy suma a los suyos las personas que acompaña: acompaña, no supervisa. Va junto a lo
-// suyo y antes de las pestañas de la app, que son las mismas para todos.
-const miEspacioBuddyNav = [
+// El buddy suma a los suyos las personas que acompaña: acompaña, no supervisa. Va después de las
+// cinco puertas, que son las mismas para todos.
+const miEspacioBuddyNav = cuentaZona => [
   { section: 'Mi espacio', items: [
-    ...miEspacioPropio,
+    ...miEspacioItems(cuentaZona),
     { label: 'Mis acompañados', path: '/mi-espacio/acompanados', icon: HeartHandshake },
-    ...miEspacioApp,
   ]},
 ]
 
@@ -343,6 +336,9 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
   } : {}), [doc])
 
   const at = useAsistencia()
+  /* Lo que espera algo de la persona, para el número de Zona HR (el mismo de la Zona HR del teléfono). */
+  const misPedidos = useMisPedidos(currentUser.name)
+  const cuentaZona = misPedidos.pendientes.length + (misPedidos.md?.porHacer?.length || 0)
   const cuentasAt = { incidencias: at?.incidencias.length || 0, solicitudes: (at?.horasExtra.filter(x => x.estado === 'pendiente').length || 0) + (at?.solicitudes.filter(x => x.estado === 'pendiente').length || 0) }
 
   const isPersonas = donde.startsWith('/personas')
@@ -428,7 +424,7 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
       : isPersonas
         ? personasNav
         : isMiEspacio
-          ? (currentUser.role === 'buddy' ? miEspacioBuddyNav : miEspacioNav)
+          ? (currentUser.role === 'buddy' ? miEspacioBuddyNav : miEspacioNav)(cuentaZona)
           : isInicio
             ? inicioNav
             : (onboardingNavByRole[currentUser.role] || onboardingAdminNav)
@@ -513,7 +509,7 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
               </div>
             )}
             <div className="flex flex-col" style={{ gap: '0.3rem', alignItems: expanded ? undefined : 'center' }}>
-              {group.items.map(({ label, path, icon: Icon, end, eje: ejeOrg, cuenta, subs }) => {
+              {group.items.map(({ label, path, icon: Icon, end, eje: ejeOrg, cuenta, subs, tambien }) => {
                 /* Unas subsecciones fijas se pliegan igual que un eje: su clave es la ruta. */
                 const eje = ejeOrg || (subs ? path : null)
                 /* DOS VERDES NO PUEDEN DECIR «ESTÁS AQUÍ» A LA VEZ. Estando dentro, el padre deja
@@ -521,7 +517,7 @@ export default function ModuleNav({ enPanel = false, ruta } = {}) {
                    el verde al hijo, que es donde uno está de verdad. */
                 const abierto = !!eje && expanded && ejesAbiertos.has(eje)
     /* La entrada se marca también cuando estás en la ficha de un nodo de su eje. */
-                const ejeActivo = !!ejeOrg && ejeDeFicha?.key === ejeOrg
+                const ejeActivo = (!!ejeOrg && ejeDeFicha?.key === ejeOrg) || !!tambien?.some(r => location.pathname.startsWith(r))
                 return (
                 <Fragment key={path}>
                 <NavLink
