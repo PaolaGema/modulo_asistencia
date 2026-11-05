@@ -8,6 +8,7 @@ import { UnsavedChangesProvider } from './context/UnsavedChangesContext'
 import Layout from './components/layout/Layout'
 import Home from './pages/inicio/Home'
 import InicioWeb from './pages/inicio/InicioWeb'
+import MiCalendarioWeb from './pages/inicio/MiCalendarioWeb'
 import Calendario from './pages/calendario/Calendario'
 import Dashboard from './pages/onboarding/Dashboard'
 import Asignaciones from './pages/onboarding/Asignaciones'
@@ -106,7 +107,7 @@ export default function App() {
             <Route path="mi-dia" element={<InicioWeb />} />
             {/* MI CALENDARIO: el de la persona —sus vacaciones y permisos, feriados, cumpleaños de
                 su área—. El de toda la empresa sigue en Inicio, que es lo administrativo. */}
-            <Route path="calendario" element={<Calendario mio />} />
+            <Route path="calendario" element={<MiCalendarioWeb />} />
             <Route path="mi-onboarding" element={<MiOnboarding />} />
             <Route path="mi-asistencia" element={<MiAsistencia />} />
             <Route path="acompanados" element={<MisAcompanados />} />
