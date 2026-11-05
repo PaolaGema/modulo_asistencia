@@ -337,7 +337,7 @@ const GRUPOS_DIA = [
 ]
 
 /* La leyenda dibuja cada muestra igual que en la barrita: liso lo que pasó, rayado lo que no se trabajó. */
-const LEYENDA_DIA = [['ok', 'Trabajó'], ['vivo', 'Trabajando ahora'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'No vino'], ['just', 'De vacaciones o con permiso'], ['inc', 'Salida sin marcar']]
+const LEYENDA_DIA = [['ok', 'Trabajó'], ['vivo', 'Trabajando ahora'], ['tarde', 'Llegó tarde o salió antes'], ['falta', 'No asistió · faltó'], ['just', 'De vacaciones o con permiso'], ['inc', 'Salida sin marcar']]
 const ESCALA = [6 * 60, 22 * 60]
 
 /* Los tramos trabajados salen de las marcas, igual que la barra del día. */
