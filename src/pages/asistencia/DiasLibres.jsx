@@ -3,6 +3,7 @@ import { CalendarHeart, Plus, Pencil, Trash2, CheckCircle2 } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Modal, MenuAcciones, Vacio } from '../../components/documentacion/comunes'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
+import CampoHora from '../../components/asistencia/CampoHora'
 import { MESES } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN › DÍAS LIBRES (propuesta «Lo que la app ya sabe · parte 2», aplicada el 5 nov 2026) ──
@@ -12,7 +13,6 @@ import { MESES } from '../../data/asistenciaData'
    no cuenta como falta ni como salida antes: en el Libro sale en gris con su nombre, como una vacación.
    La tabla solo muestra; se cambia en la ventana de «Editar», que es la que confirma (regla de la casa). */
 
-const HORAS = ['09:00', '10:00', '11:00', '12:00', '12:30', '13:00', '14:00', '15:00', '16:00']
 const cuandoTxt = r => (r.cuando?.tipo === 'cumple' ? 'El día de su cumpleaños' : r.cuando?.mmdd ? `${Number(r.cuando.mmdd.slice(3))} de ${MESES[Number(r.cuando.mmdd.slice(0, 2)) - 1]}` : '—')
 const NUEVO = { nombre: '', cuando: { tipo: 'fecha', mmdd: '01-01' }, cuanto: 'entero', desde: '13:00', forma: 'automatico', aQuien: { tipo: 'todos' }, correr: true }
 
@@ -86,74 +86,120 @@ export default function DiasLibres() {
   )
 }
 
+/* LA VENTANA DE UN DÍA LIBRE, COMO LA DE «NUEVO HORARIO» (pedido del 5 nov 2026): arriba los campos simples
+   (nombre, cuándo y la fecha), a la izquierda las reglas en filas (cuánto, cómo se toma, a quién, si cae en un
+   día que no trabaja), a la derecha «Así queda su día» —un día normal al lado del día libre, con las mismas
+   barras de la semana del horario— y al pie el resumen en etiquetas, como «6 días de trabajo · …». */
+const ESCALA = [6 * 60, 22 * 60]
+const enEscala = m => Math.max(0, Math.min(100, ((m - ESCALA[0]) / (ESCALA[1] - ESCALA[0])) * 100))
+const aM = t => { const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0) }
+const ENTRADA = '08:30', SALIDA = '18:00', PAUSA = ['13:00', '14:00']
+
 function Editor({ inicial, sucursales, unidades, onGuardar, onCerrar }) {
+  const at = useAsistencia()
   const [r, setR] = useState(inicial)
   const pon = cambios => setR(x => ({ ...x, ...cambios }))
   const [mes, dia] = (r.cuando?.mmdd || '01-01').split('-').map(Number)
   const diasDelMes = new Date(2026, mes, 0).getDate()
   const valido = r.nombre.trim().length >= 3 && (r.aQuien.tipo === 'todos' || (r.aQuien.tipo === 'sucursal' ? r.aQuien.ids?.length : r.aQuien.nombres?.length))
-  const seg = (valor, opciones, onCambio) => (
-    <div className="at-segmento" role="radiogroup">
+  const seg = (valor, opciones, onCambio, etiqueta) => (
+    <div className="at-segmento" role="radiogroup" aria-label={etiqueta}>
       {opciones.map(([v, t]) => <button key={v} type="button" role="radio" aria-checked={valor === v} className={valor === v ? 'on' : ''} onClick={() => onCambio(v)}>{t}</button>)}
     </div>
   )
-  const campo = { display: 'grid', gap: 6 }
-  const rot = { fontSize: 12.5, fontWeight: 600 }
+  /* A cuántos alcanza, para el resumen del pie. */
+  const alcance = at.personas.filter(p => p.asig && (r.aQuien.tipo === 'todos'
+    || (r.aQuien.tipo === 'sucursal' && (r.aQuien.ids || []).includes(String(p.sucursalId || p.lugar?.sucursalId || p.lugar?.id)))
+    || (r.aQuien.tipo === 'unidad' && (r.aQuien.nombres || []).includes(p.unidad)))).length
+  const cuando = r.cuando.tipo === 'cumple' ? 'el día de su cumpleaños' : `el ${dia} de ${MESES[mes - 1]}`
+  const fila = (titulo, ayuda, control) => (
+    <div style={{ display: 'grid', gridTemplateColumns: '150px minmax(0, 1fr)', gap: 14, alignItems: 'center', background: 'var(--surface-card)', borderRadius: 10, padding: '10px 12px' }}>
+      <span style={{ display: 'grid' }}><b style={{ fontSize: 13, color: 'var(--text-heading)' }}>{titulo}</b>{ayuda && <small style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>{ayuda}</small>}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>{control}</div>
+    </div>
+  )
+  const libreDesde = r.cuanto === 'medio' ? aM(r.desde) : aM(ENTRADA)
+
   return (
-    <Modal titulo={inicial.id ? `Editar · ${inicial.nombre}` : 'Agregar un día libre'} Icono={CalendarHeart} onCerrar={onCerrar} ancho={560}
-      pie={<>
-        <button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button>
-        <button type="button" className="pl-btn-save" disabled={!valido} onClick={() => onGuardar({ ...r, nombre: r.nombre.trim() })}>{inicial.id ? 'Guardar cambios' : 'Agregar día libre'}</button>
-      </>}>
-      <div style={{ display: 'grid', gap: 16 }}>
-        <label style={campo}><span style={rot}>Nombre</span>
-          <input className="pl-input" value={r.nombre} onChange={e => pon({ nombre: e.target.value })} placeholder="Ej.: Aniversario de la empresa" />
-        </label>
-        <div style={campo}><span style={rot}>Cuándo</span>
-          {seg(r.cuando.tipo, [['cumple', 'El cumpleaños de cada persona'], ['fecha', 'Una fecha del año']], v => pon({ cuando: v === 'cumple' ? { tipo: 'cumple' } : { tipo: 'fecha', mmdd: r.cuando.mmdd || '01-01' } }))}
-          {r.cuando.tipo === 'fecha' && (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <select className="pl-input" aria-label="Día" value={dia} onChange={e => pon({ cuando: { tipo: 'fecha', mmdd: `${String(mes).padStart(2, '0')}-${String(e.target.value).padStart(2, '0')}` } })} style={{ width: 90 }}>
-                {Array.from({ length: diasDelMes }, (_, i) => i + 1).map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-              <select className="pl-input" aria-label="Mes" value={mes} onChange={e => pon({ cuando: { tipo: 'fecha', mmdd: `${String(e.target.value).padStart(2, '0')}-${String(Math.min(dia, new Date(2026, Number(e.target.value), 0).getDate())).padStart(2, '0')}` } })}>
-                {MESES.map((m, i) => <option key={m} value={i + 1}>{m[0].toUpperCase() + m.slice(1)}</option>)}
-              </select>
-            </div>
-          )}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-            <input type="checkbox" checked={!!r.correr} onChange={e => pon({ correr: e.target.checked })} />
-            Si cae en un día que la persona no trabaja (fin de semana o feriado), pasarlo al siguiente día de trabajo
-          </label>
-        </div>
-        <div style={campo}><span style={rot}>Cuánto</span>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-            {seg(r.cuanto, [['entero', 'Día entero'], ['medio', 'Medio día']], v => pon({ cuanto: v }))}
-            {r.cuanto === 'medio' && (
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>Libre desde las
-                <select className="pl-input" value={r.desde} onChange={e => pon({ desde: e.target.value })} style={{ width: 100 }}>{HORAS.map(h => <option key={h}>{h}</option>)}</select>
-              </label>
-            )}
+    <Modal titulo={inicial.id ? 'Editar día libre' : 'Nuevo día libre'} Icono={CalendarHeart} onCerrar={onCerrar} ancho={1000}
+      pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!valido} onClick={() => onGuardar({ ...r, nombre: r.nombre.trim() })}>Guardar día libre</button></>}>
+      <div className="at-modal-campos">
+        <div className="at-hz-cab">
+          <label className="at-campo"><span>Nombre</span><input className="pl-input" value={r.nombre} onChange={e => pon({ nombre: e.target.value })} placeholder="Ej.: Aniversario de la empresa" autoFocus /></label>
+          <div className="at-campo"><span>Cuándo</span>
+            {seg(r.cuando.tipo, [['cumple', 'Su cumpleaños'], ['fecha', 'Una fecha']], v => pon({ cuando: v === 'cumple' ? { tipo: 'cumple' } : { tipo: 'fecha', mmdd: r.cuando.mmdd || '01-01' } }), 'Cuándo')}
+          </div>
+          <div className="at-campo"><span>Fecha</span>
+            {r.cuando.tipo === 'fecha' ? (
+              <div style={{ display: 'flex', gap: 6 }}>
+                <select className="pl-input" aria-label="Día" value={dia} style={{ width: 70 }} onChange={e => pon({ cuando: { tipo: 'fecha', mmdd: `${String(mes).padStart(2, '0')}-${String(e.target.value).padStart(2, '0')}` } })}>
+                  {Array.from({ length: diasDelMes }, (_, i) => i + 1).map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <select className="pl-input" aria-label="Mes" value={mes} style={{ width: 130 }} onChange={e => pon({ cuando: { tipo: 'fecha', mmdd: `${String(e.target.value).padStart(2, '0')}-${String(Math.min(dia, new Date(2026, Number(e.target.value), 0).getDate())).padStart(2, '0')}` } })}>
+                  {MESES.map((m, i) => <option key={m} value={i + 1}>{m[0].toUpperCase() + m.slice(1)}</option>)}
+                </select>
+              </div>
+            ) : <span className="pl-input" style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', width: 206 }}>La de su ficha</span>}
           </div>
         </div>
-        <div style={campo}><span style={rot}>Cómo se toma</span>
-          {seg(r.forma, [['automatico', 'Automático'], ['pide', 'Lo pide la persona']], v => pon({ forma: v }))}
-          <small className="dc-muted">{r.forma === 'automatico' ? 'El día cae solo: nadie tiene que pedirlo ni aprobarlo.' : 'La persona lo pide desde Mis beneficios y RR.HH. lo aprueba, como cualquier permiso.'}</small>
+
+        <div className="at-hz-lado">
+          <div className="at-hz-filas" style={{ gap: 8 }}>
+            {fila('Cuánto', r.cuanto === 'entero' ? 'Ese día no viene a trabajar' : 'Trabaja hasta la hora elegida', <>
+              {seg(r.cuanto, [['entero', 'Día entero'], ['medio', 'Medio día']], v => pon({ cuanto: v }), 'Cuánto')}
+              {r.cuanto === 'medio' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Libre desde <span style={{ width: 120 }}><CampoHora value={r.desde} onChange={v => pon({ desde: v })} ariaLabel="Libre desde" /></span></span>}
+            </>)}
+            {fila('Cómo se toma', r.forma === 'automatico' ? 'Cae solo: nadie lo pide ni lo aprueba' : 'La persona lo pide en Mis beneficios', seg(r.forma, [['automatico', 'Automático'], ['pide', 'Lo pide la persona']], v => pon({ forma: v }), 'Cómo se toma'))}
+            {fila('A quién', null, <>
+              {seg(r.aQuien.tipo, [['todos', 'Todos'], ['sucursal', 'Una sucursal'], ['unidad', 'Una unidad']], v => pon({ aQuien: v === 'todos' ? { tipo: 'todos' } : v === 'sucursal' ? { tipo: 'sucursal', ids: [] } : { tipo: 'unidad', nombres: [] } }), 'A quién')}
+              {r.aQuien.tipo === 'sucursal' && (
+                <select className="pl-input" style={{ width: 220 }} value={r.aQuien.ids?.[0] || ''} onChange={e => pon({ aQuien: { tipo: 'sucursal', ids: e.target.value ? [e.target.value] : [] } })}>
+                  <option value="">Elija la sucursal…</option>
+                  {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+                </select>
+              )}
+              {r.aQuien.tipo === 'unidad' && (
+                <select className="pl-input" style={{ width: 220 }} value={r.aQuien.nombres?.[0] || ''} onChange={e => pon({ aQuien: { tipo: 'unidad', nombres: e.target.value ? [e.target.value] : [] } })}>
+                  <option value="">Elija la unidad…</option>
+                  {unidades.map(u => <option key={u}>{u}</option>)}
+                </select>
+              )}
+            </>)}
+            {fila('Si no trabaja ese día', 'Fin de semana o feriado', <>
+              <button type="button" role="switch" aria-checked={!!r.correr} aria-label="Pasarlo al siguiente día de trabajo" className={`at-switch at-switch-sm${r.correr ? ' on' : ''}`} onClick={() => pon({ correr: !r.correr })} />
+              <span style={{ fontSize: 13, color: 'var(--text-heading)' }}>{r.correr ? 'Pasa al siguiente día de trabajo' : 'Se pierde ese año'}</span>
+            </>)}
+          </div>
+
+          {/* ASÍ QUEDA SU DÍA: un día normal y el día libre, con las barras de la semana del horario. */}
+          <div className="at-hz-semana" aria-hidden="true">
+            <span className="at-hz-rot">Así queda su día</span>
+            <div className="at-hz-cal" style={{ gridTemplateColumns: '22px repeat(2, minmax(0, 1fr))', height: 300 }}>
+              <div className="at-hz-horas">{[6, 9, 12, 15, 18, 21].map(x => <span key={x} style={{ top: `${enEscala(x * 60)}%` }}>{String(x).padStart(2, '0')}</span>)}</div>
+              <div className="at-hz-col"><b>Un día normal</b>
+                <div className="at-hz-pista">
+                  <i style={{ top: `${enEscala(aM(ENTRADA))}%`, height: `${enEscala(aM(SALIDA)) - enEscala(aM(ENTRADA))}%`, background: '#9AABBB' }} />
+                  <i className="p" style={{ top: `${enEscala(aM(PAUSA[0]))}%`, height: `${enEscala(aM(PAUSA[1])) - enEscala(aM(PAUSA[0]))}%` }} />
+                </div>
+              </div>
+              <div className="at-hz-col"><b>Día libre</b>
+                <div className="at-hz-pista">
+                  {r.cuanto === 'medio' && libreDesde > aM(ENTRADA) && <i style={{ top: `${enEscala(aM(ENTRADA))}%`, height: `${enEscala(Math.min(libreDesde, aM(SALIDA))) - enEscala(aM(ENTRADA))}%`, background: '#9AABBB' }} />}
+                  <i style={{ top: `${enEscala(Math.max(libreDesde, aM(ENTRADA)))}%`, height: `${enEscala(aM(SALIDA)) - enEscala(Math.max(libreDesde, aM(ENTRADA)))}%`, background: '#00E091' }} />
+                  <em style={{ top: `${(enEscala(Math.max(libreDesde, aM(ENTRADA))) + enEscala(aM(SALIDA))) / 2 - 3}%`, color: '#0C2D40', fontWeight: 600 }}>Libre</em>
+                </div>
+              </div>
+            </div>
+            <div className="at-hz-ley"><span><i style={{ background: '#9AABBB' }} />Trabaja</span><span><i style={{ background: '#00E091' }} />Libre</span><span><i className="p" />Descanso</span></div>
+            <small style={{ fontSize: 11, color: 'var(--text-muted)' }}>Con un horario de {ENTRADA} a {SALIDA}, como ejemplo.</small>
+          </div>
         </div>
-        <div style={campo}><span style={rot}>A quién</span>
-          {seg(r.aQuien.tipo, [['todos', 'Todos'], ['sucursal', 'Una sucursal'], ['unidad', 'Una unidad']], v => pon({ aQuien: v === 'todos' ? { tipo: 'todos' } : v === 'sucursal' ? { tipo: 'sucursal', ids: [] } : { tipo: 'unidad', nombres: [] } }))}
-          {r.aQuien.tipo === 'sucursal' && (
-            <select className="pl-input" value={r.aQuien.ids?.[0] || ''} onChange={e => pon({ aQuien: { tipo: 'sucursal', ids: e.target.value ? [e.target.value] : [] } })}>
-              <option value="">Elija la sucursal…</option>
-              {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-            </select>
-          )}
-          {r.aQuien.tipo === 'unidad' && (
-            <select className="pl-input" value={r.aQuien.nombres?.[0] || ''} onChange={e => pon({ aQuien: { tipo: 'unidad', nombres: e.target.value ? [e.target.value] : [] } })}>
-              <option value="">Elija la unidad organizacional…</option>
-              {unidades.map(u => <option key={u}>{u}</option>)}
-            </select>
-          )}
+
+        <div className="at-hz-tot">
+          <span><b>{r.cuanto === 'entero' ? 'Día entero' : `Tarde libre desde las ${r.desde}`}</b></span>
+          <span><b>{cuando[0].toUpperCase() + cuando.slice(1)}</b>{r.correr ? ' · o el siguiente día de trabajo' : ''}</span>
+          <span><b>{r.forma === 'automatico' ? 'Cae solo' : 'Lo pide la persona'}</b></span>
+          <span><b>{alcance}</b> {alcance === 1 ? 'colaborador' : 'colaboradores'}</span>
         </div>
       </div>
     </Modal>
