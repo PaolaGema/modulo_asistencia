@@ -88,7 +88,8 @@ export function Verificacion({ marca, compacto }) {
    se quedó de más, sin leer una sola hora. */
 const INI = 6 * 60; const FIN = 22 * 60
 const pct = m => `${Math.min(100, Math.max(0, ((m - INI) / (FIN - INI)) * 100))}%`
-export function BarraDia({ jornada, horario, ahora, grande, onMarca }) {
+/* `ventanas`: franjas de horas extra ([desde, hasta] en minutos), en violeta encima de su día (Revisar · Horas extra). */
+export function BarraDia({ jornada, horario, ahora, grande, onMarca, ventanas = [] }) {
   const marcas = jornada.marcas.filter(m => !m.rechazada && !m.anulada)
   const tramos = []
   let abierto = null
@@ -108,6 +109,7 @@ export function BarraDia({ jornada, horario, ahora, grande, onMarca }) {
         {grande && marcas.map(m => (
           <button key={m.id} type="button" className={`at-barra-punto t-${m.tipo}`} style={{ left: pct(m.min) }} title={`${hhmm(m.min)}`} onClick={() => onMarca?.(m)} tabIndex={onMarca ? 0 : -1} />
         ))}
+        {ventanas.map(([a, b], i) => <span key={`v${i}`} className="at-barra-extra" style={{ left: pct(a), width: `calc(${pct(b)} - ${pct(a)})` }} />)}
         {ahora != null && <span className="at-barra-ahora" style={{ left: pct(ahora) }} />}
       </div>
       {grande && (

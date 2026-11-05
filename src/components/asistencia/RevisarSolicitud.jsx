@@ -22,7 +22,7 @@ import { PersonaAt } from './comunes'
 
 const sinTildes = t => t.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase()
 
-export default function RevisarSolicitud({ titulo, persona, estado, datos, contexto = [], efecto, efectoRechazo, respondio, nota, onAprobar, onRechazar, onVerDia, accionAprobar = 'Aprobar', accionRechazar = 'Rechazar', onCerrar, documento, que, excepcion, bloqueo }) {
+export default function RevisarSolicitud({ titulo, persona, estado, datos, contexto = [], efecto, efectoRechazo, respondio, nota, onAprobar, onRechazar, onVerDia, accionAprobar = 'Aprobar', accionRechazar = 'Rechazar', onCerrar, extra, documento, que, excepcion, bloqueo }) {
   const [paso, setPaso] = useState('revisar') // revisar | rechazar | aprobar
   const [clave, setClave] = useState('')
   const palabra = sinTildes(accionAprobar.split(' ')[0])
@@ -69,11 +69,16 @@ export default function RevisarSolicitud({ titulo, persona, estado, datos, conte
           {estado && <Etiqueta tono={estado.tono}>{estado.label}</Etiqueta>}
         </div>
 
-        <dl className="at-rev-datos">
-          {datos.filter(Boolean).map(([k, v]) => (
-            <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
-          ))}
-        </dl>
+        {datos.filter(Boolean).length > 0 && (
+          <dl className="at-rev-datos">
+            {datos.filter(Boolean).map(([k, v]) => (
+              <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+            ))}
+          </dl>
+        )}
+
+        {/* Algo propio del tipo, entre los datos y «Para decidir» (Horas extra: la barra de su día). */}
+        {extra}
 
         {contexto.filter(Boolean).length > 0 && (
           <div className="at-rev-contexto">
@@ -87,11 +92,11 @@ export default function RevisarSolicitud({ titulo, persona, estado, datos, conte
 
         {pendiente && paso === 'revisar' && (
           <>
-            {efecto && <div className="at-rev-efecto"><Info size={16} aria-hidden="true" /><span><b>Si apruebas:</b> {efecto}</span></div>}
+            {efecto && <div className="at-rev-efecto"><Info size={16} aria-hidden="true" /><span><b>Si aprueba:</b> {efecto}</span></div>}
             {onAprobar && (
               <label className="at-campo">
                 <span>Nota para la persona <em>opcional</em></span>
-                <input className="pl-input" value={texto} onChange={e => setTexto(e.target.value)} placeholder="Ej.: aprobado, recuerda dejar tu turno cubierto" />
+                <input className="pl-input" value={texto} onChange={e => setTexto(e.target.value)} placeholder="Ej.: aprobado, recuerde dejar su turno cubierto" />
               </label>
             )}
           </>

@@ -6,7 +6,9 @@ import { useAsistencia } from '../../context/AsistenciaContext'
 import { Cabecera, Modal, Vacio, Etiqueta } from '../../components/documentacion/comunes'
 import Paginacion from '../../components/layout/Paginacion'
 import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
-import { PersonaAt, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
+import PapeletaExtra from '../../components/asistencia/PapeletaExtra'
+import { useOnboardingData } from '../../context/OnboardingDataContext'
+import { PersonaAt, BarraDia, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
 import { ESTADOS_EXTRA, ORIGENES_EXTRA, PROYECTOS_DEMO, esAutorizada, fechaLarga, fechaCorta, aMin, duracion, sumarDias, mesDe, mesVecino, nombreMes, diasDelMes, descargarCSV } from '../../data/asistenciaData'
 
 /* ── HORAS EXTRA ───────────────────────────────────────────────────────────
@@ -33,6 +35,7 @@ const largo = x => aMin(x.hasta) - aMin(x.desde)
 
 export default function HorasExtra() {
   const at = useAsistencia()
+  const { empresa } = useOnboardingData()
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   /* `vista` y no `ver`: esta pantalla vive dentro de Solicitudes, que ya usa `?ver=horas-extra`. */
@@ -190,15 +193,45 @@ export default function HorasExtra() {
         const propia = String(x.personaId) === String(at.yo?.id)
         const pendiente = x.estado === 'pendiente'
         const cancelable = (esAutorizada(x) || x.estado === 'asignada') && x.fecha >= at.hoy
-        const yaTiene = at.horasExtra.filter(o => o.id !== x.id && o.personaId === x.personaId && esAutorizada(o) && mesDe(o.fecha) === mesDe(x.fecha)).reduce((t, o) => t + largo(o), 0)
+        /* REVISAR · HORAS EXTRA (propuesta A, 5 nov 2026): como Vacaciones y Permiso. A la izquierda, la papeleta;
+           a la derecha, su día con la franja pedida en violeta y lo que hay que saber para decidir. */
+        const delMes = at.horasExtra.filter(o => o.id !== x.id && o.personaId === x.personaId && esAutorizada(o) && mesDe(o.fecha) === mesDe(x.fecha)).sort((p, q) => (p.fecha < q.fecha ? -1 : 1))
+        const yaTiene = delMes.reduce((t, o) => t + largo(o), 0)
+        const nMes = nombreMes(mesDe(x.fecha)).split(' ')[0]
+        const dias = delMes.map(o => +o.fecha.slice(8))
+        const listaDias = dias.length > 1 ? `${dias.slice(0, -1).join(', ')} y ${dias[dias.length - 1]}` : String(dias[0] || '')
+        const h = at.horarioDe(x.persona, x.fecha)
+        const jornada = at.jornadaDe(x.persona, x.fecha)
+        /* Solo cuenta su horario si ese día trabaja: un sábado libre no «termina a las 18:00». */
+        const libre = !h || !jornada.laboral
+        const fijo = !libre && h.modo === 'fijo'
+        const hueco = fijo ? aMin(x.desde) - aMin(h.salida) : null
+        const todas = [...at.horasExtra].sort((p, q) => ((p.cuando || '') < (q.cuando || '') ? -1 : 1))
+        const numero = `${(x.cuando || at.hoy).slice(0, 4)}-${String(todas.findIndex(o => o.id === x.id) + 1).padStart(4, '0')}`
+        const dia = fechaLarga(x.fecha)
         return (
           <RevisarSolicitud
             titulo="Revisar · Horas extra" persona={x.persona} estado={ESTADOS_EXTRA[x.estado]}
-            datos={[['Día', fechaLarga(x.fecha)], ['Horario', `${horas(x)} (${duracion(largo(x))})`], ['Motivo', x.motivo], x.proyecto && ['Proyecto', x.proyecto], ['Origen', ORIGENES_EXTRA[x.origen]], ['Aprueba', x.respondio || x.aprobador || 'RR.HH.']]}
+            datos={[]}
+            documento={<PapeletaExtra x={x} persona={x.persona} empresa={empresa} numero={numero} />}
+            extra={(
+              <div className="at-rev-dia">
+                <div className="at-rev-dia-t"><b>Su día · {dia.toLowerCase()}</b><span>{duracion(largo(x))} · de {x.desde} a {x.hasta}</span></div>
+                <BarraDia jornada={jornada} horario={h} grande ventanas={[[aMin(x.desde), aMin(x.hasta)]]} />
+                <div className="at-rev-dia-ley">
+                  {fijo && <span><i className="prog" />Su horario</span>}
+                  {jornada.entrada != null && <span><i style={{ background: 'var(--at-verde)' }} />Lo que trabajó</span>}
+                  <span><i style={{ background: 'var(--at-violeta)' }} />{pendiente ? 'Horas extra que pide' : 'Horas extra'}</span>
+                </div>
+              </div>
+            )}
             contexto={[
               propia && pendiente && { tono: 'ambar', texto: 'Son sus propias horas extra. Puede responderlas, pero quedará registrado en la auditoría que las respondió usted.' },
-              { tono: 'azul', texto: `Ya tiene ${duracion(yaTiene)} de horas extra autorizadas en ${nombreMes(mesDe(x.fecha)).split(' ')[0]}` },
-              x.persona.horario?.modo === 'fijo' && { tono: 'gris', texto: `Su horario ese día termina a las ${x.persona.horario.salida}` },
+              { tono: 'azul', texto: delMes.length ? `Sería su ${delMes.length + 1}.ª vez en ${nMes}: ya tiene ${duracion(yaTiene)} autorizadas (${listaDias} de ${nMes})` : `Primera vez en ${nMes}: no tiene otras horas extra autorizadas este mes` },
+              libre && { tono: 'ambar', texto: `El ${dia.split(" ")[0].toLowerCase()} no trabaja: las horas extra serían en su día libre` },
+              fijo && hueco === 0 && { tono: 'gris', texto: `Empiezan justo cuando termina su horario (${h.salida})` },
+              fijo && hueco > 0 && { tono: 'gris', texto: `Empiezan ${duracion(hueco)} después de su salida (${h.salida})` },
+              fijo && hueco < 0 && { tono: 'ambar', texto: `Empiezan antes de que termine su horario (${h.salida}): de ${x.desde} a ${h.salida} ya es su jornada y no cuenta como extra` },
             ]}
             efecto={pendiente ? `lo que trabaje de ${horas(x)} el ${fechaCorta(x.fecha)} contará como horas extra. Si se queda más tiempo, ese tiempo no cuenta.` : ''}
             efectoRechazo={pendiente ? 'Si igual se queda, ese tiempo no contará como horas extra. La persona verá el motivo en su app.' : 'Las horas dejan de estar autorizadas: lo que trabaje ese día después de su horario no contará como horas extra. La persona lo verá en su app.'}
