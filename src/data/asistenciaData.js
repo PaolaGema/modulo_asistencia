@@ -189,6 +189,34 @@ export function horarioDeDia(h, dow) {
   return { ...h, entrada: o.entrada, salida: o.salida, ...(propios ? { descansos: propios, pausa: 0, pausaDesde: null, pausaHasta: null } : {}), delDia: dow }
 }
 export const horarioDelDia = (h, fecha) => horarioDeDia(h, diaISO(fecha))
+/* ── DÍAS LIBRES DE LA EMPRESA (propuesta «Lo que la app ya sabe · parte 2», aplicada el 5 nov 2026) ──
+   Los que da la empresa además de los feriados: el cumpleaños, el aniversario… Cada uno dice
+   · cuándo: el cumpleaños de cada persona (de su ficha) o una fecha fija del año (mes-día);
+   · cuánto: el día entero o medio día (`desde`: desde qué hora queda libre);
+   · cómo se toma: automático (cae solo) o lo pide la persona (como hoy «Pedir mi día» en Mis beneficios);
+   · a quién: todos, o una sucursal o una unidad;
+   · si cae en un día que no trabaja (fin de semana, feriado), se corre al siguiente día de trabajo.
+   Ese día no se espera marca (entero) o la salida se adelanta (medio), y no cuenta como falta ni salida antes. */
+export const DIAS_LIBRES_SEED = [
+  { id: 'dl-cumple', nombre: 'Cumpleaños', cuando: { tipo: 'cumple' }, cuanto: 'entero', desde: '13:00', forma: 'automatico', aQuien: { tipo: 'todos' }, correr: true },
+  { id: 'dl-aniversario', nombre: 'Aniversario de la empresa', cuando: { tipo: 'fecha', mmdd: '08-12' }, cuanto: 'medio', desde: '13:00', forma: 'automatico', aQuien: { tipo: 'todos' }, correr: false },
+]
+/* Si la regla le toca a esa persona ese día: { regla, cuanto, desde } o null. `nacio` = 'AAAA-MM-DD'. */
+export function diaLibreEn(reglas, p, fecha, nacio) {
+  for (const r of reglas || []) {
+    if (r.forma !== 'automatico') continue
+    if (r.aQuien?.tipo === 'sucursal' && !(r.aQuien.ids || []).includes(String(p?.sucursalId || p?.lugar?.sucursalId || p?.lugar?.id))) continue
+    if (r.aQuien?.tipo === 'unidad' && !(r.aQuien.nombres || []).includes(p?.unidad)) continue
+    const mmdd = r.cuando?.tipo === 'cumple' ? nacio?.slice(5, 10) : r.cuando?.mmdd
+    if (!mmdd) continue
+    let d = `${fecha.slice(0, 4)}-${mmdd}`
+    const trabaja = s => (p?.horario?.dias?.length ? p.horario.dias.includes(diaISO(s)) : diaISO(s) <= 5) && !FERIADOS[s]
+    if (r.correr) for (let k = 0; k < 7 && !trabaja(d); k++) d = sumarDias(d, 1)
+    if (d === fecha) return { regla: r, cuanto: r.cuanto, desde: r.desde }
+  }
+  return null
+}
+
 /* EL HORARIO DE UN DÍA CON PERMISO POR HORAS (propuesta «Lo que la app ya sabe», aprobada el 5 nov 2026).
    `permisos` = [{ desde, hasta, label }] en minutos, ya aprobados. Si el permiso cubre el inicio del turno,
    su entrada de ese día es cuando termina el permiso; si cubre el final, su salida es cuando empieza. Así

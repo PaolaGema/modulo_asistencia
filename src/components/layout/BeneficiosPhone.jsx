@@ -111,8 +111,10 @@ export default function BeneficiosPhone({ currentUser, onVolver, volverA = 'Inic
 
   /* LO QUE CONVIENE USAR AHORA, en orden: su cumpleaños si se acerca; lo que le queda del fondo en los
      últimos tres meses del año; si no, su viernes corto. */
+  /* Si en Configuración › Días libres el cumpleaños es automático, no hay nada que pedir: el día cae solo. */
+  const cumpleAuto = (at.diasLibres || []).some(r => r.cuando?.tipo === 'cumple' && r.forma === 'automatico')
   const ahora = faltan != null && faltan <= 30
-    ? { id: 'cumple', titulo: 'Su día libre de cumpleaños', linea: `${fechaLarga(cumple)[0].toUpperCase()}${fechaLarga(cumple).slice(1)} · ${faltan === 0 ? 'es hoy' : `faltan ${faltan} días`}`, boton: 'Pedir mi día', icono: Gift }
+    ? { id: 'cumple', titulo: 'Su día libre de cumpleaños', linea: `${fechaLarga(cumple)[0].toUpperCase()}${fechaLarga(cumple).slice(1)} · ${faltan === 0 ? 'es hoy' : `faltan ${faltan} días`}${cumpleAuto ? ' · es libre, no hace falta pedirlo' : ''}`, boton: cumpleAuto ? null : 'Pedir mi día', icono: Gift }
     : libre && diasAlFin <= 90
       ? { id: 'fondo', titulo: `Le quedan ${bs(libre)} de su fondo de capacitación`, linea: `Se usa hasta el 31 de diciembre · faltan ${diasAlFin} días`, boton: 'Pedir un reembolso', icono: FileText }
       : { id: 'viernes', titulo: 'Su viernes corto de este mes', linea: 'Salga a las 16:00 un viernes, acordándolo con su jefe', boton: 'Ver cómo', icono: Clock }
@@ -156,7 +158,7 @@ export default function BeneficiosPhone({ currentUser, onVolver, volverA = 'Inic
   if (vista?.p === 'detalle') {
     const b = BENEFICIOS.find(x => x.id === vista.id)
     const est = estadoDe(b)
-    const boton = b.accion === 'dia' ? (enSuMes || (faltan != null && faltan <= 30) ? 'Pedir mi día' : null)
+    const boton = b.accion === 'dia' ? (!cumpleAuto && (enSuMes || (faltan != null && faltan <= 30)) ? 'Pedir mi día' : null)
       : b.accion === 'reembolso' ? (libre ? 'Pedir un reembolso' : null) : b.accion === 'codigo' ? 'Mostrar mi código' : null
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto }}>
@@ -239,7 +241,7 @@ export default function BeneficiosPhone({ currentUser, onVolver, volverA = 'Inic
         <b style={TIT}>{ahora.titulo}</b>
         <span style={LIN}>{ahora.linea}</span>
         <span style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 9 }}>
-          <button type="button" onClick={() => usar(ahora.id)} style={PILDORA}><ahora.icono size={11} strokeWidth={2.2} />{ahora.boton}</button>
+          {ahora.boton && <button type="button" onClick={() => usar(ahora.id)} style={PILDORA}><ahora.icono size={11} strokeWidth={2.2} />{ahora.boton}</button>}
           <button type="button" onClick={() => ir({ p: 'detalle', id: ahora.id })} style={{ border: 'none', background: 'none', fontFamily: 'inherit', fontSize: 8, fontWeight: 600, color: '#0A7F55', cursor: 'pointer' }}>Ver más</button>
         </span>
       </Destacada>

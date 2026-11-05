@@ -52,13 +52,16 @@ function HoyCompacto({ onMarcar }) {
   const dia = `${DIAS_LARGOS[diaISO(at.hoy)]} ${fechaCorta(at.hoy)}`
 
   const acc = accionDelMomento(j, h, hoy.getHours() * 60 + hoy.getMinutes())
-  const siguiente = yo.asig ? acc.principal : null
+  /* Un día libre entero de la empresa (su cumpleaños): no hay nada que marcar. */
+  const libreHoy = j.justificacion?.diaLibre ? j.justificacion : null
+  const siguiente = yo.asig && !libreHoy ? acc.principal : null
   const [pedido, setPedido] = useState(null)
   const marco = typeof document !== 'undefined' ? document.getElementById('marco-telefono') : null
   const turno = !h ? 'Sin horario asignado' : h.modo === 'fijo' ? `Turno ${h.entrada}–${h.salida}` : `Turno flexible · ${duracion(h.meta)}`
   /* Con permiso por horas en la mañana, la franja lo dice en vez de «Sin marcar». */
   const permisoIni = h?.permisoHoras?.inicio && j.entrada == null ? `${h.permisoHoras.inicio.label} hasta ${hhmm(h.permisoHoras.inicio.hasta)}` : null
-  const detalle = !h ? 'Pídalo a RR.HH.' : permisoIni ? permisoIni
+  const tardeLibre = h?.permisoHoras?.fin?.diaLibre && j.entrada == null ? `${h.permisoHoras.fin.label} · tarde libre desde ${hhmm(h.permisoHoras.fin.desde)}` : null
+  const detalle = !h ? 'Pídalo a RR.HH.' : libreHoy ? `${libreHoy.tipo} · día libre` : permisoIni ? permisoIni : tardeLibre ? tardeLibre
     : j.salida != null ? `Salió ${hhmm(j.salida)} · ${duracion(j.trabajado)}`
       : j.enPausa ? 'En descanso'
         : j.entrada != null ? `Entró ${hhmm(j.entrada)} · ${duracion(j.trabajado)}`
@@ -90,7 +93,7 @@ function HoyCompacto({ onMarcar }) {
           }}>
             {siguiente === 'entrada' || siguiente === 'salida' ? <ScanFace size={12} /> : <Coffee size={12} />} {ETIQUETA_MARCA[siguiente]}
           </button>
-        ) : h && yo.asig && (
+        ) : h && yo.asig && !libreHoy && (
           <button type="button" onClick={() => onMarcar(null)} style={{
             display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0, border: 'none', cursor: 'pointer',
             background: 'rgba(255,255,255,.1)', color: '#fff', borderRadius: 99, padding: '7px 11px', fontFamily: 'inherit', fontSize: 8.6, fontWeight: 600, whiteSpace: 'nowrap',

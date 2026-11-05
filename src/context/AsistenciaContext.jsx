@@ -7,9 +7,11 @@ import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
   horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
-  reglasDe, horarioConPermisos, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
+  reglasDe, horarioConPermisos, DIAS_LIBRES_SEED, diaLibreEn, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion,
 } from '../data/asistenciaData'
 import { cambiosDe } from '../utils/correccion'
+import { miFichaDe } from '../data/miFicha'
+import { EVENTOS_INICIO } from '../data/eventosInicio'
 
 /* ── EL ESTADO DEL MÓDULO DE ASISTENCIA ───────────────────────────────────
    Un solo lugar guarda la configuración (horarios, políticas, geocercas, asignaciones) y lo que
@@ -68,6 +70,8 @@ export function AsistenciaProvider({ children }) {
   const [horasExtra, setHorasExtra] = useLocalStorage('at_horas_extra', null)
   /* Vacaciones, permisos y licencias, correcciones de marcación, trabajo remoto y cambios de turno. */
   const [solicitudes, setSolicitudes] = useLocalStorage('at_solicitudes', null)
+  /* Los días libres de la empresa (Configuración › Días libres): cumpleaños, aniversario… */
+  const [diasLibres, setDiasLibres] = useLocalStorage('at_dias_libres', DIAS_LIBRES_SEED)
   const [descartadas, setDescartadas] = useLocalStorage('at_descartadas', {})
   /* A quién ya se le sembró su historial de ejemplo (ver historialDemo). */
   const [conHistorial, setConHistorial] = useLocalStorage('at_historial_demo', {})
@@ -133,16 +137,28 @@ export function AsistenciaProvider({ children }) {
   useEffect(() => { const t = setInterval(() => setTic(Date.now()), 20000); return () => clearInterval(t) }, [])
   const hoy = useMemo(() => hoyISO(), [tic]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* EL DÍA LIBRE QUE LE TOCA a una persona ese día (cumpleaños, aniversario…), según Configuración › Días
+     libres. La fecha de nacimiento sale de su ficha (Información personal) o, en la demo, de los cumpleaños del Inicio. */
+  const diaLibreDe = useCallback((p, fecha) => {
+    if (!p) return null
+    const nacio = miFichaDe(p.name)?.form?.['1.21'] || EVENTOS_INICIO.find(e => e.tipo === 'Cumpleaños' && e.completo === p.name)?.fecha || null
+    return diaLibreEn(diasLibres, p, fecha, nacio)
+  }, [diasLibres])
+
   /* UN DÍA ESTÁ JUSTIFICADO por RR.HH. a mano, o por unas vacaciones, un permiso de día completo o una
      licencia ya aprobados. Un permiso por horas no justifica el día entero. */
   const justificacionDe = useCallback((pid, fecha) => {
     const j = justificaciones[`${pid}|${fecha}`]
     if (j) return j
     const s = (solicitudes || []).find(x => x.estado === 'aprobada' && String(x.personaId) === String(pid) && TIPOS_SOLICITUD[x.tipo]?.justifica && !x.horaDesde && fecha >= x.desde && fecha <= x.hasta)
-    if (!s) return null
+    if (!s) {
+      /* Un día libre entero de la empresa (su cumpleaños): no se espera marca y no es falta. */
+      const dl = diaLibreDe(personaPorId.get(String(pid)), fecha)
+      return dl?.cuanto === 'entero' ? { tipo: dl.regla.nombre, motivo: 'Día libre de la empresa', por: 'Automático', automatica: true, diaLibre: true } : null
+    }
     const tipo = s.tipo === 'vacaciones' ? 'Vacaciones' : SUBTIPOS_PERMISO.find(t => t.key === s.subtipo)?.label || 'Permiso'
     return { tipo, motivo: s.motivo, por: s.respondio || 'RR.HH.', automatica: true, solicitudId: s.id }
-  }, [justificaciones, solicitudes])
+  }, [justificaciones, solicitudes, diaLibreDe, personaPorId])
   /* Trabajo remoto aprobado para ese día: no se exige la geocerca. */
   const remotoAprobado = useCallback((pid, fecha) => (solicitudes || []).some(x => x.tipo === 'remoto' && x.estado === 'aprobada' && String(x.personaId) === String(pid) && fecha >= x.desde && fecha <= x.hasta), [solicitudes])
   const exigenciasDe = useCallback((p, fecha) => {
@@ -172,7 +188,12 @@ export function AsistenciaProvider({ children }) {
   const permisosPorHorasDe = useCallback((pid, fecha) => (solicitudes || [])
     .filter(x => x.tipo === 'permiso' && x.estado === 'aprobada' && x.horaDesde && x.horaHasta && String(x.personaId) === String(pid) && fecha >= x.desde && fecha <= x.hasta)
     .map(x => ({ desde: aMin(x.horaDesde), hasta: aMin(x.horaHasta), label: SUBTIPOS_PERMISO.find(t => t.key === x.subtipo)?.label || 'Permiso', solicitudId: x.id })), [solicitudes])
-  const horarioDe = useCallback((p, fecha) => horarioConPermisos(horarioDelDia(p?.horarioBase || p?.horario, fecha), permisosPorHorasDe(p?.id, fecha)), [permisosPorHorasDe])
+  /* Un medio día libre (la tarde del aniversario) adelanta la salida igual que un permiso al final del día. */
+  const horarioDe = useCallback((p, fecha) => {
+    const dl = diaLibreDe(p, fecha)
+    const libre = dl?.cuanto === 'medio' ? [{ desde: aMin(dl.desde), hasta: 24 * 60, label: dl.regla.nombre, diaLibre: true }] : []
+    return horarioConPermisos(horarioDelDia(p?.horarioBase || p?.horario, fecha), [...permisosPorHorasDe(p?.id, fecha), ...libre])
+  }, [permisosPorHorasDe, diaLibreDe])
 
   /* ── LAS MARCAS DE UN DÍA: sembradas + manuales, con los ajustes aplicados ── */
   const marcasDe = useCallback((p, fecha) => {
@@ -379,7 +400,7 @@ export function AsistenciaProvider({ children }) {
     horarios, setHorarios, horarioPorId, politicas, setPoliticas, politicaPorId, politicaDefecto,
     asignaciones: asignaciones || {}, asignar, quitarAsignacion, geocercas, setGeocerca,
     biometria: biometria || {}, actualizarBio, ajustesGenerales, setAjustesGenerales,
-    marcasDe, jornadaDe, simularDia, horarioDe, permisosPorHorasDe, justificacionDe, justificadasDe, incidencias,
+    marcasDe, jornadaDe, simularDia, horarioDe, permisosPorHorasDe, diasLibres, setDiasLibres, diaLibreDe, justificacionDe, justificadasDe, incidencias,
     marcar, marcaManual, ajustar, anular, justificar, descartar, marcasExtra,
     solicitudes: solicitudes || [], crearSolicitud, responderSolicitud, cancelarSolicitud, exigenciasDe,
     horasExtra: horasExtra || [], solicitarExtra, asignarExtra, responderExtra, autorizarDespues,

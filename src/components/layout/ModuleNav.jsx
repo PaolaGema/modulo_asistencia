@@ -261,6 +261,7 @@ const asistenciaNav = (cuentas = {}) => [
     ] },
     { label: 'Configuración', path: '/asistencia/configuracion', icon: Settings, subs: [
       { label: 'Horarios', ver: 'horarios' },
+      { label: 'Días libres', ver: 'dias-libres' },
       { label: 'Modalidades', ver: 'modalidades' },
       { label: 'Avisos al colaborador', ver: 'avisos' },
       { label: 'Lugares y geocercas', ver: 'lugares' },

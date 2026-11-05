@@ -51,7 +51,8 @@ export default function Marcador({ onVolver, iniciar = null, telefono = false, v
   const ahora = t.getHours() * 60 + t.getMinutes()
   /* El horario de hoy, ya corrido por un permiso por horas (entra a las 13:00 si tiene permiso hasta las 13:00). */
   const hoyH = at.horarioDe(yo, at.hoy) || yo.horario
-  const acc = accionDelMomento(j, hoyH, ahora)
+  // En un día libre entero de la empresa (su cumpleaños) no hay nada que marcar.
+  const acc = j.justificacion?.diaLibre ? { principal: null, secundaria: null, temprano: false, falta: 0, deshacer: null } : accionDelMomento(j, hoyH, ahora)
   /* Viniendo del inicio del teléfono (`iniciar`) ya se confirmó en la ventana: va directo al escaneo. */
   const [flujo, setFlujo] = useState(iniciar ? { tipo: iniciar } : null) // { tipo }
   const ex = at.exigenciasDe(yo, at.hoy)

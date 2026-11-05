@@ -16,6 +16,7 @@ import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
 import ModalAsignar from '../../components/asistencia/ModalAsignar'
 import Avatar from '../../components/personas/Avatar'
+import DiasLibres from './DiasLibres'
 import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
@@ -26,7 +27,7 @@ import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, 
    ARRIBA, LA PUESTA A PUNTO: el `readiness` del backend —sin sede, sin horario, sin política,
    consentimiento pendiente— dicho como una lista de lo que falta, con su enlace. */
 
-const SECCIONES = ['horarios', 'modalidades', 'avisos', 'lugares', 'asignaciones']
+const SECCIONES = ['horarios', 'dias-libres', 'modalidades', 'avisos', 'lugares', 'asignaciones']
 const COLORES = ['#00B876', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444', '#0C2D40']
 
 export default function Configuracion() {
@@ -36,6 +37,7 @@ export default function Configuracion() {
   const ver = SECCIONES.includes(pedido) ? pedido : 'horarios'
 
   const titulos = {
+    'dias-libres': ['Días libres', 'Los que da la empresa además de los feriados, como el cumpleaños o el aniversario. Ese día no se espera marca y no cuenta como falta.'],
     horarios: ['Horarios', 'Cuándo trabaja cada quien. Un horario fijo calcula tardanzas y horas extra; uno flexible sólo pide cumplir la meta del día.'],
     modalidades: ['Modalidades', 'Qué se le pide al colaborador al marcar, según cómo trabaja: presencial, híbrido o remoto.'],
     avisos: ['Avisos al colaborador', 'Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánto tiempo tiene para mandar su motivo.'],
@@ -48,6 +50,7 @@ export default function Configuracion() {
       <Cabecera titulo={titulos[ver][0]} sub={titulos[ver][1]} />
 
       {ver === 'horarios' && <Horarios />}
+      {ver === 'dias-libres' && <DiasLibres />}
       {ver === 'modalidades' && <Reglas />}
       {ver === 'avisos' && <Avisos />}
       {ver === 'lugares' && <Lugares />}

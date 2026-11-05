@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, PartyPopper, Palmtree, Clock, House, Star, Timer, LogIn } from 'lucide-react'
+import { ChevronLeft, ChevronRight, PartyPopper, Palmtree, Clock, House, Star, Timer, LogIn, Gift } from 'lucide-react'
 import BarraVolver from './BarraVolver'
 import { EVENTOS_INICIO } from '../../data/eventosInicio'
 import { avatarUrl } from '../../utils/calendarEvents'
@@ -35,7 +35,7 @@ const fechaRango = (a, b) => (b && b !== a ? `${aFecha(a).getDate()} ${MESES[aFe
 const cosas = n => (n === 1 ? '1 fecha' : `${n} fechas`) // solo para quien usa lector de pantalla
 
 /* Todo lo de la persona, día por día: { fecha: [cosa] }. Cada cosa sabe cómo se dibuja. */
-function useCosas() {
+function useCosas(celdas) {
   const at = useAsistencia()
   const yo = at.yo
   const porDia = {}
@@ -49,6 +49,8 @@ function useCosas() {
     .forEach(x => poner(x.fecha, { clase: 'extra', x }))
   Object.entries(FERIADOS).forEach(([d, nombre]) => poner(d, { clase: 'feriado', nombre }))
   EVENTOS_INICIO.forEach(e => poner(e.fecha, { clase: e.tipo === 'Evento' ? 'evento' : 'cumple', e }))
+  /* Los días libres de la empresa que le tocan (su cumpleaños, el aniversario…), en lo que se ve del mes. */
+  celdas.forEach(d => { const dl = at.diaLibreDe(yo, d); if (dl) poner(d, { clase: 'libre', dl, entero: dl.cuanto === 'entero' }) })
   return porDia
 }
 
@@ -76,6 +78,7 @@ function Ficha({ c, at }) {
     const et = esAutorizada(x) ? ETIQUETA.aprobada : x.estado === 'asignada' ? ['Asignadas', 'var(--tx-azul)', 'var(--tn-azul)'] : ETIQUETA.pendiente
     return fila(aro(Timer), 'Horas extra', `${x.desde} a ${x.hasta}`, et)
   }
+  if (c.clase === 'libre') return fila(aro(Gift), c.dl.regla.nombre, c.entero ? 'Día libre de la empresa' : `Tarde libre desde las ${c.dl.desde}`, ['Día libre', 'var(--tx-verde)', 'var(--tn-verde)'])
   if (c.clase === 'feriado') return fila(aro(Star, { boxShadow: 'inset 0 0 0 1.3px #F4A29C', color: 'var(--in-rojo)' }), c.nombre, 'Feriado')
   if (c.clase === 'evento') return fila(aro(PartyPopper, { background: '#0C2D40', color: '#00E091', boxShadow: 'none' }), c.e.completo, c.e.detalle || 'Evento de la empresa')
   if (c.clase === 'cumple') {
@@ -94,8 +97,8 @@ export default function CalendarioPhone({ onVolver, volverA = 'Inicio', diaInici
   const yo = at.yo
   const [ym, setYm] = useState(mesDe(diaInicial || at.hoy))
   const [dia, setDia] = useState(diaInicial)
-  const porDia = useCosas()
   const celdas = semanasDe(ym)
+  const porDia = useCosas(celdas)
   const delMes = Object.keys(porDia).filter(d => d.startsWith(ym)).sort()
   const mover = n => { setYm(mesVecino(ym, n)); setDia(null) }
   // Tocar un día del mes vecino lleva a ese mes: lo de ese día se lee con su mes.
@@ -109,7 +112,7 @@ export default function CalendarioPhone({ onVolver, volverA = 'Inicio', diaInici
   const delDia = dia ? [...(porDia[dia] || []), jornadaDe(dia)].filter(Boolean) : null
   const vistos = new Set()
   const lista = delDia || delMes.flatMap(d => (porDia[d] || []).filter(c => {
-    const k = c.clase === 'suyo' ? `s-${c.s.id}` : c.clase === 'extra' ? `x-${c.x.id}` : `${c.clase}-${d}-${c.nombre || c.e?.completo}`
+    const k = c.clase === 'libre' ? `l-${d}` : c.clase === 'suyo' ? `s-${c.s.id}` : c.clase === 'extra' ? `x-${c.x.id}` : `${c.clase}-${d}-${c.nombre || c.e?.completo}`
     if (vistos.has(k)) return false
     vistos.add(k); return true
   }).map(c => ({ ...c, d })))
@@ -140,12 +143,12 @@ export default function CalendarioPhone({ onVolver, volverA = 'Inicio', diaInici
           const col = i % 7
           const feriado = items.find(c => c.clase === 'feriado')
           /* La cinta: un día entero pedido. Redondeada donde empieza y donde termina (o en el borde de la semana). */
-          const tramo = items.find(c => c.clase === 'suyo' && c.entero)
-          const [fondo, tinta] = tramo ? CINTA[tramo.s.estado] || CINTA.pendiente : [null, null]
-          const ini = tramo && (d === tramo.s.desde || col === 0)
-          const fin = tramo && (d === (tramo.s.hasta || tramo.s.desde) || col === 6)
+          const tramo = items.find(c => (c.clase === 'suyo' || c.clase === 'libre') && c.entero)
+          const [fondo, tinta] = tramo ? CINTA[tramo.s?.estado || 'aprobada'] || CINTA.pendiente : [null, null]
+          const ini = tramo && (!tramo.s || d === tramo.s.desde || col === 0)
+          const fin = tramo && (!tramo.s || d === (tramo.s.hasta || tramo.s.desde) || col === 6)
           const puntos = [
-            items.some(c => (c.clase === 'suyo' && !c.entero && c.s.estado === 'aprobada') || (c.clase === 'extra' && esAutorizada(c.x))) && PUNTO.suyo,
+            items.some(c => (c.clase === 'suyo' && !c.entero && c.s.estado === 'aprobada') || (c.clase === 'extra' && esAutorizada(c.x)) || (c.clase === 'libre' && !c.entero)) && PUNTO.suyo,
             items.some(c => (c.clase === 'suyo' && !c.entero && c.s.estado === 'pendiente') || (c.clase === 'extra' && !esAutorizada(c.x))) && PUNTO.pendiente,
             items.some(c => c.clase === 'evento') && PUNTO.evento,
             items.some(c => c.clase === 'cumple') && PUNTO.cumple,
