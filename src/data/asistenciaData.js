@@ -517,7 +517,16 @@ export const ORIGENES_EXTRA = {
   asignacion: 'Asignada por RR.HH.',
   posterior: 'Autorizada después del día',
   /* El jefe la pide para alguien de su equipo (5 nov 2026): RR.HH. aprueba y la persona acepta, como una asignada. */
-  lider: 'La pidió su líder',
+  lider: 'La pidió su jefe',
+}
+/* QUIÉN LA PIDIÓ (propuesta D2, 5 nov 2026: columnas «Solicitante» y «Para»). Devuelve la persona que
+   pidió o asignó y su papel, para mostrarla como a cualquier persona. `personas`: las del directorio. */
+export function solicitanteDe(x, personas) {
+  const buscar = nombre => personas.find(p => p.name === nombre) || (nombre ? { id: `n-${nombre}`, name: nombre } : null)
+  if (x.origen === 'lider') { const p = buscar(x.lider || x.por); return { persona: p, papel: `Su jefe${p?.cargo ? ` · ${p.cargo}` : ''}`, propia: false } }
+  if (x.origen === 'asignacion') return { persona: buscar(x.por), papel: 'RR.HH. · asignada', propia: false }
+  if (x.origen === 'posterior') return { persona: buscar(x.por || x.respondio), papel: 'RR.HH. · autorizada después del día', propia: false }
+  return { persona: null, papel: '', propia: true }
 }
 export const esAutorizada = x => x.estado === 'aprobada' || x.estado === 'aceptada'
 

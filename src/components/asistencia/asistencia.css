@@ -1797,3 +1797,10 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-rev-dia-ley i.prog { background: repeating-linear-gradient(-45deg, var(--at-prog), var(--at-prog) 2px, transparent 2px, transparent 4px); border: 1px dashed color-mix(in srgb, var(--text-muted) 45%, transparent); }
 
 .at-rev-nota.t-violeta { background: color-mix(in srgb, var(--at-violeta) 14%, transparent); color: color-mix(in srgb, var(--at-violeta) 75%, var(--text-heading)); }
+
+/* Horas extra con «Solicitante» y «Para» (D2): dos personas por fila; que entre el botón sin desplazar. */
+.at-tabla-extra td { padding: 12px 10px; }
+.at-tabla-extra th:last-child, .at-tabla-extra td:last-child { padding-right: 14px; }
+.at-tabla-extra td:first-child, .at-tabla-extra td:nth-child(2) { min-width: 0; max-width: 205px; }
+.at-tabla-extra td:nth-child(3) { white-space: nowrap; }
+.at-tabla-extra .dc-persona-sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }

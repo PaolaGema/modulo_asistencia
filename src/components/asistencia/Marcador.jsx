@@ -657,8 +657,8 @@ function AsignadasCel() {
       <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ width: 22, height: 22, borderRadius: 7, background: 'var(--tn-violeta)', color: 'var(--tx-violeta)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Clock size={11} /></span>
         <span style={{ display: 'grid' }}>
-          <b style={{ fontSize: 8 }}>{x.origen === 'lider' ? 'Su líder pidió horas extra para usted' : 'RR.HH. le asignó horas extra'}</b>
-          <small style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>{x.fecha === at.hoy ? 'Hoy' : fechaLarga(x.fecha)} · de {x.desde} a {x.hasta}{x.motivo ? ` · ${x.motivo}` : ''}{x.origen === 'lider' ? `. Las pidió ${x.lider} y RR.HH. ya las aprobó.` : ''}</small>
+          <b style={{ fontSize: 8 }}>{x.origen === 'lider' ? `${x.lider}, su jefe, pidió horas extra para usted` : 'RR.HH. le asignó horas extra'}</b>
+          <small style={{ fontSize: 6.6, color: 'var(--in-mute)' }}>{x.fecha === at.hoy ? 'Hoy' : fechaLarga(x.fecha)} · de {x.desde} a {x.hasta}{x.motivo ? ` · ${x.motivo}` : ''}{x.origen === 'lider' ? '. RR.HH. ya las aprobó.' : ''}</small>
         </span>
       </span>
       <span style={{ display: 'flex', gap: 5 }}>

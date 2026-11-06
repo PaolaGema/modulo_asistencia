@@ -1,6 +1,6 @@
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { Sello } from '../layout/VacacionPhone'
-import { MESES, aFecha, aMin, fechaLarga, duracion, ORIGENES_EXTRA } from '../../data/asistenciaData'
+import { MESES, aFecha, aMin, fechaLarga, duracion, solicitanteDe } from '../../data/asistenciaData'
 
 /* LA SOLICITUD DE HORAS EXTRA, COMO DOCUMENTO (propuesta «Horas extra · A», aprobada el 5 nov 2026). La misma
    papeleta de la vacación, el permiso y la corrección: datos del trabajador, las horas extra (día, franja, cuántas
@@ -76,13 +76,13 @@ export default function PapeletaExtra({ x, persona, empresa, numero }) {
           {celda('Horas', duracion(largo), { verde: true })}
           {celda('Proyecto', x.proyecto || '—', { ancho: true })}
           {celda('Motivo', x.motivo || '—', { ancho: true })}
-          {celda('Origen', ORIGENES_EXTRA[x.origen] || '—', { ancho: true })}
+          {(() => { const sol = solicitanteDe(x, at.personas); return celda('Solicitante', sol.propia ? `${persona.name} · para sí` : `${sol.persona?.name || '—'} · ${sol.papel}`, { ancho: true }) })()}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: delLider ? '1fr 1fr 1fr' : '1fr 1fr', gap: 12, marginTop: 6 }}>
           {delLider ? (
             /* La pidió el jefe: firma él, aprueba RR.HH. y después acepta la persona. */
             <>
-              {firma(x.lider || x.por, `Su líder · pidió${pidio ? ` el ${pidio}` : ''}`, null)}
+              {firma(x.lider || x.por, `Su jefe · pidió${pidio ? ` el ${pidio}` : ''}`, null)}
               {firma('Recursos Humanos', x.estado === 'rechazada' && !x.noPudo ? `Rechazó ${x.respondio || ''}` : x.respondio ? `Aprobó ${x.respondio}` : 'Aprobación', <Sello firma={{ estado: x.estado === 'pendiente' ? 'pendiente' : x.estado === 'rechazada' && !x.noPudo ? 'rechazada' : 'aprobada' }} />)}
               {firma(persona.name, x.estado === 'aceptada' ? 'Aceptó' : x.noPudo ? 'No puede' : 'Acepta', x.estado === 'pendiente' || (x.estado === 'rechazada' && !x.noPudo) ? null : <Sello firma={{ estado: SELLO_PERSONA[x.estado] || 'pendiente' }} />)}
             </>

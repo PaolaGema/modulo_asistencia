@@ -9,7 +9,7 @@ import RevisarSolicitud from '../../components/asistencia/RevisarSolicitud'
 import PapeletaExtra from '../../components/asistencia/PapeletaExtra'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
 import { PersonaAt, BarraDia, BarraBusqueda, FILTRO_VACIO, filtrar } from '../../components/asistencia/comunes'
-import { ESTADOS_EXTRA, ORIGENES_EXTRA, PROYECTOS_DEMO, esAutorizada, fechaLarga, fechaCorta, aMin, duracion, sumarDias, mesDe, mesVecino, nombreMes, diasDelMes, descargarCSV } from '../../data/asistenciaData'
+import { ESTADOS_EXTRA, PROYECTOS_DEMO, solicitanteDe, esAutorizada, fechaLarga, fechaCorta, aMin, duracion, sumarDias, mesDe, mesVecino, nombreMes, diasDelMes, descargarCSV } from '../../data/asistenciaData'
 
 /* ── HORAS EXTRA ───────────────────────────────────────────────────────────
    Quedarse no es trabajar horas extra. Una hora extra existe solo si se autorizó:
@@ -151,21 +151,23 @@ export default function HorasExtra() {
         </section>
       ) : lista.length ? (
         <div className="as-table-wrap" style={{ overflowX: 'auto' }}>
-          <table className="as-table at-tabla at-tabla-sol">
-            <thead><tr><th>Colaborador</th><th>Día y horario</th><th>Motivo</th><th>Quién la originó</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
+          <table className="as-table at-tabla at-tabla-sol at-tabla-extra">
+            {/* Quién la pidió y para quién (propuesta D2, 5 nov 2026): se lee como una frase. */}
+            <thead><tr><th>Solicitante</th><th>Para</th><th>Día y horario</th><th>Motivo</th><th>Estado</th><th aria-label="Acción" /></tr></thead>
             <tbody>
               {deLaPagina.map(x => {
                 const abrir = () => setRevisar(x)
                 const accion = x.estado === 'pendiente' ? 'Revisar' : 'Ver'
+                const sol = solicitanteDe(x, at.personas)
                 return (
                   <tr key={x.id} tabIndex={0} onClick={abrir} onKeyDown={e => { if (e.key === 'Enter') abrir() }}>
-                    <td><PersonaAt persona={x.persona} size={32} /></td>
+                    <td>{sol.propia ? <PersonaAt persona={x.persona} size={32} /> : <PersonaAt persona={sol.persona} size={32} sub={sol.papel} />}</td>
+                    <td>{sol.propia ? <span className="at-sol-sub" style={{ marginTop: 0 }}>Para sí</span> : <PersonaAt persona={x.persona} size={32} />}</td>
                     <td>
                       <span className="at-sol-tit">{fechaCorta(x.fecha)} · {horas(x)}</span>
                       <span className="at-sol-sub">{duracion(largo(x))}{x.fecha < at.hoy && esAutorizada(x) ? ` · trabajó ${duracion(at.jornadaDe(x.persona, x.fecha).extra)}` : ''}</span>
                     </td>
                     <td><span className="at-sol-sub" style={{ marginTop: 0, color: 'var(--text-heading)' }}>{x.motivo}</span></td>
-                    <td className="at-sol-cuando">{x.origen === 'lider' ? <>La pidió su líder<br /><small>{x.lider}</small></> : ORIGENES_EXTRA[x.origen]}</td>
                     <td><Etiqueta tono={ESTADOS_EXTRA[x.estado].tono}>{ESTADOS_EXTRA[x.estado].label}</Etiqueta></td>
                     <td style={{ textAlign: 'right' }}>
                       <button type="button" className={x.estado === 'pendiente' ? 'at-btn-revisar' : 'dc-btn dc-btn-sm'} onClick={e => { e.stopPropagation(); abrir() }}>{accion}</button>
@@ -229,7 +231,7 @@ export default function HorasExtra() {
               x.origen === 'lider' && (() => {
                 const grupo = at.horasExtra.filter(o => o.grupo && o.grupo === x.grupo)
                 const nombres = grupo.map(o => at.personaPorId.get(String(o.personaId))?.name || at.personaPorId.get(o.personaId)?.name).filter(Boolean)
-                return { tono: 'violeta', texto: `Lo pidió su líder, ${x.lider}${grupo.length > 1 ? `, para ${grupo.length} personas: ${nombres.slice(0, -1).join(', ')} y ${nombres[nombres.length - 1]}` : ''}` }
+                return { tono: 'violeta', texto: `Lo pidió su jefe, ${x.lider}${grupo.length > 1 ? `, para ${grupo.length} personas: ${nombres.slice(0, -1).join(', ')} y ${nombres[nombres.length - 1]}` : ''}` }
               })(),
               propia && pendiente && { tono: 'ambar', texto: 'Son sus propias horas extra. Puede responderlas, pero quedará registrado en la auditoría que las respondió usted.' },
               { tono: 'azul', texto: delMes.length ? `Sería su ${delMes.length + 1}.ª vez en ${nMes}: ya tiene ${duracion(yaTiene)} autorizadas (${listaDias} de ${nMes})` : `Primera vez en ${nMes}: no tiene otras horas extra autorizadas este mes` },
