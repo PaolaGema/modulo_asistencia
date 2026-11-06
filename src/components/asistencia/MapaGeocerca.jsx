@@ -9,7 +9,8 @@ import 'leaflet/dist/leaflet.css'
 
 const CENTRO_BOLIVIA = [-16.2902, -63.5887]
 
-export default function MapaGeocerca({ geo, onCambio }) {
+/* `cerca`: [lat, lng] donde arrancar si todavía no hay punto (un lugar vecino ya ubicado). */
+export default function MapaGeocerca({ geo, onCambio, cerca = null }) {
   const nodo = useRef(null)
   const mapa = useRef(null)
   const marca = useRef(null)
@@ -18,7 +19,7 @@ export default function MapaGeocerca({ geo, onCambio }) {
   useEffect(() => { cambio.current = onCambio }, [onCambio])
 
   useEffect(() => {
-    const m = L.map(nodo.current, { zoomControl: true, attributionControl: false }).setView(geo ? [geo.lat, geo.lng] : CENTRO_BOLIVIA, geo ? 16 : 5)
+    const m = L.map(nodo.current, { zoomControl: true, attributionControl: false }).setView(geo ? [geo.lat, geo.lng] : cerca || CENTRO_BOLIVIA, geo ? 16 : cerca ? 14 : 5)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(m)
     m.on('click', e => cambio.current({ lat: +e.latlng.lat.toFixed(6), lng: +e.latlng.lng.toFixed(6) }))
     mapa.current = m

@@ -624,7 +624,8 @@ function Lugares() {
           <span className={`at-lugar-ico${l.tipo === 'centro' ? ' centro' : ''}`}><Ico size={16} /></span>
           <div style={{ minWidth: 0 }}>
             <div className="at-lugar-nom">{l.nombre}</div>
-            <div className="at-lugar-sub">{l.tipo === 'centro' ? `Centro de trabajo · ${l.tipoCentro}` : `Sucursal · ${l.ciudad}`}{l.respaldo ? ' · de ejemplo' : ''}</div>
+            {/* El centro dice su tipo solo si es otro (Depósito, Planta…); si no, su ciudad: «Centro de trabajo · Centro de trabajo» no decía nada. */}
+            <div className="at-lugar-sub">{l.tipo === 'centro' ? `Centro de trabajo · ${l.tipoCentro && l.tipoCentro !== 'Centro de trabajo' ? l.tipoCentro : (l.ciudad || at.lugarPorId.get(l.sucursalId)?.ciudad || 'sin ciudad')}` : `Sucursal · ${l.ciudad}`}{l.respaldo ? ' · de ejemplo' : ''}</div>
           </div>
         </div>
         <div className="opc">
@@ -632,8 +633,11 @@ function Lugares() {
             ? <span className="dc-chip dc-t-verde"><MapPin size={11} /> Radio de {l.geo.radio} m</span>
             : <span className="dc-chip dc-t-ambar"><MapPinOff size={11} /> Sin ubicación</span>}
         </div>
-        <div className="opc dc-muted" style={{ fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={13} /> {gente(l.id)} marcan aquí</div>
-        <button type="button" className={l.geo ? 'dc-btn dc-btn-sm' : 'at-btn-ok'} style={l.geo ? undefined : { height: 28 }} onClick={() => setEditar(l)}>{l.geo ? <><Pencil size={13} /> Geocerca</> : <><MapPin size={13} /> Ubicar</>}</button>
+        {/* Sin ubicación nadie puede marcar ahí: se dice, y si tiene gente asignada, cuántos se quedan sin poder marcar. */}
+        {l.geo
+          ? <div className="opc dc-muted" style={{ fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={13} /> {gente(l.id) === 1 ? '1 marca aquí' : `${gente(l.id)} marcan aquí`}</div>
+          : <div className="opc" style={{ fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--dc-ambar)', fontWeight: 600 }}><Users size={13} /> {gente(l.id) ? `${gente(l.id) === 1 ? '1 persona no puede' : `${gente(l.id)} personas no pueden`} marcar aquí` : 'Nadie puede marcar aquí todavía'}</div>}
+        <button type="button" className={l.geo ? 'dc-btn dc-btn-sm' : 'at-btn-ok'} style={l.geo ? undefined : { height: 28 }} onClick={() => setEditar(l)}>{l.geo ? <><Pencil size={13} /> Geocerca</> : <><MapPin size={13} /> Ubicar en el mapa</>}</button>
       </div>
     )
   }
@@ -656,12 +660,15 @@ function ModalLugar({ lugar, onCerrar }) {
   const at = useAsistencia()
   const [geo, setGeo] = useState(lugar.geo || null)
   const radio = geo?.radio || 150
+  /* Sin punto todavía, el mapa arranca cerca: en un lugar ya ubicado de la misma zona (sus centros de trabajo,
+     su sucursal o la misma ciudad), no en todo el país. */
+  const vecino = !lugar.geo && at.lugares.find(l => l.geo && l.id !== lugar.id && (l.sucursalId === lugar.id || l.id === lugar.sucursalId || (l.ciudad && l.ciudad === lugar.ciudad)))
   return (
     <Modal titulo={`Geocerca · ${lugar.nombre}`} Icono={MapPin} onCerrar={onCerrar} ancho={640}
       pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!geo} onClick={() => { at.setGeocerca(lugar.id, geo); onCerrar() }}>Guardar geocerca</button></>}>
       <div className="at-modal-campos">
         <p className="at-ayuda">{lugar.direccion || 'Sin dirección registrada en Organización'}. Toque el mapa para poner el centro, o arrastre el punto.</p>
-        <MapaGeocerca geo={geo} onCambio={pt => setGeo(g => ({ ...(g || { radio: 150 }), ...pt }))} />
+        <MapaGeocerca geo={geo} cerca={vecino ? [vecino.geo.lat, vecino.geo.lng] : null} onCambio={pt => setGeo(g => ({ ...(g || { radio: 150 }), ...pt }))} />
         <label className="at-campo"><span>Radio permitido: {radio} m</span>
           <input type="range" className="at-rango" min="30" max="1000" step="10" value={radio} disabled={!geo} onChange={e => setGeo(g => ({ ...g, radio: Number(e.target.value) }))} />
           <span className="at-ayuda">Muy chico rechaza a quien está en la puerta con mal GPS; muy grande deja marcar desde el café de la esquina. Entre 100 y 200 m suele andar bien en ciudad.</span>

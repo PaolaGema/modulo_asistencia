@@ -277,7 +277,7 @@ export const GEOCERCAS_SEED = {
   tja: { lat: -21.5300, lng: -64.7330, radio: 100 },
   oru: { lat: -17.9700, lng: -67.1120, radio: 100 },
   pot: { lat: -19.5880, lng: -65.7540, radio: 100 },
-  eal: { lat: -16.5050, lng: -68.1630, radio: 150 },
+  /* La Sucursal 16 de Julio (El Alto) queda sin ubicación en la demo: así se ve «Sin ubicación · Ubicar en el mapa». */
   'dep-central': { lat: -17.7300, lng: -63.1500, radio: 250 },
   'dep-alto': { lat: -16.5200, lng: -68.1800, radio: 200 },
 }
