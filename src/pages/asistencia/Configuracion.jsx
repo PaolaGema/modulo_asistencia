@@ -444,10 +444,12 @@ function ModalHorario({ inicial, onCerrar }) {
   )
 }
 
-/* LA TARJETA DE UN DESCANSO (Ronda 20 · E2): flota sobre su etiqueta. Desde → hasta en grande,
-   duraciones rápidas que calculan el «hasta», y la barra del día con dónde cae (el que se edita, en
-   oscuro). Se cierra con Listo, con la ✕, con Escape o tocando afuera. */
-const DURACIONES = [15, 30, 45, 60]
+/* LA TARJETA DE UN DESCANSO (Ronda 20 · E2): flota sobre su etiqueta. Desde → hasta en grande, cuánto
+   dura y la barra del día con dónde cae (el que se edita, en oscuro). Se cierra con Listo, con la ✕, con
+   Escape o tocando afuera.
+   SIN ATAJOS DE DURACIÓN (5 nov 2026): los botones 15 · 30 · 45 min · 1 h hacían creer que el descanso
+   llegaba hasta una hora, y en Bolivia el almuerzo de 1 h 30 o 2 h es común. Queda libre: se escribe el
+   «hasta» y se lee cuánto dura. */
 function TarjetaDescanso({ pos, fila, k, color, onCambio, onQuitar, onCerrar }) {
   const ref = useRef(null)
   useEffect(() => {
@@ -470,9 +472,10 @@ function TarjetaDescanso({ pos, fila, k, color, onCambio, onQuitar, onCerrar }) 
         <span aria-hidden="true">→</span>
         <label>Hasta<CampoHora ariaLabel="Hasta" grande value={x.hasta} onChange={v => onCambio({ hasta: v })} /></label>
       </div>
-      <div className="at-tdes-dur"><span>Dura</span>
-        {DURACIONES.map(m => <button key={m} type="button" className={dura === m ? 'on' : ''} aria-pressed={dura === m} onClick={() => onCambio({ hasta: hhmm(aMin(x.desde) + m) })}>{m === 60 ? '1 h' : `${m} min`}</button>)}
-        {!DURACIONES.includes(dura) && dura > 0 && <em>{duracion(dura)}</em>}
+      <div className="at-tdes-dur" aria-live="polite">
+        {dura > 0
+          ? <><span>Dura</span><em>{duracion(dura)}</em></>
+          : <span style={{ color: 'var(--dc-rojo)' }}>El «hasta» tiene que ser después del «desde».</span>}
       </div>
       <div className="at-tdes-barra" aria-hidden="true">
         {s > e && <i className="t" style={{ left: `${enEscala(e)}%`, width: `${enEscala(s) - enEscala(e)}%`, background: color }} />}

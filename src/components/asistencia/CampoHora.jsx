@@ -40,6 +40,8 @@ export default function CampoHora({ value, onChange, ariaLabel, grande, autoFocu
   const [h, m] = partir(value)
 
   const abrir = () => {
+    /* Con autoFocus, el foco llega antes de que el campo esté montado: se abre en el cuadro siguiente. */
+    if (!campo.current) { requestAnimationFrame(() => { if (campo.current) abrir() }); return }
     const r = campo.current.getBoundingClientRect()
     const abajo = window.innerHeight - r.bottom > 290
     setPos({ left: Math.min(r.left, window.innerWidth - 230), ...(abajo ? { top: r.bottom + 6 } : { bottom: window.innerHeight - r.top + 6 }) })
