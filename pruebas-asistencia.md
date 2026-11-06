@@ -2,8 +2,8 @@ Souly HR · Módulo de asistencia · Pruebas para QA
 
 # Pruebas de Asistencia
 
-- **Versión del módulo:** 1.1
-- **Fecha:** 3 de noviembre de 2026
+- **Versión del módulo:** 1.2
+- **Fecha:** 5 de noviembre de 2026
 - **Documento del módulo:** modulo-asistencia.html
 
 El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se prueba, qué requisito (RF) y qué regla de negocio (BR) prueba, los pasos y lo que tiene que pasar. Se mantiene junto con el resto del documento: cuando cambia una regla o una pantalla, cambia su prueba.
@@ -98,6 +98,11 @@ El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se pru
 | QA‑ASI‑54 | No aceptar una justificación | Justificaciones › una pendiente › «No aceptar» con el motivo «Es la tercera vez este mes» | La tardanza sigue como injustificada y el colaborador lee el motivo en su app | BR‑ASI‑029 |   |
 | QA‑ASI‑55 | Aprobar una corrección | Correcciones › aprobar la que pide cargar una salida de las 18:04 | Su día tiene la salida de las 18:04 como corrección, con el motivo y quién la aprobó | RF‑ASI‑028 · BR‑ASI‑038 |   |
 | QA‑ASI‑56 | Días por año según antigüedad | En Saldos, mirar a alguien con menos de 1 año, con 3 años, con 6 años y con más de 10 | 0, 15, 20 y 30 días por año; con 6 años y 8 días usados en los últimos 12 meses, le quedan 12 | RF‑ASI‑032 · BR‑ASI‑041 |   |
+| QA‑ASI‑129 | Revisar en lote | Correcciones de marcación › «Revisar en lote · N» | Abre «Revisar N correcciones» en su propia pantalla, con buscador, filtros y «Qué cambia» con su número; la dirección dice `&lote=1` y «Volver a la lista» regresa | RF‑ASI‑088 |   |
+| QA‑ASI‑130 | Rutinarias y de a una | En la pantalla del lote, mirar los dos grupos | Rutinarias: mueven 15 min o menos, no quitan atraso, 1.ª o 2.ª del mes, con casilla. «Se revisan de a una»: sin casilla y con el porqué («Es su 3.ª corrección del mes», «Quita 13 min de atraso · Comprobar: …») y «Revisar» | RF‑ASI‑088 · BR‑ASI‑038 |   |
+| QA‑ASI‑131 | Aprobar en lote | «Elegir las N» › escribir «apro» y después «APROBAR» › «Aprobar N» | Se activa solo con la palabra completa; aviso «Se aprobaron N correcciones y se corrigieron sus días»; cada día queda con la marca corregida, sin una marca duplicada | RF‑ASI‑088 · BR‑ASI‑023, 024 |   |
+| QA‑ASI‑132 | Días sueltos en la lista | Como Carlos, pedir vacaciones el 11 y el 16; como Juan, Solicitudes › Vacaciones | La fila dice «mié 11 y lun 16 nov · 2 días hábiles»; la papeleta, «Días: mié 11 y lun 16 nov» | RF‑ASI‑092 · BR‑ASI‑060 |   |
+| QA‑ASI‑133 | Aprobar días sueltos | Aprobar una vacación del lunes 26 y el miércoles 28 de un mismo colaborador; abrir su página | El 26 y el 28 quedan «De vacaciones»; el 27 sigue como día de trabajo (o falta, si no vino). El saldo baja 2 | RF‑ASI‑092 · BR‑ASI‑060 |   |
 
 ## 6 · Horas extra
 
@@ -108,6 +113,10 @@ El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se pru
 | QA‑ASI‑59 | Fuera de horario | Ver un día de alguien que se quedó sin autorización | Aparece como «fuera de horario», no como horas extra | BR‑ASI‑034 |   |
 | QA‑ASI‑60 | Asignar horas extra | «Asignar horas extra» a dos colaboradores con un proyecto o centro de costo | Se crea una por persona, «Esperando que acepte», con su proyecto | RF‑ASI‑034, 036 · BR‑ASI‑033 |   |
 | QA‑ASI‑61 | Cancelar una autorizada | Abrir una autorizada › cancelarla (con confirmación) | Queda sin efecto y la persona lo ve en su app | RF‑ASI‑037 · BR‑ASI‑036 |   |
+| QA‑ASI‑134 | Solicitante y Para | Solicitudes › Horas extra | Columnas Solicitante, Para, Día y horario, Motivo, Estado. La pedida por la persona dice «Para sí»; la del jefe, «Sebastián Torres · Su jefe · Coordinador Logístico» → Tomás Ibáñez; con el filtro «Todas», la asignada dice «Juan Pérez Gómez · RR.HH. · asignada». Sin columna «Quién la originó». En 1400 px entra el botón «Revisar» | RF‑ASI‑091 |   |
+| QA‑ASI‑135 | Revisar con papeleta y su día | Revisar la de Ana Martínez Ruiz (mar 3 nov) | A la izquierda, la papeleta «Solicitud de horas extra» con su número y «Solicitante: Ana Martínez Ruiz · para sí»; a la derecha, la barra de su día con la franja 18:00–20:00 en violeta; «Primera vez en noviembre…» y «Empiezan justo cuando termina su horario (18:00)». Con alguien que ya tuvo en el mes: «Sería su N.ª vez en …: ya tiene X autorizadas (días)». Dice «Si aprueba» (de usted) | RF‑ASI‑089 |   |
+| QA‑ASI‑136 | Horas extra en su día libre | Como Carlos (lunes a viernes), pedir horas extra para un sábado; como Juan, revisarla | Dice «El sábado no trabaja: las horas extra serían en su día libre» y la papeleta «Horario ese día: No trabaja ese día» (no «termina a las 18:00») | RF‑ASI‑089 |   |
+| QA‑ASI‑137 | La que pidió el jefe | Revisar una de Sebastián Torres para Tomás Ibáñez › aprobar escribiendo APROBAR | «Lo pidió su jefe, Sebastián Torres, para 2 personas: Tomás Ibáñez y Emilio Vargas»; papeleta con tres firmas; al aprobar queda «Asignada» (por aceptar), todavía no autorizada | RF‑ASI‑090 · BR‑ASI‑059 |   |
 
 ## 7 · Configuración › Horarios
 
@@ -128,6 +137,7 @@ El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se pru
 | QA‑ASI‑74 | Duplicar | ⋯ › Duplicar | Pide el nombre de la copia y «Sí, duplicar»; la copia aparece con 0 colaboradores | BR‑ASI‑054 |   |
 | QA‑ASI‑75 | Eliminar escribiendo el nombre | ⋯ › Eliminar en la copia | Ventana centrada; el botón rojo se enciende solo al escribir el nombre exacto; en un horario con colaboradores, Eliminar está apagado | RF‑ASI‑045 · BR‑ASI‑054 |   |
 | QA‑ASI‑76 | Turno de noche | «Nuevo horario» de 22:00 a 06:00 e intentar guardar | No se guarda: la salida tiene que ser después de la entrada (los turnos que cruzan la medianoche todavía no se calculan) | RF‑ASI‑043 · BR‑ASI‑056 |   |
+| QA‑ASI‑138 | El descanso sin tope | «Nuevo horario» › tocar un descanso › escribir de 12:30 a 14:30; después un «hasta» antes del «desde» | No hay botones 15 · 30 · 45 min · 1 h; dice «Dura 2 h»; con el hasta antes, «El "hasta" tiene que ser después del "desde"». Sin errores en la página al abrir la rueda de la hora | RF‑ASI‑094 |   |
 
 ## 8 · Configuración › Modalidades
 
@@ -154,6 +164,8 @@ El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se pru
 | QA‑ASI‑85 | Avisar desde | Poner «Avisar desde» en 10 min; una tardanza de 6 min y otra de 12 | Solo se avisa la de 12 min; la de 6 min igual cuenta como tardanza, solo que no se avisa | RF‑ASI‑050 · BR‑ASI‑031 |   |
 | QA‑ASI‑86 | La geocerca | Lugares y geocercas › un lugar › mover el punto en el mapa y cambiar el radio | Se guarda un punto y un radio; las marcas fuera de ese círculo se rechazan | RF‑ASI‑051 · BR‑ASI‑004, BR‑ASI‑051 |   |
 | QA‑ASI‑87 | Los lugares vienen de Organización | Buscar en Lugares y geocercas un botón para crear un lugar | No existe: las sucursales y los centros se crean en Organización y aquí solo se les pone la geocerca; un lugar sin geocerca dice «Sin ubicación» con «Ubicar» | RF‑ASI‑052 · BR‑ASI‑051 |   |
+| QA‑ASI‑139 | Lugar sin ubicación | Lugares y geocercas › Sucursal 16 de Julio › «Ubicar en el mapa» | En ámbar «Sin ubicación · Nadie puede marcar aquí todavía»; el mapa arranca en El Alto (junto al Depósito El Alto), no en todo el país; al guardar, pasa a «Radio de 150 m» | RF‑ASI‑093 |   |
+| QA‑ASI‑140 | Textos de Lugares | Mirar Villa Imperial y el Depósito Central | «1 marca aquí» (no «1 marcan aquí»); el centro dice «Centro de trabajo · Almacén», no «Centro de trabajo · Centro de trabajo» | RF‑ASI‑093 |   |
 
 ## 11 · Servidor y seguridad (con desarrollo)
 
@@ -218,12 +230,18 @@ Estos casos no se ven solo con la pantalla: se prueban con desarrollo, mirando l
 | QA‑ASI‑122 | Justificar un retraso | Con un retraso en el día, mandar su motivo desde el aviso | Llega a Solicitudes › Justificaciones; al aceptarlo, la tardanza deja de contar en contra | RF‑ASI‑040 · BR‑ASI‑028, BR‑ASI‑029 |   |
 | QA‑ASI‑123 | Horas extra asignadas | Con horas extra asignadas por RR.HH., responder «Acepto» o «No puedo» | Con «Acepto» quedan autorizadas; con «No puedo» RR.HH. lo ve en Horas extra | RF‑ASI‑066 · BR‑ASI‑033 |   |
 | QA‑ASI‑124 | Pedir horas extra | Mi asistencia › pedir horas extra para ayer, para hoy y para un día futuro | Solo deja hoy o un día futuro; llega a RR.HH. como Pendiente | RF‑ASI‑065 · BR‑ASI‑033 |   |
+| QA‑ASI‑141 | Días a tiempo igual al PDF | Como Carlos, Mi asistencia › «Ver el mes» › septiembre; como Juan, la página de Carlos › septiembre | Los dos dicen 137 h 41 min, 13 de 17 días a tiempo (76 %) y 4 llegadas tarde; las vacaciones no cuentan como «a tiempo» | RF‑ASI‑063, 069 · BR‑ASI‑057 |   |
+| QA‑ASI‑142 | Mi asistencia en la web | Como Juan, Mi espacio › Zona HR › Mi asistencia (o /mi-espacio/mi-asistencia) | Se ve la pantalla del celular agrandada, igual que Zona HR, con «Ver el mes» y el «+»; no la página vieja con «Sus días anteriores» | RF‑ASI‑095 |   |
+| QA‑ASI‑143 | Aceptar lo que pidió el jefe | Después de QA‑ASI‑137, como la persona, abrir Mi asistencia | Tarjeta violeta «Sebastián Torres, su jefe, pidió horas extra para usted… RR.HH. ya las aprobó» con «No puedo» y «Acepto»; con «Acepto» quedan autorizadas | RF‑ASI‑066, 090 · BR‑ASI‑059 |   |
 
 ## 16 · Celular · Pedir vacaciones y permisos
 
 | ID | Qué se prueba | Pasos | Resultado esperado | Requisito y regla | Resultado |
 | --- | --- | --- | --- | --- | --- |
 | QA‑ASI‑125 | Pedir vacaciones | Inicio › pedir vacaciones › elegir fechas › revisar la papeleta › Solicitar | La papeleta trae sus datos, los días hábiles, cuándo vuelve y el saldo después; llega a RR.HH. como Pendiente con el mismo número | RF‑ASI‑079 |   |
-| QA‑ASI‑126 | Pedir un permiso o licencia | Inicio › Permiso o licencia › elegir el tipo, el día o los días (o «Unas horas») | La hoja dice si es permiso o licencia y si descuenta vacaciones; en una licencia, «Puede subirlo ahora o después, hasta 5 días» para el respaldo | — |   |
+| QA‑ASI‑126 | Pedir un permiso o licencia | Inicio › Permiso o licencia › elegir el tipo, el día o los días (o «Unas horas») | La hoja dice si es permiso o licencia (ya no aparece «Es un permiso · No descuenta vacaciones» al pie del calendario); en una licencia, «Puede subirlo ahora o después, hasta 5 días» para el respaldo | — |   |
 | QA‑ASI‑127 | Ver la respuesta | Después de QA‑ASI‑46, Mis solicitudes › ver la papeleta | Tiene el sello «Aprobada» con quién y cuándo; si se rechazó, el motivo | RF‑ASI‑080 |   |
 | QA‑ASI‑128 | Cancelar una pendiente | Mis solicitudes › una vacación pendiente › cancelarla (con confirmación) | Pasa a «Cancelada» y los días vuelven al saldo | BR‑ASI‑044 |   |
+| QA‑ASI‑144 | Marcar y desmarcar días | Pedir vacaciones › tocar el 11, el 16 y el 17 › tocar otra vez el 16 | Quedan el 11 y el 17; la cabecera dice «mié 11 y mar 17 nov · 2 días hábiles»; los días pedidos (ámbar o verde) no se pueden tocar; al llegar al saldo: «Ya eligió sus N días disponibles» | RF‑ASI‑092 · BR‑ASI‑060 |   |
+| QA‑ASI‑145 | Días sueltos en permiso y remoto | Permiso › Trámite personal: marcar el 11 y el 17; Trabajo remoto: el 16 y el 18; también arrastrar sobre varios | Cada uno sale como una sola solicitud con esos días; arrastrar marca un tramo saltando lo que no se puede; una licencia de ley (paternidad) se completa sola desde el primer día | RF‑ASI‑092 · BR‑ASI‑060 |   |
+| QA‑ASI‑146 | Pedir horas extra para mi equipo | Ver la demo como «Líder de Área Mobile — Marketing» › Mi asistencia › «+» › «Pedir horas extra para mi equipo» (o Mis solicitudes › ¿Qué necesita?); elegir dos personas | Sale una solicitud por persona; abajo «Lo que pidió para su equipo» con Espera RR.HH.; un colaborador sin equipo no ve la opción | RF‑ASI‑090 · BR‑ASI‑059 |   |

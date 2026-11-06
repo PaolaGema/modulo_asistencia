@@ -972,8 +972,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
       </figure>
     </div>
     <dl class="ficha">
-      <div><dt>Versión</dt><dd>1.1</dd></div>
-      <div><dt>Fecha</dt><dd>3 de noviembre de 2026</dd></div>
+      <div><dt>Versión</dt><dd>1.2</dd></div>
+      <div><dt>Fecha</dt><dd>5 de noviembre de 2026</dd></div>
       <div><dt>Autoría</dt><dd>Paola Gema — Diseñadora UX</dd></div>
       <div><dt>Revisa y aprueba</dt><dd>Por definir</dd></div>
       <div><dt>Estado</dt><dd>Borrador</dd></div>
@@ -985,11 +985,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
   <div class="cifras">
     <div><b>3</b><span>roles con su vista</span></div>
     <div><b>13</b><span>estados de un día</span></div>
-    <div><b>58</b><span>reglas de negocio</span></div>
-    <div><b>87</b><span>requisitos funcionales</span></div>
+    <div><b>60</b><span>reglas de negocio</span></div>
+    <div><b>95</b><span>requisitos funcionales</span></div>
     <div><b>20</b><span>historias de usuario</span></div>
-    <div><b>128</b><span>pruebas para QA (documento aparte)</span></div>
-    <div><b>21</b><span>pantallas</span></div>
+    <div><b>146</b><span>pruebas para QA (documento aparte)</span></div>
+    <div><b>23</b><span>pantallas</span></div>
     <div><b>9</b><span>decisiones abiertas</span></div>
   </div>
 </div>
@@ -1228,10 +1228,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#BR-ASI-031">031 · Se avisa desde un mínimo y se justifica en un …</a></li>
     <li class="rail-g"><a href="#g-las-horas-extra">Las horas extra</a></li>
     <li><a href="#BR-ASI-032">032 · Una hora extra existe solo si se autorizó</a></li>
-    <li><a href="#BR-ASI-033">033 · Dos caminos que terminan en una ventana</a></li>
+    <li><a href="#BR-ASI-033">033 · Tres caminos que terminan en una ventana</a></li>
     <li><a href="#BR-ASI-034">034 · Fuera de horario se informa, no se paga</a></li>
     <li><a href="#BR-ASI-035">035 · Se puede autorizar después del día</a></li>
     <li><a href="#BR-ASI-036">036 · Una autorizada de hoy en adelante se puede can…</a></li>
+    <li><a href="#BR-ASI-059">059 · El jefe pide; RR.HH. aprueba; la persona acept…</a></li>
     <li class="rail-g"><a href="#g-las-solicitudes">Las solicitudes</a></li>
     <li><a href="#BR-ASI-037">037 · Rechazar pide un motivo; aprobar admite una no…</a></li>
     <li><a href="#BR-ASI-038">038 · Aprobar aplica el efecto</a></li>
@@ -1241,6 +1242,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#BR-ASI-042">042 · Aprobar sin saldo es una excepción</a></li>
     <li><a href="#BR-ASI-043">043 · La cobertura del lugar se mira al aprobar</a></li>
     <li><a href="#BR-ASI-044">044 · La persona cancela solo lo pendiente</a></li>
+    <li><a href="#BR-ASI-060">060 · Una solicitud de días puede ser de días suelto…</a></li>
     <li class="rail-g"><a href="#g-los-temas-del-libro-y-el-resumen-para-planillas">Los temas del Libro y el resumen para planillas</a></li>
     <li><a href="#BR-ASI-045">045 · Cada tema del Libro muestra un mes</a></li>
     <li><a href="#BR-ASI-046">046 · Las acciones están en el día, no en la lista</a></li>
@@ -1346,6 +1348,11 @@ td.rg{color:var(--tinta-3);font-weight:700}
     <li><a href="#ax1-por-que-la-persona-justifica-y-no-rrhh">Por qué la persona justifica y no RR.HH.</a></li>
     <li><a href="#ax1-por-que-la-persona-ve-los-mismos-numeros">Por qué la persona ve los mismos números</a></li>
     <li><a href="#ax1-por-que-el-mes-del-libro-es-una-planilla">Por qué el Mes del Libro es una planilla</a></li>
+    <li><a href="#ax1-por-que-los-dias-sueltos-son-una-sola-solici">Por qué los días sueltos son una sola solicitud</a></li>
+    <li><a href="#ax1-por-que-el-jefe-pide-y-la-persona-acepta">Por qué el jefe pide y la persona acepta</a></li>
+    <li><a href="#ax1-por-que-solicitante-y-para">Por qué «Solicitante» y «Para»</a></li>
+    <li><a href="#ax1-por-que-el-descanso-no-tiene-atajos">Por qué el descanso no tiene atajos</a></li>
+    <li><a href="#ax1-por-que-la-ubicacion-de-los-lugares-se-pone-">Por qué la ubicación de los lugares se pone en Asistencia</a></li>
   </ul>
 </div>
 <div class="rail-s" data-sec="ax2">
@@ -1742,11 +1749,13 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li><strong>Estado</strong> en una lista desplegable junto al buscador, con un punto de color y el número de cada uno: Pendientes (la que se abre por defecto), Aprobadas, Rechazadas, Canceladas y Todos los estados. Una solicitud sin respuesta dice <strong>Pendiente</strong>. En Vacaciones, arriba a la derecha, <strong>Solicitudes · Saldos</strong> cambia de vista.</li>
 <li><strong>Tabla</strong>: Colaborador, qué pide (Fechas y motivo, Permiso o licencia, Qué justifica…), <strong>A tener en cuenta</strong> —hasta dos datos que hacen falta para responder—, <strong>Fecha de solicitud</strong> (la fecha y debajo «hace 2 días») y su estado. «Revisar» o «Ver».</li>
 <li><strong>«Para decidir»</strong> según el tipo: el saldo de vacaciones que le queda («Pide 5 y le quedan 3»); si su lugar sigue cubierto esos días («Su lugar quedaría con 6 de 9»); si la licencia trae respaldo; cuántas justificaciones lleva en el mes.</li>
-<li><strong>Revisar</strong> abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y <strong>«Si apruebas:»</strong> con lo que va a pasar. «Dejar pendiente» cierra sin responder y la solicitud sigue pendiente.</li>
+<li><strong>Revisar</strong> abre la solicitud con sus datos, lo que hace falta para decidir, «Ver su día» cuando es una corrección o una justificación, y <strong>«Si aprueba:»</strong> con lo que va a pasar (de usted desde la 1.2: antes decía «Si apruebas» y «recuerda»). «Dejar pendiente» cierra sin responder y la solicitud sigue pendiente.</li>
 <li><strong>La papeleta a la vista</strong>: en vacaciones y en permisos y licencias, a la izquierda de «Revisar» está la misma papeleta que la persona vio y solicitó desde su app, con su número. El recuadro de RR.HH. dice «Pendiente» y, al responder, «Aprobada» o «Rechazada» con quién y cuándo; la persona ve ese mismo sello en su papeleta, en Mis solicitudes.</li>
 <li><strong>Aprobar se confirma escribiendo la palabra</strong>: un segundo paso repite qué va a pasar —en rojo si es una excepción sin saldo— y pide escribir <strong>APROBAR</strong> (o <strong>ACEPTAR</strong> en una justificación) para activar «Sí, aprobar». Aprobar admite una nota; <strong>rechazar pide un motivo</strong> y también se confirma en un segundo paso.</li>
 <li><strong>Aprobar aplica el efecto</strong>: el día de vacaciones o de licencia deja de ser falta, la corrección carga la marcación, el trabajo remoto quita la geocerca esos días, la justificación deja de contar la alerta en contra.</li>
 <li>Buscador y filtros de lugar y unidad; 10 por página.</li>
+<li><strong>Días sueltos</strong> (1.2): una vacación, un permiso por días o un trabajo remoto puede ser de días que no van seguidos. La lista y la ventana dicen los días agrupados por tramos —«mié 11 y lun 16 – mar 17 nov»— y, con más de dos tramos, «9 días entre el vie 30 oct y el mar 24 nov». La papeleta los lista todos. Al aprobar, solo esos días quedan justificados —BR‑ASI‑060—.</li>
+<li><strong>Revisar en lote</strong> (1.2, «A3 en grande»): en Correcciones de marcación, «Revisar en lote · N» abre una pantalla propia, «Revisar N correcciones», con el buscador, los filtros y «Qué cambia» (carga una marca que faltaba, cambia una hora, quita una de más, varios cambios). Dos grupos: <strong>Rutinarias</strong> —mueven 15 min o menos, no quitan atraso, son la 1.ª o 2.ª del mes y no son propias—, con casilla y «Elegir las N», y <strong>Se revisan de a una</strong>, con el porqué («Es su 3.ª corrección del mes», «Quita 13 min de atraso · Comprobar: …») y «Revisar». «Ver su día» muestra sus marcas con la que cambia. El pie, fijo, pide escribir APROBAR. Cada una queda igual que aprobada de a una; rechazar no va en lote.</li>
 </ul>
 <div class="tbl"><table>
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
@@ -1760,6 +1769,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-080">RF‑ASI‑080</td><td>La papeleta lleva el sello de la respuesta de RR.HH.</td><td>Import.</td><td>Aprobada, dice «Aprobó Juan Pérez Gómez · 3 nov» en los dos lados</td></tr>
 <tr><td class="id" id="RF-ASI-030">RF‑ASI‑030</td><td>La cobertura avisa si el lugar quedaría bajo el 80 %</td><td>Import.</td><td>«Su lugar quedaría con 6 de 9» en ámbar</td></tr>
 <tr><td class="id" id="RF-ASI-031">RF‑ASI‑031</td><td>El menú cuenta las solicitudes pendientes, con las de horas extra</td><td>Oblig.</td><td>Una nueva desde la app suma uno</td></tr>
+<tr><td class="id" id="RF-ASI-088">RF‑ASI‑088</td><td>Las correcciones rutinarias se aprueban en lote desde su propia pantalla, escribiendo APROBAR</td><td>Import.</td><td>«Elegir las 97» y APROBAR: las 97 quedan aprobadas y sus días corregidos sin marcas duplicadas</td></tr>
+<tr><td class="id" id="RF-ASI-092">RF‑ASI‑092</td><td>Una solicitud de días puede ser de días sueltos y se muestra por tramos</td><td>Oblig.</td><td>Pide el 11 y el 16: la lista dice «mié 11 y lun 16 nov · 2 días hábiles»</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-7">3.7 Saldos de vacaciones</h3>
@@ -1780,7 +1791,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <ul>
 <li><strong>Qué listar</strong> en una lista desplegable junto al buscador: Pendientes (por defecto), Programadas y Todas, con su número. Arriba a la derecha, <strong>Solicitudes · Resumen del mes</strong> cambia de vista.</li>
 <li><strong>Asignar horas extra</strong>: fecha, desde, hasta, motivo que la persona verá, proyecto o centro de costo opcional y a quién, con buscador. «Conversa antes con cada persona»: la verá en su app y tendrá que aceptarla.</li>
-<li><strong>Revisar</strong>: el día y la franja, el motivo, el proyecto, cuántas lleva autorizadas en el mes y a qué hora termina su horario. Se puede cancelar una autorizada de hoy en adelante.</li>
+<li><strong>Tabla</strong> (1.2, opción D2): <strong>Solicitante · Para · Día y horario · Motivo · Estado</strong>. Se lee como una frase: quién la pidió, para quién, cuándo. El solicitante va con su foto y su papel («Su jefe · Coordinador Logístico», «RR.HH. · asignada»); si la pidió la misma persona, «Para sí». Salió la columna «Quién la originó», que mezclaba el canal («desde la app») con la persona.</li>
+<li><strong>Revisar</strong> (1.2, opción A): como Vacaciones y Permiso. A la izquierda, la <strong>papeleta «Solicitud de horas extra»</strong> (o «Asignación» si la asignó RR.HH.) con datos del trabajador, día, desde–hasta, horas, proyecto, motivo, solicitante y las firmas. A la derecha, <strong>su día</strong>: la barra del Detalle de la jornada con su horario y la franja pedida en violeta. «Para decidir»: cuántas veces y qué días del mes ya tuvo horas extra («Sería su 5.ª vez en octubre: ya tiene 8 h autorizadas (7, 13, 19 y 28 de octubre)») y cómo cae la franja («Empiezan justo cuando termina su horario», «El sábado no trabaja: las horas extra serían en su día libre»). Se puede cancelar una autorizada de hoy en adelante.</li>
+<li><strong>Las que pide el jefe</strong> (1.2): dicen «Lo pidió su jefe, Sebastián Torres, para 2 personas: …»; la papeleta lleva <strong>tres firmas</strong> (su jefe, RR.HH., la persona). Al aprobar, quedan «Por aceptar» hasta que la persona responde —BR‑ASI‑059—.</li>
 <li><strong>Resumen del mes</strong>: por persona, los días, las horas autorizadas, las trabajadas dentro y el uso; CSV con los totales en horas.</li>
 </ul>
 <div class="tbl"><table>
@@ -1790,6 +1803,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-035">RF‑ASI‑035</td><td>Solo cuenta como extra lo trabajado dentro de la ventana autorizada</td><td>Oblig.</td><td>Ventana 18:00–20:00, salió 20:40: cuentan 2 h</td></tr>
 <tr><td class="id" id="RF-ASI-036">RF‑ASI‑036</td><td>La hora extra guarda el proyecto o centro de costo</td><td>Import.</td><td>El resumen y el detalle lo muestran</td></tr>
 <tr><td class="id" id="RF-ASI-037">RF‑ASI‑037</td><td>Cancelar una autorizada la deja sin efecto y la persona lo ve</td><td>Import.</td><td>Cancelada, lo que trabaje ese día no cuenta como extra</td></tr>
+<tr><td class="id" id="RF-ASI-089">RF‑ASI‑089</td><td>Revisar horas extra muestra la papeleta y su día con la franja</td><td>Import.</td><td>La barra muestra su horario y las 2 h pedidas en violeta; si ese día no trabaja, lo dice</td></tr>
+<tr><td class="id" id="RF-ASI-090">RF‑ASI‑090</td><td>El jefe pide horas extra para una o varias personas de su equipo; RR.HH. aprueba y cada una acepta</td><td>Oblig.</td><td>Ana pide para Carolina y Bruno: RR.HH. ve dos filas «Su jefe · Líder de Marketing»; aprobadas, cada una ve «No puedo / Acepto»</td></tr>
+<tr><td class="id" id="RF-ASI-091">RF‑ASI‑091</td><td>La tabla de horas extra dice quién la pidió y para quién</td><td>Import.</td><td>La pidió la persona: «Para sí»; la pidió su jefe: su nombre en Solicitante y la persona en Para</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-9">3.9 Exportar para planillas</h3>
@@ -1815,7 +1831,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <li><strong>Tabla o tarjetas</strong>: dos íconos junto a «Nuevo horario»; se abre en la tabla y las tarjetas, la forma gráfica, van después. La <strong>tarjeta</strong> muestra su color y nombre, «08:30 a 18:00 · descanso de 13:00 a 14:00», los días, una barra de 24 h con la franja, las horas programadas al día y cuántos colaboradores lo tienen. La <strong>tabla</strong> pone los horarios lado a lado: Horario, Entrada y salida, Descanso, Días, Al día, A la semana y Colaboradores.</li>
 <li>Menú: Editar, Duplicar, Eliminar (no si está asignado). <strong>Duplicar y Eliminar piden confirmación</strong>: Duplicar pide el nombre de la copia («Sí, duplicar»). <strong>Eliminar</strong> abre una ventana centrada, como «Eliminar mi cuenta» del celular (Ronda 22 · K2): un ícono grande, «¿Eliminar «Oficina (copia)»?», qué pasa, y <strong>hay que escribir el nombre del horario</strong> para que se encienda el botón rojo. La misma ventana sirve para eliminar una política; «Usar por defecto» también se confirma.</li>
 <li><strong>Las horas se eligen con el reloj de Souly</strong>: un campo que se puede escribir (08:30) y que abre una tarjeta con dos columnas —horas y minutos de 5 en 5— y la elegida en navy; en vez del reloj gris del navegador.</li>
-<li><strong>Nuevo horario</strong> (Ronda 19 · X1): una ventana ancha. Arriba, nombre, tipo (<strong>Fijo</strong> o <strong>Flexible</strong>) y color. A la izquierda, <strong>un renglón por día, de lunes a domingo</strong>: un interruptor para si trabaja ese día, su entrada y su salida, <strong>sus descansos</strong> —hasta dos, solo con su hora («☕ 13:00–14:00»)— como etiquetas; al tocar una se abre <strong>una tarjetita flotante</strong> (Ronda 20 · E2) con desde → hasta en grande, duraciones rápidas (15 min, 30 min, 45 min, 1 h) que calculan el «hasta», la barra del día con dónde cae y «Quitar descanso», sus horas y un menú ⋯ para copiar ese día a todos, de lunes a viernes o a un día libre. A la derecha, <strong>«Así queda su semana»</strong>: un calendario de lunes a domingo con un bloque por día en el color del horario y los descansos rayados. Abajo, la tolerancia de la política y las horas por grupo de días y de la semana. <strong>Un horario nuevo arranca de lunes a sábado</strong> (sábado de 08:30 a 12:30, sin descanso); cada empresa lo cambia. Cada día avisa si la salida es antes que la entrada o si un descanso cae fuera de la jornada o se pisa con el otro.</li>
+<li><strong>Nuevo horario</strong> (Ronda 19 · X1): una ventana ancha. Arriba, nombre, tipo (<strong>Fijo</strong> o <strong>Flexible</strong>) y color. A la izquierda, <strong>un renglón por día, de lunes a domingo</strong>: un interruptor para si trabaja ese día, su entrada y su salida, <strong>sus descansos</strong> —hasta dos, solo con su hora («☕ 13:00–14:00»)— como etiquetas; al tocar una se abre <strong>una tarjetita flotante</strong> (Ronda 20 · E2) con desde → hasta en grande, cuánto dura («Dura 2 h») —<strong>sin atajos ni tope</strong> desde la 1.2: los botones 15 · 30 · 45 min · 1 h hacían creer que el descanso llegaba a una hora, y el almuerzo de 1 h 30 o 2 h es común—, la barra del día con dónde cae y «Quitar descanso», sus horas y un menú ⋯ para copiar ese día a todos, de lunes a viernes o a un día libre. A la derecha, <strong>«Así queda su semana»</strong>: un calendario de lunes a domingo con un bloque por día en el color del horario y los descansos rayados. Abajo, la tolerancia de la política y las horas por grupo de días y de la semana. <strong>Un horario nuevo arranca de lunes a sábado</strong> (sábado de 08:30 a 12:30, sin descanso); cada empresa lo cambia. Cada día avisa si la salida es antes que la entrada o si un descanso cae fuera de la jornada o se pisa con el otro.</li>
 <li><strong>Cada descanso se mide por separado</strong>: el primer descanso que marca contra la primera franja, el segundo contra la segunda; si se excede en el primero, el exceso aparece en el primero. Si no marca uno que su jornada incluye, cuenta como descanso sin marcar. Las horas del día descuentan los dos.</li>
 <li><strong>Un día distinto cuenta como jornada completa con sus propias horas</strong>: quien trabaja el sábado de 08:00 a 12:00 cumplió su día y no queda debiendo; la tardanza y la salida anticipada se miden contra el horario de ese día. Por dentro se guarda el horario más repetido como base y los demás días como excepciones. La tabla y la tarjeta muestran los días distintos debajo («Sá 09:00 a 13:00»).</li>
 <li><strong>Tolerancias</strong> (lo que antes era la política): de entrada, del descanso y de salida, con − y +, cada una con su efecto («Atraso desde las 08:40», «Salida anticipada antes de las 17:55»). La tabla muestra la tolerancia debajo de la entrada y salida. <strong>Ya no se elige</strong> qué pasa si no marca el descanso ni el redondeo: si no lo marca, siempre se resta de las horas trabajadas y queda el aviso «No marcó su descanso»; la tardanza siempre se cuenta al segundo (#8).</li>
@@ -1831,6 +1847,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-082">RF‑ASI‑082</td><td>Un horario puede tener otro horario algunos días</td><td>Oblig.</td><td>Lunes a viernes 08:00–18:00 y sábado 08:00–12:00: el sábado se programan 4 h</td></tr>
 <tr><td class="id" id="RF-ASI-083">RF‑ASI‑083</td><td>El día con otro horario cuenta como jornada completa con sus horas</td><td>Oblig.</td><td>Trabajar el sábado de 08:00 a 12:00 da «4:00 de 4:00» y «Terminó su jornada»</td></tr>
 <tr><td class="id" id="RF-ASI-084">RF‑ASI‑084</td><td>Cada día del horario puede tener hasta dos descansos, cada uno medido por separado</td><td>Oblig.</td><td>Con descansos de 13:00 a 14:00 y de 16:00 a 16:15, el lunes de 08:30 a 18:00 programa 8:15</td></tr>
+<tr><td class="id" id="RF-ASI-094">RF‑ASI‑094</td><td>El descanso se escribe libre: desde y hasta, sin duración máxima</td><td>Oblig.</td><td>De 12:30 a 14:30 la tarjeta dice «Dura 2 h»; si el hasta no es después del desde, lo avisa</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-11">3.11 Configuración › Modalidades</h3>
@@ -1872,7 +1889,8 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="nota al"><p><strong>En la maqueta:</strong> el aviso con «Agregar motivo» se configura pero todavía no aparece en el celular, y el plazo para justificar no vence solo —ABIERTA‑ASI‑06—.</p></div>
 <h3 id="p3-13">3.13 Configuración › Lugares y geocercas</h3>
 <ul>
-<li>Las sucursales y sus centros de trabajo de Organización, en árbol, cada uno con su radio o «Sin ubicación» y cuántos marcan ahí. «Geocerca» o «Ubicar».</li>
+<li>Las sucursales y sus centros de trabajo de Organización, en árbol, cada uno con su radio y cuántos marcan ahí («1 marca aquí», «9 marcan aquí»). El centro de trabajo dice su tipo («Almacén») o su ciudad.</li>
+<li><strong>Sin ubicación</strong> (1.2): en ámbar, «Sin ubicación · Nadie puede marcar aquí todavía» (o «4 personas no pueden marcar aquí» si tiene gente asignada) y el botón <strong>«Ubicar en el mapa»</strong>. El mapa arranca cerca, en un lugar vecino ya ubicado. La ubicación se pone aquí, en Asistencia: Organización no se toca (decidido el 5 nov 2026).</li>
 <li><strong>Geocerca</strong>: un mapa donde se toca o se arrastra el punto y el <strong>radio permitido</strong> de 30 a 1000 m (150 por defecto). «Entre 100 y 200 m suele andar bien en ciudad».</li>
 <li>«Los lugares salen de Organización › Estructura física»; «Ir a Organización» para crear uno.</li>
 </ul>
@@ -1881,6 +1899,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tbody>
 <tr><td class="id" id="RF-ASI-051">RF‑ASI‑051</td><td>La geocerca es un punto y un radio sobre un lugar de Organización</td><td>Oblig.</td><td>Guardar la geocerca de una sucursal la deja «Radio de 150 m»</td></tr>
 <tr><td class="id" id="RF-ASI-052">RF‑ASI‑052</td><td>Asistencia no crea lugares</td><td>Oblig.</td><td>No hay botón para crear una sucursal aquí</td></tr>
+<tr><td class="id" id="RF-ASI-093">RF‑ASI‑093</td><td>Un lugar sin ubicación se avisa y se ubica desde Asistencia</td><td>Oblig.</td><td>Sucursal 16 de Julio: «Sin ubicación · Nadie puede marcar aquí todavía» y «Ubicar en el mapa»</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-14">3.14 Configuración › Asignaciones</h3>
@@ -1947,7 +1966,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p3-18">3.18 Su día, su semana y su mes</h3>
 <ul>
 <li><strong>Esta semana</strong>: siete días con un punto de color, el de hoy en navy; un toque muestra a qué hora marcó cada cosa, cómo la marcó y cuánto trabajó. Resumen: trabajadas, días a tiempo y horas extra.</li>
-<li><strong>Mi mes</strong>: el calendario con el color de cada día y el resumen: trabajadas, días a tiempo y llegadas tarde.</li>
+<li><strong>Mi mes</strong>: el calendario con el color de cada día y el resumen: trabajadas, días a tiempo y llegadas tarde. Desde la 1.2 salen del mismo cálculo que el PDF (<code>cifrasDelMes</code>): <strong>días a tiempo = días que vino sin llegar tarde ÷ días que vino</strong>; las vacaciones y los permisos no cuentan ni a favor ni en contra (antes el celular los sumaba como «a tiempo» y contaba las faltas en el total).</li>
 <li><strong>El día elegido</strong>: las marcas con su diferencia («a la hora», «12 min tarde», «fuera de horario»), el descanso y cuánto se pasó, y «¿Algo está mal? Corregir una marca».</li>
 </ul>
 <div class="tbl"><table>
@@ -1960,7 +1979,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <h3 id="p3-19">3.19 Pedir horas extra y corregir una marca</h3>
 <ul>
 <li><strong>Pedir horas extra</strong>: se piden antes del día; día, desde (su salida), hasta (1 h o 2 h), razón. «Serían 2 h de horas extra». Debajo, sus horas extra con su estado.</li>
-<li><strong>Horas extra asignadas</strong>: «RR.HH. le asignó horas extra» con «No puedo» o «Acepto».</li>
+<li><strong>Horas extra asignadas</strong>: «RR.HH. le asignó horas extra» o, si las pidió su jefe y RR.HH. las aprobó, «Sebastián Torres, su jefe, pidió horas extra para usted», con «No puedo» o «Acepto».</li>
+<li><strong>Pedir horas extra para mi equipo</strong> (1.2, opción C2): solo para quien es líder de un área. En el «+» de Mi asistencia y en Mis solicitudes › «¿Qué necesita?». La misma pantalla con <strong>«Para quién»</strong>: una o varias personas de su equipo. Abajo, «Lo que pidió para su equipo» con su estado: Espera RR.HH., Por aceptar, Aceptada, No puede, No aprobada.</li>
+<li><strong>Elegir los días</strong> (1.2, opción A) en vacación, permiso por días, licencia médica y trabajo remoto: <strong>un toque marca el día y otro lo desmarca</strong>; arrastrar el dedo marca varios. Los días ya pedidos, pasados o que no trabaja no se pueden tocar. La vacación no deja pasar del saldo («Ya eligió sus 5 días disponibles»). El aro verde es el día en que vuelve a trabajar. Las licencias de ley con días fijos (maternidad, paternidad, duelo, matrimonio) se completan solas desde el primer día.</li>
 <li><strong>Corregir una marcación</strong>: día, qué marca, a qué hora figura hoy, la hora correcta y la razón. RR.HH. la revisa y, si la aprueba, se corrige sola.</li>
 <li>Las dos se piden desde Mis solicitudes › «¿Qué necesita?» o desde el «+» de Mi asistencia.</li>
 </ul>
@@ -1970,6 +1991,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="RF-ASI-065">RF‑ASI‑065</td><td>Las horas extra se piden para hoy o un día futuro</td><td>Oblig.</td><td>No se puede elegir ayer</td></tr>
 <tr><td class="id" id="RF-ASI-066">RF‑ASI‑066</td><td>Aceptar una asignación la vuelve autorizada</td><td>Oblig.</td><td>«Acepto» la deja «Aceptada» y cuenta desde ahí</td></tr>
 <tr><td class="id" id="RF-ASI-067">RF‑ASI‑067</td><td>Una corrección se pide con hora y razón, y llega a RR.HH.</td><td>Oblig.</td><td>Aparece en Solicitudes › Correcciones de marcación</td></tr>
+<tr><td class="id" id="RF-ASI-092">RF‑ASI‑092</td><td>Los días de una solicitud se marcan y desmarcan uno por uno</td><td>Oblig.</td><td>Marca 11, 16 y 17, toca otra vez el 16: quedan el 11 y el 17</td></tr>
 </tbody>
 </table></div>
 <h3 id="p3-20">3.20 Los avisos de marcación</h3>
@@ -1985,7 +2007,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </table></div>
 <h3 id="p3-21">3.21 Mi asistencia en la web</h3>
 <ul>
-<li>Lo mismo que en el celular en una página: el marcador, tres cifras —trabajado en el mes, puntualidad y racha—, el calendario del mes y el detalle del día.</li>
+<li><strong>La misma pantalla del celular, agrandada</strong>, como Zona HR (1.2): el marcador, «Esta semana», «Ver el mes», el «+» para pedir y el PDF del mes. Antes era una página de escritorio propia; quedó vieja cuando Mi espacio web pasó a usar las piezas del teléfono. Una sola versión sirve para las dos puertas.</li>
 <li>Un día sin salida o ausente dice: «¿Falta algo? Escríbele a RR.HH. desde Mis solicitudes».</li>
 <li>Quien no es de RR.HH. y entra a Asistencia vuelve a Mi asistencia: la asistencia de todos es de RR.HH.</li>
 </ul>
@@ -1993,6 +2015,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <thead><tr><th>Código</th><th>Requisito</th><th>Prioridad</th><th>Criterio</th></tr></thead>
 <tbody>
 <tr><td class="id" id="RF-ASI-069">RF‑ASI‑069</td><td>La persona ve exactamente los números de RR.HH., no una versión aparte</td><td>Oblig.</td><td>Su trabajado del mes coincide con la asistencia de la persona</td></tr>
+<tr><td class="id" id="RF-ASI-095">RF‑ASI‑095</td><td>Mi asistencia en la web es la pantalla del celular</td><td>Import.</td><td>«Ver el mes» abre «Mi mes» igual que en el teléfono</td></tr>
 </tbody>
 </table></div>
 <h3 class="rol-h" id="s3-rol-todo-el-modulo"><span class="rol-k">Para</span>Todo el módulo</h3>
@@ -3131,7 +3154,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <span class="br-n">4.33</span>
 <div>
 <div class="br-cab"><span class="br-id">BR-ASI-033</span><span class="br-estado">Borrador</span></div>
-<h3 id="BR-ASI-033">Dos caminos que terminan en una ventana</h3>
+<h3 id="BR-ASI-033">Tres caminos que terminan en una ventana</h3>
 <h4 class="br-h"><em>1</em>Información básica</h4>
 <dl class="br-meta">
 <div><dt>Código</dt><dd>BR-ASI-033</dd></div>
@@ -3141,7 +3164,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Estado</dt><dd>Borrador</dd></div>
 </dl>
 <p class="br-dg-t">Descripción general</p>
-<p>La persona <strong>pide</strong> horas extra desde la app —día, desde, hasta y razón— y RR.HH. las <strong>aprueba</strong>; o RR.HH. las <strong>asigna</strong> —después de conversarlo— con motivo y proyecto, y la persona las <strong>acepta</strong>. Las dos guardan fecha, franja, motivo, proyecto o centro de costo y quién aprobó.</p>
+<p>La persona <strong>pide</strong> horas extra desde la app —día, desde, hasta y razón— y RR.HH. las <strong>aprueba</strong>; o RR.HH. las <strong>asigna</strong> —después de conversarlo— con motivo y proyecto, y la persona las <strong>acepta</strong>; o, desde la 1.2, <strong>su jefe las pide</strong> para ella, RR.HH. las aprueba y la persona las acepta —BR‑ASI‑059—. Todas guardan fecha, franja, motivo, proyecto o centro de costo, quién las pidió y quién aprobó.</p>
 <h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
 <div class="escenarios">
 <div class="esc ok"><div class="esc-t"><i></i>Asignar a tres</div><ul><li><b>Dado que</b>hay cierre de inventario</li><li><b>Cuando</b>RR.HH. asigna de 18:00 a 20:00 a tres personas</li><li><b>Entonces</b>cada una la ve en su app con «No puedo» o «Acepto»</li></ul></div>
@@ -3255,6 +3278,41 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Requisitos</dt><dd>RF‑ASI‑037</dd></div>
 <div><dt>Historia de usuario</dt><dd>HU‑ASI‑10</dd></div>
 <div><dt>Pantalla</dt><dd>W‑ASI‑12 Horas extra</dd></div>
+<div><dt>Diseño</dt><dd>Prototipado</dd></div>
+</dl>
+</div>
+</li>
+<li class="br">
+<span class="br-n">4.59</span>
+<div>
+<div class="br-cab"><span class="br-id">BR-ASI-059</span><span class="br-estado">Borrador</span></div>
+<h3 id="BR-ASI-059">El jefe pide; RR.HH. aprueba; la persona acepta</h3>
+<h4 class="br-h"><em>1</em>Información básica</h4>
+<dl class="br-meta">
+<div><dt>Código</dt><dd>BR-ASI-059</dd></div>
+<div><dt>Grupo</dt><dd>Las horas extra</dd></div>
+<div><dt>Qué gobierna</dt><dd>Hora extra</dd></div>
+<div><dt>Antes</dt><dd>Nueva (5 nov 2026)</dd></div>
+<div><dt>Estado</dt><dd>Borrador</dd></div>
+</dl>
+<p class="br-dg-t">Descripción general</p>
+<p>Quien es líder de un área puede pedir horas extra para una o varias personas de su equipo, porque es quien necesita que se queden. El pedido llega a RR.HH. como una solicitud por persona, con «Solicitante: su jefe». Al aprobarla, <strong>no cuenta todavía</strong>: queda «Por aceptar» y la persona responde «No puedo» o «Acepto» en su celular. Es su tiempo fuera del horario: con «Acepto» queda constancia de que estuvo de acuerdo, igual que en una asignada.</p>
+<h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+<div class="escenarios">
+<div class="esc ok"><div class="esc-t"><i></i>Para dos de su equipo</div><ul><li><b>Dado que</b>Ana Martínez es líder de Marketing</li><li><b>Cuando</b>pide horas extra de 18:00 a 20:00 para Carolina Vega y Bruno Salazar</li><li><b>Entonces</b>RR.HH. ve dos solicitudes «Su jefe · Líder de Marketing» → Carolina y → Bruno, con «Lo pidió su jefe, Ana Martínez Ruiz, para 2 personas»</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>La persona no puede</div><ul><li><b>Dado que</b>RR.HH. aprobó la de Mariana Ribera</li><li><b>Cuando</b>Mariana toca «No puedo»</li><li><b>Entonces</b>queda «No puede» para su jefe y para RR.HH., y no cuenta como hora extra</li></ul></div>
+</div>
+<h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+<ul class="br-cond">
+<li>Solo ve «Pedir horas extra para mi equipo» quien es líder de un área (en la maqueta, el rol «Líder de área»); su equipo es la gente de su área.</li>
+<li>Rechazar en RR.HH. pide motivo, como cualquier solicitud.</li>
+</ul>
+<h4 class="br-h"><em>4</em>Trazabilidad</h4>
+<dl class="br-traza">
+<div><dt>Ticket</dt><dd>Pendiente</dd></div>
+<div><dt>Requisitos</dt><dd>RF‑ASI‑090, RF‑ASI‑091</dd></div>
+<div><dt>Historia de usuario</dt><dd>HU‑ASI‑10</dd></div>
+<div><dt>Pantalla</dt><dd>W‑ASI‑12 Horas extra; W‑ASI‑24 Pedir horas extra para mi equipo</dd></div>
 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
 </dl>
 </div>
@@ -3524,6 +3582,42 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div><dt>Requisitos</dt><dd>RF‑ASI‑031</dd></div>
 <div><dt>Historia de usuario</dt><dd>HU‑ASI‑20</dd></div>
 <div><dt>Pantalla</dt><dd>W‑ASI‑22 Mi asistencia</dd></div>
+<div><dt>Diseño</dt><dd>Prototipado</dd></div>
+</dl>
+</div>
+</li>
+<li class="br">
+<span class="br-n">4.60</span>
+<div>
+<div class="br-cab"><span class="br-id">BR-ASI-060</span><span class="br-estado">Borrador</span></div>
+<h3 id="BR-ASI-060">Una solicitud de días puede ser de días sueltos</h3>
+<h4 class="br-h"><em>1</em>Información básica</h4>
+<dl class="br-meta">
+<div><dt>Código</dt><dd>BR-ASI-060</dd></div>
+<div><dt>Grupo</dt><dd>Las solicitudes</dd></div>
+<div><dt>Qué gobierna</dt><dd>Solicitud</dd></div>
+<div><dt>Antes</dt><dd>Nueva (5 nov 2026)</dd></div>
+<div><dt>Estado</dt><dd>Borrador</dd></div>
+</dl>
+<p class="br-dg-t">Descripción general</p>
+<p>Una vacación, un permiso por días, una licencia médica o un trabajo remoto es <strong>una sola solicitud</strong> aunque sus días no vayan seguidos. Guarda el primer y el último día y, si no son seguidos, <strong>la lista de días</strong>. Todo lo que pregunta «¿este día está pedido?» —el saldo, el Libro, los calendarios, la cobertura, «Ya tiene pedido»— mira esa lista: lo que hay en el medio no se toca. Lo que no es día de trabajo (fin de semana, feriado) no corta un tramo: viernes y lunes van juntos.</p>
+<h4 class="br-h"><em>2</em>Escenarios ágiles de ejecución</h4>
+<div class="escenarios">
+<div class="esc ok"><div class="esc-t"><i></i>El 11 y el 16</div><ul><li><b>Dado que</b>Carlos tiene 5 días de vacación</li><li><b>Cuando</b>marca el 11 y el 16 de noviembre</li><li><b>Entonces</b>sale una solicitud de 2 días hábiles, «mié 11 y lun 16 nov», y le quedan 3</li></ul></div>
+<div class="esc ok"><div class="esc-t"><i></i>Se aprueba</div><ul><li><b>Dado que</b>Diego pidió el lunes 26 y el miércoles 28</li><li><b>Cuando</b>RR.HH. aprueba</li><li><b>Entonces</b>el 26 y el 28 quedan de vacaciones y el 27 sigue siendo un día de trabajo</li></ul></div>
+</div>
+<h4 class="br-h"><em>3</em>Condiciones y excepciones</h4>
+<ul class="br-cond">
+<li>Las licencias de ley con días fijos (maternidad 90 corridos; paternidad, duelo y matrimonio 3 hábiles) siguen siendo un tramo que se completa solo.</li>
+<li>El permiso por horas es de un solo día.</li>
+<li>RR.HH. aprueba o rechaza la solicitud entera.</li>
+</ul>
+<h4 class="br-h"><em>4</em>Trazabilidad</h4>
+<dl class="br-traza">
+<div><dt>Ticket</dt><dd>Pendiente</dd></div>
+<div><dt>Requisitos</dt><dd>RF‑ASI‑092</dd></div>
+<div><dt>Historia de usuario</dt><dd>HU‑ASI‑09</dd></div>
+<div><dt>Pantalla</dt><dd>W‑ASI‑10 Revisar una solicitud; W‑ASI‑22 Mi asistencia</dd></div>
 <div><dt>Diseño</dt><dd>Prototipado</dd></div>
 </dl>
 </div>
@@ -4261,6 +4355,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tr><td class="id" id="W-ASI-18">W‑ASI‑18</td><td>Configuración › Lugares y geocercas</td><td>/asistencia/configuracion?ver=lugares</td></tr>
 <tr><td class="id" id="W-ASI-19">W‑ASI‑19</td><td>Configuración › Asignaciones</td><td>/asistencia/configuracion?ver=asignaciones</td></tr>
 <tr><td class="id" id="W-ASI-20">W‑ASI‑20</td><td>Configuración › Asignaciones (columna Rostro) y Modalidades (privacidad)</td><td>/asistencia/configuracion?ver=asignaciones</td></tr>
+<tr><td class="id" id="W-ASI-23">W‑ASI‑23</td><td>Revisar en lote (correcciones de marcación)</td><td>/asistencia/solicitudes?ver=correcciones&amp;lote=1</td></tr>
 </tbody>
 </table></div>
 <h3 class="rol-h" id="s8-rol-el-colaborador"><span class="rol-k">Para</span>El colaborador</h3>
@@ -4271,6 +4366,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <tbody>
 <tr><td class="id" id="W-ASI-21">W‑ASI‑21</td><td>Marcar desde el celular: Inicio, confirmar, ubicación, rostro y listo</td><td>celular, Inicio</td></tr>
 <tr><td class="id" id="W-ASI-22">W‑ASI‑22</td><td>Mi asistencia: su semana, su mes, su día, pedir horas extra y corregir una marca</td><td>/mi-espacio/mi-asistencia y celular, Zona HR</td></tr>
+<tr><td class="id" id="W-ASI-24">W‑ASI‑24</td><td>Pedir horas extra para mi equipo (líder de área)</td><td>celular y web: «+» de Mi asistencia y Mis solicitudes › «¿Qué necesita?»</td></tr>
 </tbody>
 </table></div>
   </section>
@@ -4336,9 +4432,9 @@ td.rg{color:var(--tinta-3);font-weight:700}
       
     </header>
 
-<p>Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: <strong><a href="pruebas-asistencia.html">Pruebas de Asistencia</a></strong> (fuente: <code>pruebas-asistencia.md</code>). Son <strong>128 casos</strong> en dos partes —<strong>RR.HH. en la web</strong> (108) y <strong>el colaborador en el celular</strong> (20)—, cada uno con sus pasos, el resultado esperado, el requisito (RF‑ASI) y la regla de negocio (BR‑ASI) que prueba. <strong>Todos los requisitos vigentes y todas las reglas vigentes tienen al menos una prueba</strong> (las reglas retiradas —013, 027 y 047— no se prueban); los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca <strong>✓ Pasa</strong>, <strong>✗ Falla</strong> o <strong>— No se pudo</strong>, con una nota, y se exportan los resultados en CSV.</p>
+<p>Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: <strong><a href="pruebas-asistencia.html">Pruebas de Asistencia</a></strong> (fuente: <code>pruebas-asistencia.md</code>). Son <strong>146 casos</strong> en dos partes —<strong>RR.HH. en la web</strong> (120) y <strong>el colaborador en el celular</strong> (26)—, cada uno con sus pasos, el resultado esperado, el requisito (RF‑ASI) y la regla de negocio (BR‑ASI) que prueba. <strong>Todos los requisitos vigentes y todas las reglas vigentes tienen al menos una prueba</strong> (las reglas retiradas —013, 027 y 047— no se prueban); los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca <strong>✓ Pasa</strong>, <strong>✗ Falla</strong> o <strong>— No se pudo</strong>, con una nota, y se exportan los resultados en CSV.</p>
 <p>Se mantienen junto con este documento: cuando cambia una regla o una pantalla, cambia su prueba. Para regenerar la página: <code>node herramientas/doc-pruebas.cjs pruebas-asistencia.md public/pruebas-asistencia.html</code>.</p>
-<p>Para desarrollo, cada situación real del módulo está en fichas con capturas: <strong><a href="casos-asistencia.html">Casos de Asistencia</a></strong> (fuente: <code>casos-asistencia.md</code>). Son <strong>24 casos</strong> —la marcación, el cálculo del día, corregir sin borrar, justificaciones y solicitudes, y lo que ve la persona—, cada uno con la situación, los datos de la demo, el cálculo, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web y del celular. Las capturas se rehacen con <code>node herramientas/capturas-casos.cjs</code> y la página con <code>node herramientas/doc-casos.cjs casos-asistencia.md public/casos-asistencia.html</code>.</p>
+<p>Para desarrollo, cada situación real del módulo está en fichas con capturas: <strong><a href="casos-asistencia.html">Casos de Asistencia</a></strong> (fuente: <code>casos-asistencia.md</code>). Son <strong>31 casos</strong> —la marcación, el cálculo del día, corregir sin borrar, justificaciones y solicitudes, horas extra, configuración y lo que ve la persona—, cada uno con la situación, los datos de la demo, el cálculo, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web y del celular. Las capturas se rehacen con <code>node herramientas/capturas-casos.cjs</code> y la página con <code>node herramientas/doc-casos.cjs casos-asistencia.md public/casos-asistencia.html</code>.</p>
   </section>
 
   <section id="como-se-mantiene-este-documento">
@@ -4366,6 +4462,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <div class="tbl"><table>
 <thead><tr><th>Versión</th><th>Fecha</th><th>Qué cambió</th></tr></thead>
 <tbody>
+<tr><td><strong>1.2</strong></td><td>5 nov 2026</td><td><strong>Pedir y aprobar más claro.</strong> <strong>Días sueltos</strong> en vacaciones, permisos, licencia médica y trabajo remoto: un toque marca, otro desmarca (BR‑ASI‑060). <strong>Horas extra</strong>: «Revisar» con su papeleta y su día; <strong>el jefe pide</strong> para su equipo y la persona acepta (BR‑ASI‑059); la tabla pasa a <strong>Solicitante · Para</strong>. <strong>Correcciones en lote</strong> desde su propia pantalla. <strong>Lugares</strong> sin ubicación se avisan y se ubican desde Asistencia. <strong>El descanso</strong> se escribe libre, sin atajos de 1 h. El celular y el PDF dicen los mismos «días a tiempo». <strong>Mi asistencia web</strong> es la pantalla del celular. <strong>Días libres</strong> sale del menú por ahora. Las ventanas de revisar hablan de usted. Nuevo documento <strong>Casos de Asistencia</strong> para desarrollo.</td></tr>
 <tr><td><strong>1.1</strong></td><td>3 nov 2026</td><td><strong>El módulo más simple y pensado en grande</strong> (rondas 13 a 25 bis de propuestas). <strong>Sin cierre de mes</strong>: lo que pedía el #27 lo cumple el <strong>resumen para planillas</strong> al exportar el Mes; ningún mes se bloquea. <strong>Los temas del Libro</strong> —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— pasan de páginas aparte a un <strong>filtro</strong> de la Semana y el Mes, en cuadritos o en lista; el Libro queda sin submenú. <strong>El reporte en PDF</strong> de cada persona. <strong>Solicitudes</strong> con la papeleta a la vista, aprobar escribiendo <strong>APROBAR</strong>, «Pendiente» en vez de «Por responder», «Dejar pendiente» y «Fecha de solicitud». <strong>Horarios</strong> con un renglón por día (domingo trabajado, martes libre, sábado corto), hasta <strong>dos descansos</strong> por día, sus <strong>tolerancias</strong>, el flexible con meta por día y cuándo puede marcar, la tabla primero y las tarjetas después, el reloj de Souly para las horas, y duplicar y eliminar con confirmación. <strong>Las políticas se retiran</strong>: las tolerancias son del horario, lo que se pide al marcar va en <strong>Modalidades</strong> (presencial, híbrido, remoto) con un parecido mínimo para toda la empresa, el descanso sin marcar siempre se resta y la tardanza va siempre al segundo. <strong>Biometría</strong> se une a Asignaciones (columna Rostro, borrar el rostro escribiendo BORRAR) y a Modalidades (privacidad). <strong>Varios lugares</strong> por persona para quien rota. <strong>Asignar</strong> pensado para 50 horarios y muchos colaboradores, con «Así quedan». El <strong>alta del colaborador</strong> queda con la asignación y «Vacaciones y permisos». Hoy, el Libro y Solicitudes con <strong>listas desplegables</strong> en vez de pestañas; <strong>«descanso»</strong> en vez de «pausa» y <strong>«colaborador»</strong> en las tablas.</td></tr>
 <tr><td><strong>1.0</strong></td><td>29 oct 2026</td><td><strong>Primera versión con el formato de los demás módulos.</strong> Reúne lo construido en la maqueta hasta el 29 de octubre: Hoy; el Libro de asistencia por día, semana y mes, con las tardanzas, faltas y saldo acumulados por persona; la asistencia de una persona; el detalle de la jornada con ajustar, anular, marcar a mano y justificar; Incidencias; Solicitudes en siete tipos con saldos de vacaciones y cobertura; Horas extra pedidas, asignadas y autorizadas después; el Cierre del mes con el archivo fijo para planillas; la Configuración en seis partes, con la tolerancia a la vista al crear un horario; y lo del colaborador: marcar con confirmación, rostro y ubicación, sus avisos y Mi asistencia. Las reglas de cálculo siguen la prioridad 1 de RR.HH.: descanso como franja (#2, #5, #6), al segundo (#8), horas extra solo autorizadas (#9, #10), justificaciones (#13, #15) y el cierre para planillas (#27). 58 reglas BR‑ASI, 74 requisitos, 20 historias y 22 pantallas</td></tr>
 </tbody>
@@ -4395,6 +4492,16 @@ td.rg{color:var(--tinta-3);font-weight:700}
 <p>Una versión «para el empleado» abre la discusión de fin de mes: «a mí me salía otra cosa». Con los mismos números de los dos lados, la discusión se da el día que pasó, cuando todavía se puede corregir.</p>
 <h4 id="ax1-por-que-el-mes-del-libro-es-una-planilla" class="ax-h">Por qué el Mes del Libro es una planilla</h4>
 <p>Es la forma que RR.HH. ya conoce de Excel: una fila por persona, un cuadrito por día y lo acumulado a la derecha. Se elige en la ronda 2 de propuestas del Libro (L2), frente a una vista de resumen y un panel lateral.</p>
+<h4 id="ax1-por-que-los-dias-sueltos-son-una-sola-solici" class="ax-h">Por qué los días sueltos son una sola solicitud</h4>
+<p>La persona piensa «quiero el 11 y el 16» como un solo pedido. Pedirlo en dos papeletas eran dos aprobaciones y dos avisos para lo mismo, y el calendario de tramos no dejaba saltar un día ya pedido en el medio. Una solicitud con su lista de días mantiene una papeleta, una respuesta y un descuento de saldo exacto. Se eligió tocar para marcar y desmarcar (opción A) frente a elegir antes «seguidos o sueltos» (B) o sumar tramos (C): es lo que la persona espera, y el arrastre sigue para los tramos largos.</p>
+<h4 id="ax1-por-que-el-jefe-pide-y-la-persona-acepta" class="ax-h">Por qué el jefe pide y la persona acepta</h4>
+<p>El jefe es quien necesita que alguien se quede, pero las horas son de la persona. RR.HH. aprueba (cuida el costo y la cobertura) y la persona acepta (deja constancia de que estuvo de acuerdo), como ya pasaba con las asignadas. Se puso en el «+» de Mi asistencia y en Mis solicitudes, donde ya se piden horas extra.</p>
+<h4 id="ax1-por-que-solicitante-y-para" class="ax-h">Por qué «Solicitante» y «Para»</h4>
+<p>«Quién la originó» mezclaba el canal («desde la app») con la persona y decía «su líder» sin aclarar de quién. Con «Solicitante · Para» la fila se lee como una frase y el jefe aparece con su nombre y su cargo. «Para sí» es neutro porque las fichas no guardan el género.</p>
+<h4 id="ax1-por-que-el-descanso-no-tiene-atajos" class="ax-h">Por qué el descanso no tiene atajos</h4>
+<p>Los botones 15 · 30 · 45 min · 1 h hacían creer que el descanso llegaba a una hora; RR.HH. no entendió que «Hasta» se podía escribir. En Bolivia el almuerzo de 1 h 30 o 2 h es común. Queda libre: se escribe la hora y la tarjeta dice cuánto dura.</p>
+<h4 id="ax1-por-que-la-ubicacion-de-los-lugares-se-pone-" class="ax-h">Por qué la ubicación de los lugares se pone en Asistencia</h4>
+<p>Se analizó pedirla en Organización (opcional u obligatoria). Se decidió no tocar Organización por ahora: Asistencia avisa los lugares sin ubicación y los deja ubicar en el momento, que es cuando hace falta.</p>
   </section>
 
   <section id="ax2">
@@ -4447,7 +4554,7 @@ td.rg{color:var(--tinta-3);font-weight:700}
 </div>
 
 <footer class="pie">
-  <div>Documentación del módulo de asistencia — versión 1.1, 3 de noviembre de 2026. Souly HR. Documenta el módulo tal como está en el prototipo, con los mismos capítulos que los documentos de <a href="reglas-de-negocio.html">Organización</a>, <a href="gestion-de-personas.html">Gestión de personas</a> y <a href="onboarding.html">Onboarding</a>. La versión en Markdown dice lo mismo.</div>
+  <div>Documentación del módulo de asistencia — versión 1.2, 5 de noviembre de 2026. Souly HR. Documenta el módulo tal como está en el prototipo, con los mismos capítulos que los documentos de <a href="reglas-de-negocio.html">Organización</a>, <a href="gestion-de-personas.html">Gestión de personas</a> y <a href="onboarding.html">Onboarding</a>. La versión en Markdown dice lo mismo.</div>
 </footer>
 
 <script>

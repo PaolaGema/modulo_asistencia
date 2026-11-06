@@ -41,7 +41,7 @@ const DIAS = [
   const foto = async (loc, nombre) => { await loc.screenshot({ path: path.join(OUT, nombre + '.png') }); console.log('✓', nombre) }
   const modal = () => p.locator('.pl-modal').last()
   const cerrar = async () => { await p.keyboard.press('Escape'); await espera(300) }
-  const intentar = async (nombre, fn) => { if (!quiere(nombre)) return; try { await fn() } catch (e) { console.log('✗', nombre, e.message.split('\n')[0]) } }
+  const intentar = async (nombre, fn) => { if (!quiere(nombre)) return; try { await fn() } catch (e) { console.log('✗', nombre, e.message.split('\n').slice(0, 3).join(' | ')) } }
 
   /* La demo desde cero. */
   await p.goto(URL + '/asistencia'); await espera(1500)
@@ -138,6 +138,52 @@ const DIAS = [
     await p.screenshot({ path: path.join(OUT, '24-mismos-numeros-web.png') }); console.log('✓ 24-mismos-numeros-web')
   })
 
+  /* ── 1.2 · Horas extra, días sueltos, lugares y horarios, en la web de RR.HH. ── */
+  await intentar('25-horas-extra-revisar', async () => {
+    await p.goto(`${URL}/asistencia/solicitudes?ver=horas-extra`); await espera(1500)
+    await p.locator('tbody tr', { hasText: 'Ana Martínez' }).filter({ hasText: 'Para sí' }).first().getByRole('button', { name: 'Revisar' }).click(); await espera(900)
+    await foto(modal(), '25-horas-extra-revisar'); await cerrar()
+  })
+  await intentar('26-jefe', async () => {
+    await p.goto(`${URL}/asistencia/solicitudes?ver=horas-extra`); await espera(1500)
+    await p.locator('tbody tr', { hasText: 'Su jefe' }).first().getByRole('button', { name: 'Revisar' }).click(); await espera(900)
+    await foto(modal(), '26-jefe-web'); await cerrar()
+  })
+  await intentar('27-solicitante-para', async () => {
+    await p.goto(`${URL}/asistencia/solicitudes?ver=horas-extra`); await espera(1500)
+    await foto(p.locator('.as-table-wrap').first(), '27-solicitante-para')
+  })
+  await intentar('28-dias-sueltos', async () => {
+    /* Diego pide el lunes 26 y el miércoles 28 de octubre (días pasados, para ver el Libro después de aprobar). */
+    await p.evaluate(() => window.__asistencia.crearSolicitud({ id: 'so-caso-sueltos', tipo: 'vacaciones', personaId: 1, desde: '2026-10-26', hasta: '2026-10-28', dias: ['2026-10-26', '2026-10-28'], motivo: 'Trámite familiar', papeleta: '2026-0099' }))
+    await espera(600)
+    await p.goto(`${URL}/asistencia/solicitudes?ver=vacaciones`); await espera(1500)
+    await p.locator('input[type="search"], input[placeholder*="Buscar"]').first().fill('Diego Morales'); await espera(500)
+    await p.locator('table.at-tabla-sol tbody tr', { hasText: 'lun 26 y mié 28' }).first().click(); await espera(900)
+    await foto(modal(), '28-dias-sueltos-web'); await cerrar()
+    await p.evaluate(() => window.__asistencia.responderSolicitud('so-caso-sueltos', 'aprobada', ''))
+    await espera(600)
+    await p.goto(`${URL}/asistencia/persona/1?mes=2026-10`); await espera(1500)
+    await p.screenshot({ path: path.join(OUT, '28-dias-sueltos-libro.png') }); console.log('✓ 28-dias-sueltos-libro')
+  })
+  await intentar('30-sin-ubicacion', async () => {
+    await p.goto(`${URL}/asistencia/configuracion?ver=lugares`); await espera(1800)
+    await foto(p.locator('.at-arbol-lugar').first(), '30-sin-ubicacion')
+    await p.getByRole('button', { name: /Ubicar en el mapa/ }).first().click(); await espera(1500)
+    await foto(modal(), '30-ubicar'); await cerrar()
+  })
+  await intentar('31-descanso-libre', async () => {
+    await p.goto(`${URL}/asistencia/configuracion?ver=horarios`); await espera(1500)
+    await p.getByRole('button', { name: 'Nuevo horario' }).click(); await espera(1000)
+    await p.locator('.at-hz-pau').first().click(); await espera(600)
+    const campos = p.locator('.at-tdes input')
+    await campos.nth(0).fill('12:30'); await campos.nth(0).press('Tab'); await espera(200)
+    await campos.nth(1).fill('14:30'); await campos.nth(1).press('Tab'); await espera(300)
+    await p.locator('.at-tdes-cab b').click(); await espera(400)
+    await foto(p.locator('.at-tdes'), '31-descanso-libre')
+    await p.keyboard.press('Escape'); await p.keyboard.press('Escape'); await espera(300)
+  })
+
   /* ── El celular, como Carlos ── */
   const tel = p.locator('#marco-telefono')
   const comoCarlos = async () => {
@@ -189,6 +235,46 @@ const DIAS = [
     await p.goto(`${URL}/asistencia/persona/${datos.carlos.id}?mes=2026-09`); await espera(1500)
     await p.screenshot({ path: path.join(OUT, '24-mismos-numeros-web.png') }); console.log('✓ 24-mismos-numeros-web (después del celular)')
   })
+  /* ── 1.2 · En el celular: días sueltos (Carlos) y el jefe que pide para su equipo (Ana, líder) ── */
+  if (!solo || solo.some(s => /^(26|28|29)/.test(s))) {
+    await p.evaluate(() => localStorage.setItem('onb_demo_at_reloj', JSON.stringify({ fecha: '2026-10-30', hora: '16:10' })))
+    const nuevaCel = async () => {
+      await p.locator('svg.lucide-layout-grid').last().locator('..').click(); await espera(800)
+      await tel.getByText('Mis solicitudes').first().click(); await espera(800)
+      await tel.locator('button:has(svg.lucide-plus)').first().click(); await espera(700)
+    }
+    const tocarDias = async lista => { for (const d of lista) { await tel.locator(`[data-dia="${d}"]`).click(); await espera(250) } }
+    await intentar('29-permiso', async () => {
+      await comoCarlos(); await nuevaCel()
+      await tel.getByText('Permiso o licencia', { exact: true }).click(); await espera(700)
+      await tel.locator('button').filter({ hasText: /Trámite/ }).first().click(); await espera(700)
+      /* El permiso abre en el mes de hoy (octubre en la demo): a noviembre. */
+      if (!(await tel.locator('[data-dia="2026-11-11"]').count())) { await tel.getByRole('button', { name: 'Mes siguiente' }).click(); await espera(500) }
+      await tocarDias(['2026-11-11', '2026-11-16', '2026-11-17', '2026-11-16'])
+      await foto(tel, '29-permiso-cel')
+    })
+    await intentar('28-dias-sueltos', async () => {
+      await comoCarlos(); await nuevaCel()
+      await tel.getByText('Vacación', { exact: true }).first().click(); await espera(900)
+      await tocarDias(['2026-11-11', '2026-11-16', '2026-11-17'])
+      await foto(tel, '28-dias-sueltos-cel')
+      await tel.getByRole('button', { name: 'Continuar' }).click(); await espera(800)
+      await foto(tel, '28-dias-sueltos-papeleta')
+    })
+    await intentar('26-jefe', async () => {
+      await p.goto(URL + '/inicio'); await espera(1500)
+      await p.getByRole('button', { name: /Ver la demo como/ }).click(); await espera(500)
+      await p.locator('button', { hasText: 'Líder de Área Mobile' }).first().click(); await espera(1800)
+      await p.getByRole('button', { name: 'Descartar aviso' }).click({ timeout: 1500 }).catch(() => {})
+      await p.locator('svg.lucide-layout-grid').last().locator('..').click(); await espera(900)
+      await tel.getByText(/Mi asistencia/).first().click(); await espera(1000)
+      await tel.getByRole('button', { name: 'Pedir algo' }).click(); await espera(500)
+      await foto(tel, '26-jefe-mas')
+      await tel.getByText('Pedir horas extra para mi equipo').click(); await espera(800)
+      await tel.getByRole('button', { name: /Natalia/ }).click(); await tel.getByRole('button', { name: /Bruno/ }).click(); await espera(300)
+      await foto(tel, '26-jefe-cel')
+    })
+  }
   console.log('errores de la página:', errores.length ? errores : 'ninguno')
   await b.close()
 })()

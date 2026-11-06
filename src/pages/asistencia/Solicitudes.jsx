@@ -286,14 +286,14 @@ function describir(s, saldoDe, coberturaDe, historialDe) {
     else chips.push({ tono: 'azul', texto: `Le quedan ${saldo.saldo} de ${saldo.derecho} días` })
     if (dias > saldo.saldo) {
       sinSaldo = true
-      efecto = `${delS(s)} quedará como vacaciones, pero no le alcanza el saldo: pide ${dias} y tiene ${saldo.saldo}. Aprobarla es una excepción y quedará registrada así.`
-    } else efecto = `${delS(s)} quedará como vacaciones y no contará como falta. Se descuentan ${dias} días: le quedarán ${saldo.saldo - dias}.`
+      efecto = `${delS(s)} ${s.dias?.length ? 'quedarán' : 'quedará'} como vacaciones, pero no le alcanza el saldo: pide ${dias} y tiene ${saldo.saldo}. Aprobarla es una excepción y quedará registrada así.`
+    } else efecto = `${delS(s)} ${s.dias?.length ? 'quedarán' : 'quedará'} como vacaciones y ${s.dias?.length ? 'no contarán' : 'no contará'} como falta. Se descuentan ${dias} días: le quedarán ${saldo.saldo - dias}.`
   } else if (s.tipo === 'permiso') {
     tipo = sub?.licencia ? 'Licencia' : 'Permiso'
     titulo = `${sub?.label || 'Permiso'} · ${cuando(s)}${s.horaDesde ? `, ${s.horaDesde} a ${s.horaHasta}` : ''}`
     datos.push(['Tipo', sub?.label || 'Permiso'], ['Cuándo', `${cuando(s)}${s.horaDesde ? ` de ${s.horaDesde} a ${s.horaHasta}` : ' · día completo'}`], ['Motivo', s.motivo || '—'])
     if (sub?.licencia) chips.push(s.respaldo ? { tono: 'verde', texto: `Respaldo: ${s.respaldo}` } : { tono: 'ambar', texto: 'Sin respaldo adjunto' })
-    efecto = s.horaDesde ? `podrá ausentarse de ${s.horaDesde} a ${s.horaHasta} el ${fechaCorta(s.desde)}.` : `${delS(s)} no contará como falta.`
+    efecto = s.horaDesde ? `podrá ausentarse de ${s.horaDesde} a ${s.horaHasta} el ${fechaCorta(s.desde)}.` : `${delS(s)} ${s.dias?.length ? 'no contarán' : 'no contará'} como falta.`
   } else if (s.tipo === 'correccion') {
     /* Corregir su día: uno o varios cambios (cambiar una hora, agregar la que faltaba, quitar una de más). */
     const cs = cambiosDe(s)

@@ -2,7 +2,7 @@ Souly HR · Módulo de asistencia · Casos para desarrollo
 
 # Casos de Asistencia
 
-- **Versión del módulo:** 1.1
+- **Versión del módulo:** 1.2
 - **Fecha:** 5 de noviembre de 2026
 - **Documento del módulo:** modulo-asistencia.html
 
@@ -314,3 +314,103 @@ Cada situación real del módulo en una ficha, para construirla igual que en el 
 - **Qué mirar:** el celular y la web cuentan igual. Ojo: el historial de ejemplo de Carlos (sus vacaciones) se siembra la primera vez que se entra a la demo como él.
 - ![Celular · Mi mes, septiembre](public/assets/casos/24-mismos-numeros-cel.png)
 - ![Web · El mes de Carlos, septiembre](public/assets/casos/24-mismos-numeros-web.png)
+
+## 6 · Horas extra y el pedido del jefe
+
+### CASO-ASI-25 · RR.HH. revisa horas extra con su papeleta y su día
+
+- **Reglas:** BR‑ASI‑032, BR‑ASI‑033 · W‑ASI‑12
+- **Situación:** **Dado que** Ana pidió horas extra para el martes 3 de noviembre de 18:00 a 20:00 · **Cuando** RR.HH. la revisa · **Entonces** ve la papeleta (como en Vacaciones), la barra de su día con la franja en violeta y lo que hace falta para decidir.
+- **Datos:** Ana Martínez Ruiz · Líder de Marketing · Sucursal Sopocachi · 08:30–18:00 · mar 3 nov · 18:00–20:00 · «Pedido grande de un cliente» · Inventario anual.
+- **Calcula:** `horas = 20:00 − 18:00 = 2 h`
+  `hueco = 18:00 (desde) − 18:00 (su salida) = 0 → «Empiezan justo cuando termina su horario»`
+  `del mes = autorizadas (aprobadas o aceptadas) del mismo mes → «Primera vez en noviembre»`
+  `si ese día no trabaja (un sábado de alguien de lunes a viernes) → «El sábado no trabaja: las horas extra serían en su día libre»`
+- **Para probarlo:** Solicitudes › Horas extra › Ana Martínez Ruiz › Revisar.
+- **En el código:** `components/asistencia/PapeletaExtra.jsx`, `pages/asistencia/HorasExtra.jsx` (el bloque «Revisar»), `components/asistencia/comunes.jsx › BarraDia` (`ventanas`).
+- **Qué mirar:** «Solicitante: Ana Martínez Ruiz · para sí» en la papeleta; la barra rayada es su horario y la violeta, lo que pide; «Si aprueba» habla de usted.
+- ![Web · Revisar · Horas extra de Ana](public/assets/casos/25-horas-extra-revisar.png)
+
+### CASO-ASI-26 · El jefe pide horas extra para dos de su equipo
+
+- **Reglas:** BR‑ASI‑059, BR‑ASI‑033 · W‑ASI‑24, W‑ASI‑12
+- **Situación:** **Dado que** Sebastián Torres coordina Operaciones · **Cuando** pide horas extra para Tomás Ibáñez y Emilio Vargas · **Entonces** RR.HH. recibe una solicitud por persona; al aprobar, cada uno las acepta o dice que no puede en su celular. Recién aceptadas cuentan.
+- **Datos:** Sebastián Torres (Coordinador Logístico) → Tomás Ibáñez y Emilio Vargas · sáb 31 oct · 15:00–17:00 (su salida es 15:00) · «Lanzamiento de la campaña». En el celular, Ana Martínez (líder de Marketing) elige a Natalia Ferrer y Bruno Salazar.
+- **Calcula:** `pedido del jefe → una solicitud por persona { origen: lider, lider, grupo }`
+  `RR.HH. aprueba → estado asignada (Por aceptar): todavía no cuenta`
+  `la persona toca «Acepto» → aceptada (cuenta) · «No puedo» → rechazada, con noPudo`
+- **Para probarlo:** celular: «Ver la demo como» › Líder de Área Mobile — Marketing › Mi asistencia › «+» › «Pedir horas extra para mi equipo» (también en Mis solicitudes › ¿Qué necesita?). Web: Solicitudes › Horas extra › una fila «Su jefe».
+- **En el código:** `components/asistencia/Marcador.jsx › PedirExtraCel` (`equipo`), `hooks/useEquipo.js`, `context/AsistenciaContext.jsx › responderExtra()`, `components/asistencia/PapeletaExtra.jsx` (tres firmas).
+- **Qué mirar:** el «+» suma la opción solo para el líder; «Para quién» con varias personas; en RR.HH., «Lo pidió su jefe, Sebastián Torres, para 2 personas…» y «Si aprueba: le llega a Tomás para que las acepte».
+- ![Celular del jefe · el «+» con la opción nueva](public/assets/casos/26-jefe-mas.png)
+- ![Celular del jefe · Pedir horas extra para mi equipo](public/assets/casos/26-jefe-cel.png)
+- ![Web · Revisar la que pidió el jefe](public/assets/casos/26-jefe-web.png)
+
+### CASO-ASI-27 · La tabla dice quién la pidió y para quién
+
+- **Reglas:** BR‑ASI‑033 · W‑ASI‑12
+- **Situación:** **Dado que** hay horas extra pedidas por la persona, por su jefe y asignadas por RR.HH. · **Cuando** RR.HH. mira la tabla · **Entonces** cada fila se lee como una frase: Solicitante → Para → cuándo.
+- **Datos:** Álvaro Justiniano · «Para sí»; Sebastián Torres · «Su jefe · Coordinador Logístico» → Tomás Ibáñez; Ana Martínez Ruiz · «Su jefe · Líder de Marketing» → Andrea Núñez.
+- **Calcula:** `solicitanteDe(x): la pidió la persona → «Para sí» · lider → su jefe y su cargo · asignacion → «RR.HH. · asignada»`
+- **Para probarlo:** Solicitudes › Horas extra (Pendientes; con «Todas» se ven las asignadas).
+- **En el código:** `data/asistenciaData.js › solicitanteDe()`, `pages/asistencia/HorasExtra.jsx` (la tabla).
+- **Qué mirar:** ya no está la columna «Quién la originó»; en 1400 px entra el botón «Revisar» sin desplazar.
+- ![Web · Horas extra con Solicitante y Para](public/assets/casos/27-solicitante-para.png)
+
+## 7 · Días sueltos
+
+### CASO-ASI-28 · Pide vacaciones en días sueltos
+
+- **Reglas:** BR‑ASI‑060, BR‑ASI‑041 · W‑ASI‑22, W‑ASI‑10
+- **Situación:** **Dado que** Carlos quiere el 11 y el 16–17 de noviembre · **Cuando** toca esos días · **Entonces** sale **una** solicitud de 3 días hábiles y, al aprobarla, solo esos días quedan de vacaciones.
+- **Datos:** celular: Carlos Mendoza Ríos toca 11, 16 y 17 nov. Web: Diego Morales pidió lun 26 y mié 28 oct (2 hábiles), saldo 15.
+- **Calcula:** `se guarda { desde: 2026-10-26, hasta: 2026-10-28, dias: [2026-10-26, 2026-10-28] }`
+  `días hábiles = los de la lista que son de trabajo = 2 · saldo después = 15 − 2 = 13`
+  `¿el 27 está pedido? incluyeDia(s, 2026-10-27) = no → sigue siendo día de trabajo`
+  `tramos (el fin de semana no corta): [11] y [16–17] → «mié 11 y lun 16 – mar 17 nov»`
+- **Para probarlo:** celular: Mis solicitudes › «+» › Vacación. Web: Solicitudes › Vacaciones › Diego Morales; después de aprobar, su página › octubre.
+- **En el código:** `hooks/useDiasElegidos.js`, `components/layout/VacacionPhone.jsx`, `data/asistenciaData.js › diasDeSolicitud(), incluyeDia(), tramosDias(), fechasDeDias(), textoDias()`.
+- **Qué mirar:** el aro verde es el día en que vuelve; los días ámbar (ya pedidos) no se tocan; en el Libro, el 26 y el 28 dicen «Vacaciones» y el 27 queda normal.
+- ![Celular · el 11 y el 16–17 elegidos](public/assets/casos/28-dias-sueltos-cel.png)
+- ![Celular · la papeleta con los días](public/assets/casos/28-dias-sueltos-papeleta.png)
+- ![Web · Revisar la vacación de Diego (26 y 28)](public/assets/casos/28-dias-sueltos-web.png)
+- ![Web · su octubre después de aprobar](public/assets/casos/28-dias-sueltos-libro.png)
+
+### CASO-ASI-29 · Marca y desmarca días de un permiso
+
+- **Reglas:** BR‑ASI‑060 · W‑ASI‑22
+- **Situación:** **Dado que** Carlos necesita permiso por un trámite · **Cuando** toca el 11, el 16, el 17 y otra vez el 16 · **Entonces** quedan el 11 y el 17: el segundo toque desmarca.
+- **Datos:** Carlos Mendoza Ríos · Permiso · Trámite personal · toques: 11, 16, 17, 16.
+- **Calcula:** `tocar(d): si ya está, se quita; si no, se agrega (si se puede elegir)`
+  `arrastrar: agrega todo el tramo, saltando lo pasado, lo pedido y lo que no es de trabajo`
+  `licencia de ley con días fijos: el primer toque pone todos sus días`
+- **Para probarlo:** celular: Mis solicitudes › «+» › Permiso o licencia › Trámite personal (el calendario abre en el mes de hoy: pasar a noviembre).
+- **En el código:** `hooks/useDiasElegidos.js`, `components/layout/PermisoPhone.jsx` (permiso y trabajo remoto).
+- **Qué mirar:** ya no aparece «Es un permiso · No descuenta vacaciones» al pie; dice «Días de permiso · 2 días».
+- ![Celular · el 11 y el 17 después de desmarcar el 16](public/assets/casos/29-permiso-cel.png)
+
+## 8 · Configuración
+
+### CASO-ASI-30 · Un lugar sin ubicación
+
+- **Reglas:** BR‑ASI‑003, BR‑ASI‑004 · W‑ASI‑18
+- **Situación:** **Dado que** la Sucursal 16 de Julio no tiene punto en el mapa · **Cuando** RR.HH. abre Lugares · **Entonces** la ve en ámbar, «Nadie puede marcar aquí todavía», y la ubica ahí mismo; el mapa arranca en El Alto.
+- **Datos:** Sucursal 16 de Julio · El Alto · sin geocerca · 0 personas; vecino ya ubicado: Depósito El Alto (radio 200 m).
+- **Calcula:** `sin punto → «Sin ubicación» + «Nadie puede marcar aquí todavía» (o «N personas no pueden marcar aquí»)`
+  `el mapa arranca en un lugar ya ubicado de la misma zona (sus centros, su sucursal o la misma ciudad), zoom 14`
+- **Para probarlo:** Configuración › Lugares y geocercas › Sucursal 16 de Julio › «Ubicar en el mapa».
+- **En el código:** `pages/asistencia/Configuracion.jsx › Lugares, ModalLugar`, `components/asistencia/MapaGeocerca.jsx` (`cerca`).
+- **Qué mirar:** «1 marca aquí» en singular; el centro dice «Almacén», no «Centro de trabajo · Centro de trabajo». Organización no se toca.
+- ![Web · Lugares con la sucursal sin ubicación](public/assets/casos/30-sin-ubicacion.png)
+- ![Web · Ubicar en el mapa, cerca de El Alto](public/assets/casos/30-ubicar.png)
+
+### CASO-ASI-31 · Un descanso de 2 horas
+
+- **Reglas:** BR‑ASI‑014 · W‑ASI‑15
+- **Situación:** **Dado que** la empresa tiene horario cortado, con almuerzo de 12:30 a 14:30 · **Cuando** RR.HH. escribe esas horas en el descanso · **Entonces** la tarjeta dice «Dura 2 h»: no hay atajos que hagan creer que el máximo es una hora.
+- **Datos:** Nuevo horario 08:30–18:00 · descanso 12:30 → 14:30.
+- **Calcula:** `dura = 14:30 − 12:30 = 2 h · si el hasta no es después del desde → aviso`
+- **Para probarlo:** Configuración › Horarios › Nuevo horario › tocar el descanso.
+- **En el código:** `pages/asistencia/Configuracion.jsx › TarjetaDescanso`, `components/asistencia/CampoHora.jsx`.
+- **Qué mirar:** sin botones 15 · 30 · 45 min · 1 h; la barra muestra dónde cae el descanso en el día.
+- ![Web · el descanso de 2 h](public/assets/casos/31-descanso-libre.png)
