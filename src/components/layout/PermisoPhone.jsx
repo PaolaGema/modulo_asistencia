@@ -244,11 +244,12 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderTop: `1px solid ${C.separador}`, paddingTop: 9 }}>
+          {/* Sin «Es un permiso · No descuenta vacaciones» (5 nov 2026): solo cuántos días, cuando son varios. */}
           <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span style={{ fontSize: 7.4, color: C.mute }}>{licencia ? 'Días de licencia' : unDia || !desde ? 'Es un permiso' : 'Días de permiso · no descuenta vacaciones'}</span>
-            <b style={{ fontSize: 10.4, fontWeight: 700, letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>
-              {licencia ? (desde ? dias(n) : '—') : unDia || !desde ? 'No descuenta vacaciones' : dias(n)}
-            </b>
+            {(licencia || (desde && !unDia)) && <>
+              <span style={{ fontSize: 7.4, color: C.mute }}>{licencia ? 'Días de licencia' : 'Días de permiso'}</span>
+              <b style={{ fontSize: 10.4, fontWeight: 700, letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>{desde ? dias(n) : '—'}</b>
+            </>}
           </span>
           <button type="button" disabled={!listo} onClick={() => ir('revisar')}
             style={{ ...BOTON, padding: '0 18px', flexShrink: 0, ...(listo ? { boxShadow: '0 8px 16px -10px rgba(0,184,118,.9)' } : { background: 'var(--in-boton-off)', color: C.suave, cursor: 'default' }) }}>
