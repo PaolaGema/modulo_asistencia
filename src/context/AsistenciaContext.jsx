@@ -6,7 +6,7 @@ import { useUser } from './UserContext'
 import {
   HORARIOS_SEED, POLITICAS_SEED, GEOCERCAS_SEED, CENTROS_RESPALDO, asignacionesSeed, biometriaSeed,
   unidadDe, marcasSembradas, recomputar, exigencias, hoyISO, sumarDias, minutosAhora, distanciaM,
-  horasExtraSeed, esAutorizada, aMin, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
+  horasExtraSeed, esAutorizada, aMin, incluyeDia, solicitudesSeed, historialDemo, TIPOS_SOLICITUD, SUBTIPOS_PERMISO,
   reglasDe, horarioConPermisos, DIAS_LIBRES_SEED, diaLibreEn, alSegundo, MOTIVOS_JUSTIFICACION, relojDemo, horarioDelDia, MARCACION_EMPRESA, reglasMarcacion, hhmm,
 } from '../data/asistenciaData'
 import { cambiosDe, ranurasDelDia } from '../utils/correccion'
@@ -152,7 +152,7 @@ export function AsistenciaProvider({ children }) {
   const justificacionDe = useCallback((pid, fecha) => {
     const j = justificaciones[`${pid}|${fecha}`]
     if (j) return j
-    const s = (solicitudes || []).find(x => x.estado === 'aprobada' && String(x.personaId) === String(pid) && TIPOS_SOLICITUD[x.tipo]?.justifica && !x.horaDesde && fecha >= x.desde && fecha <= x.hasta)
+    const s = (solicitudes || []).find(x => x.estado === 'aprobada' && String(x.personaId) === String(pid) && TIPOS_SOLICITUD[x.tipo]?.justifica && !x.horaDesde && incluyeDia(x, fecha))
     if (!s) {
       /* Un día libre entero de la empresa (su cumpleaños): no se espera marca y no es falta. */
       const dl = diaLibreDe(personaPorId.get(String(pid)), fecha)
@@ -162,7 +162,7 @@ export function AsistenciaProvider({ children }) {
     return { tipo, motivo: s.motivo, por: s.respondio || 'RR.HH.', automatica: true, solicitudId: s.id }
   }, [justificaciones, solicitudes, diaLibreDe, personaPorId])
   /* Trabajo remoto aprobado para ese día: no se exige la geocerca. */
-  const remotoAprobado = useCallback((pid, fecha) => (solicitudes || []).some(x => x.tipo === 'remoto' && x.estado === 'aprobada' && String(x.personaId) === String(pid) && fecha >= x.desde && fecha <= x.hasta), [solicitudes])
+  const remotoAprobado = useCallback((pid, fecha) => (solicitudes || []).some(x => x.tipo === 'remoto' && x.estado === 'aprobada' && String(x.personaId) === String(pid) && incluyeDia(x, fecha)), [solicitudes])
   const exigenciasDe = useCallback((p, fecha) => {
     const ex = exigencias(p?.asig, horarioDelDia(p?.horarioBase || p?.horario, fecha), p?.politica, fecha)
     return remotoAprobado(p?.id, fecha) ? { ...ex, remotoHoy: true, geocerca: false } : ex

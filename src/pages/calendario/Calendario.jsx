@@ -7,7 +7,7 @@ import {
 import { colaboradores } from '../inicio/homeData'
 import { useUser } from '../../context/UserContext'
 import { useAsistencia } from '../../context/AsistenciaContext'
-import { FERIADOS, SUBTIPOS_PERMISO } from '../../data/asistenciaData'
+import { FERIADOS, SUBTIPOS_PERMISO, incluyeDia } from '../../data/asistenciaData'
 
 /* DOS CALENDARIOS, UNA PANTALLA. En Inicio es el de TODA la empresa —cumpleaños, aniversarios,
    evaluaciones y publicaciones de la plantilla—, la agenda de quien administra. Con `mio` es el de
@@ -34,7 +34,7 @@ function eventosMios(year, month, { nombre, area, yoId, solicitudes }) {
     const dia = aISO(year, month, d)
     if (FERIADOS[dia]) sumar(d, { kind: 'feriado', titulo: FERIADOS[dia], subtitulo: 'No se trabaja', tipo: 'Feriado', color: '#64748b', Icon: Flag })
     solicitudes
-      .filter(x => String(x.personaId) === String(yoId) && ESTADO_MIO[x.estado] && ['vacaciones', 'permiso', 'remoto'].includes(x.tipo) && dia >= x.desde && dia <= (x.hasta || x.desde))
+      .filter(x => String(x.personaId) === String(yoId) && ESTADO_MIO[x.estado] && ['vacaciones', 'permiso', 'remoto'].includes(x.tipo) && incluyeDia(x, dia))
       .forEach(x => {
         const vac = x.tipo === 'vacaciones'
         const titulo = vac ? 'De vacaciones' : x.tipo === 'remoto' ? 'Trabajo remoto' : SUBTIPOS_PERMISO.find(p => p.key === x.subtipo)?.label || 'Permiso'

@@ -405,6 +405,52 @@ export function diasHabiles(desde, hasta, horario) {
   for (let d = desde; d <= hasta; d = sumarDias(d, 1)) if (esHabil(d, horario)) n++
   return n
 }
+/* LOS DÍAS DE UNA SOLICITUD (días sueltos, opción A, 5 nov 2026). Una solicitud de días guarda `desde` y
+   `hasta` (el primero y el último) y, si no son todos seguidos, `dias`: la lista de los días elegidos
+   (por ejemplo el 11 y el 16). Todo lo que pregunta «¿este día está pedido?» pasa por aquí. */
+export const diasDeSolicitud = s => {
+  if (s?.dias?.length) return s.dias
+  const out = []
+  for (let d = s.desde; d && d <= (s.hasta || s.desde); d = sumarDias(d, 1)) out.push(d)
+  return out
+}
+export const incluyeDia = (s, f) => (s?.dias?.length ? s.dias.includes(f) : !!s?.desde && f >= s.desde && f <= (s.hasta || s.desde))
+export const habilesDeSolicitud = (s, horario) => (s?.dias?.length ? s.dias.filter(d => esHabil(d, horario)).length : diasHabiles(s.desde, s.hasta || s.desde, horario))
+/* Los días elegidos en tramos de días seguidos: [['2026-11-11', '2026-11-11'], ['2026-11-16', '2026-11-17']].
+   Con `horario`, lo que hay entre dos días elegidos y no es de trabajo (el fin de semana, un feriado) no corta
+   el tramo: viernes y lunes van juntos. */
+export function tramosDias(dias, horario) {
+  const orden = [...dias].sort()
+  const tramos = []
+  const pegado = (a, b) => { for (let d = sumarDias(a, 1); d < b; d = sumarDias(d, 1)) if (!horario || esHabil(d, horario)) return false; return true }
+  orden.forEach(d => { const t = tramos[tramos.length - 1]; if (t && pegado(t[1], d)) t[1] = d; else tramos.push([d, d]) })
+  return tramos
+}
+/* Para guardar: los elegidos con `desde`, `hasta` y, solo si no son seguidos, `dias`. */
+export function fechasDeDias(dias, horario) {
+  const orden = [...dias].sort()
+  if (!orden.length) return {}
+  const tramos = tramosDias(orden, horario)
+  return { desde: orden[0], hasta: orden[orden.length - 1], ...(tramos.length > 1 ? { dias: orden } : {}) }
+}
+/* «mié 11 y lun 16 – mar 17 nov»: los días de una solicitud, en corto, por tramos. */
+const DSEM = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb']
+/* Con más de dos tramos, la lista se hace larga: se resume «9 días entre el vie 30 oct y el mar 24 nov».
+   La papeleta pide `completo` para listarlos todos. */
+export function textoDias(dias, horario, { completo = false } = {}) {
+  const tramos = tramosDias(dias, horario)
+  if (!completo && tramos.length > 2) {
+    const orden = [...dias].sort()
+    const d = x => `${DSEM[aFecha(x).getDay()]} ${aFecha(x).getDate()} ${MESES[aFecha(x).getMonth()].slice(0, 3)}`
+    return `${orden.length} días entre el ${d(orden[0])} y el ${d(orden[orden.length - 1])}`
+  }
+  const mismoMes = tramos.every(([a, b]) => a.slice(0, 7) === tramos[0][0].slice(0, 7) && b.slice(0, 7) === tramos[0][0].slice(0, 7))
+  const dia = s => `${DSEM[aFecha(s).getDay()]} ${aFecha(s).getDate()}${mismoMes ? '' : ` ${MESES[aFecha(s).getMonth()].slice(0, 3)}`}`
+  const partes = tramos.map(([a, b]) => (a === b ? dia(a) : `${dia(a)} – ${dia(b)}`))
+  const lista = partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes[partes.length - 1]}` : partes[0] || ''
+  return mismoMes && tramos.length ? `${lista} ${MESES[aFecha(tramos[0][0]).getMonth()].slice(0, 3)}` : lista
+}
+
 /* El primer día hábil después de una fecha: el día en que se vuelve de las vacaciones. */
 export function habilSiguiente(s, horario) {
   let d = sumarDias(s, 1)
@@ -418,7 +464,7 @@ export function saldoVacaciones(p, solicitudes, hoy = hoyISO()) {
   const derecho = diasVacacionPorAnio(p?.ingreso, hoy)
   const desde = sumarDias(hoy, -365)
   const suyas = solicitudes.filter(s => s.tipo === 'vacaciones' && String(s.personaId) === String(p?.id) && s.hasta >= desde)
-  const dias = estado => suyas.filter(s => s.estado === estado).reduce((t, s) => t + diasHabiles(s.desde, s.hasta, p?.horario), 0)
+  const dias = estado => suyas.filter(s => s.estado === estado).reduce((t, s) => t + habilesDeSolicitud(s, p?.horario), 0)
   const usados = dias('aprobada')
   const pedidos = dias('pendiente')
   const saldo = Math.max(0, derecho - usados)

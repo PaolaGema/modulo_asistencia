@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, Palmtree, FileText } from 'lucide-react'
 import { useAsistencia } from '../../context/AsistenciaContext'
@@ -6,9 +6,10 @@ import { useOnboardingData } from '../../context/OnboardingDataContext'
 import BarraVolver from './BarraVolver'
 import YaPedido from './YaPedido'
 import { ocupadosDe, nombreOcupado, TONO_OCUPADO } from '../../utils/ocupados'
+import { useDiasElegidos } from '../../hooks/useDiasElegidos'
 import {
-  FERIADOS, esHabil, diasHabiles, habilSiguiente, saldoVacaciones, sumarDias, diaISO, aFecha,
-  MESES, DIAS_LARGOS, mesDe, mesVecino, diasDelMes, nombreMes, semanasDe,
+  FERIADOS, esHabil, habilSiguiente, saldoVacaciones, sumarDias, diaISO, aFecha,
+  MESES, DIAS_LARGOS, mesDe, mesVecino, diasDelMes, nombreMes, semanasDe, tramosDias, fechasDeDias, textoDias,
 } from '../../data/asistenciaData'
 
 /* ── SOLICITAR VACACIÓN, DESDE EL INICIO ──
@@ -44,12 +45,6 @@ const arriba = () => document.querySelector('#marco-telefono .phone-scroll')?.sc
 const dias = n => `${n} ${n === 1 ? 'día' : 'días'}`
 /* «martes 24 de noviembre de 2026»; sin el año cuando es la primera fecha de un «del … al …». */
 const fechaCompleta = (s, conAnio = true) => `${DIAS_LARGOS[diaISO(s)]} ${aFecha(s).getDate()} de ${MESES[aFecha(s).getMonth()]}${conAnio ? ` de ${s.slice(0, 4)}` : ''}`
-/* El día en que se completan `n` días hábiles de la persona contando desde `desde`: hasta dónde alcanza el saldo. */
-function finPorHabiles(desde, n, horario) {
-  let d = desde, k = esHabil(d, horario) ? 1 : 0
-  while (k < n) { d = sumarDias(d, 1); if (esHabil(d, horario)) k++ }
-  return d
-}
 
 /* `volverA` es el texto de la barra de arriba; `onListo`, a dónde lleva el botón de la confirmación
    (desde Mis solicitudes vuelve a la lista, no al inicio). */
@@ -64,9 +59,6 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
     const mes = mesDe(minimo)
     return diasDelMes(mes).filter(d => d >= minimo && esHabil(d, h)).length < 5 ? mesVecino(mes, 1) : mes
   })
-  const [desde, setDesde] = useState(null)
-  const [hasta, setHasta] = useState(null)
-  const [paso, setPaso] = useState('desde')
   const [comentario, setComentario] = useState('')
   const [revisar, setRevisar] = useState(false)
   const [viendo, setViendo] = useState(null)
@@ -74,8 +66,6 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
   const { empresa } = useOnboardingData()
   /* La hoja de revisión y la papeleta suben sobre todo el teléfono, no solo sobre el formulario. */
   const marco = typeof document !== 'undefined' ? document.getElementById('marco-telefono') : null
-  /* El arrastre en curso: desde qué día y si el dedo ya se movió (entonces el clic final no cuenta). */
-  const arrastre = useRef(null)
 
   const saldo = saldoVacaciones(yo, at.solicitudes, at.hoy)
   /* Los días que ya están pedidos o aprobados no se pueden volver a pedir. */
@@ -83,6 +73,12 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
      van con el color de su estado y debajo, las fichas «Ya tiene pedido» (opción A de «Lo que ya pidió»). */
   const ocup = useMemo(() => ocupadosDe(at.solicitudes, yo.id), [at.solicitudes, yo.id])
   const ocupados = ocup.dias
+  /* LOS DÍAS (días sueltos, opción A, 5 nov 2026): cada toque agrega o quita un día; arrastrar agrega un tramo.
+     Se pueden elegir los días de trabajo que vienen y que no están pedidos, hasta donde alcanza el saldo. */
+  const el = useDiasElegidos({
+    puede: d => d >= minimo && esHabil(d, h) && !ocupados.has(d),
+    cabe: lista => lista.length <= saldo.disponible,
+  })
 
   if (enviada) {
     return (
@@ -110,60 +106,16 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
     )
   }
 
-  /* Con solo el primer día tocado, la solicitud es de ese día. */
-  const fin = hasta || desde
-  const n = desde ? diasHabiles(desde, fin, h) : 0
-  const regreso = desde ? habilSiguiente(fin, h) : null
-  const eligiendo = !!desde && paso === 'hasta'
-  /* HASTA DÓNDE SE PUEDE LLEGAR desde el primer día: lo que alcanza el saldo, y nunca pasando por encima
-     de días ya pedidos (el rango se frena el día antes del primero que encuentra). `frenoPedido` dice
-     qué lo frenó, para explicarlo debajo del calendario. */
-  const topeDe = x => {
-    const porSaldo = finPorHabiles(x, saldo.disponible, h)
-    let d = sumarDias(x, 1)
-    while (d <= porSaldo) { if (ocupados.has(d)) return { tope: sumarDias(d, -1), pedido: d }; d = sumarDias(d, 1) }
-    return { tope: porSaldo, pedido: null }
-  }
-  const { tope: limite, pedido: frenoPedido } = desde ? topeDe(desde) : { tope: null, pedido: null }
-  const choca = desde && Array.from({ length: Math.round((aFecha(fin) - aFecha(desde)) / 864e5) + 1 }, (_, i) => sumarDias(desde, i)).some(d => ocupados.has(d))
-  const listo = desde && n > 0 && !choca
-
-  /* ELEGIR EL RANGO: tocar un día marca la salida; el siguiente toque, el último día. Un día antes de
-     la salida la reemplaza. Con el rango completo, otro toque empieza de nuevo. */
-  const tocar = d => {
-    if (paso !== 'hasta' || !desde) { setDesde(d); setHasta(null); setPaso('hasta'); return }
-    if (d < desde) { setDesde(d); return }
-    setHasta(d === desde ? null : d)
-    setPaso('listo')
-  }
-  /* ARRASTRAR: se apoya el dedo en un día y se desliza; el rango sigue al dedo y se frena donde se
-     acaba el saldo. Se lee el día bajo el dedo con `elementFromPoint` porque en pantallas táctiles el
-     movimiento llega siempre al primer día tocado. */
-  const diaBajo = e => {
-    const el = document.elementFromPoint(e.clientX, e.clientY)?.closest?.('[data-dia]')
-    return el && !el.disabled ? el.dataset.dia : null
-  }
-  const empezar = e => {
-    const el = e.target.closest('[data-dia]')
-    arrastre.current = el && !el.disabled ? { inicio: el.dataset.dia, movio: false } : null
-  }
-  const mover = e => {
-    const a = arrastre.current
-    if (!a || a.suelto) return
-    const d = diaBajo(e)
-    if (!d || (d === a.inicio && !a.movio)) return
-    a.movio = true
-    const x = d < a.inicio ? d : a.inicio
-    const y = [d > a.inicio ? d : a.inicio, topeDe(x).tope].sort()[0]
-    setDesde(x); setHasta(y === x ? null : y); setPaso('listo')
-  }
-  const soltar = () => { if (arrastre.current?.movio) arrastre.current = { suelto: true, cuando: Date.now() }; else arrastre.current = null }
-  const clic = d => {
-    const a = arrastre.current
-    arrastre.current = null
-    if (a?.suelto && Date.now() - a.cuando < 500) return
-    tocar(d)
-  }
+  const desde = el.sel[0] || null
+  const fin = el.sel[el.sel.length - 1] || null
+  const n = el.sel.length
+  const tramos = tramosDias(el.sel, h)
+  /* Vuelve a trabajar después de cada tramo: el aro menta en el calendario. */
+  const regresos = new Set(tramos.map(([, b]) => habilSiguiente(b, h)))
+  const regreso = fin ? habilSiguiente(fin, h) : null
+  const sueltos = tramos.length > 1
+  const listo = n > 0
+  const sel = new Set(el.sel)
 
   /* LA PAPELETA SE ARMA SOLA (lienzo «La papeleta se arma sola»): con los datos del expediente y las
      fechas elegidas. La persona no escribe nada: la ve y la solicita. Todavía no hay firma digital:
@@ -172,7 +124,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
     numero: `${at.hoy.slice(0, 4)}-${String(at.solicitudes.filter(s => s.tipo === 'vacaciones').length + 1).padStart(4, '0')}`,
     empresa: empresa?.razonSocial || empresa?.nombre || 'FarmaVida S.A.',
     nit: empresa?.nit,
-    persona: yo, desde, hasta: fin, regreso, n, saldo: saldo.disponible, motivo: comentario.trim(), horario: h,
+    persona: yo, desde, hasta: fin, dias: sueltos ? el.sel : null, regreso, n, saldo: saldo.disponible, motivo: comentario.trim(), horario: h,
     /* Dónde trabaja, cada cosa por su lado, con la estructura de Organización: la sucursal y, si tiene,
        el centro de trabajo donde marca. */
     sucursal: at.lugarPorId.get(yo.sucursalId)?.nombre || yo.sedeNombre,
@@ -180,7 +132,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
   }
   const solicitar = () => {
     const solicitada = new Date().toISOString()
-    at.crearSolicitud({ tipo: 'vacaciones', personaId: yo.id, desde, hasta: fin, motivo: comentario.trim() || 'Vacaciones', papeleta: papeleta.numero, solicitada, saldoAntes: saldo.disponible })
+    at.crearSolicitud({ tipo: 'vacaciones', personaId: yo.id, ...fechasDeDias(el.sel, h), motivo: comentario.trim() || 'Vacaciones', papeleta: papeleta.numero, solicitada, saldoAntes: saldo.disponible })
     setRevisar(false)
     setEnviada({ ...papeleta, solicitada, quedan: saldo.disponible - n })
   }
@@ -209,11 +161,10 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
 
   const celdas = semanasDe(ym)
   const primerMes = ym <= mesDe(minimo)
-  const ayuda = !desde ? 'Toque el día en que sale, o arrastre sobre los días.'
-    : choca ? 'Ya pidió vacaciones en esas fechas.'
-      : eligiendo && frenoPedido ? `Toque el último día: puede llegar hasta el ${diaCorto(limite)}, porque desde el ${diaCorto(frenoPedido)} ya tiene vacaciones pedidas.`
-      : eligiendo ? `Toque el último día. Su saldo alcanza hasta el ${diaCorto(limite)}.`
-        : `Vuelve a trabajar el ${fechaCompleta(regreso)}.`
+  const ayuda = el.tope ? `Ya eligió sus ${saldo.disponible} días disponibles. Toque un día elegido para quitarlo.`
+    : !desde ? 'Toque cada día que quiere, o arrastre sobre varios.'
+      : sueltos ? 'Otro toque quita un día. El aro verde es el día en que vuelve a trabajar.'
+        : `Vuelve a trabajar el ${fechaCompleta(regreso)}. Puede sumar otros días.`
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto }}>
@@ -221,7 +172,7 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
 
       <div style={{ background: C.vCarta, border: `1px solid ${C.vBorde}`, borderRadius: 22, boxShadow: 'var(--in-sombra)', padding: '9px 10px 10px', display: 'flex', flexDirection: 'column', gap: 9 }}>
         {/* Arriba, las vacaciones; el día en que ya trabaja, abajo. */}
-        <Viaje desde={desde} hasta={fin} n={n} />
+        <Viaje desde={desde} hasta={fin} n={n} dias={sueltos ? el.sel : null} horario={h} />
 
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
@@ -231,15 +182,15 @@ export default function SolicitarVacacionPhone({ onVolver, volverA = 'Inicio', o
             </b>
             <button type="button" aria-label="Mes siguiente" onClick={() => setYm(mesVecino(ym, 1))} style={flecha(false)}><ChevronRight size={12} /></button>
           </div>
-          <div onPointerDown={empezar} onPointerMove={mover} onPointerUp={soltar} onPointerCancel={soltar}
+          <div {...el.eventos}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center', touchAction: 'none' }}>
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
             {celdas.map((d, i) => (
-              <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} regreso={regreso} habil={esHabil(d, h)} pasado={d < minimo} ocupado={ocupados.get(d)}
-                fuera={eligiendo && d > limite} vecino={!d.startsWith(ym)} onTocar={clic} />
+              <Dia key={d} d={d} col={i % 7} sel={sel} regresos={regresos} habil={esHabil(d, h)} pasado={d < minimo} ocupado={ocupados.get(d)}
+                fuera={el.tope && !sel.has(d)} vecino={!d.startsWith(ym)} onTocar={el.tocar} />
             ))}
           </div>
-          {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: C.mute, textAlign: 'center' }}>{ayuda}</p>}
+          {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
         </div>
 
         {/* Al pie, el saldo junto al botón (las fechas y los días ya están en la cabecera), con la barra
@@ -274,7 +225,7 @@ const flecha = off => ({ width: 22, height: 22, display: 'grid', placeItems: 'ce
    y dicho bajo él): juntos en la cabecera, el regreso se confundía con un día más de vacación. Se
    probaron una barra de dos colores y «Vacaciones solicitadas / Vuelve el». `enTarjeta` lo pinta como
    una tarjeta blanca (en «¡Listo!») en vez del menta claro de la cabecera del calendario. */
-function Viaje({ desde, hasta, n, enTarjeta }) {
+function Viaje({ desde, hasta, n, enTarjeta, dias: sueltos, horario }) {
   const varios = desde && hasta && hasta !== desde
   const cruza = varios && aFecha(desde).getMonth() !== aFecha(hasta).getMonth()
   const dia = s => (cruza ? diaMes(s) : diaSemana(s))
@@ -292,6 +243,8 @@ function Viaje({ desde, hasta, n, enTarjeta }) {
       </span>
       {!desde ? (
         <b style={{ ...valor, opacity: 0.4 }}>Elija sus días</b>
+      ) : sueltos?.length ? (
+        <b style={{ ...valor, whiteSpace: 'normal', lineHeight: 1.3 }}>{textoDias(sueltos, horario)}</b>
       ) : !varios ? (
         <b style={valor}>{diaCorto(desde)}</b>
       ) : (
@@ -326,23 +279,24 @@ function BarraSaldo({ libres, esta, reservados, total }) {
 /* Un día del calendario: un círculo. El rango, una cinta detrás, partida a la mitad en sus puntas y
    redondeada donde cambia la semana. Debajo de la salida dice «Sale»; el día que vuelve lleva un aro
    menta y «Vuelve». Lo que no se puede elegir (pasado, ya pedido, fuera del saldo), tenue. */
-function Dia({ d, col, desde, fin, regreso, habil, pasado, ocupado, fuera, vecino, onTocar }) {
-  const varios = desde && fin !== desde
-  const punta = d === desde || d === fin
-  const dentro = desde && d > desde && d < fin
-  const vuelve = d === regreso
+function Dia({ d, col, sel, regresos, habil, pasado, ocupado, fuera, vecino, onTocar }) {
+  /* Días sueltos: cada día elegido es un círculo navy; dos elegidos seguidos se unen con la cinta. El aro menta
+     es el día en que vuelve a trabajar después de cada tramo. Sin rótulos debajo: se pisaban entre días vecinos. */
+  const punta = sel.has(d)
+  const izq = punta && col !== 0 && sel.has(sumarDias(d, -1))
+  const der = punta && col !== 6 && sel.has(sumarDias(d, 1))
+  const dentro = false
+  const vuelve = regresos.has(d) && !punta
   const feriado = FERIADOS[d]
-  const off = pasado || ocupado || fuera
-  const inicio = varios && d === desde && col !== 6
-  const final = varios && d === fin && col !== 0
-  const fondo = inicio ? `linear-gradient(90deg, transparent 50%, ${C.cinta} 50%)` : final ? `linear-gradient(90deg, ${C.cinta} 50%, transparent 50%)` : dentro ? C.cinta : 'transparent'
-  const radio = dentro && col === 0 ? '99px 0 0 99px' : dentro && col === 6 ? '0 99px 99px 0' : 0
-  const color = punta ? C.puntaTxt : dentro ? C.cintaTxt : C.texto
-  const etiqueta = d === desde ? 'Vacaciones' : vuelve ? 'Trabaja' : null
+  const off = pasado || ocupado || fuera || !habil
+  const fondo = izq && der ? C.cinta : izq ? `linear-gradient(90deg, ${C.cinta} 50%, transparent 50%)` : der ? `linear-gradient(90deg, transparent 50%, ${C.cinta} 50%)` : 'transparent'
+  const radio = 0
+  const color = punta ? C.puntaTxt : C.texto
+  const etiqueta = null
   return (
     <span style={{ height: 25, display: 'grid', placeItems: 'center', background: fondo, borderRadius: radio }}>
       <button type="button" data-dia={d} disabled={off} onClick={() => onTocar(d)} title={feriado || (ocupado ? nombreOcupado(ocupado) : pasado ? 'Ya pasó' : undefined)}
-        aria-label={`${diaCorto(d)}${feriado ? `, feriado: ${feriado}` : ''}${ocupado ? `, ${nombreOcupado(ocupado).toLowerCase()}` : ''}${vuelve ? ', día en que vuelve' : ''}`} aria-pressed={punta || !!dentro}
+        aria-label={`${diaCorto(d)}${feriado ? `, feriado: ${feriado}` : ''}${ocupado ? `, ${nombreOcupado(ocupado).toLowerCase()}` : ''}${vuelve ? ', día en que vuelve' : ''}`} aria-pressed={punta}
         style={{
           position: 'relative', width: 23, height: 23, borderRadius: '50%', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 9,
           fontVariantNumeric: 'tabular-nums', fontWeight: punta || vuelve ? 700 : dentro ? 600 : 400, color,
@@ -446,9 +400,9 @@ export function Papeleta({ p, firma }) {
         {seccion(2, 'Vacación solicitada')}
         <div style={{ border: `1px solid ${P.borde}`, borderRadius: 7, overflow: 'hidden', marginTop: -3, fontVariantNumeric: 'tabular-nums' }}>
           {[
-            ...(p.desde === p.hasta ? [['El día', fechaLarga(p.desde)]] : [['Desde', fechaLarga(p.desde)], ['Hasta', fechaLarga(p.hasta)]]),
+            ...(p.dias?.length ? [['Días', textoDias(p.dias, p.horario, { completo: true })]] : p.desde === p.hasta ? [['El día', fechaLarga(p.desde)]] : [['Desde', fechaLarga(p.desde)], ['Hasta', fechaLarga(p.hasta)]]),
             ['Días hábiles', `${p.n} ${p.n === 1 ? 'día' : 'días'}`, true],
-            ['Vuelve a trabajar', fechaLarga(p.regreso)],
+            [p.dias?.length ? 'Vuelve después del último' : 'Vuelve a trabajar', fechaLarga(p.regreso)],
             ['Saldo después', `${p.saldo - p.n} ${p.saldo - p.n === 1 ? 'día' : 'días'} (de ${p.saldo})`],
             ...(p.motivo ? [['Motivo', p.motivo]] : []),
           ].map(([k, v, menta], i) => (
@@ -485,7 +439,7 @@ export function Papeleta({ p, firma }) {
 /* LISTO (opción A · Celebrar del lienzo, con el verde suavizado): un saludo con su nombre sobre el
    mismo menta claro de «Sale ✈ Vuelve a trabajar», las fechas del viaje y lo importante en tres
    cifras. Sin un verde que grite: el menta queda en el avión y el botón. */
-function Enviada({ persona, desde, hasta, regreso, n, quedan, numero, onVer, onVolver, listoTexto }) {
+function Enviada({ persona, desde, hasta, dias: sueltos, horario, regreso, n, quedan, numero, onVer, onVolver, listoTexto }) {
   const nombre = (persona?.name || '').split(' ')[0]
   const cifra = (valor, rotulo, chip) => (
     <span style={{ background: C.carta, boxShadow: 'var(--in-sombra)', borderRadius: 12, padding: '8px 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, textAlign: 'center' }}>
@@ -503,7 +457,7 @@ function Enviada({ persona, desde, hasta, regreso, n, quedan, numero, onVer, onV
         <span style={{ fontSize: 8.6, color: C.mute }}>Su solicitud ya está con RR.HH.</span>
       </div>
 
-      <Viaje desde={desde} hasta={hasta} n={n} enTarjeta />
+      <Viaje desde={desde} hasta={hasta} n={n} dias={sueltos} horario={horario} enTarjeta />
       {/* El regreso, aparte y en navy: el día en que ya trabaja. */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderRadius: 12, padding: '8px 11px', border: `1.2px solid ${C.texto}`, marginTop: -2 }}>
         <span style={{ fontSize: 7.4, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: C.mute }}>Vuelve a trabajar</span>

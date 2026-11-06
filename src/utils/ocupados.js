@@ -1,4 +1,4 @@
-import { sumarDias } from '../data/asistenciaData'
+import { sumarDias, diasDeSolicitud } from '../data/asistenciaData'
 
 /* LO QUE LA PERSONA YA TIENE PEDIDO O APROBADO (vacación, permiso, trabajo remoto), día por día. Lo usan los
    tres calendarios de pedir —vacación, permiso y trabajo remoto— para pintar esos días con el color de su
@@ -11,7 +11,7 @@ export const nombreOcupado = s => { const [que, g] = QUE_ES[s.tipo]; return `${q
 export function ocupadosDe(solicitudes, pid) {
   const lista = (solicitudes || []).filter(s => QUE_ES[s.tipo] && ['pendiente', 'aprobada'].includes(s.estado) && String(s.personaId) === String(pid))
   const dias = new Map()
-  lista.forEach(s => { for (let d = s.desde; d <= (s.hasta || s.desde); d = sumarDias(d, 1)) if (!dias.has(d)) dias.set(d, s) })
+  lista.forEach(s => diasDeSolicitud(s).forEach(d => { if (!dias.has(d)) dias.set(d, s) }))
   // El primero que ya tiene entre dos días (cuando el rango elegido pasa por encima de algo pedido).
   const entre = (a, b) => { for (let d = a; a && d <= b; d = sumarDias(d, 1)) if (dias.has(d)) return dias.get(d); return null }
   return { lista, dias, entre }

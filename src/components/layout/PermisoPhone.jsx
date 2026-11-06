@@ -8,8 +8,9 @@ import { ocupadosDe, nombreOcupado, TONO_OCUPADO } from '../../utils/ocupados'
 import HoraCel from './HoraCel'
 import { Sello } from './VacacionPhone'
 import { INFO, numeroPermiso } from '../../utils/papeletaPermiso'
+import { useDiasElegidos } from '../../hooks/useDiasElegidos'
 import {
-  SUBTIPOS_PERMISO, esHabil, diasHabiles, habilSiguiente, sumarDias, diaISO, aFecha, MESES, DIAS_LARGOS,
+  SUBTIPOS_PERMISO, esHabil, habilSiguiente, tramosDias, fechasDeDias, textoDias, sumarDias, diaISO, aFecha, MESES, DIAS_LARGOS,
   mesDe, mesVecino, nombreMes, aMin, duracion, semanasDe,
 } from '../../data/asistenciaData'
 
@@ -56,9 +57,6 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
   const [tipo, setTipo] = useState(inicial?.tipo || null)
   const [paso, setPaso] = useState(inicial ? 'fechas' : 'tipo')
   const [ym, setYm] = useState(mesDe(inicial?.desde || at.hoy))
-  const [desde, setDesde] = useState(inicial?.desde || null)
-  const [hasta, setHasta] = useState(null)
-  const [eligiendoFin, setEligiendoFin] = useState(false)
   const [porHoras, setPorHoras] = useState(!inicial)
   const [horaDesde, setHoraDesde] = useState('15:00')
   const [horaHasta, setHoraHasta] = useState('17:00')
@@ -72,33 +70,38 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
   const licencia = !!sub?.licencia
   // Una licencia médica puede empezar unos días atrás: el reposo ya corre cuando se avisa.
   const minimo = tipo === 'lic-medica' ? sumarDias(at.hoy, -7) : at.hoy
-  const fin = hasta || desde
   const corridos = licencia && !info.habiles && (info.dias || info.corridos)
-  const n = !desde ? 0 : corridos ? Math.round((aFecha(fin) - aFecha(desde)) / 864e5) + 1 : diasHabiles(desde, fin, h)
+  const ocupados = ocupadosDe(at.solicitudes, yo.id)
+  /* LOS DÍAS (días sueltos, opción A, 5 nov 2026): un toque marca el día, otro toque lo desmarca; arrastrar marca
+     varios. Las licencias de ley con días fijos se completan solas desde el primer día. */
+  const el = useDiasElegidos({ puede: d => d >= minimo && !ocupados.dias.get(d) && (corridos || esHabil(d, h)) })
+  const { sel: elegidos } = el
+  const desde = elegidos[0] || null
+  const fin = elegidos[elegidos.length - 1] || null
+  const n = corridos ? elegidos.length : elegidos.filter(d => esHabil(d, h)).length
+  const sueltos = tramosDias(elegidos, corridos ? null : h).length > 1
   // Las horas son de un permiso de un solo día; con varios días, son días enteros.
-  const unDia = !!desde && fin === desde
+  const unDia = elegidos.length === 1
   // El día de cumpleaños es un día entero: no tiene horas.
   const conHoras = !licencia && unDia && porHoras && tipo !== 'cumpleanos'
   const regreso = desde && licencia ? habilSiguiente(fin, h) : null
   const horasOk = !conHoras || aMin(horaHasta) > aMin(horaDesde)
-  const ocupados = ocupadosDe(at.solicitudes, yo.id)
-  const choque = desde ? ocupados.entre(desde, fin) : null
+  const choque = elegidos.map(d => ocupados.dias.get(d)).find(Boolean) || null
   const listo = !!desde && !choque && (licencia ? n > 0 : horasOk)
   const ir = p => { setPaso(p); arriba() }
 
-  const elegirTipo = k => { setTipo(k); setDesde(null); setHasta(null); setEligiendoFin(false); setRespaldo(null); setPorHoras(!SUBTIPOS_PERMISO.find(s => s.key === k)?.licencia); ir('fechas') }
+  const elegirTipo = k => { setTipo(k); el.limpiar(); setRespaldo(null); setPorHoras(!SUBTIPOS_PERMISO.find(s => s.key === k)?.licencia); ir('fechas') }
 
   /* Una licencia con días de ley: el primero y el resto se cuentan solos. Un permiso o una licencia
      médica: el primero y, si son varios, el último, como la vacación. */
   const tocar = d => {
-    if (info.dias) { setDesde(d); setHasta(finDe(d, info, h)); return }
-    if (!eligiendoFin || !desde || d < desde) { setDesde(d); setHasta(null); setEligiendoFin(true); return }
-    setHasta(d === desde ? null : d); setEligiendoFin(false)
+    if (info.dias) { const lista = []; for (let x = d; x <= finDe(d, info, h); x = sumarDias(x, 1)) lista.push(x); el.poner(lista); return }
+    el.tocar(d)
   }
 
   const enviar = () => {
     at.crearSolicitud({
-      tipo: 'permiso', subtipo: tipo, personaId: yo.id, desde, hasta: fin,
+      tipo: 'permiso', subtipo: tipo, personaId: yo.id, ...fechasDeDias(elegidos, corridos ? null : h),
       ...(conHoras ? { horaDesde, horaHasta } : {}),
       motivo: motivo.trim() || sub.label, ...(respaldo ? { respaldo } : {}), solicitada: new Date().toISOString(), papeleta: numeroPermiso(at),
     })
@@ -114,7 +117,7 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
           <b style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-.01em' }}>¡Listo{nombre ? `, ${nombre}` : ''}!</b>
           <span style={{ fontSize: 8.6, color: C.mute }}>Su solicitud ya está con RR.HH.</span>
         </div>
-        <Cabecera sub={sub} info={info} licencia={licencia} desde={desde} fin={fin} n={n} porHoras={conHoras} corridos={corridos} horaDesde={horaDesde} horaHasta={horaHasta} enTarjeta />
+        <Cabecera sub={sub} info={info} licencia={licencia} desde={desde} fin={fin} n={n} porHoras={conHoras} corridos={corridos} horaDesde={horaDesde} horaHasta={horaHasta} dias={sueltos ? elegidos : null} horario={h} enTarjeta />
         {licencia && respaldo == null && info.respaldo && (
           <span style={{ fontSize: 7.8, color: C.mute, textAlign: 'center', lineHeight: 1.5 }}>Recuerde subir el {info.respaldo.toLowerCase()} desde Mis solicitudes.</span>
         )}
@@ -167,7 +170,7 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto, minHeight: '100%' }}>
         <BarraVolver texto="Fechas" onVolver={() => ir('fechas')} conTema />
         <b style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: '-.01em' }}>Revise su solicitud</b>
-        <Hoja numero={numeroPermiso(at)} sucursal={at.lugarPorId.get(yo.sucursalId)?.nombre || yo.sedeNombre} yo={yo} empresa={empresa} sub={sub} licencia={licencia} desde={desde} fin={fin} n={n} regreso={regreso}
+        <Hoja numero={numeroPermiso(at)} sucursal={at.lugarPorId.get(yo.sucursalId)?.nombre || yo.sedeNombre} yo={yo} empresa={empresa} sub={sub} licencia={licencia} desde={desde} fin={fin} dias={sueltos ? elegidos : null} n={n} regreso={regreso}
           porHoras={conHoras} corridos={corridos} horaDesde={horaDesde} horaHasta={horaHasta} respaldo={respaldo} info={info} motivo={motivo.trim()} />
         <label style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
           <span style={{ fontSize: 7.6, color: C.mute }}>Motivo (opcional)</span>
@@ -186,14 +189,14 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
   const celdas = semanasDe(ym)
   const primerMes = ym <= mesDe(minimo)
   const ayuda = choque ? `Entre esos días está su ${nombreOcupado(choque).toLowerCase()}. Elija otros días.`
-    : !desde ? (info.dias ? `Toque el primer día: la ley da ${info.linea}.` : licencia ? 'Toque el primer día de reposo y después el último.' : 'Toque el día del permiso. Si son varios, toque también el último.')
-    : eligiendoFin && !info.dias ? (licencia ? 'Toque el último día.' : 'Si es más de un día, toque el último.')
-      : licencia ? `Vuelve a trabajar el ${largo(regreso).toLowerCase()}.` : null
+    : !desde ? (info.dias ? `Toque el primer día: la ley da ${info.linea}.` : 'Toque cada día que necesita, o arrastre sobre varios. Otro toque lo desmarca.')
+    : info.dias ? `Vuelve a trabajar el ${largo(regreso).toLowerCase()}.`
+      : 'Toque otro día para sumarlo, o uno marcado para quitarlo.'
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto }}>
       <BarraVolver texto={inicial ? volverA : '¿Qué necesita?'} onVolver={inicial ? onVolver : () => ir('tipo')} conTema />
       <div style={{ background: C.vCarta, border: `1px solid ${C.vBorde}`, borderRadius: 22, boxShadow: 'var(--in-sombra)', padding: '9px 10px 10px', display: 'flex', flexDirection: 'column', gap: 9 }}>
-        <Cabecera sub={sub} info={info} licencia={licencia} desde={desde} fin={fin} n={n} porHoras={conHoras} corridos={corridos} horaDesde={horaDesde} horaHasta={horaHasta} />
+        <Cabecera sub={sub} info={info} licencia={licencia} desde={desde} fin={fin} n={n} porHoras={conHoras} corridos={corridos} horaDesde={horaDesde} horaHasta={horaHasta} dias={sueltos ? elegidos : null} horario={h} />
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
             <button type="button" aria-label="Mes anterior" disabled={primerMes} onClick={() => setYm(mesVecino(ym, -1))} style={flecha(primerMes)}><ChevronLeft size={12} /></button>
@@ -202,9 +205,9 @@ export default function SolicitarPermisoPhone({ onVolver, volverA = 'Inicio', on
             </b>
             <button type="button" aria-label="Mes siguiente" onClick={() => setYm(mesVecino(ym, 1))} style={flecha(false)}><ChevronRight size={12} /></button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center' }}>
+          <div {...(info.dias ? {} : el.eventos)} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center', touchAction: 'none' }}>
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
-            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < minimo} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
+            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} sel={new Set(elegidos)} habil={esHabil(d, h)} off={d < minimo || (!corridos && !esHabil(d, h))} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
           </div>
           {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: choque ? 'var(--in-rojo)' : C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
         </div>
@@ -266,11 +269,12 @@ const flecha = off => ({ width: 22, height: 22, display: 'grid', placeItems: 'ce
 
 /* El día del calendario: las puntas en navy y el medio en la cinta menta, como la vacación. Un día que ya
    tiene algo pedido (`ocupado`) va con el color de su estado y no se puede tocar. */
-function Dia({ d, col, desde, fin, habil, off: pasado, ocupado, vecino, onTocar }) {
+function Dia({ d, col, sel, habil, off: pasado, ocupado, vecino, onTocar }) {
+  /* Días sueltos: cada día marcado es un círculo navy; dos marcados seguidos se unen con la cinta menta. */
   const off = pasado || !!ocupado
-  const varios = desde && fin !== desde
-  const punta = d === desde || d === fin
-  const dentro = desde && d > desde && d < fin
+  const punta = sel.has(d)
+  const izq = punta && col !== 0 && sel.has(sumarDias(d, -1))
+  const der = punta && col !== 6 && sel.has(sumarDias(d, 1))
   const tono = ocupado && !punta && TONO_OCUPADO[ocupado.estado]
   if (tono) {
     return (
@@ -282,23 +286,22 @@ function Dia({ d, col, desde, fin, habil, off: pasado, ocupado, vecino, onTocar 
       </span>
     )
   }
-  const inicio = varios && d === desde && col !== 6
-  const final = varios && d === fin && col !== 0
-  const fondo = inicio ? `linear-gradient(90deg, transparent 50%, ${C.cinta} 50%)` : final ? `linear-gradient(90deg, ${C.cinta} 50%, transparent 50%)` : dentro ? C.cinta : 'transparent'
+  const fondo = izq && der ? C.cinta : izq ? `linear-gradient(90deg, ${C.cinta} 50%, transparent 50%)` : der ? `linear-gradient(90deg, transparent 50%, ${C.cinta} 50%)` : 'transparent'
   return (
-    <span style={{ height: 25, display: 'grid', placeItems: 'center', background: fondo, borderRadius: dentro && col === 0 ? '99px 0 0 99px' : dentro && col === 6 ? '0 99px 99px 0' : 0 }}>
-      <button type="button" disabled={off} onClick={() => onTocar(d)} aria-pressed={punta || !!dentro} aria-label={corto(d)} style={{
+    <span style={{ height: 25, display: 'grid', placeItems: 'center', background: fondo }}>
+      <button type="button" data-dia={d} disabled={off} onClick={() => onTocar(d)} aria-pressed={punta} aria-label={corto(d)} style={{
         width: 23, height: 23, borderRadius: '50%', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 9, fontVariantNumeric: 'tabular-nums',
-        fontWeight: punta ? 700 : dentro ? 600 : 400, color: punta ? C.puntaTxt : C.texto, background: punta ? C.punta : 'transparent', boxShadow: punta ? C.puntaSombra : 'none',
-        opacity: off && !punta ? 0.28 : vecino && !punta && !dentro ? 0.4 : !habil && !punta && !dentro ? 0.5 : 1, cursor: off ? 'default' : 'pointer',
+        fontWeight: punta ? 700 : 400, color: punta ? C.puntaTxt : C.texto, background: punta ? C.punta : 'transparent', boxShadow: punta ? C.puntaSombra : 'none',
+        opacity: off && !punta ? 0.28 : vecino && !punta ? 0.4 : !habil && !punta ? 0.5 : 1, cursor: off ? 'default' : 'pointer',
       }}>{aFecha(d).getDate()}</button>
     </span>
   )
 }
 
 /* Arriba del calendario: qué es y cuándo, en el menta claro de «De vacaciones». */
-function Cabecera({ sub, info, licencia, desde, fin, n, porHoras, corridos, horaDesde, horaHasta, enTarjeta }) {
+function Cabecera({ sub, info, licencia, desde, fin, n, porHoras, corridos, horaDesde, horaHasta, enTarjeta, dias: sueltos, horario }) {
   const titulo = !desde ? (licencia ? 'Elija los días' : 'Elija el día')
+    : sueltos?.length ? textoDias(sueltos, horario)
     : fin !== desde || licencia ? (fin !== desde ? `${corto(desde)[0].toUpperCase()}${corto(desde).slice(1)} – ${corto(fin)}` : largo(desde)) : largo(desde)
   const linea = !desde ? info.linea
     : licencia || fin !== desde ? `${dias(n)}${corridos ? ' corridos' : ' hábiles'}`
@@ -321,7 +324,7 @@ function Cabecera({ sub, info, licencia, desde, fin, n, porHoras, corridos, hora
    columnas, con el horario o los días en la fila menta. */
 const P = { navy: '#0C2D40', menta: '#00E091', mentaTxt: '#0A7F55', gris: '#6B7C8A', suave: '#9AABBB', borde: '#E6ECF1', linea: '#EEF2F5', fondoMenta: '#F3FBF7' }
 /* `documento` y `filasPedido`: otra solicitud con la misma hoja (el trabajo remoto), con su nombre y sus filas. */
-export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin, n, regreso, porHoras, corridos, horaDesde, horaHasta, respaldo, info = {}, motivo, firma, documento, filasPedido }) {
+export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin, dias: sueltos, n, regreso, porHoras, corridos, horaDesde, horaHasta, respaldo, info = {}, motivo, firma, documento, filasPedido }) {
   const doc = documento || (licencia ? 'licencia' : 'permiso')
   const nombreEmpresa = empresa?.razonSocial || empresa?.nombre || 'FarmaVida S.A.'
   const sigla = (nombreEmpresa.split(' ')[0].match(/[A-ZÁÉÍÓÚÑ]/g) || ['S']).slice(0, 2).join('')
@@ -339,7 +342,7 @@ export function Hoja({ numero, sucursal, yo, empresa, sub, licencia, desde, fin,
   )
   const filas = filasPedido || [
     ['Tipo', sub.label],
-    ...(fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
+    ...(sueltos?.length ? [['Días', textoDias(sueltos, yo.horario, { completo: true })]] : fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
     licencia || fin !== desde ? ['Días', `${dias(n)}${corridos ? ' corridos' : ' hábiles'}`, true]
       : ['Horario', porHoras ? `${horaDesde} a ${horaHasta}` : 'Todo el día', true],
     ...(licencia ? [['Vuelve a trabajar', largo(regreso)]] : []),
@@ -415,35 +418,33 @@ export function SolicitarRemotoPhone({ onVolver, volverA = '¿Qué necesita?', o
   const { empresa } = useOnboardingData()
   const [paso, setPaso] = useState('fechas')
   const [ym, setYm] = useState(mesDe(at.hoy))
-  const [desde, setDesde] = useState(null)
-  const [hasta, setHasta] = useState(null)
-  const [eligiendoFin, setEligiendoFin] = useState(false)
   const [motivo, setMotivo] = useState('')
   const [enviada, setEnviada] = useState(false)
   const ir = p => { setPaso(p); arriba() }
 
-  const fin = hasta || desde
-  const n = desde ? diasHabiles(desde, fin, h) : 0
-  // Lo que ya tiene pedido o aprobado: esos días no se tocan, y un rango no puede pasar por encima de ellos.
+  // Lo que ya tiene pedido o aprobado: esos días no se tocan.
   const ocupados = ocupadosDe(at.solicitudes, yo.id)
-  const choque = desde ? ocupados.entre(desde, fin) : null
-  const listo = n > 0 && !choque
-
-  const tocar = d => {
-    if (!eligiendoFin || !desde || d < desde) { setDesde(d); setHasta(null); setEligiendoFin(true); return }
-    setHasta(d === desde ? null : d); setEligiendoFin(false)
-  }
-  const titulo = !desde ? 'Elija el día' : fin !== desde ? `${corto(desde)[0].toUpperCase()}${corto(desde).slice(1)} – ${corto(fin)}` : largo(desde)
+  /* Días sueltos (opción A, 5 nov 2026): un toque marca, otro desmarca; arrastrar marca varios. */
+  const el = useDiasElegidos({ puede: d => d >= at.hoy && esHabil(d, h) && !ocupados.dias.get(d) })
+  const { sel: elegidos } = el
+  const desde = elegidos[0] || null
+  const fin = elegidos[elegidos.length - 1] || null
+  const n = elegidos.length
+  const sueltos = tramosDias(elegidos, h).length > 1
+  const choque = null
+  const listo = n > 0
+  const tocar = el.tocar
+  const titulo = !desde ? 'Elija el día' : sueltos ? textoDias(elegidos, h) : fin !== desde ? `${corto(desde)[0].toUpperCase()}${corto(desde).slice(1)} – ${corto(fin)}` : largo(desde)
   const linea = !desde ? 'Uno o varios días de trabajo' : `${dias(n)} desde casa`
   const filas = !desde ? [] : [
-    ...(fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
+    ...(sueltos ? [['Días', textoDias(elegidos, h, { completo: true })]] : fin !== desde ? [['Desde', largo(desde)], ['Hasta', largo(fin)]] : [['El día', largo(desde)]]),
     ['Días', `${dias(n)} hábiles`, true],
     ['Marcación', 'Con rostro, sin pedir estar en su lugar'],
     ...(motivo.trim() ? [['Motivo', motivo.trim()]] : []),
   ]
 
   const enviar = () => {
-    at.crearSolicitud({ tipo: 'remoto', personaId: yo.id, desde, hasta: fin, ...(motivo.trim() ? { motivo: motivo.trim() } : {}), solicitada: new Date().toISOString(), papeleta: numeroRemoto(at) })
+    at.crearSolicitud({ tipo: 'remoto', personaId: yo.id, ...fechasDeDias(elegidos, h), ...(motivo.trim() ? { motivo: motivo.trim() } : {}), solicitada: new Date().toISOString(), papeleta: numeroRemoto(at) })
     setEnviada(true); arriba()
   }
 
@@ -497,8 +498,8 @@ export function SolicitarRemotoPhone({ onVolver, volverA = '¿Qué necesita?', o
   const celdas = semanasDe(ym)
   const primerMes = ym <= mesDe(at.hoy)
   const ayuda = choque ? `Entre esos días está su ${nombreOcupado(choque).toLowerCase()}. Elija otros días.`
-    : !desde ? 'Toque el día. Si son varios, toque también el último.'
-      : eligiendoFin ? 'Si es más de un día, toque el último.' : null
+    : !desde ? 'Toque cada día, o arrastre sobre varios. Otro toque lo desmarca.'
+      : 'Toque otro día para sumarlo, o uno marcado para quitarlo.'
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: C.texto }}>
       <BarraVolver texto={volverA} onVolver={onVolver} conTema />
@@ -512,9 +513,9 @@ export function SolicitarRemotoPhone({ onVolver, volverA = '¿Qué necesita?', o
             </b>
             <button type="button" aria-label="Mes siguiente" onClick={() => setYm(mesVecino(ym, 1))} style={flecha(false)}><ChevronRight size={12} /></button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center' }}>
+          <div {...el.eventos} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 6, textAlign: 'center', touchAction: 'none' }}>
             {INICIALES.map((l, i) => <span key={i} style={{ fontSize: 7, fontWeight: 600, letterSpacing: '.06em', opacity: 0.45, paddingBottom: 2 }}>{l}</span>)}
-            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} desde={desde} fin={fin} habil={esHabil(d, h)} off={d < at.hoy || !esHabil(d, h)} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
+            {celdas.map((d, i) => <Dia key={d} d={d} col={i % 7} sel={new Set(elegidos)} habil={esHabil(d, h)} off={d < at.hoy || !esHabil(d, h)} ocupado={ocupados.dias.get(d)} vecino={!d.startsWith(ym)} onTocar={tocar} />)}
           </div>
           {ayuda && <p style={{ margin: '8px 0 0', fontSize: 7.8, color: choque ? 'var(--in-rojo)' : C.mute, textAlign: 'center', lineHeight: 1.5 }}>{ayuda}</p>}
         </div>

@@ -5,7 +5,7 @@ import { EVENTOS_INICIO } from '../../data/eventosInicio'
 import { avatarUrl } from '../../utils/calendarEvents'
 import { useAsistencia } from '../../context/AsistenciaContext'
 import { ocupadosDe } from '../../utils/ocupados'
-import { DIAS_LARGOS, MESES, FERIADOS, SUBTIPOS_PERMISO, aFecha, diaISO, mesDe, mesVecino, nombreMes, semanasDe, esAutorizada, hhmm, sumarDias } from '../../data/asistenciaData'
+import { DIAS_LARGOS, MESES, FERIADOS, SUBTIPOS_PERMISO, aFecha, diaISO, mesDe, mesVecino, nombreMes, semanasDe, esAutorizada, hhmm, sumarDias, diasDeSolicitud, incluyeDia } from '../../data/asistenciaData'
 
 /* ── MI CALENDARIO (opción A «El mes vivo» de «Mi calendario · ronda 2», aplicada el 5 nov 2026) ──
    El calendario de la persona, con todo: lo que pidió y lo que le aprobaron (vacaciones, permisos, trabajo
@@ -43,7 +43,7 @@ function useCosas(celdas) {
   const pedidos = ocupadosDe(at.solicitudes, yo.id).lista
   pedidos.forEach(s => {
     const entero = s.tipo !== 'permiso' || !s.horaDesde
-    for (let d = s.desde; d <= (s.hasta || s.desde); d = sumarDias(d, 1)) poner(d, { clase: 'suyo', s, entero })
+    diasDeSolicitud(s).forEach(d => poner(d, { clase: 'suyo', s, entero }))
   })
   ;(at.horasExtra || []).filter(x => String(x.personaId) === String(yo.id) && (esAutorizada(x) || x.estado === 'pendiente' || x.estado === 'asignada'))
     .forEach(x => poner(x.fecha, { clase: 'extra', x }))
@@ -145,8 +145,8 @@ export default function CalendarioPhone({ onVolver, volverA = 'Inicio', diaInici
           /* La cinta: un día entero pedido. Redondeada donde empieza y donde termina (o en el borde de la semana). */
           const tramo = items.find(c => (c.clase === 'suyo' || c.clase === 'libre') && c.entero)
           const [fondo, tinta] = tramo ? CINTA[tramo.s?.estado || 'aprobada'] || CINTA.pendiente : [null, null]
-          const ini = tramo && (!tramo.s || d === tramo.s.desde || col === 0)
-          const fin = tramo && (!tramo.s || d === (tramo.s.hasta || tramo.s.desde) || col === 6)
+          const ini = tramo && (!tramo.s || !incluyeDia(tramo.s, sumarDias(d, -1)) || col === 0)
+          const fin = tramo && (!tramo.s || !incluyeDia(tramo.s, sumarDias(d, 1)) || col === 6)
           const puntos = [
             items.some(c => (c.clase === 'suyo' && !c.entero && c.s.estado === 'aprobada') || (c.clase === 'extra' && esAutorizada(c.x)) || (c.clase === 'libre' && !c.entero)) && PUNTO.suyo,
             items.some(c => (c.clase === 'suyo' && !c.entero && c.s.estado === 'pendiente') || (c.clase === 'extra' && !esAutorizada(c.x))) && PUNTO.pendiente,

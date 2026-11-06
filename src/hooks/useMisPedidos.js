@@ -2,7 +2,7 @@ import { useAsistencia } from '../context/AsistenciaContext'
 import { useMisDocumentos } from './useMisDocumentos'
 import { useLocalStorage } from './useLocalStorage'
 import { TIPOS_SOLICITUD as TIPOS_DOC } from '../data/documentacionData'
-import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, TIPOS_MARCA, diasHabiles, fechaCorta, aFecha, sumarDias, hoyISO } from '../data/asistenciaData'
+import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, TIPOS_MARCA, habilesDeSolicitud, textoDias, fechaCorta, aFecha, sumarDias, hoyISO } from '../data/asistenciaData'
 
 /* ── TODO LO QUE LA PERSONA LE PIDIÓ A RR.HH., DE CUALQUIER MÓDULO ──
    Documentación (certificados, copias, correcciones) y Asistencia (vacaciones, permisos…) guardan sus
@@ -28,8 +28,8 @@ export function useMisPedidos(nombre) {
     .map(s => {
       const permiso = SUBTIPOS_PERMISO.find(t => t.key === s.subtipo)
       const corto = s.tipo === 'vacaciones' ? 'vacación' : s.tipo === 'permiso' ? (permiso?.label || 'permiso').toLowerCase() : TIPOS_SOLICITUD[s.tipo]?.label.toLowerCase()
-      const fechas = s.desde ? rango(s.desde, s.hasta) : s.fecha ? fechaCorta(s.fecha) : ''
-      const n = s.desde && !s.horaDesde ? diasHabiles(s.desde, s.hasta, at.yo.horario) : 0
+      const fechas = s.dias?.length ? textoDias(s.dias, at.yo.horario) : s.desde ? rango(s.desde, s.hasta) : s.fecha ? fechaCorta(s.fecha) : ''
+      const n = s.desde && !s.horaDesde ? habilesDeSolicitud(s, at.yo.horario) : 0
       return {
         id: s.id, origen: 'asistencia', tipo: s.tipo, fecha: s.cuando, corto, dias: n, fechas,
         titulo: `${corto[0].toUpperCase()}${corto.slice(1)} ${fechas}`.trim(),

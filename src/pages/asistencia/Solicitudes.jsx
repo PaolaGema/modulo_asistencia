@@ -17,7 +17,7 @@ import { cambiosDe, NOMBRE_MARCA } from '../../utils/correccion'
 import { armarPapeleta } from '../../utils/papeletaVacacion'
 import { armarHojaPermiso } from '../../utils/papeletaPermiso'
 import { useOnboardingData } from '../../context/OnboardingDataContext'
-import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, ALERTAS, diasHabiles, saldoVacaciones, fechaCorta, aFecha, duracion, mesDe } from '../../data/asistenciaData'
+import { TIPOS_SOLICITUD, SUBTIPOS_PERMISO, ESTADOS_SOLICITUD, ALERTAS, saldoVacaciones, diasDeSolicitud, incluyeDia, habilesDeSolicitud, textoDias, fechaCorta, aFecha, duracion, mesDe } from '../../data/asistenciaData'
 
 /* ── SOLICITUDES ───────────────────────────────────────────────────────────
    Todo lo que la gente le pide a RR.HH. sobre su tiempo, en un solo lugar y con sub-vistas por tipo
@@ -50,6 +50,9 @@ const QUE = { vacaciones: 'las vacaciones', justificacion: 'la justificación', 
 /* Qué dice la segunda columna, según lo que se pide. */
 const COL_PIDE = { vacaciones: 'Fechas y motivo', permiso: 'Permiso o licencia', justificacion: 'Qué justifica', correccion: 'Qué corrige', remoto: 'Días y motivo', cambio: 'Qué turno cambia' }
 const rango = (a, b) => (a === b ? fechaCorta(a) : `${fechaCorta(a)} al ${fechaCorta(b)}`)
+/* Los días de una solicitud: un tramo («3 nov al 7 nov») o, si son sueltos, la lista («mié 11 y lun 16 nov»). */
+const cuando = s => (s.dias?.length ? textoDias(s.dias, s.persona?.horario) : rango(s.desde, s.hasta))
+const delS = s => (s.dias?.length ? `los días ${textoDias(s.dias, s.persona?.horario)}` : `del ${rango(s.desde, s.hasta)}`)
 /* La fecha en que la pidió, y debajo cuánto hace. */
 const fechaSolicitud = f => { const d = aFecha(String(f).slice(0, 10)); return `${d.getDate()} ${['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][d.getMonth()]} ${d.getFullYear()}` }
 const hace = (desde, hoy) => { const d = Math.round((aFecha(hoy) - aFecha(desde)) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días` }
@@ -112,7 +115,7 @@ function Lista({ ver }) {
     const lugar = s.persona.lugar?.id
     if (!lugar) return null
     const delLugar = at.personas.filter(p => p.lugar?.id === lugar && p.asig)
-    const fuera = new Set(at.solicitudes.filter(x => x.id !== s.id && ['vacaciones', 'permiso'].includes(x.tipo) && !['rechazada', 'cancelada'].includes(x.estado) && !x.horaDesde && x.desde <= s.hasta && x.hasta >= s.desde && delLugar.some(p => p.id === x.personaId)).map(x => x.personaId))
+    const fuera = new Set(at.solicitudes.filter(x => x.id !== s.id && ['vacaciones', 'permiso'].includes(x.tipo) && !['rechazada', 'cancelada'].includes(x.estado) && !x.horaDesde && diasDeSolicitud(s).some(d => incluyeDia(x, d)) && delLugar.some(p => p.id === x.personaId)).map(x => x.personaId))
     const quedan = delLugar.length - fuera.size - 1
     return { total: delLugar.length, quedan, otros: fuera.size, riesgo: quedan < Math.ceil(delLugar.length * 0.8) }
   }
@@ -274,23 +277,23 @@ function describir(s, saldoDe, coberturaDe, historialDe) {
   const detalle = s.motivo ? `«${s.motivo}»` : ''
 
   if (s.tipo === 'vacaciones') {
-    const dias = diasHabiles(s.desde, s.hasta, s.persona.horario)
+    const dias = habilesDeSolicitud(s, s.persona.horario)
     const saldo = saldoDe(s.persona)
-    titulo = `${rango(s.desde, s.hasta)} · ${dias} ${dias === 1 ? 'día hábil' : 'días hábiles'}`
-    datos.push(['Días', `${rango(s.desde, s.hasta)} (${dias} hábiles)`], ['Motivo', s.motivo || '—'])
+    titulo = `${cuando(s)} · ${dias} ${dias === 1 ? 'día hábil' : 'días hábiles'}`
+    datos.push(['Días', `${cuando(s)} (${dias} hábiles)`], ['Motivo', s.motivo || '—'])
     if (saldo.derecho === 0) chips.push({ tono: 'rojo', texto: 'Aún no cumple un año: sin días de vacación' })
     else if (s.estado === 'pendiente' && dias > saldo.saldo) chips.push({ tono: 'rojo', texto: `Pide ${dias} y le quedan ${saldo.saldo}` })
     else chips.push({ tono: 'azul', texto: `Le quedan ${saldo.saldo} de ${saldo.derecho} días` })
     if (dias > saldo.saldo) {
       sinSaldo = true
-      efecto = `del ${rango(s.desde, s.hasta)} quedará como vacaciones, pero no le alcanza el saldo: pide ${dias} y tiene ${saldo.saldo}. Aprobarla es una excepción y quedará registrada así.`
-    } else efecto = `del ${rango(s.desde, s.hasta)} quedará como vacaciones y no contará como falta. Se descuentan ${dias} días: le quedarán ${saldo.saldo - dias}.`
+      efecto = `${delS(s)} quedará como vacaciones, pero no le alcanza el saldo: pide ${dias} y tiene ${saldo.saldo}. Aprobarla es una excepción y quedará registrada así.`
+    } else efecto = `${delS(s)} quedará como vacaciones y no contará como falta. Se descuentan ${dias} días: le quedarán ${saldo.saldo - dias}.`
   } else if (s.tipo === 'permiso') {
     tipo = sub?.licencia ? 'Licencia' : 'Permiso'
-    titulo = `${sub?.label || 'Permiso'} · ${rango(s.desde, s.hasta)}${s.horaDesde ? `, ${s.horaDesde} a ${s.horaHasta}` : ''}`
-    datos.push(['Tipo', sub?.label || 'Permiso'], ['Cuándo', `${rango(s.desde, s.hasta)}${s.horaDesde ? ` de ${s.horaDesde} a ${s.horaHasta}` : ' · día completo'}`], ['Motivo', s.motivo || '—'])
+    titulo = `${sub?.label || 'Permiso'} · ${cuando(s)}${s.horaDesde ? `, ${s.horaDesde} a ${s.horaHasta}` : ''}`
+    datos.push(['Tipo', sub?.label || 'Permiso'], ['Cuándo', `${cuando(s)}${s.horaDesde ? ` de ${s.horaDesde} a ${s.horaHasta}` : ' · día completo'}`], ['Motivo', s.motivo || '—'])
     if (sub?.licencia) chips.push(s.respaldo ? { tono: 'verde', texto: `Respaldo: ${s.respaldo}` } : { tono: 'ambar', texto: 'Sin respaldo adjunto' })
-    efecto = s.horaDesde ? `podrá ausentarse de ${s.horaDesde} a ${s.horaHasta} el ${fechaCorta(s.desde)}.` : `del ${rango(s.desde, s.hasta)} no contará como falta.`
+    efecto = s.horaDesde ? `podrá ausentarse de ${s.horaDesde} a ${s.horaHasta} el ${fechaCorta(s.desde)}.` : `${delS(s)} no contará como falta.`
   } else if (s.tipo === 'correccion') {
     /* Corregir su día: uno o varios cambios (cambiar una hora, agregar la que faltaba, quitar una de más). */
     const cs = cambiosDe(s)
@@ -298,11 +301,11 @@ function describir(s, saldoDe, coberturaDe, historialDe) {
     titulo = cs.length === 1 ? `${uno(cs[0])} · ${fechaCorta(s.fecha)}` : `${cs.length} cambios en su día · ${fechaCorta(s.fecha)}`
     datos.push(['Día', fechaCorta(s.fecha)], ...cs.map((c, i) => [cs.length > 1 ? `Cambio ${i + 1}` : 'Qué cambia', uno(c)]), ['Motivo', s.motivo || '—'], s.respaldo && ['Justificación', s.respaldo])
     if (s.respaldo) chips.push({ tono: 'azul', texto: `Comprobar: ${s.respaldo}` })
-    extra.push({ tono: 'gris', texto: 'Antes de aprobar, mira su día: que las horas tengan sentido con sus otras marcaciones.' })
-    efecto = `${cs.length === 1 ? 'se corrige su día' : `se aplican los ${cs.length} cambios`} del ${fechaCorta(s.fecha)} sobre las marcas que ya tiene (sin duplicarlas), con este motivo y tu nombre. Queda a la vista como corrección.`
+    extra.push({ tono: 'gris', texto: 'Antes de aprobar, mire su día: que las horas tengan sentido con sus otras marcaciones.' })
+    efecto = `${cs.length === 1 ? 'se corrige su día' : `se aplican los ${cs.length} cambios`} del ${fechaCorta(s.fecha)} sobre las marcas que ya tiene (sin duplicarlas), con este motivo y su nombre. Queda a la vista como corrección.`
   } else if (s.tipo === 'remoto') {
-    titulo = `Desde casa · ${rango(s.desde, s.hasta)}`
-    datos.push(['Días', rango(s.desde, s.hasta)], ['Motivo', s.motivo || '—'])
+    titulo = `Desde casa · ${cuando(s)}`
+    datos.push(['Días', cuando(s)], ['Motivo', s.motivo || '—'])
     efecto = 'esos días marcará desde donde esté: se controla el rostro y el horario, pero no se exige estar en su lugar de trabajo.'
   } else if (s.tipo === 'justificacion') {
     const al = ALERTAS[s.alerta]

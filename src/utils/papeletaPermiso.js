@@ -1,5 +1,5 @@
 import { Award, Gift, Baby, BookOpen, FileText, Heart, HeartHandshake, Stethoscope, Users } from 'lucide-react'
-import { SUBTIPOS_PERMISO, diasHabiles, habilSiguiente, aFecha } from '../data/asistenciaData'
+import { SUBTIPOS_PERMISO, habilesDeSolicitud, habilSiguiente, aFecha } from '../data/asistenciaData'
 
 /* La papeleta de un permiso o una licencia: lo que la app sabe de cada tipo y cómo se vuelve a armar
    la hoja de una solicitud ya guardada (para «Revisar» en Asistencia › Solicitudes). */
@@ -26,10 +26,10 @@ export function armarHojaPermiso(s, { persona, empresa, lugarPorId, numero }) {
   const info = INFO[sub.key] || {}
   const licencia = !!sub.licencia
   const corridos = licencia && !info.habiles && (info.dias || info.corridos)
-  const n = corridos ? Math.round((aFecha(s.hasta) - aFecha(s.desde)) / 864e5) + 1 : diasHabiles(s.desde, s.hasta, persona.horario)
+  const n = corridos ? Math.round((aFecha(s.hasta) - aFecha(s.desde)) / 864e5) + 1 : habilesDeSolicitud(s, persona.horario)
   return {
     numero: s.papeleta || numero, yo: persona, empresa, sucursal: lugarPorId.get(persona.sucursalId)?.nombre || persona.sedeNombre,
-    sub, licencia, desde: s.desde, fin: s.hasta, n, regreso: licencia ? habilSiguiente(s.hasta, persona.horario) : null,
+    sub, licencia, desde: s.desde, fin: s.hasta, dias: s.dias || null, n, regreso: licencia ? habilSiguiente(s.hasta, persona.horario) : null,
     porHoras: !!s.horaDesde, corridos, horaDesde: s.horaDesde, horaHasta: s.horaHasta, respaldo: s.respaldo || null, info,
     motivo: s.motivo && s.motivo !== sub.label ? s.motivo : '',
   }
