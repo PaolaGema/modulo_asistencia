@@ -943,6 +943,22 @@ function DiasPasados() {
   )
 }
 
+/* ── EL REGISTRO DEL ROSTRO ── textos de cada toma y el aro de tres tramos alrededor del óvalo: el de la
+   derecha, el de la izquierda y el de frente (arriba y abajo). Cada tramo se llena en menta con su toma. */
+const TOMA_MS = 2400
+const TOMAS = [
+  { titulo: 'Mire un poco a su derecha', sub: 'Despacio. El teléfono quieto, a la altura de la cara.' },
+  { titulo: 'Ahora, un poco a su izquierda', sub: 'Despacio. El teléfono quieto, a la altura de la cara.' },
+  { titulo: 'Ahora mire al frente', sub: 'Quieto un segundo, con buena luz.' },
+]
+const SEGUIR = { entrada: 'entrada', salida: 'salida', pausa_inicio: 'pausa', pausa_fin: 'vuelta' }
+const TRAMOS = (() => {
+  const cx = 84, cy = 100, rx = 78, ry = 94
+  const pt = a => { const r = a * Math.PI / 180; return `${(cx + rx * Math.cos(r)).toFixed(1)} ${(cy + ry * Math.sin(r)).toFixed(1)}` }
+  const arco = (a1, a2) => `M${pt(a1)} A${rx} ${ry} 0 0 1 ${pt(a2)}`
+  return [[arco(-52, 52)], [arco(128, 232)], [arco(242, 298), arco(62, 118)]]
+})()
+
 /* ── EL FLUJO DE CAPTURA ── */
 function Flujo({ tipo, onCerrar }) {
   const at = useAsistencia()
@@ -951,16 +967,18 @@ function Flujo({ tipo, onCerrar }) {
   const geo = yo.lugar?.geo
   const radio = yo.politica?.radio || geo?.radio || 150
   const necesitaConsent = ex.rostro && !yo.bio?.consentimiento
-  const [paso, setPaso] = useState(necesitaConsent ? 'consent' : 'ubicacion')
+  const enrolando = ex.rostro && !yo.bio?.enrolado
+  /* REGISTRO DEL ROSTRO (propuesta A · aro que se completa): la primera vez, antes de marcar, tres tomas
+     guiadas —derecha, izquierda y frente— y una pantalla que dice que quedó registrado. */
+  const [paso, setPaso] = useState(necesitaConsent ? 'consent' : enrolando ? 'registro' : 'ubicacion')
+  const [tomas, setTomas] = useState(0)
   const [lejos, setLejos] = useState(false)
   const [pos, setPos] = useState(null) // { lat, lng, distancia }
   const [score, setScore] = useState(null)
   const [hecha, setHecha] = useState(null)
-  const enrolando = ex.rostro && !yo.bio?.enrolado
 
   /* Paso 3: se guarda. La hora la pone el servidor. */
   const guardar = (punto, s) => {
-    if (enrolando) at.actualizarBio(yo.id, { enrolado: hoyISO() })
     setHecha(at.marcar(yo, tipo, { lat: punto?.lat, lng: punto?.lng, score: s }))
     setPaso('listo')
   }
@@ -981,6 +999,16 @@ function Flujo({ tipo, onCerrar }) {
     return () => clearTimeout(tm)
   }, [paso, lejos]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* El registro: cada toma sale sola cuando la cara está en el ángulo (en la maqueta, por tiempo). Con las
+     tres, queda guardado el rostro y recién ahí se puede seguir con la marca. */
+  useEffect(() => {
+    if (paso !== 'registro') return
+    const tm = tomas < 3
+      ? setTimeout(() => setTomas(t => t + 1), TOMA_MS)
+      : setTimeout(() => { at.actualizarBio(yo.id, { enrolado: hoyISO(), pedidoRegistro: null }); setPaso('registrado') }, 900)
+    return () => clearTimeout(tm)
+  }, [paso, tomas]) // eslint-disable-line react-hooks/exhaustive-deps
+
   /* Paso 2: el rostro. */
   useEffect(() => {
     if (paso !== 'rostro') return
@@ -999,13 +1027,14 @@ function Flujo({ tipo, onCerrar }) {
   const idx = paso === 'consent' ? -1 : paso === 'fuera' ? 0 : paso === 'listo' ? pasos.length : pasos.indexOf(paso)
   const IconoTipo = tipo === 'entrada' ? LogIn : tipo === 'salida' ? LogOut : Coffee
   const lugar = yo.lugar?.nombre || 'su lugar'
-  const enc = paso === 'consent' ? { titulo: 'Antes de usar su rostro', sub: 'Lo que pasa con su cara y su ubicación.' }
+  const enc = paso === 'registro' ? TOMAS[Math.min(tomas, 2)]
+    : paso === 'registrado' ? { titulo: 'Su rostro quedó registrado', sub: 'Desde ahora lo reconocemos al marcar.' }
+    : paso === 'consent' ? { titulo: 'Antes de usar su rostro', sub: 'Lo que pasa con su cara y su ubicación.' }
     : paso === 'fuera' ? { titulo: 'Está fuera de su lugar', sub: `A ${pos?.distancia} m de ${lugar} · se puede hasta ${radio} m` }
       : paso === 'ubicacion' ? (ex.remotoHoy ? { titulo: pos ? 'Ubicación lista' : 'Buscando su ubicación', sub: 'Hoy es día remoto: vale cualquier lugar.' }
         : pos ? { titulo: 'Está en su lugar', sub: `${lugar} · a ${pos.distancia} m` } : { titulo: 'Buscando su ubicación', sub: `${lugar} · hasta ${radio} m` })
         : paso === 'rostro' ? (score != null ? { titulo: 'Es usted', sub: 'Rostro verificado' }
-          : enrolando ? { titulo: 'Registrando su rostro', sub: 'Es la primera vez: quieto, de frente y con buena luz.' }
-            : { titulo: 'Mire la cámara', sub: 'Un segundo, quédese quieto · sin lentes oscuros ni gorra' })
+          : { titulo: 'Mire la cámara', sub: 'Un segundo, quédese quieto · sin lentes oscuros ni gorra' })
           : null
   /* Al volver de la pausa, cuánto duró: lo único que le importa saber. */
   const pausaDuro = (() => { if (tipo !== 'pausa_fin' || !hecha) return null; const ini = [...at.jornadaDe(yo, at.hoy).marcas].reverse().find(m => m.tipo === 'pausa_inicio' && !m.anulada && !m.rechazada && m.min <= hecha.min); return ini ? hecha.min - ini.min : null })()
@@ -1020,13 +1049,15 @@ function Flujo({ tipo, onCerrar }) {
           Reemplaza la fila «Ubicación · Rostro · Listo», que se leía como un formulario. */}
       {enc && (
         <div className="at-flujo-enc">
-          <span className="at-flujo-ceja"><IconoTipo size="1.1em" /> {TIPOS_MARCA[tipo].label.toUpperCase()}{paso !== 'listo' && paso !== 'consent' ? ` · ${Math.min(idx + 1, pasos.length)} DE ${pasos.length}` : ''}</span>
+          {paso === 'registro' || paso === 'registrado'
+            ? <span className="at-flujo-ceja"><ScanFace size="1.1em" /> REGISTRO DE SU ROSTRO · {paso === 'registrado' ? 'LISTO' : `${Math.min(tomas + 1, 3)} DE 3`}</span>
+            : <span className="at-flujo-ceja"><IconoTipo size="1.1em" /> {TIPOS_MARCA[tipo].label.toUpperCase()}{paso !== 'listo' && paso !== 'consent' ? ` · ${Math.min(idx + 1, pasos.length)} DE ${pasos.length}` : ''}</span>}
           <h2>{enc.titulo}</h2>
           {enc.sub && <p>{enc.sub}</p>}
         </div>
       )}
 
-      <div className={`at-flujo-cuerpo${paso === 'listo' ? ' fin' : ''}`}>
+      <div className={`at-flujo-cuerpo${paso === 'listo' || paso === 'registrado' ? ' fin' : ''}`}>
         {paso === 'consent' && (
           <>
             <ul className="at-consent">
@@ -1036,9 +1067,41 @@ function Flujo({ tipo, onCerrar }) {
               <li>Puede pedir que se borre su rostro cuando quiera, desde RR.HH.</li>
             </ul>
             <div style={{ width: '100%' }}>
-              <button type="button" className="at-flujo-btn" onClick={() => { at.actualizarBio(yo.id, { consentimiento: { version: '2026-08-v1', aceptado: hoyISO() } }); setPaso('ubicacion') }}>Acepto y continúo</button>
+              <button type="button" className="at-flujo-btn" onClick={() => { at.actualizarBio(yo.id, { consentimiento: { version: '2026-08-v1', aceptado: hoyISO() } }); setPaso(enrolando ? 'registro' : 'ubicacion') }}>Acepto y continúo</button>
               <button type="button" className="at-flujo-btn sec" onClick={onCerrar}>Ahora no</button>
             </div>
+          </>
+        )}
+
+        {paso === 'registro' && (
+          <>
+            <div className="at-flujo-centro">
+              <div className="at-registro">
+                <svg className="at-registro-aro" viewBox="0 0 168 200" aria-hidden="true">
+                  {TRAMOS.map((partes, i) => partes.map((d, j) => <path key={`p${i}${j}`} d={d} className={`pista${i === tomas ? ' ahora' : ''}`} />))}
+                  {TRAMOS.map((partes, i) => partes.map((d, j) => <path key={`t${i}${j}`} d={d} pathLength="100" className={`tramo${i < tomas ? ' ok' : ''}`} />))}
+                </svg>
+                <Camara persona={yo} listo={tomas >= 3} />
+                {tomas > 0 && <span key={tomas} className="at-registro-flash" />}
+                <span className={`at-registro-chev der${tomas === 0 ? ' on' : ''}`} aria-hidden="true"><ChevronRight size="1.3em" strokeWidth={3} /><ChevronRight size="1.3em" strokeWidth={3} /></span>
+                <span className={`at-registro-chev izq${tomas === 1 ? ' on' : ''}`} aria-hidden="true"><ChevronLeft size="1.3em" strokeWidth={3} /><ChevronLeft size="1.3em" strokeWidth={3} /></span>
+              </div>
+            </div>
+            <div className="at-flujo-pie doble at-registro-pie" aria-live="polite">
+              {['Derecha', 'Izquierda', 'Frente'].map((n, i) => (
+                <span key={n} className={i < tomas ? 'ok' : i === tomas ? 'ahora' : 'falta'}><i>{i < tomas && <Check size="1em" strokeWidth={3.5} />}</i>{n}</span>
+              ))}
+            </div>
+          </>
+        )}
+
+        {paso === 'registrado' && (
+          <>
+            <span className="at-flujo-ok"><Check size="2.6em" strokeWidth={3} /></span>
+            <div className="at-registro-hechas">
+              {['Derecha', 'Izquierda', 'Frente'].map(n => <span key={n}><Check size="1em" strokeWidth={3} /> {n}</span>)}
+            </div>
+            <button type="button" className="at-flujo-btn" onClick={() => setPaso('ubicacion')} style={{ marginTop: '.6em' }} autoFocus>Seguir con mi {SEGUIR[tipo] || 'marca'}</button>
           </>
         )}
 

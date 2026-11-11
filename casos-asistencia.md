@@ -2,8 +2,8 @@ Souly HR · Módulo de asistencia · Casos para desarrollo
 
 # Casos de Asistencia
 
-- **Versión del módulo:** 1.2
-- **Fecha:** 5 de noviembre de 2026
+- **Versión del módulo:** 1.3
+- **Fecha:** 11 de noviembre de 2026
 - **Documento del módulo:** modulo-asistencia.html
 
 Cada situación real del módulo en una ficha, para construirla igual que en el prototipo. La ficha dice la situación («Dado que · Cuando · Entonces»), los datos de entrada, lo que calcula el sistema, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web de RR.HH. y del celular. Las reglas no se repiten aquí: cada ficha nombra las suyas (BR‑ASI) y su pantalla (W‑ASI) del documento del módulo.
@@ -414,3 +414,59 @@ Cada situación real del módulo en una ficha, para construirla igual que en el 
 - **En el código:** `pages/asistencia/Configuracion.jsx › TarjetaDescanso`, `components/asistencia/CampoHora.jsx`.
 - **Qué mirar:** sin botones 15 · 30 · 45 min · 1 h; la barra muestra dónde cae el descanso en el día.
 - ![Web · el descanso de 2 h](public/assets/casos/31-descanso-libre.png)
+
+## 9 · El rostro y el horario
+
+### CASO-ASI-32 · Registra su rostro en tres tomas
+
+- **Reglas:** BR‑ASI‑006, BR‑ASI‑061 · W‑ASI‑21
+- **Situación:** **Dado que** Carlos no tiene rostro registrado · **Cuando** toca «Registrar mi rostro» · **Entonces** registra su cara en tres tomas —un poco a la derecha, un poco a la izquierda y de frente— guiado por un aro de tres tramos alrededor del óvalo, y recién después sigue con su marca.
+- **Datos:** Carlos Mendoza Ríos · rostro borrado por RR.HH. (caso 33) · viernes 30 oct a las 08:27.
+- **Calcula:** `toma 1 = derecha · toma 2 = izquierda · toma 3 = frente (la de mejor calidad)`
+  `con las 3 → rostro registrado (fecha de hoy) y se quita «Debe registrarlo de nuevo»`
+  `cierra con la X antes de la 3.ª → no se guarda nada`
+- **Para probarlo:** borrar el rostro de Carlos (caso 33), entrar como él › Inicio › «Marcar entrada» › «Registrar mi rostro».
+- **En el código:** `components/asistencia/Marcador.jsx › Flujo` (pasos `registro` y `registrado`, `TRAMOS`, `TOMA_MS`), estilos `.at-registro*` en `asistencia.css`.
+- **Qué mirar:** las flechas laten del lado hacia donde girar; el tramo de ese lado se llena en menta con la toma; el pie repite el avance en palabras (Derecha · Izquierda · Frente). No hay botón de foto. En la maqueta cada toma avanza a los 2,4 s; en la app real sale cuando la cara está en el ángulo.
+- ![Celular · 1 de 3: mire un poco a su derecha](public/assets/casos/32-registro-derecha.png)
+- ![Celular · 2 de 3: la derecha ya quedó](public/assets/casos/32-registro-izquierda.png)
+- ![Celular · Su rostro quedó registrado](public/assets/casos/32-registrado.png)
+
+### CASO-ASI-33 · RR.HH. borra un rostro y la persona se entera
+
+- **Reglas:** BR‑ASI‑055, BR‑ASI‑061 · W‑ASI‑20, W‑ASI‑21
+- **Situación:** **Dado que** Carlos tiene su rostro registrado · **Cuando** RR.HH. elige «Pedir que registre su rostro de nuevo» y escribe BORRAR · **Entonces** la columna Rostro dice «Debe registrarlo de nuevo» (no «Sin registrar»), y en su celular aparece la línea «Registre su rostro de nuevo · RR.HH. lo pidió». Al marcar, la ventana lo anticipa y el botón dice «Registrar mi rostro».
+- **Datos:** Carlos Mendoza Ríos · Oficina · Sucursal Sopocachi · Híbrido. Lo pide Juan (Administrador HR) el 11 nov.
+- **Calcula:** `al borrar → enrolado = vacío · pedidoRegistro = { por: «Juan», fecha }`
+  `Rostro: pedidoRegistro y sin enrolado → «Debe registrarlo de nuevo» · sin consentimiento → «Sin consentimiento» · nunca → «Sin registrar»`
+  `Inicio: sin horario > sin rostro > tardanza > permiso > solicitudes (una sola línea)`
+- **Para probarlo:** Configuración › Asignaciones › buscar «carlo» › ⋯ › «Pedir que registre su rostro de nuevo» › BORRAR. Después, como Carlos › Inicio.
+- **En el código:** `pages/asistencia/Configuracion.jsx › Asignaciones` (columna Rostro), `components/layout/InicioPhone.jsx › avisoDeInicio, LineaAviso`, `components/asistencia/ConfirmarMarca.jsx` (`registrar`).
+- **Qué mirar:** el menú ⋯ de Carlos dice «Cambiar horario y lugar» porque ya tiene horario. Al pasar el mouse por «Debe registrarlo de nuevo»: «Lo pidió Juan el 11 nov · todavía no marcó». En Inicio no aparece ninguna otra línea mientras esté pendiente; tocarla abre la ventana de marcar.
+- ![Web · Asignaciones: Debe registrarlo de nuevo y Cambiar horario y lugar](public/assets/casos/33-asignaciones.png)
+- ![Celular · Inicio con la línea violeta](public/assets/casos/33-inicio-cel.png)
+- ![Celular · La ventana avisa antes de marcar](public/assets/casos/33-ventana-cel.png)
+
+### CASO-ASI-34 · Todavía no tiene horario
+
+- **Reglas:** BR‑ASI‑062 · W‑ASI‑21
+- **Situación:** **Dado que** alguien no tiene horario asignado · **Cuando** abre Inicio · **Entonces** no puede marcar y se le dice por qué: «Sin horario asignado · Todavía no puede marcar» y la línea «RR.HH. aún no le asignó horario · Cuando lo haga, aquí aparece «Marcar entrada»».
+- **Datos:** en la demo no tienen horario Isabella Mendoza, Gabriela Loayza y Gonzalo Áñez; no están en «Ver la demo como», así que la captura es de Carlos con su asignación quitada.
+- **Calcula:** `sin asignación → no hay botón de marcar · la línea ámbar reemplaza a las demás`
+  `al asignarle horario → aparece «Marcar entrada» y la línea se va`
+- **Para probarlo:** como Carlos, en la consola: `__asistencia.quitarAsignacion([__asistencia.yo.id])`; volver a Inicio. Para deshacerlo, asignarle horario desde Asignaciones.
+- **En el código:** `components/layout/InicioPhone.jsx › HoyCompacto` (`detalle`) y `avisoDeInicio`.
+- **Qué mirar:** RR.HH. encuentra a estas personas con «Sin horario» en la lista de Asignaciones.
+- ![Celular · Sin horario: no marca y dice por qué](public/assets/casos/34-sin-horario-cel.png)
+
+### CASO-ASI-35 · Elegir varias personas en Asignaciones
+
+- **Reglas:** RF‑ASI‑053, RF‑ASI‑099 · W‑ASI‑20
+- **Situación:** **Dado que** RR.HH. quiere cambiar el horario a cuatro personas · **Cuando** marca sus casillas · **Entonces** al lado de los filtros aparece «4 seleccionados», la × para quitar la selección y el botón «Cambiar horario y lugar». Tocar una fila (fuera de la casilla) ya no la selecciona.
+- **Datos:** Diego Morales, Camila Herrera, Valentina Cruz y Facundo Medina (los cuatro con horario).
+- **Calcula:** `todos los elegidos con horario → «Cambiar horario y lugar» · alguno sin horario → «Asignar horario y lugar»`
+  `la ventana que se abre lleva el mismo título`
+- **Para probarlo:** Configuración › Asignaciones › marcar las cuatro primeras casillas.
+- **En el código:** `pages/asistencia/Configuracion.jsx › Asignaciones` (`.at-sel-filtros`), `components/asistencia/ModalAsignar.jsx` (título).
+- **Qué mirar:** ya no hay barra navy pegada abajo de la pantalla; sin nadie elegido no aparece nada junto a los filtros.
+- ![Web · cuatro elegidos: la acción junto a los filtros](public/assets/casos/35-seleccion.png)

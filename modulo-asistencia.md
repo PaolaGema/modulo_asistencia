@@ -2,7 +2,7 @@ Souly HR · Módulo de asistencia · Documentación de producto
 
 # Módulo de asistencia
 
-> **Módulo de asistencia — versión en Markdown.** Reúne completo el documento de producto `public/modulo-asistencia.html` (versión 1.2, 5 de noviembre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Se apoya en el análisis de RR.HH. (`REQUERIMIENTOS_ASISTENCIA.md`, 27 requerimientos) y en la arquitectura del backend (`ASISTENCIA_ARQUITECTURA.md`).
+> **Módulo de asistencia — versión en Markdown.** Reúne completo el documento de producto `public/modulo-asistencia.html` (versión 1.3, 11 de noviembre de 2026): glosario, contexto, integraciones, funcionalidades por rol, las reglas de negocio con sus escenarios, modelo de datos, roadmap, flujos, pantallas, historias de usuario, el anexo de decisiones y el anexo «El módulo en el prototipo, hoy». Se apoya en el análisis de RR.HH. (`REQUERIMIENTOS_ASISTENCIA.md`, 27 requerimientos) y en la arquitectura del backend (`ASISTENCIA_ARQUITECTURA.md`).
 
 ## Índice
 
@@ -24,8 +24,8 @@ Souly HR · Módulo de asistencia · Documentación de producto
 
 La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un registro que se escribe solo, al segundo, con la prueba de cada marca, y que RR.HH. y la persona leen con los mismos números*. Este documento define qué es el módulo, qué reglas cumple, qué tiene que hacer el producto y cómo se opera.
 
-- **Versión:** 1.2
-- **Fecha:** 5 de noviembre de 2026
+- **Versión:** 1.3
+- **Fecha:** 11 de noviembre de 2026
 - **Autoría:** Paola Gema — Diseñadora UX
 - **Revisa y aprueba:** Por definir
 - **Estado:** Borrador
@@ -34,12 +34,12 @@ La asistencia deja de ser una planilla que se arma a fin de mes y pasa a ser *un
 | --- | --- |
 | roles con su vista | 3 |
 | estados de un día | 13 |
-| reglas de negocio | 60 |
-| requisitos funcionales | 95 |
+| reglas de negocio | 62 |
+| requisitos funcionales | 99 |
 | historias de usuario | 20 |
-| pruebas para QA (documento aparte) | 146 |
+| pruebas para QA (documento aparte) | 150 |
 | pantallas | 23 |
-| decisiones abiertas | 9 |
+| decisiones abiertas | 12 |
 
 > **El módulo, de un vistazo.** Asistencia tiene tres capas sobre un solo dato, la **marcación**. Arriba, la **configuración**: horarios (cuándo, cada día con su entrada, su salida, hasta dos descansos y sus tolerancias), modalidades (qué se pide al marcar según se trabaje presencial, híbrido o remoto), lugares con su geocerca (dónde, tomados de Organización) y asignaciones (a quién le toca qué, y en qué lugares puede marcar). En el medio, el **cálculo del día**: de las marcas válidas salen la entrada, la salida, lo trabajado, la tardanza, las alertas del descanso, las horas extra autorizadas y el estado. Abajo, lo que se hace con eso: **Hoy** lo mira en vivo, el **Libro** lo consulta por día, semana, mes, en calendario y por tema —faltas, retrasos, salidas sin marcar—, **Solicitudes** lo corrige y el **resumen para planillas** lo lleva, en un formato fijo, al sistema de sueldos de la empresa. El colaborador marca desde el celular y ve los mismos números en Mi asistencia.
 
@@ -483,8 +483,9 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 
 ### 3.14 Configuración › Asignaciones
 
-- Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · Pidió registrarlo otra vez); una lista desplegable **Todos · Sin horario · Sin rostro**, con su número.
-- Menú ⋯ de cada fila: «Asignar horario y lugar», «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación** (Ronda 24 · B1): la misma ventana centrada que eliminar, con su cara y su rostro tachado, qué pasa en tres pasos —se borra, le llega un aviso, lo registra al marcar— y escribir **BORRAR**.
+- Una fila por colaborador con su horario, lugar, modalidad y **su rostro** (Registrado · Sin registrar · Sin consentimiento · **Debe registrarlo de nuevo** · Pidió registrarlo otra vez); una lista desplegable **Todos · Sin horario · Sin rostro**, con su número. «Debe registrarlo de nuevo» es para quien RR.HH. le borró el rostro: al pasar el mouse dice quién lo pidió y cuándo, y se va cuando lo registra.
+- **Tocar la fila no la selecciona**: para elegir personas se usa solo la casilla (11 nov 2026).
+- Menú ⋯ de cada fila: «Asignar horario y lugar» si no tiene horario o **«Cambiar horario y lugar»** si ya tiene (el botón y la ventana dicen lo mismo según a quiénes se eligió). Con personas elegidas, al lado de los filtros aparece «N seleccionados ×» y el botón; ya no hay barra abajo de la pantalla, «Pedir que registre su rostro de nuevo» o «Aprobar el nuevo registro», que borran el rostro guardado y **piden confirmación** (Ronda 24 · B1): la misma ventana centrada que eliminar, con su cara y su rostro tachado, qué pasa en tres pasos —se borra, le llega un aviso, lo registra al marcar— y escribir **BORRAR**.
 - Buscador, filtros de lugar y unidad y «Todos · Sin horario · Sin rostro» en una sola fila. Para asignar una unidad o una sucursal entera de una vez, se filtra y se marca la casilla de la cabecera de la tabla.
 - **Asignar horario y lugar** (Ronda 25 bis, pensado para 50 horarios, 30 lugares y muchos colaboradores a la vez): arriba, a quiénes (sus caras y cuántos). **1 · Horario** en una lista desplegable con buscador y filtros (Fijos, Flexibles, Con sábado, Con domingo), los más usados primero, cada uno con su color, sus horas, su semana en barritas y cuántos lo tienen; debajo, la semana del elegido en grande con su descanso, horas a la semana y tolerancia. **2 · Dónde marca y cómo**: el lugar con buscador, **«También puede marcar en»** para quien rota entre sucursales (supervisores, técnicos, reemplazos: puede marcar en cualquiera y cuenta el más cercano; el detalle del día dice en cuál marcó y la tabla muestra «+1»), y la modalidad en tres tarjetas (y los días de oficina si es híbrido). **3 · Desde**: hoy, el lunes u otra fecha. A la derecha, **«Así quedan»**: cuántos cambian, cuántos ya lo tenían y cuántos son nuevos, agrupado por el horario de antes, «Ver los N, uno por uno» y una frase con lo que queda; a los que cambian se les cierra su asignación y se abre esta, en un solo paso.
 - La misma asignación se hace en el **alta** del colaborador (paso «Asistencia»), con «¿Controla su asistencia?», la misma lista de horarios con buscador y su semana, «También puede marcar en» y la modalidad en tarjetas. Ese paso quedó con dos bloques: **Asignación de asistencia** y **Vacaciones y permisos** (si puede pedir vacaciones antes del año, si requieren aprobación y quién aprueba los permisos). Se retiraron Jornada laboral, Horario asignado, Método de marcación, Compensación de horas e Historial disciplinario: repetían la asignación o eran de planillas.
@@ -494,6 +495,7 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 | RF‑ASI‑053 | Se asigna a muchas personas a la vez con los filtros | Oblig. | Filtrar Ventas y marcar la casilla de la cabecera selecciona a los 12 |
 | RF‑ASI‑054 | **Retirado:** ya no hay políticas | — | — |
 | RF‑ASI‑055 | El alta asigna desde la fecha de ingreso | Import. | Ingresa el 10: aparece en Hoy desde el 10 |
+| RF‑ASI‑099 | En Asignaciones solo la casilla selecciona, y la acción dice «Asignar» o «Cambiar» según la persona | Import. | Carlos tiene horario: su menú dice «Cambiar horario y lugar»; al marcar 4 casillas, junto a los filtros aparece «4 seleccionados ×» y el botón |
 
 ### 3.15 Configuración › Biometría y privacidad (unida a Asignaciones y Modalidades)
 
@@ -507,7 +509,7 @@ Qué le avisa la app a cada persona cuando su día sale con una alerta, y cuánt
 | --- | --- | --- | --- |
 | RF‑ASI‑056 | Nadie marca con rostro sin aceptar el consentimiento | Oblig. | La primera vez la app muestra «Antes de usar su rostro» |
 | RF‑ASI‑057 | Las selfies se borran solas a los días configurados | Oblig. | Con 90 días, una selfie de hace 100 ya no está |
-| RF‑ASI‑058 | Pedir que registre su rostro de nuevo borra el rostro guardado, después de confirmar | Import. | La próxima marca vuelve a pedir el registro |
+| RF‑ASI‑058 | Pedir que registre su rostro de nuevo borra el rostro guardado, después de confirmar | Import. | La próxima marca vuelve a pedir el registro; la columna dice «Debe registrarlo de nuevo» con quién lo pidió y cuándo |
 
 ### Para El líder de área
 
@@ -526,8 +528,12 @@ Lo que la persona hace y ve desde su celular y desde Mi espacio en la web.
 
 - **Inicio** muestra la franja del día: su turno, cómo va («Entraste 08:27 · 3 h 10») y el botón menta con la **próxima marca**: Marcar entrada, Iniciar descanso, Volver del descanso o Marcar salida. Al terminar, «Listo por hoy».
 - Un toque **no marca**: abre una ventana que dice qué va a marcar y a qué hora, y cómo le queda («Llega 12 min tarde», «Le faltan 2 h de jornada»). Recién **«Escanear rostro»** empieza.
+- **Sin rostro registrado** (la primera vez, o porque RR.HH. lo borró): Inicio muestra la línea violeta **«Registre su rostro»** o **«Registre su rostro de nuevo · RR.HH. lo pidió»**, que abre la ventana de marcar. La ventana avisa «Antes, registre su rostro · tres fotos» y el botón dice **«Registrar mi rostro»**.
+- **Sin horario asignado**: la franja dice «Sin horario asignado · Todavía no puede marcar», sin botón, y la línea ámbar **«RR.HH. aún no le asignó horario · Cuando lo haga, aquí aparece «Marcar entrada»»**.
+- Estas dos líneas van antes que la tardanza, el permiso y las solicitudes y las reemplazan: Inicio muestra una sola línea.
 - **Ubicación**: busca dónde está y dice «Está en su lugar · a 24 m»; fuera de la geocerca, «Está fuera de su lugar», con «Volver a intentar». En remoto: «Hoy es día remoto: vale cualquier lugar».
-- **Rostro**: «Mire la cámara»; la primera vez, «Registrando su rostro». Antes de la primera vez, el **consentimiento**.
+- **Registro del rostro** (la primera vez, después del **consentimiento** y antes de la ubicación): tres tomas guiadas —«Mire un poco a su derecha», «Ahora, un poco a su izquierda», «Ahora mire al frente»— con un **aro de tres tramos** alrededor del óvalo: las flechas laten del lado hacia donde girar y el tramo se llena en menta cuando sale la toma; abajo, Derecha · Izquierda · Frente con su check. Cada toma sale sola, sin botón. Al terminar, «Su rostro quedó registrado» y **«Seguir con mi entrada»**. Si cierra antes, no queda nada registrado.
+- **Rostro**: «Mire la cámara».
 - **Listo**: «Entrada registrada» con la hora y cómo llegó; una despedida distinta en cada marca.
 - **Deshacer la salida** durante 10 minutos: la marca se anula y queda a la vista de RR.HH.
 
@@ -537,6 +543,9 @@ Lo que la persona hace y ve desde su celular y desde Mi espacio en la web.
 | RF‑ASI‑060 | Marcar pide confirmar antes de escanear | Oblig. | Un roce en el bolsillo solo abre la ventana |
 | RF‑ASI‑061 | Fuera de la geocerca no se marca | Oblig. | A 640 m con un radio de 150 m: «Está fuera de su lugar» |
 | RF‑ASI‑062 | La salida se puede deshacer 10 minutos | Import. | A los 11 minutos ya no aparece «Deshacer» |
+| RF‑ASI‑096 | El rostro se registra en tres tomas guiadas antes de la primera marca | Oblig. | Derecha, izquierda y frente con el aro; si cierra a la mitad, no queda registrado |
+| RF‑ASI‑097 | Quien no tiene rostro registrado lo sabe antes de marcar | Oblig. | Inicio: «Registre su rostro de nuevo · RR.HH. lo pidió»; la ventana: «Registrar mi rostro» |
+| RF‑ASI‑098 | Quien no tiene horario no puede marcar y se le dice por qué | Oblig. | Sin botón de marcar y la línea «RR.HH. aún no le asignó horario» |
 
 > **En la maqueta:** la ubicación y el rostro se simulan; el rostro siempre coincide en el celular. Marcar sin conexión todavía no existe —ABIERTA‑ASI‑08—.
 
@@ -838,7 +847,7 @@ Antes de la primera marca con rostro, la persona lee **«Antes de usar su rostro
 
 - **Dado que** alguien no aceptó el consentimiento
 - **Cuando** toca «Escanear rostro»
-- **Entonces** ve el consentimiento y, si acepta, registra su rostro por primera vez
+- **Entonces** ve el consentimiento y, si acepta, registra su rostro en tres tomas (derecha, izquierda, frente) antes de seguir con su marca
 
 **3. Condiciones y excepciones**
 
@@ -851,6 +860,93 @@ Antes de la primera marca con rostro, la persona lee **«Antes de usar su rostro
 - **Requisitos:** RF‑ASI‑056
 - **Historia de usuario:** HU‑ASI‑16, HU‑ASI‑18
 - **Pantalla:** W‑ASI‑21 Marcar desde el celular; W‑ASI‑20 Asignaciones (columna Rostro)
+- **Diseño:** Prototipado
+
+#### 4.61 · BR-ASI-061 · El rostro se registra en tres tomas
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-ASI-061
+- **Grupo:** La marcación
+- **Qué gobierna:** Biometría
+- **Antes:** Nueva (1.3)
+- **Estado:** Borrador
+
+*Descripción general*
+
+La primera vez que alguien marca con rostro, o después de que RR.HH. se lo borró, registra su cara en **tres tomas**: un poco a la derecha, un poco a la izquierda y de frente. Cada marcación se compara después contra esas tres. Una sola toma de frente fallaba cuando la persona marcaba con la cabeza un poco girada o con otra luz. La guía es un **aro de tres tramos** alrededor del óvalo (opción A de «Registro de rostro · Propuestas»).
+
+**2. Escenarios ágiles de ejecución**
+
+*Registra su rostro*
+
+- **Dado que** Carlos aceptó el consentimiento y no tiene rostro registrado
+- **Cuando** toca «Registrar mi rostro»
+- **Entonces** ve «Registro de su rostro · 1 de 3 · Mire un poco a su derecha», las flechas laten a la derecha y el tramo de ese lado se llena en menta con la toma; sigue la izquierda y al final el frente; después, «Su rostro quedó registrado» y «Seguir con mi entrada» lo lleva a la ubicación
+
+*Cierra a la mitad*
+
+- **Dado que** Carlos lleva dos tomas
+- **Cuando** toca la X
+- **Entonces** no se guarda nada y la próxima marca vuelve a empezar el registro
+
+**3. Condiciones y excepciones**
+
+- Cada toma sale sola cuando la cara está en el ángulo: no hay botón de foto.
+- El orden es derecha, izquierda y frente; la última es la de mejor calidad.
+- Al registrarlo se borra la marca de «Debe registrarlo de nuevo» de Asignaciones.
+- Qué pasa si no logra registrarse (poca luz, cámara) está abierto: ABIERTA‑ASI‑13.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑ASI‑096, RF‑ASI‑097
+- **Historia de usuario:** HU‑ASI‑16, HU‑ASI‑18
+- **Pantalla:** W‑ASI‑21 Marcar desde el celular; W‑ASI‑20 Asignaciones (columna Rostro)
+- **Diseño:** Prototipado
+
+#### 4.62 · BR-ASI-062 · Sin horario no se marca
+
+*Estado: Borrador*
+
+**1. Información básica**
+
+- **Código:** BR-ASI-062
+- **Grupo:** La marcación
+- **Qué gobierna:** Marcación
+- **Antes:** Nueva (1.3)
+- **Estado:** Borrador
+
+*Descripción general*
+
+Sin horario asignado no se sabe si la persona llega tarde, cuánto le falta ni qué descanso le toca, así que no puede marcar. El celular se lo dice en vez de esconder el botón sin explicación, y RR.HH. la encuentra con «Sin horario» en Asignaciones.
+
+**2. Escenarios ágiles de ejecución**
+
+*Todavía sin horario*
+
+- **Dado que** Isabella no tiene horario asignado
+- **Cuando** abre Inicio en su celular
+- **Entonces** la franja dice «Sin horario asignado · Todavía no puede marcar», no hay botón de marcar y debajo está la línea «RR.HH. aún no le asignó horario · Cuando lo haga, aquí aparece «Marcar entrada»»
+
+*RR.HH. le asigna horario*
+
+- **Dado que** RR.HH. le asigna Oficina desde hoy
+- **Cuando** Isabella vuelve a Inicio
+- **Entonces** aparece «Marcar entrada» y la línea se va
+
+**3. Condiciones y excepciones**
+
+- Esta línea y la de rostro sin registrar van antes que la tardanza, el permiso y las solicitudes, y las reemplazan: Inicio muestra una sola línea.
+
+**4. Trazabilidad**
+
+- **Ticket:** Pendiente
+- **Requisitos:** RF‑ASI‑098
+- **Historia de usuario:** HU‑ASI‑18
+- **Pantalla:** W‑ASI‑21 Marcar desde el celular; W‑ASI‑20 Asignaciones
 - **Diseño:** Prototipado
 
 #### 4.7 · BR-ASI-007 · Marcar pide confirmar antes de escanear
@@ -2960,6 +3056,9 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 | ABIERTA‑ASI‑10 | Los feriados móviles y los de cada departamento, ¿quién los carga? | Nueva |
 | ABIERTA‑ASI‑11 | **Resuelta:** la vista Día es una tabla limpia con el horario al lado y una barrita del día en una columna (opción E1) | Nueva |
 | ABIERTA‑ASI‑12 | ¿Reportes por área, día de la semana y motivo de tardanza? | REQ #24 |
+| ABIERTA‑ASI‑13 | Si alguien no logra registrar su rostro después de 3 intentos: ¿marca sin rostro y RR.HH. lo revisa (recomendada) o no puede marcar? | Nueva (1.3) |
+| ABIERTA‑ASI‑14 | ¿El colaborador puede pedir registrar su rostro de nuevo desde su Perfil (recomendada), o se quita «Pidió registrarlo otra vez», que hoy nunca aparece? | Nueva (1.3) |
+| ABIERTA‑ASI‑15 | Columnas Horario y Rostro de Asignaciones: como están, solo ✓ y ✗, o ✓ o ✗ con el dato al lado (recomendada) | Nueva (1.3) |
 
 ## 07 · Flujos de usuario
 
@@ -3143,11 +3242,11 @@ La maqueta es la referencia de pantallas y comportamiento; este documento, la de
 
 ## 10 · Pruebas para QA
 
-Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: **[Pruebas de Asistencia](pruebas-asistencia.html)** (fuente: `pruebas-asistencia.md`). Son **146 casos** en dos partes —**RR.HH. en la web** (120) y **el colaborador en el celular** (26)—, cada uno con sus pasos, el resultado esperado, el requisito (RF‑ASI) y la regla de negocio (BR‑ASI) que prueba. **Todos los requisitos vigentes y todas las reglas vigentes tienen al menos una prueba** (las reglas retiradas —013, 027 y 047— no se prueban); los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca **✓ Pasa**, **✗ Falla** o **— No se pudo**, con una nota, y se exportan los resultados en CSV.
+Las pruebas del módulo están en un documento aparte, para que QA las vaya marcando: **[Pruebas de Asistencia](pruebas-asistencia.html)** (fuente: `pruebas-asistencia.md`). Son **150 casos** en dos partes —**RR.HH. en la web** (122) y **el colaborador en el celular** (28)—, cada uno con sus pasos, el resultado esperado, el requisito (RF‑ASI) y la regla de negocio (BR‑ASI) que prueba. **Todos los requisitos vigentes y todas las reglas vigentes tienen al menos una prueba** (las reglas retiradas —013, 027 y 047— no se prueban); los que dependen del servidor (la hora, el vector del rostro, el borrado de las selfies) están en «Servidor y seguridad», para probarlos con desarrollo. En la página se marca **✓ Pasa**, **✗ Falla** o **— No se pudo**, con una nota, y se exportan los resultados en CSV.
 
 Se mantienen junto con este documento: cuando cambia una regla o una pantalla, cambia su prueba. Para regenerar la página: `node herramientas/doc-pruebas.cjs pruebas-asistencia.md public/pruebas-asistencia.html`.
 
-Para desarrollo, cada situación real del módulo está en fichas con capturas: **[Casos de Asistencia](casos-asistencia.html)** (fuente: `casos-asistencia.md`). Son **31 casos** —la marcación, el cálculo del día, corregir sin borrar, justificaciones y solicitudes, horas extra, configuración y lo que ve la persona—, cada uno con la situación, los datos de la demo, el cálculo, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web y del celular. Las capturas se rehacen con `node herramientas/capturas-casos.cjs` y la página con `node herramientas/doc-casos.cjs casos-asistencia.md public/casos-asistencia.html`.
+Para desarrollo, cada situación real del módulo está en fichas con capturas: **[Casos de Asistencia](casos-asistencia.html)** (fuente: `casos-asistencia.md`). Son **35 casos** —la marcación, el cálculo del día, corregir sin borrar, justificaciones y solicitudes, horas extra, configuración, lo que ve la persona y el rostro y el horario—, cada uno con la situación, los datos de la demo, el cálculo, cómo verlo en la maqueta, dónde está en el código del prototipo y las capturas de la web y del celular. Las capturas se rehacen con `node herramientas/capturas-casos.cjs` y la página con `node herramientas/doc-casos.cjs casos-asistencia.md public/casos-asistencia.html`.
 
 ## Cómo se mantiene este documento
 
@@ -3160,6 +3259,7 @@ Para desarrollo, cada situación real del módulo está en fichas con capturas: 
 
 | Versión | Fecha | Qué cambió |
 | --- | --- | --- |
+| **1.3** | 11 nov 2026 | **El rostro y el horario, sin sorpresas.** **Registro del rostro en tres tomas** —derecha, izquierda y frente— con un aro que se completa alrededor del óvalo, y la pantalla «Su rostro quedó registrado» (BR‑ASI‑061). Quien no tiene rostro registrado **lo sabe antes de marcar**: una línea en Inicio y «Registrar mi rostro» en la ventana. Quien **no tiene horario** no marca y se le dice por qué (BR‑ASI‑062). **Asignaciones**: la columna Rostro distingue «Debe registrarlo de nuevo» (RR.HH. lo borró) de «Sin registrar»; tocar la fila ya no selecciona; «Asignar» o «Cambiar horario y lugar» según la persona; con personas elegidas, la acción va junto a los filtros y no en una barra abajo. Tres decisiones abiertas nuevas (ABIERTA‑ASI‑13 a 15). |
 | **1.2** | 5 nov 2026 | **Pedir y aprobar más claro.** **Días sueltos** en vacaciones, permisos, licencia médica y trabajo remoto: un toque marca, otro desmarca (BR‑ASI‑060). **Horas extra**: «Revisar» con su papeleta y su día; **el jefe pide** para su equipo y la persona acepta (BR‑ASI‑059); la tabla pasa a **Solicitante · Para**. **Correcciones en lote** desde su propia pantalla. **Lugares** sin ubicación se avisan y se ubican desde Asistencia. **El descanso** se escribe libre, sin atajos de 1 h. El celular y el PDF dicen los mismos «días a tiempo». **Mi asistencia web** es la pantalla del celular. **Días libres** sale del menú por ahora. Las ventanas de revisar hablan de usted. Nuevo documento **Casos de Asistencia** para desarrollo. |
 | **1.1** | 3 nov 2026 | **El módulo más simple y pensado en grande** (rondas 13 a 25 bis de propuestas). **Sin cierre de mes**: lo que pedía el #27 lo cumple el **resumen para planillas** al exportar el Mes; ningún mes se bloquea. **Los temas del Libro** —faltas, retrasos y descansos, salidas sin marcar, marcaciones rechazadas y fuera de horario— pasan de páginas aparte a un **filtro** de la Semana y el Mes, en cuadritos o en lista; el Libro queda sin submenú. **El reporte en PDF** de cada persona. **Solicitudes** con la papeleta a la vista, aprobar escribiendo **APROBAR**, «Pendiente» en vez de «Por responder», «Dejar pendiente» y «Fecha de solicitud». **Horarios** con un renglón por día (domingo trabajado, martes libre, sábado corto), hasta **dos descansos** por día, sus **tolerancias**, el flexible con meta por día y cuándo puede marcar, la tabla primero y las tarjetas después, el reloj de Souly para las horas, y duplicar y eliminar con confirmación. **Las políticas se retiran**: las tolerancias son del horario, lo que se pide al marcar va en **Modalidades** (presencial, híbrido, remoto) con un parecido mínimo para toda la empresa, el descanso sin marcar siempre se resta y la tardanza va siempre al segundo. **Biometría** se une a Asignaciones (columna Rostro, borrar el rostro escribiendo BORRAR) y a Modalidades (privacidad). **Varios lugares** por persona para quien rota. **Asignar** pensado para 50 horarios y muchos colaboradores, con «Así quedan». El **alta del colaborador** queda con la asignación y «Vacaciones y permisos». Hoy, el Libro y Solicitudes con **listas desplegables** en vez de pestañas; **«descanso»** en vez de «pausa» y **«colaborador»** en las tablas. |
 | **1.0** | 29 oct 2026 | **Primera versión con el formato de los demás módulos.** Reúne lo construido en la maqueta hasta el 29 de octubre: Hoy; el Libro de asistencia por día, semana y mes, con las tardanzas, faltas y saldo acumulados por persona; la asistencia de una persona; el detalle de la jornada con ajustar, anular, marcar a mano y justificar; Incidencias; Solicitudes en siete tipos con saldos de vacaciones y cobertura; Horas extra pedidas, asignadas y autorizadas después; el Cierre del mes con el archivo fijo para planillas; la Configuración en seis partes, con la tolerancia a la vista al crear un horario; y lo del colaborador: marcar con confirmación, rostro y ubicación, sus avisos y Mi asistencia. Las reglas de cálculo siguen la prioridad 1 de RR.HH.: descanso como franja (#2, #5, #6), al segundo (#8), horas extra solo autorizadas (#9, #10), justificaciones (#13, #15) y el cierre para planillas (#27). 58 reglas BR‑ASI, 74 requisitos, 20 historias y 22 pantallas |
@@ -3217,6 +3317,22 @@ Los botones 15 · 30 · 45 min · 1 h hacían creer que el descanso llegaba a un
 #### Por qué la ubicación de los lugares se pone en Asistencia
 
 Se analizó pedirla en Organización (opcional u obligatoria). Se decidió no tocar Organización por ahora: Asistencia avisa los lugares sin ubicación y los deja ubicar en el momento, que es cuando hace falta.
+
+#### Por qué el rostro se registra en tres tomas, con un aro
+
+Con una sola foto de frente, si al día siguiente la persona marcaba con la cabeza un poco girada o con otra luz, el parecido bajaba y la marca podía salir rechazada. Tres tomas cubren esos ángulos. De las seis formas de guiar el giro que se mostraron (aro, tres fotos en fila, seguir un punto, la carita «Haga así», un solo barrido y el aro con borde y vibración), el equipo eligió **el aro** (A): es el gesto que la gente ya conoce del desbloqueo con la cara, todo pasa alrededor del óvalo que ya existía y el pie repite el avance en palabras para quien no ve bien los colores.
+
+#### Por qué se avisa antes de marcar que falta el rostro
+
+Al borrar un rostro, la ventana de RR.HH. promete «le llega un aviso a su app», pero no llegaba nada: la persona se encontraba con las tres fotos al marcar, apurada. Ahora lo ve en Inicio desde que se lo piden y la ventana de marcar lo anticipa, con un botón que dice lo que va a pasar.
+
+#### Por qué sin horario no se marca
+
+Sin horario no hay contra qué medir: no se sabe si llegó tarde, cuánto le falta ni qué descanso le toca. Dejar marcar habría llenado el Libro de días sin estado. Antes el botón simplemente no estaba y la persona podía pensar que la app falló; ahora se le dice por qué y qué esperar.
+
+#### Por qué la acción de los seleccionados va junto a los filtros
+
+La barra navy pegada abajo de la pantalla quedaba lejos de la tabla, tapaba filas y aparecía con solo tocar una fila, aunque no se buscara asignar nada. Ahora solo la casilla selecciona, y la acción aparece arriba, donde ya se filtra a quiénes, con «Asignar» o «Cambiar» según si ya tienen horario.
 
 ## Anexo · El módulo en el prototipo, hoy
 

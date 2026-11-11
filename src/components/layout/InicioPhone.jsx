@@ -1,4 +1,4 @@
-import { ScanFace, Coffee, Check, LogOut, RotateCcw, Sun, Moon, Calendar, Palmtree, ScrollText, Gift, Heart, MessageCircle, PartyPopper, Award, ChevronRight, X, Inbox } from 'lucide-react'
+import { ScanFace, Coffee, Check, LogOut, RotateCcw, Sun, Moon, Calendar, Palmtree, ScrollText, Gift, Heart, MessageCircle, PartyPopper, Award, ChevronRight, X, Inbox, CalendarClock } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAsistencia } from '../../context/AsistenciaContext'
@@ -61,7 +61,7 @@ function HoyCompacto({ onMarcar }) {
   /* Con permiso por horas en la mañana, la franja lo dice en vez de «Sin marcar». */
   const permisoIni = h?.permisoHoras?.inicio && j.entrada == null ? `${h.permisoHoras.inicio.label} hasta ${hhmm(h.permisoHoras.inicio.hasta)}` : null
   const tardeLibre = h?.permisoHoras?.fin?.diaLibre && j.entrada == null ? `${h.permisoHoras.fin.label} · tarde libre desde ${hhmm(h.permisoHoras.fin.desde)}` : null
-  const detalle = !h ? 'Pídalo a RR.HH.' : libreHoy ? `${libreHoy.tipo} · día libre` : permisoIni ? permisoIni : tardeLibre ? tardeLibre
+  const detalle = !h ? 'Todavía no puede marcar' : libreHoy ? `${libreHoy.tipo} · día libre` : permisoIni ? permisoIni : tardeLibre ? tardeLibre
     : j.salida != null ? `Salió ${hhmm(j.salida)} · ${duracion(j.trabajado)}`
       : j.enPausa ? 'En descanso'
         : j.entrada != null ? `Entró ${hhmm(j.entrada)} · ${duracion(j.trabajado)}`
@@ -71,7 +71,10 @@ function HoyCompacto({ onMarcar }) {
   const avance = Math.min(100, Math.round((j.trabajado / meta) * 100))
   const enlace = { display: 'inline-flex', alignItems: 'center', gap: 3, border: 'none', background: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 7.8, fontWeight: 600, color: '#B7CBD8' }
 
+  const aviso = avisoDeInicio(at)
+
   return (
+    <>
     <div style={{ position: 'relative', overflow: 'hidden', background: C.banda, color: '#fff', borderRadius: 18, padding: '11px 12px', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10, boxShadow: '0 10px 22px -14px rgba(12,45,64,.6)' }}>
       <span aria-hidden="true" style={{ position: 'absolute', right: -40, top: -50, width: 130, height: 130, borderRadius: '50%', background: 'rgba(0,224,145,.08)' }} />
 
@@ -129,6 +132,42 @@ function HoyCompacto({ onMarcar }) {
           <ConfirmarMarca tipo={pedido} onCancelar={() => setPedido(null)} onConfirmar={t => { setPedido(null); onMarcar(t) }} />
         </div>, marco || document.body)}
     </div>
+    {aviso && <LineaAviso aviso={aviso} onAbrir={siguiente ? () => setPedido(siguiente) : null} />}
+    </>
+  )
+}
+
+/* LO QUE CAMBIA CÓMO MARCA, EN LA ÚNICA LÍNEA DE ESTADO (11 nov 2026). Va antes que la tardanza, el permiso
+   y las solicitudes, y los reemplaza: Inicio nunca muestra más de una línea.
+   · Sin horario: no puede marcar y se le dice por qué (antes el botón simplemente no estaba).
+   · Sin rostro registrado: la primera vez, o porque RR.HH. lo borró. Se hace al marcar; tocarla abre la
+     ventana de marcar. Se va sola cuando lo registra. */
+function avisoDeInicio(at) {
+  const yo = at.yo
+  if (!yo?.asig) return { tipo: 'horario' }
+  if (at.exigenciasDe(yo, at.hoy).rostro && !yo.bio?.enrolado) return { tipo: 'rostro', deNuevo: !!yo.bio?.pedidoRegistro }
+  return null
+}
+function LineaAviso({ aviso, onAbrir }) {
+  const horario = aviso.tipo === 'horario'
+  const [bg, fg, borde] = horario ? ['#FFF4DE', '#9A5B06', '#F5D9A3'] : ['#F0EAFE', '#6B3FD0', '#D9CCFB']
+  const titulo = horario ? 'RR.HH. aún no le asignó horario' : aviso.deNuevo ? 'Registre su rostro de nuevo' : 'Registre su rostro'
+  const sub = horario ? 'Cuando lo haga, aquí aparece «Marcar entrada»' : aviso.deNuevo ? 'RR.HH. lo pidió · se hace al marcar' : 'Se hace al marcar · tres fotos, menos de un minuto'
+  const Tag = onAbrir ? 'button' : 'div'
+  return (
+    <Tag {...(onAbrir ? { type: 'button', onClick: onAbrir } : {})} style={{
+      ...carta, width: '100%', boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 9px', marginBottom: 12,
+      border: 'none', fontFamily: 'inherit', textAlign: 'left', color: C.texto, cursor: onAbrir ? 'pointer' : 'default', boxShadow: `inset 0 0 0 1px ${borde}, ${C.sombra}`,
+    }}>
+      <span style={{ width: 26, height: 26, borderRadius: 9, background: bg, color: fg, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+        {horario ? <CalendarClock size={13} /> : <ScanFace size={13} />}
+      </span>
+      <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <b style={{ fontSize: 9.4, fontWeight: 600 }}>{titulo}</b>
+        <span style={{ fontSize: 7.8, color: C.mute }}>{sub}</span>
+      </span>
+      {onAbrir && <ChevronRight size={13} style={{ color: C.suave, flexShrink: 0 }} />}
+    </Tag>
   )
 }
 
@@ -294,7 +333,8 @@ export default function InicioPhone({ currentUser, onMarcar, onVacacion, onPermi
       <HoyCompacto onMarcar={onMarcar} />
 
       {/* Una sola línea de estado: la entrada tarde, si la hay, va antes que las solicitudes. */}
-      {tarde.ver && onCorregir
+      {avisoDeInicio(at) ? null
+        : tarde.ver && onCorregir
         ? <LineaTarde tardanza={tarde.tardanza} onCorregir={() => onCorregir('entrada')} onCerrar={tarde.cerrar} estilo={{ marginBottom: 12 }} />
         : permiso ? <LineaPermiso texto={permiso} estilo={{ marginBottom: 12 }} />
         : <LineaSolicitudes pedidos={pedidos} onAbrir={onSolicitudes} />}

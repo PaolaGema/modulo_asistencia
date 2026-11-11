@@ -53,7 +53,11 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
 
   const linea = ex.remotoHoy ? 'Hoy en remoto · sin verificar ubicación'
     : `${yo.lugar?.nombre || 'Su lugar de trabajo'}${ex.rostro ? ' · con su rostro' : ex.geocerca ? ' · con su ubicación' : ''}`
-  const accion = ex.rostro ? <><ScanFace size="1.2em" /> Escanear rostro</> : <><ArrowRight size="1.2em" /> Marcar ahora</>
+  /* SIN ROSTRO REGISTRADO (la primera vez, o porque RR.HH. lo borró): la ventana lo anticipa y el botón dice
+     lo que va a pasar, así las tres fotos no aparecen de sorpresa. */
+  const registrar = ex.rostro && !yo.bio?.enrolado
+  const accion = registrar ? <><ScanFace size="1.2em" /> Registrar mi rostro</>
+    : ex.rostro ? <><ScanFace size="1.2em" /> Escanear rostro</> : <><ArrowRight size="1.2em" /> Marcar ahora</>
 
   return (
     <div className="at-hoja-marca" role="dialog" aria-modal="true" aria-label={QUE[tipo]}>
@@ -64,6 +68,12 @@ export default function ConfirmarMarca({ tipo, onCancelar, onConfirmar }) {
         <span className={`at-v2-chip ${e.tono}`}><Icono size="1.15em" /> {e.chip}</span>
         <span className="at-v2-linea">{ex.remotoHoy ? <House size="1.1em" /> : <MapPin size="1.1em" />} {linea}</span>
         {e.nota && <span className="at-v2-nota">{e.nota}</span>}
+        {registrar && (
+          <span className="at-v2-rostro">
+            <ScanFace size="1.3em" />
+            <span><b>{yo.bio?.pedidoRegistro ? 'Antes, registre su rostro de nuevo' : 'Antes, registre su rostro'}</b>Tres fotos: derecha, izquierda y de frente. Toma menos de un minuto.</span>
+          </span>
+        )}
         <div className="at-v2-botones">
           {e.antes ? (
             <>

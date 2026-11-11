@@ -55,7 +55,7 @@ export default function ModalAsignar({ ids, onCerrar, onListo }) {
   const n = ids.length
 
   return (
-    <Modal titulo="Asignar horario y lugar" Icono={CalendarClock} onCerrar={onCerrar} ancho={1060}
+    <Modal titulo={gente.every(p => p.asig) ? 'Cambiar horario y lugar' : 'Asignar horario y lugar'} Icono={CalendarClock} onCerrar={onCerrar} ancho={1060}
       pie={<><button type="button" className="pl-btn-cancel" onClick={onCerrar}>Cancelar</button><button type="button" className="pl-btn-save" disabled={!h || !lugar} onClick={asignar}>Asignar a {n} {n === 1 ? 'colaborador' : 'colaboradores'}</button></>}>
       <div className="at-modal-campos">
         <div className="at-as-quienes">

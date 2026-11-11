@@ -2,8 +2,8 @@ Souly HR · Módulo de asistencia · Pruebas para QA
 
 # Pruebas de Asistencia
 
-- **Versión del módulo:** 1.2
-- **Fecha:** 5 de noviembre de 2026
+- **Versión del módulo:** 1.3
+- **Fecha:** 11 de noviembre de 2026
 - **Documento del módulo:** modulo-asistencia.html
 
 El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se prueba, qué requisito (RF) y qué regla de negocio (BR) prueba, los pasos y lo que tiene que pasar. Se mantiene junto con el resto del documento: cuando cambia una regla o una pantalla, cambia su prueba.
@@ -154,7 +154,9 @@ El plan de pruebas del módulo, para quien lo testea. Cada caso dice qué se pru
 | QA‑ASI‑80 | Una fila y el filtro | Abrir Asignaciones | Buscador, sucursal, centro, unidad y «Todos · Sin horario · Sin rostro» en una sola fila; columnas Horario, Lugar de trabajo, Modalidad, Rostro | — |   |
 | QA‑ASI‑81 | Asignar a muchos | Filtrar una unidad, marcar la casilla de la cabecera › «Asignar horario y lugar» | La ventana muestra a quiénes; el horario se busca en la lista desplegable (filtros Fijos, Flexibles, Con sábado, Con domingo); «Así quedan» dice cuántos cambian, ya lo tenían o son nuevos | RF‑ASI‑053 · BR‑ASI‑052 |   |
 | QA‑ASI‑82 | Varios lugares | En la ventana, «También puede marcar en» › agregar Sucursal El Prado; asignar | La tabla muestra «+1»; el colaborador puede marcar en los dos | RF‑ASI‑087 |   |
-| QA‑ASI‑83 | Borrar el rostro | ⋯ › «Pedir que registre su rostro de nuevo» | Ventana centrada con su cara y el rostro tachado, los tres pasos y escribir BORRAR; el botón se enciende solo con la palabra | RF‑ASI‑058 · BR‑ASI‑055 |   |
+| QA‑ASI‑83 | Borrar el rostro | ⋯ › «Pedir que registre su rostro de nuevo» | Ventana centrada con su cara y el rostro tachado, los tres pasos y escribir BORRAR; el botón se enciende solo con la palabra. Al borrar, la columna Rostro dice «Debe registrarlo de nuevo» (violeta) y al pasar el mouse, quién lo pidió y cuándo | RF‑ASI‑058 · BR‑ASI‑055 |   |
+| QA‑ASI‑147 | Tocar la fila no selecciona | Asignaciones › tocar el nombre de Carlos (no la casilla) | No se marca la fila ni aparece el botón; solo la casilla selecciona. Al marcar casillas, a la derecha de los filtros aparece «N seleccionados», la × para quitar la selección y el botón | RF‑ASI‑099 |   |
+| QA‑ASI‑148 | Asignar o cambiar | ⋯ de alguien con horario y de alguien «Sin horario»; después elegir a los dos con la casilla | Con horario dice «Cambiar horario y lugar»; sin horario, «Asignar horario y lugar». El botón junto a los filtros y la ventana dicen «Asignar» si alguno de los elegidos no tiene horario y «Cambiar» si todos tienen | RF‑ASI‑053 · RF‑ASI‑099 |   |
 
 ## 10 · Configuración › Avisos al colaborador y Lugares
 
@@ -209,7 +211,9 @@ Estos casos no se ven solo con la pantalla: se prueban con desarrollo, mirando l
 
 | ID | Qué se prueba | Pasos | Resultado esperado | Requisito y regla | Resultado |
 | --- | --- | --- | --- | --- | --- |
-| QA‑ASI‑109 | Primera vez: consentimiento y rostro | Como un colaborador sin rostro registrado, Inicio › marcar la entrada | Primero «Antes de usar su rostro» con qué pasa con su cara; al aceptar, «Es la primera vez: quieto, de frente y con buena luz»; queda registrado | RF‑ASI‑056 · BR‑ASI‑006 |   |
+| QA‑ASI‑109 | Primera vez: consentimiento y rostro | Como un colaborador sin rostro registrado, Inicio › marcar la entrada | Primero «Antes de usar su rostro» con qué pasa con su cara; al aceptar, «Registro de su rostro · 1 de 3»: el aro alrededor del óvalo con flechas a la derecha, luego a la izquierda y al final de frente; cada tramo se llena en menta y el pie marca Derecha · Izquierda · Frente. Después «Su rostro quedó registrado» y «Seguir con mi entrada» lleva a la ubicación. Si cierra con la X a la mitad, la próxima vez vuelve a pedir el registro | RF‑ASI‑056 · RF‑ASI‑096 · BR‑ASI‑006 · BR‑ASI‑061 |   |
+| QA‑ASI‑149 | Aviso de rostro borrado | Borrar el rostro de Carlos en Asignaciones; entrar como él › Inicio | Debajo de la franja, una sola línea violeta «Registre su rostro de nuevo · RR.HH. lo pidió · se hace al marcar» (no aparecen otras líneas). Al tocarla o al tocar «Marcar entrada», la ventana dice «Antes, registre su rostro de nuevo · tres fotos» y el botón «Registrar mi rostro». Después de las tres fotos la línea desaparece y en Asignaciones queda «Registrado» | RF‑ASI‑058 · RF‑ASI‑097 · BR‑ASI‑061 |   |
+| QA‑ASI‑150 | Sin horario | Entrar como alguien sin horario asignado › Inicio | La franja dice «Sin horario asignado · Todavía no puede marcar», sin botón; debajo, la línea ámbar «RR.HH. aún no le asignó horario · Cuando lo haga, aquí aparece «Marcar entrada»». Al asignarle horario desde Asignaciones, aparece el botón | RF‑ASI‑098 · BR‑ASI‑062 |   |
 | QA‑ASI‑110 | Marcar la entrada | Inicio › botón de entrada | Ventana «Va a marcar su entrada» con si llega a tiempo o tarde; pide rostro y ubicación según su modalidad; después dice «Entrada registrada»; si cancela en esa ventana, no queda ninguna marca | RF‑ASI‑060 · BR‑ASI‑007 |   |
 | QA‑ASI‑111 | Fuera de su lugar | Marcar lejos de la geocerca (modalidad presencial) | «Está fuera de su lugar»: la marca se rechaza y RR.HH. la ve en el Libro › Marcaciones rechazadas con la distancia | RF‑ASI‑061 · BR‑ASI‑003 |   |
 | QA‑ASI‑112 | Varios lugares | Con «También puede marcar en» (QA‑ASI‑82), marcar en el segundo lugar | Se acepta; el día dice dónde marcó | RF‑ASI‑087 · BR‑ASI‑004 |   |

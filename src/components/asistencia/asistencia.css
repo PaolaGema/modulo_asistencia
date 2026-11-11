@@ -768,6 +768,10 @@
 .at-barra-busca .at-filtros .dc-filtro { width: 200px; }
 @media (max-width: 720px) { .at-barra-busca .at-busca { max-width: none; flex-basis: 100%; } }
 .at-barra-busca .at-filtro-estado { width: 210px; }
+.at-sel-filtros { margin-left: auto; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 4px 0 12px; border-radius: 10px; background: var(--green-bg); box-shadow: inset 0 0 0 1px var(--green); font-size: 13px; color: var(--text-heading); animation: at-pop .2s ease; }
+.at-sel-filtros b { font-variant-numeric: tabular-nums; }
+.at-sel-quitar { width: 26px; height: 26px; border: none; border-radius: 7px; background: none; color: var(--text-muted, #62788A); display: grid; place-items: center; cursor: pointer; }
+.at-sel-quitar:hover { background: rgba(12,45,64,.08); }
 
 /* ── HOY · LA CURVA DE PRESENCIA (de la propuesta S) ── */
 .at-curva-leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
@@ -891,6 +895,10 @@
 .at-v2-chip.ojo { background: #FFF4DE; color: #C77700; }
 .at-v2-linea { display: inline-flex; align-items: center; gap: .4em; font-size: .88em; color: #62788A; }
 .at-v2-nota { font-size: .88em; line-height: 1.5; color: #0C2D40; padding: 0 .3em; }
+.at-v2-rostro { width: 100%; box-sizing: border-box; display: flex; gap: .6em; align-items: flex-start; text-align: left; padding: .7em .8em; border-radius: 1em; background: #F0EAFE; color: #6B3FD0; font-size: .86em; line-height: 1.45; }
+.at-v2-rostro svg { flex: none; margin-top: .1em; }
+.at-v2-rostro span { color: #4B2C9A; }
+.at-v2-rostro b { display: block; color: #3B1F86; font-size: 1.04em; }
 .at-v2-botones { display: flex; flex-direction: column; gap: .45em; width: 100%; margin-top: .5em; }
 /* En píldora, como «Marcar entrada» del Inicio y todos los botones del teléfono. */
 .at-v2-botones button { display: inline-flex; align-items: center; justify-content: center; gap: .5em; padding: 1.05em; border-radius: 999px; font: inherit; font-size: 1em; font-weight: 700; cursor: pointer; border: none; }
@@ -1804,3 +1812,35 @@ button.at-pv-c:hover, button.at-pv-c:focus-visible { transform: translateY(-1px)
 .at-tabla-extra td:first-child, .at-tabla-extra td:nth-child(2) { min-width: 0; max-width: 205px; }
 .at-tabla-extra td:nth-child(3) { white-space: nowrap; }
 .at-tabla-extra .dc-persona-sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
+
+/* REGISTRO DEL ROSTRO (propuesta A · aro que se completa): el óvalo de siempre dentro de un aro de tres
+   tramos. Las flechas laten del lado hacia donde girar; el tramo se llena en menta cuando sale la toma. */
+.at-registro { position: relative; width: 15.4em; height: 18.3em; display: grid; place-items: center; }
+.at-registro-aro { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: none; stroke-linecap: round; }
+.at-registro-aro .pista { stroke: #DDE5EE; stroke-width: 6; }
+.at-registro-aro .pista.ahora { animation: at-registro-late 1s ease-in-out infinite; }
+@keyframes at-registro-late { 50% { stroke: #B6F3DA; } }
+.at-registro-aro .tramo { stroke: #00E091; stroke-width: 6; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; transition: stroke-dashoffset .7s ease, opacity .15s; }
+.at-registro-aro .tramo.ok { stroke-dashoffset: 0; opacity: 1; }
+.at-registro-flash { position: absolute; left: 50%; top: 50%; width: 11em; height: 14em; margin: -7em 0 0 -5.5em; border-radius: 50%; background: #fff; pointer-events: none; animation: at-registro-flash .45s ease forwards; }
+@keyframes at-registro-flash { from { opacity: .85; } to { opacity: 0; } }
+.at-registro-chev { position: absolute; top: 50%; margin-top: -.65em; display: flex; color: #00B876; opacity: 0; transition: opacity .3s; }
+.at-registro-chev svg + svg { margin-left: -.6em; }
+.at-registro-chev.der { right: -1.4em; }
+.at-registro-chev.izq { left: -1.4em; }
+.at-registro-chev.on { opacity: 1; }
+.at-registro-chev.on svg { animation: at-registro-der 1s ease-in-out infinite; }
+.at-registro-chev.izq.on svg { animation-name: at-registro-izq; }
+.at-registro-chev.on svg + svg { animation-delay: .15s; }
+@keyframes at-registro-der { 0%, 100% { transform: translateX(0); opacity: .35; } 50% { transform: translateX(.3em); opacity: 1; } }
+@keyframes at-registro-izq { 0%, 100% { transform: translateX(0); opacity: .35; } 50% { transform: translateX(-.3em); opacity: 1; } }
+.at-flujo-pie.at-registro-pie span { color: #9AABBB; transition: color .3s; }
+.at-flujo-pie.at-registro-pie span i { width: 1.15em; height: 1.15em; border-radius: 50%; border: 1.5px solid #CFDAE2; display: grid; place-items: center; transition: background .3s, border-color .3s; }
+.at-flujo-pie.at-registro-pie span i svg { color: #0C2D40; }
+.at-flujo-pie.at-registro-pie span.ahora { color: #0C2D40; }
+.at-flujo-pie.at-registro-pie span.ahora i { border-color: #00E091; }
+.at-flujo-pie.at-registro-pie span.ok { color: #0A7F55; }
+.at-flujo-pie.at-registro-pie span.ok i { background: #00E091; border-color: #00E091; }
+.at-registro-hechas { display: flex; gap: .4em; flex-wrap: wrap; justify-content: center; }
+.at-registro-hechas span { display: inline-flex; align-items: center; gap: .35em; padding: .4em .8em; border-radius: 999px; background: #E3FAF0; color: #0A7F55; font-size: .8em; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .at-registro-aro .pista.ahora, .at-registro-chev.on svg { animation: none; } .at-registro-flash { display: none; } .at-registro-aro .tramo { transition: none; } }

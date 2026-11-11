@@ -275,6 +275,46 @@ const DIAS = [
       await foto(tel, '26-jefe-cel')
     })
   }
+  /* ── 9 · El rostro y el horario (1.3, 11 nov 2026): a las 08:27, antes de su entrada. ── */
+  if (!solo || solo.some(s => /^3[2-5]/.test(s))) {
+    await p.evaluate(() => localStorage.setItem('onb_demo_at_reloj', JSON.stringify({ fecha: '2026-10-30', hora: '08:27' })))
+    const asignaciones = async () => { await p.goto(URL + '/asistencia/configuracion?ver=asignaciones'); await espera(2000) }
+    await intentar('35-seleccion', async () => {
+      await asignaciones()
+      const casillas = p.locator('tbody input[type=checkbox]')
+      for (let i = 0; i < 4; i++) await casillas.nth(i).check()
+      await espera(400)
+      await foto(p, '35-seleccion')
+    })
+    await intentar('33-rostro-borrado', async () => {
+      await asignaciones()
+      await p.getByPlaceholder('Buscar colaborador…').fill('carlo'); await espera(600)
+      await p.locator('tr', { hasText: 'Carlos Mendoza' }).locator('button').last().click(); await espera(400)
+      await p.getByText('Pedir que registre su rostro de nuevo').click(); await espera(400)
+      await p.locator('input').last().fill('BORRAR'); await espera(200)
+      await p.getByRole('button', { name: 'Borrar su rostro' }).click(); await espera(600)
+      await p.locator('tr', { hasText: 'Carlos Mendoza' }).locator('button').last().click(); await espera(400)
+      await foto(p, '33-asignaciones')
+      await p.keyboard.press('Escape')
+      await comoCarlos(); await inicioCel()
+      await foto(tel, '33-inicio-cel')
+      await tel.getByText('Registre su rostro de nuevo').click(); await espera(600)
+      await foto(tel, '33-ventana-cel')
+    })
+    await intentar('32-registro', async () => {
+      /* Sigue de la ventana del caso 33: «Registrar mi rostro» abre las tres tomas (2,4 s cada una). */
+      await tel.getByRole('button', { name: /Registrar mi rostro/ }).click(); await espera(900)
+      await foto(tel, '32-registro-derecha')
+      await espera(2400); await foto(tel, '32-registro-izquierda')
+      await espera(5600); await foto(tel, '32-registrado')
+    })
+    await intentar('34-sin-horario', async () => {
+      await comoCarlos()
+      await p.evaluate(() => { const at = window.__asistencia; at.quitarAsignacion([at.yo.id]) }); await espera(600)
+      await inicioCel()
+      await foto(tel, '34-sin-horario-cel')
+    })
+  }
   console.log('errores de la página:', errores.length ? errores : 'ninguno')
   await b.close()
 })()

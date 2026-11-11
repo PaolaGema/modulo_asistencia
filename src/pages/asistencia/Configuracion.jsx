@@ -16,7 +16,7 @@ import CampoHora from '../../components/asistencia/CampoHora'
 import ConfirmarEliminar from '../../components/asistencia/ConfirmarEliminar'
 import ModalAsignar from '../../components/asistencia/ModalAsignar'
 import Avatar from '../../components/personas/Avatar'
-import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, horarioDeDia, otrosDias, minutosSemana, franjasPausa } from '../../data/asistenciaData'
+import { MODALIDADES, DIAS_CORTOS, reglasDe, franjaPausa, aMin, hhmm, duracion, minutosProgramados, fechaCorta, horarioDeDia, otrosDias, minutosSemana, franjasPausa, hoyISO } from '../../data/asistenciaData'
 
 /* ── CONFIGURACIÓN DE ASISTENCIA ───────────────────────────────────────────
    Cinco partes, en el orden en que se arma el módulo la primera vez: los HORARIOS (cuándo), las
@@ -726,6 +726,15 @@ function Asignaciones() {
             )}
             onCambio={v => { setMostrar(v); setPag(1) }} />
         </div>
+        {/* CON PERSONAS ELEGIDAS, LA ACCIÓN AL LADO DE LOS FILTROS (11 nov 2026): antes era una barra navy
+            pegada abajo de la pantalla, lejos de la tabla y tapando filas. */}
+        {sel.size > 0 && (
+          <div className="at-sel-filtros">
+            <span><b>{sel.size}</b> {sel.size === 1 ? 'seleccionado' : 'seleccionados'}</span>
+            <button type="button" className="at-sel-quitar" onClick={() => setSel(new Set())} aria-label="Quitar selección" title="Quitar selección"><X size={14} /></button>
+            <button type="button" className="at-btn-ok" onClick={() => setAsignar(true)}><CalendarClock size={14} /> {[...sel].every(id => at.personas.find(x => x.id === id)?.asig) ? 'Cambiar horario y lugar' : 'Asignar horario y lugar'}</button>
+          </div>
+        )}
       </BarraBusqueda>
 
       {lista.length ? (
@@ -737,8 +746,10 @@ function Asignaciones() {
             </tr></thead>
             <tbody>
               {lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map(p => (
-                <tr key={p.id} onClick={() => alternar(p.id)} style={{ background: sel.has(p.id) ? 'var(--green-bg)' : undefined }}>
-                  <td onClick={e => e.stopPropagation()}><input type="checkbox" className="at-check" checked={sel.has(p.id)} onChange={() => alternar(p.id)} aria-label={`Seleccionar a ${p.name}`} /></td>
+                /* Tocar la fila no la selecciona (11 nov 2026): solo la casilla. Antes, mirar a alguien o abrir su
+                   menú dejaba abajo «Asignar horario y lugar» aunque no se buscara eso. */
+                <tr key={p.id} style={{ background: sel.has(p.id) ? 'var(--green-bg)' : undefined }}>
+                  <td><input type="checkbox" className="at-check" checked={sel.has(p.id)} onChange={() => alternar(p.id)} aria-label={`Seleccionar a ${p.name}`} /></td>
                   <td><PersonaAt persona={p} size={30} sub={`${p.cargo} · ${p.unidad}`} /></td>
                   <td>{p.horario ? <span className="at-lugar-chip"><i style={{ width: 8, height: 8, borderRadius: 3, background: p.horario.color, display: 'inline-block' }} /> {p.horario.nombre}</span> : <span className="dc-chip dc-t-ambar"><AlertTriangle size={11} /> Sin horario</span>}</td>
                   <td>{p.lugar ? <span className="at-lugar-chip">{p.lugar.tipo === 'centro' ? <Warehouse size={13} /> : <Building2 size={13} />} {p.lugar.nombre}{p.lugares?.length > 1 && <b className="at-mas-lugares" title={`También marca en ${p.lugares.slice(1).map(l => l.nombre).join(', ')}`}>+{p.lugares.length - 1}</b>}</span> : <span className="dc-muted">—</span>}</td>
@@ -747,12 +758,14 @@ function Asignaciones() {
                     const b = p.bio || {}
                     if (!b.consentimiento) return <span className="at-pl t-ambar" title="Todavía no aceptó que se use su rostro"><i aria-hidden="true" />Sin consentimiento</span>
                     if (b.reenrolar) return <span className="at-pl t-violeta"><i aria-hidden="true" />Pidió registrarlo otra vez</span>
+                    /* RR.HH. borró su rostro: no es lo mismo que alguien que nunca lo registró. */
+                    if (!b.enrolado && b.pedidoRegistro) return <span className="at-pl t-violeta" title={`Lo pidió ${b.pedidoRegistro.por} el ${fechaCorta(b.pedidoRegistro.fecha)} · todavía no marcó`}><i aria-hidden="true" />Debe registrarlo de nuevo</span>
                     if (b.enrolado) return <span className="at-pl t-verde" title={`Aceptó el consentimiento el ${fechaCorta(b.consentimiento.aceptado)} y registró su rostro el ${fechaCorta(b.enrolado)}`}><i aria-hidden="true" />Registrado</span>
                     return <span className="at-pl t-gris" title="Lo registra desde la app la primera vez que marca"><i aria-hidden="true" />Sin registrar</span>
                   })()}</td>
                   <td style={{ textAlign: 'right' }} onClick={e => e.stopPropagation()}>
                     <MenuAcciones items={[
-                      { label: 'Asignar horario y lugar', Icono: CalendarClock, onClick: () => { setSel(new Set([p.id])); setAsignar(true) } },
+                      { label: p.asig ? 'Cambiar horario y lugar' : 'Asignar horario y lugar', Icono: CalendarClock, onClick: () => { setSel(new Set([p.id])); setAsignar(true) } },
                       p.bio?.reenrolar && { label: 'Aprobar el nuevo registro', Icono: Check, onClick: () => setConfirmar({ p, tipo: 'aprobar' }) },
                       p.bio?.enrolado && !p.bio?.reenrolar && { label: 'Pedir que registre su rostro de nuevo', Icono: RotateCcw, onClick: () => setConfirmar({ p, tipo: 'pedir' }) },
                     ].filter(Boolean)} />
@@ -765,15 +778,6 @@ function Asignaciones() {
         </div>
       ) : <div className="dc-tarjeta"><Vacio Icono={Users} titulo={soloSin ? 'Todos tienen horario' : 'Nadie coincide'} texto={soloSin ? 'No queda nadie sin asignar con estos filtros.' : 'Pruebe con otros filtros.'} /></div>}
 
-      {sel.size > 0 && (
-        <div className="at-seleccion">
-          <b>{sel.size} {sel.size === 1 ? 'persona seleccionada' : 'personas seleccionadas'}</b>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="dc-btn" onClick={() => setSel(new Set())}>Quitar selección</button>
-            <button type="button" className="at-btn-ok" onClick={() => setAsignar(true)}><CalendarClock size={14} /> Asignar horario y lugar</button>
-          </div>
-        </div>
-      )}
       {asignar && <ModalAsignar ids={[...sel]} onCerrar={() => setAsignar(false)} onListo={() => { setAsignar(false); setSel(new Set()) }} />}
       {/* Borrar un rostro tiene consecuencias: se confirma. */}
       {confirmar && (
@@ -786,7 +790,7 @@ function Asignaciones() {
           palabra="BORRAR" accion={confirmar.tipo === 'pedir' ? 'Borrar su rostro' : 'Aprobar y borrar su rostro'}
           cabeza={<span className="at-elim-caras" aria-hidden="true"><Avatar persona={confirmar.p} size={54} /><span className="flecha">→</span><span className="at-elim-cara"><ScanFace size={26} /></span></span>}
           onCerrar={() => setConfirmar(null)}
-          onConfirmar={() => at.actualizarBio(confirmar.p.id, confirmar.tipo === 'pedir' ? { enrolado: null } : { reenrolar: null, enrolado: null })} />
+          onConfirmar={() => at.actualizarBio(confirmar.p.id, { reenrolar: null, enrolado: null, pedidoRegistro: { por: at.yo?.name?.split(' ')[0] || 'RR.HH.', fecha: hoyISO() } })} />
       )}
     </>
   )
